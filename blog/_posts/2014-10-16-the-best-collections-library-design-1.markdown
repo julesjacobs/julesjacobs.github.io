@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "The best collections library design, part 1"
-date:   2014-10-15 16:33:40
+date:   2014-10-16 16:33:40
 categories: 
 ---
 
