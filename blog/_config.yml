@@ -1,0 +1,13 @@
+# Site settings
+title: Jules Jacobs' blog
+email: julesjacobs@gmail.com
+description: > # this means to ignore newlines until "baseurl:"
+  Mostly programming related.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://yourdomain.com" # the base hostname & protocol for your site
+#twitter_username: jekyllrb
+github_username:  julesjacobs
+
+# Build settings
+markdown: kramdown
+highlighter: rouge

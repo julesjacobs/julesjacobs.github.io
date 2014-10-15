@@ -1,0 +1,13 @@
+The best collection library design
+Skip lists aren't
+Can your type system do this?
+Compiling regexes with C# generics+interfaces+structs
+Time and space efficient persistent hash maps in C#
+Web programming with serializable continuations in F#
+Superpowers: Newton's algorithm
+Superpowers: Recursive descent parsing
+Superpowers: Constraint programming
+Superpowers: Bayes' rule
+Superpowers: Compilers and interpreters
+Superpowers: Memoization
+Bayesian A/B testing
