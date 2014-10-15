@@ -10,4 +10,4 @@ github_username:  julesjacobs
 
 # Build settings
 markdown: kramdown
-highlighter: rouge
+highlighter: pygments
