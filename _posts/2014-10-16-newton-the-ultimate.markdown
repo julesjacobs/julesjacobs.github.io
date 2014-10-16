@@ -126,4 +126,4 @@ And the output:
     
 And sure enough, if we compute `sin(9.70042510714) + log(9.70042510714)` we get a number that's extremely close: 2.0000000000000004.
 
-Stay tuned for the next episode(s), where we use Newton's method to find the maximum of a function, to solve whole systems of equations with multiple variables, to solve differential equations, to do variational optimization problems, to solve optimization problems with equality and inequality constraints, such as linear programming.
+Stay tuned for the next episode(s), where we use Newton's method to find the maximum of a function, to solve whole systems of equations with multiple variables, to solve differential equations, to do variational optimization problems, and to solve optimization problems with equality and inequality constraints, such as linear programming and convex optimization.
