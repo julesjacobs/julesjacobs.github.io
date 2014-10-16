@@ -115,6 +115,6 @@ fromString : String -> Seq Char
 toString : Seq Char -> String
 {% endhighlight %}
 
-This way the only thing a collection needs to have to support the full collections API is a conversion to and from `Seq`. The collection operations such as `map` and `filter` can be implemented on `Seq` without constructing fully realized intermediate collections. This gives us efficient composition. With the right sequence type the conversion to and from other collection types is also cheap, so that doing `fromSet.map(x => f(x)).toSet` is just as fast as a direct map on a set would be.
+This way the only thing a collection needs to have to support the full collections API is a conversion to and from `Seq`. We avoid combinatorial complexity explosion and broken abstraction barriers. The collection operations such as `map` and `filter` can be implemented on `Seq` without constructing fully realized intermediate collections. This gives us efficient composition of multiple operations in a pipeline. With the right sequence type the conversion to and from other collection types is also cheap, so that doing `fromSet.map(x => f(x)).toSet` is just as fast as a direct map on a set would be.
 
 In the next episode I will look at languages that already have a universal sequence abstraction, and I will compare different sequence abstractions such as lazy lists, iterators, unfolds and folds.
