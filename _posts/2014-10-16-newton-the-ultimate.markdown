@@ -46,8 +46,8 @@ We can further simplify this if we want:
 Now we have a real iteration that will take more than one step to converge, but what `x` do we start with? You want to start with a number that's reasonably close to the answer. How many iterations? That doesn't really matter! Newton's method is so fast, it usually converges in a handful of iterations. Let's use this to solve the equation `x^2 = 2` in Python:
 
 {% highlight python %}
-a = 2     # equation we want to solve is x^2 = a
-x = 10    # terrible initial guess
+a = 2.0   # equation we want to solve is x^2 = a
+x = 10.0  # terrible initial guess
 for i in range(0,10):
    x = (x + a/x)/2
    print x
