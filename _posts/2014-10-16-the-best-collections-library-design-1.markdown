@@ -43,7 +43,14 @@ Elements in sorted sets need to support a comparison operation. That's what the 
 map : (Char -> Char) -> String -> String
 {% endhighlight %}
 
-Since strings always contain characters, the function must also return characters in order to transform a string. In Haskell this kind of problem shows up in the Functor, Monad, Traversable and Foldable type classes. There is a [MonoFunctor/MonoTraversable/MonoFoldable package](https://hackage.haskell.org/package/mono-traversable) that tries to solve this problem by defining a different kind of traversable/foldable that works on collections such as strings. Those type classes aren't a replacement for the old ones, since they only allow operations of type `(a -> a)` and in general map can support `(a -> b)`. Those type classes also do not do anything to solve the problem of sets. For that we could introduce yet another set of type classes OrdFunctor/OrdTraversable/OrdFoldable. Then we encounter hash based sets, and we need HashFoldable/HashTraversable/HashFunctor. Not good.
+Since strings always contain characters, the function must also return characters in order to transform a string. In Haskell this kind of problem shows up in the Functor, Monad, Traversable and Foldable type classes. There is a [MonoFunctor/MonoTraversable/MonoFoldable package](https://hackage.haskell.org/package/mono-traversable) that tries to solve this problem by defining a different kind of traversable/foldable that works on collections such as strings. Those type classes aren't a replacement for the old ones, since they only allow operations of type `(a -> a)` and in general map can support `(a -> b)`. Those type classes also do not do anything to solve the problem of sets. For that we could introduce yet another set of type classes OrdFunctor/OrdTraversable/OrdFoldable. Then we encounter hash based sets, and we need HashFoldable/HashTraversable/HashFunctor. Not good. What about consuming one collection and producing another?
+
+{% highlight haskell %}
+map : (Char -> a) -> String -> List a
+map : Ord b => (a -> b) -> List a -> Set b
+{% endhighlight %}
+
+Clearly this doesn't scale, especially if you consider operations that work on multiple collections, such as append `(++)`, zip, flatten and flatmap.
 
 ### Map in Scala ###
 
