@@ -2,7 +2,7 @@
 layout: post
 title:  "The best collections library design, part 1"
 date:   2014-10-16 16:33:40
-categories: programming, design
+categories: 
 ---
 
 Collections are the centerpiece of the standard library of a programming language. If there's any library that's important to get right, it's the collections library. Yet designs in different languages differ greatly, and some are far better than others. In this series I will explore the design space of collections libraries and evaluate the pros and cons of each design.

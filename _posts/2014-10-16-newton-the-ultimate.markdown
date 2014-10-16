@@ -2,7 +2,7 @@
 layout: post
 title:  "Newton, The Ultimate: One Weird Trick To Make You A Mathematical Superhero, part 1"
 date:   2014-10-16 17:33:40
-categories: math programming
+categories: 
 ---
 
 Ever wanted to be a mathematical superhero? Here's your chance! In this post I'm going to give you a one line algorithm for solving any equation and solving any optimization problem. Here it comes:
