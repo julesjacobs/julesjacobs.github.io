@@ -9,8 +9,6 @@ Collections are the centerpiece of the standard library of a programming languag
 
 There are many different types of collections: lists, arrays, sets, bags, maps (both sorted and hash based variants), queues, stacks, heaps, and more. These represent different data, allow different operations, and even when they allow the same operations they may have different efficiency. Some languages even have multiple variants of each collection, like mutable and immutable. On the other hand, these collections support many common operations such as iteration, filter, map, and fold. In this episode I'm going to focus on those kinds of operations.
 
-I'm going to mix and mash different languages in this series. Even if you are not familiar with all of those languages, you should still be able to follow the main points.
-
 ## The story of map ##
 
 The map function is one of the core operations of a modern collections library:
