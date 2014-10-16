@@ -19,7 +19,7 @@ The map function is one of the core operations of a modern collections library:
 map : (a -> b) -> CollectionType a -> CollectionType b
 {% endhighlight %}
 
-This also goes by the name collect (Smalltalk) and Select (C#). It takes a function, and transforms a collection by applying that function to each element. Simple, right? I'm going to show you why this type for map is **wrong**.
+This also goes by the name collect (Smalltalk) and Select (C#). It takes a function, and transforms a collection by applying that function to each element. Simple, right? I'm going to show you why this type for map is **wrong** for a collections library.
 
 ### Map in Haskell ###
 
@@ -43,7 +43,7 @@ Elements in sorted sets need to support a comparison operation. That's what the 
 map : (Char -> Char) -> String -> String
 {% endhighlight %}
 
-Since strings always contain characters, the function must also return characters in order to transform a string. In Haskell this kind of problem shows up in the Functor, Monad, Traversable and Foldable type classes. There is a MonoFunctor/MonoTraversable/MonoFoldable package that tries to solve this problem by defining a different kind of traversable/foldable that works on collections such as strings. The those type classes aren't a replacement for the old ones, since they only allow operations of type `(a -> a)` and in general map can support `(a -> b)`. Those type classes also do not do anything to solve the problem of sets. For that we could introduce yet another set of type classes OrdFunctor/OrdTraversable/OrdFoldable. Then we encounter hash based sets, and we need HashFoldable/HashTraversable/HashFunctor. Not good.
+Since strings always contain characters, the function must also return characters in order to transform a string. In Haskell this kind of problem shows up in the Functor, Monad, Traversable and Foldable type classes. There is a [MonoFunctor/MonoTraversable/MonoFoldable package](https://hackage.haskell.org/package/mono-traversable) that tries to solve this problem by defining a different kind of traversable/foldable that works on collections such as strings. Those type classes aren't a replacement for the old ones, since they only allow operations of type `(a -> a)` and in general map can support `(a -> b)`. Those type classes also do not do anything to solve the problem of sets. For that we could introduce yet another set of type classes OrdFunctor/OrdTraversable/OrdFoldable. Then we encounter hash based sets, and we need HashFoldable/HashTraversable/HashFunctor. Not good.
 
 ### Map in Scala ###
 
@@ -53,7 +53,7 @@ Scala takes an even more ambitious approach. It will try to upgrade your collect
 def map[A, B, That](f: A => B, coll: FilterMonadic[A, Repr])(implicit bf: CanBuildFrom[Repr, B, That]): That
 {% endhighlight %}
 
-Back to reality! The Scala documentation displays bizarre types such as the type of `String.map` being `map[B](f: (A) ⇒ B): String[B]`. What's a `String[B]`? It doesn't exist. The real type of map is `String.map[B, That](f: (Char) ⇒ B)(implicit bf: CanBuildFrom[String, B, That]): That`. This complicated machinery is needed for Scala to upgrade/downgrade your collections when mapping. If you thought that was complicated consider that Scala has subtyping too, and types may be co- and contravariant. What happens if you concatenate a `List[Int] ++ SortedSet[Int]` (answer: you get a list). What if you change the order and concatenate a `SortedSet[Int] ++ List[Int]` (answer: you get a sortedset). Now consider that the parameter type itself may be different and may or may not support comparison `SortedSet[T] ++ List[Q]`. Next consider that the concrete type of a value may be a subtype of the static type of the value. So what happens if we put a `List[Int]` and a `SortedSet[Int]` and another `SortedSet[Int]` in some order together in a `List`, and then fold the `++` operator over that? The concrete type of the result will be some function of the static types and the concrete types and the order in which they appeared in the list, and the static type will be some function of the static types.
+Back to reality! The Scala documentation displays bizarre types such as the type of `String.map` being `map[B](f: (A) ⇒ B): String[B]`. What's a `String[B]`? It doesn't exist. The real type of map is `String.map[B, That](f: (Char) ⇒ B)(implicit bf: CanBuildFrom[String, B, That]): That`. This complicated machinery is needed for Scala to upgrade/downgrade your collections when mapping. If you thought that was complicated consider that Scala has subtyping too, and types may be co- and contravariant. What happens if you concatenate a `List[Int] ++ SortedSet[Int]` (answer: you get a list). What if you change the order and concatenate a `SortedSet[Int] ++ List[Int]` (answer: you get a sortedset). Now consider that the parameter type itself may be different and may or may not support comparison `SortedSet[T] ++ List[Q]`. Next consider that the concrete type of a value may be a subtype of the static type of the value. So what happens if we put a `List[Int]` and a `SortedSet[Int]` and another `SortedSet[Int]` in some order together in a `List`, and then fold the `++` operator over that? What about flatmap of `A => SortedSet[B]` over a `List[A]`, what's the result type of that? The concrete type of the result will be some function of the static types and the concrete types and the order in which they appeared in the list, and the static type will be some function of the static types.
 
 Here's a puzzle for you:
 
@@ -87,6 +87,7 @@ Here are some of the requirements of a good collections library:
 1. It should support each operation for any collection
 2. It should not have any magic rules by which the type of intermediate collections is determined. In fact, it should not build any intermediate collections for chains of multiple operations *at all*.
 3. You should be able to put any collection type in, and get any collection type out, without the overhead of an additional conversion
+4. Operations that operate multiple collections such as `zip`, `append`, `flatten`, and `flatmap` should be able to work on any combination of collections types, e.g. you should be able to `zip` or `append` a vector and a sorted set, and then apply fold to the result of that
 
 ## The solution ##
 
@@ -114,6 +115,6 @@ fromString : String -> Seq Char
 toString : Seq Char -> String
 {% endhighlight %}
 
-This way the only thing a collection needs to have to support the full collections API is a conversion to and from `Seq`. The collections operations such as `map` and `filter` can be implemented on `Seq` without constructing fully realized intermediate collections. This gives us efficient composition. With the right sequence type the conversion to and from other collection types is also cheap, so that doing `fromSet.map(x => f(x)).toSet` is just as fast as a direct map on a set would be.
+This way the only thing a collection needs to have to support the full collections API is a conversion to and from `Seq`. The collection operations such as `map` and `filter` can be implemented on `Seq` without constructing fully realized intermediate collections. This gives us efficient composition. With the right sequence type the conversion to and from other collection types is also cheap, so that doing `fromSet.map(x => f(x)).toSet` is just as fast as a direct map on a set would be.
 
 In the next episode I will look at languages that already have a universal sequence abstraction, and I will compare different sequence abstractions such as lazy lists, iterators, unfolds and folds.
