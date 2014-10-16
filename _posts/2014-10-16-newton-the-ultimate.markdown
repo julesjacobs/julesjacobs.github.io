@@ -114,7 +114,7 @@ Hmm, that doesn't look too good. If our initial guess is too far off, then somet
 
 What about an equation like [sin(x) + log(x) = 2](http://www.wolframalpha.com/input/?i=sin%28x%29+%2B+log%28x%29+)? We get Newton's algorithm:
 
-    iterate x <- x = x - (sin(x) + log(x) - 2)/(cos(x) + 1/x)
+    iterate x <- x - (sin(x) + log(x) - 2)/(cos(x) + 1/x)
     
 And the output:
 
