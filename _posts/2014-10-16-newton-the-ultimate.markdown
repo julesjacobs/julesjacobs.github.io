@@ -23,7 +23,7 @@ We simplify this to:
     
 This is not a terribly exciting iteration, but it did give us the right answer: `f(5/3) = 0`. The reason that Newton's method solves linear equations in one step is that Newton's method works by making a linear approximation to your function, and then solving the equation for the linear approximation. So if your function was linear to begin with, it's not an approximation at all, and it will give you the right answer in one step. Here's an excellent animation from Wikipedia that shows this in action for a non linear function:
 
-<img src=http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/NewtonIteration_Ani.gif/300px-NewtonIteration_Ani.gif></img>
+![Newton's algorithm animation](http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/NewtonIteration_Ani.gif/300px-NewtonIteration_Ani.gif)
 
 ## Function inversion ##
 
