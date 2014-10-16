@@ -76,7 +76,9 @@ In Scheme each data type comes with its own map function. You have list-map, vec
 
 ### Map in Ruby and Python ###
 
-In Ruby and Python `map` always returns an array. Map over an array? Get an array back. Map over a string? Get an array back. Map over a set? Get an array back. Believe it or not, this is much closer to the best design than any of the other solutions we've talked about so far! This still has a big disadvantage: if you chain map multiple times then on each step you build an intermediate collection. If you do `xs.map{|x| x*2}.map{|y| y+1}` then one useless intermediate array is built. It would be much better to execute `xs.map{|x| x*2 + 1}`. The same goes for all operations that create intermediate arrays: map, filter, zip, flatmap, etc.
+In Ruby and Python 2, `map` always returns an array. Map over an array? Get an array back. Map over a string? Get an array back. Map over a set? Get an array back. Believe it or not, this is much closer to the best design than any of the other solutions we've talked about so far! This still has a big disadvantage: if you chain map multiple times then on each step you build an intermediate collection. If you do `xs.map{|x| x*2}.map{|y| y+1}` then one useless intermediate array is built. It would be much better to execute `xs.map{|x| x*2 + 1}`. The same goes for all operations that create intermediate arrays: map, filter, zip, flatmap, etc.
+
+In Python 3, collection operations return an iterator. This means that you can chain multiple operations without allocating any intermediate arrays! (Thanks to a reader for notifying me of this)
 
 ## What is not the best collections library design ##
 
