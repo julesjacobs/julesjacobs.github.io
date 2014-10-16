@@ -7,7 +7,7 @@ categories:
 
 Ever wanted to be a mathematical superhero? Here's your chance! In this post I'm going to give you a one line algorithm for solving any equation and solving any optimization problem. Here it comes:
 
-    iterate: x ? x - f(x)/f'(x)
+    iterate: x := x - f(x)/f'(x)
     
 This is [Newton's algorithm](http://en.wikipedia.org/wiki/Newton's_method), and it will find you an `x` such that `f(x) = 0`. Lets try it out.
 
@@ -15,11 +15,11 @@ This is [Newton's algorithm](http://en.wikipedia.org/wiki/Newton's_method), and 
 
 We want to solve `3*x - 5 = 0` so we take `f(x) = 3*x - 5`. The derivative of f is `f'(x) = 3`, so Newton's algorithm becomes:
 
-    iterate: x ? x - (3*x - 5)/3
+    iterate: x := x - (3*x - 5)/3
     
 We simplify this to:
     
-    iterate: x ? 5/3
+    iterate: x := 5/3
     
 This is not a terribly exciting iteration, but it did give us the right answer: `f(5/3) = 0`. The reason that Newton's method solves linear equations in one step is that Newton's method works by making a linear approximation to your function, and then solving the equation for the linear approximation. So if your function was linear to begin with, it's not an approximation at all, and it will give you the right answer in one step. Here's an excellent animation from Wikipedia that shows this in action for a non linear function:
 
@@ -29,7 +29,7 @@ This is not a terribly exciting iteration, but it did give us the right answer: 
 
 Suppose we have some function `g` and a number `a` and we want to solve `g(x) = a`. We rewrite this as `g(x) - a = 0` so we get `f(x) = g(x) - a` and apply Newton's algorithm. The derivative `f'(x) = g'(x)`. The algorithm becomes:
 
-    iterate: x ? x - (g(x) - a) / g'(x)
+    iterate: x := x - (g(x) - a) / g'(x)
     
 This can compute the inverse of any function!
 
@@ -37,11 +37,11 @@ This can compute the inverse of any function!
 
 We want to invert the function `g(x) = x^2`, in other words we want to compute square roots. Since `g'(x) = 2*x` we get:
 
-    iterate: x ? x - (x^2 - a)/(2*x)
+    iterate: x := x - (x^2 - a)/(2*x)
     
 We can further simplify this if we want:
 
-    iterate: x ? (x + a/x)/2
+    iterate: x := (x + a/x)/2
     
 Now we have a real iteration that will take more than one step to converge, but what `x` do we start with? You want to start with a number that's reasonably close to the answer. How many iterations? That doesn't really matter! Newton's method is so fast, it usually converges in a handful of iterations. Let's use this to solve the equation `x^2 = 2` in Python:
 
@@ -70,11 +70,11 @@ Notice how fast that converged to `sqrt(2)`? This is a general property of Newto
 
 Now that we've used Newton's algorithm to compute square roots, let's try something else. Can we get Newton's algorithm to compute division `1/a`? (then we can compute arbitrary division with `b/a = b * 1/a`) Lets make a function out of that: g(x) = 1/x. We are going to apply Newton's method to compute the inverse of `g`. "But the inverse of `g` is `g`", you say, "How could that possible help us?". Lets just march on anyway: `g'(x) = -1/x^2`, so the algorithm becomes:
 
-    iterate: x ? x - (1/x - a)/(-1/x^2)
+    iterate: x := x - (1/x - a)/(-1/x^2)
     
 So how did that help us? To compute division we know have to compute *three* divisions *each iteration*! We can simplify this:
 
-    iterate: x ? x*(2 - a*x)
+    iterate: x := x*(2 - a*x)
     
 Whoa! Where did the divisions go? Lets try it out:
 
@@ -114,7 +114,7 @@ Hmm, that doesn't look too good. If our initial guess is too far off, then somet
 
 What about an equation like [sin(x) + log(x) = 2](http://www.wolframalpha.com/input/?i=sin%28x%29+%2B+log%28x%29+)? We get Newton's algorithm:
 
-    iterate: x ? x - (sin(x) + log(x) - 2)/(cos(x) + 1/x)
+    iterate: x := x - (sin(x) + log(x) - 2)/(cos(x) + 1/x)
     
 And the output:
 
