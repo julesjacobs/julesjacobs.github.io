@@ -334,7 +334,7 @@ This is unfortunate, because even though there are differences, there are also a
 3. An infinite lazy binary tree
 4. Functions `a -> b`
 
-We would like to be able to map pipelines `map f . map g` over infinite binary trees without building an infinite intermediate lazy binary tree in the middle We should be able to do filter pipelines `filter p . filter q` without intermediate allocations too. Even mixes `map f . filter p . map g` should be no problem. You could try to be clever here, and flatten the binary tree to a sequence by interleaving the left & right subtrees, and then at the opposite end of the pipeline "uninterleave" the sequence back into a binary tree. That would make it terminate, but it would still be very inefficient. What if we only needed one path down the resulting binary tree? Then we would need to skip over many sequence elements. No, the reality is a universal sequence abstraction isn't going to cut it.
+We would like to be able to map pipelines `map f . map g` over infinite binary trees without building an infinite intermediate lazy binary tree in the middle. We should be able to do filter pipelines `filter p . filter q` without intermediate allocations too. Even mixes `map f . filter p . map g` should be no problem. You could try to be clever here, and flatten the binary tree to a sequence by interleaving the left & right subtrees, and then at the opposite end of the pipeline "uninterleave" the sequence back into a binary tree. That would make it terminate, but it would still be very inefficient. What if we only needed one path down the resulting binary tree? Then we would need to skip over many sequence elements. No, the reality is a universal sequence abstraction isn't going to cut it.
 
 ## Glimmer of hope ##
 
