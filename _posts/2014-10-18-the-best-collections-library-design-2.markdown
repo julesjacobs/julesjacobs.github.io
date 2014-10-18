@@ -11,7 +11,7 @@ Suppose we want to implement a combined filter & map operation on Sets, without 
 
 {% highlight haskell %}
 filterMap :: (a -> Maybe b) -> Set a -> Set b
-{% endhightlight %}
+{% endhighlight %}
 
 pipocaQuemada suggested the following "So, we could define a pretty terrible version, pretty simply:"
 
