@@ -216,7 +216,7 @@ So we have:
 List consumers can be written as a fold: `sum = fold (+) 0`, `length = fold (+1) 0` etc. The `fold` has an accumulation function as an argument of type `(state -> b -> state)`, and an initial `state`. This brings us to the idea to represent consumers as a fold:
 
 {% highlight haskell %}
-data FoldFn b state = Fold (state -> b -> state) state
+data FoldFn b state = FoldFn (state -> b -> state) state
 {% endhighlight %}
 
 For some fold operations the state is not actually what we want to return. For example to compute the `average` function, we may want to accumulate a pair of `(sum, length)` as the state:
@@ -340,9 +340,22 @@ We would like to be able to map pipelines over infinite binary trees without int
 
 You probably already got where we're going here. Instead of composing producers, like iterators/enumerables, and instead of composing consumers, like folds, we compose transformers. We use laws such as:
 
-    map f . map g = map (f . g)
-    filter p . filter q = filter (\x -> p x && q x)
+{% highlight haskell %}
+map f . map g = map (f . g)
+filter p . filter q = filter (\x -> p x && q x)
+{% endhighlight %}
 
-as the *definition* of `map` and `filter`.
+as the *definition* of `map` and `filter`. To support multiple different operations we need to find a more general representation that can represent all such compositions:
+
+{% highlight haskell %}
+filterMap :: (a -> Maybe b) -> [a] -> [b]
+filterMap f . filterMap g = filterMap (combine f g)
+    where combine f g x = case f x of
+                          | Nothing -> Nothing
+                          | Just y -> g y
+
+map f = filterMap (Just . f)
+filter p = filterMap (\x -> if p x then Just x else Nothing)
+{% endhighlight %}
 
 More on this in part 3.
