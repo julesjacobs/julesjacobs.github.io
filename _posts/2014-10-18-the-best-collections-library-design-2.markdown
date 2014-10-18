@@ -266,7 +266,7 @@ listToUnfold xs = Unfold (\fld -> foldList fld xs)
 What about the transformers? I'll call the transformers Refold, and they transform FoldFn's:
 
 {% highlight haskell %}
-data Refold a b = forall m. Refold (FoldFn a m -> FoldFn m b)
+data Refold a b = forall c. Refold (FoldFn a c -> FoldFn c b)
 {% endhighlight %}
 
 Note that in Clojure terminology, Unfolds are reducers, and Refolds and Folds are transducers (combining them into one is a design mistake if you ask me).
