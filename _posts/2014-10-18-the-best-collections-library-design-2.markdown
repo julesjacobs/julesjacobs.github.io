@@ -155,7 +155,7 @@ xs.Select(x => x+1).Where(x => x < 100).Select(x => x*2).Sum()
 
 (in C#, map is called Select, and filter is called Where)
 
-This constructs an IEnumerable pipeline, but it does not actually run the pipeline until `Sum()` is called. `Sum` will call `GetEnumerator` on the `.Select(x => x*2)`, which will in turn call `GetEnumerator` on `.Where(x => x < 100)`, which will call `GetEnumerator on `.Select(x => x+1)`, which will call `GetEnumerator` on `xs`. That process sets up the `IEnumerator` (iterator) pipeline. Once `Sum` is done summing, it will `Dispose` the iterator that it's iterating over, which calls `Dispose` on the previous iterator in the pipeline, and so forth. If `xs` represents a file, then the file can be opened when `GetEnumerator` is called, and closed when `Dispose` is called, so we have the ability to do resource cleanup.
+This constructs an IEnumerable pipeline, but it does not actually run the pipeline until `Sum()` is called. `Sum` will call `GetEnumerator` on the `.Select(x => x*2)`, which will in turn call `GetEnumerator` on `.Where(x => x < 100)`, which will call `GetEnumerator` on `.Select(x => x+1)`, which will call `GetEnumerator` on `xs`. That process sets up the `IEnumerator` (iterator) pipeline. Once `Sum` is done summing, it will `Dispose` the iterator that it's iterating over, which calls `Dispose` on the previous iterator in the pipeline, and so forth. If `xs` represents a file, then the file can be opened when `GetEnumerator` is called, and closed when `Dispose` is called, so we have the ability to do resource cleanup.
 
 What happens when we try to compute an average?
 
