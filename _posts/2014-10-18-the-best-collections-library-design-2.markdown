@@ -23,7 +23,7 @@ filterMap f s =  map fromJust . filter (/= Nothing) . map f $ s
 Lets look at what this is doing:
 
 1. It maps `f` over the set, which returns `Maybe a`. That means that it will construct an ordered set represented by some tree structure that is ordered by the `Ord` instance of `Maybe`. All the duplicate Nothings will be filtered out, leaving only one.
-2. The `filter (/= Nothing)` goes over all elements, and throws the one Nothing out, and builds an entirely new ordered set represented as a tree.
+2. The `filter (/= Nothing)` goes over all elements, and throws the one `Nothing` out, and builds an entirely new ordered set represented as a tree.
 3. It removes all the `Just` wrappers, and constructs the final ordered set.
 
 This is an excellent example why `map` and `filter` should not work on the collections, but on a sequence abstraction. Not only would that make `filterMap` generic over all collections, it would also be much more efficient.
