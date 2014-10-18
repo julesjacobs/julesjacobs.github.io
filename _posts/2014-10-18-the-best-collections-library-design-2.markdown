@@ -358,4 +358,6 @@ map f = filterMap (Just . f)
 filter p = filterMap (\x -> if p x then Just x else Nothing)
 {% endhighlight %}
 
+We compose transformers, and the type of the composition is as specific as possible, so that it can be used in as many contexts as possible. Any context that supports `map` can support a composed pipeline of `map`'s. Any context that supports `filter` can support a composed pipeline of `filters`. Any context that supports `filterMap` can support a composed pipeline of `map`'s and `filter`'s.
+
 More on this in part 3.
