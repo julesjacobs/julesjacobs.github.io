@@ -116,7 +116,7 @@ A `map` function can be defined easily:
 {% highlight python %}
 def map(f, xs):
     for x in xs:
-    yield f(x)
+        yield f(x)
 {% endhighlight %}
 
 Iterators have the benefit that to do iteration they do not need to allocate anything. Like lazy lists, they can support infinite sequences. Like lazy lists, they don't support deterministic resource cleanup, effectful iterators are questionable, they don't support push collections, and they do not support parallel execution. Iterators do not cause memory leaks like lazy lists do, but they have other problems. Suppose we wrote
