@@ -79,10 +79,10 @@ Python has language support for creating iterators using the `yield` statement. 
 
 {% highlight python %}
 def range(n,k):
-	i = n
-	while i < k:
-	   yield i
-	   i += 1
+    i = n
+    while i < k:
+       yield i
+       i += 1
 
 for j in range(10,20):
     print j
@@ -92,8 +92,8 @@ A `map` function can be defined easily:
 
 {% highlight python %}
 def map(f, xs):
-	for x in xs:
-		yield f(x)
+    for x in xs:
+    yield f(x)
 {% endhighlight %}
 
 Iterators have the benefit that to do iteration they do not need to allocate anything. Like lazy lists, they can support infinite sequences. Like lazy lists, they don't support deterministic resource cleanup, effectful iterators are questionable, they don't support push collections, and they do not support parallel execution. Iterators do not cause memory leaks like lazy lists do, but they have other problems. Suppose we wrote
@@ -132,9 +132,9 @@ C# has an interface IEnumerator, which represents an iterator in a slightly diff
 {% highlight csharp %}
 interface IEnumerator<T>
 {
-	T Current { get; }
-	bool MoveNext();
-	void Dispose();
+    T Current { get; }
+    bool MoveNext();
+    void Dispose();
 }
 {% endhighlight %}
 
@@ -143,7 +143,7 @@ The C# designers had a brilliant idea: you shouldn't work directly with IEnumera
 {% highlight csharp %}
 interface IEnumerable<T>
 {
-	IEnumerator<T> GetEnumerator();
+    IEnumerator<T> GetEnumerator();
 }
 {% endhighlight %}
 
