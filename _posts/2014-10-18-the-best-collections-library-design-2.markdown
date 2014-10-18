@@ -11,7 +11,7 @@ In the previous post we've looked at collection libraries of various languages, 
 
 One candidate are lazy lists. I'm going to use the strict language F# for this, to make it explicit where the laziness is happening. To define lazy lists we first need lazy values. 
 
-{% highlight f# %}
+{% highlight fsharp %}
 type Lazy<'t> = Lazy of (unit -> 't)
 
 let delay f =
@@ -25,7 +25,7 @@ let force (Lazy f) = f ()
 
 We define a type `Lazy<'t>` which has two operations:
 
-{% highlight f# %}
+{% highlight fsharp %}
 delay : (unit -> 't) -> Lazy<'t>
 force : Lazy<'t> -> 't
 {% endhighlight %}
@@ -34,20 +34,20 @@ force : Lazy<'t> -> 't
 
 Using this we can define the type of lazy lists:
 
-{% highlight f# %}
+{% highlight fsharp %}
 type Node<'t> = Cons of 't * List<'t> | Nil
 and List<'t> = Lazy<Node<'t>>
 {% endhighlight %}
 
 Note that `Lazy` is also around the outer layer. This is important to make the list fully lazy. In particular, this would be incorrect:
 
-{% highlight f# %}
+{% highlight fsharp %}
 type List<'t> = Cons of 't * Lazy<List<'t>> | Nil
 {% endhighlight %}
 
 Because for this type the outermost layer is a `Cons/Nil`, which is not wrapped in `Lazy`. We define `map`:
 
-{% highlight f# %}
+{% highlight fsharp %}
 let rec map f xs = delay (fun () -> 
     match (force xs) with
     | Cons(x, xs') -> Cons(f x, map f xs')
@@ -129,7 +129,7 @@ C++ iterators can be mutable or immutable. Mutable iterators can be used to modi
 
 C# has an interface IEnumerator, which represents an iterator in a slightly different way (using Current and MoveNext() methods), but this difference is immaterial. The real difference with iterators is that an `IEnumerator` has a `Dispose` method, which you should call when you are done with it. This allows the `IEnumerator` to clean up any resources like file handles.
 
-{% highlight c# %}
+{% highlight csharp %}
 interface IEnumerator<T>
 {
 	T Current { get; }
@@ -140,7 +140,7 @@ interface IEnumerator<T>
 
 The C# designers had a brilliant idea: you shouldn't work directly with IEnumerators, you should work with IEnumerator *factories*. That's what IEnumerable is:
 
-{% highlight c# %}
+{% highlight csharp %}
 interface IEnumerable<T>
 {
 	IEnumerator<T> GetEnumerator();
@@ -149,7 +149,7 @@ interface IEnumerable<T>
 
 The collection operations work on IEnumerable, not on IEnumerator! Suppose you have a pipeline like this:
 
-{% highlight c# %}
+{% highlight csharp %}
 xs.Select(x => x+1).Where(x => x < 100).Select(x => x*2).Sum()
 {% endhighlight %}
 
@@ -159,13 +159,13 @@ This constructs an IEnumerable pipeline, but it does not actually run the pipeli
 
 What happens when we try to compute an average?
 
-{% highlight c# %}
+{% highlight csharp %}
 var average = xs.Sum() / xs.Count();
 {% endhighlight %}
 
 This will create the iterator pipeline twice. If `xs` is itself a pipeline, then all the operations in that pipeline will be executed twice. That's something to keep in mind with IEnumerables: they represent computations that can be executed, not collections that are data. If you want to buffer, you have to explicitly convert your IEnumerable to an array and back. This architecture means that we also get more predictable effectful operations. If we do this:
 
-{% highlight c# %}
+{% highlight csharp %}
 var ys = xs.Select(x => EffectfulFunction(x))
 {% endhighlight %}
 
@@ -185,7 +185,7 @@ The main disadvantage of IEnumerable is that like lazy lists and iterators, they
 
 The third party C# library [Rx](http://msdn.microsoft.com/en-us/data/gg577609.aspx) provides the equivalent of IEnumerable/IEnumerator for push collections. Push collections are collections where the producer rather than the consumer is in charge of when elements go through the pipeline. An example is a GUI button with an event handler that handles clicks. You can view the event stream of clicks as a collection. Since we can't control when a user will click the button, the producer is in charge of pushing elements through the pipeline. Compare with IEnumerable where the consumer such as `Sum()` is responsible for pulling elements out of the pipeline. When you've built up an IObservable pipeline, you can use it by subscribing an event handler on it. Here's an example:
 
-{% highlight c# %}
+{% highlight csharp %}
 var button = new Button();
 ...
 var clicks = button.Clicks;
