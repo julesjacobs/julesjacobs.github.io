@@ -5,7 +5,30 @@ date:   2014-10-18 16:33:40
 categories: 
 ---
 
-In the previous post we've looked at collection libraries of various languages, and concluded that we need a sequence abstraction. In this post we will evaluate the pros and cons of various options. A sequence abstraction will need to support operations such as `map`, `filter`, `flatmap`, `scanl`, `takeWhile`, and more. As we will see, not all sequence abstractions support all those operations, and that's where there's trade-offs to be made.
+In the previous post we've looked at collection libraries of various languages, and concluded that we need a sequence abstraction. Mcneja and pipocaQuemada provided an excellent example on [/r/haskell](http://www.reddit.com/r/haskell/comments/2jdksc/the_best_collections_library_design_part_1/clb40uo):
+
+Suppose we want to implement a combined filter & map operation on Sets, without a roundtrip via lists:
+
+{% highlight haskell %}
+filterMap :: (a -> Maybe b) -> Set a -> Set b
+{% endhightlight %}
+
+pipocaQuemada suggested the following "So, we could define a pretty terrible version, pretty simply:"
+
+{% highlight haskell %}
+-- calling fromJust here is safe because we just filtered out all the Nothings.
+filterMap f s =  map fromJust . filter (/= Nothing) . map f $ s
+{% endhighlight %}
+
+Lets look at what this is doing:
+
+1. It maps `f` over the set, which returns `Maybe a`. That means that it will construct an ordered set represented by some tree structure that is ordered by the `Ord` instance of `Maybe`. All the duplicate Nothings will be filtered out, leaving only one.
+2. The `filter (/= Nothing)` goes over all elements, and throws the one Nothing out, and builds an entirely new ordered set represented as a tree.
+3. It removes all the `Just` wrappers, and constructs the final ordered set.
+
+This is an excellent example why `map` and `filter` should not work on the collections, but on a sequence abstraction. Not only would that make `filterMap` generic over all collections, it would also be much more efficient.
+
+In this post we will evaluate the pros and cons of various options. A sequence abstraction will need to support operations such as `map`, `filter`, `flatmap`, `scanl`, `takeWhile`, and more. As we will see, not all sequence abstractions support all those operations, and that's where there's trade-offs to be made.
 
 ## Lazy lists ##
 
