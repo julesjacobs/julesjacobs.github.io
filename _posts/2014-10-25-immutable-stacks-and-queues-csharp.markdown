@@ -54,22 +54,22 @@ The most obvious implementation is as a linked list. I wrap all data types in a 
 {% highlight csharp %}
 struct LinkedListStack<T>
 {
-	public abstract class Stack 
-	{
-		bool IsEmpty { get ; }
-	    Stack Push(T x) { ... };
-	    Stack Pop(out T x);
-	}
+    public abstract class Stack 
+    {
+        bool IsEmpty { get ; }
+        Stack Push(T x) { ... };
+        Stack Pop(out T x);
+    }
 
-	class Node : Stack 
-	{
-		T item;
-		Stack rest;
-		...
-	}
-	class End : Stack { ... }
+    class Node : Stack 
+    {
+        T item;
+        Stack rest;
+        ...
+    }
+    class End : Stack { ... }
 
-	public static Stack Empty = new End();
+    public static Stack Empty = new End();
 }
 {% endhighlight %}
 
@@ -178,8 +178,8 @@ An immutable queue supports the following operations:
 class Queue<T>
 {
     bool IsEmpty { get; }
-	Queue<T> Enqueue(T x);
-	Queue<T> Dequeue(out T x);
+    Queue<T> Enqueue(T x);
+    Queue<T> Dequeue(out T x);
 }
 {% endhighlight %}
 
