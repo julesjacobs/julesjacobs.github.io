@@ -159,12 +159,13 @@ The stack starts out empty, with `count = 0`, and `rest = null`. When we push an
 
 Here are the results:
 
-|Implementation | Time | Memory|
-------------------------------
-|Collections.ImmutableStack | 3028 ms | 32000000 bytes|
-|LinkedListStack | 2943 ms | 32000000 bytes|
-|NullLinkedListStack | 2851 ms | 31999936 bytes|
-|BufferedStack | 8468 ms | 15999936 bytes|
+<table border=1>
+<tr><th>Implementation</th><th>Time</th><th>Memory</th></tr>
+<tr><td>Collections.ImmutableStack </td><td> 3028 ms </td><td> 32000000 bytes</td></tr>
+<tr><td>LinkedListStack </td><td> 2943 ms </td><td> 32000000 bytes</td></tr>
+<tr><td>NullLinkedListStack </td><td> 2851 ms </td><td> 31999936 bytes</td></tr>
+<tr><td>BufferedStack </td><td> 8468 ms </td><td> 15999936 bytes</td></tr>
+</table>
 
 BufferedStack uses less memory (as expected), but unfortunately it actually runs much slower than a plain linked list. So much for that theory. The best immutable stack is NullLinkedListStack, which is a little bit faster than Microsoft's Collections.Immutable.
 
@@ -291,17 +292,11 @@ For queues I use the same benchmark as for stacks, except instead of pushing and
 
 Here are the queue results:
 
-<table>
+<table border=1>
 <tr><th>Implementation</th><th>Time</th><th>Memory</th></tr>
 <tr><td>Collections.ImmutableQueue</td><td>2570 ms</td><td>63999944 bytes</td></tr>
 <tr><td>DoubleStackQueue</td><td>1266 ms</td><td>63999904 bytes</td></tr>
 <tr><td>StackArrayQueue</td><td>917 ms</td><td>36194368 bytes</td></tr>
 </table>
-
-|Implementation | Time | Memory|
-------------------------------
-|Collections.ImmutableQueue | 2570 ms | 63999944 bytes|
-|DoubleStackQueue | 1266 ms | 63999904 bytes|
-|StackArrayQueue | 917 ms | 36194368 bytes|
 
 The StackArrayQueue is clearly superior to the others: it is far faster and uses far less memory.
