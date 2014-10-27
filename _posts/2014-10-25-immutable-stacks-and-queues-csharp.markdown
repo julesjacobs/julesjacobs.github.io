@@ -166,6 +166,7 @@ Here are the results:
 <tr><td>NullLinkedListStack </td><td> 2851 ms </td><td> 31999936 bytes</td></tr>
 <tr><td>BufferedStack </td><td> 8468 ms </td><td> 15999936 bytes</td></tr>
 </table>
+<br>
 
 BufferedStack uses less memory (as expected), but unfortunately it actually runs much slower than a plain linked list. So much for that theory. The best immutable stack is NullLinkedListStack, which is a little bit faster than Microsoft's Collections.Immutable.
 
@@ -298,5 +299,6 @@ Here are the queue results:
 <tr><td>DoubleStackQueue</td><td>1266 ms</td><td>63999904 bytes</td></tr>
 <tr><td>StackArrayQueue</td><td>917 ms</td><td>36194368 bytes</td></tr>
 </table>
+<br>
 
 The StackArrayQueue is clearly superior to the others: it is far faster and uses far less memory.
