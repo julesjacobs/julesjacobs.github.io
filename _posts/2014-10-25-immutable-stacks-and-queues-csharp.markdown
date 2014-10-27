@@ -159,7 +159,7 @@ The stack starts out empty, with `count = 0`, and `rest = null`. When we push an
 
 Here are the results:
 
-<table border=1>
+<table border="1">
 <tr><th>Implementation</th><th>Time</th><th>Memory</th></tr>
 <tr><td>Collections.ImmutableStack </td><td> 3028 ms </td><td> 32000000 bytes</td></tr>
 <tr><td>LinkedListStack </td><td> 2943 ms </td><td> 32000000 bytes</td></tr>
@@ -292,7 +292,7 @@ For queues I use the same benchmark as for stacks, except instead of pushing and
 
 Here are the queue results:
 
-<table border=1>
+<table border="1">
 <tr><th>Implementation</th><th>Time</th><th>Memory</th></tr>
 <tr><td>Collections.ImmutableQueue</td><td>2570 ms</td><td>63999944 bytes</td></tr>
 <tr><td>DoubleStackQueue</td><td>1266 ms</td><td>63999904 bytes</td></tr>
