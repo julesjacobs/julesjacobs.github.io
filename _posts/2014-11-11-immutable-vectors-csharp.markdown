@@ -109,10 +109,10 @@ Here are the results for vectors of size 1 million. The Add benchmark builds the
 <tr><th>Implementation</th><th>Add</th><th>Set</th><th>Lookup</th><th>Memory</th></tr>
 <tr><td>Collections.ImmutableList </td><td> 9207 ms </td><td> 26835 ms </td><td> 34778 ms </td><td> 48000024 bytes</td></tr>
 <tr><td>ResizeVector </td><td> 1943 ms </td><td> 6806 ms </td><td> 1149 ms </td><td> 5032240 bytes</td></tr>
-<tr><td>MergeVector </td><td> 958 ms </td><td> 5378 ms </td><td> 1211 ms </td><td> 5032344 bytes</td></tr>
+<tr><td>MergeVector </td><td> 958 ms </td><td> 7514 ms </td><td> 1211 ms </td><td> 5032344 bytes</td></tr>
 </table>
 <br>
 
-As you can see, MergeVector is the clear winner. It's only slightly slower than ResizeVector on Lookups, but it's much faster on Add and slightly faster on Set. Compared to Microsoft's immutable vector, MergeVector is about 10x faster on Add, 5x faster on Set, 29x faster on Lookup. Microsoft's vector also uses 10x more memory. 
+As you can see, MergeVector is the clear winner for Add, but slightly slower than ResizeVector on Lookups & Set. Compared to Microsoft's immutable vector, MergeVector is about 10x faster on Add, 3.5x faster on Set, 29x faster on Lookup. ResizeVector is about 5x faster on Add, 4x faster on Set, 30x faster on Lookup. Microsoft's vector also uses 10x as much memory.
 
 If the description of the vectors is unclear, please let me know, and I can do a more in-depth post about how they work exactly. You can read the [source code and the benchmarks](https://github.com/julesjacobs/ImmutableCollections/tree/master/ImmutableCollections/ImmutableCollections/Vectors). The repository also contains immutable queues, sorted maps and hash maps that are several times faster than Microsoft's immutable collections. In fact, the immutable sorted map is faster than .NET's built in *mutable* sorted map. These are just a proof of concept implementations. If there's interest in a full featured production quality version, I may implement that.
