@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Optimizing immutable vectors in C#"
+title:  "Fast immutable vectors in C#"
 date:   2014-11-11 16:33:40
 categories: 
 ---
