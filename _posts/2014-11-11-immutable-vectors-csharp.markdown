@@ -23,6 +23,14 @@ Lookup finds an element at index `i`, Add takes a vector of size `n`, and return
 The first implementation is a tree with a fixed branching factor n (currently n=32). A tree of height h can store 32^h elements. When an element is added to a full tree, an additional level is added on top of the root. This means that unlike most tree data structures, this tree grows from the root up rather than from the leaves down. The representation in C# is as follows:
 
 {% highlight csharp %}
+interface IVec
+{
+    T Lookup(uint i);
+    bool Add(T x); // returns whether adding was succesful: it's not succesful if the node is full
+    void Set(uint i, T x);
+    ...
+}
+
 struct Node<C> : IVec where C : struct, IVec
 {
     C[] children;
@@ -38,7 +46,7 @@ struct Leaf : IVec
 }
 {% endhighlight %}
 
-A tree of height 3 is represented as `Node<Node<Node<Leaf>>>`. Such a tree structure is then wrapped in a wrapper class that enables polymorphism over the tree height:
+The IVec interface is only for internal purposes. A tree of height 3 is represented as `Node<Node<Node<Leaf>>>`. Such a tree structure is then wrapped in a wrapper class that enables polymorphism over the tree height:
 
 {% highlight csharp %}
 public interface Vector 
@@ -65,6 +73,12 @@ A disadvantage of ResizeVector is that we need to copy the path from the root to
 The representation in C# is as follows. We have the same Node/Leaf structure as for the ResizeVector:
 
 {% highlight csharp %}
+interface IVec
+{
+    T Lookup(uint i);
+    void Set(uint i, T x);
+}
+
 struct Node<C> : IVec where C : struct, IVec
 {
     C[] children;
