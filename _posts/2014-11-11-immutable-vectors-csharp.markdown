@@ -56,7 +56,7 @@ class Vector<V> : Vector where V : struct, IVec
 }
 {% endhighlight %}
 
-A vector with internal representation of height 3 is `Vector<Node<Node<Node<Leaf>>>>`. That is then upcasted to the public interface `Vector`. The `Vector` class also takes care of resizing the tree height when an element is added to a full tree.
+A vector with internal representation of height 3 is `Vector<Node<Node<Node<Leaf>>>>`. That is then upcasted to the public interface `Vector`. The `Vector<N>` class also takes care of increasing the tree height to `Vector<Node<N>>` when an element is added to a full tree.
 
 ## MergeVector ##
 
