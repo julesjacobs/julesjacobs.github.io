@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Optimizing immutable vectors C#"
+title:  "Optimizing immutable vectors in C#"
 date:   2014-11-11 16:33:40
 categories: 
 ---
@@ -50,9 +50,9 @@ public interface Vector
 
 class Vector<V> : Vector where V : struct, IVec
 {
-	V self;
+    V self;
 
-	... operations ...
+    ... operations ...
 }
 {% endhighlight %}
 
@@ -90,12 +90,12 @@ struct Root<N,R> : IRoot<Node<N>>
     public N[] nodes;
     public R next;
 
- 	... operations ...
+    ... operations ...
 }
 
 struct End : IRoot<Leaf>
 {
-	... operations ...
+    ... operations ...
 }
 {% endhighlight %}
 
