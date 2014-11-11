@@ -20,7 +20,7 @@ Lookup finds an element at index `i`, Add takes a vector of size `n`, and return
 
 ## ResizeVector ##
 
-The first implementation is a tree with a fixed branching factor n (currently n=32). A tree of height h can store 32^h elements. When an element is added to a full tree, an additional level is added on top of the root. This means that the tree grows from the root up, rather than from the leaves down, like most tree structures. The representation in C# is as follows:
+The first implementation is a tree with a fixed branching factor n (currently n=32). A tree of height h can store 32^h elements. When an element is added to a full tree, an additional level is added on top of the root. This means that unlike most tree data structures, this tree grows from the root up rather than from the leaves down. The representation in C# is as follows:
 
 {% highlight csharp %}
 struct Node<C> : IVec where C : struct, IVec
