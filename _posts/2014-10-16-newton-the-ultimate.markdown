@@ -9,7 +9,7 @@ Ever wanted to be a mathematical superhero? Here's your chance! In this post I'm
 
     iterate x := x - f(x)/f'(x)
     
-This is [Newton's algorithm](http://en.wikipedia.org/wiki/Newton's_method), and it will find you an `x` such that `f(x) = 0`. Lets try it out.
+This is [Newton's algorithm](http://en.wikipedia.org/wiki/Newton's_method), and it will find you an `x` such that `f(x) = 0`. Let's try it out.
 
 ## Linear equations ##
 
@@ -72,11 +72,11 @@ Now that we've used Newton's algorithm to compute square roots, let's try someth
 
     iterate x := x - (1/x - a)/(-1/x^2)
     
-So how did that help us? To compute division we know have to compute *three* divisions *each iteration*! We can simplify this:
+So how did that help us? To compute division we have to compute *three* divisions *each iteration*! We can simplify this:
 
     iterate x := x*(2 - a*x)
     
-Whoa! Where did the divisions go? Lets try it out:
+Whoa! Where did the divisions go? Let's try it out:
 
 {% highlight python %}
 a = 7.0     # we compute 1/a
@@ -95,7 +95,7 @@ This gives:
     0.142857142857
     0.142857142857
 
-Great, we've computed `1/7`. This is actually the method that some CPUs use to divide! This brings us to one of the limits of our mathematical superpowers. What if we had used `0.5` as our initial guess instead of `0.1`. Lets try it:
+Great, we've computed `1/7`. This is actually the method that some CPUs use to divide! This brings us to one of the limits of our mathematical superpowers. What if we had used `0.5` as our initial guess instead of `0.1`? Let's try it:
 
     -0.75
     -5.4375
