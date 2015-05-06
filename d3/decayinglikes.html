@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<script src="d3.v3.min.js" charset="utf-8"></script>
+<style>
+#decay { width: 500px; }
+/* #decay table { width: 300px; } */
+#decay td div { background: #F17022; float: left; border: 1px 0px 1px 0px; }
+#decay td div:nth-child(even) { background: #62C2CC; }
+#decay tr td:nth-child(3) { width: 300px; }
+</style>
+<table id="decay"></table>
+<script>
+
+var rate = 1/30000;
+var names = ["Apples", "Pears", "Bananas", "Oranges", "Kiwis"];
+var likes = names.map(function(s){ return []; });
+var scores = names.map(function(s){ return 0; });
+
+function decay(age){ return Math.exp(-rate*age); }
+function sum(xs){ return xs.reduce(function(a,b){ return a+b; }); }
+function decays(ages){ return ages.map(decay); }
+function score(ages){ return sum(decays(ages)); }
+function getAges(t,i){
+	return likes[i].map(function(l){ return t-l; });
+}
+
+function like(i) {
+	var time = new Date().getTime();
+	likes[i].push(time);
+	scores[i] = updatedScore(scores[i], time);
+}
+
+function updatedScore(z,t) {
+	var u = Math.max(z,rate*t);
+	var v = Math.min(z,rate*t);
+	return u + Math.log1p(Math.exp(v-u))
+}
+
+
+function render() {
+	var x = d3.scale.linear()
+			  .domain([0,10])
+			  .range([0,200]);
+
+	var t = new Date().getTime();
+	var data = names.map(function(name, i){ return {"name": name, "likes": decays(getAges(t,i)), "score": scores[i]}; });
+
+	var tr = d3.select("#decay")
+	  .selectAll("tr")
+	  	.data(data);
+	
+	var newtr = tr.enter().append("tr");
+	newtr.append("td");
+	newtr.append("td").append("button").text("like").on("click", function(e,i){ like(i); });
+	newtr.append("td");
+	newtr.append("td");
+
+	tr.select("td:nth-child(1)").text(function(row){ return row.name; });
+
+	var likebars = tr.select("td:nth-child(3)").selectAll("div").data(function(row){return row.likes;});
+	likebars.enter().append("div").html("&nbsp;")
+	likebars.style("width", function(s) { return x(s) + "px"; });
+
+	tr.select("td:nth-child(4)").text(function(row){ return row.score; });
+	window.requestAnimationFrame(render);
+}
+
+render();
+</script>

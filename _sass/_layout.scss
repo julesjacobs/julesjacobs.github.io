@@ -2,30 +2,41 @@
  * Site header
  */
 .site-header {
-    border-top: 5px solid $grey-color-dark;
-    border-bottom: 1px solid $grey-color-light;
-    min-height: 56px;
+    border-top: 0px solid $grey-color-dark;
+    //border-bottom: 1px solid $grey-color-light;
+    min-height: 30px;
+    font-variant: small-caps;
+    //font-size: 11px;
 
     // Positioning context for the mobile navigation icon
     position: relative;
+    font-size: 14px;
+    font-variant: small-caps;
+    font-family: Helvetica, Arial, sans-serif;
+    background: #B4C9B3;
 }
 
 .site-title {
-    font-size: 26px;
-    line-height: 56px;
-    letter-spacing: -1px;
+    line-height: 30px;
+    //letter-spacing: -1px;
     margin-bottom: 0;
     float: left;
 
-    &,
-    &:visited {
+    a {
         color: $grey-color-dark;
+    }
+
+    .by {
+        font-family: "Skolar Bold","Segoe UI Bold","Roboto Slab","Droid Serif",AvenirNext-Bold,"Avenir Bold",Georgia,"Times New Roman",Times,serif;
+        font-variant: normal;
+        font-style: italic;
+        font-size: 12px;
     }
 }
 
 .site-nav {
     float: right;
-    line-height: 56px;
+    line-height: 30px;
 
     .menu-icon {
         display: none;
@@ -92,13 +103,16 @@
  * Site footer
  */
 .site-footer {
-    border-top: 1px solid $grey-color-light;
-    padding: $spacing-unit 0;
+    border-top: 1px solid #B4C9B3;
+    padding: 10px 0;
+    background: #B4C9B3;
 }
+
+.site-footer a, .site-footer a:visited { color: #424242; }
 
 .footer-heading {
     font-size: 18px;
-    margin-bottom: $spacing-unit / 2;
+    //margin-bottom: $spacing-unit / 2;
 }
 
 .contact-list,
@@ -108,7 +122,7 @@
 }
 
 .footer-col-wrapper {
-    font-size: 15px;
+    font-size: 14px;
     color: $grey-color;
     margin-left: -$spacing-unit / 2;
     @extend %clearfix;
@@ -116,7 +130,7 @@
 
 .footer-col {
     float: left;
-    margin-bottom: $spacing-unit / 2;
+    //margin-bottom: $spacing-unit / 2;
     padding-left: $spacing-unit / 2;
 }
 
@@ -181,11 +195,23 @@
 .post-meta {
     font-size: $small-font-size;
     color: $grey-color;
+    font-family: "Skolar Bold","Segoe UI Bold","Roboto Slab","Droid Serif",AvenirNext-Bold,"Avenir Bold",Georgia,"Times New Roman",Times,serif;
 }
 
 .post-link {
     display: block;
-    font-size: 24px;
+    font-size: 20px;
+
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    font-family: "Skolar Bold","Segoe UI Bold","Roboto Slab","Droid Serif",AvenirNext-Bold,"Avenir Bold",Georgia,"Times New Roman",Times,serif;
+}
+
+.post-link:visited {
+    color: black;
 }
 
 
@@ -198,39 +224,31 @@
 }
 
 .post-title {
-    font-size: 42px;
+    font-size: 27px;
+    font-weight: bold;
     letter-spacing: -1px;
     line-height: 1;
-
-    @include media-query($on-laptop) {
-        font-size: 36px;
-    }
+    font-family: "Skolar Bold","Segoe UI Bold","Roboto Slab","Droid Serif",AvenirNext-Bold,"Avenir Bold",Georgia,"Times New Roman",Times,serif;
 }
 
 .post-content {
     margin-bottom: $spacing-unit;
 
-    h2 {
-        font-size: 32px;
 
-        @include media-query($on-laptop) {
-            font-size: 28px;
-        }
+
+    h2,h3,h4 {
+        font-weight: bold;
+        font-family: "Skolar Bold","Segoe UI Bold","Roboto Slab","Droid Serif",AvenirNext-Bold,"Avenir Bold",Georgia,"Times New Roman",Times,serif;
+    }
+    h2 {
+        font-size: 20px;
     }
 
     h3 {
-        font-size: 26px;
-
-        @include media-query($on-laptop) {
-            font-size: 22px;
-        }
+        font-size: 16px;
     }
 
     h4 {
-        font-size: 20px;
-
-        @include media-query($on-laptop) {
-            font-size: 18px;
-        }
+        font-size: 14px;
     }
 }
