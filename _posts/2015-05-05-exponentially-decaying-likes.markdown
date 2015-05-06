@@ -112,7 +112,7 @@ render();
 window.onfocus = init;
 </script>
 
-The rest of this post is about why exponential decay is a good way to score hot items, and how to implement that very efficiently. If you are not interested in the math you can skip straight to the implementation section below.
+The rest of this post is about why exponential decay is a good way to score hot items, and how to implement that very efficiently in just a couple of lines of code. If you are not interested in the math you can skip straight to the code section below.
 
 ## Why not sort items by number of likes received in the last hour? ##
 
