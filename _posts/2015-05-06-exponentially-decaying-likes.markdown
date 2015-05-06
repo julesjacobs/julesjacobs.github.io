@@ -3,6 +3,7 @@ layout: post
 title:  "Determining hot items with exponentially decaying likes"
 date:   2015-05-06 13:00:40
 categories: 
+redirect_from: "/2015/05/05/exponentially-decaying-likes.html"
 ---
 
 Many sites want to determine recently popular items, for example:
