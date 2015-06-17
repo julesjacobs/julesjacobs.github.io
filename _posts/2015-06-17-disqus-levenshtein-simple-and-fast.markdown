@@ -15,7 +15,7 @@ A few days ago somebody brought up an old blog post about [Lucene's fuzzy search
 
 > Much coffee and beer was consumed, sometimes simultaneously. Many hours were spent on IRC, staying up all night, with Mark and Robert carrying on long conversations, which none of the rest of us could understand, trying desperately to decode the paper and turn it into Java code. Weeks went by like this and they actually had made some good initial progress, managing to loosely crack the paper to the point where they had a test implementation of the N=1 case, and it seemed to work. But generalizing that to the N=2 case was... daunting.
 
-I tried to read the paper, but after a couple of minutes it was clear that he's right: even understanding the paper would take a significant amount of time, let alone implementing the ideas in it. I thought there had to be a simpler way. After a bit of tinkering I had a working implementation in just a handful of lines of code with the same time complexity as the paper claims to have. Moreover it's plenty fast in practice: for the N=1 and N=2 case which Lucene supports, stepping the automaton takes a small constant number of machine instructions. Another advantage is that unlike for the method in the paper there are no tables to generate, so it will happily work even for N=10 or N=100 (according to the paper the size of their tables grows very rapidly: 960, 25088, 692224 for N=2,3,4 which looks like >27<sup>N</sup>). I'll also give an algorithm for converting the automaton to a DFA in linear time.
+I tried to read the paper, but after a couple of minutes it was clear that he's right: even understanding the paper would take a significant amount of time, let alone implementing the ideas in it. I thought there had to be a simpler way. After a bit of tinkering I had a working Levenshtein automaton in just a handful of lines of code with the same time complexity as the paper claims to have. Moreover it's plenty fast in practice: for the N=1 and N=2 case which Lucene supports, stepping the automaton takes a small constant number of machine instructions. Another advantage is that unlike for the method in the paper there are no tables to generate, so it will happily work even for N=10 or N=100 (according to the paper the size of their tables grows very rapidly: 960, 25088, 692224 for N=2,3,4 which looks like >27<sup>N</sup>). I'll also give an algorithm for converting the automaton to a DFA in linear time.
 
 ## What's a Levenshtein automaton good for anyway? ##
 
@@ -55,7 +55,7 @@ We have a constructor that takes the query string and a max edit distance n. We 
 automaton = LevenshteinAutomaton("bannana", 1)
 
 state0 = automaton.start()
-state1 = automaton.step(s0, 'w')
+state1 = automaton.step(state0, 'w')
 automaton.can_match(state1) # True, "w" can match "bannana" with distance 1
 state2 = automaton.step(state1, 'o')
 automaton.can_match(state2) # False, "wo" can't match "bannana" with distance 1
