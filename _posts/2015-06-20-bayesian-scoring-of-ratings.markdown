@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Bayesian ranking of items with up and downvotes or 5 star ratings"
-date:   2015-06-20 0:30:40
+date:   2015-08-17 4:30:40
 categories: 
 ---
 
@@ -92,5 +92,5 @@ Computing the score is only a bit more complicated than before:
 		votes = [iv+pv for (iv,pv) in zip(item_votes,pretend_votes)]
 		return sum(v*u for (v,u) in zip(votes,utilities))/float(sum(votes))
 {% endhighlight %}
-		
+
 That's all there's to it! You can also use this code for upvotes/downvotes. Simply use `utilities = [0, 1]` (or any `[X,Y]` with `X < Y`, for that matter), and you'll get the same ranking as before.
