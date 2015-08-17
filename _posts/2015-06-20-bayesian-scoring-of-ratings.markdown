@@ -40,13 +40,13 @@ For the `p ~ Beta(u,d)` distribution the expected popularity `score = E[p] = u/(
 In summary, when you have a list of items each with some number of upvotes `u` and downvotes `d`, pick a prior `a` upvotes and `b` downvotes and sort the items by that score formula. Note that the utilities `X` and `Y` have disappeared from the formula. It doesn't matter what they are, as long as `X` > `Y`, i.e. we like upvotes more than downvotes.
 
 {% highlight python %}
-    pretend_upvotes = 4
-    pretend_downvotes = 10
+pretend_upvotes = 4
+pretend_downvotes = 10
 
-    def score(item_upvotes, item_downvotes):
-        upvotes = item_upvotes + pretend_upvotes
-        downvotes = item_downvotes + pretend_downvotes
-        return upvotes / float(upvotes + downvotes)
+def score(item_upvotes, item_downvotes):
+    upvotes = item_upvotes + pretend_upvotes
+    downvotes = item_downvotes + pretend_downvotes
+    return upvotes / float(upvotes + downvotes)
 {% endhighlight %}
         
 Perhaps surprisingly, adding pretend upvotes and downvotes not only fixes the problems of the `score = upvotes / (upvotes + downvotes)` in practice, but as we saw also has a far stronger statistical justfication than Evan Miller's original frequentist and bayesian methods. It's the optimal ranking given only the following assumptions:
@@ -60,13 +60,13 @@ Perhaps surprisingly, adding pretend upvotes and downvotes not only fixes the pr
 Besides simplicity and statistical justification you were also promised a method that generalizes to n-star ratings. Instead of upvote and downvote being the only options, now we have 0 stars, 1 star, 2 stars, 3 stars, 4 stars and 5 stars. Instead of a `Beta(a,b)` prior we now need a Diriclet `Dir(a,b,c,d,e,f)` prior, which is a generalization of the `Beta` distribution to more than 2 classes. Which values you pick here can be determined by trial an error and checking which ranking it produces:
 
 {% highlight python %}
-    pretend_votes = [3,4,2,5,3,6]
+pretend_votes = [3,4,2,5,3,6]
 {% endhighlight %}
     
 Or simply assign 2 pretend votes to each possible star rating:
 
 {% highlight python %}
-    pretend_votes = [2,2,2,2,2,2]
+pretend_votes = [2,2,2,2,2,2]
 {% endhighlight %}
 
 Note that nothing stops you from assigning a fractional number of pretend votes. A prior with 2.3 pretend votes is perfectly fine.
@@ -74,13 +74,13 @@ Note that nothing stops you from assigning a fractional number of pretend votes.
 Instead of two utilities `X` for upvote and `Y` for downvote, we need one utility for each possible star rating. It would make sense to say that the utility of viewing an item that you would have rated with `k` stars is equal to `k`:
 
 {% highlight python %}
-    utilities = [0,1,2,3,4,5]
+utilities = [0,1,2,3,4,5]
 {% endhighlight %}
 
 But maybe in a hypothetical world if you vote 0 stars it means you *really* don't like it, and if you vote 5 stars you *really* like it. Then you'd use these utilities:
 
 {% highlight python %}
-    utilities = [-30, 1, 2, 3, 4, 70]
+utilities = [-30, 1, 2, 3, 4, 70]
 {% endhighlight %}
 
 As with the prior, fractional utilities are fine.
@@ -88,9 +88,9 @@ As with the prior, fractional utilities are fine.
 Computing the score is only a bit more complicated than before:
 
 {% highlight python %}
-    def score(item_votes):
-        votes = [iv+pv for (iv,pv) in zip(item_votes,pretend_votes)]
-        return sum(v*u for (v,u) in zip(votes,utilities))/float(sum(votes))
+def score(item_votes):
+    votes = [iv+pv for (iv,pv) in zip(item_votes,pretend_votes)]
+    return sum(v*u for (v,u) in zip(votes,utilities))/float(sum(votes))
 {% endhighlight %}
 
 That's all there's to it! You can also use this code for upvotes/downvotes. Simply use `utilities = [0, 1]` (or any `[X,Y]` with `X < Y`, for that matter), and you'll get the same ranking as before.
