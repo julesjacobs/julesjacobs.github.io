@@ -28,7 +28,7 @@ With can formalize this with a utility function. Each time a person looks at an 
 Which item should we put at the top spot to maximize the expected utility? Let `p` be the popularity of the item that we would put at the top spot. If `n` people look at the top spot, then `n*p` people will like it and `n*(1-p)` people will dislike it, so the expected utility is `E[n*p*X + n*(1-p)*Y]`. Some calculating gives:
 
     E[n*P*X + n*(1-p)*Y] = n*X*E[p] + n*Y*E[1-p] = n*X*E[p] + n*Y*(1-E[p])
-	
+    
 The only term that depends on the item is `E[p]`, the expected popularity of the item. So if we want to maximize the expected utility we get out of the top spot, we should put the item with maximum *expected* popularity there. The same goes for the other spots. We conclude:
 
 > To maximize the expected utility, sort the items by expected popularity.
@@ -40,15 +40,15 @@ For the `p ~ Beta(u,d)` distribution the expected popularity `score = E[p] = u/(
 In summary, when you have a list of items each with some number of upvotes `u` and downvotes `d`, pick a prior `a` upvotes and `b` downvotes and sort the items by that score formula. Note that the utilities `X` and `Y` have disappeared from the formula. It doesn't matter what they are, as long as `X` > `Y`, i.e. we like upvotes more than downvotes.
 
 {% highlight python %}
-	pretend_upvotes = 4
-	pretend_downvotes = 10
+    pretend_upvotes = 4
+    pretend_downvotes = 10
 
-	def score(item_upvotes, item_downvotes):
-	    upvotes = item_upvotes + pretend_upvotes
-		downvotes = item_downvotes + pretend_downvotes
-		return upvotes / float(upvotes + downvotes)
+    def score(item_upvotes, item_downvotes):
+        upvotes = item_upvotes + pretend_upvotes
+        downvotes = item_downvotes + pretend_downvotes
+        return upvotes / float(upvotes + downvotes)
 {% endhighlight %}
-		
+        
 Perhaps surprisingly, adding pretend upvotes and downvotes not only fixes the problems of the `score = upvotes / (upvotes + downvotes)` in practice, but as we saw also has a far stronger statistical justfication than Evan Miller's original frequentist and bayesian methods. It's the optimal ranking given only the following assumptions:
 
 1. The popularity of an item has a `Beta(a,b)` prior (Evan Miller uses this assumption too)
@@ -62,7 +62,7 @@ Besides simplicity and statistical justification you were also promised a method
 {% highlight python %}
     pretend_votes = [3,4,2,5,3,6]
 {% endhighlight %}
-	
+    
 Or simply assign 2 pretend votes to each possible star rating:
 
 {% highlight python %}
@@ -89,8 +89,8 @@ Computing the score is only a bit more complicated than before:
 
 {% highlight python %}
     def score(item_votes):
-		votes = [iv+pv for (iv,pv) in zip(item_votes,pretend_votes)]
-		return sum(v*u for (v,u) in zip(votes,utilities))/float(sum(votes))
+        votes = [iv+pv for (iv,pv) in zip(item_votes,pretend_votes)]
+        return sum(v*u for (v,u) in zip(votes,utilities))/float(sum(votes))
 {% endhighlight %}
 
 That's all there's to it! You can also use this code for upvotes/downvotes. Simply use `utilities = [0, 1]` (or any `[X,Y]` with `X < Y`, for that matter), and you'll get the same ranking as before.
