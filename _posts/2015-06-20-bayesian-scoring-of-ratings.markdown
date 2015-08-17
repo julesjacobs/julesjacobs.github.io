@@ -33,7 +33,7 @@ The only term that depends on the item is `E[p]`, the expected popularity of the
 
 > To maximize the expected utility, sort the items by expected popularity.
 
-For the `p ~ Beta(u,d)` distribution the expected popularity `score = E[p] = u/(u+d)`. This might be a bit surprising, because this is simply `score = upvotes / (upvotes + downvotes)`, and Evan Miller showed that this does not produce a desirable ranking. But wait, because we started with a beta prior with `a` pretend upvotes and `b` pretend downvotes, this is not quite the same. We've got a `p ~ Beta(a+u, b+d)` distribution. The score formula that we end up with is:
+For the `p ~ Beta(u,d)` distribution the expected popularity `E[p]` is `u / (u + d)`. This might be a bit surprising, because this is simply `score = upvotes / (upvotes + downvotes)`, and Evan Miller showed that this does not produce a desirable ranking. But wait, because we started with a beta prior with `a` pretend upvotes and `b` pretend downvotes, this is not quite the same. We've got a `p ~ Beta(a+u, b+d)` distribution. The score formula that we end up with is:
 
     score = E[p] = (a+u) / (a+u + b+d)
 
