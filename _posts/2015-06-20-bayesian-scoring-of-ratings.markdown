@@ -60,13 +60,13 @@ Perhaps surprisingly, adding pretend upvotes and downvotes not only fixes the pr
 Besides simplicity and statistical justification you were also promised a method that generalizes to n-star ratings. Instead of upvote and downvote being the only options, now we have 0 stars, 1 star, 2 stars, 3 stars, 4 stars and 5 stars. Instead of a `Beta(a,b)` prior we now need a Diriclet `Dir(a,b,c,d,e,f)` prior, which is a generalization of the `Beta` distribution to more than 2 classes. Which values you pick here can be determined by trial an error and checking which ranking it produces:
 
 {% highlight python %}
-pretend_votes = [3,4,2,5,3,6]
+pretend_votes = [3, 4, 2, 5, 3,6]
 {% endhighlight %}
     
 Or simply assign 2 pretend votes to each possible star rating:
 
 {% highlight python %}
-pretend_votes = [2,2,2,2,2,2]
+pretend_votes = [2, 2, 2, 2, 2, 2]
 {% endhighlight %}
 
 Note that nothing stops you from assigning a fractional number of pretend votes. A prior with 2.3 pretend votes is perfectly fine.
@@ -74,7 +74,7 @@ Note that nothing stops you from assigning a fractional number of pretend votes.
 Instead of two utilities `X` for upvote and `Y` for downvote, we need one utility for each possible star rating. It would make sense to say that the utility of viewing an item that you would have rated with `k` stars is equal to `k`:
 
 {% highlight python %}
-utilities = [0,1,2,3,4,5]
+utilities = [0, 1, 2, 3, 4, 5]
 {% endhighlight %}
 
 But maybe in a hypothetical world if you vote 0 stars it means you *really* don't like it, and if you vote 5 stars you *really* like it. Then you'd use these utilities:
