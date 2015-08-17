@@ -87,8 +87,8 @@ As with the prior, fractional utilities are fine.
 
 Computing the score is only a bit more complicated than before. We first add up all the item votes to the pretend votes. Then we multiply each of those total votes by the corresponding utility, and divide the sum of that by the total number of votes. 
 
-    votes[i] = item_votes[i] + pretend_votes[i]
-    sum(utilities[i] * votes[i]) / sum(votes[i])
+    for i in 0..5: votes[i] = item_votes[i] + pretend_votes[i]
+    score = sum(utilities[i] * votes[i] for i in 0..5) / sum(votes[i] for i in 0..5)
 
 In Python:
 
