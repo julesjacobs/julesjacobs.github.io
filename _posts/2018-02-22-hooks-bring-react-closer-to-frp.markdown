@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Hooks bring React closer to Functional Reactive Programming"
-date:   2018-02-14 00:30:00
+date:   2018-02-22 00:30:00
 categories: 
 ---
 
