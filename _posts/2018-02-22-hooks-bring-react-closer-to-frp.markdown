@@ -29,7 +29,7 @@ There is one big difference between React and FRP. The variable `count` in the R
 
 The idiomatic way to write components in FranTk style FRP is to pass BVars *into* functions. For instance, a reusable counter would look something like the following:
 
-{% highlight javascript %}
+{% highlight jsx %}
 function Counter(state) {
   const [count, setCount] = state;
 
@@ -48,7 +48,7 @@ A new counter is created with `state = useState(0); Counter(state)`. This allows
 
 The general pattern is that a component takes its externally visible state as an argument, and allocates new BVars/useStates for encapsulated state or UI state. For instance, a `TodoList` component would take the todo list state an an argument (containing a list of todo items). The UI state that determines whether to show or hide completed todo items would be encapsulated, so the `TodoList` component would have an internal `useState` for that:
 
-{% highlight javascript %}
+{% highlight jsx %}
 function TodoList(todoListState) {
   const [todoList, setTodoList] = todoliststate;
   const [showCompleted, setShowCompleted] = useState(true);
@@ -64,7 +64,7 @@ function TodoList(todoListState) {
 
 Considering the pair `[showCompleted, setShowCompleted]` as a thing of its own can lead to simplications, e.g. a `Checkbox` component that understands that pair:
 
-{% highlight javascript %}
+{% highlight jsx %}
 function TodoList(todoListState) {
   const [todoList, setTodoList] = todoliststate;
   const showCompletedState = useState(true);
