@@ -7,7 +7,7 @@ categories:
 
 React recently got hooks, which allows you to use function components even if you need behaviour such as state, which required class components in previous versions. This is the example from the React website:
 
-{% highlight javascript %}
+{% highlight jsx %}
 function Example() {
   // Declare a new state variable, which we'll call "count"
   const [count, setCount] = useState(0);
