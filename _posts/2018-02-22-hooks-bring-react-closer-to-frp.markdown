@@ -78,4 +78,4 @@ function TodoList(todoListState) {
 }
 {% endhighlight %}
 
-Some years ago I wrote a toy FRP wrapper around PyQt with the aim of enabling this idiom. It's surprising how little you actually need: just a BVar that tracks dependencies in the dataflow network and change listeners that get called whenever a BVar changes. With just 100 lines of code or so you can write UIs in a pleasant style...if you're willing to put up with the FRP annoyance of having to write `map` everywhere.
+Some years ago I wrote a toy FRP wrapper around PyQt with the aim of enabling this idiom. It's surprising how little you actually need: just a BVar that tracks dependencies in the dataflow network and change listeners that get called whenever a BVar changes. With just 100 lines of code or so you can write UIs in a relatively pleasant style...if you're willing to put up with the FRP annoyance of having to write `map` everywhere.
