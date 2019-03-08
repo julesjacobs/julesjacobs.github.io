@@ -1,0 +1,42 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\begin{document}
+\title{Correlated probabilities? Try a logarithm.}
+
+\maketitle
+Suppose that we have a patient and are trying to determine whether
+his leg is broken. A general practitioner investigates the patient
+and a radiologist looks at a scan of his leg. Both doctors give their
+conclusion in the form of a probability that the leg is broken, $P_{GP}$
+and $P_{R}$. How do we combine these probabilities into one? If these
+were independent then we could just multiply $P_{GP}\cdot P_{R}$,
+it's likely that both the GP and the radiologist will have the same
+opinion, so they are not independent. Furthermore, maybe the opinion
+of the radiologist is more accurate than the opinion of the general
+practitioner, because the radiologist looks at a scan of the leg.
+
+We could forget that these are probabilities altogether, and focus
+on the decision of whether to operate the patient or not. We assign
+a combined score $f(P_{GP},P_{R})$ in some way, and then look empirically
+for a decision boundary $f(P_{GP},P_{R})<\alpha$ that gives us a
+trade-off between the false positive and false negative rate. The
+question remains which $f$ we should use.
+
+A linear model is usually the first you'd try, $f(P_{GP},P_{R})=aP_{GP}+bP_{R}$,
+but I claim that $f(P_{GP},P_{R})=P_{GP}^{a}\cdot P_{R}^{b}$ is more
+natural. If the probabilities were independent then $a=1,b=1$ would
+give $P_{GP}\cdot P_{R}$. Choosing different $a,b$ weighs the opinions,
+e.g. $a=1/3$, $b=2/3$.
+
+This is equivalent to training a linear model on the log probabilities
+$\log P_{GP}$ and $\log P_{R}$, because $\log(P_{GP}^{a}\cdot P_{R}^{b})=a\log P_{GP}+b\log P_{R}$.
+The log probability is natural from the point of view of information
+theory: log probability is measured in bits. Probabilities get multiplied,
+bits get added.
+
+If you're training a classifier on probabilities, try a logarithm.
+\end{document}

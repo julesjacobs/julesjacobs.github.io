@@ -12,3 +12,11 @@ markdown: kramdown
 
 gems:
   - jekyll-redirect-from
+
+defaults: 
+  -
+    scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
