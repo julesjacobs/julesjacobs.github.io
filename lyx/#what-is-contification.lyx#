@@ -1,0 +1,414 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+What is contification?
+\end_layout
+
+\begin_layout Standard
+Inlining is one of the most important compiler optimisations.
+ The danger with inlining is that it can cause code size explosion, because
+ the function that is inlined is copied to multiple call sites.
+ However, if the function is only called in one place, then code duplication
+ doesn't occur, because the original function can be deleted after inlining.
+ Another way to look at this transformation is that we remove the call instructi
+on and replace it with a jump to the entry point of the function, and we
+ replace the return instruction inside the function with a jump back to
+ the point where the function is called.
+\end_layout
+
+\begin_layout Standard
+Contification is based on the clever observation that you can do this transforma
+tion whenever a function returns to only one location, even if the function
+ is called in multiple places.
+ Here's the simplest example:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+function f(y){
+\end_layout
+
+\begin_layout Plain Layout
+
+  return ...
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+if(cond){   
+\end_layout
+
+\begin_layout Plain Layout
+
+  x = f(E1) 
+\end_layout
+
+\begin_layout Plain Layout
+
+}else{   
+\end_layout
+
+\begin_layout Plain Layout
+
+  x = f(E2) 
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+<REST ...>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The function f is called in two places, but the function returns to the
+ same place.
+ The compiler can therefore replace each call to f with a jump to f's entry
+ point, and replace the return inside f with a jump to the code after the
+ if-else:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+label f:    
+\end_layout
+
+\begin_layout Plain Layout
+
+  x = ...
+\end_layout
+
+\begin_layout Plain Layout
+
+  goto REST
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+if(cond){    
+\end_layout
+
+\begin_layout Plain Layout
+
+  y = E1    
+\end_layout
+
+\begin_layout Plain Layout
+
+  goto f  
+\end_layout
+
+\begin_layout Plain Layout
+
+}else{    
+\end_layout
+
+\begin_layout Plain Layout
+
+  y = E2    
+\end_layout
+
+\begin_layout Plain Layout
+
+  goto f  
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+label REST: <...>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This eliminates the function call overhead, but more importantly, it allows
+ other compiler optimisations to kick in.
+\end_layout
+
+\begin_layout Standard
+Analysing whether a function returns to only one place is a little bit tricky.
+ The most powerful contification analyses can reason about tail calls.
+ This allows them to optimise tail recursive functions that are only called
+ in one place:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+function loop(x, n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  if(n==0) return ...
+\end_layout
+
+\begin_layout Plain Layout
+
+  else return loop(g(x), n-1)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+result = loop(a, k)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+<REST ...>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We actually have two calls to loop, one from the outside and one tail recursive
+ call from loop itself.
+ Intuitively you'll understand that this pattern is equivalent to an actual
+ loop, and contification can turn this code into an actual loop:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+label loop:
+\end_layout
+
+\begin_layout Plain Layout
+
+  if(n==0){
+\end_layout
+
+\begin_layout Plain Layout
+
+    result = ...
+\end_layout
+
+\begin_layout Plain Layout
+
+    goto REST
+\end_layout
+
+\begin_layout Plain Layout
+
+  }else{
+\end_layout
+
+\begin_layout Plain Layout
+
+    x = g(x)
+\end_layout
+
+\begin_layout Plain Layout
+
+    n = n-1
+\end_layout
+
+\begin_layout Plain Layout
+
+    goto loop
+\end_layout
+
+\begin_layout Plain Layout
+
+  }
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+label REST: <...>
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It can do this because the contification analysis determines that loop transitiv
+ely (through tail calls) always returns to the same point.
+ Note that we could have eliminated the two calls to f in the previous example
+ by inlining f twice.
+ Simple inlining truly does not work for the tail recursive example; no
+ amount of inlining will eliminate the recursive call.
+ Contification doesn't work when there are multiple external calls to loop,
+ so contification is not more general than inlining, and inlining is not
+ more general than contification.
+ p
+\end_layout
+
+\begin_layout Standard
+In the general case we have multiple functions, multiple tail calls, and
+ multiple non-tail calls.
+ The contification analysis tries to find out, for each function, if there
+ exists a point in the program that the function always returns to, possibly
+ through zero or more tail calls.
+ If you're interested in the details, read the paper 
+\begin_inset CommandInset href
+LatexCommand href
+name "Contification Using Dominators"
+target "https://www.cs.purdue.edu/homes/suresh/502-Fall2008/papers/contification.pdf"
+literal "false"
+
+\end_inset
+
+ by Matthew Fluet and Stephen Weeks.
+ They work with a functional style IR with continutations.
+ In this post I've used an imperative IR, which I hope makes the contification
+ transformation a little bit easier to understand: it's just replacing call
+ and return instructions with jumps.
+ I don't think that the idea of contification has fully penetrated conventional
+ compilers, but maybe it should.
+\end_layout
+
+\end_body
+\end_document

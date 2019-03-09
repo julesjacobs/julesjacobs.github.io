@@ -1,0 +1,129 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage[unicode=true]
+ {hyperref}
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Listing}
+
+\begin{document}
+\title{What is contification?}
+
+\maketitle
+Inlining is one of the most important compiler optimisations. The
+danger with inlining is that it can cause code size explosion, because
+the function that is inlined is copied to multiple call sites. However,
+if the function is only called in one place, then code duplication
+doesn't occur, because the original function can be deleted after
+inlining. Another way to look at this transformation is that we remove
+the call instruction and replace it with a jump to the entry point
+of the function, and we replace the return instruction inside the
+function with a jump back to the point where the function is called.
+
+Contification is based on the clever observation that you can do this
+transformation whenever a function returns to only one location, even
+if the function is called in multiple places. Here's the simplest
+example:
+
+\begin{lstlisting}
+function f(y){
+  return ...
+}
+
+if(cond){   
+  x = f(E1) 
+}else{   
+  x = f(E2) 
+}
+
+<REST ...>
+\end{lstlisting}
+
+The function f is called in two places, but the function returns to
+the same place. The compiler can therefore replace each call to f
+with a jump to f's entry point, and replace the return inside f with
+a jump to the code after the if-else:
+
+\begin{lstlisting}
+label f:    
+  x = ...
+  goto REST
+
+if(cond){    
+  y = E1    
+  goto f  
+}else{    
+  y = E2    
+  goto f  
+}
+
+label REST: <...>
+\end{lstlisting}
+
+This eliminates the function call overhead, but more importantly,
+it allows other compiler optimisations to kick in.
+
+Analysing whether a function returns to only one place is a little
+bit tricky. The most powerful contification analyses can reason about
+tail calls. This allows them to optimise tail recursive functions
+that are only called in one place:
+
+\begin{lstlisting}
+function loop(x, n){
+  if(n==0) return ...
+  else return loop(g(x), n-1)
+}
+
+result = loop(a, k)
+
+<REST ...>
+\end{lstlisting}
+
+We actually have two calls to loop, one from the outside and one tail
+recursive call from loop itself. Intuitively you'll understand that
+this pattern is equivalent to an actual loop, and contification can
+turn this code into an actual loop:
+
+\begin{lstlisting}
+label loop:
+  if(n==0){
+    result = ...
+    goto REST
+  }else{
+    x = g(x)
+    n = n-1
+    goto loop
+  }
+
+label REST: <...>
+\end{lstlisting}
+
+It can do this because the contification analysis determines that
+loop transitively (through tail calls) always returns to the same
+point. Note that we could have eliminated the two calls to f in the
+previous example by inlining f twice. Simple inlining truly does not
+work for the tail recursive example; no amount of inlining will eliminate
+the recursive call. Contification doesn't work when there are multiple
+external calls to loop, so contification is not more general than
+inlining, and inlining is not more general than contification. Perhaps
+one can come up with an optimisation that generalises both: a version
+of inlining that doens't inline a function a single function call,
+but inlines multiple calls with a single return point simultaneously.
+In other words, a version of inlining that inlines a function \emph{return}
+rather than a function \emph{call}.
+
+In the general case we have multiple functions, multiple tail calls,
+and multiple non-tail calls. The contification analysis tries to find
+out, for each function, if there exists a point in the program that
+the function always returns to, possibly through zero or more tail
+calls. If you're interested in the details, read the paper \href{https://www.cs.purdue.edu/homes/suresh/502-Fall2008/papers/contification.pdf}{Contification Using Dominators}
+by Matthew Fluet and Stephen Weeks. They work with a functional style
+IR with continutations. In this post I've used an imperative IR, which
+I hope makes the contification transformation a little bit easier
+to understand: it's just replacing call and return instructions with
+jumps. I don't think that the idea of contification has fully penetrated
+conventional compilers, but maybe it should.
+\end{document}
