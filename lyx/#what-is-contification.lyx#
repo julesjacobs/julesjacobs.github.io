@@ -383,7 +383,18 @@ ely (through tail calls) always returns to the same point.
  Contification doesn't work when there are multiple external calls to loop,
  so contification is not more general than inlining, and inlining is not
  more general than contification.
- p
+ Perhaps one can come up with an optimisation that generalises both: a version
+ of inlining that doesn't inline a single function call, but inlines multiple
+ calls with a single return point simultaneously.
+ In other words, a version of inlining that inlines a function 
+\emph on
+return
+\emph default
+ rather than a function 
+\emph on
+call
+\emph default
+.
 \end_layout
 
 \begin_layout Standard
