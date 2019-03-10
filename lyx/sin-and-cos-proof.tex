@@ -1,0 +1,65 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage[unicode=true]
+ {hyperref}
+\begin{document}
+\title{Proof that the calculus sin and cos functions equal the geometric
+sin and cos}
+
+\maketitle
+The trigonometric functions can be defined in many different ways:
+as a power series, as a differential equation, using the complex exponential,
+and so on. That those definitions are equivalent is usually shown
+in a real analysis course. However, students first learn sin and cos
+in the context of geometry. The geometric sin and cos can also be
+defined in many ways, e.g. in terms of angles and side lenghts of
+triangles, or in terms of a point moving around the unit circle. It
+is again easy to show that those geometric definitions are equivalent.
+What's sometimes missing is a proof that the calculus definitions
+are equivalent to the geometric definitions. \href{https://www.khanacademy.org/math/ap-calculus-ab/ab-differentiation-1-new/ab-2-7/a/proving-the-derivatives-of-sinx-and-cosx}{Khan academy has a nice proof using areas.}
+That argument is a little bit technical and it is difficult to find
+that proof. In this post I'll give an argument using lengths, that
+is in my opinion a bit easier to come up with and to remember. It
+is perhaps a bit less ironclad than Khan's proof, because it requires
+you to accept facts about arclengths of curves, whereas Khan's proof
+only involves comparing areas.
+
+Here we go. We define $\sin$ and $\cos$ as the functions satisfying
+the differential equation
+\begin{align*}
+\cos' & =\sin\\
+\sin' & =-\cos
+\end{align*}
+with initial conditions $\cos(0)=1$ and $\sin(0)=0$. We show that
+the point $(\cos(t),\sin(t))$ travels around the unit circle at unit
+speed. To show that the point stays on the unit circle we must show
+$\cos(t)^{2}+\sin(t)^{2}=1$. At $t=0$ the equation holds due to
+the initial conditions. We differentiate 
+\begin{align*}
+(\cos(t)^{2}+\sin(t)^{2})' & =2\cos(t)\cos'(t)+2\sin(t)\sin'(t)\\
+ & =2\cos(t)\sin(t)-2\sin(t)\cos(t)\\
+ & =0
+\end{align*}
+So the value of $\cos(t)^{2}+\sin(t)^{2}$ doesn't change, i.e. it
+stays equal to $1$. We also need to show that the point $(\cos(t),\sin(t))$
+moves around the unit circle at unit speed. After all, there are many
+functions $f,g$ such that the point $(f(t),g(t))$ stays on the unit
+circle that are not equal to $\cos$ and $\sin$. The speed of the
+point is 
+\begin{align*}
+\cos'(t)^{2}+\sin'(t)^{2} & =\sin(t)^{2}+(-\cos(t))^{2}\\
+ & =\sin(t)^{2}+\cos(t)^{2}\\
+ & =1
+\end{align*}
+The point $(\cos(t),\sin(t))$ indeed moves around the unit circle
+at unit speed. This implies that $(\cos(t),\sin(t))$ give the coordinates
+of the point on the unit circle if we take an angle $t$ measured
+in radians from the $x$-axis, because that's how radians are defined.
+Therefore the calculus $\sin$ and $\cos$ indeed agree with the geometric
+$\sin$ and $\cos$.
+\end{document}

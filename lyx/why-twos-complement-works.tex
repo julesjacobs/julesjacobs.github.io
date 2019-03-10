@@ -1,0 +1,111 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\makeatletter
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% LyX specific LaTeX commands.
+%% Because html converters don't know tabularnewline
+\providecommand{\tabularnewline}{\\}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+\title{Why two's complement works}
+
+\maketitle
+There are unsigned integers and signed integers. The first bit in
+a signed integer indicates whether it is positive or negative. You'd
+expect that CPUs have different instructions to do arithmetic with
+signed integers and unsigned integers. That's partly true: x86 has
+DIV to divide unsigned integers and IDIV to divide signed integers,
+but there is only one ADD instruction, only one SUB instruction, and
+only one MUL instruction. These instructions work for both signed
+and unsigned integers. How can that be?!
+
+This is the magic of two's complement. The bit patterns of signed
+integers are precisely such that ordinary unsigned arithmetic gives
+the correct sign bit. For four bit numbers the representation is as
+follows:
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline 
+bit pattern & unsigned value & signed value\tabularnewline
+\hline 
+\hline 
+0000 & 0 & 0\tabularnewline
+\hline 
+0001 & 1 & 1\tabularnewline
+\hline 
+0010 & 2 & 2\tabularnewline
+\hline 
+0011 & 3 & 3\tabularnewline
+\hline 
+0100 & 4 & 4\tabularnewline
+\hline 
+0101 & 5 & 5\tabularnewline
+\hline 
+0110 & 6 & 6\tabularnewline
+\hline 
+0111 & 7 & 7\tabularnewline
+\hline 
+1000 & 8 & -8\tabularnewline
+\hline 
+1001 & 9 & -7\tabularnewline
+\hline 
+1010 & 10 & -6\tabularnewline
+\hline 
+1011 & 11 & -5\tabularnewline
+\hline 
+1100 & 12 & -4\tabularnewline
+\hline 
+1101 & 13 & -3\tabularnewline
+\hline 
+1110 & 14 & -2\tabularnewline
+\hline 
+1111 & 15 & -1\tabularnewline
+\hline 
+\end{tabular}
+\par\end{center}
+
+The operation +1 goes forward by one step in this table, and wraps
+around from the end to the start. The operation -1 goes in reverse.
+If we start with the value 0000 and subtract 1, we end up with 1111.
+For signed values that bit pattern indeed represents -1. If we keep
+subtracing -1's, it goes back to -8, which is the minimum representable
+signed integer, and then wraps around to +7. You see that the operations
++1 and -1 work exactly the same on a bit pattern, regardless of whether
+it represents a signed or unsigned value. The only difference is the
+meaning of the bit patterns: 1111 represents 15 if it's an unsigned
+value, and -1 if it's a signed value. So if we \emph{print} an integer,
+we need to know whether it's signed or unsigned, but as long as we
+only do +1 and -1 we don't need to know whether it's signed or unsigned.
+
+Adding bigger amounts, say, +3, is independent of whether it's signed
+or unsigned too, because adding +5 is the same as +1+1+1, so if adding
++1 is independent of whether it's signed or unsigned, then +3 is too.
+Try an example: if we start with 1001 and add +2 we end up with 1011.
+As an unsigned value, that was 9+2=11, and with a signed value, that
+was -7+2=-5. Both correct! Similarly, subtracting bigger amounts,
+or adding negative amounts, also works. Multiplication be expressed
+as repeated addition, so that's independent too. This does \emph{not}
+work for division, because division cannot be expressed as repeated
+addition of +1. That's why x86 has separate DIV and IDIV instructions
+
+Technically, that argument only shows that addition $a+b$, subtraction
+$a-b$, and multiplication $a\cdot b$ is independent of whether $a$
+is signed or unsigned. You'll probably not be suprised that it's also
+independent of whether $b$ is signed or unsigned. If you're familiar
+with modular arithmetic, this is because $(a\mod16)+(b\mod16)=(a+b)\mod16$
+and similarly for subtraction and multiplication. The only difference
+between signed and unsigned is which representative from $\mathbb{Z}$
+we assign to each equivalence class in $\mathbb{Z}/16\mathbb{Z}$.
+That's just a fancy way of saying that when we print a bit pattern,
+what we print depends on whether it represents a signed or unsigned
+value.
+\end{document}

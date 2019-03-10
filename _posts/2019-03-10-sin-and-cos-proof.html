@@ -1,0 +1,34 @@
+---
+title:  "Proof that the calculus sin and cos functions equal the geometric sin and cos"
+---
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Proof that the calculus sin and cos functions equal the geometric sin and cos</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p>The trigonometric functions can be defined in many different ways: as a power series, as a differential equation, using the complex exponential, and so on. That those definitions are equivalent is usually shown in a real analysis course. However, students first learn sin and cos in the context of geometry. The geometric sin and cos can also be defined in many ways, e.g. in terms of angles and side lenghts of triangles, or in terms of a point moving around the unit circle. It is again easy to show that those geometric definitions are equivalent. What’s sometimes missing is a proof that the calculus definitions are equivalent to the geometric definitions. <a href="https://www.khanacademy.org/math/ap-calculus-ab/ab-differentiation-1-new/ab-2-7/a/proving-the-derivatives-of-sinx-and-cosx">Khan academy has a nice proof using areas.</a> That argument is a little bit technical and it is difficult to find that proof. In this post I’ll give an argument using lengths, that is in my opinion a bit easier to come up with and to remember. It is perhaps a bit less ironclad than Khan’s proof, because it requires you to accept facts about arclengths of curves, whereas Khan’s proof only involves comparing areas.</p>
+<p>Here we go. We define <span class="math inline">\(\sin\)</span> and <span class="math inline">\(\cos\)</span> as the functions satisfying the differential equation <span class="math display">\[\begin{aligned}
+\cos&#39; &amp; =\sin\\
+\sin&#39; &amp; =-\cos\end{aligned}\]</span> with initial conditions <span class="math inline">\(\cos(0)=1\)</span> and <span class="math inline">\(\sin(0)=0\)</span>. We show that the point <span class="math inline">\((\cos(t),\sin(t))\)</span> travels around the unit circle at unit speed. To show that the point stays on the unit circle we must show <span class="math inline">\(\cos(t)^{2}+\sin(t)^{2}=1\)</span>. At <span class="math inline">\(t=0\)</span> the equation holds due to the initial conditions. We differentiate <span class="math display">\[\begin{aligned}
+(\cos(t)^{2}+\sin(t)^{2})&#39; &amp; =2\cos(t)\cos&#39;(t)+2\sin(t)\sin&#39;(t)\\
+ &amp; =2\cos(t)\sin(t)-2\sin(t)\cos(t)\\
+ &amp; =0\end{aligned}\]</span> So the value of <span class="math inline">\(\cos(t)^{2}+\sin(t)^{2}\)</span> doesn’t change, i.e. it stays equal to <span class="math inline">\(1\)</span>. We also need to show that the point <span class="math inline">\((\cos(t),\sin(t))\)</span> moves around the unit circle at unit speed. After all, there are many functions <span class="math inline">\(f,g\)</span> such that the point <span class="math inline">\((f(t),g(t))\)</span> stays on the unit circle that are not equal to <span class="math inline">\(\cos\)</span> and <span class="math inline">\(\sin\)</span>. The speed of the point is <span class="math display">\[\begin{aligned}
+\cos&#39;(t)^{2}+\sin&#39;(t)^{2} &amp; =\sin(t)^{2}+(-\cos(t))^{2}\\
+ &amp; =\sin(t)^{2}+\cos(t)^{2}\\
+ &amp; =1\end{aligned}\]</span> The point <span class="math inline">\((\cos(t),\sin(t))\)</span> indeed moves around the unit circle at unit speed. This implies that <span class="math inline">\((\cos(t),\sin(t))\)</span> give the coordinates of the point on the unit circle if we take an angle <span class="math inline">\(t\)</span> measured in radians from the <span class="math inline">\(x\)</span>-axis, because that’s how radians are defined. Therefore the calculus <span class="math inline">\(\sin\)</span> and <span class="math inline">\(\cos\)</span> indeed agree with the geometric <span class="math inline">\(\sin\)</span> and <span class="math inline">\(\cos\)</span>.</p>
+</body>
+</html>
