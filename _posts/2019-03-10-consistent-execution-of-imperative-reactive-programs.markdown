@@ -1,5 +1,6 @@
 ---
 title: "Consistent execution of imperative reactive programs"
+date:   2019-03-10 22:00:00
 ---
 
 This is a comment in response to [Sandro Magi's comments on FRP and S.js](http://julesjacobs.github.io/2018/02/22/hooks-bring-react-closer-to-frp.html#comment-4358285816), turned into a post. S.js lets you create data signals with `x = S.data(initial value)`, read them with `x()` and write to them with `x(value)`. It also lets you create computations with `S(() => {...})`. When a signal is read in a computation, the computation is re-run whenever the signal's value changes. When you write a value to a signal, reading from the signal doesn't immediately return the new value. Instead, time progresses in ticks, and updates from tick n are only visible in tick n+1. Could we change that behaviour so that reading from a signal always returns its most recent value?
