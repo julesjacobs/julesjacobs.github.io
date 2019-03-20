@@ -1,0 +1,120 @@
+---
+title:  "Why two’s complement works"
+---
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Why two’s complement works</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p>There are unsigned integers and signed integers. The first bit in a signed integer indicates whether it is positive or negative. You’d expect that CPUs have different instructions to do arithmetic with signed integers and unsigned integers. That’s partly true: x86 has DIV to divide unsigned integers and IDIV to divide signed integers, but there is only one ADD instruction, only one SUB instruction, and only one MUL instruction. These instructions work for both signed and unsigned integers. How can that be?!</p>
+<p>This is the magic of two’s complement. The bit patterns of signed integers are precisely such that ordinary unsigned arithmetic gives the correct sign bit. For four bit numbers the representation is as follows:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: center;">bit pattern</th>
+<th style="text-align: center;">unsigned value</th>
+<th style="text-align: center;">signed value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">0000</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0001</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0010</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0011</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0100</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0101</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">0110</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">0111</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1000</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">-8</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1001</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">-7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1010</td>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">-6</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1011</td>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">-5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1100</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">-4</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1101</td>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">-3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">1110</td>
+<td style="text-align: center;">14</td>
+<td style="text-align: center;">-2</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1111</td>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">-1</td>
+</tr>
+</tbody>
+</table>
+<p>The operation +1 goes forward by one step in this table, and wraps around from the end to the start. The operation -1 goes in reverse. If we start with the value 0000 and subtract 1, we end up with 1111. For signed values that bit pattern indeed represents -1. If we keep subtracing -1’s, it goes back to -8, which is the minimum representable signed integer, and then wraps around to +7. You see that the operations +1 and -1 work exactly the same on a bit pattern, regardless of whether it represents a signed or unsigned value. The only difference is the meaning of the bit patterns: 1111 represents 15 if it’s an unsigned value, and -1 if it’s a signed value. So if we <em>print</em> an integer, we need to know whether it’s signed or unsigned, but as long as we only do +1 and -1 we don’t need to know whether it’s signed or unsigned.</p>
+<p>Adding bigger amounts, say, +3, is independent of whether it’s signed or unsigned too, because adding +5 is the same as +1+1+1, so if adding +1 is independent of whether it’s signed or unsigned, then +3 is too. Try an example: if we start with 1001 and add +2 we end up with 1011. As an unsigned value, that was 9+2=11, and with a signed value, that was -7+2=-5. Both correct! Similarly, subtracting bigger amounts, or adding negative amounts, also works. Multiplication be expressed as repeated addition, so that’s independent too. This does <em>not</em> work for division, because division cannot be expressed as repeated addition of +1. That’s why x86 has separate DIV and IDIV instructions</p>
+<p>Technically, that argument only shows that addition <span class="math inline">\(a+b\)</span>, subtraction <span class="math inline">\(a-b\)</span>, and multiplication <span class="math inline">\(a\cdot b\)</span> is independent of whether <span class="math inline">\(a\)</span> is signed or unsigned. You’ll probably not be suprised that it’s also independent of whether <span class="math inline">\(b\)</span> is signed or unsigned. If you’re familiar with modular arithmetic, this is because <span class="math inline">\((a\mod16)+(b\mod16)=(a+b)\mod16\)</span> and similarly for subtraction and multiplication. The only difference between signed and unsigned is which representative from <span class="math inline">\(\mathbb{Z}\)</span> we assign to each equivalence class in <span class="math inline">\(\mathbb{Z}/16\mathbb{Z}\)</span>. This means that all the laws that hold in modular arithmetic, such as <span class="math inline">a\cdot(b+c)=a\cdot b+a\cdot c</span> hold for both unsigned and signed arithmetic, even in the presence of overflow!</p>
+</body>
+</html>
