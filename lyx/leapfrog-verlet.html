@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Leapfrog and Verlet are the same method</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Leapfrog and Verlet are the same method</h1>
+</header>
+<p>Leapfrog and Verlet are two popular methods to integrate Newton’s equations of motion in physics simulations and games. These methods occupy a sweet spot between Euler’s method (the simplest method) and higher order methods. They are almost as simple as Euler’s method and use only one force calculation per time step, yet they have crucial advantages: they are second order accurate (compared Euler’s method which is of order one), and they are symplectic and time reversible. Because they have such similar properties I wondered if Leapfrog and Verlet are actually the same method – after all, how many second order sympletic methods can there be? It turns out that they are indeed equivalent, a fact apparently well known among numerical methods people. Their equivalence is easier to understand with code than with math notation, so that’s what I’ll do here.</p>
+<p>I’m assuming that we have a function <span class="math inline">\(a(x)\)</span> to compute the forces/accelerations from the positions, and <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span> are initialised to the initial positions and velocities. Here is Verlet:</p>
+<pre><code>for(i = 0..n){
+  x_prev = x
+  x += v*dt + a(x)*dt/2
+  v += (a(x_prev) + a(x))*dt/2
+}</code></pre>
+<p>And here is Leapfrog:</p>
+<pre><code>for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt
+}</code></pre>
+<p>At first sight there’s no way that they could be equivalent, because Verlet computes <span class="math inline">\(x(t)\)</span> and <span class="math inline">\(v(t)\)</span> at multiples of the time step <span class="math inline">\(t=0,1,2,\dots\)</span>, whereas Leapfrog computes <span class="math inline">\(x(t)\)</span> at <span class="math inline">\(t=0,1,2,\dots\)</span> and <span class="math inline">\(v(t)\)</span> at <span class="math inline">\(t=0+\frac{1}{2},1+\frac{1}{2},2+\frac{1}{2},\dots\)</span> shifted one half step from each other (that’s why it’s called Leapfrog: the <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span> values leapfrog over each other). However, at the start of the simulation we’re given <span class="math inline">\(x(0)\)</span> and <span class="math inline">\(v(0)\)</span>, whereas Leapfrog requires <span class="math inline">\(x(0)\)</span> and <span class="math inline">\(v(\frac{1}{2})\)</span>. To get Leapfrog started we must compute <span class="math inline">\(v(\frac{1}{2})\)</span> first, which we can do with one step of Euler’s method with <span class="math inline">\(\Delta t=\frac{1}{2}\)</span>. Similarly, at the end we’ve got <span class="math inline">\(x(n)\)</span> and <span class="math inline">\(v(n+\frac{1}{2})\)</span> whereas we’d like to know <span class="math inline">\(v(n)\)</span>, which we can do by doing one step of Euler’s method backward with <span class="math inline">\(\Delta t=-\frac{1}{2}\)</span>. That gives us the corrected Leapfrog:</p>
+<pre><code>v += a(x)*dt/2
+for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt
+}
+v -= a(x)*dt/2</code></pre>
+<p>Let’s rewrite this in an apparently silly way by splitting the <span class="math inline">\(v\)</span> update in half:</p>
+<pre><code>v += a(x)*dt/2
+for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt/2
+  v += a(x)*dt/2
+}
+v -= a(x)*dt/2</code></pre>
+<p>Think about what this is doing by unrolling this loop in your mind:</p>
+<pre><code>v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+... n times ...
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+v -= a(x)*dt/2</code></pre>
+<p>The last two updates cancel each other out, so we can remove both. A different way of looking at it emerges:</p>
+<pre><code>v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+
+... n times ...
+
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2</code></pre>
+<p>In other words, the Leapfrog code is equivalent to this:</p>
+<pre><code>for(i = 0..n){
+  v += a(x)*dt/2
+  x += v*dt
+  v += a(x)*dt/2
+}</code></pre>
+<p>An iteration of this loop is exactly the same as an iteration of Verlet! Can you see why? (Hint: incorporate the first <span class="math inline">\(v\)</span> update into the subsequent <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span> updates).</p>
+<h2 id="second-variant" class="unnumbered">Second variant</h2>
+<p>Instead of advancing <span class="math inline">\(v\)</span> by half a timestep at the start and end of Leapfrog, we could also advance <span class="math inline">\(x\)</span> by half a timestep to get the second variant of Leapfrog:</p>
+<pre><code>x += v*dt/2
+for(i=0 to n){
+  v += a(x)*dt
+  x += v*dt
+}
+x -= v*dt/2</code></pre>
+<p>We can do the same rewrite and move everything into the loop:</p>
+<pre><code>for(i = 0..n){
+  x += v*dt/2
+  v += a(x)*dt
+  x += v*dt/2
+}</code></pre>
+<p>This variant has the advantage that <span class="math inline">\(a(x)\)</span> is only computed once per iteration. We don’t <em>really</em> need to compute <span class="math inline">\(a(x)\)</span> twice in the previous variant of Leapfrog-Verlet either, because the second call to <span class="math inline">\(a(x)\)</span> will be the same as the first call in the subsequent iteration, so we could save that instead of recomputing it. That complicates the code a bit, so I find this second variant nicer. By incorporating the first <span class="math inline">\(x\)</span> update into the subsequent <span class="math inline">\(v\)</span> and <span class="math inline">\(x\)</span> updates we obtain the second variant of Verlet:</p>
+<pre><code>for(i = 0..n){  
+  v_prev = v
+  v += a(x+v*dt/2)*dt
+  x += (v_prev + v)*dt/2
+}</code></pre>
+<p>This variant of Verlet also has the advantage of only computing <span class="math inline">\(a(x)\)</span> once. For some reason the other variant seems to be <a href="https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet">more popular</a>.</p>
+<h2 id="conclusion" class="unnumbered">Conclusion</h2>
+<p>In my opinion, the best way to write Leapfrog-Verlet is this:</p>
+<pre><code>for(i = 0..n){
+  x += v*dt/2
+  v += a(x)*dt
+  x += v*dt/2
+}</code></pre>
+<p>The advantage is that it’s pretty, computes both <span class="math inline">\(x\)</span> and <span class="math inline">\(v\)</span> at <span class="math inline">\(t=0,1,2,\dots\)</span>, and doesn’t use any state other than <span class="math inline">\((x,v)\)</span>. The disadvantage is that it updates <span class="math inline">\(x\)</span> twice per iteration, instead of once as Leapfrog does. This is likely to be of negligible cost compared to computing <span class="math inline">\(a(x)\)</span>, but if you really care about it then use the second variant of Leapfrog. Just keep in mind Leapfrog computes <span class="math inline">\(x\)</span> at shifted time steps, so if you use <span class="math inline">\(\frac{1}{2}mv^{2}+U(x)\)</span> to compute the energy you’ll get an incorrect value.</p>
+</body>
+</html>

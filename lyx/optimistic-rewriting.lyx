@@ -76,36 +76,11 @@
 \begin_body
 
 \begin_layout Title
-Consistent execution of imperative reactive programs
+What is specialisation?
 \end_layout
 
 \begin_layout Standard
-This is a comment in response to 
-\begin_inset CommandInset href
-LatexCommand href
-name "Sandro Magi's comments on FRP and S.js"
-target "http://julesjacobs.github.io/2018/02/22/hooks-bring-react-closer-to-frp.html#comment-4358285816"
-literal "false"
-
-\end_inset
-
-, turned into a post.
- S.js lets you create data signals with 
-\begin_inset listings
-inline true
-status open
-
-\begin_layout Plain Layout
-
-x = S.data(initial value)
-\end_layout
-
-\end_inset
-
-, read them with x() and write to them with x(value).
- In addition, it lets you create computations with S(() => {...}).
- When a signal is read in a computation, the computation is re-run whenever
- the signal's value changes.
+blah blah
 \end_layout
 
 \end_body

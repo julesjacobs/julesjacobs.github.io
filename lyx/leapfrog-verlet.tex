@@ -1,0 +1,192 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage[unicode=true]
+ {hyperref}
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Listing}
+
+\begin{document}
+\title{Leapfrog and Verlet are the same method}
+
+\maketitle
+Leapfrog and Verlet are two popular methods to integrate Newton's
+equations of motion in physics simulations and games. These methods
+occupy a sweet spot between Euler's method (the simplest method) and
+higher order methods. They are almost as simple as Euler's method
+and use only one force calculation per time step, yet they have crucial
+advantages: they are second order accurate (compared Euler's method
+which is of order one), and they are symplectic and time reversible.
+Because they have such similar properties I wondered if Leapfrog and
+Verlet are actually the same method -- after all, how many second
+order sympletic methods can there be? It turns out that they are indeed
+equivalent, a fact apparently well known among numerical methods people.
+Their equivalence is easier to understand with code than with math
+notation, so that's what I'll do here.
+
+I'm assuming that we have a function $a(x)$ to compute the forces/accelerations
+from the positions, and $x$ and $v$ are initialised to the initial
+positions and velocities. Here is Verlet:
+
+\begin{lstlisting}
+for(i = 0..n){
+  x_prev = x
+  x += v*dt + a(x)*dt/2
+  v += (a(x_prev) + a(x))*dt/2
+}
+\end{lstlisting}
+And here is Leapfrog:
+
+\begin{lstlisting}
+for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt
+}
+\end{lstlisting}
+At first sight there's no way that they could be equivalent, because
+Verlet computes $x(t)$ and $v(t)$ at multiples of the time step
+$t=0,1,2,\dots$, whereas Leapfrog computes $x(t)$ at $t=0,1,2,\dots$
+and $v(t)$ at $t=0+\frac{1}{2},1+\frac{1}{2},2+\frac{1}{2},\dots$
+shifted one half step from each other (that's why it's called Leapfrog:
+the $x$ and $v$ values leapfrog over each other). However, at the
+start of the simulation we're given $x(0)$ and $v(0)$, whereas Leapfrog
+requires $x(0)$ and $v(\frac{1}{2})$. To get Leapfrog started we
+must compute $v(\frac{1}{2})$ first, which we can do with one step
+of Euler's method with $\Delta t=\frac{1}{2}$. Similarly, at the
+end we've got $x(n)$ and $v(n+\frac{1}{2})$ whereas we'd like to
+know $v(n)$, which we can do by doing one step of Euler's method
+backward with $\Delta t=-\frac{1}{2}$. That gives us the corrected
+Leapfrog:
+
+\begin{lstlisting}
+v += a(x)*dt/2
+for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt
+}
+v -= a(x)*dt/2
+\end{lstlisting}
+Let's rewrite this in an apparently silly way by splitting the $v$
+update in half:
+
+\begin{lstlisting}
+v += a(x)*dt/2
+for(i = 0..n){
+  x += v*dt
+  v += a(x)*dt/2
+  v += a(x)*dt/2
+}
+v -= a(x)*dt/2
+\end{lstlisting}
+Think about what this is doing by unrolling this loop in your mind:
+
+\begin{lstlisting}
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+... n times ...
+x += v*dt
+v += a(x)*dt/2
+v += a(x)*dt/2
+v -= a(x)*dt/2
+\end{lstlisting}
+The last two updates cancel each other out, so we can remove both.
+A different way of looking at it emerges:
+
+\begin{lstlisting}
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+
+... n times ...
+
+v += a(x)*dt/2
+x += v*dt
+v += a(x)*dt/2
+\end{lstlisting}
+In other words, the Leapfrog code is equivalent to this:
+
+\begin{lstlisting}
+for(i = 0..n){
+  v += a(x)*dt/2
+  x += v*dt
+  v += a(x)*dt/2
+}
+\end{lstlisting}
+An iteration of this loop is exactly the same as an iteration of Verlet!
+Can you see why? (Hint: incorporate the first $v$ update into the
+subsequent $x$ and $v$ updates).
+
+\subsection*{Second variant}
+
+Instead of advancing $v$ by half a timestep at the start and end
+of Leapfrog, we could also advance $x$ by half a timestep to get
+the second variant of Leapfrog:
+
+\begin{lstlisting}
+x += v*dt/2
+for(i=0 to n){
+  v += a(x)*dt
+  x += v*dt
+}
+x -= v*dt/2
+\end{lstlisting}
+We can do the same rewrite and move everything into the loop:
+
+\begin{lstlisting}
+for(i = 0..n){
+  x += v*dt/2
+  v += a(x)*dt
+  x += v*dt/2
+}
+\end{lstlisting}
+This variant has the advantage that $a(x)$ is only computed once
+per iteration. We don't \emph{really }need to compute $a(x)$ twice
+in the previous variant of Leapfrog-Verlet either, because the second
+call to $a(x)$ will be the same as the first call in the subsequent
+iteration, so we could save that instead of recomputing it. That complicates
+the code a bit, so I find this second variant nicer. By incorporating
+the first $x$ update into the subsequent $v$ and $x$ updates we
+obtain the second variant of Verlet:
+
+\begin{lstlisting}
+for(i = 0..n){  
+  v_prev = v
+  v += a(x+v*dt/2)*dt
+  x += (v_prev + v)*dt/2
+}
+\end{lstlisting}
+This variant of Verlet also has the advantage of only computing $a(x)$
+once. For some reason the other variant seems to be \href{https://en.wikipedia.org/wiki/Verlet_integration\#Velocity_Verlet}{more popular}.
+
+\subsection*{Conclusion}
+
+In my opinion, the best way to write Leapfrog-Verlet is this:
+
+\begin{lstlisting}
+for(i = 0..n){
+  x += v*dt/2
+  v += a(x)*dt
+  x += v*dt/2
+}
+\end{lstlisting}
+The advantage is that it's pretty, computes both $x$ and $v$ at
+$t=0,1,2,\dots$, and doesn't use any state other than $(x,v)$. The
+disadvantage is that it updates $x$ twice per iteration, instead
+of once as Leapfrog does. This is likely to be of negligible cost
+compared to computing $a(x)$, but if you really care about it then
+use the second variant of Leapfrog. Just keep in mind Leapfrog computes
+$x$ at shifted time steps, so if you use $\frac{1}{2}mv^{2}+U(x)$
+to compute the energy you'll get an incorrect value.
+\end{document}

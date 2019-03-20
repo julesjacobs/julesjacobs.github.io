@@ -1,0 +1,832 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Leapfrog and Verlet are the same method
+\end_layout
+
+\begin_layout Standard
+Leapfrog and Verlet are two popular methods to integrate Newton's equations
+ of motion in physics simulations and games.
+ These methods occupy a sweet spot between Euler's method (the simplest
+ method) and higher order methods.
+ They are almost as simple as Euler's method and use only one force calculation
+ per time step, yet they have crucial advantages: they are second order
+ accurate (compared Euler's method which is of order one), and they are
+ symplectic and time reversible.
+ Because they have such similar properties I wondered if Leapfrog and Verlet
+ are actually the same method – after all, how many second order sympletic
+ methods can there be? It turns out that they are indeed equivalent, a fact
+ apparently well known among numerical methods people.
+ Their equivalence is easier to understand with code than with math notation,
+ so that's what I'll do here.
+\end_layout
+
+\begin_layout Standard
+I'm assuming that we have a function 
+\begin_inset Formula $a(x)$
+\end_inset
+
+ to compute the forces/accelerations from the positions, and 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ are initialised to the initial positions and velocities.
+ Here is Verlet:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x_prev = x
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt + a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += (a(x_prev) + a(x))*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+And here is Leapfrog:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+At first sight there's no way that they could be equivalent, because Verlet
+ computes 
+\begin_inset Formula $x(t)$
+\end_inset
+
+ and 
+\begin_inset Formula $v(t)$
+\end_inset
+
+ at multiples of the time step 
+\begin_inset Formula $t=0,1,2,\dots$
+\end_inset
+
+, whereas Leapfrog computes 
+\begin_inset Formula $x(t)$
+\end_inset
+
+ at 
+\begin_inset Formula $t=0,1,2,\dots$
+\end_inset
+
+ and 
+\begin_inset Formula $v(t)$
+\end_inset
+
+ at 
+\begin_inset Formula $t=0+\frac{1}{2},1+\frac{1}{2},2+\frac{1}{2},\dots$
+\end_inset
+
+ shifted one half step from each other (that's why it's called Leapfrog:
+ the 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ values leapfrog over each other).
+ However, at the start of the simulation we're given 
+\begin_inset Formula $x(0)$
+\end_inset
+
+ and 
+\begin_inset Formula $v(0)$
+\end_inset
+
+, whereas Leapfrog requires 
+\begin_inset Formula $x(0)$
+\end_inset
+
+ and 
+\begin_inset Formula $v(\frac{1}{2})$
+\end_inset
+
+.
+ To get Leapfrog started we must compute 
+\begin_inset Formula $v(\frac{1}{2})$
+\end_inset
+
+ first, which we can do with one step of Euler's method with 
+\begin_inset Formula $\Delta t=\frac{1}{2}$
+\end_inset
+
+.
+ Similarly, at the end we've got 
+\begin_inset Formula $x(n)$
+\end_inset
+
+ and 
+\begin_inset Formula $v(n+\frac{1}{2})$
+\end_inset
+
+ whereas we'd like to know 
+\begin_inset Formula $v(n)$
+\end_inset
+
+, which we can do by doing one step of Euler's method backward with 
+\begin_inset Formula $\Delta t=-\frac{1}{2}$
+\end_inset
+
+.
+ That gives us the corrected Leapfrog:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+v -= a(x)*dt/2
+\end_layout
+
+\end_inset
+
+Let's rewrite this in an apparently silly way by splitting the 
+\begin_inset Formula $v$
+\end_inset
+
+ update in half:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+v -= a(x)*dt/2
+\end_layout
+
+\end_inset
+
+Think about what this is doing by unrolling this loop in your mind:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ n times ...
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+v -= a(x)*dt/2
+\end_layout
+
+\end_inset
+
+The last two updates cancel each other out, so we can remove both.
+ A different way of looking at it emerges:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+ n times ...
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+v += a(x)*dt/2
+\end_layout
+
+\end_inset
+
+In other words, the Leapfrog code is equivalent to this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+An iteration of this loop is exactly the same as an iteration of Verlet!
+ Can you see why? (Hint: incorporate the first 
+\begin_inset Formula $v$
+\end_inset
+
+ update into the subsequent 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ updates).
+\end_layout
+
+\begin_layout Subsection*
+Second variant
+\end_layout
+
+\begin_layout Standard
+Instead of advancing 
+\begin_inset Formula $v$
+\end_inset
+
+ by half a timestep at the start and end of Leapfrog, we could also advance
+ 
+\begin_inset Formula $x$
+\end_inset
+
+ by half a timestep to get the second variant of Leapfrog:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+x += v*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+for(i=0 to n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+x -= v*dt/2
+\end_layout
+
+\end_inset
+
+We can do the same rewrite and move everything into the loop:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+This variant has the advantage that 
+\begin_inset Formula $a(x)$
+\end_inset
+
+ is only computed once per iteration.
+ We don't 
+\emph on
+really 
+\emph default
+need to compute 
+\begin_inset Formula $a(x)$
+\end_inset
+
+ twice in the previous variant of Leapfrog-Verlet either, because the second
+ call to 
+\begin_inset Formula $a(x)$
+\end_inset
+
+ will be the same as the first call in the subsequent iteration, so we could
+ save that instead of recomputing it.
+ That complicates the code a bit, so I find this second variant nicer.
+ By incorporating the first 
+\begin_inset Formula $x$
+\end_inset
+
+ update into the subsequent 
+\begin_inset Formula $v$
+\end_inset
+
+ and 
+\begin_inset Formula $x$
+\end_inset
+
+ updates we obtain the second variant of Verlet:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){  
+\end_layout
+
+\begin_layout Plain Layout
+
+  v_prev = v
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x+v*dt/2)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += (v_prev + v)*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+This variant of Verlet also has the advantage of only computing 
+\begin_inset Formula $a(x)$
+\end_inset
+
+ once.
+ For some reason the other variant seems to be 
+\begin_inset CommandInset href
+LatexCommand href
+name "more popular"
+target "https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+Conclusion
+\end_layout
+
+\begin_layout Standard
+In my opinion, the best way to write Leapfrog-Verlet is this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt/2
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+The advantage is that it's pretty, computes both 
+\begin_inset Formula $x$
+\end_inset
+
+ and 
+\begin_inset Formula $v$
+\end_inset
+
+ at 
+\begin_inset Formula $t=0,1,2,\dots$
+\end_inset
+
+, and doesn't use any state other than 
+\begin_inset Formula $(x,v)$
+\end_inset
+
+.
+ The disadvantage is that it updates 
+\begin_inset Formula $x$
+\end_inset
+
+ twice per iteration, instead of once as Leapfrog does.
+ This is likely to be of negligible cost compared to computing 
+\begin_inset Formula $a(x)$
+\end_inset
+
+, but if you really care about it then use the second variant of Leapfrog.
+ Just keep in mind Leapfrog computes 
+\begin_inset Formula $x$
+\end_inset
+
+ at shifted time steps, so if you use 
+\begin_inset Formula $\frac{1}{2}mv^{2}+U(x)$
+\end_inset
+
+ to compute the energy you'll get an incorrect value.
+ For a game you might not care about having velocities at shifted timepoints,
+ because you're drawing based on the positions, and you might not care about
+ exact initial conditions either.
+ In that case you could use Leapfrog without any initialisation:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+for(i = 0..n){
+\end_layout
+
+\begin_layout Plain Layout
+
+  x += v*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+  v += a(x)*dt
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+This is even simpler than Euler but behaves better.
+\end_layout
+
+\end_body
+\end_document
