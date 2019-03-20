@@ -22,9 +22,9 @@ title:  "Why two’s complement works"
 <body>
 <p>There are unsigned integers and signed integers. The first bit in a signed integer indicates whether it is positive or negative. You’d expect that CPUs have different instructions to do arithmetic with signed integers and unsigned integers. That’s partly true: x86 has DIV to divide unsigned integers and IDIV to divide signed integers, but there is only one ADD instruction, only one SUB instruction, and only one MUL instruction. These instructions work for both signed and unsigned integers. How can that be?!</p>
 <p>This is the magic of two’s complement. The bit patterns of signed integers are precisely such that ordinary unsigned arithmetic gives the correct sign bit. For four bit numbers the representation is as follows:</p>
-<table>
+<table >
 <thead>
-<tr class="header">
+<tr class="header" border=1>
 <th style="text-align: center;">bit pattern</th>
 <th style="text-align: center;">unsigned value</th>
 <th style="text-align: center;">signed value</th>
