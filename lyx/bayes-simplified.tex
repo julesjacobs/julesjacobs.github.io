@@ -1,0 +1,48 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{amsmath}
+\usepackage{babel}
+\begin{document}
+\title{Bayes' rule simply}
+
+\maketitle
+Bayes' rule is usually written 
+\begin{align*}
+P(\theta|x) & =P(x|\theta)\frac{P(\theta)}{P(x)}
+\end{align*}
+
+In practice we're trying to learn about some model parameter $\theta$
+given some observation $x$. The model $P(x|\theta)$ tells us how
+observations are influenced by the model parameter. This seems simple
+enough, but a small change in notation reveals how simple Bayes' rule
+is. Let us call $P(\theta)$ the prior on $\theta$ and $P'(\theta)$
+the posterior on theta. Then Bayes' rule says:
+
+\begin{align*}
+P'(\theta) & \propto P(x|\theta)P(\theta)
+\end{align*}
+We got rid of the denominator $P(x)$ because it's just a normalisation
+to make the total probability sum to 1, and say that $P'(\theta)$
+is proportional to $P(x|\theta)P(\theta)$. The value $P(x|\theta)P(\theta)=P(x,\theta)$
+is the joint probability of seeing a given pair $(x,\theta)$, so
+we can also write Bayes' rule as:
+
+\begin{align*}
+P'(\theta)\propto & P(x,\theta)
+\end{align*}
+So up to normalisation, the posterior is just substituting the actual
+observation $X=x$ into the joint distribution. How can we interpret
+this? Imagine that we have a robot whose current state of belief is
+given by $P(x,\theta)$ and that $x,\theta$ only have a finite number
+of possible values, so that the robot has stored a finite number of
+probabilities $P(x,\theta)$, one for each pair $(x,\theta)$. Suppose
+that the robot now learns $X=x$ by observation. What does it do to
+compute its posterior belief? It first sets $P(y,\theta)=0$ for all
+$y\neq x$ because the actual observed value is $x$. Then it renormalises
+the probabilities to make $P(x,\theta)$ sum to 1 again. That's all
+Bayes' rule is: simply delete the possibilities that are incompatible
+with the observation, and renormalise the remainder.
+\end{document}

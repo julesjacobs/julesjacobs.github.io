@@ -1,0 +1,31 @@
+---
+title:  "Bayes’ rule simply"
+---
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bayes’ rule simply</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p>Bayes’ rule is usually written <span class="math display">\[\begin{aligned}
+P(\theta|x) &amp; =P(x|\theta)\frac{P(\theta)}{P(x)}\end{aligned}\]</span></p>
+<p>In practice we’re trying to learn about some model parameter <span class="math inline">\(\theta\)</span> given some observation <span class="math inline">\(x\)</span>. The model <span class="math inline">\(P(x|\theta)\)</span> tells us how observations are influenced by the model parameter. This seems simple enough, but a small change in notation reveals how simple Bayes’ rule is. Let us call <span class="math inline">\(P(\theta)\)</span> the prior on <span class="math inline">\(\theta\)</span> and <span class="math inline">\(P&#39;(\theta)\)</span> the posterior on theta. Then Bayes’ rule says:</p>
+<p><span class="math display">\[\begin{aligned}
+P&#39;(\theta) &amp; \propto P(x|\theta)P(\theta)\end{aligned}\]</span> We got rid of the denominator <span class="math inline">\(P(x)\)</span> because it’s just a normalisation to make the total probability sum to 1, and say that <span class="math inline">\(P&#39;(\theta)\)</span> is proportional to <span class="math inline">\(P(x|\theta)P(\theta)\)</span>. The value <span class="math inline">\(P(x|\theta)P(\theta)=P(x,\theta)\)</span> is the joint probability of seeing a given pair <span class="math inline">\((x,\theta)\)</span>, so we can also write Bayes’ rule as:</p>
+<p><span class="math display">\[\begin{aligned}
+P&#39;(\theta)\propto &amp; P(x,\theta)\end{aligned}\]</span> So up to normalisation, the posterior is just substituting the actual observation <span class="math inline">\(X=x\)</span> into the joint distribution. How can we interpret this? Imagine that we have a robot whose current state of belief is given by <span class="math inline">\(P(x,\theta)\)</span> and that <span class="math inline">\(x,\theta\)</span> only have a finite number of possible values, so that the robot has stored a finite number of probabilities <span class="math inline">\(P(x,\theta)\)</span>, one for each pair <span class="math inline">\((x,\theta)\)</span>. Suppose that the robot now learns <span class="math inline">\(X=x\)</span> by observation. What does it do to compute its posterior belief? It first sets <span class="math inline">\(P(y,\theta)=0\)</span> for all <span class="math inline">\(y\neq x\)</span> because the actual observed value is <span class="math inline">\(x\)</span>. Then it renormalises the probabilities to make <span class="math inline">\(P(x,\theta)\)</span> sum to 1 again. That’s all Bayes’ rule is: simply delete the possibilities that are incompatible with the observation, and renormalise the remainder.</p>
+</body>
+</html>
