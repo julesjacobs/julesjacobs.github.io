@@ -1,0 +1,127 @@
+%% LyX 2.3.2-2 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[unicode=true]
+ {hyperref}
+\begin{document}
+\title{Bayes' rule from minimum relative entropy, and an alternative derivation
+of variational inference}
+
+\maketitle
+In Bayesian inference our goal is to compute the posterior distribution
+\begin{align*}
+Posterior(\theta) & =\frac{P(x^{*},\theta)}{\int P(x^{*},\theta)d\theta}
+\end{align*}
+where $P(x,\theta)$ is the joint distribution, and $x=x^{*}$ is
+the observed value of $x$, see \href{http://julesjacobs.github.io/2019/03/24/bayes-simply.html}{the previous post about Bayes' rule}.
+The trouble with this is the integral in the denominator, which is
+too difficult to compute for most models. Variational inference is
+one approach to compute an approximate posterior by solving an optimisation
+problem instead of an integral. Instead of computing $Posterior(\theta)$
+exactly, we choose an easy family of distributions $D\subset\mathbb{D}$,
+which is a subset of all distributions $\mathbb{D}$ on $\theta$,
+and then pick $Q\in D$ that minimises the relative entropy to the
+true posterior:
+\begin{align*}
+\min_{Q\in D} & D(Q||Posterior)
+\end{align*}
+If we minimise over all distributions $\mathbb{D}$, then this will
+give us $Q=Posterior$, but if we minimise only over a subset of all
+distributions $D\subset\mathbb{D}$, then we'll only get an approximation.
+So how does this help? Don't we need to compute the true $Posterior$
+anyway, in order to even set up this minimisation problem? It turns
+out that we don't. We can rewrite the relative entropy as follows:
+\begin{align*}
+D(Q||Posterior) & =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{Posterior(\theta)}]\\
+ & =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]+\log\int P(x^{*},\theta)d\theta
+\end{align*}
+The difficult integral pops out of the logarithm as an additive constant,
+so for the sake of the minimisation problem it doesn't matter:
+\begin{align*}
+\min_{Q\in D} & D(Q||Posterior)=\min_{Q\in D}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]
+\end{align*}
+The right hand side is called the ELBO, the evidence lower bound.
+You may ask how this problem is any easier, because the expectation
+is still a difficult integral. In general it is still difficult, but
+it becomes easy if we choose our family of distributions $D$ right.
+Usually the model we're talking about has a vector of parameters $\theta=(\theta_{1},\dots,\theta_{n})$,
+and we choose a distribution $Q(\theta)=Q_{1}(\theta_{1})\cdots Q_{n}(\theta_{n})$
+that factorises, and usually $P(x^{*},\theta)$ comes from a graphical
+model, so it factorises as well. The $\log$ turns this into a sum
+of terms, and for each of those terms it's (hopefully) easy to compute
+the expectation in closed form. We can then solve the minimisation
+problem using gradient descent, or a similar algorithm.
+
+\subsection*{Bayes' rule from minimum relative entropy}
+
+Instead of finding $Q$ as an approximation to the posterior, we're
+instead going to show that the posterior itself already is a solution
+to a miminisation problem. The problem is this: we have the model
+$P(x,\theta)$ and ask ourselves \textbf{what's the distribution $Q(x,\theta)$
+closest to $P(x,\theta)$, where $Q$ is any distribution that puts
+all probability mass on $x=x^{*}$?} If we interpret ``closest''
+as ``with minimum relative entropy'', then $Q$ is precisely the
+Bayesian posterior. Let me show you. The $Q$ we're trying to find
+is
+\begin{align*}
+\min_{Q\in D_{x^{*}}} & D(Q||P)
+\end{align*}
+where $D_{x^{*}}$ is the set of distributions that put all probability
+mass of $Q(x,\theta)$ on $x=x^{*}$. In other words, $Q(x,\theta)=\delta(x-x^{*})Q(\theta)$
+where $\delta$ is the Dirac delta measure. Since $D(Q||P)=\mathbb{E}_{x,\theta\sim Q}[\log\frac{Q(x,\theta)}{P(x,\theta)}]=\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]$,
+we have indeed
+\begin{align*}
+Posterior & =argmin_{Q\in\mathbb{D}}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]
+\end{align*}
+We have derived Bayes' rule from the principle of minimum relative
+entropy. Note that the term on the right hand side is precisely the
+ELBO of the previous section.
+
+\subsection*{An alternative derivation of variational inference}
+
+By turning the true posterior into a minimisation problem, we have
+an alternative motivation for variational inference. Instead of minimising
+over all distributions to get the true posterior, minmise over an
+easy family to get an approximation to the posterior. This sounds
+similar to the previous motivation, but it's subtly different. In
+the first motivation we used Bayes' rule to get the true posterior,
+and then used relative entropy to look for a distribution $Q$ that
+approximates the posterior, and then derived the ELBO by ignoring
+an additive constant. In the second motivation we derived the ELBO
+directly, by using relative entropy to obtain an expression for the
+true posterior as a minimisation problem. In summary, Bayesian inference
+answers the question:
+\begin{itemize}
+\item \textbf{What's the distribution $Q(x,\theta)$ closest to $P(x,\theta)$,
+where $Q\in\mathbb{D}$ is a distribution that puts all probability
+mass on $x=x^{*}$?}
+\end{itemize}
+Whereas variational inference is the following approximation:
+\begin{itemize}
+\item \textbf{What's the distribution $Q(x,\theta)$ closest to $P(x,\theta)$,
+where $Q\in D$ is a distribution that puts all probability mass on
+$x=x^{*}$?}
+\end{itemize}
+For exact Bayesian inference we optimise over the set of all distributions
+$\mathbb{D}$, whereas for variational inference we only optimise
+over some easy family $D\subset\mathbb{D}$.
+
+\subsection*{Maximum a posteriori inference}
+
+As a bonus, consider what happens if for our family $D$ we pick the
+set of distributions $Q_{\theta}\in D$ that put all probability mass
+on a single point $\theta$. The expectation $\mathbb{E}_{Q_{\theta}}[\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}]=\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}$
+becomes a single term in that case. The numerator is constant $Q_{\theta}(\theta)=1$
+because all probability mass is on that $\theta$ (let's assume $\theta$
+is discrete for the sake of argument), so we're left with 
+\begin{align*}
+\min_{\theta}\log\frac{1}{P(x^{*},\theta)} & =\max_{\theta}\log P(x^{*},\theta)
+\end{align*}
+This is MAP inference, so MAP inference is Bayesian variational inference
+with a particular easy family of distributions.
+\end{document}

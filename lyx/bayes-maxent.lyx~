@@ -1,0 +1,448 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\use_microtype false
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Bayes' rule from minimum relative entropy, and an alternative derivation
+ of variational inference
+\end_layout
+
+\begin_layout Standard
+In Bayesian inference our goal is to compute the posterior distribution
+\begin_inset Formula 
+\begin{align*}
+Posterior(\theta) & =\frac{P(x^{*},\theta)}{\int P(x^{*},\theta)d\theta}
+\end{align*}
+
+\end_inset
+
+where 
+\begin_inset Formula $P(x,\theta)$
+\end_inset
+
+ is the joint distribution, and 
+\begin_inset Formula $x=x^{*}$
+\end_inset
+
+ is the observed value of 
+\begin_inset Formula $x$
+\end_inset
+
+, see 
+\begin_inset CommandInset href
+LatexCommand href
+name "the previous post about Bayes' rule"
+target "http://julesjacobs.github.io/2019/03/24/bayes-simply.html"
+literal "false"
+
+\end_inset
+
+.
+ The trouble with this is the integral in the denominator, which is too
+ difficult to compute for most models.
+ Variational inference is one approach to compute an approximate posterior
+ by solving an optimisation problem instead of an integral.
+ Instead of computing 
+\begin_inset Formula $Posterior(\theta)$
+\end_inset
+
+ exactly, we choose an easy family of distributions 
+\begin_inset Formula $D\subset\mathbb{D}$
+\end_inset
+
+, which is a subset of all distributions 
+\begin_inset Formula $\mathbb{D}$
+\end_inset
+
+ on 
+\begin_inset Formula $\theta$
+\end_inset
+
+, and then pick 
+\begin_inset Formula $Q\in D$
+\end_inset
+
+ that minimises the relative entropy to the true posterior:
+\begin_inset Formula 
+\begin{align*}
+\min_{Q\in D} & D(Q||Posterior)
+\end{align*}
+
+\end_inset
+
+If we minimise over all distributions 
+\begin_inset Formula $\mathbb{D}$
+\end_inset
+
+, then this will give us 
+\begin_inset Formula $Q=Posterior$
+\end_inset
+
+, but if we minimise only over a subset of all distributions 
+\begin_inset Formula $D\subset\mathbb{D}$
+\end_inset
+
+, then we'll only get an approximation.
+ So how does this help? Don't we need to compute the true 
+\begin_inset Formula $Posterior$
+\end_inset
+
+ anyway, in order to even set up this minimisation problem? It turns out
+ that we don't.
+ We can rewrite the relative entropy as follows:
+\begin_inset Formula 
+\begin{align*}
+D(Q||Posterior) & =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{Posterior(\theta)}]\\
+ & =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]+\log\int P(x^{*},\theta)d\theta
+\end{align*}
+
+\end_inset
+
+The difficult integral pops out of the logarithm as an additive constant,
+ so for the sake of the minimisation problem it doesn't matter:
+\begin_inset Formula 
+\begin{align*}
+\min_{Q\in D} & D(Q||Posterior)=\min_{Q\in D}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]
+\end{align*}
+
+\end_inset
+
+The right hand side is called the ELBO, the evidence lower bound.
+ You may ask how this problem is any easier, because the expectation is
+ still a difficult integral.
+ In general it is still difficult, but it becomes easy if we choose our
+ family of distributions 
+\begin_inset Formula $D$
+\end_inset
+
+ right.
+ Usually the model we're talking about has a vector of parameters 
+\begin_inset Formula $\theta=(\theta_{1},\dots,\theta_{n})$
+\end_inset
+
+, and we choose a distribution 
+\begin_inset Formula $Q(\theta)=Q_{1}(\theta_{1})\cdots Q_{n}(\theta_{n})$
+\end_inset
+
+ that factorises, and usually 
+\begin_inset Formula $P(x^{*},\theta)$
+\end_inset
+
+ comes from a graphical model, so it factorises as well.
+ The 
+\begin_inset Formula $\log$
+\end_inset
+
+ turns this into a sum of terms, and for each of those terms it's (hopefully)
+ easy to compute the expectation in closed form.
+ We can then solve the minimisation problem using gradient descent, or a
+ similar algorithm.
+\end_layout
+
+\begin_layout Subsection*
+Bayes' rule from minimum relative entropy
+\end_layout
+
+\begin_layout Standard
+Instead of finding 
+\begin_inset Formula $Q$
+\end_inset
+
+ as an approximation to the posterior, we're instead going to show that
+ the posterior itself already is a solution to a miminisation problem.
+ The problem is this: we have the model 
+\begin_inset Formula $P(x,\theta)$
+\end_inset
+
+ and ask ourselves 
+\series bold
+what's the distribution 
+\begin_inset Formula $Q(x,\theta)$
+\end_inset
+
+ closest to 
+\begin_inset Formula $P(x,\theta)$
+\end_inset
+
+, where 
+\begin_inset Formula $Q$
+\end_inset
+
+ is any distribution that puts all probability mass on 
+\begin_inset Formula $x=x^{*}$
+\end_inset
+
+?
+\series default
+ If we interpret 
+\begin_inset Quotes eld
+\end_inset
+
+closest
+\begin_inset Quotes erd
+\end_inset
+
+ as 
+\begin_inset Quotes eld
+\end_inset
+
+with minimum relative entropy
+\begin_inset Quotes erd
+\end_inset
+
+, then 
+\begin_inset Formula $Q$
+\end_inset
+
+ is precisely the Bayesian posterior.
+ Let me show you.
+ The 
+\begin_inset Formula $Q$
+\end_inset
+
+ we're trying to find is
+\begin_inset Formula 
+\begin{align*}
+\min_{Q\in D_{x^{*}}} & D(Q||P)
+\end{align*}
+
+\end_inset
+
+where 
+\begin_inset Formula $D_{x^{*}}$
+\end_inset
+
+ is the set of distributions that put all probability mass of 
+\begin_inset Formula $Q(x,\theta)$
+\end_inset
+
+ on 
+\begin_inset Formula $x=x^{*}$
+\end_inset
+
+.
+ In other words, 
+\begin_inset Formula $Q(x,\theta)=\delta(x-x^{*})Q(\theta)$
+\end_inset
+
+ where 
+\begin_inset Formula $\delta$
+\end_inset
+
+ is the Dirac delta measure.
+ Since 
+\begin_inset Formula $D(Q||P)=\mathbb{E}_{x,\theta\sim Q}[\log\frac{Q(x,\theta)}{P(x,\theta)}]=\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]$
+\end_inset
+
+, we have indeed
+\begin_inset Formula 
+\begin{align*}
+Posterior & =argmin_{Q\in\mathbb{D}}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]
+\end{align*}
+
+\end_inset
+
+We have derived Bayes' rule from the principle of minimum relative entropy.
+ Note that the term on the right hand side is precisely the ELBO of the
+ previous section.
+\end_layout
+
+\begin_layout Subsection*
+An alternative derivation of variational inference
+\end_layout
+
+\begin_layout Standard
+By turning the true posterior into a minimisation problem, we have an alternativ
+e motivation for variational inference.
+ Instead of minimising over all distributions to get the true posterior,
+ minmise over an easy family to get an approximation to the posterior.
+ This sounds similar to the previous motivation, but it's subtly different.
+ In the first motivation we used Bayes' rule to get the true posterior,
+ and then used relative entropy to look for a distribution 
+\begin_inset Formula $Q$
+\end_inset
+
+ that approximates the posterior, and then derived the ELBO by ignoring
+ an additive constant.
+ In the second motivation we derived the ELBO directly, by using relative
+ entropy to obtain an expression for the true posterior as a minimisation
+ problem.
+ In summary, Bayesian inference answers the question:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+What's the distribution 
+\begin_inset Formula $Q(x,\theta)$
+\end_inset
+
+ closest to 
+\begin_inset Formula $P(x,\theta)$
+\end_inset
+
+, where 
+\begin_inset Formula $Q\in\mathbb{D}$
+\end_inset
+
+ is a distribution that puts all probability mass on 
+\begin_inset Formula $x=x^{*}$
+\end_inset
+
+?
+\end_layout
+
+\begin_layout Standard
+Whereas variational inference is the following approximation:
+\end_layout
+
+\begin_layout Itemize
+
+\series bold
+What's the distribution 
+\begin_inset Formula $Q(x,\theta)$
+\end_inset
+
+ closest to 
+\begin_inset Formula $P(x,\theta)$
+\end_inset
+
+, where 
+\begin_inset Formula $Q\in D$
+\end_inset
+
+ is a distribution that puts all probability mass on 
+\begin_inset Formula $x=x^{*}$
+\end_inset
+
+?
+\end_layout
+
+\begin_layout Standard
+For exact Bayesian inference we optimise over the set of all distributions
+ 
+\begin_inset Formula $\mathbb{D}$
+\end_inset
+
+, whereas for variational inference we only optimise over some easy family
+ 
+\begin_inset Formula $D\subset\mathbb{D}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+Maximum a posteriori inference
+\end_layout
+
+\begin_layout Standard
+As a bonus, consider what happens if for our family 
+\begin_inset Formula $D$
+\end_inset
+
+ we pick the set of distributions 
+\begin_inset Formula $Q_{\theta}\in D$
+\end_inset
+
+ that put all probability mass on a single point 
+\begin_inset Formula $\theta$
+\end_inset
+
+.
+ The expectation 
+\begin_inset Formula $\mathbb{E}_{Q_{\theta}}[\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}]=\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}$
+\end_inset
+
+ becomes a single term in that case.
+ The numerator is constant with respect to 
+\begin_inset Formula $\theta$
+\end_inset
+
+, so we're left with 
+\begin_inset Formula 
+\begin{align*}
+\min_{\theta}\log\frac{1}{P(x^{*},\theta)} & =\max_{\theta}\log P(x^{*},\theta)
+\end{align*}
+
+\end_inset
+
+Which is just MAP inference, so map inference is Bayesian variational inference
+ with a particular easy family of distributions.
+\end_layout
+
+\end_body
+\end_document

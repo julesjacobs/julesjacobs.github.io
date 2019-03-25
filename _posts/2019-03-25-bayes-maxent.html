@@ -1,0 +1,47 @@
+---
+title:  "Bayes’ rule from minimum relative entropy, and an alternative derivation of variational inference"
+---
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Bayes’ rule from minimum relative entropy, and an alternative derivation of variational inference</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<p>In Bayesian inference our goal is to compute the posterior distribution <span class="math display">\[\begin{aligned}
+Posterior(\theta) &amp; =\frac{P(x^{*},\theta)}{\int P(x^{*},\theta)d\theta}\end{aligned}\]</span> where <span class="math inline">\(P(x,\theta)\)</span> is the joint distribution, and <span class="math inline">\(x=x^{*}\)</span> is the observed value of <span class="math inline">\(x\)</span>, see <a href="http://julesjacobs.github.io/2019/03/24/bayes-simply.html">the previous post about Bayes’ rule</a>. The trouble with this is the integral in the denominator, which is too difficult to compute for most models. Variational inference is one approach to compute an approximate posterior by solving an optimisation problem instead of an integral. Instead of computing <span class="math inline">\(Posterior(\theta)\)</span> exactly, we choose an easy family of distributions <span class="math inline">\(D\subset\mathbb{D}\)</span>, which is a subset of all distributions <span class="math inline">\(\mathbb{D}\)</span> on <span class="math inline">\(\theta\)</span>, and then pick <span class="math inline">\(Q\in D\)</span> that minimises the relative entropy to the true posterior: <span class="math display">\[\begin{aligned}
+\min_{Q\in D} &amp; D(Q||Posterior)\end{aligned}\]</span> If we minimise over all distributions <span class="math inline">\(\mathbb{D}\)</span>, then this will give us <span class="math inline">\(Q=Posterior\)</span>, but if we minimise only over a subset of all distributions <span class="math inline">\(D\subset\mathbb{D}\)</span>, then we’ll only get an approximation. So how does this help? Don’t we need to compute the true <span class="math inline">\(Posterior\)</span> anyway, in order to even set up this minimisation problem? It turns out that we don’t. We can rewrite the relative entropy as follows: <span class="math display">\[\begin{aligned}
+D(Q||Posterior) &amp; =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{Posterior(\theta)}]\\
+ &amp; =\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]+\log\int P(x^{*},\theta)d\theta\end{aligned}\]</span> The difficult integral pops out of the logarithm as an additive constant, so for the sake of the minimisation problem it doesn’t matter: <span class="math display">\[\begin{aligned}
+\min_{Q\in D} &amp; D(Q||Posterior)=\min_{Q\in D}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]\end{aligned}\]</span> The right hand side is called the ELBO, the evidence lower bound. You may ask how this problem is any easier, because the expectation is still a difficult integral. In general it is still difficult, but it becomes easy if we choose our family of distributions <span class="math inline">\(D\)</span> right. Usually the model we’re talking about has a vector of parameters <span class="math inline">\(\theta=(\theta_{1},\dots,\theta_{n})\)</span>, and we choose a distribution <span class="math inline">\(Q(\theta)=Q_{1}(\theta_{1})\cdots Q_{n}(\theta_{n})\)</span> that factorises, and usually <span class="math inline">\(P(x^{*},\theta)\)</span> comes from a graphical model, so it factorises as well. The <span class="math inline">\(\log\)</span> turns this into a sum of terms, and for each of those terms it’s (hopefully) easy to compute the expectation in closed form. We can then solve the minimisation problem using gradient descent, or a similar algorithm.</p>
+<h2 id="bayes-rule-from-minimum-relative-entropy" class="unnumbered">Bayes’ rule from minimum relative entropy</h2>
+<p>Instead of finding <span class="math inline">\(Q\)</span> as an approximation to the posterior, we’re instead going to show that the posterior itself already is a solution to a miminisation problem. The problem is this: we have the model <span class="math inline">\(P(x,\theta)\)</span> and ask ourselves <strong>what’s the distribution <span class="math inline">\(Q(x,\theta)\)</span> closest to <span class="math inline">\(P(x,\theta)\)</span>, where <span class="math inline">\(Q\)</span> is any distribution that puts all probability mass on <span class="math inline">\(x=x^{*}\)</span>?</strong> If we interpret “closest” as “with minimum relative entropy”, then <span class="math inline">\(Q\)</span> is precisely the Bayesian posterior. Let me show you. The <span class="math inline">\(Q\)</span> we’re trying to find is <span class="math display">\[\begin{aligned}
+\min_{Q\in D_{x^{*}}} &amp; D(Q||P)\end{aligned}\]</span> where <span class="math inline">\(D_{x^{*}}\)</span> is the set of distributions that put all probability mass of <span class="math inline">\(Q(x,\theta)\)</span> on <span class="math inline">\(x=x^{*}\)</span>. In other words, <span class="math inline">\(Q(x,\theta)=\delta(x-x^{*})Q(\theta)\)</span> where <span class="math inline">\(\delta\)</span> is the Dirac delta measure. Since <span class="math inline">\(D(Q||P)=\mathbb{E}_{x,\theta\sim Q}[\log\frac{Q(x,\theta)}{P(x,\theta)}]=\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]\)</span>, we have indeed <span class="math display">\[\begin{aligned}
+Posterior &amp; =argmin_{Q\in\mathbb{D}}\mathbb{E}_{\theta\sim Q}[\log\frac{Q(\theta)}{P(x^{*},\theta)}]\end{aligned}\]</span> We have derived Bayes’ rule from the principle of minimum relative entropy. Note that the term on the right hand side is precisely the ELBO of the previous section.</p>
+<h2 id="an-alternative-derivation-of-variational-inference" class="unnumbered">An alternative derivation of variational inference</h2>
+<p>By turning the true posterior into a minimisation problem, we have an alternative motivation for variational inference. Instead of minimising over all distributions to get the true posterior, minmise over an easy family to get an approximation to the posterior. This sounds similar to the previous motivation, but it’s subtly different. In the first motivation we used Bayes’ rule to get the true posterior, and then used relative entropy to look for a distribution <span class="math inline">\(Q\)</span> that approximates the posterior, and then derived the ELBO by ignoring an additive constant. In the second motivation we derived the ELBO directly, by using relative entropy to obtain an expression for the true posterior as a minimisation problem. In summary, Bayesian inference answers the question:</p>
+<ul>
+<li><p><strong>What’s the distribution <span class="math inline">\(Q(x,\theta)\)</span> closest to <span class="math inline">\(P(x,\theta)\)</span>, where <span class="math inline">\(Q\in\mathbb{D}\)</span> is a distribution that puts all probability mass on <span class="math inline">\(x=x^{*}\)</span>?</strong></p></li>
+</ul>
+<p>Whereas variational inference is the following approximation:</p>
+<ul>
+<li><p><strong>What’s the distribution <span class="math inline">\(Q(x,\theta)\)</span> closest to <span class="math inline">\(P(x,\theta)\)</span>, where <span class="math inline">\(Q\in D\)</span> is a distribution that puts all probability mass on <span class="math inline">\(x=x^{*}\)</span>?</strong></p></li>
+</ul>
+<p>For exact Bayesian inference we optimise over the set of all distributions <span class="math inline">\(\mathbb{D}\)</span>, whereas for variational inference we only optimise over some easy family <span class="math inline">\(D\subset\mathbb{D}\)</span>.</p>
+<h2 id="maximum-a-posteriori-inference" class="unnumbered">Maximum a posteriori inference</h2>
+<p>As a bonus, consider what happens if for our family <span class="math inline">\(D\)</span> we pick the set of distributions <span class="math inline">\(Q_{\theta}\in D\)</span> that put all probability mass on a single point <span class="math inline">\(\theta\)</span>. The expectation <span class="math inline">\(\mathbb{E}_{Q_{\theta}}[\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}]=\log\frac{Q_{\theta}(\theta)}{P(x^{*},\theta)}\)</span> becomes a single term in that case. The numerator is constant <span class="math inline">\(Q_{\theta}(\theta)=1\)</span> because all probability mass is on that <span class="math inline">\(\theta\)</span> (let’s assume <span class="math inline">\(\theta\)</span> is discrete for the sake of argument), so we’re left with <span class="math display">\[\begin{aligned}
+\min_{\theta}\log\frac{1}{P(x^{*},\theta)} &amp; =\max_{\theta}\log P(x^{*},\theta)\end{aligned}\]</span> This is MAP inference, so MAP inference is Bayesian variational inference with a particular easy family of distributions.</p>
+</body>
+</html>
