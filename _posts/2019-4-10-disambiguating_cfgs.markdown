@@ -98,6 +98,17 @@ let danglingElseGrammar =
         AltL(
           SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", Sym "S"))),
           SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", SeqR(Sym "S", SeqR(Str " else ", Sym "S")))))))
+  ] |> Map.ofList
+
+let longestMatchGrammar =
+  [
+  "S",AltL(
+        Str "n", 
+        SeqR(Str "match ", SeqR(Sym "S", SeqR(Str " with ", Sym "P+"))));
+   "P+",AltL(
+          Sym "P",
+          SeqL(Sym "P", SeqL(Str " ",Sym "P+")));
+    "P",SeqL(Str "id -> ", Sym "S")
   ] |> Map.ofList 
 {% endhighlight %}
 
@@ -108,7 +119,12 @@ Testing gives:
 n + if n then n + n ==> S[n] + S[if S[n] then S[S[n] + S[n]]]
 
 > test danglingElseGrammar ["if n then if n then n else if n then n else n"];;
-if n then if n then n else if n then n else n ==> if S[n] then S[if S[n] then S[n] else S[if S[n] then S[n] else S[n]]]
+if n then if n then n else if n then n else n 
+==> if S[n] then S[if S[n] then S[n] else S[if S[n] then S[n] else S[n]]]
+
+> test longestMatchGrammar ["match n with id -> match n with id -> n id -> n"];;
+match n with id -> match n with id -> n id -> n 
+==> match S[n] with P+[P[id -> S[match S[n] with P+[P[id -> S[n]] P+[P[id -> S[n]]]]]]]
 {% endhighlight %}
 
 For repetition `Y = A*`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
@@ -119,5 +135,7 @@ Y -> ε | A < Y      // leftmost-shortest
 Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
+
+
 
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we might still have to resort to rewriting the grammar to make it produce the parse tree we want.
