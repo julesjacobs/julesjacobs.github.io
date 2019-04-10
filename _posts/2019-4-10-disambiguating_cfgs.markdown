@@ -111,13 +111,13 @@ n + if n then n + n ==> S[n] + S[if S[n] then S[S[n] + S[n]]]
 if n then if n then n else if n then n else n ==> if S[n] then S[if S[n] then S[n] else S[if S[n] then S[n] else S[n]]]
 {% endhighlight %}
 
-For repetition `Y = A+`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
+For repetition `Y = A*`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
 
 {% highlight fsharp %}
-Y -> A | A > Y      // leftmost-longest
-Y -> A | A < Y      // leftmost-shortest
-Y -> A | Y < A      // rightmost-longest
-Y -> A | Y > A      // rightmost-shortest
+Y -> ε | A > Y      // leftmost-longest
+Y -> ε | A < Y      // leftmost-shortest
+Y -> ε | Y < A      // rightmost-longest
+Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
 
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we might still have to resort to rewriting the grammar to make it produce the parse tree we want.
