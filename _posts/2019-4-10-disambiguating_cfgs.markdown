@@ -79,7 +79,7 @@ n + n * n ==> S[n] + S[S[n] * S[n]]
 n * n + n ==> S[S[n] * S[n]] + S[n]
 {% endhighlight %}
 
-The more difficult examples from the paper involving if-then/if-then-else/match can also be handled by adding left and right bias at the appropriate points:
+The more difficult examples from the paper involving if-then/if-then-else/match can also be handled by adding left and right bias at appropriate points:
 
 {% highlight fsharp %}
 let prefixGrammar =
@@ -126,6 +126,8 @@ if n then if n then n else if n then n else n
 match n with id -> match n with id -> n id -> n 
 ==> match S[n] with P+[P[id -> S[match S[n] with P+[P[id -> S[n]] P+[P[id -> S[n]]]]]]]
 {% endhighlight %}
+
+Note that at most points in the grammar, it doesn't matter whether we use left bias (SeqL) or right bias (SeqR), because those parts of the grammar are unambiguous anyway. This toy example only supports SeqL, but for a real implementation we'd want to add a version of Seq that creates a parse forest with all alternatives, and/or a version of Seq that raises an error if there is more than one parse tree, telling us that we need to disambiguate.
 
 For repetition `Y = A*`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
 
