@@ -166,5 +166,7 @@ aaabbb ==> A[aa]A[abb]A[b]
 aaabbb ==> A[aaa]A[b]A[bb]
 {% endhighlight %}
 
+Hence the difference between leftmost-longest and rightmost-shortest, and between leftmost-shortest and rightmost-longest.
+
 
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we still have to rewrite the grammar to make it produce the parse tree we want.
