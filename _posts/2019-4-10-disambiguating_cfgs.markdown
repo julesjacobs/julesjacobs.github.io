@@ -68,15 +68,21 @@ let arithmeticGrammar =
   ] |> Map.ofList
 {% endhighlight %}
 
-And we test it with a small utility:
+And test it:
 
 {% highlight fsharp %}
-> let test g ss = ss |> Seq.iter (fun s -> printf "%s ==> %s\n" s (defaultArg (parse g s) "Parse error"))
-> test arithmeticGrammar ["n + n + n";"n * n * n";"n + n * n";"n * n + n"];;
+> test arithmeticGrammar ["n + n + n";"n * n * n";"n + n * n";"n * n + n";"n * * + n"];;
 n + n + n ==> S[n] + S[S[n] + S[n]]
 n * n * n ==> S[S[n] * S[n]] * S[n]
 n + n * n ==> S[n] + S[S[n] * S[n]]
 n * n + n ==> S[S[n] * S[n]] + S[n]
+n * * + n ==> Parse error
+{% endhighlight %}
+
+With this utility function:
+
+{% highlight fsharp %}
+let test g ss = ss |> Seq.iter (fun s -> printf "%s ==> %s\n" s (defaultArg (parse g s) "Parse error"))
 {% endhighlight %}
 
 The more difficult examples from the paper involving if-then/if-then-else/match can also be handled by adding left and right bias at appropriate points:
