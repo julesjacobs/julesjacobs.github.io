@@ -15,7 +15,7 @@ In this post I'll investigate an alternative way to do disambiguation that is ba
 
 The union `A | B` will produce ambiguity whenever there is an input that can be parsed by both `A` and `B`. This is easily resolved by introducing a left-biased choice `A / B` that will try `A` first and only try `B` if `A` fails. This is functionally identical to a precedence filter that filters out `B`-trees in favour of `A`-trees. The difference is our perspective: we think of `A / B` as an unambiguous version of `A | B`, rather than as a filter that filters a parse forest.
 
-The sequential composition `A B` can also produce ambiguity. For example, if `A = B = 'x' | 'xx' | 'xxx'` then the string `xxxx` can be parsed as `(x)(xxx)` or `(xx)(xx)` or `(xxx)(x)`. There is ambiguity about how much of the string is parsed by `A` and how much by `B`. Hence we introduce left-biased sequential composition `A > B`, which always parses as much as possible with `A`, and right-biased sequential composition `A < B`, which always parses as much as possible with `B`. The string `xxxx` will be parsed as `(xxx)(x)` by `A > B` and as `(x)(xxx)` by `A < B`.
+The sequential composition `A B` can also produce ambiguity. For example, if `A = B = 'x' | 'xx' | 'xxx'` then the string `xxxx` can be parsed as `(x)(xxx)` or `(xx)(xx)` or `(xxx)(x)`. There is ambiguity about how much of the string is parsed by `A` and how much by `B`. Hence we introduce right-biased sequential composition `A > B`, which always parses as much as possible with `A`, and left-biased sequential composition `A < B`, which always parses as much as possible with `B`. The string `xxxx` will be parsed as `(xxx)(x)` by `A > B` and as `(x)(xxx)` by `A < B`.
 
 That's all well and good, but can we actually do associativity and precedence with those operators? It turns out that we can:
 
@@ -143,5 +143,32 @@ Y -> ε | A < Y      // leftmost-shortest
 Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
+
+Note that that `<` and `>` are not associative, `A < (B < C)` is not the same as `(A < B) < C`:
+
+{% highlight fsharp %}
+let nonAssociativeGrammar1 =
+  [
+  "S",SeqL(Sym "A", SeqL(Sym "B", Sym "C"));
+  "A",AltL(Str "aaa", Str "aaaa");
+  "B",AltL(Str "b", Str "abbb");
+  "C",AltL(Str "b", Str "bbb")
+  ] |> Map.ofList 
+
+let nonAssociativeGrammar2 =
+  [
+  "S",SeqL(SeqL(Sym "A", Sym "B"), Sym "C");
+  "A",AltL(Str "aaa", Str "aaaa");
+  "B",AltL(Str "b", Str "abbb");
+  "C",AltL(Str "b", Str "bbb")
+  ] |> Map.ofList 
+
+> test nonAssociativeGrammar1 ["aaaabbbb"];;
+aaaabbbb ==> A[aaa]B[abbb]C[b]
+
+> test nonAssociativeGrammar2 ["aaaabbbb"];;
+aaaabbbb ==> A[aaaa]B[b]C[bbb]
+{% endhighlight %}
+
 
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we still have to rewrite the grammar to make it produce the parse tree we want.
