@@ -150,24 +150,24 @@ Note that that `<` and `>` are not associative, `A < (B < C)` is not the same as
 let nonAssociativeGrammar1 =
   [
   "S",SeqL(Sym "A", SeqL(Sym "B", Sym "C"));
-  "A",AltL(Str "aaa", Str "aaaa");
-  "B",AltL(Str "b", Str "abbb");
-  "C",AltL(Str "b", Str "bbb")
+  "A",AltL(Str "aa", Str "aaa");
+  "B",AltL(Str "b", Str "abb");
+  "C",AltL(Str "b", Str "bb")
   ] |> Map.ofList 
 
 let nonAssociativeGrammar2 =
   [
   "S",SeqL(SeqL(Sym "A", Sym "B"), Sym "C");
-  "A",AltL(Str "aaa", Str "aaaa");
-  "B",AltL(Str "b", Str "abbb");
-  "C",AltL(Str "b", Str "bbb")
+  "A",AltL(Str "aa", Str "aaa");
+  "B",AltL(Str "b", Str "abb");
+  "C",AltL(Str "b", Str "bb")
   ] |> Map.ofList 
 
-> test nonAssociativeGrammar1 ["aaaabbbb"];;
-aaaabbbb ==> A[aaa]B[abbb]C[b]
+> test nonAssociativeGrammar1 ["aaabbb"];;
+aaabbb ==> A[aa]B[abb]C[b]
 
-> test nonAssociativeGrammar2 ["aaaabbbb"];;
-aaaabbbb ==> A[aaaa]B[b]C[bbb]
+> test nonAssociativeGrammar2 ["aaabbb"];;
+aaabbb ==> A[aaa]B[b]C[bb]
 {% endhighlight %}
 
 
