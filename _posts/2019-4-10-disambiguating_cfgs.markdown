@@ -96,9 +96,9 @@ let danglingElseGrammar =
   "S",AltL(
         Str "n", 
         AltL(
-          SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", SeqR(Sym "S", SeqR(Str " else ", Sym "S"))))),
-          SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", Sym "S")))))
-  ] |> Map.ofList
+          SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", Sym "S"))),
+          SeqR(Str "if ", SeqR(Sym "S", SeqR(Str " then ", SeqR(Sym "S", SeqR(Str " else ", Sym "S")))))))
+  ] |> Map.ofList 
 {% endhighlight %}
 
 Testing gives:
@@ -107,8 +107,8 @@ Testing gives:
 > test prefixGrammar ["n + if n then n + n"];;
 n + if n then n + n ==> S[n] + S[if S[n] then S[S[n] + S[n]]]
 
-> test danglingElseGrammar ["if n then if n then n else n"];;
-if n then if n then n else n ==> if S[n] then S[if S[n] then S[n]] else S[n]
+> test danglingElseGrammar ["if n then if n then n else if n then n else n"];;
+if n then if n then n else if n then n else n ==> if S[n] then S[if S[n] then S[n] else S[if S[n] then S[n] else S[n]]]
 {% endhighlight %}
 
 For repetition `Y = A+`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
