@@ -144,31 +144,4 @@ Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
 
-Note that that `<` and `>` are not associative, `A > (B > C)` is not the same as `(A > B) > C`:
-
-{% highlight fsharp %}
-let nonAssociativeGrammar1 =
-  [
-  "S",SeqL(Sym "A", SeqL(Sym "B", Sym "C"));
-  "A",AltL(Str "aaaa", Str "aaa");
-  "B",AltL(Str "a", Str "abbb");
-  "C",AltL(Str "b", Str "bbbb")
-  ] |> Map.ofList 
-
-let nonAssociativeGrammar2 =
-  [
-  "S",SeqL(SeqL(Sym "A", Sym "B"), Sym "C");
-  "A",AltL(Str "aaaa", Str "aaa");
-  "B",AltL(Str "a", Str "abbb");
-  "C",AltL(Str "b", Str "bbb")
-  ] |> Map.ofList
-
-> test nonAssociativeGrammar1 ["aaaabbbb"];;
-aaaabbbb ==> A[aaa]B[a]C[bbbb]
-
-> test nonAssociativeGrammar2 ["aaaabbbb"];;
-aaaabbbb ==> A[aaa]B[abbb]C[b]
-{% endhighlight %}
-
-
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we still have to rewrite the grammar to make it produce the parse tree we want.
