@@ -79,7 +79,7 @@ n + n * n ==> S[n] + S[S[n] * S[n]]
 n * n + n ==> S[S[n] * S[n]] + S[n]
 {% endhighlight %}
 
-The more difficult examples from the paper involving if-then/if-then-else can also be handled by adding left and right bias at the appropriate points:
+The more difficult examples from the paper involving if-then/if-then-else/match can also be handled by adding left and right bias at the appropriate points:
 
 {% highlight fsharp %}
 let prefixGrammar =
