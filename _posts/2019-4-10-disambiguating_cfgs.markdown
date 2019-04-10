@@ -105,10 +105,10 @@ let longestMatchGrammar =
   "S",AltL(
         Str "n", 
         SeqR(Str "match ", SeqR(Sym "S", SeqR(Str " with ", Sym "P+"))));
-   "P+",AltL(
+  "P+",AltL(
           Sym "P",
           SeqL(Sym "P", SeqL(Str " ", Sym "P+")));
-   "P",SeqL(Str "id -> ", Sym "S")
+  "P",SeqL(Str "id -> ", Sym "S")
   ] |> Map.ofList 
 {% endhighlight %}
 
