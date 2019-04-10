@@ -144,7 +144,7 @@ Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
 
-Note that that `<` and `>` are not associative, `A < (B < C)` is not the same as `(A < B) < C`:
+Note that `<` and `>` are not associative, `A < (B < C)` is not the same as `(A < B) < C`:
 
 {% highlight fsharp %}
 let nonAssociativeGrammar1 =
