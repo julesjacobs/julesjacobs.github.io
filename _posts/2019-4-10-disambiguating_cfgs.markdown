@@ -133,7 +133,7 @@ match n with id -> match n with id -> n id -> n
 ==> match S[n] with P+[P[id -> S[match S[n] with P+[P[id -> S[n]] P+[P[id -> S[n]]]]]]]
 {% endhighlight %}
 
-Note that at most points in those grammars, it doesn't matter whether we use left bias (SeqL) or right bias (SeqR), because those parts of the grammar are already unambiguous. For instance, `(X '+')` can be parsed in only one way, namely, for a given input string `"something+"`, the `"+"` will be consumed by `'+'` and the rest will be consumed by `X`. This toy parser only supports SeqL and SeqR, so we must choose either `(X < '+')` or `(X > '+')`, but for a real implementation we'd want to add a version of Seq written `(X '+')` that creates a parse forest with all alternatives, and/or raises an error if there is more than one parse tree, telling us that we need to disambiguate.
+Note that at most points in those grammars, it doesn't matter whether we use left bias (SeqL) or right bias (SeqR), because those parts of the grammar are already unambiguous. For instance, `(X '+')` can be parsed in only one way, namely, for a given input string `"something+"`, the `"+"` will be consumed by `'+'` and the rest will be consumed by `X`. This toy parser only supports SeqL and SeqR, so we must choose either `(X < '+')` or `(X > '+')`, but for a real implementation we'd want to add a version of Seq written `(X '+')` that creates a parse forest with all alternatives, and/or raises an error if there is more than one parse tree, telling us that we need to disambiguate that particular sequential composition.
 
 For repetition `Y = A*`, this method of disambiguation can support leftmost-longest, leftmost-shortest, rightmost-longest, and rightmost-shortest:
 
@@ -143,7 +143,5 @@ Y -> ε | A < Y      // leftmost-shortest
 Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
-
-
 
 A CYK parser is not great, but any parser that can produce a parse forest annotated with an input range `i..j` for each node in the parse forest can be modified to support this kind of disambiguation. This method has no problems with filtering too much or too little, since it always produces a single parse tree, and works for any context free grammar. The question is whether biased choice and left and right biased sequential composition are enough to express all the disambiguation we want to do in practice. It might be that  the disambiguation we want can be expressed by filtering certain tree patterns out of the parse forest, but can't be expressed by inserting `<` and `>`. In those cases we still have to rewrite the grammar to make it produce the parse tree we want.
