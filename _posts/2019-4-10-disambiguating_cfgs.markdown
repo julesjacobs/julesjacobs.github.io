@@ -144,30 +144,26 @@ Y -> ε | Y < A      // rightmost-longest
 Y -> ε | Y > A      // rightmost-shortest
 {% endhighlight %}
 
-Note that `<` and `>` are not associative, `A < (B < C)` is not the same as `(A < B) < C`:
+Note that `<` and `>` are not associative, `A < (A < A)` is not the same as `(A < A) < A`  for  `A -> 'aa' | 'aaa' | 'b' | 'abb' | 'b' | 'bb'` on the input "aaabbb". The former puts more priority on making the first `A` as short as possible, whereas the latter puts more priority on making the last `A` as long as possible:
 
 {% highlight fsharp %}
 let nonAssociativeGrammar1 =
   [
-  "S",SeqL(Sym "A", SeqL(Sym "B", Sym "C"));
-  "A",AltL(Str "aa", Str "aaa");
-  "B",AltL(Str "b", Str "abb");
-  "C",AltL(Str "b", Str "bb")
+  "S",SeqL(Sym "A", SeqL(Sym "A", Sym "A"));
+  "A",AltL(AltL(Str "aa", Str "aaa"), AltL(AltL(Str "b", Str "abb"), AltL(Str "b", Str "bb")))
   ] |> Map.ofList 
 
 let nonAssociativeGrammar2 =
   [
-  "S",SeqL(SeqL(Sym "A", Sym "B"), Sym "C");
-  "A",AltL(Str "aa", Str "aaa");
-  "B",AltL(Str "b", Str "abb");
-  "C",AltL(Str "b", Str "bb")
+  "S",SeqL(SeqL(Sym "A", Sym "A"), Sym "A");
+  "A",AltL(AltL(Str "aa", Str "aaa"), AltL(AltL(Str "b", Str "abb"), AltL(Str "b", Str "bb")))
   ] |> Map.ofList 
 
 > test nonAssociativeGrammar1 ["aaabbb"];;
-aaabbb ==> A[aa]B[abb]C[b]
+aaabbb ==> A[aa]A[abb]A[b]
 
 > test nonAssociativeGrammar2 ["aaabbb"];;
-aaabbb ==> A[aaa]B[b]C[bb]
+aaabbb ==> A[aaa]A[b]A[bb]
 {% endhighlight %}
 
 
