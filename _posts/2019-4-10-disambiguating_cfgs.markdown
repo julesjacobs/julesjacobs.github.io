@@ -20,13 +20,13 @@ The sequential composition `A B` can also produce ambiguity. For example, if `A 
 That's all well and good, but can we actually do associativity and precedence with those operators? It turns out that we can:
 
 {% highlight fsharp %}
-E  ->  E < '*' E  /  E > '+' E  |  'n'
+E  ->  E > '+' E  /  E < '*' E  |  'n'
 {% endhighlight %}
 
 This will parse `+` as right-associative, `*` as left-associative, and gives higher precedence to `*`. Note that the precedence and associativity of `<`,`>`,`/` is such that the grammar is parsed as follows:
 
 {% highlight fsharp %}
-E  ->  (E < ('*' E))  /  (E > ('+' E))  |  'n'
+E  ->  (E > ('+' E))  /  (E < ('*' E))  |  'n'
 {% endhighlight %}
 
 Here's a CYK-parser written in F# that implements this:
