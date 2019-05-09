@@ -35,4 +35,4 @@ print("S" in C[0,len(input)])
 
 The functions completerC, completerI, completerC_closure, and predictor work on LR(0) states I and sets of completed items C. You could hashcons & memoize them to build parse tables lazily, or you can precompute those parse tables. In either case, they'd run in O(1) eventually. The main loop of the algorithm is just a bunch of nested loops. The highest nesting level is 3, so it runs in O(n<sup>3</sup>) if those functions are memoized to run in O(1).
 
-You can see the algorithm in action on four examples [here](/code/cubedearley/Sa.html), [here](/code/cubedearley/aS.html), [here](/code/cubedearley/SS.html), and [here](/code/cubedearley/arith.html). Use the left and right arrow keys on your keyboard to step forward and backward. Enjoy!z
+You can see the algorithm in action on four examples [here](/code/cubedearley/Sa.html), [here](/code/cubedearley/aS.html), [here](/code/cubedearley/SS.html), and [here](/code/cubedearley/arith.html). Use the left and right arrow keys on your keyboard to step forward and backward. Enjoy!
