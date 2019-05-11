@@ -31,7 +31,7 @@ for k in range(1,len(input)+1):
 print("S" in C[0,len(input)])
 {% endhighlight %}
 
-(sorry, I had to codegolf that to make it fit in a slide -- how those functions work is too much work to explain anyway)
+(sorry, I had to codegolf that to make it fit in a slide -- how those functions work isn't so interesting anyway, it's similar to an LR(0) automaton)
 
 The functions completerC, completerI, completerC_closure, and predictor work on LR(0) states I and sets of completed items C. You could hashcons & memoize them to build parse tables lazily, or you can precompute those parse tables. In either case, they'd run in O(1) eventually. The main loop of the algorithm is just a bunch of nested loops. The highest nesting level is 3, so it runs in O(n<sup>3</sup>) if those functions are memoized to run in O(1).
 
