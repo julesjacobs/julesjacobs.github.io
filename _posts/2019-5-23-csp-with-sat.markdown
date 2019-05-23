@@ -12,7 +12,7 @@ Secondly, the order in a clause is irrelevant, so we can always group SAT variab
 
 The point is that any SAT clause in a CSP problem can be normalised to the form `x∈A | y∈B | ... | z∈C`.
 
-When all but one literal in a clause has become false, unit propagation kicks in and sets the remaining literal to true. For a clause `x∈A | y∈B | z∈C` that means that when all possibilities `A` have been removed from the domain of `x`, and all possibilities `B` have been removed from the domain of `y`, and all but one possibility of `C` have been removed from the domain of `y`, *then* unit propagation sets y to the remaining possibility.
+When all but one literal in a clause has become false, unit propagation kicks in and sets the remaining literal to true. For a clause `x∈A | y∈B | z∈C` that means that when all possibilities `A` have been removed from the domain of `x`, and all possibilities `B` have been removed from the domain of `y`, and all but one possibility of `C` have been removed from the domain of `z`, *then* unit propagation sets `z` to the remaining possibility.
 
 This is suboptimal. When all possibilities of `x` and `y` have been removed, the remaining clause is `z∈C`, so propagation could intersect the domain of `z` with `C`, even though in a SAT solver that wouldn't be a unit clause.
 
