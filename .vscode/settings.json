@@ -1,4 +1,3 @@
 {
-    "python.pythonPath": "C:\\Users\\Jules\\AppData\\Local\\Programs\\Python\\Python37-32\\python.exe",
-    "FSharp.fsacRuntime": "netcore"
+  "FSharp.fsacRuntime": "netcore"
 }

@@ -1,21 +1,148 @@
----
-layout: default
----
+<!doctype html>
+<head>
+  <title>Jules Jacobs</title>
+  <style>
+    body {
+      font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
+      color: #222;
+    }
 
-<div class="home">
+    header {
+      margin-bottom: 2em;
+    }
 
-  <ul class="post-list">
-    {% for post in site.posts %}
-      <li>
-        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
+    header h1 {
+      /* border: 1px solid #000; */
+    }
 
-        <h2>
-          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
-        </h2>
-      </li>
-    {% endfor %}
-  </ul>
+    header td:first-child {
+      /* border: 1px solid #000; */
+      vertical-align: top;
+      text-align: center;
+    }
 
-  <!--<p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>-->
+    header img {
+      margin-top: 1em;
+      margin-left: 2.5em
+    }
 
-</div>
+    .favourites {
+      font-size: smaller;
+    }
+    .favourites a {
+      text-decoration: none;
+    }
+
+    .pub tr td:first-child {
+      color: gray;
+      width: 5em;
+      text-align: right;
+      padding-right: 1em;
+      vertical-align: top;
+    }
+
+    .authors {
+      color: #444;
+      margin: 5px 0px;
+    }
+
+    a {
+      color: #16C;
+      /* color: #135CB7; */
+    }
+
+    a.title {
+      text-decoration: none;
+    }
+
+    a:hover {
+      background: #CCC;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+
+    <table>
+      <tr>
+        <td>
+          <h1>Jules Jacobs</h1>
+          <a href="mailto:julesjacobs@gmail.com">julesjacobs@gmail.com</a>
+          <p><a href="julesjacobs.com/blog.html">blog</a>, <a href="https://github.com/julesjacobs">github</a>
+          </ul>
+        </td>
+        <td>
+          <img src="images/jules.jpeg" width="150" height="150">
+        </td>
+      </tr>
+    </table>
+  </header>
+
+  I'm a PhD student of <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> at Radboud University studying formal verification and programming languages.
+
+  <div class="favourites">
+  <p>Some of my favourite things are:
+    <a href="https://coq.inria.fr/">type theory</a>,
+    <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
+    <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">SSA as a dataflow lattice</a>,
+    <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>,
+    <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>,
+    <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>,
+    <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+
+  <p>Some of my least favourite things are:
+    <a href="https://en.wikipedia.org/wiki/Intermediate_value_theorem">the intermediate value theorem</a>,
+    <a href="https://ncatlab.org/nlab/show/equality#definitional_equality">definitional equality</a>,
+    <a href="https://coq.inria.fr/refman/addendum/type-classes.html">type classes</a>,
+    <a href="https://en.wikipedia.org/wiki/Measure_(mathematics)">measure theory</a> and <a href="https://en.wikipedia.org/wiki/Hahn%E2%80%93Banach_theorem">(functional) analysis</a>.
+  </div>
+
+  <h2>Publications</h2>
+  <table class="pub">
+    <tr>
+      <td>POPL'21</td>
+      <td>
+        <a class="title" href="pdf/paradoxes.pdf">Paradoxes of Probabilistic Programming</a>
+        <div class="authors">Jules Jacobs</div>
+        <div class="info">
+          <a href="">[ACM DL]</a>
+          <a href="pdf/paradoxes.pdf">[PDF]</a>
+          <a href="https://zenodo.org/record/4075076">[Code]</a>
+          <a href="">[BibTeX]</a>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <h2>Drafts</h2>
+  <table class="pub">
+    <tr>
+      <td>Sep. 2020</td>
+      <td>
+      <a class="title" href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a>
+      <div class="authors">Jules Jacobs</div>
+      <div class="info">
+        <a href="pdf/sympoly.pdf">[PDF]</a>
+        <a href="code/sympoly.jl">[Code]</a></td>
+      </div>
+    </tr>
+  </table>
+
+  <h2>Teaching & Academic Service</h2>
+  <table class="pub">
+    <tr>
+      <td>2021</td>
+      <td>
+        Assisted Robbert Krebbers with supervising a master thesis project
+      </td>
+    </tr>
+    <tr>
+      <td>2020</td>
+      <td>
+        Assisted Robbert Krebbers with the Software Verification course at TU Delft.
+      </td>
+    </tr>
+  </table>
+
+</body>
