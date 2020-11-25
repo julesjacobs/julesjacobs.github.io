@@ -117,7 +117,7 @@
       display: inline;
     }
 
-    .info a {
+    .button {
       text-transform: uppercase;
       border: 1px solid;
       border-radius: 4px;
@@ -127,16 +127,15 @@
       border-color: #aaa;
       background-color: #eee;
       height: 3px;
-
     }
 
-    .info a:hover {
+    .button:hover {
       color: white;
       border-color: #888;
       background-color: #888;
     }
 
-    .info a:first-of-type {
+    .info .button:first-of-type {
       margin-left: 10px;
     }
 
@@ -159,7 +158,9 @@
         <td>
           <h1>Jules Jacobs</h1>
           <a href="mailto:julesjacobs@gmail.com">julesjacobs@gmail.com</a>
-          <p><a href="/blog.html">blog</a>, <a href="https://github.com/julesjacobs">github</a>, <a href="https://twitter.com/JulesJacobs5">twitter</a>
+          <p><a class="button" href="/blog.html">blog</a>
+             <a class="button" href="https://github.com/julesjacobs">github</a>
+             <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a>
         </td>
         <td>
           <img src="images/jules_small.webp" width="110" height="110" alt="Jules">
@@ -190,9 +191,9 @@
         <small><i>And How to Condition on Events of Measure Zero with Infinitesimal Probabilities</small></i></a>
         <div class="info">
           <div class="authors">Jules Jacobs</div>
-          <a href="pdf/paradoxes.pdf">pdf</a>
-          <a href="https://zenodo.org/record/4075076">code</a>
-          <a href="slides/measurezero_delft.pdf">slides</a>
+          <a class="button" href="pdf/paradoxes.pdf">pdf</a>
+          <a class="button" href="https://zenodo.org/record/4075076">code</a>
+          <a class="button"href="slides/measurezero_delft.pdf">slides</a>
           <!-- <a href="">ACM DL</a> -->
           <!-- <a href="">BibTeX</a> -->
         </div>
@@ -208,8 +209,8 @@
       <a class="title" href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a href="pdf/sympoly.pdf">pdf</a>
-        <a href="code/sympoly.jl">code</a>
+        <a class="button" href="pdf/sympoly.pdf">pdf</a>
+        <a class="button" href="code/sympoly.jl">code</a>
       </div>
       </td>
     </tr>
@@ -223,7 +224,7 @@
         <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           PL Seminar, TU Delft
-          <a href="slides/measurezero_delft.pdf">slides</a>
+          <a class="button" href="slides/measurezero_delft.pdf">slides</a>
         </div>
       </td>
     </tr>
@@ -233,7 +234,7 @@
         <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           PPLV, University College London
-          <a href="slides/measurezero_ucl.pdf">slides</a>
+          <a class="button" href="slides/measurezero_ucl.pdf">slides</a>
         </div>
       </td>
     </tr>
