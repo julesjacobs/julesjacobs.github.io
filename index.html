@@ -102,10 +102,52 @@
       padding-top: 2px;
     }
 
+    .title {
+      display: block;
+    }
+
     .authors {
       color: #444;
-      margin: 5px 0px;
+      display: inline;
     }
+
+
+    .info a {
+      /* blatantly stolen from Jon Sterling */
+      font-variant: small-caps;
+      border: 1pt solid;
+      border-radius: 4pt;
+      padding-left: 2pt;
+      padding-right: 2pt;
+      padding-bottom: 1pt;
+      font-size: 0.9em;
+      color: gray;
+      border-color: #aaa;
+      background-color: #eee;
+    }
+
+    .info a:hover {
+      color: white;
+      border-color: #888;
+      background-color: #888;
+    }
+
+    .info a:first-of-type {
+      margin-left: 10px;
+    }
+/*
+    .badge {
+
+}
+
+
+.badge.light {
+
+}
+
+.badge.dark {
+
+} */
 
     :target {
       animation: highlight 1s;
@@ -155,13 +197,13 @@
       <td>
         <a class="title" href="pdf/paradoxes.pdf">Paradoxes of Probabilistic Programming<br>
         <small>And How to Condition on Events of Measure Zero with Infinitesimal Probabilities</small></a>
-        <div class="authors">Jules Jacobs</div>
         <div class="info">
-          <a href="pdf/paradoxes.pdf">[PDF]</a>
-          <a href="https://zenodo.org/record/4075076">[Code]</a>
-          <a href="slides/measurezero_delft.pdf">[Slides]</a>
-          <!-- <a href="">[ACM DL]</a> -->
-          <!-- <a href="">[BibTeX]</a> -->
+          <div class="authors">Jules Jacobs</div>
+          <a href="pdf/paradoxes.pdf">pdf</a>
+          <a href="https://zenodo.org/record/4075076">code</a>
+          <a href="slides/measurezero_delft.pdf">slides</a>
+          <!-- <a href="">ACM DL</a> -->
+          <!-- <a href="">BibTeX</a> -->
         </div>
       </td>
     </tr>
@@ -173,10 +215,10 @@
       <td>Sep. 2020</td>
       <td>
       <a class="title" href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a>
-      <div class="authors">Jules Jacobs</div>
       <div class="info">
-        <a href="pdf/sympoly.pdf">[PDF]</a>
-        <a href="code/sympoly.jl">[Code]</a>
+        <div class="authors">Jules Jacobs</div>
+        <a href="pdf/sympoly.pdf">pdf</a>
+        <a href="code/sympoly.jl">code</a>
       </div>
       </td>
     </tr>
@@ -187,27 +229,27 @@
     <tr>
       <td>25 Nov. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a><br>
-        PL Seminar, TU Delft
+        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
         <div class="info">
-          <a href="slides/measurezero_delft.pdf">[Slides]</a>
+          PL Seminar, TU Delft
+          <a href="slides/measurezero_delft.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>23 Nov. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a><br>
-        PPLV, University College London
+        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
         <div class="info">
-          <a href="slides/measurezero_ucl.pdf">[Slides]</a>
+          PPLV, University College London
+          <a href="slides/measurezero_ucl.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>28 Oct. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a><br>
+        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
         SWS Seminar, Radboud University
       </td>
     </tr>
