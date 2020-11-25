@@ -21,8 +21,11 @@
       margin: 0px auto 200px auto;
     }
 
-    hr {
+    .desc {
+      border-bottom: 1px solid gray;
       border-top: 1px solid gray;
+      padding-top: 3px;
+      padding-bottom: 3px;
     }
 
     table {
@@ -36,6 +39,8 @@
 
     h2 {
       font-size: 14pt;
+      margin-top: 8px;
+      margin-bottom: 5px;
     }
 
     h1, h2, h3 {
@@ -52,10 +57,15 @@
     }
 
     header {
-      margin-bottom: 0.5em;
       line-height: 1;
       overflow-x: hidden;
       width: calc(100% + 10px);
+    }
+
+    header h1 {
+      margin:0;
+      margin-top: 7px;
+      margin-bottom: 10px;
     }
 
     header table {
@@ -66,7 +76,8 @@
 
     header img {
       margin-left: 1em;
-      margin-top: 0.75em;
+      margin-top: 5px;
+      margin-bottom: 3px;
       max-height: 150px;
       max-width: 150px;
     }
@@ -121,22 +132,21 @@
       </tr>
     </table>
   </header>
-  <hr>
 
-  I'm a PhD student of <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> at Radboud University studying formal verification and programming languages, and working on deadlock freedom in collaboration with <a href="http://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
+  <div class="desc">
+    I'm a PhD student of <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> at Radboud University studying formal verification and programming languages, and working on deadlock freedom in collaboration with <a href="http://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
 
-  <div class="favourites">
-  <p>Some of my favourite things are:
-    <a href="https://coq.inria.fr/">type theory</a>,
-    <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
-    <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">SSA as a dataflow lattice</a>,
-    <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>,
-    <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>,
-    <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>,
-    <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+    <div class="favourites">
+    <br>Some of my favourite things are:
+      <a href="https://coq.inria.fr/">type theory</a>,
+      <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
+      <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">SSA as a dataflow lattice</a>,
+      <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>,
+      <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>,
+      <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>,
+      <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+    </div>
   </div>
-
-  <hr>
 
   <h2>Publications</h2>
   <table class="pub">
