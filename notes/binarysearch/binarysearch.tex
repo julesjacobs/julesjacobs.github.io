@@ -77,9 +77,11 @@ This algorithm is fine as it is, but sometimes we want to find the last position
 
 \section{A simple binary search algorithm}
 
-Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$ such that $p(L) = false$ and $p(R) = true$. We want to find an index between $L$ and $R$ where $p$ flips from $false$ to $true$. We do that by repeatedly cutting the interval $L\dots R$ in half until $R - L = 1$, making sure that the condition $p(L) = false$ and $p(R) = true$ remains valid:
+Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$ such that $p(L) = false$ and $p(R) = true$. We want to find an index between $L$ and $R$ where $p$ flips from $false$ to $true$:
 
 \begin{lstlisting}
+  // precondition: L<R && p(L)==false && p(R)==true
+  // requirement: if R-L > 1 then L < mid(L,R) < R
   function binary_search(L,R,p){
     while(R - L > 1){
       val m = mid(L,R)
@@ -88,15 +90,17 @@ Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$
     }
     return (L,R)
   }
+  // postcondition: R=L+1 && p(L)==false && p(R)==true
 \end{lstlisting}
 
 \noindent A few notes about this algorithm:
 
 \begin{itemize}
-  \item The invariant that $p(L) = false$ and $p(R) = true$ is maintained throughout, and also holds for the returned pair $(L,R)$.
-  \item When the while loop exits, we have $R = L + 1$, so the returned pair $(L,R)$ precisely indicates the point where $p$ flips from $false$ to $true$.
-  \item Since $mid(L,R)$ returns a number strictly between $L$ and $R$ (which is always possible since $R - L > 1$), the algorithm only calls $p$ on indices strictly between $L$ and $R$. Furthermore, the range $L\dots R$ strictly decreases on each iteration, so the algorithm terminates.
-  \item We do not require that $p$ only has one point where it flips from $false$ to $true$. If there is more than one, then binary search algorithm will find one of those points.
+  \item The loop invariant $L<R \wedge p(L)=false \wedge P(R)=true$ is maintained.
+  \item The value of $R - L$ strictly decreases on each iteration, so the algorithm terminates. In the worst case, the number of iterations is precisely $\mathsf{ceil}((\log_2(R - L + 1)) = \min \{n\in \mathbb{N} : R - L < 2^n\}$.
+  \item When the loop exits, we have $R - L \leq 1 \wedge L < R \implies R = L+1$, so the returned pair $(L,R)$ precisely indicates the point where $p$ flips from $false$ to $true$.
+  \item The algorithm only calls $p$ on indices \emph{strictly} between the initial $L$ and $R$.
+  \item We do not require that $p$ has only one point where it flips from $false$ to $true$. If there is more than one, then binary search algorithm will find one of those points.
   \item Whereas the previous algorithm returned \lstinline|Some(m)| or \lstinline|None| depending on whether it found $x$, this algorithm always returns a result.
 \end{itemize}
 
@@ -114,11 +118,11 @@ Let $A = [2,3,3,3,6,8,8,9]$ be a sorted array. Given a particular number $x$, we
 \noindent These questions can be answered by \lstinline|binary_search|:
 
 \begin{lstlisting}
-  (Q1,Q2) = binary_search(-1, length(A), function(i){ A[i]>=x })
-  (Q3,Q4) = binary_search(-1, length(A), function(i){ A[i]>x })
+(Q1,Q2) = binary_search(-1, length(A), function(i){ A[i]>=x })
+(Q3,Q4) = binary_search(-1, length(A), function(i){ A[i]>x })
 \end{lstlisting}
 
-\noindent The results $Q1,Q2,Q3,Q4$ answer the corresponding questions. Corner cases are handled nicely: if we ask "What's the first number $<0$ in $A$", then the answer will be $-1$. One can think of this as artificially putting:
+\noindent The results $Q1,Q2,Q3,Q4$ answer the corresponding questions. Corner cases are handled nicely: if we ask "Where's the first number $<0$ in $A$", then the answer is $-1$, and if we ask "Where's the last number $>10$ in $A$, then the answer is $\mathsf{length}(A)$. One can think of this as artificially putting:
 \begin{align*}
   A[-1] &= -\infty & A[\mathsf{length}(A)] &= +\infty
 \end{align*}
@@ -139,7 +143,7 @@ We may also ask:
   \item Find the range of indices that contain $x$.
 \end{itemize}
 
-\noindent The second question is the easier one: it's the range $Q2\dots Q3$. If $x$ does not appear in the array, then the range has $Q2 > Q3$ and the empty range indicates where $x$ would have to be found. We answer the first question as follows:
+\noindent The second question is the easier one: it's the range $Q2\dots Q3$. If $x$ does not appear in the array, then the range has $Q3 = Q2 - 1$ and the empty range indicates between which two elements $x$ would have to be found. We answer the first question as follows:
 
 \begin{lstlisting}
   function find_first(A,x){
@@ -194,7 +198,6 @@ function binary_search(L,R,p){
       None    => return (L,R)
       Some(m) => if(p(m)) then R = m
                           else L = m
-
     }
   }
 }
@@ -229,10 +232,10 @@ function binary_search(L,R,p){
 \noindent This allows us to bisect floating point equations, such as $x^2 = 2$:
 
 \begin{lstlisting}
-  binary_search(0, 5, function(x){ x*x >= 2 })
+  binary_search(1.0, 2.0, function(x){ x*x >= 2 })
 \end{lstlisting}
 
-\noindent However, there is a \emph{much} better way to do bisection on floats: instead of taking the midpoint $(L+R)/2$, we take the midpoint between the two floats $L$ and $R$ \emph{in the binary representation}. That is, suppose that \lstinline|f2b : Float64 -> Int64| gives you the bitwise representation and \lstinline|bf2 : Int64 -> Float64| converts back, we pick the midpoint:\footnote{I'm assuming that \lstinline|fb2| is respects ordering, that is, comparing \lstinline|f2b(x) < f2b(y)| gives the same result as comparing the floats \lstinline|x < y|. Depending on the bit representation of floats, one would have to shuffle the mantissa and exponent and sign bits around to ensure this.}
+\noindent However, there is a \emph{much} better way to do bisection on floats: instead of taking the midpoint $(L+R)/2$, we take the midpoint between the two floats $L$ and $R$ in the \emph{binary representation}. That is, suppose that \lstinline|f2b : Float64 -> Int64| gives you the bitwise representation and \lstinline|bf2 : Int64 -> Float64| converts back, we pick the midpoint:\footnote{I'm assuming that \lstinline|fb2| is respects ordering, that is, comparing \lstinline|f2b(x) < f2b(y)| gives the same result as comparing the floats \lstinline|x < y|. Depending on the bit representation of floats, one would have to shuffle the mantissa and exponent and sign bits around to ensure this.}
 
 \begin{lstlisting}
   function mid_float(L,R){
@@ -247,7 +250,7 @@ function binary_search(L,R,p){
 
 \subsection{Searching lattices}
 
-Instead of searching for numbers, we can even search in lattices. Suppose that we have a predicate $p : 2^S \to Bool$ on subsets of a finite set $S$. Given two sets $L \subseteq R$ the \lstinline|mid_set(L,R)| function shall give \lstinline|None| if $|R - L| = 1$ and some set $M$ such that $L \subset M \subset R$ otherwise. Then the binary search algorithm can give us sets $L,R$ such that $R = L \cup \{x\}$ for a single element $x\in S$, with $p(L) = false$ and $p(R) = true$.
+Instead of searching for numbers, we can even search in lattices. Suppose that we have a predicate $p : 2^S \to Bool$ on subsets of a finite set $S$. Given two sets $L \subseteq R$ the \lstinline|mid_set(L,R)| function shall give \lstinline|None| if $|R - L| = 1$ and some set $M$ such that $L \subset M \subset R$ otherwise. Then the binary search algorithm can give us sets $L,R$ such that $R = L \cup \{x\}$ for a single element $x\in S$, with $p(L) = false$ and $p(R) = true$. By picking $M$ to be $L$ plus half of the elements of $R - L$, the algorithm terminates in $O(|R - L|)$ iterations.
 
 \bigskip
 
