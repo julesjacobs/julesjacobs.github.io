@@ -53,7 +53,7 @@
 
 \section{Introduction}
 
-The usual binary search algorithm allows us to find the location of an item $x$ in a sorted array $A$, where $\mathsf{mid}(L,R) = \mathsf{floor}((L+R)/2)$:
+The usual binary search algorithm allows us to find the location of an item $x$ in a sorted array $A$, using the function $\mathsf{mid}(L,R) = \mathsf{floor}((L+R)/2)$ to cut the search range in half:
 
 \begin{lstlisting}
   function binary_search(A,x){
@@ -73,11 +73,11 @@ The usual binary search algorithm allows us to find the location of an item $x$ 
   }
 \end{lstlisting}
 
-This algorithm is fine as it is, but sometimes we want to find the last position in $A$ that has an item $\leq x$, for instance when searching for the right child to descend down to in an internal node of a B-tree. Modifying the algorithm above to accomplish this may seem like a trivial task, but it turns out to be a minefield of off-by-1 errors. It is better to start from scratch and generalize.
+This algorithm is fine as it is, but sometimes we want to find the last position in $A$ that has an item $\leq x$, for instance when searching for which child to descend down to in an internal node of a B-tree. Modifying the algorithm above to accomplish this may seem like a trivial task, but it turns out to be a minefield of off-by-1 errors. It is better to start from scratch and generalize.
 
 \section{A simple binary search algorithm}
 
-Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$ such that $p(L) = false$ and $p(R) = true$. We want to find an index between $L$ and $R$ where $p$ flips from $false$ to $true$. That is, we shrink the interval $L\dots R$ such that $R - L = 1$ and the condition $p(L) = false$ and $p(R) = true$ still holds.
+Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$ such that $p(L) = false$ and $p(R) = true$. We want to find an index between $L$ and $R$ where $p$ flips from $false$ to $true$. We do that by repeatedly cutting the interval $L\dots R$ in half until $R - L = 1$, making sure that the condition $p(L) = false$ and $p(R) = true$ remains valid:
 
 \begin{lstlisting}
   function binary_search(L,R,p){
