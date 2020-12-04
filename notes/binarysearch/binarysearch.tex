@@ -99,7 +99,7 @@ Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$
   \item The loop invariant $L<R \wedge p(L)=false \wedge P(R)=true$ is maintained.
   \item The value of $R - L$ strictly decreases on each iteration, so the algorithm terminates. In the worst case, the number of iterations is precisely $\mathsf{ceil}((\log_2(R - L + 1)) = \min \{n\in \mathbb{N} : R - L < 2^n\}$.
   \item When the loop exits, we have $R - L \leq 1 \wedge L < R \implies R = L+1$, so the returned pair $(L,R)$ precisely indicates the point where $p$ flips from $false$ to $true$.
-  \item The algorithm only calls $p$ on indices \emph{strictly} between the initial $L$ and $R$.
+  \item Although the precondition mentions $p(L)$ and $p(R)$, the algorithm only calls $p$ on indices \emph{strictly} between the initial $L$ and $R$.
   \item We do not require that $p$ has only one point where it flips from $false$ to $true$. If there is more than one, then binary search algorithm will find one of those points.
   \item Whereas the previous algorithm returned \lstinline|Some(m)| or \lstinline|None| depending on whether it found $x$, this algorithm always returns a result.
 \end{itemize}
