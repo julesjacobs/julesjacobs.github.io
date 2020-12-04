@@ -250,7 +250,7 @@ function binary_search(L,R,p){
 
 \subsection{Searching lattices}
 
-Instead of searching for numbers, we can even search in lattices. Suppose that we have a predicate $p : 2^S \to Bool$ on subsets of a finite set $S$. Given two sets $L \subseteq R$ the \lstinline|mid_set(L,R)| function shall give \lstinline|None| if $|R - L| = 1$ and some set $M$ such that $L \subset M \subset R$ otherwise. Then the binary search algorithm can give us sets $L,R$ such that $R = L \cup \{x\}$ for a single element $x\in S$, with $p(L) = false$ and $p(R) = true$. By picking $M$ to be $L$ plus half of the elements of $R - L$, the algorithm terminates in $O(\log |R - L|)$ iterations.
+Instead of searching for numbers, we can even search in lattices. Suppose that we have a predicate $p : 2^S \to Bool$ on subsets of a finite set $S$. Given two sets $L \subset R$ the \lstinline|mid_set(L,R)| function shall give \lstinline|None| if $|R - L| = 1$ and some set $M$ such that $L \subset M \subset R$ otherwise. Then the binary search algorithm can give us sets $L,R$ such that $R = L \cup \{x\}$ for a single element $x\in S$, with $p(L) = false$ and $p(R) = true$. By picking $M$ to be $L$ plus half of the elements of $R - L$, the algorithm terminates in $O(\log |R - L|)$ iterations.
 
 \bigskip
 
