@@ -1,0 +1,256 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break, val, then},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+}
+
+
+\usepackage{amsmath}
+\usepackage[shortlabels]{enumitem}
+
+\title{Binary Search a Little Simpler \& More Generic}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+The usual binary search algorithm allows us to find the location of an item $x$ in a sorted array $A$, where $\mathsf{mid}(L,R) = \mathsf{floor}((L+R)/2)$:
+
+\begin{lstlisting}
+  function binary_search(A,x){
+    var L = 0
+    var R = length(A) - 1
+    while(L <= R){
+      val m = mid(L,R)
+      if(A[m] < x){
+        L = m + 1
+      }else if(A[m] > x){
+        R = m - 1
+      }else{
+        return Some(m)
+      }
+    }
+    return None
+  }
+\end{lstlisting}
+
+This algorithm is fine as it is, but sometimes we want to find the last position in $A$ that has an item $\leq x$, for instance when searching for the right child to descend down to in an internal node of a B-tree. Modifying the algorithm above to accomplish this may seem like a trivial task, but it turns out to be a minefield of off-by-1 errors. It is better to start from scratch and generalize.
+
+\section{A simple binary search algorithm}
+
+Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$ such that $p(L) = false$ and $p(R) = true$. We want to find an index between $L$ and $R$ where $p$ flips from $false$ to $true$. That is, we shrink the interval $L\dots R$ such that $R - L = 1$ and the condition $p(L) = false$ and $p(R) = true$ still holds.
+
+\begin{lstlisting}
+  function binary_search(L,R,p){
+    while(R - L > 1){
+      val m = mid(L,R)
+      if(p(m)) R = m
+      else L = m
+    }
+    return (L,R)
+  }
+\end{lstlisting}
+
+\noindent A few notes about this algorithm:
+
+\begin{itemize}
+  \item The invariant that $p(L) = false$ and $p(R) = true$ is maintained throughout, and also holds for the returned pair $(L,R)$.
+  \item When the while loop exits, we have $R = L + 1$, so the returned pair $(L,R)$ precisely indicates the point where $p$ flips from $false$ to $true$.
+  \item Since $mid(L,R)$ returns a number strictly between $L$ and $R$ (which is always possible since $R - L > 1$), the algorithm only calls $p$ on indices strictly between $L$ and $R$. Furthermore, the range $L\dots R$ strictly decreases on each iteration, so the algorithm terminates.
+  \item We do not require that $p$ only has one point where it flips from $false$ to $true$. If there is more than one, then binary search algorithm will find one of those points.
+  \item Whereas the previous algorithm returned \lstinline|Some(m)| or \lstinline|None| depending on whether it found $x$, this algorithm always returns a result.
+\end{itemize}
+
+\section{Searching an array}
+
+Let $A = [2,3,3,3,6,8,8,9]$ be a sorted array. Given a particular number $x$, we can ask four different questions:
+
+\begin{enumerate}[(Q1)]
+  \item Where is the last number $<x$?
+  \item Where is the first number $\geq x$?
+  \item Where is the last number $\leq x$?
+  \item Where is the first number $>x$?
+\end{enumerate}
+
+\noindent These questions can be answered by \lstinline|binary_search|:
+
+\begin{lstlisting}
+  (Q1,Q2) = binary_search(-1, length(A), function(i){ A[i]>=x })
+  (Q3,Q4) = binary_search(-1, length(A), function(i){ A[i]>x })
+\end{lstlisting}
+
+\noindent The results $Q1,Q2,Q3,Q4$ answer the corresponding questions. Corner cases are handled nicely: if we ask "What's the first number $<0$ in $A$", then the answer will be $-1$. One can think of this as artificially putting:
+\begin{align*}
+  A[-1] &= -\infty & A[\mathsf{length}(A)] &= +\infty
+\end{align*}
+
+So that:
+\begin{align*}
+  p(-1) &= \mathsf{true} & p(\mathsf{length}(A)) &= \mathsf{false}
+\end{align*}
+
+Note that \lstinline|binary_search(L,R,p)| only calls $p$ on numbers strictly between $L$ and $R$, so the array is never accessed out of bounds, even though we put $L=-1$ and $R=\mathsf{length}(A)$, which are themselves out of bounds.
+
+\section{Finding a particular element}
+
+We may also ask:
+
+\begin{itemize}
+  \item Is $x$ in the array, and if so, where is the first $x$ and where is the last $x$?
+  \item Find the range of indices that contain $x$.
+\end{itemize}
+
+\noindent The second question is the easier one: it's the range $Q2\dots Q3$. If $x$ does not appear in the array, then the range has $Q2 > Q3$ and the empty range indicates where $x$ would have to be found. We answer the first question as follows:
+
+\begin{lstlisting}
+  function find_first(A,x){
+    (_,R) = binary_search(-1, length(A), function(i){ A[i]>=x })
+    if(R < length(A) && A[R] == x) return Some(R)
+    else return None
+  }
+
+  function find_last(A,x){
+    (L,_) = binary_search(-1, length(A), function(i){ A[i]>x })
+    if(L > 0 && A[L] == x) return Some(L)
+    else return None
+  }
+\end{lstlisting}
+
+Perhaps surprisingly, this binary search algorithm can be more efficient than the original binary search, provided one inlines the predicate. The original binary search loop tries to bail out early if it happens to find an element equal to $x$ early on, but the small probability of that happening doesn't outweigh the extra test and branch on each iteration.
+
+The \lstinline|if| inside the simplified binary search can be compiled to two conditional move instructions, thus eliminating all branches in the loop. Furthemore, if the array size is known, for instance when searching B-tree nodes of 32 elements, it suffices to execute $\log_2(32) = 5$ iterations of the loop, so one can unroll:
+
+\begin{lstlisting}
+  L = -1
+  R = 32
+  m = mid(L,R)
+  if(A[m] >= x) R = m else L = m
+  m = mid(L,R)
+  if(A[m] >= x) R = m else L = m
+  m = mid(L,R)
+  if(A[m] >= x) R = m else L = m
+  m = mid(L,R)
+  if(A[m] >= x) R = m else L = m
+  m = mid(L,R)
+  if(A[m] >= x) R = m else L = m
+\end{lstlisting}
+
+\noindent For more information about optimizing binary search, read the excellent article by Paul Khuong.\footnote{\url{http://pvk.ca/Blog/2012/07/03/binary-search-star-eliminates-star-branch-mispredictions/}}
+
+\section{Generalized binary search}
+
+In order for the \lstinline|mid(L,R)| function to work, we need to know that $R-L>1$, so that \lstinline|mid| can actually find an index $i$ strictly between $L < i < R$. The loop test checks this condition. It therefore makes sense to combine these into the mid function:
+
+\begin{lstlisting}
+  mid(L,R) = if(R - L > 1) then Some(floor((L+R)/2)) else None
+\end{lstlisting}
+
+\noindent So that \lstinline|mid| returns an \lstinline|Option[Int]|. We can then write binary search as follows:
+
+\begin{minipage}{\linewidth}
+\begin{lstlisting}
+function binary_search(L,R,p){
+  while(true){
+    case mid(L,R){
+      None    => return (L,R)
+      Some(m) => if(p(m)) then R = m
+                          else L = m
+
+    }
+  }
+}
+\end{lstlisting}
+\end{minipage}
+
+\noindent Or, in functional, recursive style:
+
+\begin{lstlisting}
+  function binary_search(L,R,p){
+    case mid(L,R){
+      None    => (L,R)
+      Some(m) => if p(m) then binary_search(L,m,p)
+                         else binary_search(m,R,p)
+    }
+  }
+\end{lstlisting}
+
+\noindent By picking a different \lstinline|mid| function, we get a different search:
+\begin{itemize}
+  \item For forward linear search, pick \\ \lstinline|  mid(L,R) = if(R-L > 1) then Some(L+1) else None|.
+  \item For backward linear search, pick \\ \lstinline|  mid(L,R) = if(R-L > 1) then Some(R-1) else None|.
+\end{itemize}
+
+\subsection{Searching floats}
+
+\noindent We can also search floating point numbers, instead of integers:
+\begin{itemize}
+  \item For floating point search, pick \\ \lstinline|  mid_float(L,R) = if(R-L > eps) then Some((L+R)/2) else None|.
+\end{itemize}
+
+\noindent This allows us to bisect floating point equations, such as $x^2 = 2$:
+
+\begin{lstlisting}
+  binary_search(0, 5, function(x){ x*x >= 2 })
+\end{lstlisting}
+
+\noindent However, there is a \emph{much} better way to do bisection on floats: instead of taking the midpoint $(L+R)/2$, we take the midpoint between the two floats $L$ and $R$ \emph{in the binary representation}. That is, suppose that \lstinline|f2b : Float64 -> Int64| gives you the bitwise representation and \lstinline|bf2 : Int64 -> Float64| converts back, we pick the midpoint: \footnote{I'm assuming that \lstinline|fb2| is respects ordering, that is, comparing \lstinline|f2b(x) < f2b(y)| gives the same result as comparing the floats \lstinline|x < y|. Depending on the bit representation of floats, one would have to shuffle the mantissa and exponent and sign bits around to ensure this.}
+
+\begin{lstlisting}
+  function mid_float(L,R){
+    case mid(f2b(L),f2b(R)){
+      None => None
+      Some(bits) => b2f(bits)
+    }
+  }
+\end{lstlisting}
+
+\noindent Where \lstinline|mid| is the mid function on integers. Using \lstinline|mid_float|, we can determine the precise floating point number \lstinline|x| at which the predicate \lstinline|x*x >= 2| flips from false to true in at most 64 iterations!
+
+\subsection{Searching lattices}
+
+Instead of searching for numbers, we can even search in lattices. Suppose that we have a predicate $p : 2^S \to Bool$ on subsets of a finite set $S$. Given two sets $L \subseteq R$ the \lstinline|mid_set(L,R)| function shall give \lstinline|None| if $|R - L| = 1$ and some set $M$ such that $L \subset M \subset R$ otherwise. Then the binary search algorithm can give us sets $L,R$ such that $R = L \cup \{x\}$ for a single element $x\in S$, with $p(L) = false$ and $p(R) = true$.
+
+\bigskip
+
+What else can \emph{you} make binary search do?
+
+\end{document}
