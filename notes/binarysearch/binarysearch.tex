@@ -232,7 +232,7 @@ function binary_search(L,R,p){
   binary_search(0, 5, function(x){ x*x >= 2 })
 \end{lstlisting}
 
-\noindent However, there is a \emph{much} better way to do bisection on floats: instead of taking the midpoint $(L+R)/2$, we take the midpoint between the two floats $L$ and $R$ \emph{in the binary representation}. That is, suppose that \lstinline|f2b : Float64 -> Int64| gives you the bitwise representation and \lstinline|bf2 : Int64 -> Float64| converts back, we pick the midpoint: \footnote{I'm assuming that \lstinline|fb2| is respects ordering, that is, comparing \lstinline|f2b(x) < f2b(y)| gives the same result as comparing the floats \lstinline|x < y|. Depending on the bit representation of floats, one would have to shuffle the mantissa and exponent and sign bits around to ensure this.}
+\noindent However, there is a \emph{much} better way to do bisection on floats: instead of taking the midpoint $(L+R)/2$, we take the midpoint between the two floats $L$ and $R$ \emph{in the binary representation}. That is, suppose that \lstinline|f2b : Float64 -> Int64| gives you the bitwise representation and \lstinline|bf2 : Int64 -> Float64| converts back, we pick the midpoint:\footnote{I'm assuming that \lstinline|fb2| is respects ordering, that is, comparing \lstinline|f2b(x) < f2b(y)| gives the same result as comparing the floats \lstinline|x < y|. Depending on the bit representation of floats, one would have to shuffle the mantissa and exponent and sign bits around to ensure this.}
 
 \begin{lstlisting}
   function mid_float(L,R){
