@@ -157,7 +157,7 @@ We may also ask:
 
 Perhaps surprisingly, this binary search algorithm can be more efficient than the original binary search, provided one inlines the predicate. The original binary search loop tries to bail out early if it happens to find an element equal to $x$ early on, but the small probability of that happening doesn't outweigh the extra test and branch on each iteration.
 
-The \lstinline|if| inside the simplified binary search can be compiled to two conditional move instructions, thus eliminating all branches in the loop. Furthemore, if the array size is known, for instance when searching B-tree nodes of 32 elements, it suffices to execute $\log_2(32) = 5$ iterations of the loop, so one can unroll:
+The \lstinline|if| inside the simplified binary search can be compiled to two conditional move instructions, thus eliminating all branches in the loop. Furthemore, if the array size is known, for instance when searching B-tree nodes of 31 elements, it suffices to execute $5$ iterations of the loop\footnote{By picking the array length to be $2^n - 1$, we can pick the middle element of the range on each iteration, and binary search will need exactly $n$ iterations. For other array sizes there won't be a middle element on some iterations because an array of even length doesn't have a middle element. Thus, arrays of length $2^n - 1$ are optimal for binary search.}, so one can unroll:
 
 \begin{lstlisting}
   L = -1

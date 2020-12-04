@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.7.8)  4 DEC 2020 21:22
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.7.8)  4 DEC 2020 22:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -706,43 +706,43 @@ Overfull \hbox (3.33525pt too wide) in paragraph at lines 152--153
  []
 
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 177.
+(Font)              scaled to size 7.68005pt on input line 160.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 9.35101pt on input line 177.
+(Font)              scaled to size 9.35101pt on input line 160.
 LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 5.195pt on input line 177.
+(Font)              scaled to size 5.195pt on input line 160.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 177.
+(Font)              scaled to size 8.64006pt on input line 160.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 177.
+(Font)              scaled to size 4.80003pt on input line 160.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 177.
+(Font)              scaled to size 5.76004pt on input line 160.
 LaTeX Font Info:    Font shape `T1/cmtt/m/n' will be
 (Font)              scaled to size 9.64806pt on input line 177.
 
@@ -772,18 +772,18 @@ Package rerunfilecheck Info: File `binarysearch.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 256.
  ) 
 Here is how much of TeX's memory you used:
- 11821 strings out of 480608
- 178280 string characters out of 5903631
+ 11844 strings out of 480608
+ 178515 string characters out of 5903631
  482132 words of memory out of 5000000
  27222 multiletter control sequences out of 15000+600000
- 593767 words of font info for 226 fonts, out of 8000000 for 9000
+ 596389 words of font info for 243 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,8n,72p,831b,1801s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on /Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf (5 pages, 138116 bytes).
+Output written on /Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf (5 pages, 138509 bytes).
 PDF statistics:
- 209 PDF objects out of 1000 (max. 8388607)
- 191 compressed objects within 2 object streams
- 102 named destinations out of 1000 (max. 500000)
- 44601 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 212 PDF objects out of 1000 (max. 8388607)
+ 194 compressed objects within 2 object streams
+ 103 named destinations out of 1000 (max. 500000)
+ 46649 words of extra memory for PDF output out of 51595 (max. 10000000)
 
