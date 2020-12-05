@@ -154,7 +154,7 @@ We may also ask:
 
   function find_last(A,x){
     (L,_) = binary_search(-1, length(A), function(i){ A[i]>x })
-    if(L > 0 && A[L] == x) return Some(L)
+    if(L > -1 && A[L] == x) return Some(L)
     else return None
   }
 \end{lstlisting}
