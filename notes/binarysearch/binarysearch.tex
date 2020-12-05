@@ -129,7 +129,7 @@ Let $A = [2,3,3,3,6,8,8,9]$ be a sorted array. Given a particular number $x$, we
 
 So that:
 \begin{align*}
-  p(-1) &= \mathsf{true} & p(\mathsf{length}(A)) &= \mathsf{false}
+  p(-1) &= \mathsf{false} & p(\mathsf{length}(A)) &= \mathsf{true}
 \end{align*}
 
 Note that \lstinline|binary_search(L,R,p)| only calls $p$ on numbers strictly between $L$ and $R$, so the array is never accessed out of bounds, even though we put $L=-1$ and $R=\mathsf{length}(A)$, which are themselves out of bounds.
