@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.7.8)  5 DEC 2020 12:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.7.8)  5 DEC 2020 17:12
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex
-(/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex
+**/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.tex
+(/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.tex
 LaTeX2e <2020-02-02> patch level 5
 L3 programming layer <2020-03-06> (/usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
@@ -439,37 +439,37 @@ Package: enumitem 2019/06/20 v3.9 Customized lists
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count279
 \l__pdf_internal_box=\box50
-) (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.aux)
-\openout1 = `binarysearch.aux'.
+) (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.aux)
+\openout1 = `sortingreals.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for MDA/cmr/m/n on input line 51.
-LaTeX Font Info:    Trying to load font information for MDA+cmr on input line 51.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for MDA/cmr/m/n on input line 57.
+LaTeX Font Info:    Trying to load font information for MDA+cmr on input line 57.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdacmr.fd
 File: mdacmr.fd 
 )
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for MDB/cmr/m/n on input line 51.
-LaTeX Font Info:    Trying to load font information for MDB+cmr on input line 51.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for MDB/cmr/m/n on input line 57.
+LaTeX Font Info:    Trying to load font information for MDB+cmr on input line 57.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbcmr.fd
 File: mdbcmr.fd 
 )
-LaTeX Font Info:    ... okay on input line 51.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 51.
-LaTeX Font Info:    ... okay on input line 51.
+LaTeX Font Info:    ... okay on input line 57.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 57.
+LaTeX Font Info:    ... okay on input line 57.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -505,14 +505,14 @@ LaTeX Font Info:    ... okay on input line 51.
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-LaTeX Info: Redefining \microtypecontext on input line 51.
+LaTeX Info: Redefining \microtypecontext on input line 57.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `basictext'.
-LaTeX Info: Redefining \showhyphens on input line 51.
+LaTeX Info: Redefining \showhyphens on input line 57.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -520,7 +520,7 @@ Package microtype Info: No adjustment of character kerning.
 File: mt-bch.cfg 2007/03/03 v1.5 microtype config. file: Bitstream Charter (RS)
 )
 \AtBeginShipoutBox=\box51
-Package hyperref Info: Link coloring ON on input line 51.
+Package hyperref Info: Link coloring ON on input line 57.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  (/usr/local/texlive/2020/texmf-dist/tex/latex/refcount/refcount.sty
@@ -530,12 +530,12 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count280
 )
-LaTeX Info: Redefining \ref on input line 51.
-LaTeX Info: Redefining \pageref on input line 51.
-LaTeX Info: Redefining \nameref on input line 51.
- (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.out) (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.out)
+LaTeX Info: Redefining \ref on input line 57.
+LaTeX Info: Redefining \pageref on input line 57.
+LaTeX Info: Redefining \nameref on input line 57.
+ (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.out) (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.out)
 \@outlinefile=\write3
-\openout3 = `binarysearch.out'.
+\openout3 = `sortingreals.out'.
 
 \c@lstlisting=\count281
  (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -553,115 +553,99 @@ LaTeX Info: Redefining \nameref on input line 51.
 \everyMPtoPDFconversion=\toks31
 )
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 16.58891pt on input line 53.
+(Font)              scaled to size 16.58891pt on input line 59.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
-LaTeX Font Info:    Trying to load font information for OT1+mdbch on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
+LaTeX Font Info:    Trying to load font information for OT1+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ot1mdbch.fd
 File: ot1mdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OT1/mdbch.
 )
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
-LaTeX Font Info:    Trying to load font information for OML+mdbch on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
+LaTeX Font Info:    Trying to load font information for OML+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/omlmdbch.fd
 File: omlmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OML/mdbch.
 )
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 5.76004pt on input line 53.
-LaTeX Font Info:    Trying to load font information for OMS+mdbch on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
+LaTeX Font Info:    Trying to load font information for OMS+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/omsmdbch.fd
 File: omsmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OMS/mdbch.
 )
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
-LaTeX Font Info:    Trying to load font information for OMX+mdbch on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
+LaTeX Font Info:    Trying to load font information for OMX+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/omxmdbch.fd
 File: omxmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OMX/mdbch.
 )
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
-LaTeX Font Info:    Trying to load font information for MDA+mdbch on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
+LaTeX Font Info:    Trying to load font information for MDA+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/mdamdbch.fd
 File: mdamdbch.fd 2013/08/29 Fontinst v1.933 font definitions for MDA/mdbch.
 )
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
-LaTeX Font Info:    Trying to load font information for MDB+mdbch on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
+LaTeX Font Info:    Trying to load font information for MDB+mdbch on input line 59.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/mdbmdbch.fd
 File: mdbmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for MDB/mdbch.
 )
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 11.52008pt on input line 53.
+(Font)              scaled to size 11.52008pt on input line 59.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 53.
+(Font)              scaled to size 7.68005pt on input line 59.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 53.
+(Font)              scaled to size 5.76004pt on input line 59.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 13.82408pt on input line 54.
+(Font)              scaled to size 13.82408pt on input line 60.
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 13.82408pt on input line 54.
+(Font)              scaled to size 13.82408pt on input line 60.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
+(Font)              scaled to size 10.51207pt on input line 62.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 56.
-LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 11.37706pt on input line 56.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `cmss' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 8.31201pt on input line 56.
-LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 6.23401pt on input line 56.
-LaTeX Font Info:    Font shape `T1/cmtt/m/n' will be
-(Font)              scaled to size 11.73846pt on input line 58.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `cmtt' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for TS1+mdbch on input line 99.
+(Font)              scaled to size 10.51207pt on input line 62.
+LaTeX Font Info:    Trying to load font information for TS1+mdbch on input line 66.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 File: ts1mdbch.fd 2013/08/29 Fontinst v1.933 font definitions for TS1/mdbch.
 )
 LaTeX Font Info:    Font shape `TS1/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 99.
+(Font)              scaled to size 10.51207pt on input line 66.
 Package microtype Info: Character `texttwelveudash ' is missing
 (microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
@@ -683,97 +667,44 @@ Package microtype Info: Character `texttildelow ' is missing
 Package microtype Info: Character `textcelsius ' is missing
 (microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
+LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
+(Font)              scaled to size 10.51207pt on input line 77.
+LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
+(Font)              scaled to size 11.37706pt on input line 83.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmss' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
+(Font)              scaled to size 8.31201pt on input line 83.
+LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
+(Font)              scaled to size 6.23401pt on input line 83.
  [1
 
-{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
-(Font)              scaled to size 10.51207pt on input line 102.
- [2]
-Overfull \hbox (10.61429pt too wide) in paragraph at lines 150--151
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-
-Overfull \hbox (3.33525pt too wide) in paragraph at lines 156--157
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 164.
-LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 9.35101pt on input line 164.
-LaTeX Font Info:    Font shape `T1/cmss/m/n' will be
-(Font)              scaled to size 5.195pt on input line 164.
-LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 164.
-LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 164.
-LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 164.
-LaTeX Font Info:    Font shape `T1/cmtt/m/n' will be
-(Font)              scaled to size 9.64806pt on input line 181.
-
-Overfull \hbox (3.87428pt too wide) in paragraph at lines 181--181
-[][][][][]$\T1/cmtt/m/n/9 http : / / pvk . ca / Blog / 2012 / 07 / 03 / binary-[]search-[]star-[]eliminates-[]star-[]branch-[]mispredictions/$[][]| 
- []
-
-[3]
-Overfull \hbox (17.0pt too wide) in paragraph at lines 193--206
-[]$[]$ 
- []
-
-LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 11.52008pt on input line 225.
-[4]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 259.
- [5]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 259.
- (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 259.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 259.
-Package rerunfilecheck Info: File `binarysearch.out' has not changed.
-(rerunfilecheck)             Checksum: C71C7FDA77B4031F5458CE2E6A6A88B9;422.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 259.
+{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 139.
+ [3]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 139.
+ (/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 139.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 139.
+Package rerunfilecheck Info: File `sortingreals.out' has not changed.
+(rerunfilecheck)             Checksum: AD9052D46AC598360F345EFAAE1003C0;212.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 139.
  ) 
 Here is how much of TeX's memory you used:
- 11831 strings out of 480608
- 178376 string characters out of 5903631
- 476131 words of memory out of 5000000
- 27222 multiletter control sequences out of 15000+600000
- 595830 words of font info for 232 fonts, out of 8000000 for 9000
+ 11328 strings out of 480608
+ 173253 string characters out of 5903631
+ 462152 words of memory out of 5000000
+ 26846 multiletter control sequences out of 15000+600000
+ 576025 words of font info for 193 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,8n,72p,820b,1801s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
-Output written on /Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf (5 pages, 142164 bytes).
+ 38i,8n,72p,804b,342s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
+Output written on /Users/jules/Documents/GitHub/julesjacobs.github.io/notes/sortingreals/sortingreals.pdf (3 pages, 61552 bytes).
 PDF statistics:
- 218 PDF objects out of 1000 (max. 8388607)
- 199 compressed objects within 2 object streams
- 105 named destinations out of 1000 (max. 500000)
- 46649 words of extra memory for PDF output out of 51595 (max. 10000000)
+ 77 PDF objects out of 1000 (max. 8388607)
+ 63 compressed objects within 1 object stream
+ 11 named destinations out of 1000 (max. 500000)
+ 30753 words of extra memory for PDF output out of 35830 (max. 10000000)
 
