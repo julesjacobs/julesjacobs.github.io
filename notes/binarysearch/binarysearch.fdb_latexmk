@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1607168600 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf" "binarysearch" 1607168601
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.aux" 1607168600 1510 6f512c56dc20f5395e271aafb5583f31 ""
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex" 1607168599 11337 2ef672ed76e2f7c1a093c7c19dc44397 ""
+["pdflatex"] 1607168827 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf" "binarysearch" 1607168828
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.aux" 1607168828 1510 6f512c56dc20f5395e271aafb5583f31 ""
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.tex" 1607168827 11337 d14e1a41680d4f75bbee9001ee4dc4cd ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc" 1276641224 6938 5135be6a8802f13a7faf296d1959a1ab ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -130,13 +130,13 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1586288239 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1594233252 2432466 e45eeb99c6e345b5d7ddb67130508535 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "binarysearch.aux" 1607168600 1510 6f512c56dc20f5395e271aafb5583f31 "pdflatex"
-  "binarysearch.out" 1607168600 422 c71c7fda77b4031f5458ce2e6a6a88b9 "pdflatex"
-  "binarysearch.tex" 1607168599 11337 2ef672ed76e2f7c1a093c7c19dc44397 ""
+  "binarysearch.aux" 1607168828 1510 6f512c56dc20f5395e271aafb5583f31 "pdflatex"
+  "binarysearch.out" 1607168828 422 c71c7fda77b4031f5458ce2e6a6a88b9 "pdflatex"
+  "binarysearch.tex" 1607168827 11337 d14e1a41680d4f75bbee9001ee4dc4cd ""
   (generated)
-  "binarysearch.pdf"
   "binarysearch.log"
   "binarysearch.aux"
-  "binarysearch.out"
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf"
   "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.log"
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/binarysearch/binarysearch.pdf"
+  "binarysearch.pdf"
+  "binarysearch.out"
