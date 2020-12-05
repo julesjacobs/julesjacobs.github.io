@@ -182,7 +182,7 @@ The \lstinline|if| inside the simplified binary search can be compiled to two co
 
 \section{Generalized binary search}
 
-In order for the \lstinline|mid(L,R)| function to work, we need to know that $R-L>1$, so that \lstinline|mid| can actually find an index $i$ strictly between $L < i < R$. The loop test checks this condition. It therefore makes sense to combine these into the mid function:
+In order for the \lstinline|mid(L,R)| function to work, we need to know that $R-L>1$, so that \lstinline|mid| can actually find an index $i$ strictly between $L < i < R$. The loop test checks this condition. It therefore makes sense to move this check into the mid function:
 
 \begin{lstlisting}
   mid(L,R) = if(R - L > 1) then Some(floor((L+R)/2)) else None
