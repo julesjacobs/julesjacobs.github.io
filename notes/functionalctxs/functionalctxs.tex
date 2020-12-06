@@ -83,7 +83,7 @@ Then one defines the operational semantics:
   \inferrule{.}{n + m \to [n + m]}
 \end{mathpar}
 
-These rules only apply when the outermost expression can take a step. In order to complete the operational semantics we need evaluation contexts. This is usually with a BNF grammar for contexts as expressions with a hole:
+These rules only apply when the outermost expression can take a step. In order to complete the operational semantics we need evaluation contexts. They are usually defined with a BNF grammar for expressions with a hole:
 \begin{align*}
   E &::= [ . ]\ |\ E + e\ |\ n + E\ |\ \mif E \mthen e \melse e\ |\ E\ e
 \end{align*}
