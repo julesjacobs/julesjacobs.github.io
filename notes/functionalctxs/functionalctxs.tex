@@ -186,7 +186,7 @@ Inductive step : expr -> expr -> Prop :=
 
 This way of presenting evaluation contexts is more concise and makes it quite clear that it's equivalent to having separate stepping rules for each context.
 
-One might worry that we run into issues due to Coq's lack of function extensionality, but it turns out that we never have to prove that two functions are equal. We only need to destruct and construct $\mathsf{ctx}$'s, which works perfectly fine. For a Coq file that has the above language definition, a type system, and a progress and preservation proof, take a look at:
+One might worry that we run into issues due to Coq's lack of function extensionality, but it turns out that we never have to prove that two functions are equal. We only need to destruct and construct $\mathsf{ctx}$'s, which works perfectly fine. A Coq file that has the above language definition, a type system, and a progress and preservation proof, can be found at:
 
 \begin{center}
   \url{https://julesjacobs.com/notes/functionalctxs/functionalctxs.v}
