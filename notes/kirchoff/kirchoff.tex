@@ -1,0 +1,279 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+
+\title{A simple proof of Kirchoff's theorem, and some other combinatorial graph determinants}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  Kirchoff's matrix tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to directed graphs as well.
+
+  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{strictly upward routes}.
+
+  Lastly, we generalize Kirchoff's theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix tree theorem also follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to be the matrix where $A_{ij} = 1$ and zero elsewhere.
+\end{abstract}
+
+\section{Introduction}
+
+Given finite sets of numbers $S_1, \dots, S_n \subset \R$, we have the identity:
+\begin{align*}
+  \sum_{x_1 \in S_1, \cdots, x_n \in S_n} x_1 x_2 \cdots x_n =
+  \left( \sum_{x_1 \in S_1} x_1 \right) \cdots \left( \sum_{x_n \in S_n} x_n \right)
+\end{align*}
+On the left hand side, we get one term for every way of choosing $(x_1,\dots,x_n)\in S_1 \times \cdots \times S_n$. This identity is useful in combinatorics, for instance to show that the coefficient of $x^k$ of $(x + x^2 + \cdots + x^6)^n$ counts the number of ways of obtaining $k$ as the sum of $n$ dice.
+
+Similarly, given finite sets of vectors $S_1, \dots, S_n \subset \R^k$, we have the following identity, by multilinearity of the determinant:
+\begin{align*}
+  \sum_{v_1 \in S_1, \cdots, v_n \in S_n} \det \left(v_1, \cdots, v_n\right) =
+  \det\left(\sum_{v_1 \in S_1} v_1, \cdots ,\sum_{v_n \in S_n} v_n\right)
+\end{align*}
+Where $\det(v_1, \dots, v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
+
+\begin{definition}
+  A 01-graph is a directed graph where each vertex has 0 or 1 outgoing edges.
+\end{definition}
+
+\begin{definition}
+We define the concepts \emph{root}, \emph{forest}, and \emph{tree}:
+ \begin{itemize}
+  \item The \emph{roots} are vertices with 0 outgoing edges.
+   \item A \emph{forest} is a 01-graph with no cycles.
+   \item A \emph{tree} is a forest with one root.
+ \end{itemize}
+\end{definition}
+
+If we start at a vertex $v$ in a 01-graph and keep following the unique outgoing edge, then we either loop in a cycle, or we end up at a vertex with no outgoing edges. Therefore a general 01-graph consists of roots and cycles, plus trees converging onto the roots and cycles.
+
+\begin{definition}
+  The adjacency matrix $A$ of a graph $G$ is defined as follows, where $e_j \in \R^n$ are the basis vectors:
+  \[ A_i = \sum_{(i \to j) \in G} e_j  \]
+\end{definition}
+
+\section{The matrix-tree theorem}
+
+We start with a lemma that gives us an indicator function for forests.
+
+\begin{lemma}
+  Let $A$ be the adjacency matrix of a 01-graph $G$, then
+  \[
+    \det(I-A) = \begin{cases}
+      1 & \text{if $G$ is a forest}\\
+      0 & \text{if $G$ has a cycle}
+    \end{cases}
+  \]
+\end{lemma}
+\begin{proof}
+In a 01-graph, the vector $A^i e_k$ follows the path out of $k$ for $i=0,1,\dots$ (note that this path is unique because each vertex has at most one outgoing edge).
+
+\begin{itemize}
+  \item If $G$ is forest then $A^n e_k = 0$ for all $k$, where $n$ is the number of vertices of $G$. So $A^n = 0$, so all eigenvalues of $A$ are zero, so all eigenvalues of $I - A$ are one, so $\det(I - A) = 1$.
+  \item If $G$ has a cycle consisting of vertices $C$, take $v = \sum_{i \in C} e_i$. Then $Av = v$, so $(I - A)v = 0$, so $\det(I - A) = 0$.
+\end{itemize}
+Thus, for 01-graphs, $\det(I - A)$ indicates whether the graph is a forest or not.
+\end{proof}
+
+If using eigenvalues to prove a finitary lemma feels wrong, here is an alternative proof:
+\begin{proof}
+In a 01-graph, the $i$-th column of $A$ consists of only the diagonal $1$ when $i$ is a root, and has one other entry equal to $-1$ if $i$ is not a root.
+
+We may therefore do a Laplace expansion along the column of a root, which deletes column $i$ and row $i$ from the matrix. On the graph side, this corresponds to deleting root $i$ and all its incoming edges.
+
+Repeating this process, we end up deleting the entire graph iff the graph was a forest, in which case the determinant is one\footnote{The determinant of a $0 \times 0$ matrix is $1$, but one can also stop deleting when the matrix is $1 \times 1$, and use $\det([1]) = 1$.}, or we end up with a graph consisting entirely of cycles, in which case each column of $I - A$ has one $1$ and one $-1$, so the sum of the rows is $0$ so $\det(I - A) = 0$.
+\end{proof}
+
+\begin{definition}
+  The Laplacian matrix $L$ of a graph $G$ is defined as:
+  \[ L_i = \sum_{(i \to j) \in G} (e_i - e_j) \]
+\end{definition}
+
+\begin{theorem}
+  (Kirchoff, Tutte) The determinant $\det(I + L)$ gives the number of ways to choose a forest as a subgraph of $G$.
+\end{theorem}
+\begin{proof}
+  The strategy is to first consider all possible ways of choosing a 01-graph as a subgraph of $G$, and then summing $\det(I - A)$ over those, which counts only the forests. To choose a 01-graph in $G$, we choose for each vertex $i$ whether we make it a root, or whether we give it an outgoing edge from $G$. Therefore:
+  \begin{align*}
+    \det(I + L) = \det(e_1 + L_1, \dots, e_n + L_n)
+     = \sum_{\text{01-graph}\ A\ \subseteq\ G} \det(I - A) = \sum_{\text{forest}\ A\ \subseteq\ G} 1
+  \end{align*}
+  In the second step, we have expanded the determinant by multilinearity in each column
+  \[ e_i + L_i = e_i + \sum_{(i \to j) \in G} (e_i - e_j) \]
+  In each column we either pick $e_i$ or we pick one of the terms $(e_i - e_j)$ in the sum over the outgoing edges\footnote{We do not further expand $(e_i - e_j)$ into two separate terms.}. The former corresponds to picking $e_i$ as a root, and the latter corresponds to picking $i \to j$ as the outgoing edge for vertex $i$.
+\end{proof}
+
+The same proof obtains a weighted version of the theorem. Let $A$ be a matrix of weights with $A_{ij}$ corresponding to edge $i \to j$, and define the Laplacian $L_i = \sum_j A_{ij}(e_i - e_j)$. Let $D$ be a diagonal matrix of weights with $D_{ii}$ corresponding to vertex $i$ as a root. Let the weight of forest be \[w(F) = \prod_{i \in \mathsf{roots}(F)} D_{ii} \prod_{(i \to j) \in \mathsf{edges}(F)} A_{ij} \]
+
+Then we have the following weighted version of the previous theorem.
+
+\begin{theorem} (Weighted version) The determinant $\det(D + L)$ sums the weights of forests with edge weights $A$ and root weights $D$.
+\end{theorem}
+\begin{proof}
+  Essentially the same as the preceding proof. Column $i$ of $D+L$ is:
+  \[ D_{ii} e_i + L_i = D_{ii} e_i + \sum_j A_{ij}(e_i - e_j) \]
+  Thus, after expanding by multilinearity, one gets a factor of $D_{ii}$ if one picks $i$ as a root, and one gets a factor $A_{ij}$ if one picks the edge $i \to j$ as the outgoing edge of $i$.
+\end{proof}
+
+\section{Upwards routes}
+
+We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix.
+
+\begin{definition}
+  Given a graph $G$ with an order on the vertices, we define \emph{(strict) upwards loops} and \emph{(strict) upwards routes}:
+  \begin{itemize}
+    \item An \emph{upwards loop} at vertex $i$ is a path from $i$ to $i$ that does not visit vertices lower than $i$.
+    \item A \emph{strictly upwards loop} at vertex $i$ is a path from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the path, where it does visit $i$ itself).
+    \item A \emph{(strictly) upwards route} is a choice of (strictly) upwards loop at each vertex.
+  \end{itemize}
+\end{definition}
+
+Along the way, we shall obtain the following amusing result:
+
+\begin{theorem}
+  The number of (strictly) upwards routes of $k$ edges does not depend on the order of the vertices.
+\end{theorem}
+
+Recall Cramer's rule:
+\begin{theorem} (Cramer's rule)
+  Let $A$ be a matrix and let $A_{[i,j]}$ be the same with column $i$ and row $j$ deleted, then:
+  \[ A^{-1}_{ij} = \frac{\det(A_{[i,j]})}{\det(A)} \]
+\end{theorem}
+
+From this, we get the following lemma that allows us to calculate $\det(A)^{-1}$ in terms of entries of inverses of submatrices of $A$:
+
+\begin{lemma} Given an invertible matrix $A$,
+  \[ \det(A)^{-1} = \prod_{i=0}^{n-1} (A_{[1\dots i, 1\dots i]})^{-1}_{11} \]
+Where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
+\end{lemma}
+\begin{proof}
+  Cramer's rule implies:
+\[
+  \det(A)^{-1} = A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1}
+\]
+
+Continuing this by induction, we get:
+\begin{align*}
+  \det(A)^{-1} &= A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1} \\
+    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot \det(A_{[1..2,1..2]})^{-1} \\
+    &= \cdots \\
+    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot (A_{[1..2,1..2]})^{-1}_{1,1} \cdots
+        (A_{[1..n-1,1..n-1]})^{-1}_{1,1} \cdot 1
+\end{align*}
+\end{proof}
+
+We apply this lemma to the matrix $I - xA$, to obtain:
+
+\begin{lemma}
+  The generating function of upwards routes with $k$ edges is $\det(I - xA)^{-1}$.
+\end{lemma}
+\begin{proof}
+  Apply the preceding lemma:
+  \[ \det(I - xA)^{-1} = \prod_{i=0}^{n-1} ((I - xA)_{[1\dots i, 1\dots i]})^{-1}_{11} \]
+  Thus, for each $i$ we first obtain a subgraph by deleting vertices with lower number than $i$, and then $((I - xA)_{[1\dots i, 1\dots i]})^{-1}_{11}$ is the generating function of loops from vertex $i$ to $i$ in the resulting graph. Thus, in terms of the original graph, these are loops that do not visit vertices with lower number than $i$. Multiplying this over each vertex $i$ in the original graph, we obtain the result.
+\end{proof}
+
+\begin{lemma} For an arbitrary adjacency matrix $A$,
+  \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
+  Where $f_i(x)$ is the generating function of strictly upwards loops at vertex $i$.
+\end{lemma}
+\begin{proof}
+  Use the previous lemma, and the fact that each upwards loop breaks apart into a sequence of strictly upwards loops.
+\end{proof}
+
+This is kind of interesting, because $\det(I - xA)$ is a polynomial, whereas $f_i(x)$ is a power series, so many terms cancel on the right hand side.
+
+\section{Kirchoff's theorem with cycles}
+
+Let $G_A$ be a graph with adjacency matrix $A$ and let $G_L$ be a graph with Laplacian $L$. We shall generalize Kirchoff's theorem from $\det(I + L)$ to $\det(A + L)$. In order to do this we need to define 1-graphs.
+
+\begin{definition}
+  A 1-graph is a directed graph where each vertex has exactly one outgoing edge.
+\end{definition}
+
+Thus, at each vertex we can continue following a unique path indefinitely. In a finite graph that path must eventually cycle. So a general 1-graph looks like a bunch of disjoint cycles and a bunch of trees converging onto those cycles.
+
+In our 1-graphs, some edges will be selected from $G_A$ and some will be selected from $G_L$. We define the weight function:
+\begin{align*}
+  w(F) = \begin{cases}
+    ... & ... \\
+    0 & \text{otherwise}
+  \end{cases}
+\end{align*}
+
+\begin{theorem} Kirchoff's theorem with cycles.
+  \[
+    \det(A + L) = \sum_{\text{1-graph}\ F\ \subseteq\ (G_A + G_L)} w(F)
+  \]
+\end{theorem}
+\begin{proof}
+  ...
+\end{proof}
+
+\end{document}
