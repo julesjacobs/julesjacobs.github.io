@@ -67,6 +67,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
 
 
 \title{A simple proof of Kirchoff's theorem, and some other combinatorial graph determinants}
@@ -273,7 +274,30 @@ In our 1-graphs, some edges will be selected from $G_A$ and some will be selecte
   \]
 \end{theorem}
 \begin{proof}
-  ...
+  ... Main idea: generalize the lemma to account for cycles. Each time we Laplace expand a column with one entry (from $G_A$), which is now not necessarily in diagonal position, we obtain a sign.
 \end{proof}
+
+Bunch of corollaries:
+
+\begin{corollary}
+  $\det(A)$ is the number of signed cycle covers.
+\end{corollary}
+
+\begin{corollary}
+  $\det(I + L)$ is the number of spanning forests.
+\end{corollary}
+
+\begin{corollary}
+  $\det(L_{[i,j]})$ spanning trees, for all $i,j$.
+\end{corollary}
+
+\begin{corollary}
+  All-minor matrix tree theorem.
+\end{corollary}
+
+\begin{corollary}
+  Undirected matrix tree theorem.
+\end{corollary}
+
 
 \end{document}
