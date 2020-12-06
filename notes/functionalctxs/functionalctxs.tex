@@ -1,0 +1,195 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+}
+
+\usepackage{amsmath}
+\usepackage[shortlabels]{enumitem}
+\setlength{\parindent}{0mm}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+
+
+\title{Functional Evaluation Contexts \\
+  \large{An alternative way to handle evaluation contexts in a proof assistant like Coq}}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+One usually starts a language definition with a BNF grammar for its syntax:
+\begin{align*}
+ e &::= x\ |\ n\ |\ \lambda x. e\ |\ e\ e\ |\ \mif  e \mthen e \melse e\ |\ e + e
+\end{align*}
+
+Then one defines the operational semantics:
+\begin{mathpar}
+  \inferrule{n \neq 0}{\mif n \mthen e_1 \melse e_2 \to e_1}
+
+  \inferrule{n = 0}{\mif n \mthen e_1 \melse e_2 \to e_2} \\
+
+  \inferrule{.}{(\lambda x. e_1) e_2 \to e_1[x \mapsto e_2]}
+
+  \inferrule{.}{n + m \to [n + m]}
+\end{mathpar}
+
+These rules only apply when the outermost expression can take a step. In order to complete the operational semantics we need evaluation contexts. This is usually with a BNF grammar for contexts as expressions with a hole:
+\begin{align*}
+  E &::= [ . ]\ |\ E + e\ |\ n + E\ |\ \mif E \mthen e \melse e\ |\ E\ e
+\end{align*}
+
+And a rule for stepping in a context:
+\begin{mathpar}
+  \inferrule{e_1 \to e_2}{E[e_1] \to E[e_2]}
+\end{mathpar}
+
+The syntax $E[e]$ means substituting $[.] \mapsto e$ in $E$. Thus, an evaluation context may be seen as a function from expressions to expressions. Without evaluation contexts, we would have to write a series of rules to step in each context:
+\begin{mathpar}
+  \inferrule{e_1 \to e_2}{e_1 + e_3 \to e_2 + e_3}
+
+  \inferrule{e_1 \to e_2}{n + e_1 \to n + e_2}
+
+  \inferrule{e_1 \to e_2}{e_1\ e_2 \to e_2\ e_3}
+
+  \inferrule{e_1 \to e_2}{\mif e_1 \mthen e_3 \melse e_4 \to \mif e_2 \mthen e_3 \melse e_4}
+\end{mathpar}
+
+Evaluation contexts let us write these rules as a single rule.
+
+\section{Traditional evaluation contexts in Coq}
+
+To translate such a language definition to a proof assistant like Coq, we translate:
+
+\begin{itemize}
+  \item The BNF grammar for expressions to an $\mathsf{expr}$ algebraic data type.
+  \item The head step semantics to a relation $\mathsf{head\_step} : \mathsf{expr} \to \mathsf{expr} \to \mathsf{Prop}$.
+  \item The BNF grammar for evaluation contexts to an algebraic data type $\mathsf{ctx}$.
+  \item The operation $E[e] = \mathsf{fill}\ E\ e$ using a function $\mathsf{fill} : \mathsf{ctx} \to \mathsf{expr} \to \mathsf{expr}$.
+  \item The final step relation to $\mathsf{step} : \mathsf{expr} \to \mathsf{expr} \to \mathsf{Prop}$
+\end{itemize}
+
+For the language given previously, this would be done as follows:
+
+\begin{lstlisting}
+Inductive head_step : expr -> expr -> Prop :=
+  | Step_add : forall n m, head_step (Add (Nat n) (Nat m)) (Nat (n+m))
+  | Step_if_t : forall e1 e2 n, head_step (If (Nat (S n)) e1 e2) e1
+  | Step_if_f : forall e1 e2, head_step (If (Nat 0) e1 e2) e2
+  | Step_app : forall e1 e2 s, head_step (App (Lam s e1) e2) (subst s e2 e1).
+
+Inductive ctx :=
+  | Ctx_Hole : ctx
+  | Ctx_AddL : expr -> ctx -> ctx
+  | Ctx_AddR : nat -> ctx -> ctx
+  | Ctx_If : expr -> expr -> ctx -> ctx
+  | Ctx_AppL : expr -> ctx -> ctx.
+
+Fixpoint fill E x :=
+  match E with
+  | Ctx_Hole => x
+  | Ctx_AddL e2 E' => Add (fill E' x) e2
+  | Ctx_AddR n E' => Add (Nat n) (fill E' x)
+  | Ctx_If e1 e2 E' => If (fill E' x) e1 e2
+  | Ctx_AppL e2 E' => App (fill E' x) e2
+  end.
+
+Inductive step : expr -> expr -> Prop :=
+  | Step_ctx : forall E e1 e2,
+      head_step e1 e2 -> step (fill E e1) (fill E e2).
+\end{lstlisting}
+
+\section{Functional evaluation contexts}
+
+An alternative is to explicitly define evaluation contexts as a set of functions $E \subseteq \mathsf{expr} \to \mathsf{expr}$:
+\begin{align*}
+  E = &\Set{(x \mapsto x + e) \given e \in \mathsf{expr} }\ \cup \\
+  &\Set{(x \mapsto n + x) \given n \in \mathbb{N} }\ \cup \\
+  &\Set{(x \mapsto \mif x \mthen e_1 \melse e_2) \given e_1,e_2 \in \mathsf{expr} }\ \cup \\
+  &\Set{(x \mapsto x\ e) \given e \in \mathsf{expr} }
+\end{align*}
+
+Or, in BNF syntax:
+\begin{align*}
+  E(x) ::= x + e\ |\ n + x\ |\ \mif x \mthen e \melse e\ |\ x\ e
+\end{align*}
+
+The substitution $E[e] = E[[.] \mapsto e]$ in the semantics becomes ordinary function application:
+\begin{mathpar}
+  \inferrule{e_1 \to e_2 \and k \in E}{k(e_1) \to k(e_2)}
+\end{mathpar}
+
+This works nicely in Coq too:
+\begin{lstlisting}
+Inductive ctx : (expr -> expr) -> Prop :=
+  | Ctx_AddL : forall e2, ctx (fun x, Add x e2)
+  | Ctx_AddR : forall n, ctx (fun x, Add (Nat n) x)
+  | Ctx_If : forall e1 e2, ctx (fun x, If x e1 e2)
+  | Ctx_AppL : forall e2, ctx (fun x, App x e2).
+
+Inductive step : expr -> expr -> Prop :=
+  | Step_add : forall n m, step (Add (Nat n) (Nat m)) (Nat (n+m))
+  | Step_if_t : forall e1 e2 n, step (If (Nat (S n)) e1 e2) e1
+  | Step_if_f : forall e1 e2, step (If (Nat 0) e1 e2) e2
+  | Step_app : forall e1 e2 s, step (App (Lam s e1) e2) (subst s e2 e1)
+  | Step_ctx : forall e1 e2 k, ctx k -> step e1 e2 -> step (k e1) (k e2).
+\end{lstlisting}
+
+This way of presenting evaluation contexts is more concise and makes it quite clear that it's equivalent to having separate stepping rules for each context.
+
+One might worry that we run into issues due to Coq's lack of function extensionality, but it turns out that we never have to prove that two functions are equal. We only need to destruct and construct $\mathsf{ctx}$'s, which works perfectly fine. For a Coq file that has the above language definition, a type system, and a progress and preservation proof, take a look at:
+
+\begin{center}
+  \url{https://julesjacobs.com/notes/functionalctxs/functionalctxs.v}
+\end{center}
+
+\end{document}
