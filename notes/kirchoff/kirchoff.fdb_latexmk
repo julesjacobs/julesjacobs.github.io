@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1607292379 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1607292380
+["pdflatex"] 1607292379 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1607292391
   "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1607292380 1129 804a691fe558ce7ae5d3f2423a92b8af ""
   "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1607292378 14111 3b7cf11d10218dcbde21c567cdc443ea ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
@@ -142,9 +142,9 @@
   "kirchoff.out" 1607292380 219 8cc0831ab1e5c5529172aab6f43cde86 "pdflatex"
   "kirchoff.tex" 1607292378 14111 3b7cf11d10218dcbde21c567cdc443ea ""
   (generated)
-  "kirchoff.log"
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
+  "kirchoff.pdf"
   "kirchoff.aux"
   "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf"
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
+  "kirchoff.log"
   "kirchoff.out"
-  "kirchoff.pdf"
