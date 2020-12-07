@@ -193,13 +193,12 @@ We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - 
     \item A \emph{strictly upwards loop} at vertex $i$ is a path from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the path, where it does visit $i$ itself).
     \item A \emph{(strictly) upwards route} is a choice of (strictly) upwards loop at each vertex.
   \end{itemize}
+  Let $f_i(x)$ be the generating function of strictly upwards loops of length $k$ at vertex $i$. Then \[ \bar{f}_i(x) = (1 - f_i(x))^{-1} \] is the generating function of upwards loops of length $k$ at vertex $i$, because an upwards loop of length $k$ splits up uniquely into a sequence of strictly upwards loops. Furthermore, the generating functions $f(x)$ and $\bar{f}(x)$ of (strictly) upward routes of $k$ edges are given by:
+  \begin{align*}
+    f(x) &= \prod_{i=1}^n f_i(x) &
+    \bar{f}(x) &= \prod_{i=1}^n \bar{f}_i(x)
+  \end{align*}
 \end{definition}
-
-Along the way, we shall obtain the following amusing result:
-
-\begin{theorem}
-  The number of (strictly) upwards routes of $k$ edges does not depend on the order of the vertices.
-\end{theorem}
 
 Recall Cramer's rule:
 \begin{theorem} (Cramer's rule)
@@ -240,15 +239,37 @@ We apply this lemma to the matrix $I - xA$, to obtain:
   Thus, for each $i$ we first obtain a subgraph by deleting vertices with lower number than $i$, and then $((I - xA)_{[1\dots i, 1\dots i]})^{-1}_{11}$ is the generating function of loops from vertex $i$ to $i$ in the resulting graph. Thus, in terms of the original graph, these are loops that do not visit vertices with lower number than $i$. Multiplying this over each vertex $i$ in the original graph, we obtain the result.
 \end{proof}
 
+\begin{corollary}
+  The number of (strictly) upwards routes of $k$ edges does not depend on the order of the vertices.
+\end{corollary}
+\begin{proof}
+  If we permute the order of the vertices by a permutation $P$, the generating function
+  \[
+    \det(I - xPAP^{-1}) = \det(P(I - xA)P^{-1}) = \det(I - xA)
+  \] stays the same.
+\end{proof}
+
 \begin{lemma} For an arbitrary adjacency matrix $A$,
   \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
   Where $f_i(x)$ is the generating function of strictly upwards loops at vertex $i$.
 \end{lemma}
 \begin{proof}
-  Use the previous lemma, and the fact that each upwards loop breaks apart into a sequence of strictly upwards loops.
+  We have the following relationship between the generating functions:
+  \[
+    \det(I - xA) = \bar{f}(x)^{-1} = \prod_{i=1}^n \bar{f}_i(x)^{-1} = \prod_{i=1}^n (1 - f_i(x))
+  \]
 \end{proof}
 
-This is kind of interesting, because $\det(I - xA)$ is a polynomial, whereas $f_i(x)$ is a power series, so many terms cancel on the right hand side.
+This is kind of interesting, because $\det(I - xA)$ is a polynomial, whereas $f_i(x)$ is a power series, so many terms cancel on the right hand side. The original lemma follows as a corollary, which gives us a third proof of the lemma:
+
+\begin{corollary}
+  For a 01-graph, $\det(I-A)=1$ if $G$ is a forest, and $0$ if $G$ has a cycle.
+\end{corollary}
+\begin{proof}
+  If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA) = 1$. If $G$ has a cycle, let $i$ be the lowerst vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A) = 0$.
+\end{proof}
+
+It goes without saying that weighted versions of the preceding theorems hold too.
 
 \section{Kirchoff's theorem with cycles}
 
