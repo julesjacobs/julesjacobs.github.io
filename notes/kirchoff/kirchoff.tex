@@ -78,7 +78,7 @@
 \begin{abstract}
   Kirchoff's matrix tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to directed graphs as well.
 
-  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{strictly upward routes}.
+  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
 
   Lastly, we generalize Kirchoff's theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix tree theorem also follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to be the matrix where $A_{ij} = 1$ and zero elsewhere.
 \end{abstract}
@@ -187,7 +187,7 @@ Then we have the following weighted version of the previous theorem.
 We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix.
 
 \begin{definition}
-  Given a graph $G$ with an order on the vertices, we define \emph{(strict) upwards loops} and \emph{(strict) upwards routes}:
+  Given a directed graph $G$ with an order on the vertices, we define \emph{(strict) upwards loops} and \emph{(strict) upwards routes}:
   \begin{itemize}
     \item An \emph{upwards loop} at vertex $i$ is a path from $i$ to $i$ that does not visit vertices lower than $i$.
     \item A \emph{strictly upwards loop} at vertex $i$ is a path from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the path, where it does visit $i$ itself).
@@ -269,7 +269,7 @@ This is kind of interesting, because $\det(I - xA)$ is a polynomial, whereas $f_
   If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA) = 1$. If $G$ has a cycle, let $i$ be the lowerst vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A) = 0$.
 \end{proof}
 
-It goes without saying that weighted versions of the preceding theorems hold too.
+It goes without saying that weighted versions of the preceding lemmas hold too.
 
 \section{Kirchoff's theorem with cycles}
 
