@@ -100,15 +100,12 @@ Similarly, given finite sets of vectors $S_1, \dots, S_n \subset \R^k$, we have 
 Where $\det(v_1, \dots, v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
 
 \begin{definition}
-  A 01-graph is a directed graph where each vertex has 0 or 1 outgoing edges.
-\end{definition}
-
-\begin{definition}
-We define the concepts \emph{root}, \emph{forest}, and \emph{tree}:
+We define the concepts \emph{01-graph}, \emph{forest}, \emph{root}, and \emph{tree}:
  \begin{itemize}
+  \item A 01-graph is a directed graph where each vertex has 0 or 1 outgoing edges.
+  \item A \emph{forest} is a 01-graph with no cycles.
   \item The \emph{roots} are vertices with 0 outgoing edges.
-   \item A \emph{forest} is a 01-graph with no cycles.
-   \item A \emph{tree} is a forest with one root.
+  \item A \emph{tree} is a forest with one root.
  \end{itemize}
 \end{definition}
 
@@ -148,7 +145,7 @@ In a 01-graph, the $i$-th column of $A$ consists of only the diagonal $1$ when $
 
 We may therefore do a Laplace expansion along the column of a root, which deletes column $i$ and row $i$ from the matrix. On the graph side, this corresponds to deleting root $i$ and all its incoming edges.
 
-Repeating this process, we end up deleting the entire graph iff the graph was a forest, in which case the determinant is one\footnote{The determinant of a $0 \times 0$ matrix is $1$, but one can also stop deleting when the matrix is $1 \times 1$, and use $\det([1]) = 1$.}, or we end up with a graph consisting entirely of cycles, in which case each column of $I - A$ has one $1$ and one $-1$, so the sum of the rows is $0$ so $\det(I - A) = 0$.
+Repeating this process, we end up deleting the entire graph if the graph was a forest, in which case the determinant is one\footnote{The determinant of a $0 \times 0$ matrix is $1$, but one can also stop deleting when the matrix is $1 \times 1$, and use $\det([1]) = 1$.}. If the graph had a cycle, this we will be left with a matrix that has a $1$ and a $-1$ in each column, so the sum of the rows is $0$ so $\det(I - A) = 0$.
 \end{proof}
 
 \begin{definition}
@@ -170,16 +167,33 @@ Repeating this process, we end up deleting the entire graph iff the graph was a 
   In each column we either pick $e_i$ or we pick one of the terms $(e_i - e_j)$ in the sum over the outgoing edges\footnote{We do not further expand $(e_i - e_j)$ into two separate terms.}. The former corresponds to picking $e_i$ as a root, and the latter corresponds to picking $i \to j$ as the outgoing edge for vertex $i$.
 \end{proof}
 
-The same proof obtains a weighted version of the theorem. Let $A$ be a matrix of weights with $A_{ij}$ corresponding to edge $i \to j$, and define the Laplacian $L_i = \sum_j A_{ij}(e_i - e_j)$. Let $D$ be a diagonal matrix of weights with $D_{ii}$ corresponding to vertex $i$ as a root. Let the weight of forest be \[w(F) = \prod_{i \in \mathsf{roots}(F)} D_{ii} \prod_{(i \to j) \in \mathsf{edges}(F)} A_{ij} \]
+The same proof obtains a weighted version of the theorem. Let $A$ be a matrix of weights with $A_{ij}$ corresponding to edge $i \to j$, and define the Laplacian $L_i = \sum_j A_{ij}(e_i - e_j)$. Let $D$ be a diagonal matrix of weights with $D_{ii}$ corresponding to vertex $i$ as a root. Let the weight of a forest be \[w(F) = \prod_{i \in \mathsf{roots}(F)} D_{ii} \prod_{(i \to j) \in \mathsf{edges}(F)} A_{ij} \]
 
 Then we have the following weighted version of the previous theorem.
 
-\begin{theorem} (Weighted version) The determinant $\det(D + L)$ sums the weights of forests with edge weights $A$ and root weights $D$.
+\begin{theorem} (Kirchoff, Tutte) The determinant $\det(D + L)$ is the weighted sum of all forests on $n$-vertices:
+  \[
+    \det(D + L) = \sum_{\text{forest}\ G} w(G)
+  \]
 \end{theorem}
 \begin{proof}
-  Essentially the same as the preceding proof. Column $i$ of $D+L$ is:
-  \[ D_{ii} e_i + L_i = D_{ii} e_i + \sum_j A_{ij}(e_i - e_j) \]
-  Thus, after expanding by multilinearity, one gets a factor of $D_{ii}$ if one picks $i$ as a root, and one gets a factor $A_{ij}$ if one picks the edge $i \to j$ as the outgoing edge of $i$.
+  The $i$-th column of the matrix is $(D + L)_i = D_{ii} e_i + \sum_j A_{ij}(e_i - e_j)$, so \bigskip
+  \begin{align*}
+    \hspace*{-1cm}
+    \det(D + L) = \det \left(
+    \begin{array}{c|c|c|c}
+      D_{11} e_1         & D_{22} e_2         &        & D_{nn} e_n          \\
+      +                  & +                  &        & +                   \\
+      A_{11} (e_1 - e_1) & A_{21} (e_2 - e_1) &        & A_{n1} (e_n - e_1)  \\
+      +                  & +                  & \cdots & +                   \\
+      A_{12} (e_1 - e_2) & A_{22} (e_2 - e_2) &        & A_{n2} (e_n - e_2)  \\
+      \vdots             & \vdots             &        & \vdots              \\
+      A_{1n} (e_1 - e_n) & A_{2n} (e_2 - e_n) &        & A_{nn} (e_n - e_n)
+    \end{array} \right)
+    = \sum_{\text{01-graph}\ G} w(G) \det(I - A_G)
+    = \sum_{\text{forest}\ G} w(G)
+  \end{align*} \medskip \\
+  In the middle step we expand the determinant by multilinearity: we sum over all possible ways to pick one term in each column. To choose a 01-graph on $n$ vertices, for each vertex $i$ (column $i$) we choose whether to make $i$ a root (term $D_{ii} e_i$) or to give $i$ an outgoing edge $i \to j$ (term $A_{ij}(e_i - e_j)$). After taking the weights $D_{ii}$ and $A_{ij}$ out of the determinant, we're left with a sum of $w(G) \det(I - A_G)$ over all 01-graphs $G$ on $n$ vertices, which is equal to the sum of $w(G)$ over all forests, by the lemma.
 \end{proof}
 
 \section{Upwards routes}
