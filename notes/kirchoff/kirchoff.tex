@@ -100,8 +100,8 @@ Where $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those column
 \begin{definition}
 We define the concepts \emph{1-graph}, \emph{01-graph}, \emph{forest}, \emph{root}, and \emph{tree}:
  \begin{itemize}
-  \item A 1-graph is a directed graph where each vertex has 1 outgoing edge.
-  \item A 01-graph is a directed graph where each vertex has 0 or 1 outgoing edges.
+  \item A \emph{1-graph} is a directed graph where each vertex has 1 outgoing edge.
+  \item A \emph{01-graph} is a directed graph where each vertex has 0 or 1 outgoing edges.
   \item A \emph{forest} is a 01-graph with no cycles.
   \item The \emph{roots} are vertices with 0 outgoing edges.
   \item A \emph{tree} is a forest with one root.
@@ -329,29 +329,5 @@ Bunch of corollaries:
 \begin{corollary}
   Undirected matrix tree theorem.
 \end{corollary}
-
-
-\section{Appendix}
-
-Alternative proofs of the lemma.
-
-\begin{lemma}
-  Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
-  \[
-    \det(I-A_G) = \begin{cases}
-      1 & \text{if $G$ is a forest}\\
-      0 & \text{if $G$ has a cycle}
-    \end{cases}
-  \]
-\end{lemma}
-\begin{proof}
-  In a 01-graph, the vector $A_G^i e_k$ follows the path out of $k$ for $i=0,1,\dots$ (note that this path is unique because each vertex has at most one outgoing edge).
-
-  \begin{itemize}
-    \item If $G$ is forest then $A_G^n e_k = 0$ for all $k$, where $n$ is the number of vertices of $G$. So $A^n = 0$, so all eigenvalues of $A_G$ are zero, so all eigenvalues of $I - A$ are one, so $\det(I - A_G) = 1$.
-    \item If $G$ has a cycle consisting of vertices $C$, take $v = \sum_{i \in C} e_i$. Then $A_Gv = v$, so $(I - A)v = 0$, so $\det(I - A_G) = 0$.
-  \end{itemize}
-  Thus, for 01-graphs, $\det(I - A_G)$ indicates whether the graph is a forest or not.
-\end{proof}
 
 \end{document}
