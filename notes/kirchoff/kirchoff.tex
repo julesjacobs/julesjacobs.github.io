@@ -80,7 +80,7 @@
 
   The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $\det(I - A) = 0$ otherwise. We generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
 
-  Lastly, we generalize the matrix-tree theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix-tree theorem follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to have $A_{ij} = 1$ and zero elsewhere.
+  Lastly, we generalize the matrix-tree theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ but allows some cycles when $A$ is not diagonal. The special case $L=0$ gives that $\det(A)$ counts signed cycle covers. The all-minors matrix-tree theorem follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to have $A_{ij} = 1$ and zero elsewhere.
 \end{abstract}
 
 \section{Introduction}
