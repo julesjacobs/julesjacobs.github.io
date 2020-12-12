@@ -78,9 +78,9 @@
 \begin{abstract}
   The matrix-tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to weighted \& directed graphs as well.
 
-  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $\det(I - A) = 0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
+  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $\det(I - A) = 0$ otherwise. We generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
 
-  Lastly, we generalize the matrix-tree theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix-tree theorem also follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to be the matrix where $A_{ij} = 1$ and zero elsewhere.
+  Lastly, we generalize the matrix-tree theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix-tree theorem follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to have $A_{ij} = 1$ and zero elsewhere.
 \end{abstract}
 
 \section{Introduction}
@@ -389,26 +389,12 @@ We’re ready to state the matrix-tree-cycle theorem.
   In the middle step we have again expanded the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a TC-labeled 1-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) an outgoing edge $i \to j$ and a label C (term $D_{ij} e_j$) or T (term $A_{ij}(e_i - e_j)$) for this edge. The final step is applying the lemma.
 \end{proof}
 
-Bunch of corollaries:
+The matrix-tree theorem is recovered by taking $D$ to be diagonal. In that case, the number of cycles and the number of C-edges is equal, so $(-1)^{\text{\#cycles} + \text{\#C-edges}} = 1$ and there are no signs involved. Each C-labeled self-loop corresponds to a root.
 
-\begin{corollary}
-  $\det(A)$ is the number of signed cycle covers.
-\end{corollary}
+If we take $L=0$ we get the fact that $\det(D)$ is the sum of signed cycle covers. A cycle cover of $n$ vertices is a choice of edges such that each vertex has precisely one incoming and one outgoing edge, and its sign is the sign of the permutation that this graph depicts.
 
-\begin{corollary}
-  $\det(I + L)$ is the number of spanning forests.
-\end{corollary}
+By taking $D_{ij} = 1$ for some $i,j$ and zero elsewhere, we also ensure that the sign $(-1)^G = 1$, because in this case we have one C-edge and one cycle. Thus, $\det(D+L)$ will be the number of spanning trees rooted at $i$. The choice of $j$ does not matter. By developing the determinant and using $\det(L) = 0$ we see that this is equal to $\det(L')$ where $L'$ is obtained from $L$ by deleting row $i$ and column $j$.
 
-\begin{corollary}
-  $\det(L_{[i,j]})$ spanning trees, for all $i,j$.
-\end{corollary}
-
-\begin{corollary}
-  All-minor matrix tree theorem.
-\end{corollary}
-
-\begin{corollary}
-  Undirected matrix tree theorem.
-\end{corollary}
+By taking more off-diagonal entries of $D$ to be nonzero, and by taking the corresponding rows and columns to be zero in $A$ (and thus in $L$), we obtain the all-minors matrix-tree theorem.
 
 \end{document}

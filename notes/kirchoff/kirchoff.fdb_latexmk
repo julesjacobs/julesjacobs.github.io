@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1607813643 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1607813648
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1607813643 1127 8c7b8c363b876d1941462d20a3bc1c17 ""
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1607813642 20345 36150ed7fb58d92218ca0cc0d6fdab32 ""
+["pdflatex"] 1607815272 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1607815273
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1607815273 1127 8c7b8c363b876d1941462d20a3bc1c17 ""
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1607815271 21065 455abac07967d130abec71fe2866e0e9 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc" 1276641224 6938 5135be6a8802f13a7faf296d1959a1ab ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -139,13 +139,13 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1586288239 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1594233252 2432466 e45eeb99c6e345b5d7ddb67130508535 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "kirchoff.aux" 1607813643 1127 8c7b8c363b876d1941462d20a3bc1c17 "pdflatex"
-  "kirchoff.out" 1607813643 217 8b9537151fe3064c2ba79c00156a3e0e "pdflatex"
-  "kirchoff.tex" 1607813642 20345 36150ed7fb58d92218ca0cc0d6fdab32 ""
+  "kirchoff.aux" 1607815273 1127 8c7b8c363b876d1941462d20a3bc1c17 "pdflatex"
+  "kirchoff.out" 1607815273 217 8b9537151fe3064c2ba79c00156a3e0e "pdflatex"
+  "kirchoff.tex" 1607815271 21065 455abac07967d130abec71fe2866e0e9 ""
   (generated)
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
-  "kirchoff.log"
   "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf"
-  "kirchoff.pdf"
   "kirchoff.aux"
+  "kirchoff.log"
   "kirchoff.out"
+  "kirchoff.pdf"
+  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
