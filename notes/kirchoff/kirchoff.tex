@@ -70,17 +70,17 @@
 \newtheorem{corollary}{Corollary}[theorem]
 
 
-\title{A simple proof of Kirchoff's theorem, and some other combinatorial graph determinants}
+\title{A simple proof of the matrix-tree theorem, \\ upward routes, and the matrix-tree-cycle theorem}
 \author{Jules Jacobs}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  Kirchoff's matrix tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to weighted \& directed graphs as well.
+  The matrix-tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to weighted \& directed graphs as well.
 
-  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
+  The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $\det(I - A) = 0$ otherwise. We also generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
 
-  Lastly, we generalize Kirchoff's theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix tree theorem also follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to be the matrix where $A_{ij} = 1$ and zero elsewhere.
+  Lastly, we generalize the matrix-tree theorem to a theorem about $\det(A + L)$ where $A$ is the adjacency matrix of a second graph, which reduces to counting spanning forests when $A = xI$ and to the fact that $\det(A)$ counts signed cycle covers when $L = 0$. The all-minors matrix-tree theorem also follows as a corollary. For instance, the fact that $\det(L')$ counts spanning forests, where $L'$ is $L$ with any column $i$ and row $j$ deleted, follows by picking $A$ to be the matrix where $A_{ij} = 1$ and zero elsewhere.
 \end{abstract}
 
 \section{Introduction}
@@ -148,7 +148,7 @@ An alternative shorter proof using eigenvalues:
   If $G$ has a cycle, then $A_G$ has 1 as an eigenvalue (take the eigenvector that is 1 on the cycle and 0 elsewhere), so $I - A_G$ has 0 as an eigenvalue, so $\det(I - A_G) = 0$.
 \end{proof}
 
-\textbf{We now fix $n\times n$ matrices $A$ and $D$:}
+\textbf{We now fix $n\times n$ matrices $A$ and $D$ over some ring:}
 
 \begin{itemize}
   \item An arbitrary matrix $A$ of edge weights (with $A_{ij}$ being the weight of edge $i \to j$)
@@ -165,7 +165,7 @@ An alternative shorter proof using eigenvalues:
 \end{definition}
 
 \medskip
-We're now ready to state Kirchoff's theorem for multiple-root forests in weighted directed graphs.
+We're ready to state Kirchoff's theorem for multiple-root forests in weighted directed graphs.
 
 \begin{theorem} (Kirchoff, Tutte) The determinant $\det(D + L)$ is the weight-sum of all forests on $n$-vertices:
   \[
@@ -192,33 +192,33 @@ We're now ready to state Kirchoff's theorem for multiple-root forests in weighte
   The first step is by the definition of $L$. In the middle step we expand the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a 01-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) whether to make $i$ a root (term $D_{ii} e_i$) or to give $i$ an outgoing edge $i \to j$ (term $A_{ij}(e_i - e_j)$). Then we take the weights $D_{ii}$ and $A_{ij}$ out of the determinant, and we're left with $w(G)\det(I - A_G)$, where $A_G$ is the adjacency matrix of the chosen 01-graph. The final step is applying the lemma.
 \end{proof}
 
-\section{Upwards routes}
+\section{Upward routes}
 
-We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix.
+We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix. The goal of this section is a combinatorial interpretation of $\det(I - xA)$ and $\det(I - xA)^{-1}$ for an arbitrary adjacency matrix, which generalizes the lemma to arbitrary graphs.
 
 \begin{definition}
-  Given a directed graph $G$ with an order on the vertices, we define \emph{(strict) upwards loops} and \emph{(strict) upwards routes}:
+  Given a directed graph $G$ with an order on the vertices, we define \emph{(strictly) upward loops} and \emph{(strictly) upward routes}:
   \begin{itemize}
-    \item An \emph{upwards loop} at vertex $i$ is a path from $i$ to $i$ that does not visit vertices lower than $i$.
-    \item A \emph{strictly upwards loop} at vertex $i$ is a path from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the path, where it does visit $i$ itself).
-    \item A \emph{(strictly) upwards route} is a choice of (strictly) upwards loop at each vertex.
+    \item An \emph{upward loop} at vertex $i$ is a path from $i$ to $i$ that does not visit vertices lower than $i$.
+    \item A \emph{strictly upward loop} at vertex $i$ is a path from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the path, where it does visit $i$ itself).
+    \item A \emph{(strictly) upward route} is a choice of (strictly) upward loop at each vertex.
   \end{itemize}
-  Let $f_i(x)$ be the generating function of strictly upwards loops of length $k$ at vertex $i$. Then \[ \bar{f}_i(x) = (1 - f_i(x))^{-1} \] is the generating function of upwards loops of length $k$ at vertex $i$, because an upwards loop of length $k$ splits up uniquely into a sequence of strictly upwards loops. Furthermore, the generating functions $f(x)$ and $\bar{f}(x)$ of (strictly) upward routes of $k$ edges are given by:
+  Let $f_i(x)$ be the generating function of strictly upward loops of length $k$ at vertex $i$. Then \[ f^{*}_i(x) = (1 - f_i(x))^{-1} \] is the generating function of upward loops of length $k$ at vertex $i$, because an upward loop splits uniquely into a sequence of strictly upward loops. Furthermore, the generating functions $f(x)$ and $f^{*}(x)$ of (strictly) upward routes of $k$ edges are given by:
   \begin{align*}
     f(x) &= \prod_{i=1}^n f_i(x) &
-    \bar{f}(x) &= \prod_{i=1}^n \bar{f}_i(x)
+    f^{*}(x) &= \prod_{i=1}^n f^{*}_i(x)
   \end{align*}
 \end{definition}
 
 Recall Cramer's rule:
 \begin{theorem} (Cramer's rule)
-  Let $A$ be a matrix and let $A_{[i,j]}$ be the same with column $i$ and row $j$ deleted, then:
+  Let $A$ be an invertible matrix and let $A_{[i,j]}$ be the same with column $i$ and row $j$ deleted, then:
   \[ A^{-1}_{ij} = \frac{\det(A_{[i,j]})}{\det(A)} \]
 \end{theorem}
 
 From this, we get the following lemma that allows us to calculate $\det(A)^{-1}$ in terms of entries of inverses of submatrices of $A$:
 
-\begin{lemma} Given an invertible matrix $A$,
+\begin{lemma} Given a matrix $A$, provided both sides are defined,
   \[ \det(A)^{-1} = \prod_{i=0}^{n-1} (A_{[1\dots i, 1\dots i]})^{-1}_{11} \]
 Where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
 \end{lemma}
@@ -238,74 +238,155 @@ Continuing this by induction, we get:
 \end{align*}
 \end{proof}
 
-We apply this lemma to the matrix $I - xA$, to obtain:
-
 \begin{lemma}
-  The generating function of upwards routes with $k$ edges is $\det(I - xA)^{-1}$.
+  The generating function of upward loops is $((I - xA)_{[1\dots i-1, 1\dots i-1]})^{-1}_{11}$.
 \end{lemma}
 \begin{proof}
-  Apply the preceding lemma:
-  \[ \det(I - xA)^{-1} = \prod_{i=0}^{n-1} ((I - xA)_{[1\dots i, 1\dots i]})^{-1}_{11} \]
-  Thus, for each $i$ we first obtain a subgraph by deleting vertices with lower number than $i$, and then $((I - xA)_{[1\dots i, 1\dots i]})^{-1}_{11}$ is the generating function of loops from vertex $i$ to $i$ in the resulting graph. Thus, in terms of the original graph, these are loops that do not visit vertices with lower number than $i$. Multiplying this over each vertex $i$ in the original graph, we obtain the result.
+  Given an adjacency matrix $B$, $(I - xB)^{-1} = I + xB + x^2 B^2 + \cdots$ is the matrix generating function of paths, so $(I - xB)^{-1}_{11}$ is the generating function of loops from vertex 1 to 1. To obtain upward loops at vertex $i$ in $A$ we take $B = (I - xA)_{[1\dots i-1, 1\dots i-1]}$ with the first $i-1$ rows and columns deleted.
+\end{proof}
+
+We combine these lemmas to obtain:
+
+\begin{theorem}
+  The generating function of upward routes with $k$ edges is $\det(I - xA)^{-1}$.
+\end{theorem}
+\begin{proof}
+  Combine the preceding two lemmas with $f^{*}(x) = \prod_{i=1}^n f^{*}_i(x)$.
 \end{proof}
 
 \begin{corollary}
-  The number of (strictly) upwards routes of $k$ edges does not depend on the order of the vertices.
+  The number of upward routes of $k$ edges does not depend on the order of the vertices.
 \end{corollary}
 \begin{proof}
   If we permute the order of the vertices by a permutation $P$, the generating function
   \[
     \det(I - xPAP^{-1}) = \det(P(I - xA)P^{-1}) = \det(I - xA)
-  \] stays the same.
+  \] stays the same. A bijective proof is left as an exercise.
 \end{proof}
 
-\begin{lemma} For an arbitrary adjacency matrix $A$,
+\begin{corollary} For an arbitrary adjacency matrix $A$,
   \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
-  Where $f_i(x)$ is the generating function of strictly upwards loops at vertex $i$.
-\end{lemma}
+  Where $f_i(x)$ is the generating function of strictly upward loops at vertex $i$.
+\end{corollary}
 \begin{proof}
-  We have the following relationship between the generating functions:
+  Use the relationship between the generating functions:
   \[
     \det(I - xA) = \bar{f}(x)^{-1} = \prod_{i=1}^n \bar{f}_i(x)^{-1} = \prod_{i=1}^n (1 - f_i(x))
   \]
 \end{proof}
 
-This is kind of interesting, because $\det(I - xA)$ is a polynomial, whereas $f_i(x)$ is a power series, so many terms cancel on the right hand side. The original lemma follows as a corollary, which gives us a third proof of the lemma:
+Note that $\det(I - xA)$ is a polynomial, even though $f_i(x)$ is a power series. The main lemma follows as a corollary, which gives us a third proof of the lemma:
 
 \begin{corollary}
-  For a 01-graph, $\det(I-A)=1$ if $G$ is a forest, and $0$ if $G$ has a cycle.
+  Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
+  \[
+    \det(I-A_G) = \begin{cases}
+      1 & \text{if $G$ is a forest}\\
+      0 & \text{if $G$ has a cycle}
+    \end{cases}
+  \]
 \end{corollary}
 \begin{proof}
-  If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA) = 1$. If $G$ has a cycle, let $i$ be the lowerst vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A) = 0$.
+  If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA_G) = 1$. If $G$ has a cycle, let $i$ be the lowest vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A_G) = 0$.
 \end{proof}
 
-It goes without saying that weighted versions of the preceding lemmas hold too.
+\section{The matrix-tree-cycle theorem}
 
-\section{Kirchoff's theorem with cycles}
-
-Let $G_A$ be a graph with adjacency matrix $A$ and let $G_L$ be a graph with Laplacian $L$. We shall generalize Kirchoff's theorem from $\det(I + L)$ to $\det(A + L)$. In order to do this we need to define 1-graphs.
+We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph{matrix-tree-cycle theorem} by allowing $D$ to be a general matrix. This theorem will express $\det(D + L)$ as a sum over 1-graphs with its edges labeled with T (for tree) or C (for cycle).
 
 \begin{definition}
-  A 1-graph is a directed graph where each vertex has exactly one outgoing edge.
+  A TC-labeled 1-graph is called \emph{tree-cyclic} if the T-edges form a forest, and each C-edge is part of a cycle.
 \end{definition}
 
-Thus, at each vertex we can continue following a unique path indefinitely. In a finite graph that path must eventually cycle. So a general 1-graph looks like a bunch of disjoint cycles and a bunch of trees converging onto those cycles.
-
-In our 1-graphs, some edges will be selected from $G_A$ and some will be selected from $G_L$. We define the weight function:
-\begin{align*}
-  w(F) = \begin{cases}
-    ... & ... \\
-    0 & \text{otherwise}
-  \end{cases}
-\end{align*}
-
-\begin{theorem} Kirchoff's theorem with cycles.
+\begin{definition}
+  The sign of a TC-labeled 1-graph $G$ is
   \[
-    \det(A + L) = \sum_{\text{1-graph}\ F\ \subseteq\ (G_A + G_L)} w(F)
+   (-1)^{G} = (-1)^{\text{\#cycles} + \text{\#C-edges}}
+  \]
+  where \#cycles is the number of cycles of $G$ and \#C-edges is the total number of C-labeled edges in $G$.
+\end{definition}
+
+We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play the role that $I - A_G$ played in the matrix-tree theorem.
+
+\begin{definition}
+  The matrix $M_G$ is given by columns:
+  \[
+    (M_G)_i = \begin{cases}
+      e_j & \text{if the outgoing edge $i \to j$ has label C} \\
+      e_i - e_j & \text{if the outgoing edge $i \to j$ has label T} \\
+    \end{cases}
+  \]
+\end{definition}
+
+The following lemma generalizes the main lemma of the matrix-tree theorem.
+
+\begin{lemma}
+  The determinant of $M_G$ is given by:
+  \[
+    \det(M_G) = \begin{cases}
+      (-1)^G & \text{if $G$ is tree-cyclic} \\
+      0 & \text{otherwise}
+    \end{cases}
+  \]
+\end{lemma}
+\begin{proof}
+  Calculate the determinant in steps:
+  \begin{enumerate}
+    \item Perform Laplace expansion on vertices with no predecessors. This makes the determinant zero if the successor is a C-edge, and deletes the corresponding vertex if the successor is a T-edge.
+    \item We are now left with a disjoint set of cycles. If there is a cycle consisting solely of T-edges, the determinant is zero because the corresponding rows sum to zero.
+    \item We are now left with a disjoint set of cycles where each cycle has at least one C-edge. Use the C-edges to turn the T-edges into C-edges by row operations. The determinant obtains obtains a $-1$ sign for each such switch.
+    \item We are now left with a disjoint set of cycles where each cycle consists solely of C-edges. In other words, a permutation matrix. The determinant of a permutation matrix is $(-1)^{\text{\#cycles} + \text{\#edges}}$
+  \end{enumerate}
+  If there was a C-edge not part of a cycle we have obtained $0$ in step 1, and if there was a cycle among T-edges we have obtained $0$ in step 2. For the remaining graphs, we have obtained a $-1$ sign for each T-edge in the cycles, so together with $(-1)^{\text{\#cycles} + \text{\#edges}}$ we are left with $(-1)^{\text{\#cycles} + \text{\#C-edges}} = (-1)^G$.
+\end{proof}
+
+\textbf{We now fix $n\times n$ matrices $A$ and $D$ over some ring:}
+
+\begin{itemize}
+  \item An arbitrary matrix $A$ of weights for T-edges (with $A_{ij}$ being the weight of edge $i \xrightarrow{T} j$)
+  \item An arbitrary matrix $D$ of weights for C-edges (with $D_{ij}$ being the weight of edge $i \xrightarrow{C} j$).
+  \item As before, the Laplacian $L$ is given by $L_i = \sum_j A_{ij}(e_i - e_j)$.
+\end{itemize}
+
+
+\begin{definition}
+  The weight of a tree-cyclic 1-graph $G$ is
+  \[
+    w(G) = \prod_{\text{C-edge}\ (i \to j) \in G} D_{ij} \prod_{\text{T-edge}\ (i \to j) \in G} A_{ij}
+  \]
+\end{definition}
+
+We’re ready to state the matrix-tree-cycle theorem.
+
+\begin{theorem} The determinant $\det(D+L)$ is the signed weight-sum of tree-cyclic graphs:
+  \[
+    \det(D + L) = \sum_{\text{tree-cyclic}\ G} (-1)^G w(G)
   \]
 \end{theorem}
 \begin{proof}
-  ... Main idea: generalize the lemma to account for cycles. Each time we Laplace expand a column with one entry (from $G_A$), which is now not necessarily in diagonal position, we obtain a sign.
+  The $i$-th column of the matrix is $(D + L)_i = \sum_j D_{ij} e_j + \sum_j A_{ij}(e_i - e_j)$, so \\
+  \begin{align*}
+    \hspace*{-1.5cm}
+    \det(D + L) = \det \left(
+    \begin{array}{c|c|c|c}
+      D_{11} e_1         & D_{21} e_1         &        & D_{n1} e_1          \\
+      +                  & +                  &        & +                   \\
+      % D_{12} e_2         & D_{22} e_2         &        & D_{n2} e_2          \\
+      \vdots             & \vdots             &        & \vdots              \\
+      +                  & +                  &        & +                   \\
+      D_{1n} e_n         & D_{2n} e_n         &        & D_{nn} e_n          \\
+      +                  & +                  & \cdots & +                   \\
+      A_{11} (e_1 - e_1) & A_{21} (e_2 - e_1) &        & A_{n1} (e_n - e_1)  \\
+      +                  & +                  &        & +                   \\
+      % A_{12} (e_1 - e_2) & A_{22} (e_2 - e_2) &        & A_{n2} (e_n - e_2)  \\
+      \vdots             & \vdots             &        & \vdots              \\
+      +                  & +                  &        & +                   \\
+      A_{1n} (e_1 - e_n) & A_{2n} (e_2 - e_n) &        & A_{nn} (e_n - e_n)
+    \end{array} \right)
+    = \sum_{\text{TC-1-graph}\ G} w(G) \det(M_G)
+    = \sum_{\text{tree-cyclic}\ G} (-1)^G w(G)
+  \end{align*} \\
+  In the middle step we have again expanded the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a TC-labeled 1-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) an outgoing edge $i \to j$ and a label T or C for this edge. The final step is applying the lemma.
 \end{proof}
 
 Bunch of corollaries:
