@@ -156,12 +156,13 @@ An alternative shorter proof using eigenvalues:
 \end{itemize}
 
 \begin{definition}
-  The Laplacian matrix $L$ is defined as having columns
+  The Laplacian matrix $L$ is defined as having columns:
   \[ L_i = \sum_j A_{ij}(e_i - e_j) \]
 \end{definition}
 
 \begin{definition}
-  The weight of a forest $G$ is \[w(G) = \prod_{i \in \mathsf{roots}(G)} D_{ii} \prod_{(i \to j) \in \mathsf{edges}(G)} A_{ij} \]
+  The weight of a forest $G$ is:
+  \[w(G) = \prod_{i \in \mathsf{roots}(G)} D_{ii} \prod_{(i \to j) \in \mathsf{edges}(G)} A_{ij} \]
 \end{definition}
 
 \medskip
@@ -309,7 +310,7 @@ We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph
 We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play the role that $I - A_G$ played in the matrix-tree theorem.
 
 \begin{definition}
-  The matrix $M_G$ is given by columns:
+  The matrix $M_G$ is defined as having columns:
   \[
     (M_G)_i = \begin{cases}
       e_j & \text{if the outgoing edge $i \to j$ has label C} \\
