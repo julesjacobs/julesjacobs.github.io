@@ -300,7 +300,7 @@ We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph
 \end{definition}
 
 \begin{definition}
-  The sign of a TC-labeled 1-graph $G$ is
+  The sign of a TC-labeled 1-graph $G$ is:
   \[
    (-1)^{G} = (-1)^{\text{\#cycles} + \text{\#C-edges}}
   \]
@@ -335,7 +335,7 @@ The following lemma generalizes the main lemma of the matrix-tree theorem.
   \begin{enumerate}
     \item Perform Laplace expansion on vertices with no predecessors. This makes the determinant zero if the successor is a C-edge, and deletes the corresponding vertex if the successor is a T-edge.
     \item We are now left with a disjoint set of cycles. If there is a cycle consisting solely of T-edges, the determinant is zero because the corresponding rows sum to zero.
-    \item We are now left with a disjoint set of cycles where each cycle has at least one C-edge. Use the C-edges to turn the T-edges into C-edges by row operations. The determinant obtains obtains a $-1$ sign for each such switch.
+    \item We are now left with a disjoint set of cycles where each cycle has at least one C-edge. Use the C-edges to turn the T-edges into C-edges by row operations. The determinant obtains a $-1$ sign for each such switch.
     \item We are now left with a disjoint set of cycles where each cycle consists solely of C-edges. In other words, a permutation matrix. The determinant of a permutation matrix is $(-1)^{\text{\#cycles} + \text{\#edges}}$
   \end{enumerate}
   If there was a C-edge not part of a cycle we have obtained $0$ in step 1, and if there was a cycle among T-edges we have obtained $0$ in step 2. For the remaining graphs, we have obtained a $-1$ sign for each T-edge in the cycles, so together with $(-1)^{\text{\#cycles} + \text{\#edges}}$ we are left with $(-1)^{\text{\#cycles} + \text{\#C-edges}} = (-1)^G$.
@@ -351,7 +351,7 @@ The following lemma generalizes the main lemma of the matrix-tree theorem.
 
 
 \begin{definition}
-  The weight of a tree-cyclic 1-graph $G$ is
+  The weight of a tree-cyclic 1-graph $G$ is:
   \[
     w(G) = \prod_{\text{C-edge}\ (i \to j) \in G} D_{ij} \prod_{\text{T-edge}\ (i \to j) \in G} A_{ij}
   \]

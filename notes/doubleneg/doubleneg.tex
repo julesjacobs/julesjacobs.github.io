@@ -1,0 +1,132 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+
+\newcommand{\nn}{\neg \neg}
+
+\title{Embedding classical logic into constructive logic by double negation translation}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  We will embed classical logic into constructive logic via double negation translations. The explanation presented here is intended to be a bit easier to understand and less mysterious than the explanations you'll usually find.\footnote{For instance, on wikipedia (\url{https://en.wikipedia.org/wiki/Double-negation_translation}).}
+\end{abstract}
+
+Constructive logic differs from classical logic in that we do not assume $\neg \neg P \implies P$ for all propositions. Proofs that are constructively valid are also classically valid, but not the other way around if the proof uses this principle or an equivalent one like $P \vee \neg P$. Thus, it may seem that the theorems one can prove with classical logic are a superset of those you can prove with constructive logic, but it turns out that from a more refined perspective, the situation is the other way around.
+
+[Describe here that classical proofs of existence give you a method to construct a witness?]
+
+We can translate every classical theorem and proof to some constructive theorem and proof by means of a \emph{double negation translation}. Thus, classical logic may be viewed as the \emph{subset} of constructive logic that lies in the image of this translation. Classical mathematicians restrict themselves to theorems that lie in that image.
+
+Within constructive logic we say that a proposition $P$ is classical if $\neg \neg P \implies P$. The classical propositions form a subset of the constructive ones. Given any $P$, the proposition $\neg \neg P$ is always classical, because $\neg \neg (\neg \neg P) \implies \neg \neg P$, even constructively. The double negation $\neg \neg$ acts as a projection of constructive propositions onto classical propositions.
+
+Using this projection, we can define the classical connectives in terms of the constructive ones:
+\begin{align*}
+P \wedge^c Q &:= \nn (P \wedge Q) \\
+P \vee^c Q &:= \nn (P \vee Q) \\
+P \to^c Q & := \nn (P \to Q) \\
+\forall^c x, P(x) &:= \nn \forall x, P(x) \\
+\exists^c x, P(x) &:= \nn \exists x, P(x) \\
+True^c &:= \nn True \\
+False^c &:= \nn False \\
+\neg^c P & := \nn (\neg P)
+\end{align*}
+These connectives enjoy all the rules of classical logic, such as $\neg^c (P \wedge^c Q) \iff P \vee^c Q$. Thus, a classical proof of a theorem $T$ can be converted into a constructive proof of theorem $T'$ where $T'$ uses the classical connectives.
+
+Now we can understand the point of view that classical logic is a subset of constructive logic. The classical mathematician can never prove $\exists n\in\N, P(n)$; they only ever prove $\exists^c n\in\N, P(n)$, which is a weaker statement. The former means "I can give you a concrete number $n$ and a proof that $P(n)$ holds", whereas the latter means "If \textbf{you} give me a concrete number $n$ and a proof of $\neg P(n)$, then I can derive a contradiction".
+
+You may think that the difference between those two is not very large. After all, we could simply search for an $n$ satisfying $P(n)$, and this search is guaranteed to terminate if we know $\exists^c n\in\N, P(n)$. This glosses over the fact that to even do the search, we must be able to decide whether $P(n)$ or $\neg P(n)$ for each $n$.
+
+The situation gets worse if the set we are quantifying over is $\R$ instead of $\N$. The constructivist promises to give you a real number, that is, a concrete description of a Cauchy sequence $r_i \in \Q$ with which you can compute arbitrarily accurate rational approximations, and a proof that $P(r)$ holds. The classical mathematician only promises that they can derive a contradiction if \textbf{you} give them such a Cauchy sequence, plus a proof of $\neg P(r)$. Searching over all real numbers for one that works is hopeless, even if we somehow had a magic machine that tells us whether $P(r)$ or $\neg P(r)$ for each particular one.
+
+The definitions of the classical connectives can be simplified. For instance, $\nn True \iff True$, so we might as well define $True^c := True$. The same holds for $False^c$ and $\neg^c$. Another simplication can be had if we assume that \emph{classical connectives are only used on classical propositions}. In that case we can define $P \wedge^c Q := P \wedge Q$, because for classical $P$ and $Q$, we have $\nn (P \wedge Q) \iff P \wedge Q$. The same is true for $\forall^c x, P(x) := \forall x, P(x)$ and $P \to^c Q := P \to Q$.
+
+The same is \emph{not} true for disjunctions and existentials. We do need to retain the $\nn$ around those, even if the propositions involved are classical. This simplifies the translation to:
+\begin{align*}
+  P \wedge^c Q &:= P \wedge Q \\
+  P \vee^c Q &:= \nn (P \vee Q) \\
+  P \to^c Q &:= P \to Q \\
+  \forall^c x, P(x) &:= \forall x, P(x) \\
+  \exists^c x, P(x) &:= \nn \exists x, P(x) \\
+  True^c &:= True \\
+  False^c &:= False \\
+  \neg^c P &:= \neg P
+\end{align*}
+This still ensures that a formula involving the classical connectives is a classical proposition, and that all the classical laws hold constructively for these connectives, provided that all the basic propositions are classical. We can always \emph{make} the basic propositions classical by putting a $\nn$ around them. For instance, an equality $x = y$ becomes $\nn (x = y)$.
+
+Since $\nn (P \vee Q) \iff \neg (\neg P \wedge \neg Q)$, we could also have used that in the translation. Various different possibilities of shuffling the $\neg$'s around have different names (Gödel-Gentzen's translation, Komolgorov translation, Kuroda's translation). These translations are all constructively equivalent.
+
+\begin{itemize}
+  \item How to use the translation to (1) import classical theorems and proofs (2) prove constructive propositions that involve negation by doing the translation in reverse. Decidable propositions.
+  \item Expand on Kuroda's translation.
+\end{itemize}
+
+\end{document}
