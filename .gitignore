@@ -1,3 +1,7 @@
 _site
 .sass-cache
 .DS_Store
+*.fdb_latexmk
+*.fdb_latexmk
+*.fdb_latexmk
+notes/kirchoff/kirchoff.fdb_latexmk
