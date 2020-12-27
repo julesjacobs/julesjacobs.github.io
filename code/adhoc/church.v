@@ -10,6 +10,7 @@ Definition S (n : N) : N := λ t z f, f (n t z f).
 Definition induction_N :=
   ∀ (P : N -> Prop), P Z -> (∀ (n : N), P n -> P (S n)) -> ∀ (n : N), P n.
 
+(* Parametricity theorems for the N type defined above *)
 Definition unary_parametricity_N :=
   ∀ (t : Set) (P : t -> Prop) (z : t) (f : t -> t),
     P z ->
