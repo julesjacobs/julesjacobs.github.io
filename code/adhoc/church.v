@@ -38,6 +38,11 @@ Proof.
   intros Hu ????. eapply Hu; eauto.
 Qed.
 
+(*
+We can only prove this, which needs funext to give n = n N Z S.
+Also, would be nice to not use the identity type here, since the
+identity type can also be done via a Church encoding.
+ *)
 Lemma binary_parametricity_implies_obs :
   binary_parametricity_N -> ∀ (n:N) (t:Set) z f, n t z f = n N Z S t z f.
 Proof.
@@ -49,9 +54,13 @@ Proof.
   - unfold Z. reflexivity.
   - intros x1 x2 H. unfold S. f_equiv. eauto.
 Qed.
+(* The preceding two lemmas + funext should give induction_N *)
+
+
+
+
 
 (* Leibniz equality *)
-
 Definition eq {t : Set} (x y : t) :=
   ∀ P : t -> Prop, P x -> P y.
 
