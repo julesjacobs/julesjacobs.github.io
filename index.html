@@ -108,6 +108,12 @@
       font-size: 14px;
     }
 
+    .bibtex {
+      display: none;
+      width: 80%;
+      margin: 10px;
+    }
+
     .title {
       padding: 0px 0px;
       margin: 0;
@@ -157,6 +163,15 @@
       100% { background-color: lightgrey; }
     }
   </style>
+  <script>
+    function toggle(elem){
+      var e = document.getElementById(elem);
+      e.style.display = e.style.display == "block" ? "none" : "block";
+      e.style.height = "";
+      e.style.height = e.scrollHeight + "px";
+      e.select();
+    }
+  </script>
 </head>
 <body>
   <header>
@@ -200,9 +215,26 @@
           <div class="authors">Jules Jacobs</div>
           <a class="button" href="pdf/paradoxes.pdf">pdf</a>
           <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a>
+          <a class="button" href="#" onclick="toggle('paradoxes-bibtex')">bibtex</a>
           <a class="button" href="https://zenodo.org/record/4075076">code</a>
           <a class="button" href="slides/measurezero.pdf">slides</a>
           <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
+
+          <textarea class="bibtex" id="paradoxes-bibtex">@article{jacobs_paradoxes_2021,
+  title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},
+  volume = {5},
+  shorttitle = {Paradoxes of probabilistic programming},
+  url = {https://doi.org/10.1145/3434339},
+  doi = {10.1145/3434339},
+  number = {POPL},
+  urldate = {2021-01-11},
+  journal = {Proceedings of the ACM on Programming Languages},
+  author = {Jacobs, Jules},
+  month = jan,
+  year = {2021},
+  keywords = {probabilistic programming},
+  pages = {58:1--58:26},
+}</textarea>
           <!-- <a href="">ACM DL</a> -->
           <!-- <a href="">BibTeX</a> -->
         </div>
