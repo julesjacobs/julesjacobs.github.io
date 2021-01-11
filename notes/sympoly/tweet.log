@@ -1,10 +1,10 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  20 DEC 2020 22:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  9 JAN 2021 03:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.tex
-(/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.tex
+**/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.tex
+(/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.tex
 LaTeX2e <2020-02-02> patch level 5
 L3 programming layer <2020-03-06> (/usr/local/texlive/2020/texmf-dist/tex/latex/base/article.cls
 Document Class: article 2019/12/20 v1.4l Standard LaTeX document class
@@ -494,8 +494,8 @@ Package: mathpartir 2016/02/24 version 1.3.2 Math Paragraph for Typesetting Infe
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count286
 \l__pdf_internal_box=\box54
-) (/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.aux)
-\openout1 = `sympoly.aux'.
+) (/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.aux)
+\openout1 = `tweet.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 75.
 LaTeX Font Info:    ... okay on input line 75.
@@ -601,9 +601,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 75.
 LaTeX Info: Redefining \pageref on input line 75.
 LaTeX Info: Redefining \nameref on input line 75.
- (/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.out) (/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.out)
+ (/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.out) (/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.out)
 \@outlinefile=\write3
-\openout3 = `sympoly.out'.
+\openout3 = `tweet.out'.
 
 \c@lstlisting=\count288
  (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
@@ -721,31 +721,31 @@ LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
 (Font)              scaled to size 10.51207pt on input line 85.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
 (Font)              scaled to size 10.51207pt on input line 85.
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 93.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 113.
  [1
 
 {/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 93.
- (/Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 93.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 93.
-Package rerunfilecheck Info: File `sympoly.out' has not changed.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 113.
+ (/Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 113.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 113.
+Package rerunfilecheck Info: File `tweet.out' has not changed.
 (rerunfilecheck)             Checksum: A02D95553E30B97FF125B1AA17CF9044;47.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 93.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 113.
  ) 
 Here is how much of TeX's memory you used:
- 12337 strings out of 480608
- 189700 string characters out of 5903629
- 480609 words of memory out of 5000000
+ 12339 strings out of 480608
+ 189654 string characters out of 5903629
+ 482593 words of memory out of 5000000
  27910 multiletter control sequences out of 15000+600000
  577656 words of font info for 130 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,9n,72p,377b,325s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 38i,10n,72p,372b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7v.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb>
-Output written on /Users/jules/GitHub/julesjacobs.github.io/notes/sympoly/sympoly.pdf (1 page, 43760 bytes).
+Output written on /Users/jules/git/julesjacobs.github.io/notes/sympoly/tweet.pdf (1 page, 46639 bytes).
 PDF statistics:
- 49 PDF objects out of 1000 (max. 8388607)
- 38 compressed objects within 1 object stream
- 5 named destinations out of 1000 (max. 500000)
+ 53 PDF objects out of 1000 (max. 8388607)
+ 42 compressed objects within 1 object stream
+ 7 named destinations out of 1000 (max. 500000)
  34313 words of extra memory for PDF output out of 35830 (max. 10000000)
 
