@@ -1,0 +1,122 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[shortlabels]{enumitem}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+
+\title{Tarski's fixed point theorem}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+Let $L$ be a partially ordered set with order $(\leq)$. Given a subset $A \subseteq L$ we say that $x \in L$ is the infimum of $A$ if $x \leq A$ (meaning $x \leq a$ for all $a \in A$) and for any $x' \leq A$ we have $x' \leq x$. The infimum of $A$ is necessarily unique, so if all subsets have infima then we can denote them $\inf A$. Dually, we have the concept of supremum, $\sup A$. We henceforth assume that $L$ is a complete lattice, which means that it has all infima and suprema.
+
+\bigskip
+
+Examples:
+\begin{itemize}
+  \item The interval $[0,1] \subset \R$, because for any $A \subseteq [0,1]$, we have $\inf A \in [0,1]$ and $\sup A \in [0,1]$.
+  \item The subsets $2^X$ of a set $X$, ordered by $(\subseteq)$ with $\inf A = \bigcup A$ and $\sup A = \bigcap A$.
+\end{itemize}
+
+Denote $0 = \inf L$ and $1 = \sup L$.
+
+\medskip
+
+We say that a function $f : L \to L'$ is monotone if $x \leq y \implies f(x) \leq f(y)$. This also means that if $x \geq y$ then $f(x) \geq f(y)$. Thus, $f$ is monotone if we can apply it on both sides of an inequality.
+
+We focus on the case $L = L'$ so that $f : L \to L$. In this situation we can repeatedly applying $f$ to $x$ to obtain $x$, $f(x)$, $f(f(x))$, and so on.
+
+We say that an element $x \in L$ is an upmover if $f(x) \geq x$ and a downmover if $f(x) \leq x$:
+\begin{align}
+  D = \{x \in L \mid f(x) \leq x\} \\
+  U = \{x \in L \mid f(x) \geq x\}
+\end{align}
+
+If $x$ is an upmover then $f(x)$ is also an upmover: apply $f$ on both sides of the inequality $f(x) \geq x$. Similarly, if $x \in D$ then $f(x) \in D$. Thus, upmovers keep moving up, and downmovers keep moving down, if we apply $f$ repeatedly.
+
+Note that not all elements need to be upmovers or downmovers; it may be the case that $f(x)$ is neither $\geq x$ nor $\leq x$. Nevertheless, $U$ and $D$ are not empty, since $0 \in U$ and $1 \in D$.
+
+
+\begin{lemma}
+  If $x \in D$ then $f(x) \in D$.
+\end{lemma}
+\begin{proof}
+  If $x \in U$ then $f(x) \leq x$. Apply $f$ to both sides to obtain $f(f(x)) \leq f(x)$. Therefore $f(x)$ is a downmover.
+\end{proof}
+
+\begin{lemma}
+  If $A \subseteq D$ then $\inf A \in D$.
+\end{lemma}
+\begin{proof}
+  To show $\inf A \in D$ we have to show $f(\inf A) \leq \inf A$, but that's the case if $f(\inf A) \leq a$ for all $a \in A$. Since $a \in A \subseteq D$ we have $f(a) \leq a$. So it's sufficient to show $f(\inf A) \leq f(a)$, so it's sufficient if $\inf A \leq a$, which is true.
+
+  \begin{align}
+    \inf A \in D \impliedby & \text{(definition of $D$)} \\
+    f(\inf A) \leq \inf A \impliedby & \text{(property of $\inf$)}\\
+    \forall a \in A, f(\inf A) \leq a \impliedby & \text{(because $a \in D$ means $f(a) \leq a$)} \\
+    \forall a \in A, f(\inf A) \leq f(a) \impliedby & \text{(monotonicity of $f$)}\\
+    \forall a \in A, \inf A \leq a \impliedby & \text{(property of $\inf$)}
+  \end{align}
+\end{proof}
+
+\begin{lemma}
+  $f(\inf D) = \inf D$
+\end{lemma}
+\begin{proof}
+  Because $\inf D \in D$ we have $f(\inf D) \leq \inf D$. Because $f(\inf D) \in D$ we have $\inf D \leq f(\inf D)$.
+\end{proof}
+
+Proof idea:
+
+\begin{enumerate}
+  \item Prove that inf-complete $\implies$ complete.
+  \item Prove that $D$ is inf-complete $\implies$ complete.
+  \item Dually $U$ is complete.
+  \item Fixed points $F = D \cap U$, the above two properties imply $F$ is complete.
+\end{enumerate}
+
+Potential problem: the infimum depends on the surrounding set, so we should really have $\inf_F A$ and $\inf_L A$ and $\inf_D A$ and $\inf_U A$.
+
+\begin{lemma}
+  Let $L' \subseteq L$, and $A \subseteq L'$. Then the following are possible:
+
+  \begin{enumerate}
+    \item One, or both, of $\inf_L A$ and $\inf_{L'} A$ fail to exist.
+    \item Both $\inf_L A$ and $\inf_{L'} A$ exist, and $\inf_L A \leq \inf_{L'} A$.
+  \end{enumerate}
+
+  It's possible that $\inf_L A < \inf_{L'} A$, or $\inf_L A = \inf_{L'} A \iff \inf_L A \in L'$. In particular, if $\inf_L A \in L'$ then $\inf_{L'} A$ exists and they're equal.
+\end{lemma}
+
+\begin{lemma}
+  If a lattice $L$ is $\inf$-complete, then $L$ is $\sup$-complete.
+\end{lemma}
+\begin{proof}
+  Let $A \subseteq L$. $\inf \{ x \in L \mid x \geq A \} = \sup A$.
+\end{proof}
+
+\end{document}
