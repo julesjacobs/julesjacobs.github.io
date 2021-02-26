@@ -108,6 +108,10 @@
       font-size: 14px;
     }
 
+    #publications tr td:first-child {
+      text-align: center
+    }
+
     .bibtex {
       display: none;
       width: 80%;
@@ -207,7 +211,33 @@
   </div>
 
   <h2>Publications</h2>
-  <table class="pub">
+  <table class="pub" id="publications">
+
+    <tr id="ovarian">
+      <td>Neuro-biology of Aging</td>
+      <td>
+        <a class="title" href="https://www.sciencedirect.com/science/article/abs/pii/S019745802100066X?via%3Dihub">Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease</a>
+        <div class="info">
+          <div class="authors">
+            Firat Kara, Michael E. Belloy, Rick Voncken, Zahra Sarwari, Yadav Garima, Cynthia Anckaerts, An Langbeen, Valerie Leysen, Disha Shah, Jules Jacobs, Julie Hamaide, Peter Bols, Johan Van Audekerke, Jasmijn Daans, Caroline Guglielmetti, Kejal Kantarci, Vincent Prevot, Steffen Roßner, Peter Ponsaerts, Annemie Van der Linden, Marleen Verhoye
+          </div>
+          <a class="button" onclick="toggle('ovarian-bibtex')">bibtex</a>
+
+          <textarea class="bibtex" id="ovarian-bibtex">@article{KARA2021,
+  title = {Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease},
+  journal = {Neurobiology of Aging},
+  year = {2021},
+  issn = {0197-4580},
+  doi = {https://doi.org/10.1016/j.neurobiolaging.2021.02.011},
+  url = {https://www.sciencedirect.com/science/article/pii/S019745802100066X},
+  author = {Firat Kara and Michael E. Belloy and Rick Voncken and Zahra Sarwari and Yadav Garima and Cynthia Anckaerts and An Langbeen and Valerie Leysen and Disha Shah and Jules Jacobs and Julie Hamaide and Peter Bols and Johan {Van Audekerke} and Jasmijn Daans and Caroline Guglielmetti and Kejal Kantarci and Vincent Prevot and Steffen Roßner and Peter Ponsaerts and Annemie {Van der Linden} and Marleen Verhoye},
+  keywords = {Alzheimer's disease, amyloid-beta (Aβ), functional connectivity, resting state fMRI, magnetic resonance spectroscopy, Diffusion Tensor Imaging, ovariectomy, ovarian hormones, Tg2576 mice, human APP Swedish, Astrocytes},
+  abstract = {ABSTRACT
+  Premenopausal bilateral ovariectomy is considered to be one of the risk factors of Alzheimer's disease (AD). However, the underlying mechanisms remain unclear. Here, we aimed to investigate long-term neurological consequences of ovariectomy in a rodent AD model, TG2576 (TG), and wild-type mice (WT) that underwent an ovariectomy or sham-operation, using in vivo MRI biomarkers. An increase in osmoregulation and energy metabolism biomarkers in the hypothalamus, a decrease in white matter integrity, and a decrease in the resting-state functional connectivity was observed in ovariectomized TG mice compared to sham-operated TG mice. In addition, we observed an increase in functional connectivity in ovariectomized WT mice compared to sham-operated WT mice. Furthermore, genotype (TG vs WT) effects on imaging markers and GFAP immunoreactivity levels were observed, but there was no effect of interaction (Genotype x Surgery) on amyloid-beta-and GFAP immunoreactivity levels. Taken together, our results indicated that both genotype and ovariectomy alters imaging biomarkers associated with AD.}
+}</textarea>
+        </div>
+      </td>
+    </tr>
     <tr id="paradoxes">
       <td>POPL'21</td>
       <td>
