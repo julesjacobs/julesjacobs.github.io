@@ -1,0 +1,196 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newcommand{\ap}{\mathsf{ap}}
+\newcommand{\G}{\Gamma}
+
+
+\title{How to prove normalisation of STLC}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This proof is a simplification of the one in a note by Harper.\footnote{Kripke-Style Logical Relations for Normalization, Harper 2021 \\ \url{http://www.cs.cmu.edu/~rwh/courses/chtt/pdfs/kripke.pdf}} The proof given here does not need a Kripke logical relation, yet works for reduction under lambda. The trick is to not insist that terms are typed, which removes the need for keeping track of the types of free variables. We also no longer rely on type preservation as a lemma.
+\end{abstract}
+
+\noindent We prove weak normalisation of simply typed lambda calculus with $\mathbb{N}$ as the base type:
+\begin{align*}
+ e &::= x \mid n \mid \lambda x. e \mid \ap(e,e) &
+ T &::= \mathbb{N} \mid T \to T
+\end{align*}
+
+\noindent The typing rules are standard:
+
+\begin{mathpar}
+  \inferrule{\G(x) = A}{\G \vdash x:A}
+
+  \inferrule{n \in \mathbb{N}}{\G \vdash n:\mathbb{N}}
+
+  \inferrule{\G, x:A \vdash e : B \and x \notin \G}{\G \vdash \lambda x.e : A \to B}
+
+  \inferrule{\G \vdash e_1 : A \to B \and \G \vdash e_2 : A}
+            {\G \vdash \ap(e_1,e_2) : B}
+\end{mathpar}
+
+\bigskip\noindent
+The operational semantics allows reduction under lambda:
+\noindent \begin{mathpar}
+  \inferrule{.}{\ap(\lambda x. e_1, e_2) \to e_1[x \mapsto e_2]}
+
+  \inferrule{e_1 \to e_1'}{\ap(e_1,e_2) \to \ap(e_1',e_2)}
+
+  \inferrule{e_2 \to e_2'}{\ap(e_1,e_2) \to \ap(e_1,e_2')}
+
+  \inferrule{e \to e'}{\lambda x. e \to \lambda x. e'}
+\end{mathpar}
+
+
+
+\begin{definition}
+  Let the set $W$ of weakly normalising terms be such that $e \in W$ iff there exists a reduction sequence $e \to^* e'$ such that $e'$ is irreducible, i.e. $e'$ cannot take another step.
+\end{definition}
+
+Our goal is to prove:
+
+\begin{theorem}
+  $\G \vdash e:T \implies e \in W$
+\end{theorem}
+
+Doing this by induction on typing doesn't work: the induction hypothesis $e_1,e_2 \in W$ is not strong enough to show that $\ap(e_1,e_2) \in W$. The solution is to strengthen the theorem to $e \in W(T)$ where $W(T) \subseteq W$ is defined by recursion on $T$ to make the induction go through:
+\begin{align*}
+  W(\mathbb{N}) &= W &
+  W(A \to B) &= \{ e \mid \ap(e,e') \in W(B) \text{ for all } e' \in W(A) \}
+\end{align*}
+It is not trivial that $W(T) \subseteq W$; induction on $T$ fails to go through because we need to know that variables $x \in W(T)$, which depends on $\ap(x,e') \in W(T)$, which depends on $\ap(\ap(x,e'),e'') \in W(T)$, and so on. In order to strengthen the induction hypothesis we need the set of neutral terms $N$, defined inductively by:
+\begin{align*}
+  x \in N & &
+  \ap(e_1,e_2) \in N \text{ if } e_1 \in N \text{ and } e_2 \in W
+\end{align*}
+
+With a strengthened induction hypothesis, the proof goes through.
+
+\begin{lemma} (Pas de deux).
+  $N \subseteq W(T) \subseteq W$
+\end{lemma}
+\begin{proof}
+  By induction on $T$.
+  \begin{enumerate}
+    \item $T = \mathbb{N}$:
+    \begin{enumerate}[label=(\alph*)]
+      \item $N \subseteq W(\mathbb{N})$: strengthen the statement $N \subseteq W$ to $N \subseteq W'$, where $W' \subseteq W$ are terms that normalise to a neutral term, then perform induction on $N$.
+      \item $W(\mathbb{N}) \subseteq W$: true by definition.
+    \end{enumerate}
+    \item $T = A \to B$:
+    \begin{enumerate}[label=(\alph*)]
+      \item $N \subseteq W(A \to B)$: Let $e \in N$. If $v \in W(A) \subseteq W$, then $\ap(e,v) \in N \subseteq W(B)$, so $e \in W(A \to B)$.
+      \item $W(A \to B) \subseteq W$: Let $e \in W(A \to B)$. A variable $x \in N \subseteq W(A)$, so $\ap(e,x) \in W(B) \subseteq W$. A careful analysis of the reductions shows that $e \in W$.
+    \end{enumerate}
+  \end{enumerate}
+\end{proof}
+
+\noindent From this point on, we may forget about neutral terms, and only remember $W(T) \subseteq W$ and $x \in W(T)$. \\
+
+Another esential property that $W(T)$ shares with $W$ is that of head expansion:
+
+\begin{lemma} (Head expansion). If $e \to e'$ then $e' \in W(T) \implies e \in W(T)$.
+\end{lemma}
+\begin{proof}
+  By induction on $T$. For $T = \mathbb{N}$, it follows by definition of $W$. For $T = A \to B$ it follows from the induction hypothesis for $B$ and the rule for stepping in the function position of $\ap$.
+\end{proof}
+
+
+With $W(T)$ instead of $W$ in the theorem statement, the difficulty has been moved to the lambda case, for which we need a further strengthening of the induction hypothesis to obtain information about variables.
+
+A substitution $\gamma$ is a map from variables to terms. We extend $\gamma(e)$ to all terms $e$ to perform the substitution. By abuse of notation, we say that $\gamma \in W(\G)$ if $\gamma(x) \in W(\G(x))$ for all $x$.
+
+\medskip
+
+We are ready to state the final theorem:
+
+\begin{theorem}
+If $\G \vdash e : T$ then $\gamma(e) \in W(T)$ for all $\gamma \in W(\G)$.
+\end{theorem}
+\begin{proof}
+  By induction on typing.
+  \begin{description}
+    \item[VAR] We have $\G(x) = T$ and $e = x$. The result $\gamma(x) \in W(T)$ follows by assumption $\gamma \in W(\G)$.
+
+    \item[APP] We need to show that $\gamma(\ap(e_1, e_2)) \in W(B)$ when $\gamma(e_1) \in W(A \to B)$ and $\gamma(e_2) \in W(A)$. This follows from $\gamma(\ap(e_1, e_2)) = \ap(\gamma(e_1),\gamma(e_2))$ and the definition of $W(A \to B)$.
+
+    \item[LAM] We have assumptions $\gamma \in W(\G)$, $x \notin \G$, and for all $\gamma' \in W(\G; x:A)$ we have $\gamma'(e) \in W(B)$.
+
+    We need to show that $\gamma(\lambda x.e) \in W(A \to B)$, i.e. $\ap(\gamma(\lambda x. e),e') \in W(B)$ for all $e' \in W(A)$.
+
+    Let $e' \in W(A)$. We have:
+    \[
+      \ap(\gamma(\lambda x. e),e') = \ap((\lambda x. \gamma(e)),e') \to_\beta \gamma(e)[x \mapsto e'] = ([x\mapsto e'] \cup \gamma)(e)
+    \]
+
+    Using $\gamma' = [x \mapsto e'] \cup \gamma$ in our assumption, the right hand side $\gamma'(e) \in W(B)$. Then, by head expansion, also the left hand side $\ap(\gamma(\lambda x. e),e') \in W(B)$.
+  \end{description}
+\end{proof}
+\begin{corollary}
+  If $\G \vdash e : T$ then $e \in W$.
+\end{corollary}
+\begin{proof}
+  Take $\gamma$ to be the identity substitution. We have $\gamma \in W(\G)$ because variables $x \in W(T')$ for all $T'$, by the corollary of the pas de deux. The theorem gives us that $e \in W(T)$. By the other corollary of the pas de deux, $e \in W$.
+\end{proof}
+
+\subsection*{On the representation of lambda terms}
+
+One might worry about variable names. If we represent lambda terms as  abstract syntax trees where the lambda nodes and variable nodes carry natural numbers as identifiers (or strings of text), then we have issues. The definition of the substitution function becomes rather complicated, particularly when the terms we substitute are open. The step $\gamma(\lambda x. e) = \lambda x. \gamma(e)$ in the proof doesn't hold, strictly speaking: the substitution may have to rename the variable $x$ to $x'$ in order to avoid capture if some term in $\gamma$ contains $x$ as a free variable.
+
+Another problem is that the substitution may have to rename \emph{other} variables inside $e$. If you attempt to make everything fully formal with capture avoiding substitution in, say, Coq, you may find that it's like playing whack-a-mole: fixing one issue will cause another step of the proof to fail.
+
+\textbf{Note that this issue isn't solved by Kripke}.
+
+The solution is to consider terms up to $\alpha$-equivalence of bound variables. De Bruijn terms are an explicit construction of this quotient. If $\Lambda$ is the set of lambda terms and $\Lambda_{DB}$ is the set of De Bruijn terms where bound variables are represented using De Bruijn indices, then we have a conversion $\pi : \Lambda \to \Lambda_{DB}$ and for any map $f : \Lambda \to A$ that respects $\alpha$-equivalence, we have a unique map $\hat f : \Lambda_{DB} \to A$ such that $f = \hat f \circ \pi$, which is what it means for $\Lambda_{DB}$ to be the quotient.
+
+\bigskip\noindent
+The problematic step of the proof is:
+\[
+  \ap(\gamma(\lambda x. e),e') \to_\beta ([x\mapsto e'] \cup \gamma)(e)
+\]
+In De Bruijn representation, this is written:
+\[
+  \ap(\gamma(\lambda. e),e') \to_\beta (e' \triangleright \gamma)(e)
+\]
+Where $\gamma' = e' \triangleright \gamma$ is the substitution such that $\gamma'(0) = e'$ and $\gamma'(n+1) = \gamma(n)$. The condition $\gamma' \in W(\G; x:A)$ is written $\gamma' \in W(A \triangleright \G)$ in De Bruijn, and is satisfied because $\gamma'(0) = e' \in W(A)$ and $\gamma'(n+1) = \gamma(n) \in W(\G(n)) = W((A \triangleright \G)(n+1))$.
+
+It is non-trivial to prove $\ap(\gamma(\lambda. e),e') \to_\beta (e' \triangleright \gamma)(e)$: the definition of substitution has to shift De Bruijn indices when traversing under a lambda, and beta reduction removes the outermost binder, so it must also shift indices in the inner term. As it turns out, all this index shifting cancels out in the end, to make the step work.
+
+Although it is non-trivial to prove, one can see that \emph{if} substitution and $\beta$-reduction have been defined correctly on De Bruijn terms, then the lemma $\ap(\gamma(\lambda. e),e') \to_\beta (e' \triangleright \gamma)(e)$ \emph{must} hold, since \\(1) substitution on De Bruijn terms it must agree with capture avoiding substitution under $\pi$, and \\(2) the problematic step of the proof on ordinary lambda terms does hold, if the variable names are such that no capture avoiding renaming is necessary.
+\end{document}
