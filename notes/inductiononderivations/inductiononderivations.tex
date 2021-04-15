@@ -102,7 +102,7 @@ and we can do recursion by making a function $\rec(z,f) : T \to T$ out of $z : T
 
 These two are closely related: the type of $\rec$ is
 \[
-  T \to (T \to T) \to (T \to T),
+  T \to (T \to T) \to T,
 \]
 which matches the form of induction if we put $P(n) := T$. In type theory, where implication ($\implies$) and function space ($\to$) coincide, this is literally true. Recursion is the special case of induction where the type is constant. Or: induction is the generalisation of recursion where the type is allowed to depend on the input.
 
@@ -160,7 +160,7 @@ If it were induction, then the predicate would have been $P(n,m,D)$ where $D$ is
   \textbf{Induction on derivations is really recursion on derivations.}
 \end{center}
 
-The dependence on $(n,m)$ arises because it's baked into the definition of $L$. When seen as a predicate, $L$ has type $L : (\N \times \N) \to \mathsf{Type}$. Compare this with $\N : \mathsf{Type}$. Since $\N$ doesn't depend on anything, its recursion principle $T \to (T \to T) \to (T \to T)$ is entirely non-dependent. That the recursion principle for $L(n,m)$ depends on $(n,m)$ is because $L$ itself depends on $(n,m)$. The type of an \emph{induction} principle for $D \in L(n,m)$ would depend on the derivation $D$ as well.
+The dependence on $(n,m)$ arises because it's baked into the definition of $L$. When seen as a predicate, $L$ has type $L : (\N \times \N) \to \mathsf{Type}$. Compare this with $\N : \mathsf{Type}$. Since $\N$ doesn't depend on anything, its recursion principle $T \to (T \to T) \to T$ is entirely non-dependent. That the recursion principle for $L(n,m)$ depends on $(n,m)$ is because $L$ itself depends on $(n,m)$. The type of an \emph{induction} principle for $D \in L(n,m)$ would depend on the derivation $D$ as well.
 
 \subsection*{Sure, but who cares?}
 
