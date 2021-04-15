@@ -96,8 +96,8 @@ we can do proofs using induction,
 
 and we can do recursion by making a function $\rec(z,f) : T \to T$ out of $z : T$ and $f : T \to T$,
 \begin{align*}
-  \rec(f,z,0) &= z \\
-  \rec(f,z,S(n)) &= f(\rec(f,z,n))
+  \rec(z,f,0) &= z \\
+  \rec(z,f,S(n)) &= f(\rec(f,z,n))
 \end{align*}
 
 These two are closely related: the type of $\rec$ is
