@@ -170,7 +170,7 @@ I don't know, but there are cases where this difference makes a difference. We c
   \textbf{If all we're doing with inductive relations is recursion,\\ then we should be able to define them using Church encodings!}
 \end{center}
 
-Indeed, we can, via Knaster \& Tarski's fixed point theorem. To do so, we first define a function $F : (\N \times N) \to (\N \times \N)$ corresponding to the derivation rules L\_zero, L\_succ1, L\_succ2:
+Indeed, we can, via Knaster \& Tarski's fixed point theorem. To do so, we first define a function $F : P(\N \times N) \to P(\N \times \N)$ corresponding to the derivation rules L\_zero, L\_succ1, L\_succ2:
 \begin{align*}
   F(A) := \{(0,0)\} \cup
     \{(n,S(m)) \mid (n,m) \in A\} \cup
