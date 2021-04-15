@@ -1,7 +1,7 @@
 # Fdb version 3
-["pdflatex"] 1607269166 "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.tex" "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.pdf" "functionalctxs" 1607269169
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.aux" 1607269167 1033 ddb5e9218f7bb6b5158545dfcde28550 ""
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.tex" 1607269166 7225 a2a3a2145b1fdec1177e879d4b97f7d8 ""
+["pdflatex"] 1618504327 "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.tex" "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.pdf" "functionalctxs" 1618504328
+  "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.aux" 1618504328 1033 ddb5e9218f7bb6b5158545dfcde28550 ""
+  "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.tex" 1618504326 7225 a2a3a2145b1fdec1177e879d4b97f7d8 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc" 1276641224 6938 5135be6a8802f13a7faf296d1959a1ab ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -136,15 +136,15 @@
   "/usr/local/texlive/2020/texmf-dist/tex/latex/xkeyval/xkeyval.sty" 1417732693 4962 9c1069474ff71dbc47d5006555e352d3 ""
   "/usr/local/texlive/2020/texmf-dist/web2c/texmf.cnf" 1583102494 39451 60d7debd9ef8ece44cbe965493576c2d ""
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1586288239 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
-  "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1594233252 2432466 e45eeb99c6e345b5d7ddb67130508535 ""
+  "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1608332205 2432458 407b13f8e117f0242b7bb622fbd5d000 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "functionalctxs.aux" 1607269167 1033 ddb5e9218f7bb6b5158545dfcde28550 "pdflatex"
-  "functionalctxs.out" 1607269167 185 02f3d5241ef0a738fea9797595dde030 "pdflatex"
-  "functionalctxs.tex" 1607269166 7225 a2a3a2145b1fdec1177e879d4b97f7d8 ""
+  "functionalctxs.aux" 1618504328 1033 ddb5e9218f7bb6b5158545dfcde28550 "pdflatex"
+  "functionalctxs.out" 1618504328 185 02f3d5241ef0a738fea9797595dde030 "pdflatex"
+  "functionalctxs.tex" 1618504326 7225 a2a3a2145b1fdec1177e879d4b97f7d8 ""
   (generated)
+  "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.pdf"
   "functionalctxs.log"
-  "functionalctxs.out"
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.log"
+  "/Users/jules/git/julesjacobs.github.io/notes/functionalctxs/functionalctxs.log"
   "functionalctxs.pdf"
+  "functionalctxs.out"
   "functionalctxs.aux"
-  "/Users/jules/Documents/GitHub/julesjacobs.github.io/notes/functionalctxs/functionalctxs.pdf"

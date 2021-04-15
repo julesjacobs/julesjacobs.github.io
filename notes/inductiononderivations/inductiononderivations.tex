@@ -1,0 +1,272 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Definition, Lemma, Proof, Qed, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {exists}{$\exists$}1
+    {<->}{$\iff$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+    {and}{$\wedge$}1
+    {or}{$\vee$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newcommand{\rec}{\mathsf{rec}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{parskip}
+
+\title{Induction on Derivations is Recursion}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  This note is an attempt to clarify something that used to confuse me. We'll see that induction on derivations is really recursion and not induction, which means that impredicative Church encodings for inductive relations actually work. These are the same as the Knaster-Tarski theorem.
+\end{abstract}
+
+When we define an inductive data type like natural numbers,
+\[
+  \N ::= 0 \mid S(\N)
+\]
+
+we can do proofs using induction,
+\[
+  P(0) \implies (\forall n\in \N, P(n) \implies P(S(n))) \implies (\forall n\in \N, P(n)),
+\]
+
+and we can do recursion by making a function $\rec(z,f) : T \to T$ out of $z : T$ and $f : T \to T$,
+\begin{align*}
+  \rec(f,z,0) &= z \\
+  \rec(f,z,S(n)) &= f(\rec(f,z,n))
+\end{align*}
+
+These two are closely related: the type of $\rec$ is
+\[
+  T \to (T \to T) \to (T \to T),
+\]
+which matches the form of induction if we put $P(n) := T$. In type theory, where implication ($\implies$) and function space ($\to$) coincide, this is literally true. Recursion is the special case of induction where the type is constant. Or: induction is the generalisation of recursion where the type is allowed to depend on the input.
+
+Given an inductive type like $\N$, recursion allows us to define a function
+\[
+  \N \to T
+\]
+whereas induction allows us to define a dependent function
+\[
+  (n : \N) \to T(n)
+\]
+which may be written $\forall n : \N, T(n)$ or $\Pi n : \N, T(n)$, which is different syntax for the same thing.
+
+The question I want to explore in this note is:
+
+\begin{center}
+  \textbf{When we do induction on derivations, are we doing recursion or induction?}
+\end{center}
+
+The question makes sense, because in a proof assistant like Coq, we use the same construct \lstinline|Inductive| to both define the type natural numbers, and to define an inductive relation.
+
+Let us use the inductively defined relation $L = (\leq)$ to figure this out:
+\begin{mathpar}
+  \inferrule* [Right=L\_zero] {.} {(0,0) \in L}
+
+  \inferrule * [Right=L\_succ1] {(n,m) \in L}{(n,S(m)) \in L}
+
+  \inferrule * [Right=L\_succ2] {(n,m) \in L}{(S(n),S(m)) \in L}
+\end{mathpar}
+
+Induction on derivations tells us the following schema to prove $\forall (n,m) \in L, P(n,m)$:
+\begin{align*}
+  &P(0,0) \implies \\
+  &(\forall n \in \N, m \in \N, P(n, m) \implies P(n, S(m))) \implies \\
+  &(\forall n \in \N, m \in \N, P(n, m) \implies P(S(n), S(m))) \implies \\
+  &(\forall (n,m) \in L, P(n,m))
+\end{align*}
+
+Your initial reaction may be:
+
+\begin{center}
+  \textbf{This is clearly induction, because the predicate $P(n,m)$ depends on $n,m$.}
+\end{center}
+While this may seem plausible, it is not correct. We are doing induction on the \emph{derivation} of $(n,m) \in L$, not on $(n,m)$ itself. The predicate $P(n,m)$ does not depend on the \emph{derivation} of $(n,m) \in L$.
+
+What is a derivation? A derivation is built up out applications of L\_zero, L\_succ1, L\_succ2. For example, a derivation of $(1,2) \in L$ is L\_succ2(L\_succ1(L\_zero)), but another derivation of the same fact is L\_succ1(L\_succ2(L\_zero)). So we have multiple different derivations of the same fact $(1,2) \in L$.
+
+\begin{center}
+  \textbf{The predicate $P(n,m)$ does not depend on the derivation of $(n,m) \in L$.}
+\end{center}
+
+If it were induction, then the predicate would have been $P(n,m,D)$ where $D$ is a derivation of $(n,m) \in L$. Therefore, we conclude:
+
+\begin{center}
+  \textbf{Induction on derivations is really recursion on derivations.}
+\end{center}
+
+The dependence on $(n,m)$ arises because it's baked into the definition of $L$. When seen as a predicate, $L$ has type $L : (\N \times \N) \to \mathsf{Type}$. Compare this with $\N : \mathsf{Type}$. Since $\N$ doesn't depend on anything, its recursion principle $T \to (T \to T) \to (T \to T)$ is entirely non-dependent. That the recursion principle for $L(n,m)$ depends on $(n,m)$ is because $L$ itself depends on $(n,m)$. The type of an \emph{induction} principle for $D \in L(n,m)$ would depend on the derivation $D$ as well.
+
+\subsection*{Sure, but who cares?}
+
+I don't know, but there are cases where this difference makes a difference. We can use impredicative Church encodings to define the natural numbers $\N := (T : \mathsf{Type}) \to T \to (T \to T) \to T$ by their recursion principle. Unfortunately, such a definition does not work well in ordinary type theory, because this gives us no way to do induction on $\N$. We can do recursion just fine, because a Church natural number \emph{is} its own recursor. But we can't do induction. However:
+
+\begin{center}
+  \textbf{If all we're doing with inductive relations is recursion,\\ then we should be able to define them using Church encodings!}
+\end{center}
+
+Indeed, we can, via Knaster \& Tarski's fixed point theorem. To do so, we first define a function $F : (\N \times N) \to (\N \times \N)$ corresponding to the derivation rules L\_zero, L\_succ1, L\_succ2:
+\begin{align*}
+  F(A) := \{(0,0)\} \cup
+    \{(n,S(m)) \mid (n,m) \in A\} \cup
+    \{(S(n),S(m)) \mid (n,m) \in A\}
+\end{align*}
+
+This function is monotone, and therefore Knaster-Tarski gives us that its least fixed point is:
+\begin{align*}
+  \mathsf{lfp}(F) = \{ A \subseteq \N \times \N \mid F(A) \subseteq A \}
+\end{align*}
+
+We can mimic this in Coq by using predicates $T \to \mathsf{Prop}$ as sets:
+
+\begin{lstlisting}
+Definition set (T : Type) := T -> Prop.
+\end{lstlisting}
+
+Using this notion, we define subsets and intersection:
+\begin{lstlisting}
+Definition subset (A B : set T) := forall x, A x -> B x.
+
+Definition intersection (P : set (set T)) := fun x, forall A, P A -> A x.
+\end{lstlisting}
+
+Then we define the Knaster-Tarski least fixed point of a function from sets to sets:
+\begin{lstlisting}
+Definition lfp (F : set T -> set T) := intersection (fun A, subset (F A) A).
+\end{lstlisting}
+
+Lastly, we define the $F$ given above:
+\begin{lstlisting}
+Definition F : set (nat * nat) -> set (nat * nat) :=
+  forall A, fun '(n,m), (n = 0 and m = 0) or
+          (exists m', m = S m' and A (n,m')) or
+          (exists n' m', n = S n' and m = S m' and A (n',m')).
+\end{lstlisting}
+
+And we take its least fixed point:
+\begin{lstlisting}
+Definition leq' := lfp F.
+\end{lstlisting}
+
+\subsection*{Okay, you've defined \texttt{leq'}, but how we do know that it's actually the relation we want?}
+
+To show that \texttt{leq'} is actually the right relation, let us define the original relation inductively:
+
+\begin{lstlisting}
+Inductive leq : (nat * nat) -> Prop :=
+  | leq_zero : leq (0,0)
+  | leq_succ1 n m : leq (n,m) -> leq (n, S m)
+  | leq_succ n m : leq (n,m) -> leq (S n, S m).
+\end{lstlisting}
+
+And prove that this is equivalent: $\mathtt{leq}(n,m) \iff \mathtt{leq'}(n,m)$:
+
+\begin{lstlisting}
+Lemma leq_leq' n m :
+  leq (n,m) <-> leq' (n,m).
+Proof.
+  unfold leq', lfp, intersection, subset, F. split.
+  - induction 1; naive_solver.
+  - intros H. apply (H leq). intros [].
+    naive_solver (eauto using leq).
+Qed.
+\end{lstlisting}
+
+I think we can conclude the following:
+
+\begin{center}
+  \textbf{Inductive relations do not give us more power; \\
+  they can be simulated using Church encodings.}
+\end{center}
+
+The following Coq file contains all these definitions:
+
+\begin{center}
+  \url{https://julesjacobs.com/notes/inductiononderivations/iod.v}
+\end{center}
+
+It also contains a version of \texttt{leq} defined in $\mathsf{Type}$ instead of $\mathsf{Prop}$. We print the corresponding induction principles that Coq generates:
+
+\begin{lstlisting}
+Inductive leq : (nat * nat) -> Prop :=
+  | leq_zero : leq (0,0)
+  | leq_succ1 n m : leq (n,m) -> leq (n, S m)
+  | leq_succ n m : leq (n,m) -> leq (S n, S m).
+
+Check leq_ind.
+
+Inductive leq_type : (nat * nat) -> Type :=
+  | leq_zero' : leq_type (0,0)
+  | leq_succ1' n m : leq_type (n,m) -> leq_type (n, S m)
+  | leq_succ' n m : leq_type (n,m) -> leq_type (S n, S m).
+
+Check leq_type_ind.
+\end{lstlisting}
+
+The former only gives us the recursion principle, but the latter \emph{does} give a true \textbf{induction} principle. The predicate for \texttt{leq\_type\_ind} \emph{is} allowed to depend on the derivation. Run the Coq file to see for yourself!
+\end{document}
