@@ -64,7 +64,7 @@ Qed.
 Lemma to_r_classical'' Γ Δ A B :
   (Δ ∨ ¬ Δ) ->
   (Γ ∧ A -> B ∨ Δ) ->
-  (Γ -> (A -> B) ∨ Δ).
+  (Γ -> ((A -> B) ∨ Δ)).
 Proof.
   tauto.
 Qed.
@@ -72,7 +72,7 @@ Qed.
 Lemma to_r_classical''' Γ Δ A B :
   (¬ ¬ Δ -> Δ) ->
   (Γ ∧ A -> B ∨ Δ) ->
-  (Γ -> (A -> B) ∨ Δ).
+  (Γ -> ((A -> B) ∨ Δ)).
 Proof.
   Fail tauto.
 Abort.
