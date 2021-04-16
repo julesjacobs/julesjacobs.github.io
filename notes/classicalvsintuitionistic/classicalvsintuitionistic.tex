@@ -83,7 +83,7 @@
 \begin{abstract}
   The difference between classical and intuitionistic logic is that in classical logic we have the axiom $\neg \neg A \implies A$ or $A \vee \neg A$ and in intuitionistic logic we don't. In this note I'll explain the LK vs LJ perspective on the difference between classical and intuitionistic logic.
 
-  In short: in classical logic we have $A \to (B \vee C) \iff (A \to B) \vee C$ whereas in intuitionistic logic we have only the $\implies$-direction. In other words: if we have $(A \to B) \vee C$ as a goal, in classical logic we can introduce $A$ as a hypothesis and prove the new goal $B \vee C$. In intuitionistic logic, we can't have other disjuncts in the goal if we want to introduce a hypothesis.
+  In short: in classical logic we have $A \to (B \vee C) \iff (A \to B) \vee C$ whereas in intuitionistic logic we have only the $\impliedby$-direction. In other words: if we have $(A \to B) \vee C$ as a goal, in classical logic we can introduce $A$ as a hypothesis and prove the new goal $B \vee C$. In intuitionistic logic, we can't have other disjuncts in the goal if we want to introduce a hypothesis.
 \end{abstract}
 
 A theorem has assumptions $A_1, \dots, A_k$ and a conclusion $B$, and we're trying to prove $A_1 \wedge \dots \wedge A_k \implies B$. In the middle of a proof, we always have in mind which theorem remains to be proved at that point. The steps in the proof transform the theorem to be proved into simpler ones, until we're done. We keep track of which assumptions are active, and what the goal is we're trying to prove. In a proof assistant like Coq, this proof state is kept track of for you, and displayed like this:
