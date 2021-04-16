@@ -1,0 +1,147 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {exists}{$\exists$}1
+    {<->}{$\iff$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+    {and}{$\wedge$}1
+    {or}{$\vee$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newcommand{\rec}{\mathsf{rec}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{parskip}
+
+\title{Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  The difference between classical and intuitionistic logic is that in classical logic we have the axiom $\neg \neg A \implies A$ or $A \vee \neg A$ and in intuitionistic logic we don't. In this note I'll explain the LK vs LJ perspective on the difference between classical and intuitionistic logic.
+
+  In short: in classical logic we have $A \to (B \vee C) \iff (A \to B) \vee C$ whereas in intuitionistic logic we have only the $\implies$-direction. In other words: if we have $(A \to B) \vee C$ as a goal, in classical logic we can introduce $A$ as a hypothesis and prove the new goal $B \vee C$. In intuitionistic logic, we can't have other disjuncts in the goal if we want to introduce a hypothesis.
+\end{abstract}
+
+A theorem has assumptions $A_1, \dots, A_k$ and a conclusion $B$, and we're trying to prove $A_1 \wedge \dots \wedge A_k \implies B$. In the middle of a proof, we always have in mind which theorem remains to be proved at that point. The steps in the proof transform the theorem to be proved into simpler ones, until we're done. We keep track of which assumptions are active, and what the goal is we're trying to prove. In a proof assistant like Coq, this proof state is kept track of for you, and displayed like this:
+
+\begin{lstlisting}
+  H1 : A1
+  ...
+  Hk : Ak
+  ========
+  B
+\end{lstlisting}
+
+We also write $A_1, \dots, A_k \vdash B$ for the proof state. This means that the theorem to be proved at that point is $A_1 \wedge \dots \wedge A_k \implies B$.
+
+A natural question is: why do we have multiple hypotheses and one conclusion?
+
+The answer is that there are proof systems with multiple conclusions, like Gentzen's sequent calculus / system LK.\footnote{See \url{https://en.wikipedia.org/wiki/Sequent_calculus\#The_system_LK}} We have the proof state $A_1, \dots, A_k \vdash B_1, \dots, B_n$, which means $A_1 \wedge \dots \wedge A_k \implies B_1 \vee \dots \vee B_n$. It turns out that having `and' in the hypotheses and `or' in the conclusions keeps the proof rules nicely symmetric.
+
+Most rules of classical and intuitonistic logic are the same, and can be written for both natural deduction (with one conclusion) and sequent calculus (with a disjunction of conclusions). The difference is in the introduction rule for implication:
+\begin{mathpar}
+  \inferrule*[right=$\to$R] {\Gamma,A \vdash B,\Delta} {\Gamma \vdash (A \to B),\Delta}
+\end{mathpar}
+
+The rule says that if we are in a proof state $\Gamma \vdash (A \to B),\Delta$, we can do a proof step to go to $\Gamma,A \vdash B,\Delta$.
+
+To get intuitionistic logic, we restrict this rule to $\Delta$ being empty:
+\begin{mathpar}
+  \inferrule*[right=$\to$R] {\Gamma,A \vdash B} {\Gamma \vdash (A \to B)}
+\end{mathpar}
+
+In terms of a hypothetical Coq for classical logic, if we have a goal $(A \to B) \vee C$, we'd be able to type \texttt{intros} and introduce the hypothesis $A$ and obtain the new goal $B \vee C$.
+
+Why is $A \to (B \vee C) \iff (A \to B) \vee C$ classically valid? We can show this by case analysis: what are the conditions under which the left hand side and right hand side are false?
+
+\begin{itemize}
+  \item Left hand side: $A$ must be true (because if $A$ were false, then ($A \to \text{anything}$) is true), and both $B$ and $C$ must be false.
+  \item Right hand side: $A \to B$ must be false, and $C$ must be false. To make $A \to B$ false, we need $A$ to be true and $B$ to be false.
+\end{itemize}
+
+So classically, they are false under the same conditions, and hence equivalent. Intuitionistically this is not true.
+
+Now we show why having this rule is enough to get classical logic. The law of excluded middle $A \vee \neg A$ is written $\emptyset \vdash A, \neg A$, since having multiple things on the right is `or'. The negation $\neg A = A \to \bot$, so we really have:
+\[ \emptyset \vdash A, (A \to \bot) \]
+
+By the rule for implication introduction for classical logic, we can introduce the hypothesis $A$ from the implication $A \to \bot$ even though there's more disjuncts in the goal:
+\[ A \vdash A, \bot \]
+Which is a goal that's trivially provable. We therefore see that the ability to introduce hypotheses over other disjuncts leads to classical logic.
+
+The other rules of sequent calculus remain valid intuitionistically, even when we have multiple disjuncts on the right. For instance, the cut rule and the left rule for implication:
+\begin{mathpar}
+  \inferrule*[Right=cut]{\Gamma \vdash \Delta,A \and A,\Sigma \vdash \Pi}{\Gamma,\Sigma \vdash \Delta,\Pi}
+
+  \inferrule*[Right=$\to$L]{\Gamma \vdash A,\Delta \and \Sigma,B \vdash \Pi}{\Gamma,\Sigma,(A \to B) \vdash \Delta, \Pi}
+\end{mathpar}
+Even though these may look funky, they are intuitionistically valid:
+
+\begin{center}
+  \url{https://julesjacobs.com/notes/classicalvsintuitionistic/test.v}
+\end{center}
+
+\end{document}
