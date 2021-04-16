@@ -144,4 +144,11 @@ Even though these may look funky, they are intuitionistically valid:
   \url{https://julesjacobs.com/notes/classicalvsintuitionistic/test.v}
 \end{center}
 
+If $\Delta$ is decidable, that is, if we know that $\Delta \vee \neg \Delta$, then the classical intro rule is valid:
+\begin{mathpar}
+  \inferrule*[right=$\to$R] {\Gamma,A \vdash B,\Delta
+  \and \Gamma \vdash \Delta \vee \neg \Delta} {\Gamma \vdash (A \to B),\Delta}
+\end{mathpar}
+
+
 \end{document}

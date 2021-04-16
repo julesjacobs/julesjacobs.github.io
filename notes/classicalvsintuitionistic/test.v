@@ -58,3 +58,60 @@ Lemma to_r_intuitionistic Γ A B :
 Proof.
   tauto.
 Qed.
+
+(* We can still apply this principle if Δ is decidable. *)
+
+Lemma to_r_classical'' Γ Δ A B :
+  (Δ ∨ ¬ Δ) ->
+  (Γ ∧ A -> B ∨ Δ) ->
+  (Γ -> (A -> B) ∨ Δ).
+Proof.
+  tauto.
+Qed.
+
+Lemma to_r_classical''' Γ Δ A B :
+  (¬ ¬ Δ -> Δ) ->
+  (Γ ∧ A -> B ∨ Δ) ->
+  (Γ -> (A -> B) ∨ Δ).
+Proof.
+  Fail tauto.
+Abort.
+
+(*
+A goal B is classical if ¬ ¬ B -> B.
+
+Decidable propositions are classical, but not all classical propositions are decidable.
+
+We can apply classical principles if our goal is classsical.
+*)
+
+Lemma dn_goal (A B : Prop) :
+  (A -> ¬ ¬ B) ->
+  (¬ ¬ A -> ¬ ¬ B).
+Proof.
+  tauto.
+Qed.
+
+Lemma dn_goal' (A B : Prop) :
+  ((A ∨ ¬ A) -> ¬ ¬ B) ->
+  (¬ ¬ B).
+Proof.
+  tauto.
+Qed.
+
+Definition classical (P : Prop) := ¬ ¬ P -> P.
+Definition decidable (P : Prop) := P ∨ ¬ P.
+
+Lemma dc P :
+  decidable P -> classical P.
+Proof.
+  unfold decidable,classical. tauto.
+Qed.
+
+Lemma cd P :
+  classical P -> decidable P.
+Proof.
+  unfold decidable,classical. Fail tauto.
+Abort.
+
+(* What about quantifiers though? Need to look into double negation translation for them.*)
