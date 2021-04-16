@@ -39,10 +39,18 @@ Qed.
 
 Lemma to_r_classical Γ Δ A B :
   (Γ ∧ A -> B ∨ Δ) ->
-  (Γ -> (A -> B) ∧ Δ).
+  (Γ -> (A -> B) ∨ Δ).
 Proof.
   Fail tauto.
 Abort.
+
+Lemma to_r_classical' Γ Δ A B :
+  (∀ P, ¬ ¬ P -> P) ->
+  (Γ ∧ A -> B ∨ Δ) ->
+  (Γ -> (A -> B) ∨ Δ).
+Proof.
+  intros dn??. apply dn. tauto.
+Qed.
 
 Lemma to_r_intuitionistic Γ A B :
   (Γ ∧ A -> B) ->
