@@ -1,0 +1,200 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {exists}{$\exists$}1
+    {<->}{$\iff$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+    {and}{$\wedge$}1
+    {or}{$\vee$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newcommand{\rec}{\mathsf{rec}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{parskip}
+
+\title{Arithmetic on Church numerals}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+Church naturals allow us to represent numbers in pure lambda calculus. In this short note I'll explain how to define addition, multiplication, and power on Church nats. As a bonus, I'll show how to define fast growing functions.
+
+Church repesents a natural number $n$ as a higher order function, which I'll denote $[n]$. The function $[n]$ takes another function $f$ and composes $f$ with itself $n$ times:
+\[
+  [n]\ f = \underbrace{f \circ f \cdots \circ f}_{n\text{ times}} = f^n
+\]
+We can convert a Church nat $a$ back to an ordinary nat by applying it to the successor function $S\ n = n+1$: if $a = [n]$ then $a\ s\ 0$ gives us back ordinary natural number $n$ because $a\ s\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
+
+The first few Church natural numbers are:
+\begin{align*}
+  [0] &= \lambda f.\lambda z. z\\
+  [1] &= \lambda f.\lambda z. f z\\
+  [2] &= \lambda f.\lambda z.f (f z)\\
+  [3] &= \lambda f.\lambda z.f (f (f z))
+\end{align*}
+
+Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power. So think about $[n] f = f^n$ as performing $n$-fold function composition.
+
+Let's first define the successor function on Church nats:
+\[
+  [n + 1]\ f = f^{n+1} = f \circ f^n = f \circ ([n]\ f)
+\]
+So if $a$ is a Church nat, then the successor is defined as
+\[
+  s\ a = \lambda f. f \circ (a f) = \lambda f. \lambda z. f (a f z)
+\]
+
+
+Addition is also fairly easy:
+\[
+  [n+m]\ f = f^{n+m} = f^n \circ f^m = ([n]\ f) \circ ([m]\ f)
+\]
+So if $a,b$ are Church nats, then addition is defined as
+\[
+  a + b = \lambda f. (a f) \circ (b f) = \lambda f. \lambda z. a (b f)
+\]
+
+Multiplication is not much harder:
+\[
+  [n\cdot m] f = f^{n\cdot m} = (f^n)^m = [m]\ ([n]\ f)
+\]
+So if $a,b$ are Church nats, then multiplication is defined as
+\[
+  a \cdot b = \lambda f. a (b f)
+\]
+
+Power is a bit trickier:
+\[
+  [n^m] f = f^{(n^m)} = f^{\overbrace{n\cdot n \cdots n}^{m\text{ times}}} = (((f^n)^n)^n \cdots)^n = [n]\ ([n]\ (\cdots [n]\ f)) = ([m]\ [n])\ f
+\]
+So if $a,b$ are Church nats, then power is defined as
+\[
+  a^b = \lambda f. (a\ b) f = a\ b
+\]
+
+Nice! If that explanation was confusing, here's another one. If we apply $b\ f^k$ we get $f^{b\cdot k}$, because the Church nat $b$ composes $f^k$ with itself $b$ times. Therefore $b\ (b\ f^k) = f^{b^2 \cdot k}$, and so on. Therefore, $b\ (b\ \cdots (b f)) = f^{(b^a)}$. But applying the function $b$ an $a$ number of times, is precisely what the action of $a$ as a Church nat is. So $(a\ b) f = f^{(a^b)}$ performs power, so $a^b = a\ b$.
+
+Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
+\begin{align*}
+  f_0(n) &= g(n)\\
+  f_{k+1}(n) &= f^n_k(n)
+\end{align*}
+
+We can define this function using Church naturals:
+\begin{align*}
+  f_k = k\ (\lambda f. \lambda n. n f n)\ g
+\end{align*}
+
+If we take $g = s$ then,
+\begin{align*}
+  f_0(n) &= n+1\\
+  f_1(n) &= 2n\\
+  f_2(n) &= 2^n \cdot n\\
+\end{align*}
+
+The function $A(n) = f_n(n)$ grows pretty quickly. We can play the same game again, by putting $g = A$, obtaining a sequence:
+\begin{align*}
+  h_0(n) &= A(n)\\
+  h_{k+1}(n) &= h^n_k(n)
+\end{align*}
+
+To get a feeling for how fast this grows, consider $h_1$:
+\begin{align*}
+  h_1(n) &= h_0^n(n)\\
+         &= A(A(A(\dots A(A(n)))))\\
+         &= A(A(A(\dots A(f_n(n)))))\\
+         &= A(A(A(\dots f_{f_n(n)}(f_n(n)))))\\
+\end{align*}
+An expression like $h_3(3)$ gives us a relatively short lambda term that will normalise to a huge term. We might as well start with $g(n) = n^n$ since that's even easier to write using Church naturals:
+\begin{align*}
+  g &= \lambda a. a\ a\\
+  A &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
+  h &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ A\\
+  3 &= \lambda f. \lambda z. f (f (f\ z))\\
+  X &= h\ 3\ 3
+\end{align*}
+You can't write down anything close to the number $X$ even if you were to write a hundred pages of towers of exponentials. Of course, we can continue this game, and define a sequence
+\begin{align*}
+  g_0 &= \lambda a. \lambda b. a\ b\\
+  g_1 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_0\\
+  g_2 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_1\\
+  \dots
+\end{align*}
+Which can be generalised as:
+\begin{align*}
+  f(g) &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
+  g_n &= f^n(g_0)
+\end{align*}
+So we get an even more compact, yet much larger number with:
+\begin{align*}
+  f &= \lambda g. \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
+  Y &= (\lambda n. n f\ (\lambda a. a a)\ n) (\lambda f. \lambda z. f (f (f\ z)))
+\end{align*}
+Of course, you can easily define much faster growing functions. But here's a challenge: what's the shortest lambda term that normalises, but takes more than the age of the universe to normalise? Or: what's the largest Church natural you can write down in less than 30 symbols?
+
+Please let me know any mistakes. I haven't checked for mistakes at all :)
+
+\end{document}
