@@ -171,27 +171,27 @@ To get a feeling for how fast this grows, consider $h_1$:
 An expression like $h_3(3)$ gives us a relatively short lambda term that will normalise to a huge term. We might as well start with $g(n) = n^n$ since that's even easier to write using Church naturals:
 \begin{align*}
   g &= \lambda a. a\ a\\
-  A &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
-  h &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ A\\
+  A &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\ k\\
+  h &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ A\ k\\
   3 &= \lambda f. \lambda z. f (f (f\ z))\\
-  X &= h\ 3\ 3
+  X &= h\ 3
 \end{align*}
 You can't write down anything close to the number $X$ even if you were to write a hundred pages of towers of exponentials. Of course, we can continue this game, and define a sequence
 \begin{align*}
-  g_0 &= \lambda a. \lambda b. a\ b\\
-  g_1 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_0\\
-  g_2 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_1\\
+  g_0 &= \lambda a. a\ a\\
+  g_1 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_0\ k\\
+  g_2 &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g_1\ k\\
   \dots
 \end{align*}
 Which can be generalised as:
 \begin{align*}
-  f(g) &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
+  f(g) &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\ k\\
   g_n &= f^n(g_0)
 \end{align*}
 So we get an even more compact, yet much larger number with:
 \begin{align*}
-  f &= \lambda g. \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\\
-  Y &= (\lambda n. n f\ (\lambda a. a a)\ n) (\lambda f. \lambda z. f (f (f\ z)))
+  f &= \lambda g. \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\ k\\
+  Y &= (3\ f)\ (\lambda a. a a)\ 3
 \end{align*}
 Of course, you can easily define much faster growing functions. But here's a challenge: what's the shortest lambda term that normalises, but takes more than the age of the universe to normalise? Or: what's the largest Church natural you can write down in less than 30 symbols?
 
