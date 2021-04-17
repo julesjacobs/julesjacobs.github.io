@@ -96,7 +96,7 @@ The first few Church natural numbers are:
   [3] &= \lambda f.\lambda z.f (f (f z))
 \end{align*}
 
-Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power. So think about $[n] f = f^n$ as performing $n$-fold function composition.
+Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power. So think about $[n] f = f^n$ as performing $n$-fold function composition.
 
 Let's first define the successor function on Church nats:
 \[

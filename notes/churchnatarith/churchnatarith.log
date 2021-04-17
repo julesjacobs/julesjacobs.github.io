@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  17 APR 2021 03:04
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  17 APR 2021 03:08
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -734,11 +734,11 @@ Package rerunfilecheck Info: File `churchnatarith.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 200.
  ) 
 Here is how much of TeX's memory you used:
- 12699 strings out of 480608
- 194208 string characters out of 5903629
+ 12697 strings out of 480608
+ 194182 string characters out of 5903629
  493254 words of memory out of 5000000
  28225 multiletter control sequences out of 15000+600000
- 570875 words of font info for 162 fonts, out of 8000000 for 9000
+ 570759 words of font info for 160 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  38i,9n,72p,977b,339s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7v.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb>
