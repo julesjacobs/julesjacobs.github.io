@@ -80,13 +80,15 @@
 \begin{document}
 \maketitle
 
-Church naturals allow us to represent numbers in pure lambda calculus. In this short note I'll explain how to define addition, multiplication, and power on Church nats. As a bonus, I'll show how to define fast growing functions.
+\begin{abstract}
+  Church naturals allow us to represent numbers in pure lambda calculus. In this short note I'll explain how to define addition, multiplication, and power on Church nats. As a bonus, I'll show how to define fast growing functions.
+\end{abstract}
 
 Church repesents a natural number $n$ as a higher order function, which I'll denote $[n]$. The function $[n]$ takes another function $f$ and composes $f$ with itself $n$ times:
 \[
   [n]\ f = \underbrace{f \circ f \cdots \circ f}_{n\text{ times}} = f^n
 \]
-We can convert a Church nat $a$ back to an ordinary nat by applying it to the successor function $S\ n = n+1$: if $a = [n]$ then $a\ s\ 0$ gives us back ordinary natural number $n$ because $a\ s\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
+We can convert a Church nat $a$ back to an ordinary nat by applying it to the ordinary successor function $S : \N \to \N$ given by $S\ n = n+1$: if $a = [n]$ then $a\ s\ 0$ gives us back ordinary natural number $n$ because $a\ s\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
 
 The first few Church natural numbers are:
 \begin{align*}
@@ -98,6 +100,8 @@ The first few Church natural numbers are:
 
 Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power. So think about $[n] f = f^n$ as performing $n$-fold function composition.
 
+\section*{Successor on Church nats}
+
 Let's first define the successor function on Church nats:
 \[
   [n + 1]\ f = f^{n+1} = f \circ f^n = f \circ ([n]\ f)
@@ -107,7 +111,7 @@ So if $a$ is a Church nat, then the successor is defined as
   s\ a = \lambda f. f \circ (a f) = \lambda f. \lambda z. f (a f z)
 \]
 
-
+\section*{Addition}
 Addition is also fairly easy:
 \[
   [n+m]\ f = f^{n+m} = f^n \circ f^m = ([n]\ f) \circ ([m]\ f)
@@ -117,6 +121,7 @@ So if $a,b$ are Church nats, then addition is defined as
   a + b = \lambda f. (a f) \circ (b f) = \lambda f. \lambda z. a (b f)
 \]
 
+\section*{Multiplication}
 Multiplication is not much harder:
 \[
   [n\cdot m] f = f^{n\cdot m} = (f^n)^m = [m]\ ([n]\ f)
@@ -126,6 +131,8 @@ So if $a,b$ are Church nats, then multiplication is defined as
   a \cdot b = \lambda f. a (b f)
 \]
 
+
+\section*{Power}
 Power is a bit trickier:
 \[
   [n^m] f = f^{(n^m)} = f^{\overbrace{n\cdot n \cdots n}^{m\text{ times}}} = (((f^n)^n)^n \cdots)^n = [n]\ ([n]\ (\cdots [n]\ f)) = ([m]\ [n])\ f
@@ -137,6 +144,51 @@ So if $a,b$ are Church nats, then power is defined as
 
 Nice! If that explanation was confusing, here's another one. If we apply $b\ f^k$ we get $f^{b\cdot k}$, because the Church nat $b$ composes $f^k$ with itself $b$ times. Therefore $b\ (b\ f^k) = f^{b^2 \cdot k}$, and so on. Therefore, $b\ (b\ \cdots (b f)) = f^{(b^a)}$. But applying the function $b$ an $a$ number of times, is precisely what the action of $a$ as a Church nat is. So $(a\ b) f = f^{(a^b)}$ performs power, so $a^b = a\ b$.
 
+\section*{Predecessor}
+Surprisingly, defining the predecessor on Church nats is the most difficult. I think this is due to Curry.
+
+We define the function $f : \N \times \N \to \N \times \N$:
+
+\begin{align*}
+  f((a,b)) &= (s(a),a)
+\end{align*}
+
+If we start with $(0,x)$ and keep applying $f$ we get the following sequence:
+
+\begin{align*}
+  (0,x) \to (1,0) \to (2,1) \to (3,2) \to (4,3) \to \cdots
+\end{align*}
+
+So
+
+\begin{align*}
+  f^n((0,x))_1 &= n\\
+  f^n((0,x))_2 &= \begin{cases}
+    x & \text{if } n=0 \\
+    n-1 & \text{if } n > 0
+  \end{cases}
+\end{align*}
+
+So we can define the predecessor function:
+\begin{align*}
+  p = \lambda n. n\ f\ (0,0)
+\end{align*}
+
+So that $p(0) = 0$ and $p(n) = n-1$ for $n>0$.
+
+\subsection*{Pairs}
+
+We made use of pairs to define the predecessor, so to use pure lambda calculus we need to define pairs in terms of lambda. We represent a pair $(a,b)$ as:
+\begin{align*}
+  (a,b) &= \lambda f. f\ a\ b \\
+\end{align*}
+We can extract the components by passing in the function $f$:
+\begin{align*}
+  \mathsf{fst} &= \lambda x. x\ (\lambda a. \lambda b. a)\\
+  \mathsf{snd} &= \lambda x. x\ (\lambda a. \lambda b. b)\\
+\end{align*}
+
+\section*{Fast growing functions}
 Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
 \begin{align*}
   f_0(n) &= g(n)\\
