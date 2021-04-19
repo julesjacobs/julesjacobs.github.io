@@ -188,6 +188,31 @@ We can extract the components by passing in the function $f$:
   \mathsf{snd} &= \lambda x. x\ (\lambda a. \lambda b. b)\\
 \end{align*}
 
+\subsection*{Disjoint union}
+
+Another way to define the predecessor is with disjoint unions. We take:
+\begin{align*}
+  \mathsf{inl}(a) &= \lambda f. \lambda g. f a \\
+  \mathsf{inr}(a) &= \lambda f. \lambda g. g a
+\end{align*}
+
+Then we can define:
+\begin{align*}
+  f(\mathsf{inl}(a)) &= \mathsf{inr}(a)\\
+  f(\mathsf{inr}(a)) &= \mathsf{inr}(s(a))
+\end{align*}
+
+We can do this pattern match on an inl/inr by calling it with the two branches as arguments:
+\begin{align*}
+  f(x) &= x\ (\lambda a. \mathsf{inr}(a))\ (\lambda a.\mathsf{inr}(s(a)))
+\end{align*}
+
+
+And we can define:
+\begin{align*}
+  p(n) = (n\ f\ \mathsf{inl}(0))\ (\lambda x. x)\ (\lambda x. x)
+\end{align*}
+
 \section*{Fast growing functions}
 Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
 \begin{align*}
