@@ -224,6 +224,18 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
 
 How do we decide which equation to pick from the first clause to branch on? Any equation works, but we'd like to generate a compact pattern matching tree. Whenever we are in case (c) for one of the other clauses, we have to add that clause to both $A$ and $B$. That can cause code explosion. To avoid it we want to select the equation that causes the least code explosion. We therefore select an equation that is present in the maximum number of other clauses.
 
+Consider this example:
+\begin{alignat*}{4}
+  \matchwith{\ba} \\
+  \clause{\Add(\Add(\fvar x, \fvar y), \Zero)}{e_1} \\
+  \clause{\Add(\Mul(\fvar x, \fvar y), \Zero)}{e_2} \\
+  \clause{\Add(\fvar x, \Mul(\fvar x, \fvar y))}{e_3} \\
+  \clause{\Add(\fvar x, \Add(\fvar x, \fvar y))}{e_4} \\
+  \clause{\Add(\fvar x, \Zero)}{e_5}
+\end{alignat*}
+For the outer constructor we have no choice, but for the inner constructors we can either test $\Add(\fvar x, \fvar y)$ first or $\Zero$ first. If we test $\Add(\fvar x, \fvar y)$ first, then we end up duplicating the $e_3$ and $e_4$ clauses. Our heuristic chooses to match on $\Zero$ instead, which leads to optimal code without any duplication.
+
+
 \section{Discussion}
 
 This algorithm is a bit different than the algorithms in the literature. It is based on the following observations and considerations.
