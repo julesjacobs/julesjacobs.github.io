@@ -160,7 +160,7 @@ Then we have to solve the following sub problem for $A$:
   \clause{\bvar{a_1} = \fvar x, \bvar{a_2} = \Zero}{e_6} \\
   \clause{\ba = \fvar x}{e_7}
 \end{alignat*}
-Notice how we now have multiple equations per clause. This is the sub problem for $B$:
+Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$. This is the sub problem for $B$:
 \begin{alignat*}{4}
   \clause{\ba = \Mul(\Zero, \fvar{x})}{e_2} \\
   \clause{\ba = \Mul(\fvar x, \Zero)}{e_4} \\
@@ -201,7 +201,8 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
   \item Create the two sub problems $A$ and $B$ as follows by iterating over all the clauses. One of three cases can happen:
   \begin{enumerate}
     \item The clause contains an equation $\ba = \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$. \\
-          Add the expanded clause $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1, \dots \text{REST} \dots$ to $A$.
+          Add the expanded clause $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1, \dots \text{REST} \dots$ to $A$. \\
+          Choose fresh variable names $a_1,\dots,a_n$ and use them consistently in $\C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the equations $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1$.
     \item The clause contains an equation $\ba = \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
           Add this clause to $B$ unchanged.
     \item The clause contains no equation for $\ba$. Add this clause to both $A$ and $B$.
