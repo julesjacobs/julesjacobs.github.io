@@ -1,0 +1,44 @@
+\begin{thebibliography}{Mar08}
+
+\bibitem[Aug85]{augustsson_compiling_1985}
+Lennart Augustsson.
+\newblock Compiling pattern matching.
+\newblock In {\em Proc. of a conference on {Functional} programming languages
+  and computer architecture}, pages 368--381, Berlin, Heidelberg, January 1985.
+  Springer-Verlag.
+
+\bibitem[Mar92]{maranget_compiling_1992}
+Luc Maranget.
+\newblock Compiling lazy pattern matching.
+\newblock In {\em Proceedings of the 1992 {ACM} conference on {LISP} and
+  functional programming}, {LFP} '92, pages 21--31, New York, NY, USA, January
+  1992. Association for Computing Machinery.
+
+\bibitem[Mar08]{maranget_compiling_2008}
+Luc Maranget.
+\newblock Compiling pattern matching to good decision trees.
+\newblock In {\em Proceedings of the 2008 {ACM} {SIGPLAN} workshop on {ML}},
+  {ML} '08, pages 35--46, New York, NY, USA, September 2008. Association for
+  Computing Machinery.
+
+\bibitem[Pet92]{pettersson_term_1992}
+Mikael Pettersson.
+\newblock A {Term} {Pattern}-{Match} {Compiler} {Inspired} by {Finite}
+  {Automata} {Theory}.
+\newblock In {\em Proceedings of the 4th {International} {Conference} on
+  {Compiler} {Construction}}, {CC} '92, pages 258--270, Berlin, Heidelberg,
+  October 1992. Springer-Verlag.
+
+\bibitem[Ses96]{sestoft_ml_1996}
+Peter Sestoft.
+\newblock {ML} pattern match compilation and partial evaluation.
+\newblock In Olivier Danvy, Robert Glück, and Peter Thiemann, editors, {\em
+  Partial {Evaluation}}, pages 446--464, Berlin, Heidelberg, 1996. Springer
+  Berlin Heidelberg.
+
+\bibitem[SR00]{scott_when_2000}
+Kevin Scott and Norman Ramsey.
+\newblock When {Do} {Match}-compilation {Heuristics} {Matter}?
+\newblock Technical {Report}, University of Virginia, USA, 2000.
+
+\end{thebibliography}

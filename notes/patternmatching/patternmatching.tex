@@ -20,6 +20,8 @@
 }
 \usepackage{listings}
 \usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+
 \definecolor{lightgray}{rgb}{.9,.9,.9}
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
@@ -54,6 +56,7 @@
     {or}{$\vee$}1
 }
 
+
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\Q}{\mathbb{Q}}
@@ -75,17 +78,183 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \usepackage{parskip}
 
+
 \title{How to compile pattern matching}
 \author{Jules Jacobs}
 \begin{document}
 \maketitle
 
+\abstract{
+\newcommand{\One}{\mathsf{Zero}}
+  This is a note about compiling ML-style pattern matching to decision trees. I try to keep it as simple as possible while still presenting the key ideas of state of the art pattern match compilation.
+}
+
+
+\newcommand{\matchwith}[1]{&\mathbf{match}\ #1\ \mathbf{with}}
+\newcommand{\clause}[2]{&\mathbf{\mid}\ #1\quad &&\implies #2 &}
+\newcommand{\multimatch}{&\mathbf{multimatch}}
+\newcommand{\constr}[1]{\mathsf{\textcolor{black}{#1}}}
+\newcommand{\Add}{\constr{Add}}
+\newcommand{\Mul}{\constr{Mul}}
+\newcommand{\Zero}{\constr{Zero}}
+\newcommand{\Succ}{\constr{Succ}}
+\newcommand{\Var}{\constr{Var}}
+\newcommand{\pat}{\mathcal{P}}
+\newcommand{\C}{\constr{C}}
+\newcommand{\fvar}[1]{\textcolor{red}{#1}}
+\newcommand{\bvar}[1]{\textcolor{Green}{#1}}
+\newcommand{\ba}{\bvar{a}}
+\newcommand{\lett}[2]{\mathsf{let}\ #1 = #2\ \mathsf{in}\ }
+
+
+\section{Introduction}
+
+Our goal is to compile ML-style pattern matching:
+\begin{alignat*}{4}
+  \matchwith{\ba} \\
+  \clause{\Add(\Zero, \Zero)}{e_1} \\
+  \clause{\Mul(\Zero, \fvar{x})}{e_2} \\
+  \clause{\Add(\Succ(\fvar x), \fvar y)}{e_3} \\
+  \clause{\Mul(\fvar x, \Zero)}{e_4} \\
+  \clause{\Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+  \clause{\Add(\fvar x, \Zero)}{e_6} \\
+  \clause{\fvar x}{e_7} \\
+\end{alignat*}
+
+In order to keep things straight, I'll use green variables $\ba$ for bound local variables that have a value and red variables $\fvar{x}$ for variables that will be given a value by pattern matching.
+
+The naive way to compile this is to test the patterns from top to bottom, and try to match $a$ against each pattern. This is inefficient: if the outer constructor of $a$ is an $\Add$ but the first pattern fails, then the second pattern will test if $a$ is a $\Mul$, even though it is already known to be an $\Add$ at this point. Then the third pattern will test once more whether $a$ is an $\Add$, which is redundant. We'd like to compile pattern matching to code that does \textbf{no unnecessary tests}.
+
+This does mean that we \emph{must} start by trying to match the first pattern: if the first pattern succeeds then any work trying to match other patterns is unnecessary. So our strategy will be to emulate the naive strategy that tries to match the first pattern completely, but when we fail in the middle of the matching process, we remember what we learnt to compile a specialised version of the remaining pattern matches that takes what we learnt into account.
+
+\section{Compiling the example}
+
+Let's represent the pattern matching problem as a list of equations to be tested:
+\begin{alignat*}{4}
+\clause{\ba = \Add(\Zero, \Zero)}{e_1} \\
+\clause{\ba = \Mul(\Zero, \fvar{x})}{e_2} \\
+\clause{\ba = \Add(\Succ(\fvar x), \fvar y)}{e_3} \\
+\clause{\ba = \Mul(\fvar x, \Zero)}{e_4} \\
+\clause{\ba = \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+\clause{\ba = \Add(\fvar x, \Zero)}{e_6} \\
+\clause{\ba = \fvar x}{e_7} \\
+\end{alignat*}
+
+Our goal will be an algorithm that takes as input such a list of equations, and outputs a tree of simple pattern matches that test against a single constructor:
+\begin{alignat*}{4}
+  \matchwith{\ba} \\
+  \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{A} \\
+  \clause{\_}{B}
+\end{alignat*}
+
+Let's see how to do this for the example. We start working on the first equation by testing $\ba$ against the $\Add$ constructor with the following pattern match:
+\begin{alignat*}{4}
+  \matchwith{\ba} \\
+  \clause{\Add(\fvar{a_1}, \fvar{a_2})}{A} \\
+  \clause{\_}{B}
+\end{alignat*}
+Then we have to solve the following sub problem for $A$:
+\begin{alignat*}{4}
+  \clause{\bvar{a_1} = \Zero, \bvar{a_2} = \Zero}{e_1} \\
+  \clause{\bvar{a_1} = \Succ(\fvar x), \bvar{a_2} = \fvar y}{e_3} \\
+  \clause{\bvar{a_1} = \fvar x, \bvar{a_2} = \Zero}{e_6} \\
+  \clause{\ba = \fvar x}{e_7}
+\end{alignat*}
+Notice how we now have multiple equations per clause. This is the sub problem for $B$:
+\begin{alignat*}{4}
+  \clause{\ba = \Mul(\Zero, \fvar{x})}{e_2} \\
+  \clause{\ba = \Mul(\fvar x, \Zero)}{e_4} \\
+  \clause{\ba = \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+  \clause{\ba = \fvar x}{e_7}
+\end{alignat*}
+
+We can simplify these problems by pushing bare equations such as $\bvar{a_2} = \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
+\begin{alignat*}{4}
+  \clause{\bvar{a_1} = \Zero, \bvar{a_2} = \Zero}{e_1} \\
+  \clause{\bvar{a_1} = \Succ(\fvar x)}{\lett{\fvar y}{\bvar{a_2}} e_3} \\
+  \clause{\bvar{a_2} = \Zero}{\lett{\fvar x}{\bvar{a_1}} e_6} \\
+  \clause{}{\lett{\fvar x}{\bvar{a}} e_7}
+\end{alignat*}
+(actually, we could have done this for the last equation already in the previous step)
+
+We now continue matching by trying to match $\bvar{a_1} = \Zero$, by generating the pattern match:
+\begin{alignat*}{4}
+  \matchwith{\bvar{a_1}} \\
+  \clause{\Zero}{C} \\
+  \clause{\_}{D}
+\end{alignat*}
+And continuing recursively for $C$ and $D$.
+
+\section{The general algorithm}
+
+Let's generalise and see what's going on. Given a list of clauses to generate a pattern matching tree for, we use this algorithm:
+
 \begin{enumerate}
-  \item Intro example of pattern match => test tree
-  \item Idea based on rewriting/replacement
-  \item Recursive algorithm
-  \item Extensions
+  \item Push bare equations $\ba = \fvar y$ into the right hand sides, so that all the remaining equations test constructors.
+  \item Select one of the equations $\ba = \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
+  \item Generate this pattern match:
+  \begin{alignat*}{4}
+    \matchwith{\ba} \\
+    \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{A} \\
+    \clause{\_}{B}
+  \end{alignat*}
+  \item Create the two sub problems $A$ and $B$ as follows by iterating over all the clauses. One of three cases can happen:
+  \begin{enumerate}
+    \item The clause contains an equation $\ba = \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$. \\
+          Add the expanded clause $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1, \dots \text{REST} \dots$ to $A$.
+    \item The clause contains an equation $\ba = \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
+          Add this clause to $B$ unchanged.
+    \item The clause contains no equation for $\ba$. Add this clause to both $A$ and $B$.
+  \end{enumerate}
+  \item Recursively generate code for $A$ and $B$.
 \end{enumerate}
+
+\medskip
+
+\noindent The recursion has two base cases:
+\begin{itemize}
+  \item The list of clauses is empty: all patterns failed, so generate an error:\\ ``Error: Non-exhaustive pattern match.''
+  \item The first clause is empty (has zero equations): the first clause succeeded to match, so simply return the right hand side $e_i$.
+\end{itemize}
+
+\section{Heuristic}
+
+How do we decide which equation to pick from the first clause to branch on? Any equation works, but we'd like to generate a compact pattern matching tree. Whenever we are in case (c) for one of the other clauses, we have to add that clause to both $A$ and $B$. That can cause code explosion. To avoid it we want to select the equation that causes the least code explosion. We therefore select an equation that is present in the maximum number of other clauses.
+
+\section{Discussion}
+
+This algorithm is a bit different than the algorithms in the literature. It is based on the following observations and considerations.
+
+Some of the literature spends effort on avoiding exponential code explosion, and opts to generate redundant tests instead \cite{augustsson_compiling_1985}. Exponential code explosion doesn't occur in practice \cite{scott_when_2000}. Therefore the right approach seems to me to never generate redundant tests, and to try to avoid code duplication using a heuristic.
+
+In fact, the literature shows that for real world code, different pattern matching algorithms generate almost identical code \cite{scott_when_2000,maranget_compiling_2008}. The simple approach of (1) always work on matching the first clause first, to avoid unnecessary tests and (2) greedily try to minimize duplication using the heuristic isn't exactly what is in the literature, but it combines some aspects of the best heuristics in \cite{maranget_compiling_2008}.
+
+Generating binary tests instead of n-way tests that simultaneously branch on several possible constructors, may be necessary to avoid duplication:
+\begin{alignat*}{4}
+  \matchwith{(a,b)} \\
+  \clause{(A,\_)}{e_1} \\
+  \clause{(\_,A)}{e_2} \\
+  \clause{(\_,B)}{e_3} \\
+  \clause{(\_,C)}{e_4} \\
+  \clause{(\_,D)}{e_5} \\
+  \clause{(B,E)}{e_6} \\
+  \clause{(C,F)}{e_7}
+\end{alignat*}
+If we do a 3-way branch on $a=A,B,C$, then we have to duplicate the middle clauses for both $B$ and $C$. On the other hand, if we simply test if $a=A$, and then test $b=A,B,C,D,E,F$, then we have no duplication.
+
+Executing an n-way branch may be compiled more efficiently using a jump table than a series of 2-way branches. It is not difficult to detect a series of 2-way branches on the same variable, and convert those back into an n-way branch.
+
+Some of the literature uses decision DAGs instead of decision trees. The easiest way to generate a decision DAG is simply to generate a decision tree and then compress it to a DAG using hash consing \cite{maranget_compiling_2008}. A simpler though less optimal solution is to only do this for the right hand sides, and not for the internal nodes of the decision tree: we could generate a separate basic block for each unique right hand side, and replace the right hand sides by a jump to the corresponding basic block.
+
+To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating wildcard branches of the decision tree when there are no remaining possible constructors.
+
+\section{Code}
+
+Scala code that implements the algorithm can be found at \\ \url{https://julesjacobs.com/notes/patternmatching/pmatch.sc}
+
+\nocite{*}
+\bibliographystyle{alpha}
+\bibliography{patternmatching}
 
 
 \end{document}

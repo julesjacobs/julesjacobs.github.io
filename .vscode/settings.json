@@ -1,3 +1,6 @@
 {
-  "FSharp.fsacRuntime": "netcore"
+  "FSharp.fsacRuntime": "netcore",
+  "files.watcherExclude": {
+    "**/target": true
+  }
 }

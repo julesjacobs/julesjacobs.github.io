@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: patternmatching.aux
+The style file: alpha.bst
+Database file #1: patternmatching.bib
+You've used 6 entries,
+            2543 wiz_defined-function locations,
+            601 strings with 5562 characters,
+and the built_in function-call counts, 2785 in all, are:
+= -- 308
+> -- 70
+< -- 10
++ -- 20
+- -- 19
+* -- 171
+:= -- 418
+add.period$ -- 23
+call.type$ -- 6
+change.case$ -- 32
+chr.to.int$ -- 6
+cite$ -- 6
+duplicate$ -- 142
+empty$ -- 224
+format.name$ -- 30
+if$ -- 626
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 5
+newline$ -- 33
+num.names$ -- 20
+pop$ -- 32
+preamble$ -- 1
+purify$ -- 37
+quote$ -- 0
+skip$ -- 116
+stack$ -- 0
+substring$ -- 187
+swap$ -- 46
+text.length$ -- 10
+text.prefix$ -- 5
+top$ -- 0
+type$ -- 48
+warning$ -- 0
+while$ -- 29
+width$ -- 10
+write$ -- 94

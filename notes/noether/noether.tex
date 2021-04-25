@@ -1,0 +1,153 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Inductive, Fixpoint, match, end},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {forall}{$\forall$}1
+    {->}{$\to$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{parskip}
+
+\title{Noether's theorem: the simplest case}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+Noether's theorem states that conservation laws correspond to symmetries:
+\begin{itemize}
+  \item Translation invariance $\iff$ conservation of momuntum
+  \item Rotation invariance $\iff$ convervation of angular momentum
+  \item Time translation invariance $\iff$ conservation of energy
+\end{itemize}
+Versions of this correspondence hold very generally throughout physics: in classical mechanics, field theory, relativity, quantum mechanics. In this note I'll explain the simplest case: the classical mechanics of a single particle in a potential $V(x,y)$ in two dimensions.
+\medskip
+
+Newton's laws $ma = F$ describe the motion of this particle:
+\begin{align*}
+  m \ddot x &= \frac{\partial V}{\partial x} &
+  m \ddot y &= \frac{\partial V}{\partial y}
+\end{align*}
+
+\textbf{We see: if $\frac{\partial V}{\partial x} = 0$, then $m \ddot x = 0$ so the momentum $m \dot x$ is conserved.}
+
+The condition on the function $V$ can be stated in different ways:
+\begin{itemize}
+  \item $\frac{\partial V}{\partial x} = 0$
+  \item $V(x + \Delta x, y) = V(x,y)$ for all $\Delta x$
+  \item $V(x,y)$ is independent of $x$
+  \item $V(x,y) = f(y)$ for some function $f$
+\end{itemize}
+
+We say that \textbf{$V$ is invariant under translation in the $x$ direction}, and this \textbf{symmetry} of $V$ is connected with the \textbf{conservation law} $L(x,\dot x, y, \dot y) = m\dot x = \text{constant}$.
+
+Symmetries of $V$ are not always so obvious. For instance, for a particle in a gravitational well,
+\[
+  V(x,y) = -\frac{G M m}{\sqrt{x^2 + y^2}}
+\]
+This potential depends on both variables $x,y$ but it has rotational symmetry. If we write this in polar coordinates $(r,\theta)$,
+\[
+  V(r,\theta) = -\frac{G M m}{r}
+\]
+and then $V(r,\theta)$ is independent of $\theta$. The question arises: is this symmetry associated with any conservation law? For the moment, take my word for it that these are Newton's laws in polar coordinates:
+
+\begin{align*}
+  m \ddot r &= \frac{\partial V}{\partial r} &
+  \frac{d}{dt}(m r^2 \dot \theta) &= \frac{\partial V}{\partial \theta}
+\end{align*}
+
+\textbf{We see: if $\frac{\partial V}{\partial \theta} = 0$, then $\frac{d}{dt}(m r^2 \dot \theta) = 0$, so $L(r,\dot r, \theta, \dot \theta) = m r^2 \dot \theta$ is conserved!}
+
+If we change coordinates back to $x,y$ we have $m r^2 \dot \theta = m \dot y x - m \dot x y$, which is the usual expression for angular momentum. We can verify that this is conserved in the original coordinate system: take the derivative, and substitute the equations of motion whenever $\ddot x$ and $\ddot y$ appear, and simplify the resulting expression to $0$.
+
+The question is: \textbf{why did Newton's laws have the form} $\frac{d}{dt}[L_1] = \frac{\partial V}{\partial \theta}$ and $\frac{d}{dt}[L_2] = \frac{\partial V}{\partial r}$ and do they have this form in any coordinate system? If they do, then whenever one of the partial derivatives of $V$ is zero, then we have a conservation law.
+
+We can see that Newton's laws have this form in any coordinate system using Lagrangian mechanics.
+
+Noethers idea is that you can describe the symmetries in a different way, so that you do not need to find a coordinate system in which $V$ is independent of one of the the coordinates.
+
+
+The existence of a coordinate system $(\alpha, \beta)$ in which $\frac{\partial V}{\partial \alpha} = 0$ corresponds to a \textbf{continuous symmetry} of $V(x,y)$.
+
+\begin{align*}
+  A_\theta (x,y) = (x \cos \theta - y \sin \theta, x \sin \theta + y \cos \theta) \\
+  \frac{A_\theta(x,y)}{d\theta} = (y,-x) \\
+  V(A_\theta(x,y)) = V(x,y) \\
+  DV(A_\theta(x,y))\cdot A'_\theta = 0 \\
+  DV(x,y)\cdot A'_0 = 0 \\
+  DV(x,y)\cdot A'_0 = 0 \\
+  f(x,y) \ddot x + g(x,y) \ddot y =& 0 \\
+  (f(x,y) \dot x + g(x,y) \dot y)' =&
+  \dot f(x,y) \dot x + f(x,y) \ddot x + \dot g(x,y) \dot y + g(x,y) \ddot y \\
+  =& \dot f(x,y) \dot x + \dot g(x,y) \dot y \\
+  =&  (f_1(x,y) \dot x + f_2(x,y) \dot y) \dot x + (g_1(x,y) \dot x + g_2(x,y) \dot y) \dot y \\
+\end{align*}
+
+HAS TO BE A SYMMETRY OF THE LAGRANGIAN, NOT JUST OF V!
+
+So also ok if it's a symmetry of the kinetic energy and V separately.
+Not ok, things like $(x,y) \mapsto (x + \theta y, y)$.
+But ok things like $(x,y) \mapsto (x + \theta, y)$.
+
+\end{document}
