@@ -200,7 +200,7 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
   \end{alignat*}
   \item Create the two sub problems $A$ and $B$ as follows by iterating over all the clauses. One of three cases can happen:
   \begin{enumerate}
-    \item The clause contains an equation $\ba = \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$. \\
+    \item The clause contains an equation $\ba = \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
           Add the expanded clause $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1, \dots \text{REST} \dots$ to $A$. \\
           Make sure that the fresh variable names $a_1,\dots,a_n$ are used consistently in \\
           $\mathbf{match}\ \ba\ \mathbf{with}\ \C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the equations $\bvar{a_1} = \pat_1, \dots, \bvar{a_1} = \pat_1$.
