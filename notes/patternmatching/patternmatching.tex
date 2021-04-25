@@ -123,7 +123,7 @@ Our goal is to compile ML-style pattern matching:
 
 In order to keep things straight, I'll use green variables $\ba$ for bound local variables that have a value and red variables $\fvar{x}$ for variables that will be given a value by pattern matching.
 
-The naive way to compile this is to test the patterns from top to bottom, and try to match $a$ against each pattern. This is inefficient: if the outer constructor of $a$ is an $\Add$ but the first pattern fails, then the second pattern will test if $a$ is a $\Mul$, even though it is already known to be an $\Add$ at this point. Then the third pattern will test once more whether $a$ is an $\Add$, which is redundant. We'd like to compile pattern matching to code that does \textbf{no unnecessary tests}.
+The naive way to compile this is to test the patterns from top to bottom, and try to match $\ba$ against each pattern. This is inefficient: if the outer constructor of $\ba$ is an $\Add$ but the first pattern fails, then the second pattern will test if $\ba$ is a $\Mul$, even though it is already known to be an $\Add$ at this point. Then the third pattern will test once more whether $\ba$ is an $\Add$, which is redundant. We'd like to compile pattern matching to code that does \textbf{no unnecessary tests}.
 
 This does mean that we \emph{must} start by trying to match the first pattern: if the first pattern succeeds then any work trying to match other patterns is unnecessary. So our strategy will be to emulate the naive strategy that tries to match the first pattern completely, but when we fail in the middle of the matching process, we remember what we learnt to compile a specialised version of the remaining pattern matches that takes what we learnt into account.
 
@@ -225,9 +225,9 @@ How do we decide which equation to pick from the first clause to branch on? Any 
 
 This algorithm is a bit different than the algorithms in the literature. It is based on the following observations and considerations.
 
-Some of the literature spends effort on avoiding exponential code explosion, and opts to generate redundant tests instead \cite{augustsson_compiling_1985}. Exponential code explosion doesn't occur in practice \cite{scott_when_2000}. Therefore the right approach seems to me to never generate redundant tests, and to try to avoid code duplication using a heuristic.
+Some of the literature spends effort on avoiding exponential code explosion, and opts to generate redundant tests instead \cite{augustsson_compiling_1985}. Exponential code explosion doesn't occur in practice \cite{scott_when_2000}. Therefore the right approach seems to me to never generate redundant tests, and to try to avoid code duplication using a heuristic as e.g. \cite{maranget_compiling_2008} does.
 
-In fact, the literature shows that for real world code, different pattern matching algorithms generate almost identical code \cite{scott_when_2000,maranget_compiling_2008}. The simple approach of (1) always work on matching the first clause first, to avoid unnecessary tests and (2) greedily try to minimize duplication using the heuristic isn't exactly what is in the literature, but it combines some aspects of the best heuristics in \cite{maranget_compiling_2008}.
+In fact, the literature shows that for real world code, different pattern matching algorithms generate almost identical code \cite{scott_when_2000,maranget_compiling_2008}. Our approach here is to (1) always work on matching the first clause first, to avoid unnecessary tests and (2) greedily try to minimize duplication using the heuristic. This isn't exactly what is in the literature, but it combines some aspects of the best heuristics in \cite{maranget_compiling_2008}.
 
 Generating binary tests instead of n-way tests that simultaneously branch on several possible constructors, may be necessary to avoid duplication:
 \begin{alignat*}{4}
@@ -246,7 +246,7 @@ Executing an n-way branch may be compiled more efficiently using a jump table th
 
 Some of the literature uses decision DAGs instead of decision trees. The easiest way to generate a decision DAG is simply to generate a decision tree and then compress it to a DAG using hash consing \cite{maranget_compiling_2008}. A simpler though less optimal solution is to only do this for the right hand sides, and not for the internal nodes of the decision tree: we could generate a separate basic block for each unique right hand side, and replace the right hand sides by a jump to the corresponding basic block.
 
-To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating wildcard branches of the decision tree when there are no remaining possible constructors.
+To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating the of the decision tree when there are no remaining possible constructors. The algorithm has built-in exhaustiveness checking, and you can check for unreachable patterns by looking at whether one of the orignal right hand sides $e_i$ doesn't appear in the decision tree.
 
 \section{Code}
 
