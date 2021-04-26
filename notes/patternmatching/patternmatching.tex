@@ -229,11 +229,27 @@ Consider this example:
   \matchwith{\ba} \\
   \clause{\Add(\Add(\fvar x, \fvar y), \Zero)}{e_1} \\
   \clause{\Add(\Mul(\fvar x, \fvar y), \Zero)}{e_2} \\
-  \clause{\Add(\fvar x, \Mul(\fvar x, \fvar y))}{e_3} \\
-  \clause{\Add(\fvar x, \Add(\fvar x, \fvar y))}{e_4} \\
+  \clause{\Add(\fvar x, \Mul(\fvar y, \fvar z))}{e_3} \\
+  \clause{\Add(\fvar x, \Add(\fvar y, \fvar z))}{e_4} \\
   \clause{\Add(\fvar x, \Zero)}{e_5}
 \end{alignat*}
-For the outer constructor we have no choice, but for the inner constructors we can either test $\Add(\fvar x, \fvar y)$ first or $\Zero$ first. If we test $\Add(\fvar x, \fvar y)$ first, then we end up duplicating the $e_3$ and $e_4$ clauses. Our heuristic chooses to match on $\Zero$ instead, which leads to optimal code without any duplication.
+For the outer constructor we have no choice, but for the inner constructors we can either test $\Add(\fvar x, \fvar y)$ first or $\Zero$ first. If we test $\Add(\fvar x, \fvar y)$ first, then we end up duplicating the $e_3$ and $e_4$ clauses. Our heuristic chooses to match on $\Zero$ instead, which leads to optimal code without any duplication:
+\newcommand{\matchwithp}[1]{\mathbf{match}\ #1\ \mathbf{with}}
+\newcommand{\clausep}[2]{\mathbf{\mid}\ #1\quad \implies #2 }
+\begin{flalign*}
+&\matchwithp{\ba} \\
+&\clausep{\Add(\fvar{a_1},\fvar{a_2})}{} \\
+&   \quad \matchwithp{\bvar{a_2}} \\
+&   \quad \clausep{\Zero}{}\\
+&   \quad\quad \matchwithp{\bvar{a_1}} \\
+&   \quad\quad \clausep{\Add(\fvar x, \fvar y)}{e_1}\\
+&   \quad\quad \clausep{\Mul(\fvar x, \fvar y)}{e_2}\\
+&   \quad\quad \clausep{\_}{e_5}\\
+&   \quad \clausep{\Mul(\fvar y, \fvar z)}{e_3}\\
+&   \quad \clausep{\Add(\fvar y, \fvar z)}{e_4}\\
+&   \quad\clausep{\_}{\mathsf{ERR}} \\
+&\clausep{\_}{\mathsf{ERR}}
+\end{flalign*}
 
 
 \section{Discussion}
