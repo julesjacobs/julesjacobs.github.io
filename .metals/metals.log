@@ -5,3 +5,4 @@
 [0m2021.04.26 01:12:20 WARN  no build target for: /Users/jules/git/julesjacobs.github.io/notes/patternmatching/pmatch.sc[0m
 [0m2021.04.26 01:12:24 INFO  no build target: using presentation compiler with only scala-library: 2.12.13[0m
 [0m2021.04.26 01:48:10 WARN  no build target for: /Users/jules/git/julesjacobs.github.io/notes/patternmatching/pmatch.sc[0m
+[0m2021.04.26 13:48:40 INFO  shutting down Metals[0m

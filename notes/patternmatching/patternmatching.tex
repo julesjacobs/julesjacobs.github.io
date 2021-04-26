@@ -277,7 +277,7 @@ Executing an n-way branch may be compiled more efficiently using a jump table th
 
 Some of the literature uses decision DAGs instead of decision trees. The easiest way to generate a decision DAG is simply to generate a decision tree and then compress it to a DAG using hash consing \cite{maranget_compiling_2008}. A simpler though less optimal solution is to only do this for the right hand sides, and not for the internal nodes of the decision tree: we could generate a separate basic block for each unique right hand side, and replace the right hand sides by a jump to the corresponding basic block.
 
-To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating the of the decision tree when there are no remaining possible constructors. The algorithm has built-in exhaustiveness checking, and you can check for unreachable patterns by looking at whether one of the orignal right hand sides $e_i$ doesn't appear in the decision tree.
+To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating the error cases when there are no remaining possible constructors. You can then do exhaustiveness checking by looking if an error case was generated or not. You can check for unreachable patterns by looking at whether one of the orignal right hand sides $e_i$ doesn't appear in the decision tree.
 
 \section{Code}
 
