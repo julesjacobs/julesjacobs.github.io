@@ -4,12 +4,6 @@
 \usepackage[T1]{fontenc}
 \usepackage[bitstream-charter]{mathdesign}
 \usepackage{microtype}
-\usepackage{textcomp}
-
-\usepackage{mathtools}
-\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
-\providecommand\given{} % to make it exist
-\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
 
 \usepackage{hyperref}
 \hypersetup{
@@ -22,17 +16,11 @@
 \usepackage{color}
 \usepackage[dvipsnames]{xcolor}
 
-\definecolor{lightgray}{rgb}{.9,.9,.9}
-\definecolor{darkgray}{rgb}{.4,.4,.4}
 \definecolor{purple}{rgb}{0.65, 0.12, 0.82}
 
 \lstdefinelanguage{JavaScript}{
   keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def},
   keywordstyle=\color{blue},
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
   comment=[l]{//},
   morecomment=[s]{/*}{*/},
   commentstyle=\color{purple}\ttfamily,
@@ -43,8 +31,6 @@
    language=JavaScript,
    extendedchars=true,
    basicstyle=\footnotesize\ttfamily,
-   showstringspaces=false,
-   showspaces=false,
    literate=
     {epsilon}{$\epsilon$}1
     {empty}{$\emptyset$}1
@@ -67,21 +53,18 @@
 
 \usepackage{amsmath}
 \usepackage{amsthm}
-
-\usepackage[shortlabels]{enumitem}
-\usepackage{mathpartir}
-\newcommand{\mif}{\mathsf{if}\ }
-\newcommand{\mthen}{\ \mathsf{then}\ }
-\newcommand{\melse}{\ \mathsf{else}\ }
-\newcommand{\rec}{\mathsf{rec}}
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{lemma}[theorem]{Lemma}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[theorem]
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\usepackage{parskip}
+
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
-\usepackage{parskip}
 \usetikzlibrary{decorations.markings}
 
 
@@ -93,6 +76,7 @@
 \begin{abstract}
   The traditional algorithms taught for converting a regex to an NFA and back are Thompson's construction and Kleene's algorithm, respectively. In this note I'll advocate a small modification to that approach that I claim makes the algorithms simpler and easier to understand and implement, and produces smaller automata.
 \end{abstract}
+
 
 \section{Regex to NFA by example}
 
