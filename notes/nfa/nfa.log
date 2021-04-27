@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  27 APR 2021 20:40
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  27 APR 2021 23:20
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -508,12 +508,7 @@ Package: mathpartir 2016/02/24 version 1.3.2 Math Paragraph for Typesetting Infe
 \c@theorem=\count283
 \c@definition=\count284
 \c@corollary=\count285
- (/usr/local/texlive/2020/texmf-dist/tex/latex/parskip/parskip.sty
-Package: parskip 2020-01-22 v2.0d non-zero parskip adjustments
- (/usr/local/texlive/2020/texmf-dist/tex/latex/etoolbox/etoolbox.sty
-Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count286
-)) (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/frontendlayer/tikz.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
 \pgfutil@everybye=\toks38
 \pgfutil@tempdima=\dimen172
 \pgfutil@tempdimb=\dimen173
@@ -558,14 +553,14 @@ Package: pgfsys 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@yd=\dimen185
 \w@pgf@writea=\write3
 \r@pgf@reada=\read2
-\c@pgf@counta=\count287
-\c@pgf@countb=\count288
-\c@pgf@countc=\count289
-\c@pgf@countd=\count290
+\c@pgf@counta=\count286
+\c@pgf@countb=\count287
+\c@pgf@countc=\count288
+\c@pgf@countd=\count289
 \t@pgf@toka=\toks42
 \t@pgf@tokb=\toks43
 \t@pgf@tokc=\toks44
-\pgf@sys@id@count=\count291
+\pgf@sys@id@count=\count290
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2020/01/08 v3.1.5b (3.1.5b)
 )
@@ -576,21 +571,21 @@ File: pgfsys-pdftex.def 2020/01/08 v3.1.5b (3.1.5b)
 File: pgfsys-common-pdf.def 2020/01/08 v3.1.5b (3.1.5b)
 ))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
 File: pgfsyssoftpath.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgfsyssoftpath@smallbuffer@items=\count292
-\pgfsyssoftpath@bigbuffer@items=\count293
+\pgfsyssoftpath@smallbuffer@items=\count291
+\pgfsyssoftpath@bigbuffer@items=\count292
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
 File: pgfsysprotocol.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 )) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
 Package: pgfcore 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen186
-\pgfmath@count=\count294
+\pgfmath@count=\count293
 \pgfmath@box=\box55
 \pgfmath@toks=\toks45
 \pgfmath@stack@operand=\toks46
 \pgfmath@stack@operation=\toks47
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
-\c@pgfmathroundto@lastzeros=\count295
+\c@pgfmathroundto@lastzeros=\count294
 )) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 File: pgfcorepoints.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@picminx=\dimen187
@@ -620,7 +615,7 @@ File: pgfcorescopes.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgfpic=\box56
 \pgf@hbox=\box57
 \pgf@layerbox@main=\box58
-\pgf@picture@serial@count=\count296
+\pgf@picture@serial@count=\count295
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgflinewidth=\dimen261
@@ -641,8 +636,8 @@ File: pgfcorearrows.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
 File: pgfcoreshade.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@max=\dimen266
-\pgf@sys@shading@range@num=\count297
-\pgf@shadingcount=\count298
+\pgf@sys@shading@range@num=\count296
+\pgf@shadingcount=\count297
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
 File: pgfcoreimage.code.tex 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
@@ -678,7 +673,7 @@ Package: pgffor 2020/01/08 v3.1.5b (3.1.5b)
 Package: tikz 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgf@plot@mark@count=\count299
+\pgf@plot@mark@count=\count298
 \pgfplotmarksize=\dimen271
 )
 \tikz@lastx=\dimen272
@@ -693,17 +688,17 @@ File: pgflibraryplothandlers.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \tikz@figbox@bg=\box62
 \tikz@tempbox=\box63
 \tikz@tempbox@bg=\box64
-\tikztreelevel=\count300
-\tikznumberofchildren=\count301
-\tikznumberofcurrentchild=\count302
-\tikz@fig@count=\count303
+\tikztreelevel=\count299
+\tikznumberofchildren=\count300
+\tikznumberofcurrentchild=\count301
+\tikz@fig@count=\count302
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
 File: pgfmodulematrix.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgfmatrixcurrentrow=\count304
-\pgfmatrixcurrentcolumn=\count305
-\pgf@matrix@numberofcolumns=\count306
+\pgfmatrixcurrentrow=\count303
+\pgfmatrixcurrentcolumn=\count304
+\pgf@matrix@numberofcolumns=\count305
 )
-\tikz@expandcount=\count307
+\tikz@expandcount=\count306
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 ))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/libraries/pgflibraryarrows.meta.code.tex
@@ -712,7 +707,12 @@ File: pgflibraryarrows.meta.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgfarrowlength=\dimen281
 \pgfarrowwidth=\dimen282
 \pgfarrowlinewidth=\dimen283
-) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.markings.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/parskip/parskip.sty
+Package: parskip 2020-01-22 v2.0d non-zero parskip adjustments
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count307
+)) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.markings.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarydecorations.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/modules/pgfmoduledecorations.code.tex
 \pgfdecoratedcompleteddistance=\dimen284
 \pgfdecoratedremainingdistance=\dimen285
 \pgfdecoratedinputsegmentcompleteddistance=\dimen286
@@ -920,154 +920,133 @@ LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
 (Font)              scaled to size 9.60007pt on input line 93.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 13.82408pt on input line 98.
+(Font)              scaled to size 13.82408pt on input line 97.
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 13.82408pt on input line 98.
+(Font)              scaled to size 13.82408pt on input line 97.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 100.
-LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 100.
-LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 4.80003pt on input line 100.
+(Font)              scaled to size 10.51207pt on input line 99.
  [1
 
-{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
+{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 6.72005pt on input line 389.
+(Font)              scaled to size 10.51207pt on input line 276.
+ [2]
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 4.80003pt on input line 389.
+(Font)              scaled to size 7.68005pt on input line 388.
+LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
+(Font)              scaled to size 5.76004pt on input line 388.
  [3]
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 404.
+(Font)              scaled to size 8.64006pt on input line 403.
 LaTeX Font Info:    Font shape `T1/cmtt/m/n' will be
-(Font)              scaled to size 9.64806pt on input line 404.
+(Font)              scaled to size 9.64806pt on input line 403.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Trying to load font information for TS1+mdbch on input line 418.
+LaTeX Font Info:    Trying to load font information for TS1+mdbch on input line 417.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 File: ts1mdbch.fd 2013/08/29 Fontinst v1.933 font definitions for TS1/mdbch.
 )
 LaTeX Font Info:    Font shape `TS1/mdbch/m/n' will be
-(Font)              scaled to size 9.60007pt on input line 418.
+(Font)              scaled to size 10.51207pt on input line 417.
 Package microtype Info: Character `texttwelveudash ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textthreequartersemdash ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textasteriskcentered ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textlbrackdbl ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textrbrackdbl ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `texttildelow ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 Package microtype Info: Character `textcelsius ' is missing
-(microtype)             in font `TS1/mdbch/m/n/10'.
+(microtype)             in font `TS1/mdbch/m/n/10.95'.
 (microtype)             Ignoring protrusion settings for this character.
 LaTeX Font Info:    Font shape `T1/cmtt/m/n' will be
-(Font)              scaled to size 10.72006pt on input line 418.
+(Font)              scaled to size 11.73846pt on input line 417.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
-(Font)              scaled to size 5.76004pt on input line 429.
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 8.64006pt on input line 429.
- [4]
-Overfull \hbox (24.88504pt too wide) in paragraph at lines 478--479
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-
-Overfull \hbox (30.96188pt too wide) in paragraph at lines 479--481
-[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
- []
-
-[5]
+(Font)              scaled to size 8.64006pt on input line 428.
+LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
+(Font)              scaled to size 4.80003pt on input line 428.
+ [4] [5]
 LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
-(Font)              scaled to size 9.60007pt on input line 524.
+(Font)              scaled to size 10.51207pt on input line 523.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 6.72005pt on input line 550.
+(Font)              scaled to size 7.68005pt on input line 549.
 LaTeX Font Info:    Font shape `T1/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 550.
- (/Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.bbl) [6]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 564.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 564.
+(Font)              scaled to size 5.76004pt on input line 549.
+ (/Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.bbl [6]) [7]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 563.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 563.
  (/Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 564.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 564.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 563.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 563.
 Package rerunfilecheck Info: File `nfa.out' has not changed.
 (rerunfilecheck)             Checksum: 843516C26EFA69C0CB4F51C8A8DD27C2;432.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 564.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 563.
  ) 
 Here is how much of TeX's memory you used:
- 24609 strings out of 480608
- 449589 string characters out of 5903629
- 737587 words of memory out of 5000000
- 39744 multiletter control sequences out of 15000+600000
- 605267 words of font info for 225 fonts, out of 8000000 for 9000
+ 24605 strings out of 480608
+ 449501 string characters out of 5903629
+ 737513 words of memory out of 5000000
+ 39732 multiletter control sequences out of 15000+600000
+ 605175 words of font info for 224 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 60i,12n,72p,1104b,1179s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr8t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on /Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.pdf (6 pages, 139704 bytes).
+ 60i,12n,72p,1104b,1181s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr8t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sftt1095.pfb>
+Output written on /Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.pdf (7 pages, 134781 bytes).
 PDF statistics:
- 212 PDF objects out of 1000 (max. 8388607)
- 193 compressed objects within 2 object streams
- 99 named destinations out of 1000 (max. 500000)
+ 218 PDF objects out of 1000 (max. 8388607)
+ 198 compressed objects within 2 object streams
+ 100 named destinations out of 1000 (max. 500000)
  49733 words of extra memory for PDF output out of 51595 (max. 10000000)
 

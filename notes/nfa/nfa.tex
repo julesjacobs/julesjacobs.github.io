@@ -79,9 +79,9 @@
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[theorem]
-\usepackage{parskip}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta}
+\usepackage{parskip}
 \usetikzlibrary{decorations.markings}
 
 
@@ -90,10 +90,9 @@
 \begin{document}
 \maketitle
 
-\abstract{
-\newcommand{\One}{\mathsf{Zero}}
+\begin{abstract}
   The traditional algorithms taught for converting a regex to an NFA and back are Thompson's construction and Kleene's algorithm, respectively. In this note I'll advocate a small modification to that approach that I claim makes the algorithms simpler and easier to understand and implement, and produces smaller automata.
-}
+\end{abstract}
 
 \section{Regex to NFA by example}
 
