@@ -353,14 +353,14 @@ Take an arbitrary node inside an NFA: \bigskip
     \state{3,1}{r1}
 
 
-    \draw [arrow, bend left=25] (l1) edge node[midway,above,sloped] {$r_1 s^* t_1$} (r1);
-    \draw [arrow, bend left=25] (l1) edge node[pos=0.4,above,sloped] {$r_1 s^* t_2$} (r2);
+    \draw [arrow, bend left=25] (l1) edge node[midway,above,sloped] {$r_1\ s^*\ t_1$} (r1);
+    \draw [arrow, bend left=25] (l1) edge node[pos=0.4,above,sloped] {$r_1\ s^*\ t_2$} (r2);
 
-    \draw [arrow] (l2) edge node[pos=0.3,above,sloped] {$r_2 s^* t_1$} (r1);
-    \draw [arrow] (l2) edge node[midway,pos=0.3,below,sloped] {$r_2 s^* t_2$} (r2);
+    \draw [arrow] (l2) edge node[pos=0.3,above,sloped] {$r_2\ s^*\ t_1$} (r1);
+    \draw [arrow] (l2) edge node[midway,pos=0.3,below,sloped] {$r_2\ s^*\ t_2$} (r2);
 
-    \draw [arrow, bend right=25] (l3) edge node[pos=0.4,below,sloped] {$r_3 s^* t_1$} (r1);
-    \draw [arrow, bend right=25] (l3) edge node[midway,below,sloped] {$r_4 s^* t_2$} (r2);
+    \draw [arrow, bend right=25] (l3) edge node[pos=0.4,below,sloped] {$r_3\ s^*\ t_1$} (r1);
+    \draw [arrow, bend right=25] (l3) edge node[midway,below,sloped] {$r_3\ s^*\ t_2$} (r2);
   \end{tikzpicture}
 \end{center}
 
@@ -550,7 +550,7 @@ A representative standard text on this is, I believe, \emph{Introduction to Auto
 It first gives an intricate construction spanning 5 pages of inductive proof. It then gives an alternative construction based on the elimination of states, but that is considerably complicated by the presence of multiple end nodes\footnote{Most presentations have a single start node and multiple end nodes; why the asymmetry?}. They run the elimination process once for every end node, and then combine the results. Furthermore, they don't eliminate all nodes, and are instead left with an automaton with two states and two self loops $r$ and $u$ and two edges $s$ and $t$ going back and forth. They then convert this to the regex $(r+su^*t)^*su^*$. They further need a special case for when the start node is the same as the end node. None of this is necessary if you insert a new $\mathbf{start}$ and $\mathbf{end}$ node with $\epsilon$-transitions: you only do the elimination process \emph{once} and you're left with an NFA with only a single edge, and the regex you're looking for is on that edge.
 
 \bigskip
-\noindent I don't claim that anything I've said here is new; it is extremely likely that it is not. Nevertheless, I couldn't find it in the standard texts or wikipedia. It is, of course, possible that what I wrote here is nonsense. However, if it isn't, then perhaps we could make the lives of millions of computer science students a tiny bit easier?
+\noindent I don't claim that anything I've said here is new; it is extremely likely that it is not. Nevertheless, I couldn't find it in the standard texts or wikipedia\footnote{It is, of course, also possible that the reason for this is that what I wrote here is nonsense.}. Perhaps we could make the lives of millions of computer science students a tiny bit easier?
 
 \section{Code}
 
