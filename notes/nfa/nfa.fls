@@ -354,6 +354,7 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-ch
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chb8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchb8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchb8t.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/jknappen/ec/ectt1000.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7t.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchri7m.vf
@@ -364,7 +365,6 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-ch
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr7y.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr7y.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8y.tfm
-INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/jknappen/ec/ectt1000.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchr8c.tfm

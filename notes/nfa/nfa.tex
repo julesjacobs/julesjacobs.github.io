@@ -380,7 +380,6 @@ Take an arbitrary node inside an NFA: \bigskip
 
 \noindent If we want to find a regex for multiple start nodes $\{x_i\}$ and multiple end nodes $\{y_i\}$, then we insert multiple edges $\mathbf{start} \xrightarrow[]{\epsilon} x_i$ and $y_i \xrightarrow[]{\epsilon} \mathbf{end}$.
 
-\newpage
 \section{How to implement regex to NFA conversion}
 
 Define a data type for regular expressions:
@@ -444,7 +443,7 @@ class NFA {
 
 \noindent That's all there's to it. What's implemented here is slightly different than in sections 1 \& 2 because we never insert parallel edges. Instead, each edge will end up with characters $c_1 + c_2 + \cdots + c_n\ (+ \epsilon)$. In a practical implementation we'd want to represent this with a set data structure that can also represent character ranges \texttt{a-z} efficiently, particularly when we're using unicode.
 
-\newpage
+
 \section{How to implement NFA to regex conversion}
 
 To eliminate a node from the NFA we:
