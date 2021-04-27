@@ -1,0 +1,564 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{microtype}
+\usepackage{textcomp}
+
+\usepackage{mathtools}
+\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
+\providecommand\given{} % to make it exist
+\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def},
+  keywordstyle=\color{blue},
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   literate=
+    {epsilon}{$\epsilon$}1
+    {empty}{$\emptyset$}1
+    {forall}{$\forall$}1
+    {exists}{$\exists$}1
+    {<->}{$\iff$}1
+    {->}{$\to$}1
+    {<-}{$\leftarrow$}1
+    {=>}{$\implies$}1
+    {fun}{$\lambda$}1
+    % {and}{$\wedge$}1
+    % {or}{$\vee$}1
+}
+
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\usepackage{mathpartir}
+\newcommand{\mif}{\mathsf{if}\ }
+\newcommand{\mthen}{\ \mathsf{then}\ }
+\newcommand{\melse}{\ \mathsf{else}\ }
+\newcommand{\rec}{\mathsf{rec}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{parskip}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{decorations.markings}
+
+
+\title{From regex to NFA and back}
+\author{Jules Jacobs}
+\begin{document}
+\maketitle
+
+\abstract{
+\newcommand{\One}{\mathsf{Zero}}
+  The traditional algorithms taught for converting a regex to an NFA and back are Thompson's construction and Kleene's algorithm, respectively. In this note I'll advocate a small modification to that approach that I claim makes the algorithms simpler and easier to understand and implement, and produces smaller automata.
+}
+
+\section{Regex to NFA by example}
+
+To convert the regular expression $(aa+b)((ab)^* + b)$ to an NFA, we place it on an edge between the start and end nodes:
+
+\tikzstyle{n} = [circle, fill=black, scale=0.3]
+\tikzstyle{arrow} = [thick,->,>=stealth]
+\newcommand{\state}[2]{\node[n] at (#1) (#2) {};}
+\newcommand{\edge}[3]{\draw [arrow] (#1) -- (#2) node[midway,above] {#3};}
+\newcommand{\edgeb}[4]{\draw [arrow, bend #4] (#1) edge (#2) node[midway,above] {#3};}
+
+\begin{center}
+\begin{tikzpicture}
+  \state{0,0}{start}
+  \state{6,0}{end}
+  \draw [arrow, draw=Red] (start) -- (end) node[midway,above] {$(aa+b)((ab)^* + b)$};
+\end{tikzpicture}
+\end{center}
+
+\noindent We split the sequencing into two edges by inserting a node in the middle:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{6,0}{end}
+    \draw [arrow, draw=Red] (start) -- (mid) node[midway,above] {$aa+b$};
+    \draw [arrow, draw=Red] (mid) -- (end) node[midway,above] {$(ab)^* + b$};
+  \end{tikzpicture}
+\end{center}
+
+\noindent We split the sum $aa + b$ into two parallel edges:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{6,0}{end}
+    \draw [arrow, bend left, draw=Red] (start) edge node[midway,above] {$aa$} (mid);
+    \draw [arrow, bend right] (start) edge node[midway,below] {$b$} (mid);
+    \draw [arrow, draw=Red] (mid) -- (end) node[midway,above] {$(ab)^* + b$};
+  \end{tikzpicture}
+\end{center}
+
+\noindent The black $b$ edge is now complete and will be part of the final NFA. \\
+We split the $aa$ into two:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{1.5,0.5}{midl}
+    \state{6,0}{end}
+    \draw [arrow, bend left=20] (start) edge node[midway,above] {$a$} (midl);
+    \draw [arrow, bend left=20] (midl) edge node[midway,above] {$a$} (mid);
+    \draw [arrow, bend right] (start) edge node[midway,below] {$b$} (mid);
+    \draw [arrow, draw=Red] (mid) -- (end) node[midway,above] {$(ab)^* + b$};
+  \end{tikzpicture}
+\end{center}
+
+\noindent The left hand side is complete. \\ We continue working on the right hand side:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{1.5,0.5}{midl}
+    \state{6,0}{end}
+    \draw [arrow, bend left=20] (start) edge node[midway,above] {$a$} (midl);
+    \draw [arrow, bend left=20] (midl) edge node[midway,above] {$a$} (mid);
+    \draw [arrow, bend right] (start) edge node[midway,below] {$b$} (mid);
+
+    \draw [arrow, bend left, draw=Red] (mid) edge node[midway,above] {$(ab)^*$} (end);
+    \draw [arrow, bend right] (mid) edge node[midway,below] {$b$} (end);
+  \end{tikzpicture}
+\end{center}
+
+\noindent To eliminate the repetition $(ab)^*$, we put a new node in the middle of the edge, and add $\epsilon$-transitions. We put what's inside of the repetition ($ab$ in this case) on a self-loop of the new node:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{1.5,0.5}{midl}
+    \state{4.5,0.5}{midr}
+    \state{6,0}{end}
+    \draw [arrow, bend left=20] (start) edge node[midway,above] {$a$} (midl);
+    \draw [arrow, bend left=20] (midl) edge node[midway,above] {$a$} (mid);
+    \draw [arrow, bend right] (start) edge node[midway,below] {$b$} (mid);
+
+    \draw [arrow, draw=Red] (midr) edge [loop above, min distance=2cm,in=50,out=130] node {$ab$} (midr);
+    \draw [arrow, bend left=20] (mid) edge node[midway,above] {$\epsilon$} (midr);
+    \draw [arrow, bend left=20] (midr) edge node[midway,above] {$\epsilon$} (end);
+
+    \draw [arrow, bend right] (mid) edge node[midway,below] {$b$} (end);
+  \end{tikzpicture}
+\end{center}
+
+\noindent The final step is to eliminate the last remaining red $ab$ edge:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{mid}
+    \state{1.5,0.5}{midl}
+    \state{4.5,0.5}{midr}
+    \state{4.5,1.7}{midru}
+    \state{6,0}{end}
+    \draw [arrow, bend left=20] (start) edge node[midway,above] {$a$} (midl);
+    \draw [arrow, bend left=20] (midl) edge node[midway,above] {$a$} (mid);
+    \draw [arrow, bend right] (start) edge node[midway,below] {$b$} (mid);
+
+    \draw [arrow, bend left=50] (midr) edge node[pos=0.7,left] {$a$} (midru);
+    \draw [arrow, bend left=50] (midru) edge node[pos=0.3,right] {$b$} (midr);
+
+    \draw [arrow, bend left=20] (mid) edge node[midway,above] {$\epsilon$} (midr);
+    \draw [arrow, bend left=20] (midr) edge node[midway,above] {$\epsilon$} (end);
+
+    \draw [arrow, bend right] (mid) edge node[midway,below] {$b$} (end);
+  \end{tikzpicture}
+\end{center}
+
+\noindent That's it, we've converted the regex to an NFA.
+
+\section{The rules of the game}
+
+These are the rules we used:
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{end}
+    \draw [arrow] (start) edge node[midway,above] {$r^*$} (end);
+
+    \state{6,0}{start'}
+    \state{7.5,0}{mid'}
+    \state{9,0}{end'}
+    \draw [arrow] (start') edge node[midway,above] {$\epsilon$} (mid');
+    \draw [arrow] (mid') edge node[midway,above] {$\epsilon$} (end');
+
+    \draw [arrow] (mid') edge [loop above, min distance=2cm,in=50,out=130] node {$r$} (mid');
+
+    \draw [-Implies,line width=1pt,double distance=1pt] (4.1,0) -- (5,0);
+  \end{tikzpicture}
+\end{center}
+
+\bigskip
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{end}
+    \draw [arrow] (start) edge node[midway,above] {$rs$} (end);
+
+    \state{6,0}{start'}
+    \state{7.5,0}{mid'}
+    \state{9,0}{end'}
+    \draw [arrow] (start') edge node[midway,above] {$r$} (mid');
+    \draw [arrow] (mid') edge node[midway,above] {$s$} (end');
+
+    \draw [-Implies,line width=1pt,double distance=1pt] (4.1,0) -- (5,0);
+  \end{tikzpicture}
+\end{center}
+
+\medskip
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{end}
+    \draw [arrow] (start) edge node[midway,above] {$r+s$} (end);
+
+    \state{6,0}{start'}
+    \state{9,0}{end'}
+    \draw [arrow, bend left] (start') edge node[midway,above] {$r$} (end');
+    \draw [arrow, bend right] (start') edge node[midway,below] {$s$} (end');
+
+    \draw [-Implies,line width=1pt,double distance=1pt] (4.1,0) -- (5,0);
+  \end{tikzpicture}
+\end{center}
+
+\noindent In each case the start and end are allowed to be the same node. You should convince yourself that \textbf{regardless of the rest of the NFA, these transformations preserve the language between the nodes.}
+
+\bigskip
+
+\noindent \textbf{Question:} What can go wrong if we use this rule instead?
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{end}
+    \draw [arrow] (start) edge node[midway,above] {$r^*$} (end);
+
+    \state{6,0}{start'}
+    \state{9,0}{end'}
+    \draw [arrow] (start') edge node[midway,above] {$\epsilon$} (end');
+
+    \draw [arrow] (end') edge [loop above, min distance=2cm,in=50,out=130] node {$r$} (end');
+
+    \draw [-Implies,line width=1pt,double distance=1pt] (4.1,0) -- (5,0);
+  \end{tikzpicture}
+\end{center}
+
+\bigskip
+\noindent Hint: consider $a^* + b^*$.
+
+\bigskip
+\noindent \textbf{Question:} Can you come up with safe rules that avoid the extra node for $r^*$ in some cases?
+
+\newpage
+
+\section{From NFA back to regex}
+
+\tikzset{->-/.style={decoration={
+  markings,
+  mark=at position #1 with {\arrow{stealth}}},postaction={decorate}}}
+
+Take an arbitrary node inside an NFA: \bigskip
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{-3,-1.5}{l3}
+    \state{-3,0}{l2}
+    \state{-3,1.5}{l1}
+
+    \state{3,-1}{r2}
+    \state{3,1}{r1}
+
+    \state{0,0}{m}
+
+    \draw [->-=0.8, thick] (l1) -- (m);
+    \draw [->-=0.8, thick] (l2) -- (m);
+    \draw [->-=0.8, thick] (l3) -- (m);
+    \draw [thick] (l1) edge node[midway,above] {$r_1$} (m);
+    \draw [thick] (l2) edge node[midway,above] {$r_2$} (m);
+    \draw [thick] (l3) edge node[midway,above] {$r_3$} (m);
+
+    \draw [arrow] (m) edge [loop above, min distance=1.5cm,in=60,out=120] node {$s$} (m);
+
+    \draw [->-=0.8, thick] (m) -- (r1);
+    \draw [->-=0.8, thick] (m) -- (r2);
+    \draw [thick] (m) edge node[midway,above] {$t_1$} (r1);
+    \draw [thick] (m) edge node[midway,above] {$t_2$} (r2);
+  \end{tikzpicture}
+\end{center}
+
+\bigskip
+\noindent We can eliminate the middle node by inserting shortcut edges:
+\bigskip
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{-3,-1.5}{l3}
+    \state{-3,0}{l2}
+    \state{-3,1.5}{l1}
+
+    \state{3,-1}{r2}
+    \state{3,1}{r1}
+
+
+    \draw [arrow, bend left=25] (l1) edge node[midway,above,sloped] {$r_1 s^* t_1$} (r1);
+    \draw [arrow, bend left=25] (l1) edge node[pos=0.4,above,sloped] {$r_1 s^* t_2$} (r2);
+
+    \draw [arrow] (l2) edge node[pos=0.3,above,sloped] {$r_2 s^* t_1$} (r1);
+    \draw [arrow] (l2) edge node[midway,pos=0.3,below,sloped] {$r_2 s^* t_2$} (r2);
+
+    \draw [arrow, bend right=25] (l3) edge node[pos=0.4,below,sloped] {$r_3 s^* t_1$} (r1);
+    \draw [arrow, bend right=25] (l3) edge node[midway,below,sloped] {$r_4 s^* t_2$} (r2);
+  \end{tikzpicture}
+\end{center}
+
+\noindent For each incoming edge $\xrightarrow[]{r}$ and outgoing edge $\xrightarrow[]{t}$ we insert the shortcut edge $\xrightarrow[]{rs^* t}$. If the node doesn't have a self loop, we take $\xrightarrow[]{rt}$. Alternatively, we can insert $\epsilon$ self loops everywhere. \bigskip
+
+\noindent We also need to perform the sum rule in reverse, to combine multiple parallel edges into one:
+
+\begin{center}
+  \begin{tikzpicture}
+    \state{0,0}{start}
+    \state{3,0}{end}
+    \draw [arrow] (start) edge node[midway,above] {$r+s$} (end);
+
+    \state{6,0}{start'}
+    \state{9,0}{end'}
+    \draw [arrow, bend left] (start') edge node[midway,above] {$r$} (end');
+    \draw [arrow, bend right] (start') edge node[midway,below] {$s$} (end');
+
+    \draw [-Implies,line width=1pt,double distance=1pt] (5,0) -- (4.1,0);
+  \end{tikzpicture}
+\end{center}
+
+\noindent To find a regex representing the language from node $x$ to $y$ in an NFA:\bigskip
+
+\begin{enumerate}
+  \item Create two new $\mathbf{start}$ and $\mathbf{end}$ nodes, and insert edges $\mathbf{start} \xrightarrow[]{\epsilon} x$ and $y \xrightarrow[]{\epsilon} \mathbf{end}$.
+  \item Eliminate all nodes from the NFA, including $x$ and $y$ themselves, but keep $\mathbf{start}$ and $\mathbf{end}$.
+  \item Combine parallel edges whenever possible.
+  \item We're left with a single edge $\mathbf{start} \xrightarrow[]{r} \mathbf{end}$, labeled with the regex we're looking for.
+\end{enumerate}
+
+\bigskip
+
+\noindent If we want to find a regex for multiple start nodes $\{x_i\}$ and multiple end nodes $\{y_i\}$, then we insert multiple edges $\mathbf{start} \xrightarrow[]{\epsilon} x_i$ and $y_i \xrightarrow[]{\epsilon} \mathbf{end}$.
+
+\newpage
+\section{How to implement regex to NFA conversion}
+
+Define a data type for regular expressions:
+
+\begin{lstlisting}
+class Re
+object Emp extends Re
+object Eps extends Re
+case class Chr(a:Char) extends Re
+case class Seq(a:Re, b:Re) extends Re
+case class Alt(a:Re, b:Re) extends Re
+case class Star(a:Re) extends Re
+\end{lstlisting}
+
+\noindent We label NFA nodes with numbers $1 \dots n$ and store edges $i \xrightarrow[]{r} j$ in a finite map.
+
+\noindent Our NFAs have three primitive operations:
+\begin{itemize}
+  \item \texttt{fresh()} creates and returns a fresh node.
+  \item \texttt{get(i,j)} looks up the regex on edge $i \to j$, and returns $\emptyset$ if the edge is not present.
+  \item \texttt{add(i,j,r)} adds regex $r$ on the edge $i \to j$,  sums it with what was already on the edge.
+\end{itemize}
+
+\begin{lstlisting}
+class NFA {
+  var n = 0
+  var edges = Map[(Int,Int),Re]()
+  def fresh() = { n += 1; n }
+  def get(i:Int, j:Int) = edges.getOrElse((i,j),Emp)
+  def add(i:Int, j:Int, r:Re) = edges += (i,j) -> Alt(get(i,j),r)
+
+  ...
+}
+\end{lstlisting}
+
+\noindent To convert a regex to an NFA by the process described in sections 1 \& 2, we define a recursive function \texttt{addRe(i,j,r)} that adds \texttt{r} to the NFA while only inserting edges with characters or $\epsilon$ on them. Note that the red edges of section 1 are never explicitly represented in the NFA; they are simply calls to \texttt{addRe}.
+
+\begin{lstlisting}
+  def addRe(i:Int, j:Int, re:Re):Unit = {
+    re match {
+      case Emp =>
+      case Eps =>
+        add(i,j,Eps)
+      case Chr(c) =>
+        add(i,j,Chr(c))
+      case Seq(a,b) =>
+        val mid = fresh()
+        addRe(i,mid,a)
+        addRe(mid,j,b)
+      case Alt(a,b) =>
+        addRe(i,j,a)
+        addRe(i,j,b)
+      case Star(a) =>
+        val mid = fresh()
+        add(i,mid,Eps)
+        add(mid,j,Eps)
+        addRe(mid,mid,a)
+    }
+  }
+\end{lstlisting}
+
+\noindent That's all there's to it. What's implemented here is slightly different than in sections 1 \& 2 because we never insert parallel edges. Instead, each edge will end up with characters $c_1 + c_2 + \cdots + c_n\ (+ \epsilon)$. In a practical implementation we'd want to represent this with a set data structure that can also represent character ranges \texttt{a-z} efficiently, particularly when we're using unicode.
+
+\newpage
+\section{How to implement NFA to regex conversion}
+
+To eliminate a node from the NFA we:
+\begin{enumerate}
+  \item Collect all the self/in/out edges of the node
+  \item Delete all those edges from the NFA
+  \item Insert the shortcut edges
+\end{enumerate}
+\bigskip
+
+\begin{lstlisting}
+  def elim(i:Int) = {
+    // Find the self/in/out edges connected to i
+    val self = get(i,i)
+    val in = edges.collect{case ((a,b),r) if a != i && b == i => (a,r)}
+    val out = edges.collect{case ((a,b),r) if a == i && b != i => (b,r)}
+
+    // Delete all those edges
+    edges -= (i,i)
+    for((a,_) <- in) edges -= (a,i)
+    for((b,_) <- out) edges -= (i,b)
+
+    // Insert shortcut edges
+    for((a,r) <- in; (b,s) <- out)
+      add(a,b,Seq(r,Seq(Star(self),s)))
+  }
+\end{lstlisting}
+\bigskip
+
+\noindent To convert an NFA with a given set of start and end nodes to a regex:
+\begin{enumerate}
+  \item We add $\mathbf{start}$ and $\mathbf{end}$ nodes with $\epsilon$-transitions to and from the set of start and end nodes.
+  \item We eliminate all the other nodes.
+  \item We return the regex $r$ on the $\mathbf{start} \xrightarrow[]{r} \mathbf{end}$ edge.
+\end{enumerate}
+\bigskip
+
+\begin{lstlisting}
+  def toRe(initials: Set[Int], finals: Set[Int]) = {
+    // Add a new start and end node and
+    // connect them to the initial and final states
+    val start = fresh()
+    val end = fresh()
+    for(a <- initials) add(start,a,Eps)
+    for(a <- finals) add(a,end,Eps)
+
+    // Eliminate all nodes except start and end
+    for(i <- 1 to start-1) elim(i)
+
+    // Return the only edge left in the NFA
+    get(start,end)
+  }
+\end{lstlisting}
+\bigskip
+
+\noindent That's all.
+
+\newpage
+\section{Comparison with the standard approach}
+
+A representative standard text on this is, I believe, \emph{Introduction to Automata Theory, Languages, and Computation} by Hopcroft, Motwani, and Ullman. The main differences are:\bigskip
+
+\begin{itemize}
+  \item Our NFAs have regexes on the edges from the start. Standard NFAs are simply those that happen to have only characters and $\epsilon$ on the edges.
+  \item Our NFAs have no start and end nodes. We don't have \emph{the} language of an NFA. We only have the language \emph{between} two nodes.
+\end{itemize}
+
+\bigskip
+
+\noindent I believe this has several advantages:\bigskip
+
+\begin{itemize}
+  \item The NFAs produced by this construction are more compact than those produced by Thompson's construction. Thompson's construction results in strictly more nodes and more $\epsilon$-transitions. For the example of section 1, it creates $18$ nodes and $15$ $\epsilon$-transitions.
+  \item The construction is, in my opinion, conceptually easier to understand: each move of the game keeps the language between each pair of nodes the same.
+  \item The regex to NFA algorithm makes it easier to understand the NFA to regex algorithm: it's basically the same algorithm in reverse.
+  \item Both algorithms are very easy to implement.
+\end{itemize}
+
+\bigskip
+
+\noindent \emph{Introduction to Automata Theory, Languages, and Computation} says:
+
+\noindent ``The construction of a regular expression to denote the language of any DFA is surprisingly tricky''
+
+\bigskip
+
+It first gives an intricate construction spanning 5 pages of inductive proof. It then gives an alternative construction based on the elimination of states, but that is considerably complicated by the presence of multiple end nodes\footnote{Most presentations have a single start node and multiple end nodes; why the asymmetry?}. They run the elimination process once for every end node, and then combine the results. Furthermore, they don't eliminate all nodes, and are instead left with an automaton with two states and two self loops $r$ and $u$ and two edges $s$ and $t$ going back and forth. They then convert this to the regex $(r+su^*t)^*su^*$. They further need a special case for when the start node is the same as the end node. None of this is necessary if you insert a new $\mathbf{start}$ and $\mathbf{end}$ node with $\epsilon$-transitions: you only do the elimination process \emph{once} and you're left with an NFA with only a single edge, and the regex you're looking for is on that edge.
+
+\bigskip
+\noindent I don't claim that anything I've said here is new; it is extremely likely that it is not. Nevertheless, I couldn't find it in the standard texts or wikipedia. It is, of course, possible that what I wrote here is nonsense. However, if it isn't, then perhaps we could make the lives of millions of computer science students a tiny bit easier?
+
+\section{Code}
+
+The Scala code can be found at \url{http://julesjacobs.com/notes/nfa/nfa.sc}.
+
+
+\nocite{*}
+\bibliographystyle{alpha}
+\bibliography{nfa}
+
+\end{document}

@@ -1,0 +1,4 @@
+[debug] [nfa-build] Classpath dependencies List()
+[debug] [nfa-build] Dependencies from configurations List()
+[debug] Bloop wrote the configuration of project 'nfa-build' to '/Users/jules/git/julesjacobs.github.io/notes/nfa/project/.bloop/nfa-build.json'
+[success] Generated .bloop/nfa-build.json

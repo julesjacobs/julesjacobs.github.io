@@ -6,3 +6,89 @@
 [0m2021.04.26 01:12:24 INFO  no build target: using presentation compiler with only scala-library: 2.12.13[0m
 [0m2021.04.26 01:48:10 WARN  no build target for: /Users/jules/git/julesjacobs.github.io/notes/patternmatching/pmatch.sc[0m
 [0m2021.04.26 13:48:40 INFO  shutting down Metals[0m
+[0m2021.04.27 20:14:51 INFO  Started: Metals version 0.10.2 in workspace '/Users/jules/git/julesjacobs.github.io' for client vscode 1.55.2.[0m
+[0m2021.04.27 20:14:53 INFO  time: initialize in 1.52s[0m
+[0m2021.04.27 20:14:53 WARN  Build server is not auto-connectable.[0m
+[0m2021.04.27 20:14:53 WARN  no build tool detected in workspace '/Users/jules/git/julesjacobs.github.io'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. [0m
+[0m2021.04.27 20:14:57 INFO  no build target: using presentation compiler with only scala-library: 2.12.13[0m
+Apr 27, 2021 8:14:57 PM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 5
+[31merror[39m: notes/nfa/src/main/scala/nfa.worksheet.sc:43:5: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(i, i)
+    edges -= (i,i)
+    ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/src/main/scala/nfa.worksheet.sc:44:22: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(a, i)
+    for((a,_) <- in) edges -= (a,i)
+                     ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/src/main/scala/nfa.worksheet.sc:45:23: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(i, b)
+    for((b,_) <- out) edges -= (i,b)
+                      ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/src/main/scala/nfa.worksheet.sc:70:11: not found: value NFA
+val nfa = NFA()
+          ^^^
+[0m2021.04.27 20:14:59 INFO  time: code lens generation in 2.37s[0m
+[0m2021.04.27 20:14:59 INFO  time: code lens generation in 5.91s[0m
+[0m2021.04.27 20:15:00 INFO  no build target: using presentation compiler with only scala-library: 2.12.13[0m
+[0m2021.04.27 20:15:00 INFO  time: evaluated worksheet 'nfa.worksheet.sc' in 6.43s[0m
+[31merror[39m: notes/nfa/nfa.worksheet.sc:43:5: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(i, i)
+    edges -= (i,i)
+    ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/nfa.worksheet.sc:44:22: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(a, i)
+    for((a,_) <- in) edges -= (a,i)
+                     ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/nfa.worksheet.sc:45:23: value -= is not a member of scala.collection.immutable.Map[(Int, Int),App.this.Re]
+  Expression does not convert to assignment because:
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    type mismatch;
+     found   : Int
+     required: (Int, Int)
+    expansion: NFA.this.edges = NFA.this.edges.-(i, b)
+    for((b,_) <- out) edges -= (i,b)
+                      ^^^^^^^^^^^^^^
+[31merror[39m: notes/nfa/nfa.worksheet.sc:70:11: not found: value NFA
+val nfa = NFA()
+          ^^^
+[0m2021.04.27 20:15:02 INFO  no build target: using presentation compiler with only scala-library: 2.12.13[0m
+[0m2021.04.27 20:15:02 INFO  time: evaluated worksheet 'nfa.worksheet.sc' in 2.58s[0m
+[0m2021.04.27 20:15:03 WARN  no build target for: /Users/jules/git/julesjacobs.github.io/notes/nfa/nfa.sc[0m
