@@ -85,6 +85,10 @@ To convert the regular expression $(aa+b)((ab)^* + b)$ to an NFA, we place it on
 
 \tikzstyle{n} = [circle, fill=black, scale=0.3]
 \tikzstyle{arrow} = [thick,->,>=stealth]
+\tikzset{->-/.style={thick,decoration={
+  markings,
+  mark=at position 0.5 with {\arrow{stealth}}},postaction={decorate}}}
+
 \newcommand{\state}[2]{\node[n] at (#1) (#2) {};}
 \newcommand{\edge}[3]{\draw [arrow] (#1) -- (#2) node[midway,above] {#3};}
 \newcommand{\edgeb}[4]{\draw [arrow, bend #4] (#1) edge (#2) node[midway,above] {#3};}
@@ -290,10 +294,6 @@ These are the rules we used:
 
 \section{From NFA back to regex}
 
-\tikzset{->-/.style={decoration={
-  markings,
-  mark=at position #1 with {\arrow{stealth}}},postaction={decorate}}}
-
 Take an arbitrary node inside an NFA: \bigskip
 
 \begin{center}
@@ -337,14 +337,15 @@ Take an arbitrary node inside an NFA: \bigskip
     \state{3,1}{r1}
 
 
-    \draw [arrow, bend left=25] (l1) edge node[midway,above,sloped] {$r_1\ s^*\ t_1$} (r1);
-    \draw [arrow, bend left=25] (l1) edge node[pos=0.4,above,sloped] {$r_1\ s^*\ t_2$} (r2);
+    \draw [->-, bend left=25] (l1) to node[midway,above,sloped] {$r_1\ s^*\ t_1$} (r1);
+    \draw [->-, bend left=25] (l1) to node[pos=0.4,above,sloped] {$r_1\ s^*\ t_2$} (r2);
 
-    \draw [arrow] (l2) edge node[pos=0.3,above,sloped] {$r_2\ s^*\ t_1$} (r1);
-    \draw [arrow] (l2) edge node[midway,pos=0.3,below,sloped] {$r_2\ s^*\ t_2$} (r2);
 
-    \draw [arrow, bend right=25] (l3) edge node[pos=0.4,below,sloped] {$r_3\ s^*\ t_1$} (r1);
-    \draw [arrow, bend right=25] (l3) edge node[midway,below,sloped] {$r_3\ s^*\ t_2$} (r2);
+    \draw [->-] (l2) to node[pos=0.3,above,sloped] {$r_2\ s^*\ t_1$} (r1);
+    \draw [->-] (l2) to node[midway,pos=0.3,below,sloped] {$r_2\ s^*\ t_2$} (r2);
+
+    \draw [->-, bend right=25] (l3) to node[pos=0.4,below,sloped] {$r_3\ s^*\ t_1$} (r1);
+    \draw [->-, bend right=25] (l3) to node[midway,below,sloped] {$r_3\ s^*\ t_2$} (r2);
   \end{tikzpicture}
 \end{center}
 
