@@ -1,0 +1,46 @@
+\begin{thebibliography}{ORT09}
+
+\bibitem[Brz64]{brzozowski64}
+Janusz~A. Brzozowski.
+\newblock Derivatives of regular expressions.
+\newblock {\em J. ACM}, 11(4):481–494, October 1964.
+\newblock \href {https://doi.org/10.1145/321239.321249}
+  {\path{doi:10.1145/321239.321249}}.
+
+\bibitem[BS91]{berger91}
+U.~Berger and H.~Schwichtenberg.
+\newblock An inverse of the evaluation functional for typed lambda -calculus.
+\newblock In {\em [1991] Proceedings Sixth Annual IEEE Symposium on Logic in
+  Computer Science}, pages 203--211, 1991.
+\newblock \href {https://doi.org/10.1109/LICS.1991.151645}
+  {\path{doi:10.1109/LICS.1991.151645}}.
+
+\bibitem[CP95]{click95}
+Cliff Click and Michael Paleczny.
+\newblock A simple graph-based intermediate representation.
+\newblock {\em SIGPLAN Not.}, 30(3):35–49, March 1995.
+\newblock \href {https://doi.org/10.1145/202530.202534}
+  {\path{doi:10.1145/202530.202534}}.
+
+\bibitem[KA10]{keller:inria-00520606}
+Chantal Keller and Thorsten Altenkirch.
+\newblock {Hereditary Substitutions for Simple Types, Formalized}.
+\newblock Proceedings of the Mathematically Structured Functional Programming
+  workshop, 2010.
+\newblock URL: \url{https://hal.inria.fr/inria-00520606}.
+
+\bibitem[ORT09]{owens_reppy_turon_2009}
+Scott Owens, John Reppy, and Aaron Turon.
+\newblock Regular-expression derivatives re-examined.
+\newblock {\em Journal of Functional Programming}, 19(2):173–190, 2009.
+\newblock \href {https://doi.org/10.1017/S0956796808007090}
+  {\path{doi:10.1017/S0956796808007090}}.
+
+\bibitem[PE88]{pfenning88}
+F.~Pfenning and C.~Elliott.
+\newblock Higher-order abstract syntax.
+\newblock {\em SIGPLAN Not.}, 23(7):199–208, June 1988.
+\newblock \href {https://doi.org/10.1145/960116.54010}
+  {\path{doi:10.1145/960116.54010}}.
+
+\end{thebibliography}

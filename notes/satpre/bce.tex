@@ -1,0 +1,144 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xspace}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
+  keywordstyle=\color{blue},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   columns=fullflexible,
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   literate=
+    % {epsilon}{$\epsilon$}1
+    % {empty}{$\emptyset$}1
+    % {forall}{$\forall$}1
+    % {exists}{$\exists$}1
+    % {<->}{$\iff$}1
+    {->}{$\to\ $}1
+    % {<-}{$\leftarrow\ $}1
+    {=>}{$\implies\ $}1
+    % {fun}{$\lambda$}1
+    % {and}{$\wedge$}1
+    % {or}{$\vee$}1
+    {cdot}{$\cdot$ }1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+% =========== TIKZ ===========
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.geometric, arrows}
+% \usetikzlibrary{fit}
+% \usetikzlibrary{svg.path}
+% % \usetikzlibrary{graphdrawing}
+% % \usetikzlibrary{graphdrawing.force}
+% % \usetikzlibrary{graphdrawing.layered}
+% \usetikzlibrary{decorations}
+% \usetikzlibrary{decorations.markings}
+% \usetikzlibrary{backgrounds}
+
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\title{Bounded clause elimination}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+Bounded variable elimination and blocked clause elimination are two effective SAT preprocessing techniques. In this note I define \emph{bounded clause elimination}, which generalizes both.
+
+\newcommand{\elim}{\mathsf{elim}}
+
+Given a CNF formula $F$ and a clause $c \in F$ and a literal $l \in c$, define $\elim(F,c,l)$ to be the CNF formula $F$ with clause $c$ \emph{replaced} by all resolvents of $c$ along $l$.
+
+The formula F consists of clause $c$, clauses that contain $l$, clauses that contain $\neg l$, and clauses that contain neither $l$ nor $\neg l$:
+\begin{align*}
+  F = (l \vee \vec{c}) \wedge (\bigwedge_i l \vee \vec{a}_i) \wedge (\bigwedge_j \neg l \vee \vec{b}_j) \wedge (\bigwedge_k \vec{d}_k)
+\end{align*}
+Now $\elim(F,c,l)$ is:
+\begin{align*}
+  \elim(F,c,l) = (\bigwedge_j \vec{c} \vee \vec{b}_j) \wedge (\bigwedge_i l \vee \vec{a}_i) \wedge (\bigwedge_j \neg l \vee \vec{b}_j) \wedge (\bigwedge_k \vec{d}_k)
+\end{align*}
+It is clear that $F \implies \elim(F,c,l)$ because we've only added resolvents, but the reverse implication does not hold because we've deleted the clause $l \vee \vec{c}$. Take $F = l$, for example; then eliminating the only clause $l$ gives us the empty CNF, which is satisfied for any variable assignment, whereas $F$ is only satisfied for $l = 1$. However, the two formulas are equisatisfiable.
+
+\begin{lemma}
+  $F$ and $\elim(F,c,l)$ are equisatisfiable.
+\end{lemma}
+\begin{proof}
+  Since $F \implies \elim(F,c,l)$, it suffices to show that any assignment for $\elim(F,c,l)$ can be turned into an assignment for $F$. If the clause $l \vee \vec{c}$ is satisfied by the assignment for $\elim(F,c,l)$, then we can use the same assignment to satisfy $F$, because the remaining clauses in $F$ are also in $\elim(F,c,l)$. So suppose $l = 0$ and $\vec{c} = 0$ in the assignment that satisfies $\elim(F,c,l)$. Then $\elim(F,c,l)$ simplifies to:
+  \begin{align*}
+    \elim(F,c,l) = (\bigwedge_j \vec{b}_j) \wedge (\bigwedge_i \vec{a}_i) \wedge (\bigwedge_k \vec{d}_k)
+  \end{align*}
+  Given this assignment for all variables except $l$, the formula $F$ simplifies to:
+  \begin{align*}
+    F = (l \vee \vec{c})
+  \end{align*}
+  Hence the same assignment but with $l = 1$ instead of $l = 0$ satisfies $F$.
+\end{proof}
+
+The proof of this lemma gives us a method to reconstruct solutions for $F$ from solutions for $\elim(F,c,l)$: if the clause we eliminated is already satisfied, do nothing, and otherwise flip the value of $l$.
+
+We can do \emph{bounded clause elimination} by heuristically picking clauses to eliminate. We can simulate both blocked clause elimination and bounded variable elimination using $\elim$:
+
+\begin{itemize}
+  \item \textbf{Blocked clause elimination} deletes a clause $c$ if there is a literal $l \in c$ such that all resolvents of $c$ along $l$ are tautologies. This is equivalent to \emph{replacing} $c$ by the resolvents.
+  \item \textbf{Bounded variable elimination} chooses a literal $l$ are replaces all clauses involving $l$ by all their resolvents. This is the same as running clause elimination multiple times, once for each clause that contains $l$.
+\end{itemize}
+
+\bibliographystyle{alphaurl}
+\bibliography{references}
+
+
+\end{document}
