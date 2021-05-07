@@ -367,6 +367,7 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbch
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/mathdesign/mdbch/ts1mdbch.fd
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchr8c.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/mdbchb8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr8t.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8y.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8t.tfm
@@ -397,6 +398,9 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-ch
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chb8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchr8c.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chr8c.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/mathdesign/mdbch/mdbchb8t.vf
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chb8y.tfm
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathdesign/mdbch/md-chb8t.tfm
 INPUT /Users/jules/git/julesjacobs.github.io/notes/satpre/bce.aux
 INPUT /Users/jules/git/julesjacobs.github.io/notes/satpre/bce.out
 INPUT /Users/jules/git/julesjacobs.github.io/notes/satpre/bce.out

@@ -137,6 +137,24 @@ We can do \emph{bounded clause elimination} by heuristically picking clauses to 
   \item \textbf{Bounded variable elimination} chooses a literal $l$ are replaces all clauses involving $l$ by all their resolvents. This is the same as running clause elimination multiple times, once for each clause that contains $l$.
 \end{itemize}
 
+\subsection*{Clause deletion}
+
+A slightly different perspective is clause deletion: when is it safe to delete a clause? Deleting a clause may increase the number of satisfying assignments, but that is fine as long as (a) it doesn't turn an UNSAT problem into a SAT problem and (b) we have a method to reconstruct a satisfying assignment for the original problem from a satisfying assignment for the new problem.
+
+The argument above shows that it is safe to delete a clause $c$ when all its resolvents along $l$ are implied by the remaining clauses. The solution reconstruction method is the same: if $c$ is not satisfied, flip $l$.
+
+We can still simulate bounded variable elimination: first add all resolvents, and now we can delete the original clauses because all their resolvents are (trivially) implied.
+
+\subsection*{Implementation in a solver}
+
+\begin{itemize}
+  \item Keep track of a stack of deleted clauses, and which literal $l$ was used to delete it.
+  \item We can delete a clause at any time if its resolvents along some $l$ are implied by permanent clauses.
+  \item Whenever the user adds a new clause containing $\neg l$, restore all clauses that were deleted using $l$. \\
+  (Adding the assumption $l=0$ can be treated as adding the unit clause $\neg l$.)
+  \item To reconstruct the original solution, pop all deleted clauses from the stack, flipping $l$ if necessary to make the clause satisfied.
+\end{itemize}
+
 \bibliographystyle{alphaurl}
 \bibliography{references}
 
