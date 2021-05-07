@@ -5,3 +5,4 @@ _site
 *.fdb_latexmk
 *.fdb_latexmk
 notes/kirchoff/kirchoff.fdb_latexmk
+*.log
