@@ -97,7 +97,7 @@
 \begin{document}
 \maketitle
 
-Bounded variable elimination and blocked clause elimination are two effective SAT preprocessing techniques. In this note I define \emph{bounded clause elimination}, which generalizes both.
+Bounded variable elimination and blocked clause elimination are two effective SAT preprocessing techniques. This note is about forms of clause elimination that generalize both \cite{kiesl17}.
 
 \newcommand{\elim}{\mathsf{elim}}
 
@@ -155,6 +155,7 @@ We can still simulate bounded variable elimination: first add all resolvents, an
   \item To reconstruct the original solution, pop all deleted clauses from the stack, flipping $l$ if necessary to make the clause satisfied.
 \end{itemize}
 
+\nocite{*}
 \bibliographystyle{alphaurl}
 \bibliography{references}
 

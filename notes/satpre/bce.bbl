@@ -1,0 +1,9 @@
+\begin{thebibliography}{KS17}
+
+\bibitem[KS17]{kiesl17}
+Benjamin Kiesl and Martin Suda.
+\newblock A unifying principle for clause elimination in first-order logic.
+\newblock In Leonardo de~Moura, editor, {\em Automated Deduction -- CADE 26},
+  pages 274--290, Cham, 2017. Springer International Publishing.
+
+\end{thebibliography}
