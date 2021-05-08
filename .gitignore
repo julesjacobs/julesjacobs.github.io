@@ -15,3 +15,4 @@ notes/kirchoff/kirchoff.fdb_latexmk
 *.db
 *.db
 *.log
+*.synctex(busy)

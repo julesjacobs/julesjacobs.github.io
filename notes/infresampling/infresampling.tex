@@ -132,9 +132,9 @@ The resampling I describe above is a special case. In general we have a whole ba
 \end{align}
 For which it suffices that $w'_i$ is independent of $Y_i$ and $\E[w'_i] = w_i$. We can further generalize to allow samples to be resampled to multiple copies. In that case the expectation of the \emph{sum} of the new weights needs to be equal to the old weight.
 
-\subsection*{Batches are not necessary?}
+\subsection*{Batches are not strictly necessary?}
 
-SMC uses batches to get its effect, but I think that's not strictly necessary. We can execute samples sequentially as in importance sampling, and use the simple form of resampling when we suspect that a trial's contribution will be negligible. We can get the same effect as SMC by keeping track of the average weight of trials at specific checkpoints in the execution. Subsequent trials can then check if their particular weight value is much smaller than the average, and if so, decide to do a resampling step. This form of ``sequential importance resampling'' may be much easier to implement, since you don't need to run different trials in parallel and set up all the continuations machinery that Anglican uses. Maybe I'm missing something, though!
+SMC uses batches to get its effect, but I think a similar effect can be achieved without them. We can execute samples sequentially as in importance sampling, and use the simple form of resampling when we suspect that a trial's contribution will be negligible. We can get the same effect as SMC by keeping track of the average weight of trials at specific checkpoints in the execution. Subsequent trials can then check if their particular weight value is much smaller than the average, and if so, decide to do a resampling step. This form of ``sequential importance resampling'' may be much easier to implement, since you don't need to run different trials in parallel and set up all the continuations machinery that Anglican uses. Maybe I'm missing something, though!
 
 \bibliographystyle{alphaurl}
 \bibliography{references}
