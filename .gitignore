@@ -6,3 +6,12 @@ _site
 *.fdb_latexmk
 notes/kirchoff/kirchoff.fdb_latexmk
 *.log
+*.blg
+*.aux
+*.bbl
+*.fls
+*.out
+*.gz
+*.db
+*.db
+*.log

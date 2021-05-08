@@ -12611,3 +12611,4 @@ vars()
 [0m2021.05.06 19:52:45 INFO  time: evaluated worksheet 'satpre.worksheet.sc' in 85ms[0m
 [0m2021.05.06 19:52:45 INFO  time: evaluated worksheet 'satpre.worksheet.sc' in 0.21s[0m
 [0m2021.05.06 19:52:46 INFO  time: evaluated worksheet 'satpre.worksheet.sc' in 0.19s[0m
+[0m2021.05.08 00:24:21 INFO  shutting down Metals[0m

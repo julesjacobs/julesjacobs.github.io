@@ -1,0 +1,143 @@
+
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xspace}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
+  keywordstyle=\color{blue},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   columns=fullflexible,
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   literate=
+    % {epsilon}{$\epsilon$}1
+    % {empty}{$\emptyset$}1
+    % {forall}{$\forall$}1
+    % {exists}{$\exists$}1
+    % {<->}{$\iff$}1
+    {->}{$\to\ $}1
+    % {<-}{$\leftarrow\ $}1
+    {=>}{$\implies\ $}1
+    % {fun}{$\lambda$}1
+    % {and}{$\wedge$}1
+    % {or}{$\vee$}1
+    {cdot}{$\cdot$ }1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+% =========== TIKZ ===========
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.geometric, arrows}
+% \usetikzlibrary{fit}
+% \usetikzlibrary{svg.path}
+% % \usetikzlibrary{graphdrawing}
+% % \usetikzlibrary{graphdrawing.force}
+% % \usetikzlibrary{graphdrawing.layered}
+% \usetikzlibrary{decorations}
+% \usetikzlibrary{decorations.markings}
+% \usetikzlibrary{backgrounds}
+
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\title{Resampling with infinitesimal probabilities}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  In this note I explain why resampling works for infinitesimal probabilities. This question was raised by one of the reviewers of my paradoxes of the probabilistic programming paper \cite{jacobs_paradoxes_2021}. Since at least one other person wondered the same, I put the answer I gave in this note.
+\end{abstract}
+
+\newcommand{\Bernoulli}{\mathsf{Bernoulli}}
+\newcommand{\E}{\mathbb{E}}
+
+SMC can be made to work quite generally, even when the distributions differ on different paths of execution, or when there are a different number of observes in different paths, if one uses probabilities rather than probability densities. Suppose for the moment that we have a probabilistic program where all observes are of finite non-zero measure (i.e. \lstinline|observe(D,I)| for $D$ discrete or $D$ continuous but $I$ an interval of finite width). Suppose that we are trying to estimate some expectation $\E[f(Y)]$ where $Y$ is a random variable that represents the return value of the probabilistic program.
+
+We run a trial of importance sampling, and suppose that in the middle of running the trial we suspect that this trial will contribute negligibly to the final weighted average. Rather than spending more time executing the rest of the trial, we'd like to cancel the trial and start over. Simply rejecting the trial doesn't work, because that will affect the estimate of $\E[f(Y)]$. Instead, what we do is flip a coin $X \sim \Bernoulli(p)$ with e.g. $p = 0.1$. If $X = 1$ we multiply the weight of the trial by $\frac{1}{p}$, and if $X = 0$ we reject the trial. Or more simply, we multiply the weight of the trial by $\frac{1}{p}X$. This will cancel the trial in 90\% of the cases, so we save quite a bit of work. This type of resampling can also be done from within the probabilistic program, by inserting this somewhere in the program:
+
+\begin{lstlisting}
+  if(flip(p) == false){ reject(); }
+  weight *= 1/p;
+\end{lstlisting}
+
+This will not change the expectation value of the final contribution of the trial, because
+\begin{align*}
+  \E[\frac{1}{p} X f(Y)] = \frac{1}{p} \E[X] \E[f(Y)] = \frac{p}{p} \E[f(Y)] = \E[f(Y)]
+\end{align*}
+Resampling is therefore a very general technique. We can choose $p$ arbitrarily; we can even choose it as a function of the state of the program variables at that point, as long as the coin flip $X \sim \Bernoulli(p)$ itself is independent of $Y$.
+
+In general it is hard to know whether a trial will eventually end up being negligible, so SMC approximates this by running multiple trials simultaneously and using their relative weights at synchronized points as its choice of $p_i$. After resampling has removes some trials, we can restore the same number of trials by copying a trial with weight $w$ into $n$ identical trials of weight $w/n$, which will also not change the expectation. Note that the technique of resampling is in principle valid at non-synchronized points. SMC could choose to arbitrarily run different trials for different number of steps, and then do a resampling step with $p_i$ chosen arbitrarily (as long as $p_i > 0$). Doing this badly will ruin the speed of convergence, but the expectation value is still correct, so running a sufficiently large number of trials will still make the final result converge to the correct value.
+
+With infinitesimal observes, the weights of the trials may become infinitesimal. Since we must have $p_i > 0$, we have to modify the heuristic that chooses the weight for the $p_i$, because even if some trial is infinitesimally small compared to some other trial, we cannot simply throw it away with probability 1, because further execution might change this. We could however use the heuristic that we substitute $\epsilon = 0.1$ in order to compute the relative weights $p_i$, or we could run the trials forward until they have all acquired precisely the same powers of $\epsilon$, and do resampling at that point.
+
+\section*{Additional comments}
+
+The resampling I describe above is a special case. In general we have a whole batch of active executions $\vec{Y}$ with weights $\vec{w}$, and we randomly sample a new weight vector $\vec{w}' \sim R(\vec{w},\vec{Y})$ from some distribution $R$ that takes the old weights as input. In order for this operation to be correct, the expectation value must not change, \ie
+\begin{align}
+  \E[\sum_i w_i f(Y_i)] = \E[\sum_i w'_i f(Y_i)]
+\end{align}
+For which it suffices that $w'_i$ is independent of $Y_i$ and $\E[w'_i] = w_i$.
+
+\subsection*{Batches are not necessary?}
+
+SMC uses batches to get its effect, but I think that's not strictly necessary. We can execute samples sequentially as in importance sampling, and use the simple form of resampling when we suspect that a trial's contribution will be negligible. We can get the same effect as SMC by keeping track of the average weight of trials at specific checkpoints in the execution. Subsequent trials can then check if their particular weight value is much smaller than the average, and if so, decide to do a resampling step. This form of ``sequential importance resampling'' may be much easier to implement, since you don't need to run different trials in parallel and set up all the continuations machinery that Anglican uses. Maybe I'm missing something, though!
+
+\bibliographystyle{alphaurl}
+\bibliography{references}
+
+
+\end{document}
