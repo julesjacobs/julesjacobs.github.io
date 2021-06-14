@@ -1,9 +1,45 @@
-\documentclass[a4paper, 11pt]{article}
-\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\documentclass[a4paper, 11pt]{scrartcl}
 \usepackage[utf8]{inputenc}
+\usepackage[scaled=0.88]{beraserif}
+\usepackage[scaled=0.85]{berasans}
+\usepackage[scaled=0.84]{beramono}
+\usepackage[dottedtoc]{classicthesis}
+% \clearscrheadfoot
+% \ohead[]{\headmark}
+% \cfoot[\pagemark]{\pagemark}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\linespread{1.05}
+\usepackage[T1,small,euler-digits]{eulervm}
+\setkomafont{disposition}{}
+\setkomafont{section}{}
+\newcommand{\sectioncolor}{black}
+\newcommand{\sectionnumbercolor}{Maroon!60}
+\titleformat{\section}
+            {\color{\sectioncolor}\Large\usekomafont{disposition}\usekomafont{section}}
+            {\color{\sectionnumbercolor}\llap{\textsc{\MakeTextLowercase{\thesection}}\hspace{0.7em}}}
+            {0pt}
+            {\usekomafont{disposition}\usekomafont{section}\spacedlowsmallcaps}
+            % [{\color{Maroon}\titlerule}]
+
+\titleformat{\subsection}
+            {\color{\sectioncolor}\large\usekomafont{disposition}\usekomafont{section}}
+            {\color{\sectionnumbercolor}\llap{\textsc{\MakeTextLowercase{\thesubsection}}\hspace{0.7em}}}
+            {0pt}
+            {\usekomafont{disposition}\usekomafont{section}\spacedlowsmallcaps}
+
+\pagestyle{plain}
+
+% \usepackage[T1]{fontenc}
+% \usepackage[bitstream-charter]{mathdesign}
+
+% \RequirePackage[T1]{fontenc}
+% \RequirePackage[tt=false, type1=true]{libertine}
+% \RequirePackage[varqu]{zi4}
+% \RequirePackage[libertine]{newtxmath}
+
 \usepackage{xspace}
-\usepackage[bitstream-charter]{mathdesign}
 \usepackage{parskip}
 \usepackage{microtype}
 \usepackage{textcomp}
@@ -11,10 +47,11 @@
 \usepackage{hyperref}
 \usepackage[all]{hypcap}
 \hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,
-    urlcolor=blue,
+    % colorlinks=true,
+    % linkcolor=blue,
+    % filecolor=magenta,
+    % urlcolor=blue,
+    linktoc=all
 }
 \usepackage[nameinlink,noabbrev]{cleveref}
 \usepackage{float}
@@ -24,13 +61,38 @@
 \usepackage{tcolorbox}
 \lstdefinelanguage{JavaScript}{
   keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
-  keywordstyle=\color{blue},
   comment=[l]{//},
   morecomment=[s]{/*}{*/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily
+  keywordstyle=\color{RoyalBlue},%\bfseries,
+  basicstyle=\small\ttfamily,
+  % identifierstyle=\color{NavyBlue},
+  commentstyle=\color{Green}\ttfamily,
+  stringstyle=\rmfamily,
+  numbers=none,%left,%
+  numberstyle=\scriptsize,%\tiny
+  stepnumber=5,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
 }
-
+% \lstset{language=[LaTeX]Tex,%C++,
+%   morekeywords={PassOptionsToPackage,selectlanguage},
+%   keywordstyle=\color{RoyalBlue},%\bfseries,
+%   basicstyle=\small\ttfamily,
+%   %identifierstyle=\color{NavyBlue},
+%   commentstyle=\color{Green}\ttfamily,
+%   stringstyle=\rmfamily,
+%   numbers=none,%left,%
+%   numberstyle=\scriptsize,%\tiny
+%   stepnumber=5,
+%   numbersep=8pt,
+%   showstringspaces=false,
+%   breaklines=true,
+%   %frameround=ftff,
+%   %frame=single,
+%   belowcaptionskip=.75\baselineskip
+%   %frame=L
+% }
 \lstset{
    columns=fullflexible,
    language=JavaScript,
@@ -57,6 +119,7 @@
 \newcommand{\R}{\mathbb{R}}
 
 \usepackage{amsmath}
+\let\openbox\undefined
 \usepackage{amsthm}
 
 \usepackage[shortlabels]{enumitem}
@@ -88,22 +151,27 @@
 % \usetikzlibrary{decorations}
 % \usetikzlibrary{decorations.markings}
 % \usetikzlibrary{backgrounds}
-
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
 \newcommand{\ie}{\textit{i.e.,}\xspace}
 
-\title{Bottom-up rewriting with smart constructors, \\ hereditary substitution \& normalization by evaluation}
-\author{Jules Jacobs}
+\title{\color{black}\large\spacedallcaps{Bottom-up rewriting with smart constructors, hereditary substitution \& \\normalization by evaluation}}
+\author{\large{Jules Jacobs}}
+\date{\normalsize	\today}
 
 \begin{document}
 \maketitle
+\blfootnote{Contact information: \url{https://julesjacobs.com}}
 
 \begin{abstract}
-  In this note I explain these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize a regular expression and compute the $\beta$ normal form of a lambda term. We will see that these three techniques share the same key idea.
+  In this note I explain these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these three techniques share the same key idea.
 \end{abstract}
 
-
 \tableofcontents
-
 
 \section{Introduction}
 
@@ -116,7 +184,7 @@ Suppose we want to simplify regular expressions consisting of the following oper
 \begin{align*}
   r \in \mathsf{Re} \ ::=\  \emp \md \eps \md `c` \md r + r \md r \seq r \md r^*,
 \end{align*}
-We want to rewrite using the following equations from left to right as much as possible: \vspace{-0.7cm}
+We want to rewrite by repeatedly using the following equations from left to right: \vspace{-0.7cm}
 
 \begin{minipage}[t]{0.3\textwidth}
   \begin{align*}
@@ -268,7 +336,7 @@ alt1(a,alt1(b,a)) // Alt(Chr('b'), Chr('a'))
 
 As you can see in the previous example, an alternative to first constructing a regex and then converting it to normal form, is to use the smart constructors to construct the initial regex in the first place. The parser could call the smart constructors instead of the ordinary constructors.
 
-This is what the JVM does. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR, that you could potentially write a reasonably good compiler by just doing optimization with smart constructors \cite{click95}.
+This is what the JVM does. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR that you could potentially write a reasonably good compiler just doing optimization with smart constructors \cite{click95}.
 
 
 \section{Better normal form representations}
@@ -368,7 +436,7 @@ re2ToRe(z)
 \end{align*}
 
 \begin{align*}
-  \ap((\lambda x. e_1), e_2) \rightsquigarrow e_1[x := e_2]
+  \ap((\lambda x. e_1), e_2)  e_1[x := e_2]
 \end{align*}
 
 
