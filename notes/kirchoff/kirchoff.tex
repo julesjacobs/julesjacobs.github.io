@@ -368,15 +368,6 @@ The main lemma follows as a corollary, which gives us a third proof of the lemma
 
 We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph{matrix-tree-cycle theorem} by allowing $D$ to be a general matrix. This theorem will express $\det(D + L)$ as a sum over 1-graphs with each edge labeled either with T (for tree) or with C (for cycle) but not both
 
-\begin{figure}
-  \centering
-  \begin{tikzpicture}[spring layout,node distance=30pt, random seed=1]
-    \input{tcgraph1.tikz}
-  \end{tikzpicture}
-  \caption{A tree-cyclic 1-graph. T-edges are red dotted edges, and C-edges are solid blue edges.}
-  \label{fig:tcgraph}
-\end{figure}
-
 \begin{definition}
   A TC-labeled 1-graph is called \emph{tree-cyclic} if the T-edges form a forest, and each C-edge is part of a cycle.
 \end{definition}
@@ -403,6 +394,15 @@ We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play
   \]
 \end{definition}
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[spring layout,node distance=30pt, random seed=1]
+    \input{tcgraph1.tikz}
+  \end{tikzpicture}
+  \caption{A tree-cyclic 1-graph. T-edges are red dotted edges, and C-edges are solid blue edges.}
+  \label{fig:tcgraph}
+\end{figure}
+
 The following lemma generalizes the main lemma of the matrix-tree theorem.
 
 \begin{lemma}
@@ -414,6 +414,7 @@ The following lemma generalizes the main lemma of the matrix-tree theorem.
     \end{cases}
   \]
 \end{lemma}
+\pagebreak
 \begin{proof}
   Calculate the determinant in steps:
   \begin{enumerate}
