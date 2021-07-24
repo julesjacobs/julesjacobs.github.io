@@ -376,8 +376,9 @@ We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph
   \end{enumerate}
 \end{definition}
 
-
-In other words: the T-edges form a forest, and each C-edge is part of a cycle. The cycle that a C-edge is a part of may use other C-edges as well as T-edges, but a cycle cannot consist solely of T-edges. \Cref{fig:tcgraph} contains an example of a tree-cyclic graph.
+In other words: the T-edges form a forest, and each C-edge is part of a cycle. The cycle that a C-edge is a part of may use other C-edges as well as T-edges, but a cycle cannot consist solely of T-edges.
+Said differently: an 1-graph consists of a set of cycles and some extra edges converging onto those cycles. We obtain a valid TC graph as long as we obey two constraints: we must label at least one edge on each cycle with C, and we must label all the converging edges with T. The remaining cycle edges can be labeled with either C or T.
+\Cref{fig:tcgraph} contains an example of a tree-cyclic graph.
 
 \begin{definition}
   The sign of a TC-labeled 1-graph $G$ is:
