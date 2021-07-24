@@ -20,7 +20,7 @@
     filecolor=magenta,
     urlcolor=blue,
 }
-\usepackage{cleveref}
+\usepackage[nameinlink]{cleveref}
 \usepackage{listings}
 \usepackage{color}
 \definecolor{lightgray}{rgb}{.9,.9,.9}
@@ -72,6 +72,11 @@
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{graphs,graphdrawing}
+\usegdlibrary{force}
+
 
 \title{A simple proof of the matrix-tree theorem, \\ upward routes, and a matrix-tree-cycle theorem}
 \author{Jules Jacobs}
@@ -100,6 +105,8 @@ On the right hand side, we get one term for every way of choosing $(x_1,\dots,x_
 \end{align*}
 Where $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
 
+\pagebreak
+
 \begin{definition}
 We define the concepts \emph{1-graph}, \emph{01-graph}, \emph{forest}, \emph{root}, and \emph{tree}:
  \begin{itemize}
@@ -111,7 +118,40 @@ We define the concepts \emph{1-graph}, \emph{01-graph}, \emph{forest}, \emph{roo
  \end{itemize}
 \end{definition}
 
-If we start at a vertex $v$ in a 01-graph and keep following the unique outgoing edge, then we either loop in a cycle, or we end up at a vertex with no outgoing edges. Therefore a general 01-graph consists of roots and cycles, plus trees converging onto the roots and cycles. A 1-graph is a 01-graph with no roots, so regardless of where we start, we always end up in a cycle.
+See \Cref{fig:forest} and \Cref{fig:graph} for examples. \\
+
+\noindent If we start at a vertex $v$ in a 01-graph and keep following the unique outgoing edge, then we either loop in a cycle, or we end up at a vertex with no outgoing edges. Therefore a general 01-graph consists of roots and cycles, plus trees converging onto the roots and cycles. A 1-graph is a 01-graph with no roots, so regardless of where we start, we always end up in a cycle.
+
+
+\tikzset{%
+  dots/.style args={#1per #2}{%
+    line cap=round,
+    dash pattern=on 0 off #2/#1
+  }
+}
+\tikzstyle{vertex} = [draw,circle,thick,inner sep=2.5pt]
+\tikzstyle{vertexR} = [draw,circle,thick,inner sep=2.5pt,fill=black]
+\tikzstyle{arrow} = [line width=0.9pt,->,>=stealth]
+\tikzstyle{arrowT} = [very thick, dots=13 per 1cm,->,>=stealth,draw=red]
+\tikzstyle{arrowC} = [line width=1pt,->,>=stealth,draw=blue]
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[spring layout,node distance=30pt]
+    \input{forest1.tikz}
+  \end{tikzpicture}
+  \caption{A forest with 5 roots.}
+  \label{fig:forest}
+\end{figure}
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[spring layout,node distance=30pt, random seed=1]
+    \input{graph1.tikz}
+  \end{tikzpicture}
+  \caption{A 01-graph with one root. If we delete the third component, we obtain a 1-graph.}
+  \label{fig:graph}
+\end{figure}
 
 \section{The matrix-tree theorem}
 
@@ -328,9 +368,20 @@ The main lemma follows as a corollary, which gives us a third proof of the lemma
 
 We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph{matrix-tree-cycle theorem} by allowing $D$ to be a general matrix. This theorem will express $\det(D + L)$ as a sum over 1-graphs with each edge labeled either with T (for tree) or with C (for cycle) but not both
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[spring layout,node distance=30pt, random seed=1]
+    \input{tcgraph1.tikz}
+  \end{tikzpicture}
+  \caption{A tree-cyclic graph. T-edges are the red dotted edges, and C-edges are the solid blue edges.}
+  \label{fig:tcgraph}
+\end{figure}
+
 \begin{definition}
   A TC-labeled 1-graph is called \emph{tree-cyclic} if the T-edges form a forest, and each C-edge is part of a cycle.
 \end{definition}
+
+\Cref{fig:tcgraph} contains an example tree-cyclic graph.
 
 \begin{definition}
   The sign of a TC-labeled 1-graph $G$ is:
