@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex kirchoff"] 1627142334 "kirchoff.aux" "kirchoff.bbl" "kirchoff" 1627142389
+["bibtex kirchoff"] 1627142334 "kirchoff.aux" "kirchoff.bbl" "kirchoff" 1627149773
   "/usr/local/texlive/2020/texmf-dist/bibtex/bst/base/alpha.bst" 1292289607 23907 a5f93555796fb564b924339521f10a7c ""
-  "kirchoff.aux" 1627142389 1755 febd7184da65e14bc025ce2ac882790f "pdflatex"
+  "kirchoff.aux" 1627149771 1755 febd7184da65e14bc025ce2ac882790f "pdflatex"
   "references.bib" 1627140295 414 050ec8671d7de4d7f573472680c32994 ""
   (generated)
   "kirchoff.blg"
   "kirchoff.bbl"
-["pdflatex"] 1627142388 "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1627142389
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1627142389 1755 febd7184da65e14bc025ce2ac882790f ""
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1627142387 24084 f82de9b78d18849c14c0832249a6b931 ""
+["pdflatex"] 1627149770 "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1627149773
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1627149771 1755 febd7184da65e14bc025ce2ac882790f ""
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1627149770 24146 779a59c2b4a100fc8d9189e7a91633c2 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc" 1276641224 6938 5135be6a8802f13a7faf296d1959a1ab ""
   "/usr/local/texlive/2020/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -148,14 +148,14 @@
   "/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1586288239 4811913 0be9a7e86c70a26e5e3042966bcd7097 ""
   "/usr/local/texlive/2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1608332205 2432458 407b13f8e117f0242b7bb622fbd5d000 ""
   "/usr/local/texlive/2020/texmf.cnf" 1586288231 577 d60164b4589a341208aff7a667fbbdcb ""
-  "kirchoff.aux" 1627142389 1755 febd7184da65e14bc025ce2ac882790f "pdflatex"
+  "kirchoff.aux" 1627149771 1755 febd7184da65e14bc025ce2ac882790f "pdflatex"
   "kirchoff.bbl" 1627142334 275 e198497ff424aae3e1c4b1c7ee92fcd8 "bibtex kirchoff"
-  "kirchoff.out" 1627142389 217 8b9537151fe3064c2ba79c00156a3e0e "pdflatex"
-  "kirchoff.tex" 1627142387 24084 f82de9b78d18849c14c0832249a6b931 ""
+  "kirchoff.out" 1627149771 217 8b9537151fe3064c2ba79c00156a3e0e "pdflatex"
+  "kirchoff.tex" 1627149770 24146 779a59c2b4a100fc8d9189e7a91633c2 ""
   (generated)
+  "kirchoff.log"
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
+  "kirchoff.pdf"
   "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf"
   "kirchoff.aux"
-  "kirchoff.log"
-  "kirchoff.pdf"
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
   "kirchoff.out"
