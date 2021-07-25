@@ -84,7 +84,7 @@
 \maketitle
 
 \begin{abstract}
-  The matrix-tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. Our proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to weighted \& directed graphs as well.
+  The matrix-tree theorem states that the number of spanning trees in a graph is $\det L'$, where $L'$ is the Laplacian matrix $L$ of the graph, with any row and column deleted. We give a direct proof of the fact that $\det(xI + L)$ is the generating function of spanning forests with $k$ roots. The proof does not rely on the Cauchy-Binet formula, yet is arguably simpler than the standard proof, and applies to weighted \& directed graphs as well.
 
   The proof is based on a lemma that if $A$ is the adjacency matrix of a graph where each vertex has at most one outgoing edge, then $\det(I - A) = 1$ if $A$ is a forest and $\det(I - A) = 0$ otherwise. We generalize this lemma to any graph, in which case $\det(I-xA)^{-1}$ is shown to be the generating function of \emph{upward routes}.
 
@@ -103,7 +103,7 @@ On the right hand side, we get one term for every way of choosing $(x_1,\dots,x_
   \det\left(\sum_{v_1 \in T_1} v_1\ \bigg\rvert\ \cdots\ \bigg\rvert\ \sum_{v_n \in T_n} v_n\right) =
   \sum_{v_1 \in T_1} \cdots \sum_{v_n \in T_n} \det \left(v_1 | \cdots | v_n\right)
 \end{align*}
-Where $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
+Here $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
 
 \pagebreak
 
@@ -252,11 +252,11 @@ We interpret the undirected unweighted graph as a directed weighted graph where 
 The Laplacian $L$ is still given by \cref{def:laplacian}.
 
 \begin{corollary}[Classic form of Kirchoff's theorem]
-  Let $L'$ be the Laplician matrix $L$ with the first row and column deleted.
+  Let $L'$ be the Laplacian matrix $L$ with the first row and column deleted.
   Then $\det(L')$ is the number of spanning trees of $G$.
 \end{corollary}
 \begin{proof}
-  Set the vertex weight $D_{11} = 1$ for vertex $1$ and $D_{ii} = 0$ for the other vertices. Then on the one hand, $\det(D+L) = \det(L')$, and on the other hand,  $\det(D+L)$ is the number of directed trees with $1$ as the root, by \cref{thm:kirchofftutte}. Such trees are in bijective correspondence with undirected spanning trees of $G$, because we can turn a tree rooted at $1$ into an undirected spanning tree by forgetting the direction of the edges, and we can turn an undirected spanning tree into a tree rooted at $1$ by directing all the edges toward $1$.
+  Set the vertex weight $D_{11} = 1$ for vertex $1$ and $D_{ii} = 0$ for the other vertices. Then on the one hand, $\det(D+L) = \det(L')$ (since $\det(L) = 0$), and on the other hand,  $\det(D+L)$ is the number of directed trees with $1$ as the root, by \cref{thm:kirchofftutte}. Such trees are in bijective correspondence with undirected spanning trees of $G$, because we can turn a tree rooted at $1$ into an undirected spanning tree by forgetting the direction of the edges, and we can turn an undirected spanning tree into a tree rooted at $1$ by directing all the edges toward $1$.
 \end{proof}
 
 More generally, \cref{thm:kirchofftutte} allows us to count the number of forests with a given number of roots. For our commutative ring we pick polynomials in $x$ and set $D = xI$. \Cref{thm:kirchofftutte} gives that the (slightly modified) characteristic polynomial $\det(xI + A)$ of the adjacency matrix $A$ is the generating polynomial of forests with $k$ roots.
@@ -290,8 +290,8 @@ Recall Cramer's rule:
 From this, we get the following lemma that allows us to calculate $\det(A)^{-1}$ in terms of entries of inverses of submatrices of $A$:
 
 \begin{lemma} Given a matrix $A$, provided both sides are defined,
-  \[ \det(A)^{-1} = \prod_{i=0}^{n-1} (A_{[1\dots i, 1\dots i]})^{-1}_{11} \]
-Where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
+  \[ \det(A)^{-1} = \prod_{i=0}^{n-1} ((A_{[1\dots i, 1\dots i]})^{-1})_{11} \]
+where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
 \end{lemma}
 \begin{proof}
   Cramer's rule implies:
@@ -339,7 +339,7 @@ We combine these lemmas to obtain:
   \label{cor:strictlyupwardloops}
   For an arbitrary adjacency matrix $A$,
   \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
-  Where $f_i(x)$ is the generating function of strictly upward loops at vertex $i$.
+  where $f_i(x)$ is the generating function of strictly upward loops at vertex $i$.
 \end{corollary}
 \begin{proof}
   Use the relationship between the generating functions:
@@ -350,7 +350,7 @@ We combine these lemmas to obtain:
 
 Note that $\det(I - xA)$ is a polynomial, even though $f_i(x)$ is a power series. If we take the coefficient of $x^k$ of \Cref{cor:strictlyupwardloops}, then modulo sign conventions we obtain precisely Theorems 1\&2 from \cite{Rote2001} about clow sequences (clow sequences are equivalent to strictly upward routes). \Cref{cor:strictlyupwardloops} is equivalent to Theorem 2 from \cite{Rote2001}, but is stated directly in terms of the polynomials, rather than in terms of their coefficients.
 
-The main lemma follows as a corollary, which gives us a third proof of the lemma:
+\Cref{lem:indicator} follows from \cref{cor:strictlyupwardloops}, which gives us a third proof of the lemma:
 
 \begin{corollary}
   Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
@@ -367,7 +367,7 @@ The main lemma follows as a corollary, which gives us a third proof of the lemma
 
 \section{The matrix-tree-cycle theorem}
 
-We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph{matrix-tree-cycle theorem} by allowing $D$ to be a general matrix. This theorem will express $\det(D + L)$ as a sum over 1-graphs with each edge labeled either with T (for tree) or with C (for cycle) but not both.
+We shall now generalize the matrix-tree theorem about $\det(D + L)$ to the \emph{matrix-tree-cycle theorem} by allowing $D$ to be a general matrix. This theorem will express $\det(D + L)$ as a sum over 1-graphs with each edge labeled either with T (for tree) or with C (for cycle) but not both. We call such 1-graphs \emph{TC-labeled}.
 
 \begin{definition}
   A TC-labeled 1-graph is called \emph{tree-cyclic} if:
@@ -389,7 +389,7 @@ Said differently: an 1-graph consists of a set of cycles and some extra edges co
   where \#cycles is the number of cycles of $G$ and \#C-edges is the total number of C-labeled edges in $G$.
 
   Alternatively, each cycle with an odd number of C-edges does not affect the sign, and each cycle with an even number of C-edges flips the sign.
-  Compare this with the sign of a permutation graph, for which a cycle with an odd number of edges does not affect the sign, and a cycle with an even number of edges flips the sign. The sign of a TC-labeled 1-graph can thus determined by the same method, except that we consider only C-edges.
+  Compare this with the sign of a permutation graph, for which a cycle with an odd number of edges does not affect the sign, and a cycle with an even number of edges flips the sign. The sign of a TC-labeled 1-graph can thus be determined by the same method, except that we consider only C-edges.
   The graph $G$ in \cref{fig:tcgraph} has sign $(-1)^G = -1$ because there is one cycle with an even number of C-edges (the first component).
 \end{definition}
 
