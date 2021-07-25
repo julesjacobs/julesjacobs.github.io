@@ -67,7 +67,7 @@
 \newcommand{\mthen}{\ \mathsf{then}\ }
 \newcommand{\melse}{\ \mathsf{else}\ }
 \newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{lemma}{Lemma}[section]
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
 \newtheorem{corollary}{Corollary}[theorem]
@@ -172,6 +172,7 @@ We need a lemma that give us an indicator function for forests.
 \end{proof}
 
 \begin{lemma}
+  \label{lem:indicator}
   Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
   \[
     \det(I-A_G) = \begin{cases}
@@ -235,7 +236,7 @@ We're ready to state Kirchoff's theorem for multiple-root forests in weighted di
     = \sum_{\text{01-graph}\ G} w(G) \det(I - A_G)
     = \sum_{\text{forest}\ G} w(G)
   \end{align*} \\
-  The first step is by the definition of $L$. In the middle step we expand the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a 01-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) whether to make $i$ a root (term $D_{ii} e_i$) or to give $i$ an outgoing edge $i \to j$ (term $A_{ij}(e_i - e_j)$). Then we take the weights $D_{ii}$ and $A_{ij}$ out of the determinant, and we're left with $w(G)\det(I - A_G)$, where $A_G$ is the adjacency matrix of the chosen 01-graph. The final step is applying the lemma.
+  The first step is by the definition of $L$. In the middle step we expand the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a 01-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) whether to make $i$ a root (term $D_{ii} e_i$) or to give $i$ an outgoing edge $i \to j$ (term $A_{ij}(e_i - e_j)$). Then we take the weights $D_{ii}$ and $A_{ij}$ out of the determinant, and we're left with $w(G)\det(I - A_G)$, where $A_G$ is the adjacency matrix of the chosen 01-graph. The final step is applying \cref{lem:indicator}.
 \end{proof}
 
 The classic form of Kirchoff's matrix tree theorem gives us a way to count the number of spanning trees of an \emph{undirected} and \emph{unweighted} graph $G$. It is a special case of \Cref{thm:kirchofftutte}, as follows.
@@ -282,7 +283,7 @@ We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - 
 
 Recall Cramer's rule:
 \begin{theorem} (Cramer's rule)
-  Let $A$ be an invertible matrix and let $A_{[i,j]}$ be the same with column $i$ and row $j$ deleted, then:
+  Let $A$ be an invertible matrix and let $A_{[i,j]}$ be the matrix $A$ with column $i$ and row $j$ deleted, then:
   \[ (A^{-1})_{ij} = \frac{\det(A_{[i,j]})}{\det(A)} \]
 \end{theorem}
 
@@ -412,6 +413,7 @@ We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play
 The following lemma generalizes the main lemma of the matrix-tree theorem.
 
 \begin{lemma}
+  \label{lem:tcindicator}
   The determinant of $M_G$ is given by:
   \[
     \det(M_G) = \begin{cases}
@@ -478,7 +480,7 @@ We’re ready to state the matrix-tree-cycle theorem.
     = \sum_{\text{TC-1-graph}\ G} w(G) \det(M_G)
     = \sum_{\text{tree-cyclic}\ G} (-1)^G w(G)
   \end{align*} \\
-  In the middle step we have again expanded the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a TC-labeled 1-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) an outgoing edge $i \to j$ and a label C (term $D_{ij} e_j$) or T (term $A_{ij}(e_i - e_j)$) for this edge. The final step is applying the lemma.
+  In the middle step we have again expanded the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a TC-labeled 1-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) an outgoing edge $i \to j$ and a label C (term $D_{ij} e_j$) or T (term $A_{ij}(e_i - e_j)$) for this edge. The final step is applying \cref{lem:tcindicator}.
 \end{proof}
 
 The matrix-tree theorem is recovered by taking $D$ to be diagonal. In that case, the number of cycles and the number of C-edges is equal, so $(-1)^{\text{\#cycles} + \text{\#C-edges}} = 1$ and there are no signs involved. Each C-labeled self-loop corresponds to a root.
