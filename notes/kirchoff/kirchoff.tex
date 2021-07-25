@@ -410,7 +410,7 @@ We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play
   \label{fig:tcgraph}
 \end{figure}
 
-The following lemma generalizes the main lemma of the matrix-tree theorem.
+The following lemma generalizes \cref{lem:indicator} used in the proof of the matrix-tree theorem.
 
 \begin{lemma}
   \label{lem:tcindicator}
@@ -434,7 +434,7 @@ The following lemma generalizes the main lemma of the matrix-tree theorem.
   If there was a C-edge not part of a cycle we have obtained $0$ in step 1, and if there was a cycle among T-edges we have obtained $0$ in step 2. For the remaining graphs, we have obtained a $-1$ sign for each T-edge in the cycles, so together with $(-1)^{\text{\#cycles} + \text{\#edges}}$ we are left with $(-1)^{\text{\#cycles} + \text{\#C-edges}} = (-1)^G$.
 \end{proof}
 
-\textbf{We now fix $n\times n$ matrices $A$ and $D$ over some ring:}
+\textbf{We now fix $n\times n$ matrices $A$ and $D$ over some commutative ring:}
 
 \begin{itemize}
   \item An arbitrary matrix $A$ of weights for T-edges (with $A_{ij}$ being the weight of edge $i \xrightarrow{T} j$)
@@ -487,7 +487,7 @@ The matrix-tree theorem is recovered by taking $D$ to be diagonal. In that case,
 
 If we take $A=0$ we get the fact that $\det(D)$ is the sum of signed cycle covers. A cycle cover of $n$ vertices is a choice of edges such that each vertex has precisely one incoming and one outgoing edge, and its sign is the sign of the permutation that this graph depicts.
 
-By taking $D_{ij} = 1$ for some $i,j$ and zero elsewhere, we also ensure that the sign $(-1)^G = 1$, because in this case we have one C-edge and one cycle. Thus, $\det(D+L)$ will be the number of spanning trees rooted at $i$. The choice of $j$ does not matter. By developing the determinant and using $\det(L) = 0$ we see that this is equal to $\det(L')$ where $L'$ is obtained from $L$ by deleting row $i$ and column $j$.
+By taking $D_{ij} = 1$ for some $i,j$ and zero elsewhere, we also ensure that the sign $(-1)^G = 1$, because in this case we have one C-edge and one cycle. Thus, $\det(D+L)$ will be the number of spanning trees rooted at $i$. The choice of $j$ does not matter. By developing the determinant and using $\det(L) = 0$ we see that this is equal to $\det(L')$ where $L'$ is obtained from $L$ by deleting row $i$ and column $j$. \Cref{thm:kirchofftutte} was only able to establish this for $i = j$.
 
 By taking more off-diagonal entries of $D$ to be nonzero, and by taking the corresponding rows and columns to be zero in $A$ (and thus in $L$), we obtain the all-minors matrix-tree theorem.
 
