@@ -259,7 +259,7 @@ The Laplacian $L$ is still given by \cref{def:laplacian}.
   Set the vertex weight $D_{11} = 1$ for vertex $1$ and $D_{ii} = 0$ for the other vertices. Then on the one hand, $\det(D+L) = \det(L')$ (since $\det(L) = 0$), and on the other hand,  $\det(D+L)$ is the number of directed trees with $1$ as the root, by \cref{thm:kirchofftutte}. Such trees are in bijective correspondence with undirected spanning trees of $G$, because we can turn a tree rooted at $1$ into an undirected spanning tree by forgetting the direction of the edges, and we can turn an undirected spanning tree into a tree rooted at $1$ by directing all the edges toward $1$.
 \end{proof}
 
-More generally, \cref{thm:kirchofftutte} allows us to count the number of forests with a given number of roots. For our commutative ring we pick polynomials in $x$ and set $D = xI$. \Cref{thm:kirchofftutte} gives that the (slightly modified) characteristic polynomial $\det(xI + A)$ of the adjacency matrix $A$ is the generating polynomial of forests with $k$ roots.
+More generally, \cref{thm:kirchofftutte} allows us to count the number of forests with a given number of roots. For our commutative ring we pick polynomials in $x$ and set $D = xI$. \Cref{thm:kirchofftutte} gives that the (slightly modified) characteristic polynomial $\det(xI + L)$ of the Laplacian matrix $L$ is the generating polynomial of forests with $k$ roots.
 
 It is essential that we consider directed forests. The correspondence between undirected spanning trees and directed spanning trees rooted at $1$ fails to work as smoothly for $k > 1$. Thus it could be argued that Kirchoff's theorem is really a theorem about directed forests. The directed version was Tutte's contribution to the theorem.
 
