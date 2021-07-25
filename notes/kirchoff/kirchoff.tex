@@ -389,6 +389,8 @@ Said differently: an 1-graph consists of a set of cycles and some extra edges co
   where \#cycles is the number of cycles of $G$ and \#C-edges is the total number of C-labeled edges in $G$.
 \end{definition}
 
+\noindent Alternatively, $(-1)^G = (-1)^{\text{\#cycles} + \text{\#C-edges}} = (-1)^{ \text{\#C-edges} - \text{\#cycles}}$. Since each cycle must have at least one C-edge, the exponent is the number of extra C-edges beyond this minimum of one C-edge per cycle, \emph{i.e.,} $(-1)^G = (-1)^{\text{\#extra-C-edges}}$. Thus, each cycle with an odd number of C-edges does not affect the sign, and each cycle with an even number of C-edges flips the sign. The graph $G$ in \cref{fig:tcgraph} has sign $(-1)^G = -1$ because there is one cycle with an even number of C-edges (the first component).
+
 We associate a matrix $M_G$ with a TC-labeled 1-graph $G$. This matrix will play the role that $I - A_G$ played in the matrix-tree theorem.
 
 \begin{definition}
