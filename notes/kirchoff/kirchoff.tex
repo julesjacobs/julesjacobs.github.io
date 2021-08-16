@@ -77,6 +77,8 @@
 \usetikzlibrary{graphs,graphdrawing}
 \usegdlibrary{force}
 
+\newcommand{\jules}[1]{\textcolor{red}{\textbf{JJ:} #1}}
+
 
 \title{A simple proof of the matrix-tree theorem, \\ upward routes, and a matrix-tree-cycle theorem}
 \author{Jules Jacobs}
@@ -103,7 +105,9 @@ On the right hand side, we get one term for every way of choosing $(x_1,\dots,x_
   \det\left(\sum_{v_1 \in T_1} v_1\ \bigg\rvert\ \cdots\ \bigg\rvert\ \sum_{v_n \in T_n} v_n\right) =
   \sum_{v_1 \in T_1} \cdots \sum_{v_n \in T_n} \det \left(v_1 | \cdots | v_n\right)
 \end{align*}
-Here $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those columns. We shall see that Kirchoff's theorem can be obtained from this identity, but we first need some definitions and a lemma.
+Here $\det(v_1 | \dots | v_n)$ is the determinant of a matrix with those columns.
+We shall see that Kirchoff's theorem can be obtained by applying this identity to the Laplacian.
+The right hand side contains a nonzero term for each spanning forest, and all the other terms vanish.
 
 \pagebreak
 
@@ -239,7 +243,9 @@ We're ready to state Kirchoff's theorem for multiple-root forests in weighted di
   The first step is by the definition of $L$. In the middle step we expand the determinant by multilinearity: we sum over all possible ways to pick one term of each column. To choose a 01-graph on $n$ vertices, is to choose for each vertex $i$ (column $i$) whether to make $i$ a root (term $D_{ii} e_i$) or to give $i$ an outgoing edge $i \to j$ (term $A_{ij}(e_i - e_j)$). Then we take the weights $D_{ii}$ and $A_{ij}$ out of the determinant, and we're left with $w(G)\det(I - A_G)$, where $A_G$ is the adjacency matrix of the chosen 01-graph. The final step is applying \cref{lem:indicator}.
 \end{proof}
 
-The classic form of Kirchoff's matrix tree theorem gives us a way to count the number of spanning trees of an \emph{undirected} and \emph{unweighted} graph $G$. It is a special case of \Cref{thm:kirchofftutte}, as follows.
+\jules{start with corollary immediately.}
+
+The classic form of Kirchoff's matrix tree theorem lets us count the number of spanning trees of an \emph{undirected} and \emph{unweighted} graph $G$. It is a special case of \Cref{thm:kirchofftutte}, as follows.
 
 We interpret the undirected unweighted graph as a directed weighted graph where we insert two edges $i \xrightarrow{} j$ and $j \xrightarrow{} i$ of weight $1$ for each undirected edge $i \text{ --- } j$. This makes the matrix $A$ the adjacency matrix of $G$:
 \begin{align*}
@@ -262,108 +268,6 @@ The Laplacian $L$ is still given by \cref{def:laplacian}.
 More generally, \cref{thm:kirchofftutte} allows us to count the number of forests with a given number of roots. For our commutative ring we pick polynomials in $x$ and set $D = xI$. \Cref{thm:kirchofftutte} gives that the (slightly modified) characteristic polynomial $\det(xI + L)$ of the Laplacian matrix $L$ is the generating polynomial of forests with $k$ roots.
 
 It is essential that we consider directed forests. The correspondence between undirected spanning trees and directed spanning trees rooted at $1$ fails to work as smoothly for $k > 1$. Thus it could be argued that Kirchoff's theorem is really a theorem about directed forests. The directed version was Tutte's contribution to the theorem.
-
-\section{Upward routes}
-
-We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix. The goal of this section is a combinatorial interpretation of $\det(I - xA)$ and $\det(I - xA)^{-1}$ for an arbitrary adjacency matrix, which generalizes the lemma to arbitrary graphs.
-
-\begin{definition}
-  Given a directed graph $G$ with an order on the vertices, we define \emph{(strictly) upward loops} and \emph{(strictly) upward routes}:
-  \begin{itemize}
-    \item An \emph{upward loop} at vertex $i$ is a walk from $i$ to $i$ that does not visit vertices lower than $i$.
-    \item A \emph{strictly upward loop} at vertex $i$ is a walk from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the walk, where it does visit $i$ itself).
-    \item A \emph{(strictly) upward route} is a choice of (strictly) upward loop at each vertex.
-  \end{itemize}
-  Let $f_i(x)$ be the generating function of strictly upward loops of length $k$ at vertex $i$. Then \[ f^{*}_i(x) = (1 - f_i(x))^{-1} \] is the generating function of upward loops of length $k$ at vertex $i$, because an upward loop splits uniquely into a sequence of strictly upward loops. Furthermore, the generating functions $f(x)$ and $f^{*}(x)$ of (strictly) upward routes of $k$ edges are given by:
-  \begin{align*}
-    f(x) &= \prod_{i=1}^n f_i(x) &
-    f^{*}(x) &= \prod_{i=1}^n f^{*}_i(x)
-  \end{align*}
-\end{definition}
-
-Recall Cramer's rule:
-\begin{theorem} (Cramer's rule)
-  Let $A$ be an invertible matrix and let $A_{[i,j]}$ be the matrix $A$ with column $i$ and row $j$ deleted, then:
-  \[ (A^{-1})_{ij} = \frac{\det(A_{[i,j]})}{\det(A)} \]
-\end{theorem}
-
-From this, we get the following lemma that allows us to calculate $\det(A)^{-1}$ in terms of entries of inverses of submatrices of $A$:
-
-\begin{lemma} Given a matrix $A$, provided both sides are defined,
-  \[ \det(A)^{-1} = \prod_{i=0}^{n-1} ((A_{[1\dots i, 1\dots i]})^{-1})_{11} \]
-where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
-\end{lemma}
-\begin{proof}
-  Cramer's rule implies:
-\[
-  \det(A)^{-1} = A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1}
-\]
-
-Continuing this by induction, we get:
-\begin{align*}
-  \det(A)^{-1} &= A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1} \\
-    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot \det(A_{[1..2,1..2]})^{-1} \\
-    &= \cdots \\
-    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot (A_{[1..2,1..2]})^{-1}_{1,1} \cdots
-        (A_{[1..n-1,1..n-1]})^{-1}_{1,1} \cdot 1
-\end{align*}
-\end{proof}
-
-\begin{lemma}
-  The generating function of upward loops at vertex $i$ is $((I - xA)_{[1\dots i-1, 1\dots i-1]})^{-1}_{11}$.
-\end{lemma}
-\begin{proof}
-  Given an adjacency matrix $B$, $(I - xB)^{-1} = I + xB + x^2 B^2 + \cdots$ is the matrix generating function of walks, so $(I - xB)^{-1}_{11}$ is the generating function of loops from vertex 1 to 1. To obtain upward loops at vertex $i$ in $A$ we take $B = (I - xA)_{[1\dots i-1, 1\dots i-1]}$ with the first $i-1$ rows and columns deleted.
-\end{proof}
-
-We combine these lemmas to obtain:
-
-\begin{theorem}
-  The generating function of upward routes with $k$ edges is $\det(I - xA)^{-1}$.
-\end{theorem}
-\begin{proof}
-  Combine the preceding two lemmas with $f^{*}(x) = \prod_{i=1}^n f^{*}_i(x)$.
-\end{proof}
-
-\begin{corollary}
-  The number of upward routes of $k$ edges does not depend on the order of the vertices.
-\end{corollary}
-\begin{proof}
-  If we permute the order of the vertices by a permutation $P$, the generating function
-  \[
-    \det(I - xPAP^{-1}) = \det(P(I - xA)P^{-1}) = \det(I - xA)
-  \] stays the same. A bijective proof is left as an exercise :)
-\end{proof}
-
-\begin{corollary}
-  \label{cor:strictlyupwardloops}
-  For an arbitrary adjacency matrix $A$,
-  \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
-  where $f_i(x)$ is the generating function of strictly upward loops at vertex $i$.
-\end{corollary}
-\begin{proof}
-  Use the relationship between the generating functions:
-  \[
-    \det(I - xA) = f^{*}(x)^{-1} = \prod_{i=1}^n f^{*}_i(x)^{-1} = \prod_{i=1}^n (1 - f_i(x))
-  \]
-\end{proof}
-
-Note that $\det(I - xA)$ is a polynomial, even though $f_i(x)$ is a power series. If we take the coefficient of $x^k$ of \Cref{cor:strictlyupwardloops}, then modulo sign conventions we obtain precisely Theorems 1\&2 from \cite{Rote2001} about clow sequences (clow sequences are equivalent to strictly upward routes). \Cref{cor:strictlyupwardloops} is equivalent to Theorem 2 from \cite{Rote2001}, but is stated directly in terms of the polynomials, rather than in terms of their coefficients.
-
-\Cref{lem:indicator} follows from \cref{cor:strictlyupwardloops}, which gives us a third proof of the lemma:
-
-\begin{corollary}
-  Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
-  \[
-    \det(I-A_G) = \begin{cases}
-      1 & \text{if $G$ is a forest}\\
-      0 & \text{if $G$ has a cycle}
-    \end{cases}
-  \]
-\end{corollary}
-\begin{proof}
-  If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA_G) = 1$. If $G$ has a cycle, let $i$ be the lowest vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A_G) = 0$.
-\end{proof}
 
 \section{A matrix-tree-cycle theorem}
 
@@ -494,6 +398,110 @@ If we take $A=0$ we get the fact that $\det(D)$ is the sum of signed cycle cover
 By taking $D_{ij} = 1$ for some $i,j$ and zero elsewhere, we also ensure that the sign $(-1)^G = 1$, because in this case we have one C-edge and one cycle. Thus, $\det(D+L)$ will be the number of spanning trees rooted at $i$. The choice of $j$ does not matter. By developing the determinant and using $\det(L) = 0$ we see that this is equal to $\det(L')$ where $L'$ is obtained from $L$ by deleting row $i$ and column $j$. \Cref{thm:kirchofftutte} was only able to establish this for $i = j$.
 
 By taking more off-diagonal entries of $D$ to be nonzero, and by taking the corresponding rows and columns to be zero in $A$ (and thus in $L$), we obtain the all-minors matrix-tree theorem.
+
+
+\section{Upward routes}
+
+We now know that when $A$ is the adjacency matrix of a 01-graph, then $\det(I - A) = 1$ if $G$ is a forest and $\det(I - A) = 0$ if $G$ has a cycle. One naturally wonders about the value of $\det(I - A)$ when $A$ is an arbitrary adjacency matrix. The goal of this section is a combinatorial interpretation of $\det(I - xA)$ and $\det(I - xA)^{-1}$ for an arbitrary adjacency matrix, which generalizes the lemma to arbitrary graphs.
+
+\begin{definition}
+  Given a directed graph $G$ with an order on the vertices, we define \emph{(strictly) upward loops} and \emph{(strictly) upward routes}:
+  \begin{itemize}
+    \item An \emph{upward loop} at vertex $i$ is a walk from $i$ to $i$ that does not visit vertices lower than $i$.
+    \item A \emph{strictly upward loop} at vertex $i$ is a walk from $i$ to $i$ that only visits vertices higher than $i$ (except at the start/endpoint of the walk, where it does visit $i$ itself).
+    \item A \emph{(strictly) upward route} is a choice of (strictly) upward loop at each vertex.
+  \end{itemize}
+  Let $f_i(x)$ be the generating function of strictly upward loops of length $k$ at vertex $i$. Then \[ f^{*}_i(x) = (1 - f_i(x))^{-1} \] is the generating function of upward loops of length $k$ at vertex $i$, because an upward loop splits uniquely into a sequence of strictly upward loops. Furthermore, the generating functions $f(x)$ and $f^{*}(x)$ of (strictly) upward routes of $k$ edges are given by:
+  \begin{align*}
+    f(x) &= \prod_{i=1}^n f_i(x) &
+    f^{*}(x) &= \prod_{i=1}^n f^{*}_i(x)
+  \end{align*}
+\end{definition}
+
+Recall Cramer's rule:
+\begin{theorem} (Cramer's rule)
+  Let $A$ be an invertible matrix and let $A_{[i,j]}$ be the matrix $A$ with column $i$ and row $j$ deleted, then:
+  \[ (A^{-1})_{ij} = \frac{\det(A_{[i,j]})}{\det(A)} \]
+\end{theorem}
+
+From this, we get the following lemma that allows us to calculate $\det(A)^{-1}$ in terms of entries of inverses of submatrices of $A$:
+
+\begin{lemma} Given a matrix $A$, provided both sides are defined,
+  \[ \det(A)^{-1} = \prod_{i=0}^{n-1} ((A_{[1\dots i, 1\dots i]})^{-1})_{11} \]
+where $A_{[1\dots i, 1\dots i]}$ is the matrix $A$ with the first $i$ rows and columns deleted.
+\end{lemma}
+\begin{proof}
+  Cramer's rule implies:
+\[
+  \det(A)^{-1} = A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1}
+\]
+
+Continuing this by induction, we get:
+\begin{align*}
+  \det(A)^{-1} &= A^{-1}_{1,1} \cdot \det(A_{[1,1]})^{-1} \\
+    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot \det(A_{[1..2,1..2]})^{-1} \\
+    &= \cdots \\
+    &= A^{-1}_{1,1} \cdot (A_{[1,1]})^{-1}_{11} \cdot (A_{[1..2,1..2]})^{-1}_{1,1} \cdots
+        (A_{[1..n-1,1..n-1]})^{-1}_{1,1} \cdot 1
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+  The generating function of upward loops at vertex $i$ is $((I - xA)_{[1\dots i-1, 1\dots i-1]})^{-1}_{11}$.
+\end{lemma}
+\begin{proof}
+  Given an adjacency matrix $B$, $(I - xB)^{-1} = I + xB + x^2 B^2 + \cdots$ is the matrix generating function of walks, so $(I - xB)^{-1}_{11}$ is the generating function of loops from vertex 1 to 1. To obtain upward loops at vertex $i$ in $A$ we take $B = (I - xA)_{[1\dots i-1, 1\dots i-1]}$ with the first $i-1$ rows and columns deleted.
+\end{proof}
+
+We combine these lemmas to obtain:
+
+\begin{theorem}
+  The generating function of upward routes with $k$ edges is $\det(I - xA)^{-1}$.
+\end{theorem}
+\begin{proof}
+  Combine the preceding two lemmas with $f^{*}(x) = \prod_{i=1}^n f^{*}_i(x)$.
+\end{proof}
+
+\begin{corollary}
+  The number of upward routes of $k$ edges does not depend on the order of the vertices.
+\end{corollary}
+\begin{proof}
+  If we permute the order of the vertices by a permutation $P$, the generating function
+  \[
+    \det(I - xPAP^{-1}) = \det(P(I - xA)P^{-1}) = \det(I - xA)
+  \] stays the same. A bijective proof is left as an exercise :)
+\end{proof}
+
+\begin{corollary}
+  \label{cor:strictlyupwardloops}
+  For an arbitrary adjacency matrix $A$,
+  \[ \det(I - xA) = \prod_{i = 1}^n (1 - f_i(x)) \]
+  where $f_i(x)$ is the generating function of strictly upward loops at vertex $i$.
+\end{corollary}
+\begin{proof}
+  Use the relationship between the generating functions:
+  \[
+    \det(I - xA) = f^{*}(x)^{-1} = \prod_{i=1}^n f^{*}_i(x)^{-1} = \prod_{i=1}^n (1 - f_i(x))
+  \]
+\end{proof}
+
+Note that $\det(I - xA)$ is a polynomial, even though $f_i(x)$ is a power series. If we take the coefficient of $x^k$ of \Cref{cor:strictlyupwardloops}, then modulo sign conventions we obtain precisely Theorems 1\&2 from \cite{Rote2001} about clow sequences (clow sequences are equivalent to strictly upward routes). \Cref{cor:strictlyupwardloops} is equivalent to Theorem 2 from \cite{Rote2001}, but is stated directly in terms of the polynomials, rather than in terms of their coefficients.
+
+\Cref{lem:indicator} follows from \cref{cor:strictlyupwardloops}, which gives us a third proof of the lemma:
+
+\begin{corollary}
+  Let $A_G$ be the adjacency matrix of a 01-graph $G$, then
+  \[
+    \det(I-A_G) = \begin{cases}
+      1 & \text{if $G$ is a forest}\\
+      0 & \text{if $G$ has a cycle}
+    \end{cases}
+  \]
+\end{corollary}
+\begin{proof}
+  If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA_G) = 1$. If $G$ has a cycle, let $i$ be the lowest vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A_G) = 0$.
+\end{proof}
+
 
 \paragraph{Acknowledgements.}
 Thanks to Darij Grinberg for pointing out mistakes and suggesting improvements, and for informing me about the relationship of \Cref{cor:strictlyupwardloops} to Theorems 1\&2 of \cite{Rote2001}.
