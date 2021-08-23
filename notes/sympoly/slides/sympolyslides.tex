@@ -96,7 +96,7 @@
   \pause
   Q: Which other polynomials $p(\lambda_1,\lambda_2,\lambda_3)$ can we compute exactly? \\
   \pause
-  A: All symmetric ones:
+  A: Fundamental theorem of symmetric polynomials: all symmetric ones.
   \begin{align*}
     p(\lambda_1,\lambda_2,\lambda_3) = p(\lambda_2,\lambda_1,\lambda_3) = \cdots = p(\lambda_3,\lambda_2,\lambda_1)
   \end{align*}
@@ -154,6 +154,16 @@
     \onslide<5->{=\ &
     A_{11} + A_{22} + A_{33}}
   \end{flalign*} \\
+\end{frame}
+
+\begin{frame}\frametitle{Prove or disprove}
+  \begin{align*}
+    \sum_i p_i \lambda_1^{i_1} \lambda_2^{i_2} \cdots \lambda_n^{i_n} = \sum_i p_i \det(A_1^{i_1} \m A_2^{i_2} \m \cdots\ \m A_n^{i_n})
+  \end{align*}
+
+  \vspace{2cm}
+
+  No peeking! \tiny{\url{https://julesjacobs.com/pdf/sympoly.pdf}}
 \end{frame}
 
 
