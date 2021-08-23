@@ -1,0 +1,284 @@
+\documentclass[aspectratio=169,xcolor={usenames,dvipsnames}]{beamer}
+\usepackage{amsmath}
+\beamertemplatenavigationsymbolsempty{}
+\setbeamertemplate{footline}[frame number]
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+% \usepackage{booktabs,etoolbox,fontspec,microtype,ragged2e}
+\usefonttheme{professionalfonts,serif,structuresmallcapsserif}
+% \setmainfont[Numbers=OldStyle,SmallCapsFeatures={Kerning=Uppercase}]{Minion Pro}
+\linespread{1.0344}
+\usecolortheme[named=Maroon]{structure}
+% \beamertemplatesolidbackgroundcolor{Snow}
+% \setbeamertemplate{navigation symbols}{}
+% \setbeamertemplate{itemize items}[circle]
+% \apptocmd{\frame}{\justifying}{}{}
+% \addtobeamertemplate{block begin}{}{\justifying}
+% \definecolor{alert}{HTML}{347941}
+% \setbeamercolor{alerted text}{fg=alert}
+\usepackage{mathpazo}
+\usepackage[bitstream-charter]{mathdesign}
+
+% \usepackage{iris}
+% \usepackage{changepage}
+% \input{macros}
+% \input{figures}
+
+\definecolor{darkgreen}{rgb}{0.0, 0.5, 0.0}
+
+% \newenvironment{changemargin}[2]{%
+%   \begin{list}{}{%
+%     \setlength{\topsep}{0pt}%
+%     \setlength{\leftmargin}{#1}%
+%     \setlength{\rightmargin}{#2}%
+%     \setlength{\listparindent}{\parindent}%
+%     \setlength{\itemindent}{\parindent}%
+%     \setlength{\parsep}{\parskip}%
+%   }%
+% \item[]}{\end{list}}
+
+\newcommand{\RED}[1]{\textbf{\color{red}#1\color{black}}}
+\newcommand{\GREEN}[1]{\textbf{\color{darkgreen}#1\color{black}}}
+\DeclareMathOperator{\tr}{tr}
+\newcommand{\R}{\mathbb{R}}
+
+
+\title{\LARGE{\textbf{a magic determinant formula \\ for symmetric polynomials of eigenvalues}}}
+\author{Jules Jacobs}
+% \institute{Radboud University Nijmegen
+% \\ \href{mailto:julesjacobs@gmail.com}{julesjacobs@gmail.com}}
+\date{}
+
+\newcommand{\vcolor}[1]{\color{darkgreen}#1\color{black}}
+\newcommand{\tcolor}[1]{\color{gray}#1\color{black}}
+\newcommand{\ecolor}[1]{\color{red}#1\color{black}}
+\newcommand{\m}{\!\!\mid\!}
+\newcommand{\tdet}[3]{\tcolor{\det(}#1 \tcolor{\m} #2 \tcolor{\m} #3\tcolor{)}}
+\newcommand{\vlambda}{\vcolor{\lambda}}
+\newcommand{\vA}{\vcolor{A}}
+
+\begin{document}
+
+\frame{
+  \titlepage{}
+  \vspace{-2cm}
+  \centering
+  \begin{tcolorbox}[colback=green!5,width=9cm, height=2.4cm]
+  \begin{align*}
+    \sum_i p_i \lambda_1^{i_1} \lambda_2^{i_2} \cdots \lambda_n^{i_n} = \sum_i p_i \det(A_1^{i_1} \m A_2^{i_2} \m \cdots\ \m A_n^{i_n})
+  \end{align*}
+  \end{tcolorbox}
+}
+
+\begin{frame}\frametitle{Trace and determinant}
+  \begin{align*}
+    A &= \begin{pmatrix}
+      A_{11} & A_{12} & A_{13} \\
+      A_{21} & A_{22} & A_{23} \\
+      A_{31} & A_{32} & A_{33}
+      \end{pmatrix} \text{\qquad(e.g. integer matrix)}
+  \end{align*}
+  \pause
+  \begin{align*}
+    % \tr(A^k) &= \lambda_1^k + \lambda_2^k + \lambda_3^k = (A^k)_{11} + (A^k)_{22} + (A^k)_{33} \\
+    % \tr(A^2) &= \lambda_1^2 + \lambda_2^2 + \lambda_3^2 =
+    %   A_{11}^2 + A_{22}^2 + A_{33}^2 +
+    %   2 A_{12}A_{21} + 2 A_{13} A_{31} + 2 A_{23} A_{32} \\
+    \tr(A) =&\ \lambda_1 + \lambda_2 + \lambda_3 = A_{11} + A_{22} + A_{33} \\
+    \det(A) =&\ \lambda_1 \lambda_2 \lambda_3 =
+      A_{11} A_{22} A_{33} - A_{11} A_{32} A_{23} -
+      A_{12} A_{21} A_{33} + \\ &\hspace{2.25cm} A_{12} A_{23} A_{31} +
+      A_{13} A_{21} A_{32} - A_{13} A_{22} A_{31} \\
+  \end{align*}
+  \pause
+  Polynomial of irrational complex numbers = polynomial of integer entries! \\
+  \pause
+  Q: Which other polynomials $p(\lambda_1,\lambda_2,\lambda_3)$ can we compute exactly? \\
+  \pause
+  A: All symmetric ones:
+  \begin{align*}
+    p(\lambda_1,\lambda_2,\lambda_3) = p(\lambda_2,\lambda_1,\lambda_3) = \cdots = p(\lambda_3,\lambda_2,\lambda_1)
+  \end{align*}
+\end{frame}
+
+\begin{frame}
+
+  \begin{flalign*}\frametitle{The magic method}
+    p(\lambda_1,\lambda_2,\lambda_3)
+    =\ & \quad\ \ \ \vlambda_1\ \vlambda_2^4\ \vlambda_3^4\ \ +
+         \quad\ \ \vlambda_1^4\ \vlambda_2\ \vlambda_3^4\ \ +
+         \quad\ \ \vlambda_1^4\ \vlambda_2^4\ \vlambda_3\\
+    \onslide<2->{=\ & \tdet{\vA_1}{\vA_2^4}{\vA_3^4} + \tdet{\vA_1^4}{\vA_2}{\vA_3^4} + \tdet{\vA_1^4}{\vA_2^4}{\vA_3}}
+  \end{flalign*} \\
+  \vspace{0.5cm}
+  \centering
+  \onslide<3->{$A^4_2 = $ the second column of $A^4$ \\ \vspace{0.5cm}}
+  \onslide<4->{
+  \begin{tcolorbox}[colback=green!5,width=8cm]
+  \vspace{-0.5cm}
+  \begin{align*}
+    \cdots\ +\ a &\lambda_1^{i_1}\!\cdot\! \lambda_2^{i_2}\ \cdots\ \lambda_n^{i_n}\  +\ \cdots\\
+    \ &\quad\quad \Downarrow \\
+    \cdots\ +\ a \det(&A^{i_1}_1 \m A^{i_2}_2 \m\ \cdots\ \m A^{i_n}_n)\ +\ \cdots
+  \end{align*}
+  \end{tcolorbox}
+  }
+\end{frame}
+
+\begin{frame}
+
+  \begin{flalign*}\frametitle{The trace}
+    \lambda_1 + \lambda_2 + \lambda_3
+    \onslide<2->{ =\ &
+         \quad\ \ \ \lambda_1\ \lambda_2^0\ \lambda_3^0\ \ +
+         \quad\ \ \lambda_1^0\ \lambda_2\ \lambda_3^0\ \ +
+         \quad\ \ \lambda_1^0\ \lambda_2^0\ \lambda_3\\[1em]}
+    \onslide<3->{=\ & \det(A_1 \m A_2^0 \m A_3^0) + \det(A_1^0 \m A_2 \m A_3^0) + \det(A_1^0 \m A_2^0 \m A_3) \\[1em]}
+    \onslide<4->{=\ &
+    \det \begin{pmatrix}
+      A_{11} & 0 & 0 \\
+      A_{12} & 1 & 0 \\
+      A_{13} & 0 & 1
+    \end{pmatrix} +
+    \det \begin{pmatrix}
+       1 & A_{21} & 0 \\
+       0 & A_{22} & 0 \\
+       0 & A_{23} & 1
+    \end{pmatrix} +
+    \det \begin{pmatrix}
+       1 & 0 & A_{31} \\
+       0 & 1 & A_{32} \\
+       0 & 0 & A_{33}
+    \end{pmatrix} \\[1em]}
+    \onslide<5->{=\ &
+    A_{11} + A_{22} + A_{33}}
+  \end{flalign*} \\
+\end{frame}
+
+
+% \newcommand{\Vol}{\mathsf{Vol}}
+% \newcommand{\End}{\mathsf{End}}
+
+% \begin{frame}
+%   Let $V$ be an $n$-dimensional vector space.
+%   \textbf{Volume forms} $f \in \Vol(V) \subseteq V^n \to \R$:
+%   \begin{itemize}
+%     \item Multilinear (linear in each argument):
+%           \begin{align*}
+%             f(\cdots, \sum_i a_i v_i, \cdots) = \sum_i a_i f(\cdots, v_i, \cdots)
+%           \end{align*}
+%     \item Antisymmetric (sign changes when swapping two arguments):
+%           \begin{align*}
+%             f(\cdots, v, \cdots, w, \cdots) = -f(\cdots, w, \cdots, v, \cdots)
+%           \end{align*}
+%           Special case: $f(\cdots, v, \cdots, v, \cdots) = -f(\cdots, v, \cdots, v, \cdots) = 0$
+%   \end{itemize}
+%   \vspace{0.5cm}
+%   Suppose we know the volume $f(e_1,\cdots,e_n) = V$ that $f$ gives to the unit cube.
+%   \begin{align*}
+%     f(e_2,e_1,\cdots) &= -f(e_1,e_2,\cdots) = \pm V \\
+%     f(e_1,e_1,\cdots) &= 0 \\
+%     f(\cdots, \sum_i a_i e_i, \cdots) &= \sum_i a_i f(\cdots, e_i, \cdots)
+%   \end{align*}
+%   The values of $f(v_1,\cdots,v_n)$ for any $v_1,\cdots,v_n \in V$ are completely determined by the value $f(e_1,\cdots,e_n) = V$ of the unit cube.
+%   \textbf{So $\Vol(V)$ is a 1-dimensional vector space.}
+% \end{frame}
+
+% \newcommand{\Det}{\underline{\det}}
+% \newcommand{\Tr}{\underline{\tr}}
+% \newcommand{\EndV}{\End(V)}
+% \newcommand{\EndVol}{\End(\Vol(V))}
+
+
+% \begin{frame}
+%   Problem: Given a basis $b : \R^n \to V$, find $f : \Vol(V)$ such that $f(b_1, \cdots, b_n) = 1$.\\
+%   Answer:
+%   \begin{align*}
+%     f(v_1, \cdots, v_n) = \det(b^{-1} v_1, \cdots, b^{-1} v_n)
+%   \end{align*}
+%   Then:
+%   \begin{align*}
+%     f(b_1, \cdots, b_n) = \det(b^{-1} b_1, \cdots, b^{-1} b_n) = \det(I) = 1
+%   \end{align*}
+% \end{frame}
+
+% \begin{frame}
+%   Intuition: $\det(A)$ tells us how much volume scales when we apply $A$. \\
+%   Take any nonzero volume form $f \in \Vol(V)$, and linearly independent $v_1, \cdots, v_n$.
+%   \begin{align*}
+%     \det(A) = \frac{f(Av_1, \cdots, Av_n)}{f(v_1, \cdots, v_n)}
+%   \end{align*}
+%   \begin{itemize}
+%     \item Question 1: why does the right hand side not depend on $f$ and $v_1, \cdots, v_n$?
+%     \item Question 2: why is it equal to $\det(A)$?
+%   \end{itemize}
+% \end{frame}
+
+% The value doesn't depend on $f$ or on $v_1,\cdots,v_n$! \\
+% \begin{align*}
+%   \tr(A) = \frac{f(Av_1, v_2 \cdots, v_n) + f(v_1, Av_2, \cdots, v_n) + \cdots + f(v_1,v_2,\cdots, Av_n)}{f(v_1, \cdots, v_n)}
+% \end{align*}
+% Let $p(\lambda_1, \cdots, \lambda_n) = \sum_i p_i \lambda_1^{i_1} \cdots \lambda_n^{i_n}$ be a symmetric polynomial.
+% Define
+% \begin{align*}
+%   p(A) = \frac{\sum_i p_i f(A^{i_1}v_1, \cdots, A^{i_n}v_n)}{f(v_1, \cdots, v_n)}
+% \end{align*}
+
+% \begin{frame}
+%   Proof: Define $A^* : \Vol(V) \to \Vol(V)$ by:
+%   \begin{align*}
+%     A^* f = (v_1, \cdots, v_n) \mapsto f(Av_1, \cdots, A v_n)
+%   \end{align*}
+%   The map $A^* : \EndVol$ is a linear map on a 1-dimensional vector space.
+%   So $A^*$ is equivalent to multiplication by a fixed number $[A^*] \in \R$. Define $\Det(A) = [A^*]$. \\
+
+%   Proof that $\Det(A) = \det(M)$ where $M = b^{-1}Ab \in \R^{n \times n}$ is the matrix of $A$ with respect to basis $b : \R^n \to V$
+%   How to calculate $\Det(A)$?
+%   \begin{align*}
+%     [A^*] = \frac{(A^* f)(v_1, \cdots, v_n)}{f(v_1, \cdots, v_n)} =
+%   \end{align*}
+%   Take $f(v_1,\cdots,v_n) = \det(b^{-1} v_1, \cdots, b^{-1} v_n)$ and $v_1,\cdots,v_n = b_1, \cdots, b_n$:
+%   \begin{align*}
+%     [A^*] = \frac{\det(b^{-1}Ab_1, \cdots, b^{-1}Ab_n)}{\det(b^{-1}b_1, \cdots, b^{-1}b_n)} = \det(b^{-1}Ab)
+%   \end{align*}
+%   The left hand side doesn't depend on $b$, so the right hand side doesn't either!
+% \end{frame}
+
+
+% \begin{frame}\frametitle{Basis independent symmetric polynomials of eigenvalues}
+%   Let $p(\lambda_1, \cdots, \lambda_n) = \sum_{i} p_{i} \lambda_1^{i_1} \cdots \lambda_n^{i_n}$ be a symmetric polynomial and $A \in \EndV$.\\
+%   Define $p(A) \in \EndVol$ by:
+%   \begin{align*}
+%     p(A) f = (v_1, \cdots, v_n) \mapsto \sum_i p_i f(A^{i_1}v_1, \cdots, A^{i_n}v_n)
+%   \end{align*}
+%   Because a linear map on a 1-d vector space is multiplication by a scalar, we have defined a scalar $[p(A)] \in \R$ here such that
+%   \begin{align*}
+%     p(A)f(v_1,\cdots,v_n) = [p(A)]f(v_1,\cdots,v_n)
+%   \end{align*}
+%   for all $f \in \Vol(V)$ and $v_1, \cdots, v_n \in V$.\\
+%   Let $M = b^{-1}Ab$ be a matrix for $A$ with respect to a basis $b : \R^n \to V$, then
+%   \begin{align*}
+%     [p(A)] = \sum_i p_i \det(M^{i_1}_1, \cdots, M^{i_n}_n)
+%   \end{align*}
+% \end{frame}
+
+% \begin{frame}
+%   If $\sum_i p_i \lambda_1^{i_1} \cdots \lambda_n^{i_n}$ is a symmetric polynomial, then the value of
+%   \begin{align*}
+%     \frac{\sum_i p_i f(A^{i_1}v_1, \cdots, A^{i_n}v_n)}{f(v_1, \cdots, v_n)}
+%   \end{align*}
+%   doesn't depend on $f$ or $v_1,\cdots,v_n$
+% \end{frame}
+
+% \begin{frame}
+%   \begin{itemize}
+%     \item Need to show that $\Vol(V)$ is a one dimensional vector space.
+%     \item The value of $f$ is completely determined by $f(e_1,\cdots,e_n)$.
+%     \item So that $\End(\Vol(V)) \cong \R$.
+%     \item Want to show that the $p(\vec{A})$ we define is in $\End(V)$.
+%     \item And the formula for $[p(\vec{A})] \in \R$.
+%   \end{itemize}
+% \end{frame}
+
+\end{document}
