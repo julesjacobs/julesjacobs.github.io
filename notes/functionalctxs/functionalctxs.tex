@@ -148,6 +148,8 @@ Inductive step : expr -> expr -> Prop :=
       head_step e1 e2 -> step (fill E e1) (fill E e2).
 \end{lstlisting}
 
+This is the style common in Iris.
+
 \section{Functional evaluation contexts}
 
 An alternative is to explicitly define evaluation contexts as a set of functions $E \subseteq \mathsf{expr} \to \mathsf{expr}$:
@@ -183,6 +185,8 @@ Inductive step : expr -> expr -> Prop :=
   | Step_app : forall e1 e2 s, step (App (Lam s e1) e2) (subst s e2 e1)
   | Step_ctx : forall e1 e2 k, ctx k -> step e1 e2 -> step (k e1) (k e2).
 \end{lstlisting}
+
+This is the style common in CompCert.
 
 This way of presenting evaluation contexts is more concise and makes it quite clear that it's equivalent to having separate stepping rules for each context.
 
