@@ -11,6 +11,8 @@
 \usepackage{mathtools}
 \usepackage{hyperref}
 \usepackage{braket}
+\usepackage{tikz}
+\usetikzlibrary{quantikz}
 
 \usepackage[all]{hypcap}
 \hypersetup{
@@ -23,7 +25,6 @@
 \usepackage{float}
 \usepackage{listings}
 \usepackage{color}
-\usepackage[dvipsnames]{xcolor}
 \usepackage{tcolorbox}
 \lstdefinelanguage{JavaScript}{
   keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
@@ -137,17 +138,16 @@ In that case we model the state with a probability vector $\vec{p}$ and we multi
 If the state is currently $p$, then at the next time step the state is $Mp$.
 Matrices that preserve the condition that all probabilities are non-negative and that their sum remains $1$ are called \emph{stochastic matrices}.
 The entry $M_{x,y}$ of the matrix is the probability that the system will step to state $y$, if the state is currently $x$.
-Similarly, the entry $U_{x,y}$ of the unitary matrix, is the \emph{probability amplitude} of next state being $y$, if the state is currently $x$.
+In the quantum case, the entry $U_{x,y}$ of the unitary matrix, is the \emph{probability amplitude} of next state being $y$, if the state is currently $x$.
 
 \section{What a quantum computer is}
 
-A quantum computer with state set $S$ is a device where we can \emph{input} such a matrix $U$ and an initial state $\phi$.
-It will then do one step of time evolution to $\phi' = U\phi$, and it will \emph{measure} the new state $\phi'$ and tell us which outcome $x \in S$ it got.
-This outcome is random, and we will get answer $x$ with probability $|\phi'_x|^2$.
+A quantum computer with state set $S$ is a device where we can \emph{input} such a matrix $U$ and an initial state $x \in S$.
+It will then do one step of time evolution using $U$, and it will \emph{measure} the new state and tell us which outcome $y \in S$ it got.
 Thus, a quantum computer is a kind of universal quantum mechanics simulator:
 \begin{enumerate}
-  \item We \emph{input} the initial state $\phi$ and state evolution matrix $U$
-  \item The quantum computer \emph{outputs} answer $x \in S$ with probability $|(U\phi)_x|^2$
+  \item We \emph{input} the initial state $x \in S$ and matrix $U$
+  \item The quantum computer \emph{outputs} answer $y \in S$ with probability $|U_{x,y}|^2$
 \end{enumerate}
 
 We will refine this description in the next section.
@@ -155,20 +155,23 @@ We will refine this description in the next section.
 \section{Quantum circuits}
 
 In physics, the state set $S$ is often infinite, and sometimes even uncountably infinite (e.g. the position of a particle),
-but in quantum programming the set $S$ is taken to be strings of $k$ bits, so that $|S| = 2^k$.
-Still, $U$ is a $2^k$-by-$2^k$ matrix. One might wonder how we even input the $U$ to the quantum computer, if it contains an exponential amount of data.
+but in quantum programming the set $S = \{0,1\}^k$ is taken to be strings of $k$ bits, so that $|S| = 2^k$.
+Still, this means that $U$ is a $2^k$-by-$2^k$ matrix. One might wonder how we even input the $U$ to the quantum computer, if it contains an exponential amount of data.
 
 The answer is that we can't quite input \emph{any} matrix $U$; it must be encoded as a \emph{quantum circuit}.
-A quantum circuit is a list of operations we do on the state of $n$ bits, where each operation operates on some small subset of the bits and leaves the rest of the bits alone.
+A quantum circuit is a sequence of unitary operations we do on the state of $n$ bits, where each operation operates on some small subset of the bits and leaves the rest of the bits alone.
 
-Often, a small set of primitive operations is used, such as the \emph{Hadamard gate} and the \emph{CNOT gate}.
-The Hadamard gate operates on one bit, and the CNOT gate operates on two bits.
+Often, a small set of primitive operations is used, such as the \emph{Hadamard gate} and the \emph{CCNOT gate}.
+The Hadamard gate operates on one bit, and the CCNOT gate operates on three bits.
 
 In order to describe what they do, we introduce a bit of notation for \emph{definite states}.
 We use the notation $\phi = \ket{01001}$ for the definite state $\phi$ where $\phi_{01001} = 1$ and $\phi_x = 0$ otherwise, \ie the state that puts all probability amplitude on $01001$.
+Because gates $A$ are linear operators, it is sufficient to define their behavior on definite states $\ket{x}$ for $x \in \{0,1\}^k$,
+since for a superposition $\phi = \sum_x \phi_x \ket{x}$ we have $A\phi = \sum_x \phi_x A \ket{x}$.
 
-\newcommand{\Ha}{\mathsf{H}}
-\newcommand{\CNOT}{\mathsf{CNOT}}
+\subsection{The Hadamard gate}
+
+\newcommand{\Ha}{H}
 \newcommand{\CCNOT}{\mathsf{CCNOT}}
 
 The Hadamard gate $\Ha$ operates on one bit, and is defined as:
@@ -192,48 +195,65 @@ This is what $\Ha_1$ does:
 \end{align*}
 Try writing down $H_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
 
-The CNOT gate is defined as:
+\subsection{Classical gates}
+
+Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define a classical gate $C_f$ given by:
 \begin{align*}
-  \CNOT \ket{00} = \ket{00} \\
-  \CNOT \ket{01} = \ket{01} \\
-  \CNOT \ket{10} = \ket{11} \\
-  \CNOT \ket{11} = \ket{10}
+  C_f \ket{x} = \ket{f(x)}
 \end{align*}
+That is, given a definite state $\ket{x}$, it outputs another definite state $\ket{f(x)}$.
+The function $f$ must be bijective in order for this to be a unitary operator.
 
-The CNOT gate implements a classical boolean gate, in the sense that if you input a definite state it also outputs a definite state, but we extend it to superpositions by linearity.
-In order for the operation to be unitary, all possible states have to appear on the right hand sides, \ie it wouldn't be valid to have an operation with
-$M \ket{00} = \ket{00}$ and $M \ket{01} = \ket{00}$, as this wouldn't be unitary.
-
-The $\CNOT$ gate flips the second bit if the first bit is $1$.
-Similarly, there is the $\CCNOT$ gate, which operates on $3$ bits, and flips the third bit if both the first and second bits are $1$.
-Like with the Hadamard gate, if we have $n$ bits we have $\CNOT_{ij}$ and $\CCNOT_{ijk}$ gates, operating on those bits.
-The Hadamard and CCNOT gates are a universal set of gates, which means that any unitary $2^n$-by-$2^n$ matrix can be arbitrarily closely approximated as a product of the $\Ha_i$ and the $\CCNOT_{ijk}$ gates.
-
-Thus, we input the matrix $U$ into the quantum computer as a list of operations, e.g.
+A common trick is to start with a boolean function $g : \{0,1\}^{k-1} \to \{0,1\}$ and define
 \begin{align*}
-  U = H_1 \cdot \CNOT_{12} \cdot H_2 \cdots H_4
+  f(b_1,\cdots,b_{k-1},b_k) = (b_1,\cdots,b_{k-1}, b_k \oplus g(b_1,\cdots,b_{k-1}))
 \end{align*}
-The initial state is required to be a definite state $\phi = \ket{x}$.
+This function $f$ leaves the first $k-1$ bits alone, and XORs the last bit with $g(b_1,\cdots,b_{k-1})$.
+You may verify that $f$ is always bijective.
 
-\textbf{We arrive at a more refined description of what a quantum computer is:}
-\begin{itemize}
-  \item Its input is a $2^k$-by-$2^k$ matrix $U$ represented compactly as a circuit, and an initial state $x$.
-  \item Its output is the bit string $y$ with probability $|U_{x,y}|^2$.
-\end{itemize}
+The CCNOT gate is an example of this: we take $g(b_1,b_2)$ to be the local AND of $b_1$ and $b_2$.
+This gives us a gate that operates on three bits, which leaves the first two bits alone and flips the third bit if the first two bits are both $1$.
+The CCNOT gate is a universal classical gate: any bijection $f$ can be built out of CCNOT gates (analogous to how any boolean function can be built out of NAND gates).
+As with Hadamard gates, we can apply a CCNOT gate to any three bits in the state, and thus we have $\CCNOT_{ijk}$ gates,
+which applies the gate to bits $i,j,k$.
 
-\section{The Deutsch-Jozsa algorithm}
+\subsection{Composition of gates}
 
-TODO
+We input the matrix $U$ into the quantum computer as a sequence of operations, e.g.
+\begin{align*}
+  U = H_2 \cdot H_3 \cdot \CCNOT_{234} \cdot H_2 \cdot H_4 \cdot \CCNOT_{123} \cdot H_1 \cdot H_2
+\end{align*}
+We can graphically represent this circuit as follows:
+\\
+\begin{center}
+\begin{quantikz}
+  & \gate{H} & \gate[wires=3][2cm]{CCNOT} & \qw & \qw & \qw & \qw \\
+  & \gate{H} & & \gate{H} & \gate[wires=3][2cm]{CCNOT} & \gate{H} & \qw \\
+  & \qw & \qw & \qw & & \gate{H} & \qw \\
+  & \qw & \qw & \gate{H} & & \qw & \qw \\
+\end{quantikz}
+\end{center}
+
+The Hadamard gate and CCNOT gate together are universal, in the sense that any quantum computation can be done using only these two gates.\footnote{This more or less means that any unitary matrix can be approximated as product of Hadamard gates and CCNOT gates.
+Since these gates all have real valued matrices, this is not exactly true, see \cite{aharonovSimpleProofThat2003} for the technical sense in which these two gates are universal.}
+
+\section{The Deutsch–Jozsa algorithm}
+
+
 
 \section{A quantum circuit simulator}
 
-\begin{enumerate}
-  \item Hadamard gate
-  \item Classical f xor gate
-\end{enumerate}
+TODO
+
+\section{Quantum programming languages}
+
+A quantum programming language is a high level language for assembling quantum circuits.
+These languages often include features that allow you to take classical computation and turn them into a quantum circuit (e.g. using a large number of CNOT gates),
+and some languages go far beyond this in terms of feature set.
+See \url{https://en.wikipedia.org/wiki/Quantum_programming} for a list of quantum programming languages.
 
 \bibliographystyle{alphaurl}
-\bibliography{references}
+\bibliography{quantum}
 
 
 \end{document}
