@@ -1,0 +1,180 @@
+
+\documentclass[a4paper, 11pt]{article}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xspace}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
+  keywordstyle=\color{blue},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   columns=fullflexible,
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   literate=
+    % {epsilon}{$\epsilon$}1
+    % {empty}{$\emptyset$}1
+    % {forall}{$\forall$}1
+    % {exists}{$\exists$}1
+    % {<->}{$\iff$}1
+    {->}{$\to\ $}1
+    % {<-}{$\leftarrow\ $}1
+    {=>}{$\implies\ $}1
+    % {fun}{$\lambda$}1
+    % {and}{$\wedge$}1
+    % {or}{$\vee$}1
+    {cdot}{$\cdot$ }1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+% =========== TIKZ ===========
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.geometric, arrows}
+% \usetikzlibrary{fit}
+% \usetikzlibrary{svg.path}
+% % \usetikzlibrary{graphdrawing}
+% % \usetikzlibrary{graphdrawing.force}
+% % \usetikzlibrary{graphdrawing.layered}
+% \usetikzlibrary{decorations}
+% \usetikzlibrary{decorations.markings}
+% \usetikzlibrary{backgrounds}
+
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\usepackage{lipsum}
+
+\title{Euler product}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+Start with the formula for $df$ in terms of $dx$ \& $dy$:
+\begin{align*}
+  df = \frac{\partial f}{\partial x} dx
+     + \frac{\partial f}{\partial y} dy
+\end{align*}
+This really means:
+\begin{align*}
+  df = \frac{\partial f}{\partial x}\bigg\rvert_y dx
+     + \frac{\partial f}{\partial y}\bigg\rvert_x dy
+\end{align*}
+Wedge both sides with $dy$:
+\begin{align*}
+  df \wedge dy
+  = \frac{\partial f}{\partial x}\bigg\rvert_y dx \wedge dy + \frac{\partial f}{\partial y}\bigg\rvert_x dy \wedge dy
+  = \frac{\partial f}{\partial x}\bigg\rvert_y dx \wedge dy
+\end{align*}
+Therefore:
+\begin{align*}
+  \frac{\partial f}{\partial x}\bigg\rvert_y =
+  \frac{df \wedge dy}{dx \wedge dy}
+\end{align*}
+
+Application: Euler product formula.
+\begin{align*}
+  \frac{\partial u}{\partial v}\bigg\rvert_w \cdot
+  \frac{\partial v}{\partial w}\bigg\rvert_u \cdot
+  \frac{\partial w}{\partial u}\bigg\rvert_v
+&=\frac{du \wedge dw}{dv \wedge dw} \cdot
+  \frac{dv \wedge du}{dw \wedge du} \cdot
+  \frac{dw \wedge dv}{du \wedge dv} \\
+&=\frac{du \wedge dw}{dw \wedge du} \cdot
+  \frac{dv \wedge du}{du \wedge dv} \cdot
+  \frac{dw \wedge dv}{dv \wedge dw} \\
+&= (-1) \cdot (-1) \cdot (-1) \\
+&= -1
+\end{align*}
+
+\newpage
+Cramer's rule using the wedge product \cite{joot}.
+
+Let $A$ be a $2 \times 2$ matrix and $b \in \R^2$. System of equations:
+
+\begin{align*}
+  A\begin{pmatrix}x\\y\end{pmatrix} = b
+\end{align*}
+That is,
+\begin{align*}
+  A_1 x + A_2 y = b
+\end{align*}
+Wedge both sides with $A_2$:
+\begin{align*}
+  A_1 \wedge A_2 x + A_2 \wedge A_2 y = b \wedge A_2
+\end{align*}
+So
+\begin{align*}
+  x = \frac{b \wedge A_2}{A_1 \wedge A_2}
+\end{align*}
+
+\begin{align*}
+  b &= x A_1 + y A_2 & \text{$\implies$ wedge with $A_2$}\\
+  df &= \frac{\partial f}{\partial x}\bigg\rvert_y dx
+     + \frac{\partial f}{\partial y}\bigg\rvert_x dy& \text{$\implies$ wedge with $dy$}\\
+\end{align*}
+
+\newcommand{\pconst}[2]{\frac{\partial #1}{\partial #2}\bigg\rvert}
+
+\begin{align*}
+  \pconst{a}{b}_c \cdot \pconst{c}{d}_b \cdot \pconst{b}{a}_d \cdot \pconst{d}{c}_a = 1
+\end{align*}
+
+\bibliographystyle{alphaurl}
+\bibliography{references}
+
+
+\end{document}

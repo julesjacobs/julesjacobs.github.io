@@ -1,16 +1,16 @@
 # Fdb version 3
-["bibtex kirchoff"] 1628450128 "kirchoff.aux" "kirchoff.bbl" "kirchoff" 1628450133
+["bibtex kirchoff"] 1630404639 "kirchoff.aux" "kirchoff.bbl" "kirchoff" 1630404713
   "/usr/local/texlive/2020/texmf-dist/bibtex/bst/base/alpha.bst" 1292289607 23907 a5f93555796fb564b924339521f10a7c ""
-  "kirchoff.aux" 1628450132 2986 e4f72aaea6cb33f345684bb8b0e1f3d1 "lualatex"
+  "kirchoff.aux" 1630404713 2986 e17afd92ac028189c1ed5285044b94dc "lualatex"
   "references.bib" 1627140295 414 050ec8671d7de4d7f573472680c32994 ""
   (generated)
-  "kirchoff.bbl"
   "kirchoff.blg"
-["lualatex"] 1628450128 "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1628450133
+  "kirchoff.bbl"
+["lualatex"] 1630404709 "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf" "kirchoff" 1630404713
   "/Users/jules/Library/texlive/2020/texmf-var/luatex-cache/generic-dev/fonts/otl/lmroman10-regular.luc" 1619697969 123160 fae69f77759c5c9c8b33ffe7ddbbe92a ""
   "/Users/jules/Library/texlive/2020/texmf-var/luatex-cache/generic-dev/names/luaotfload-names.luc" 1619697969 1444017 8c7b61897995c164c96d3ac4d15337f0 ""
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1628450132 2986 e4f72aaea6cb33f345684bb8b0e1f3d1 ""
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1628450126 27237 2ce7fd214d94156976232bb2e815ff79 ""
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.aux" 1630404713 2986 e17afd92ac028189c1ed5285044b94dc ""
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex" 1630404705 27795 f76ef819b3012e19cb6045ad1b989868 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/lm/ec-lmr10.tfm" 1254269338 12056 7e13df7fe4cbce21b072ba7c4f4deb6e ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/lm/ec-lmss10.tfm" 1254269338 11176 53ebf7a171df1f9447b387b178768bb5 ""
   "/usr/local/texlive/2020/texmf-dist/fonts/tfm/public/lm/ec-lmss8.tfm" 1254269338 11180 705632ac6b4fb69204ad970192cdf4e5 ""
@@ -328,15 +328,15 @@
   "/usr/local/texlive/2020/texmf-var/web2c/luahbtex/lualatex.fmt" 1608332189 2691551 de59207e21d405d9a93a5d43585db01b ""
   "forest1.tikz" 1627159920 2208 7ac6621669332e6b4d09c2af93dba25e ""
   "graph1.tikz" 1627161581 2405 3788ef8bea01ab4b0234f1eec5a9991e ""
-  "kirchoff.aux" 1628450132 2986 e4f72aaea6cb33f345684bb8b0e1f3d1 "lualatex"
-  "kirchoff.bbl" 1628450128 275 e198497ff424aae3e1c4b1c7ee92fcd8 "bibtex kirchoff"
-  "kirchoff.out" 1628450132 562 d7f8b52731657913332dc82b6c41edb7 "lualatex"
-  "kirchoff.tex" 1628450126 27237 2ce7fd214d94156976232bb2e815ff79 ""
+  "kirchoff.aux" 1630404713 2986 e17afd92ac028189c1ed5285044b94dc "lualatex"
+  "kirchoff.bbl" 1630404639 275 e198497ff424aae3e1c4b1c7ee92fcd8 "bibtex kirchoff"
+  "kirchoff.out" 1630404713 562 d7f8b52731657913332dc82b6c41edb7 "lualatex"
+  "kirchoff.tex" 1630404705 27795 f76ef819b3012e19cb6045ad1b989868 ""
   "tcgraph1.tikz" 1627200439 2478 0bcc65d6ad79b2154a7747b9e7d92b6b ""
   (generated)
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
-  "kirchoff.pdf"
-  "kirchoff.aux"
   "kirchoff.log"
-  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf"
   "kirchoff.out"
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.pdf"
+  "kirchoff.pdf"
+  "/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.log"
+  "kirchoff.aux"

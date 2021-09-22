@@ -1,4 +1,4 @@
-This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.12.18)  8 AUG 2021 21:15
+This is LuaHBTeX, Version 1.12.0 (TeX Live 2020)  (format=lualatex 2020.12.18)  31 AUG 2021 12:11
  restricted system commands enabled.
  file:line:error style messages enabled.
 **/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.tex
@@ -1128,31 +1128,31 @@ Overfull \hbox (47.16206pt too wide) detected at line 390
 []
  []
 
-[6] [7] (/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.bbl) [8]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 512.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 512.
+[6] [7] (/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.bbl [8]) [9]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 531.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 531.
  (/Users/jules/git/julesjacobs.github.io/notes/kirchoff/kirchoff.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 512.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 512.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 531.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 531.
 Package rerunfilecheck Info: File `kirchoff.out' has not changed.
 (rerunfilecheck)             Checksum: D7F8B52731657913332DC82B6C41EDB7;562.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 512.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 531.
 )
 
 Here is how much of LuaTeX's memory you used:
- 31015 strings out of 480992
+ 31018 strings out of 480992
  125016,953878 words of node,token memory allocated
- 1769 words of node memory still in use:
-   7 hlist, 2 vlist, 2 rule, 2 glue, 169 kern, 1 glyph, 108 attribute, 60 glue_spec, 108 attribute_list, 2 write nodes
-   avail lists: 1:10,2:11102,3:3532,4:69,5:200,6:27,7:4692,8:75,9:1254,10:8,11:258
+ 1841 words of node memory still in use:
+   7 hlist, 2 vlist, 2 rule, 2 glue, 177 kern, 1 glyph, 116 attribute, 60 glue_spec, 116 attribute_list, 2 write nodes
+   avail lists: 1:10,2:11086,3:3532,4:73,5:220,6:28,7:4692,8:75,9:1254,10:8,11:258
  47254 multiletter control sequences out of 65536+600000
  177 fonts using 13155643 bytes
  60i,16n,78p,706b,1013s stack positions out of 5000i,500n,10000p,200000b,100000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/lm/lmss8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7v.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr8t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb>
-Output written on kirchoff.pdf (8 pages, 121643 bytes).
+Output written on kirchoff.pdf (9 pages, 123603 bytes).
 
-PDF statistics: 166 PDF objects out of 1000 (max. 8388607)
- 144 compressed objects within 2 object streams
- 46 named destinations out of 1000 (max. 131072)
+PDF statistics: 173 PDF objects out of 1000 (max. 8388607)
+ 150 compressed objects within 2 object streams
+ 49 named destinations out of 1000 (max. 131072)
  48 words of extra memory for PDF output out of 10000 (max. 100000000)
 

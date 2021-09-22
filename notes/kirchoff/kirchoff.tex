@@ -502,6 +502,25 @@ Note that $\det(I - xA)$ is a polynomial, even though $f_i(x)$ is a power series
   If $G$ is a forest, then it has no strictly upward loops, so $f_i(x) = 0$, so $\det(I - xA_G) = 1$. If $G$ has a cycle, let $i$ be the lowest vertex on the cycle. Then $f_i(x) = x^k$ where $k$ is the length of the cycle. Now substitute $x = 1$ to obtain $\det(I - A_G) = 0$.
 \end{proof}
 
+\begin{definition}
+  Let $K$ be a matrix of natural numbers. Define $A^K = \prod_{i,j} A_{ij}^{K_{ij}}$.
+\end{definition}
+
+
+\begin{theorem}
+  The coefficient of $A^K$ in $\det(I - A)$ is given by
+  \begin{align*}
+    [A^K] \det(I - A) = \begin{cases}
+      \frac{\prod_i c(K)_i!}{\prod_{ij} K_{ij}!} & \text{if } c(K) = r(K) \\
+      0 & \text{otherwise}
+    \end{cases}
+  \end{align*}
+  where $c(K)$ and $r(K)$ are the column and row sums of $K$:
+  \begin{align*}
+    c(K)_i = \sum_j K_{ji} \hspace{3cm} r(K)_i = \sum_j K_{ij}
+  \end{align*}
+\end{theorem}
+
 
 \paragraph{Acknowledgements.}
 Thanks to Darij Grinberg for pointing out mistakes and suggesting improvements, and for informing me about the relationship of \Cref{cor:strictlyupwardloops} to Theorems 1\&2 of \cite{Rote2001}.
