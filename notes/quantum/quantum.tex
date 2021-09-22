@@ -198,16 +198,16 @@ Try writing down $H_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notat
 \subsection{Classical gates}
 
 Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define a classical gate $C_f$ given by:
-\begin{align*}
-  C_f \ket{x} = \ket{f(x)}
-\end{align*}
+\begin{align}
+  C_f \ket{x} = \ket{f(x)}         \label{eqn:classicalgate}
+\end{align}
 That is, given a definite state $\ket{x}$, it outputs another definite state $\ket{f(x)}$.
 The function $f$ must be bijective in order for this to be a unitary operator.
 
 A common trick is to start with a boolean function $g : \{0,1\}^{k-1} \to \{0,1\}$ and define
-\begin{align*}
-  f(b_1,\cdots,b_{k-1},b_k) = (b_1,\cdots,b_{k-1}, b_k \oplus g(b_1,\cdots,b_{k-1}))
-\end{align*}
+\begin{align}
+  f(b_1,\cdots,b_{k-1},b_k) = (b_1,\cdots,b_{k-1}, b_k \oplus g(b_1,\cdots,b_{k-1}))     \label{eqn:xortrick}
+\end{align}
 This function $f$ leaves the first $k-1$ bits alone, and XORs the last bit with $g(b_1,\cdots,b_{k-1})$.
 You may verify that $f$ is always bijective.
 
@@ -223,7 +223,7 @@ That is, it flips the third bit if the first two bits are $1$, and leaves the ot
 
 \subsection{Composition of gates}
 
-We input the matrix $U$ into the quantum computer as a sequence of operations, e.g.
+We input the matrix $U$ into the quantum computer as a sequence of operations, e.g.:
 \begin{align*}
   U = H_2 \cdot H_3 \cdot \CCNOT_{234} \cdot H_2 \cdot H_4 \cdot \CCNOT_{123} \cdot H_1 \cdot H_2
 \end{align*}
@@ -243,11 +243,27 @@ Since these gates all have real valued matrices, this is not exactly true, see \
 
 \section{The Deutsch–Jozsa algorithm}
 
-TODO
+We are given a boolean function $g : \{0,1\}^n \to \{0,1\}$ with $n$ inputs and $1$ output.
+We are promised that $g$ is either \emph{constant} or \emph{balanced} (meaning that it is $0$ on half of its inputs and $1$ on the other half).
+Our task is to determine whether it is constant or balanced.
+The function $g$ is assumed to be efficiently implementable using logic gates.
 
-\section{A quantum circuit simulator}
+Classically, it seems that we cannot do better than testing $g$ on $2^n/2+ 1$ inputs:
+if they are all the same, then $g$ is constant, and if they are not all the same, then by assumption $g$ must be balanced.
 
-TODO
+The Deutsch–Jozsa algorithm for this problem operates on $n+1$ bits and is given by
+\begin{align*}
+  U = H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1}
+\end{align*}
+where
+\begin{itemize}
+  \item $H^{\otimes n+1} = H_1 \cdot H_2 \cdots H_n \cdot H_{n+1}$ applies a Hadamard gate to every bit.
+  \item $C_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $n$-th bit with $g(b_1,\cdots,b_{n})$.
+\end{itemize}
+
+Running this algorithm on input $\ket{00\cdots01}$ always produces an output of the form $\ket{00\cdots0b}$ if $f$ is constant,
+and will give a different output if $f$ is balanced \cite{DeutschJozsaAlgorithm2021}.
+Thus, if we can encode $f$ efficiently using gates, then a quantum computer can efficiently determine whether it is constant or balanced.
 
 \section{Quantum programming languages}
 
