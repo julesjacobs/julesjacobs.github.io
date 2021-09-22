@@ -215,7 +215,11 @@ The CCNOT gate is an example of this: we take $g(b_1,b_2)$ to be the local AND o
 This gives us a gate that operates on three bits, which leaves the first two bits alone and flips the third bit if the first two bits are both $1$.
 The CCNOT gate is a universal classical gate: any bijection $f$ can be built out of CCNOT gates (analogous to how any boolean function can be built out of NAND gates).
 As with Hadamard gates, we can apply a CCNOT gate to any three bits in the state, and thus we have $\CCNOT_{ijk}$ gates,
-which applies the gate to bits $i,j,k$.
+which applies the gate to bits $i,j,k$. This is what $\CCNOT_{123}$ does:
+\begin{align*}
+  \CCNOT_{123} \ket{b_1 b_2 b_3 b_4 \cdots b_k} = \ket{b_1 b_2 (b_3 \oplus (b_1 \wedge b_2)) b_4 \cdots b_k}
+\end{align*}
+That is, it flips the third bit if the first two bits are $1$, and leaves the other bits alone.
 
 \subsection{Composition of gates}
 
