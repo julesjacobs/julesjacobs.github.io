@@ -103,23 +103,30 @@
 \begin{document}
 \maketitle
 
-% \begin{abstract}
-%   This note is a quick introduction to quantum programming.
-% \end{abstract}
+\begin{abstract}
+  This note is a quick introduction to quantum programming in the circuit model.
+  A quantum computer on $k$ bits gets as input a \emph{quantum circuit description},
+  and produces as output a random string of $k$ bits according to a probability distribution determined by the quantum circuit.
+  A quantum programming language in this model is a language for creating such quantum circuits.
 
-\subsection{Quantum states}
+  This note contains a quick but formal introduction to these concepts.
+  After reading it, you will be able to write a computer program that simulates such a quantum computer
+  (albeit exponentially more slowly than an actual quantum computer would execute a circuit, which is the point!).
+\end{abstract}
+
+\section{Quantum states}
 
 Imagine that we have a box with some physical system inside of it, with a finite set $S$ of possible states.
-A probability distribution over $S$ is a vector $\vec{p}$ of probabilities, one probability $p_i \in [0,1]$ for each state $x \in S$, such that $\sum_x p_x = 1$.
+A probability distribution over $S$ is a vector $\vec{p}$ of probabilities, one probability $p_x \in [0,1]$ for each state $x \in S$, such that $\sum_x p_x = 1$.
 
 A \emph{quantum state} over $S$, on the other hand, is a vector $\vec{\phi}$ of \emph{probability amplitudes}, one complex number $\phi_x \in \C$ for each state $x \in S$.
-If we \emph{measure} such a quantum state, we obtain the outcome $x$ with probability $p_x = |\phi_x|^2$.
+If we \emph{measure} such a quantum state, we obtain outcome $x \in S$ with probability $p_x = |\phi_x|^2$.
 Thus, in order for $\phi$ to be a proper quantum state, we must have $\sum_x |\phi_x|^2 = 1$.
 
-\subsection{Time evolution}
+\section{Time evolution in quantum mechanics}
 
 Imagine that the system in the box evolves in time according to some laws of physics.
-In quantum mechanics, these laws of physics are given by a matrix $U$ that multiplies the state every time step.
+In quantum mechanics, the state evolution is given by a matrix $U$ that multiplies the state every time step.
 If the state is currently $\phi$, then at the next time step the state is $U\phi$.
 If there are $n = |S|$ possible states, then $U$ is an $n \times n$ matrix.
 Only matrices that preserve the condition that the probabilities sum to $1$ are allowed: if $\sum_x |\phi_x|^2 = 1$ we must have $\sum_x |(U\phi)_x|^2 = 1$.
@@ -128,37 +135,43 @@ Such matrices are called \emph{unitary}.
 It might be helpful to compare with probabilistic evolution of the state as in a Markov chain.
 In that case we model the state with a probability vector $\vec{p}$ and we multiply this vector with a matrix $M$ at each time step.
 If the state is currently $p$, then at the next time step the state is $Mp$.
-Matrices that preserve the condition that all probaiblities are non-negative and that their sum remains $1$ are called \emph{stochastic matrices}.
+Matrices that preserve the condition that all probabilities are non-negative and that their sum remains $1$ are called \emph{stochastic matrices}.
 The entry $M_{xy}$ of the matrix is the probability that the system will step to state $y$, if the state is currently $x$.
-Similarly, the entry $U_{xy}$ of the unitary matrix, is the probability amplitude of next state being $y$, if the state is currently $x$.
+Similarly, the entry $U_{xy}$ of the unitary matrix, is the \emph{probability amplitude} of next state being $y$, if the state is currently $x$.
 
-\subsection{What a quantum computer is}
+\section{What a quantum computer is}
 
 A quantum computer with state set $S$ is a device where we can \emph{input} such a matrix $U$ and an initial state $\phi$.
 It will then do one step of time evolution to $\phi' = U\phi$, and it will \emph{measure} the new state $\phi'$ and tell us which outcome $x \in S$ it got.
-This outcome is random, and we will get answer $x$ with probability $|(U\phi)_x|^2$.
-Thus, a quantum computer is a kind of universal quantum mechanics simulator, where we \emph{input} the laws of physics $U$.
+This outcome is random, and we will get answer $x$ with probability $|\phi'_x|^2$.
+Thus, a quantum computer is a kind of universal quantum mechanics simulator:
+\begin{enumerate}
+  \item We \emph{input} the initial state $\phi$ and state evolution matrix $U$
+  \item The quantum computer \emph{outputs} answer $x \in S$ with probability $|(U\phi)_x|^2$
+\end{enumerate}
 
-\subsection{Quantum circuits}
+We will refine this description in the next section.
+
+\section{Quantum circuits}
 
 In physics, the state set $S$ is often infinite, and sometimes even uncountably infinite (e.g. the position of a particle),
 but in quantum programming the set $S$ is taken to be strings of $k$ bits, so that $|S| = 2^k$.
-The matrix $U$ is a $2^k$-by-$2^k$ matrix. One might wonder how we even input the $U$ to the quantum computer, if it contains an exponential amount of data.
+Still, $U$ is a $2^k$-by-$2^k$ matrix. One might wonder how we even input the $U$ to the quantum computer, if it contains an exponential amount of data.
 
 The answer is that we can't quite input \emph{any} matrix $U$; it must be encoded as a \emph{quantum circuit}.
-A quantum circuit is a list of operations we do on the state $x$ of $n$ bits, where each operation operates on some small subset of the bits and leaves the rest of the bits alone.
+A quantum circuit is a list of operations we do on the state of $n$ bits, where each operation operates on some small subset of the bits and leaves the rest of the bits alone.
 
-Often, a small set of operations is used, such as the \emph{Hadamard gate} and the \emph{CNOT gate}.
-The Hadamard gate operates one bit, and the CNOT gate operates on two bits.
+Often, a small set of primitive operations is used, such as the \emph{Hadamard gate} and the \emph{CNOT gate}.
+The Hadamard gate operates on one bit, and the CNOT gate operates on two bits.
 
-In order to describe what they do, we have to introduce a bit of notation.
-We use the notation $\phi = \ket{01001}$ for the state $\phi$ where $\phi_{01001} = 1$ and $\phi_x = 0$ otherwise, \ie the state that puts all probability amplitude on $01001$.
+In order to describe what they do, we introduce a bit of notation for \emph{definite states}.
+We use the notation $\phi = \ket{01001}$ for the definite state $\phi$ where $\phi_{01001} = 1$ and $\phi_x = 0$ otherwise, \ie the state that puts all probability amplitude on $01001$.
 
 \newcommand{\Ha}{\mathsf{H}}
 \newcommand{\CNOT}{\mathsf{CNOT}}
 \newcommand{\CCNOT}{\mathsf{CCNOT}}
 
-The Hadamard gate $\Ha$ works on one bit, and is defined as:
+The Hadamard gate $\Ha$ operates on one bit, and is defined as:
 \begin{align*}
   \Ha\ket{0} = \frac{1}{\sqrt{2}}(\ket{0} + \ket{1}) \\
   \Ha\ket{1} = \frac{1}{\sqrt{2}}(\ket{0} - \ket{1})
@@ -177,7 +190,7 @@ This is what $\Ha_1$ does:
   \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}) \\
   \Ha_1 \ket{1 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} - \ket{1 b_1 b_2 \cdots b_n})
 \end{align*}
-Try writing down $H_1$ has a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
+Try writing down $H_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
 
 The CNOT gate is defined as:
 \begin{align*}
@@ -187,24 +200,37 @@ The CNOT gate is defined as:
   \CNOT \ket{11} = \ket{10}
 \end{align*}
 
-The CNOT gate is a classical gate, in the sense that it only changes some definite states into other definite states.
+The CNOT gate implements a classical boolean gate, in the sense that if you input a definite state it also outputs a definite state, but we extend it to superpositions by linearity.
 In order for the operation to be unitary, all possible states have to appear on the right hand sides, \ie it wouldn't be valid to have an operation with
 $M \ket{00} = \ket{00}$ and $M \ket{01} = \ket{00}$, as this wouldn't be unitary.
 
 The $\CNOT$ gate flips the second bit if the first bit is $1$.
 Similarly, there is the $\CCNOT$ gate, which operates on $3$ bits, and flips the third bit if both the first and second bits are $1$.
-Like with to the Hadamard gate, if we have $n$ bits we have $\CNOT_{ij}$ and $\CCNOT_{ijk}$ gates, operating on those bits.
+Like with the Hadamard gate, if we have $n$ bits we have $\CNOT_{ij}$ and $\CCNOT_{ijk}$ gates, operating on those bits.
 The Hadamard and CCNOT gates are a universal set of gates, which means that any unitary $2^n$-by-$2^n$ matrix can be arbitrarily closely approximated as a product of the $\Ha_i$ and the $\CCNOT_{ijk}$ gates.
 
-Thus, a we input into the quantum computer a list of operations, e.g.
+Thus, we input the matrix $U$ into the quantum computer as a list of operations, e.g.
 \begin{align*}
   U = H_1 \cdot \CNOT_{12} \cdot H_2 \cdots H_4
 \end{align*}
-and an initial state $x$, and the quantum computer will sample for us a random final state $y$ with probability $p_y = |(U\ket{x})_y|^2$.
+The initial state is required to be a definite state $\phi = \ket{x}$.
 
-\subsection{The Deutsch-Jozsa algorithm}
+\textbf{In summary, what is a quantum computer:}
+\begin{itemize}
+  \item Its input is a $2^k$-by-$2^k$ matrix $U$ represented compactly as a circuit, and an initial state $x$.
+  \item Its output is the bit string $y$ with probability $|U_{x,y}|^2$.
+\end{itemize}
+
+\section{The Deutsch-Jozsa algorithm}
 
 TODO
+
+\section{A quantum circuit simulator}
+
+\begin{enumerate}
+  \item Hadamard gate
+  \item Classical f xor gate
+\end{enumerate}
 
 \bibliographystyle{alphaurl}
 \bibliography{references}
