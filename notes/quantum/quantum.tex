@@ -258,7 +258,7 @@ The Deutsch–Jozsa algorithm for this problem operates on $n+1$ bits and is giv
 where
 \begin{itemize}
   \item $H^{\otimes n+1} = H_1 \cdot H_2 \cdots H_n \cdot H_{n+1}$ applies a Hadamard gate to every bit.
-  \item $C_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $n$-th bit with $g(b_1,\cdots,b_{n})$.
+  \item $C_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $(n+1)$-th bit with $g(b_1,\cdots,b_{n})$.
 \end{itemize}
 
 Running this algorithm on input $\ket{00\cdots01}$ always produces an output of the form $\ket{00\cdots0b}$ if $f$ is constant,
