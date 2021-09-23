@@ -7,20 +7,21 @@ def print_state(s):
   print(" + ".join([f'{s[i]:.5f}|{bin(i)[2:].zfill(n)}>'
                       for i in range(len(s)) if s[i] != 0]))
 
-# initialize the basis state |x>, where x is a string of 0's and 1's
-def init(x):
+# gives the basis state |x>, where x is a string of 0's and 1's
+def basis(x):
   s = [0]*2**n
   s[int(x,base=2)] = 1
   return s
 
-# apply a classical gate to the state, where f is a bijective function on bit strings
+# apply the classical gate C_f to the state,
+# where f is a bijective function on bit strings
 def classical(s,f):
   s2 = [0]*2**n
   for x in range(2**n):
     s2[f(x)] = s[x]
   return s2
 
-# apply the Hadamard gate to bit k
+# apply the Hadamard gate H_k, where k is the bit to apply the gate to
 def hadamard(s,k):
   bitk = 1 << k
   s2 = [0]*2**n
@@ -30,7 +31,7 @@ def hadamard(s,k):
   return s2
 
 # example
-s = init("10101")
+s = basis("10101")
 print_state(s) # 1.00000|10101>
 s = hadamard(s,1)
 print_state(s) # 0.70711|10101> + 0.70711|10111>
