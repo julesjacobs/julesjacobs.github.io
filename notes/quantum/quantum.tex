@@ -301,6 +301,12 @@ To determine the probability of measuring output $\ket{00\cdots01}$, we square i
 Notice that the terms sum to $1$ if $g$ is constant. If $g$ is balanced then precisely half the terms are $+1$ and half the terms are $-1$, so they sum to $0$.
 Therefore, if $g$ is constant, then we are certain to get the answer $00\cdots01$, and if $g$ is balanced then we are certain \emph{not} to get this answer.
 
+\section{A quantum simulator}
+
+Here is a Python program that allows us to apply Hadamard gates and classical gates to a state vector.
+
+\lstinputlisting[language=Python]{qsim.py}
+
 \section{Quantum programming languages}
 
 A quantum programming language is a high level language for assembling quantum circuits.
