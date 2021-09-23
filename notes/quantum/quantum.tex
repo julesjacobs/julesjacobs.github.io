@@ -268,13 +268,13 @@ Thus, if we can encode $g$ efficiently using gates, then a quantum computer can 
 \subsection{Correctness of the algorithm}
 
 Let us first see what the operator $H^{\otimes n}$ does on a general basis state $\ket{x}$, where $x$ is a bit string of length $n$.
-Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings:
+Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings,
 \begin{align*}
   H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_{y \in \{0,1\}^n} (-1)^{\sigma_{x,y}} \ket{y}
 \end{align*}
 where $(-1)^{\sigma_{x,y}}$ is the sign of $\ket{y}$ in the sum.
 What is this sign?
-By the definition of the Hadamard gate (\ref{eqn:hadamard}), we get a minus sign each each time the bits in \emph{both} $x$ and $y$ are $1$.
+By the definition of the Hadamard gate (\ref{eqn:hadamard}), we get a minus sign each each time the bits in \emph{both $x$ and $y$} are $1$.
 Thus, $\sigma_{x,y} =$ the number of $1$ bits in the bitwise AND $x \& y$.
 For example, if $x = (00\cdots0)$ then $\sigma_{x,y} = 0$ and therefore $H^{\otimes n} \ket{00\cdots0} = \frac{1}{\sqrt{2}^n} \sum_y \ket{y}$.
 
@@ -292,7 +292,7 @@ We calculate what our $U$ does on $\ket{00\cdots01}$:
   &= \sum_y \left(\sum_x \frac{(-1)^{g(x)+\sigma_{x,y}}}{2^n}\right)\ket{y1}
 \end{align*}
 
-To determine the probability of measuring $\ket{00\cdots01}$, we square its coefficient in this sum:
+To determine the probability of measuring output $\ket{00\cdots01}$, we square its coefficient in this sum:
 \begin{align*}
   p_{00\cdots01} =\left|\sum_x \frac{(-1)^{g(x)}}{2^n}\right|^2
 \end{align*}
