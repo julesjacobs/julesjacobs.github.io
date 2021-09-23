@@ -81,7 +81,7 @@
 \maketitle
 
 \begin{abstract}
-  Church naturals allow us to represent numbers in pure lambda calculus. In this short note we'll see how to define addition, multiplication, and power on Church nats using a cute notational trick. As a bonus, we'll see how to define predecessor and fast growing functions.
+  Church naturals allow us to represent numbers in pure lambda calculus. In this short note we'll see how to define addition, multiplication, and exponentiation on Church nats using a cute notational trick. As a bonus, we'll see how to define predecessor and fast growing functions.
 \end{abstract}
 
 \newcommand{\ch}[1]{\mathbf{#1}}
@@ -102,7 +102,7 @@ The first few Church natural numbers are:
   \ch{3} &\triangleq{} \lambda f.\lambda z.f (f (f z))
 \end{align*}
 
-Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power.
+Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and exponentiation.
 So think about $\ch{n} f = f^n$ as performing $n$-fold function composition.
 
 If will be helpful to introduce an alternative notation for function application:
@@ -123,7 +123,7 @@ The advantage of this notation is apparent when defining addition and multiplica
   f^{\ch{n}+\ch{m}} \triangleq{} f^\ch{n} \circ f^\ch{m} &&
   f^{\ch{n}\cdot\ch{m}} \triangleq{} (f^\ch{n})^\ch{m}
 \end{align*}
-Raising Church nats to a power is even better: our notation already makes $\ch{n}^\ch{m}$ do the right thing:
+Exponentiation of Church nats is even better: our notation already makes $\ch{n}^\ch{m}$ do the right thing:
 \begin{align*}
   \ch{n}^\ch{m} \equiv \ch{m}(\ch{n}) \tag{already does the right thing!}
 \end{align*}
@@ -133,7 +133,7 @@ The notation makes the proofs that this does arithmetic correctly a triviality: 
   f^{[n]+[m]} = f^{[n]} \circ f^{[m]} = f^n \circ f^m = f^{n+m} = f^{[n+m]}
 \end{align*}
 where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary natural number $n \in \N$ is $n$-fold function composition.
-The proofs for multiplication and power are analogous.
+The proofs for multiplication and exponentiation are analogous.
 
 \section*{Predecessor}
 Surprisingly, defining the predecessor on Church nats is the most difficult. I think this is due to Curry.
