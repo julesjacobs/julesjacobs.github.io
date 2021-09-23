@@ -270,7 +270,7 @@ Thus, if we can encode $g$ efficiently using gates, then a quantum computer can 
 Let us first see what the operator $H^{\otimes n}$ does on a general basis state $\ket{x}$, where $x$ is a bit string of length $n$.
 Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings:
 \begin{align*}
-  H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_y (-1)^{\sigma_{x,y}} \ket{y}
+  H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_{y \in \{0,1\}^n} (-1)^{\sigma_{x,y}} \ket{y}
 \end{align*}
 where $(-1)^{\sigma_{x,y}}$ is the sign of $\ket{y}$ in the sum.
 What is this sign?
