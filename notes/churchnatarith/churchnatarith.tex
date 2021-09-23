@@ -75,74 +75,65 @@
 \newtheorem{corollary}{Corollary}[theorem]
 \usepackage{parskip}
 
-\title{Arithmetic on Church numerals}
+\title{Arithmetic on Church numerals using a notational trick}
 \author{Jules Jacobs}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-  Church naturals allow us to represent numbers in pure lambda calculus. In this short note I'll explain how to define addition, multiplication, and power on Church nats. As a bonus, I'll show how to define fast growing functions.
+  Church naturals allow us to represent numbers in pure lambda calculus. In this short note we'll see how to define addition, multiplication, and power on Church nats using a cute notational trick. As a bonus, we'll see how to define predecessor and fast growing functions.
 \end{abstract}
 
-Church repesents a natural number $n$ as a higher order function, which I'll denote $[n]$. The function $[n]$ takes another function $f$ and composes $f$ with itself $n$ times:
+\newcommand{\ch}[1]{\mathbf{#1}}
+
+Church repesents a natural number $n$ as a higher order function, which I'll denote $\ch{n}$.
+The function $\ch{n}$ takes another function $f$ and composes $f$ with itself $n$ times:
 \[
-  [n]\ f = \underbrace{f \circ f \cdots \circ f}_{n\text{ times}} = f^n
+  \ch{n}\ f = \underbrace{f \circ f \cdots \circ f}_{n\text{ times}} = f^n
 \]
-We can convert a Church nat $a$ back to an ordinary nat by applying it to the ordinary successor function $S : \N \to \N$ given by $S\ n = n+1$: if $a = [n]$ then $a\ s\ 0$ gives us back ordinary natural number $n$ because $a\ s\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
+We can convert a Church nat $\ch{n}$ back to an ordinary nat by applying it to the ordinary successor function $S : \N \to \N$ given by $S\ n = n+1$:
+then $\ch{n}\ S\ 0$ gives us back an ordinary natural number $n$ because $\ch{n}\ S\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
 
 The first few Church natural numbers are:
 \begin{align*}
-  [0] &= \lambda f.\lambda z. z\\
-  [1] &= \lambda f.\lambda z. f z\\
-  [2] &= \lambda f.\lambda z.f (f z)\\
-  [3] &= \lambda f.\lambda z.f (f (f z))
+  \ch{0} &\triangleq{} \lambda f.\lambda z. z\\
+  \ch{1} &\triangleq{} \lambda f.\lambda z. f z\\
+  \ch{2} &\triangleq{} \lambda f.\lambda z.f (f z)\\
+  \ch{3} &\triangleq{} \lambda f.\lambda z.f (f (f z))
 \end{align*}
 
-Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power. So think about $[n] f = f^n$ as performing $n$-fold function composition.
+Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and power.
+So think about $\ch{n} f = f^n$ as performing $n$-fold function composition.
 
-\section*{Successor on Church nats}
+If will be helpful to introduce an alternative notation for function application:
+\begin{align*}
+  x^f \equiv f(x)
+\end{align*}
+This may seem strange at first, but consider that using this notation we can \emph{define} the first few Church natural numbers as:
+\begin{align*}
+  f^\ch{0} &\triangleq{} \mathsf{id}\\
+  f^\ch{1} &\triangleq{} f \\
+  f^\ch{2} &\triangleq{} f \circ f\\
+  f^\ch{3} &\triangleq{} f \circ f \circ f
+\end{align*}
+Note that on the left hand side, we are really defining $\ch{3}$ as $\ch{3}(f) \triangleq{} f \circ f \circ f$.
 
-Let's first define the successor function on Church nats:
-\[
-  [n + 1]\ f = f^{n+1} = f \circ f^n = f \circ ([n]\ f)
-\]
-So if $a$ is a Church nat, then the successor is defined as
-\[
-  s\ a = \lambda f. f \circ (a f) = \lambda f. \lambda z. f (a f z)
-\]
+The advantage of this notation is apparent when defining addition and multiplication on Church nats:
+\begin{align*}
+  f^{\ch{n}+\ch{m}} \triangleq{} f^\ch{n} \circ f^\ch{m} &&
+  f^{\ch{n}\cdot\ch{m}} \triangleq{} (f^\ch{n})^\ch{m}
+\end{align*}
+Raising Church nats to a power is even better: our notation already makes $\ch{n}^\ch{m}$ do the right thing:
+\begin{align*}
+  \ch{n}^\ch{m} \equiv \ch{m}(\ch{n}) \tag{already does the right thing!}
+\end{align*}
 
-\section*{Addition}
-Addition is also fairly easy:
-\[
-  [n+m]\ f = f^{n+m} = f^n \circ f^m = ([n]\ f) \circ ([m]\ f)
-\]
-So if $a,b$ are Church nats, then addition is defined as
-\[
-  a + b = \lambda f. (a f) \circ (b f) = \lambda f. \lambda z. a (b f)
-\]
-
-\section*{Multiplication}
-Multiplication is not much harder:
-\[
-  [n\cdot m] f = f^{n\cdot m} = (f^n)^m = [m]\ ([n]\ f)
-\]
-So if $a,b$ are Church nats, then multiplication is defined as
-\[
-  a \cdot b = \lambda f. a (b f)
-\]
-
-
-\section*{Power}
-Power is a bit trickier:
-\[
-  [n^m] f = f^{(n^m)} = f^{\overbrace{n\cdot n \cdots n}^{m\text{ times}}} = (((f^n)^n)^n \cdots)^n = [n]\ ([n]\ (\cdots [n]\ f)) = ([m]\ [n])\ f
-\]
-So if $a,b$ are Church nats, then power is defined as
-\[
-  a^b = \lambda f. (a\ b) f = a\ b
-\]
-
-Nice! If that explanation was confusing, here's another one. If we apply $b\ f^k$ we get $f^{b\cdot k}$, because the Church nat $b$ composes $f^k$ with itself $b$ times. Therefore $b\ (b\ f^k) = f^{b^2 \cdot k}$, and so on. Therefore, $b\ (b\ \cdots (b f)) = f^{(b^a)}$. But applying the function $b$ an $a$ number of times, is precisely what the action of $a$ as a Church nat is. So $(a\ b) f = f^{(a^b)}$ performs power, so $a^b = a\ b$.
+The notation makes the proofs that this does arithmetic correctly a triviality: if $[n]$ is the Church nat corresponding to an ordinary natural number $n \in \N$, then
+\begin{align*}
+  f^{[n]+[m]} = f^{[n]} \circ f^{[m]} = f^n \circ f^m = f^{n+m} = f^{[n+m]}
+\end{align*}
+where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary natural number $n \in \N$ is $n$-fold function composition.
+The proofs for multiplication and power are analogous.
 
 \section*{Predecessor}
 Surprisingly, defining the predecessor on Church nats is the most difficult. I think this is due to Curry.
