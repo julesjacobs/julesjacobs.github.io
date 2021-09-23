@@ -7,10 +7,10 @@ def print_state(s):
   print(" + ".join([f'{s[i]}|{bin(i)[2:].zfill(n)}>'
                       for i in range(len(s)) if s[i] != 0]))
 
-# initialize a state such as |00010>, where k indicates the position of the 1
-def init(k):
+# initialize the state |x>, where x is a string of 0's and 1's
+def init(x):
   s = [0]*2**n
-  s[1 << k] = 1
+  s[int(x,base=2)] = 1
   return s
 
 # apply a classical gate to the state, where f is a bijective function on bit strings
@@ -30,7 +30,7 @@ def hadamard(s,k):
   return s2
 
 # example
-s = init(1)
+s = init("00010")
 print_state(s)              # 1|00010>
 print()
 print_state(hadamard(s,3))  # 0.7071067811865475|00010> + 0.7071067811865475|01010>
