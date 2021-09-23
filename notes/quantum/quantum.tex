@@ -278,15 +278,17 @@ By the definition of the Hadamard gate (\ref{eqn:hadamard}), we get a minus sign
 Thus, $\sigma_{x,y} =$ the number of $1$ bits in the bitwise AND $x \& y$.
 For example, if $x = (00\cdots0)$ then $\sigma_{x,y} = 0$ and therefore $H^{\otimes n} \ket{00\cdots0} = \frac{1}{\sqrt{2}^n} \sum_y \ket{y}$.
 
+\newcommand{\nexttag}[1]{\tag{#1 $\mapsto$}}
+
 We calculate what our $U$ does on $\ket{00\cdots01}$:
 \begin{align*}
-  U\ket{00\cdots01} &= H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1} \ket{00\cdots01} \tag{perform $H$ on the first $n$ bits}\\
-  &= H^{\otimes n+1} \cdot C_f \cdot H_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \tag{perform $H$ on the last bit}\\
-  &= H^{\otimes n+1} \cdot C_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \\
-  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \\
-  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \\
-  &= H^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \\
-  &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)+\sigma_{x,y}}\ket{y1} \\
+  U\ket{00\cdots01} &= H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1} \ket{00\cdots01} \nexttag{perform $H$ on the first $n$ bits}\\
+  &= H^{\otimes n+1} \cdot C_f \cdot H_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \nexttag{perform $H$ on the last bit}\\
+  &= H^{\otimes n+1} \cdot C_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \nexttag{perform $C_f$}\\
+  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \nexttag{rewrite}\\
+  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \nexttag{perform $H$ on the last bit}\\
+  &= H^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \nexttag{perform $H$ on the first $n$ bits}\\
+  &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)+\sigma_{x,y}}\ket{y1} \nexttag{rewrite}\\
   &= \sum_y \left(\sum_x \frac{(-1)^{g(x)+\sigma_{x,y}}}{2^n}\right)\ket{y1}
 \end{align*}
 
