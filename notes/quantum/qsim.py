@@ -13,8 +13,7 @@ def basis(x):
   s[int(x,base=2)] = 1
   return s
 
-# apply the classical gate C_f to the state,
-# where f is a bijective function on bit strings
+# apply the classical gate C_f, where f is a bijective function on bit strings
 def classical(s,f):
   s2 = [0]*2**n
   for x in range(2**n):
