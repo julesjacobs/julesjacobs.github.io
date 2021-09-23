@@ -33,6 +33,6 @@ def hadamard(s,k):
 s = init(1)
 print_state(s)              # 1|00010>
 print()
-print_state(hadamard(s,0))  # 0.7071067811865475|00010> + 0.7071067811865475|00011>
+print_state(hadamard(s,3))  # 0.7071067811865475|00010> + 0.7071067811865475|01010>
 print()
 print_state(hadamard(s,1))  # 0.7071067811865475|00000> + -0.7071067811865475|00010>
