@@ -7,7 +7,7 @@ def print_state(s):
   print(" + ".join([f'{s[i]}|{bin(i)[2:].zfill(n)}>'
                       for i in range(len(s)) if s[i] != 0]))
 
-# initialize the state |x>, where x is a string of 0's and 1's
+# initialize the basis state |x>, where x is a string of 0's and 1's
 def init(x):
   s = [0]*2**n
   s[int(x,base=2)] = 1
