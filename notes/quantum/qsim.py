@@ -25,7 +25,8 @@ def hadamard(s,k):
   bitk = 1 << k
   s2 = [0]*2**n
   for x in range(2**n):
-    s2[x] = (s[x & ~bitk] + (-1)**((x >> k) & 1)*s[x | bitk])/sqrt(2)
+    sign = (-1)**((x >> k) & 1)
+    s2[x] = (s[x & ~bitk] + sign*s[x | bitk])/sqrt(2)
   return s2
 
 # example
