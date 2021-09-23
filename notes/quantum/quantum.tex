@@ -164,9 +164,9 @@ A quantum circuit is a sequence of unitary operations we do on the state of $n$ 
 Often, a small set of primitive operations is used, such as the \emph{Hadamard gate} and the \emph{CCNOT gate}.
 The Hadamard gate operates on one bit, and the CCNOT gate operates on three bits.
 
-In order to describe what they do, we introduce a bit of notation for \emph{definite states}.
-We use the notation $\phi = \ket{01001}$ for the definite state $\phi$ where $\phi_{01001} = 1$ and $\phi_x = 0$ otherwise, \ie the state that puts all probability amplitude on $01001$.
-Because gates $A$ are linear operators, it is sufficient to define their behavior on definite states $\ket{x}$ for $x \in \{0,1\}^k$,
+In order to describe what they do, we introduce a bit of notation for \emph{basis states}.
+We use the notation $\phi = \ket{01001}$ for the basis state $\phi$ where $\phi_{01001} = 1$ and $\phi_x = 0$ otherwise, \ie the state that puts all probability amplitude on $01001$.
+Because gates $A$ are linear operators, it is sufficient to define their behavior on basis states $\ket{x}$ for $x \in \{0,1\}^k$,
 since for a superposition $\phi = \sum_x \phi_x \ket{x}$ we have $A\phi = \sum_x \phi_x A \ket{x}$.
 
 \subsection{The Hadamard gate}
@@ -201,7 +201,7 @@ Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we 
 \begin{align}
   C_f \ket{x} = \ket{f(x)}         \label{eqn:classicalgate}
 \end{align}
-That is, given a definite state $\ket{x}$, it outputs another definite state $\ket{f(x)}$.
+That is, given a basis state $\ket{x}$, it outputs another basis state $\ket{f(x)}$.
 The function $f$ must be bijective in order for this to be a unitary operator.
 
 A common trick is to start with a boolean function $g : \{0,1\}^{k-1} \to \{0,1\}$ and define
@@ -248,10 +248,10 @@ We are promised that $g$ is either \emph{constant} or \emph{balanced} (meaning t
 Our task is to determine whether it is constant or balanced.
 The function $g$ is assumed to be efficiently implementable using logic gates.
 
-Classically, it seems that we cannot do better than testing $g$ on $2^n/2+ 1$ inputs:
+Classically, it seems that we cannot do better than testing $g$ on $2^n/2+ 1$ inputs in the worst case:
 if they are all the same, then $g$ is constant, and if they are not all the same, then by assumption $g$ must be balanced.
 
-The Deutsch–Jozsa algorithm \cite{DeutschJozsaAlgorithm2021} for this problem operates on $n+1$ bits and is given by
+The Deutsch–Jozsa algorithm \cite{DeutschJozsaAlgorithm2021} is a quantum algorithm for this problem that operates on $n+1$ bits and is given by:
 \begin{align*}
   U = H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1}
 \end{align*}
@@ -261,11 +261,13 @@ where
   \item $C_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $(n+1)$-th bit with $g(b_1,\cdots,b_{n})$.
 \end{itemize}
 
-Running this algorithm on input $\ket{00\cdots01}$ always produces an output of the form $\ket{00\cdots0b}$ if $g$ is constant,
-and will give a different output if $g$ is balanced.
+Running this algorithm on input $00\cdots01$ always produces the output $00\cdots01$ if $g$ is constant,
+and is guaranteed to give a different output if $g$ is balanced (see below).
 Thus, if we can encode $g$ efficiently using gates, then a quantum computer can efficiently determine whether it is constant or balanced.
 
-Let us first see what the operator $H^{\otimes n}$ does on a general definite state $\ket{x}$, where $x$ is a bit string of length $n$.
+\subsection{Correctness of the algorithm}
+
+Let us first see what the operator $H^{\otimes n}$ does on a general basis state $\ket{x}$, where $x$ is a bit string of length $n$.
 Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings:
 \begin{align*}
   H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_y (-1)^{\sigma_{x,y}} \ket{y}
@@ -284,8 +286,8 @@ We calculate what our $U$ does on $\ket{00\cdots01}$:
   &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \\
   &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \\
   &= H^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \\
-  &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)\sigma_{x,y}}\ket{y1} \\
-  &= \sum_y \left(\sum_x \frac{(-1)^{g(x)\sigma_{x,y}}}{2^n}\right)\ket{y1}
+  &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)+\sigma_{x,y}}\ket{y1} \\
+  &= \sum_y \left(\sum_x \frac{(-1)^{g(x)+\sigma_{x,y}}}{2^n}\right)\ket{y1}
 \end{align*}
 
 To determine the probability of measuring $\ket{00\cdots01}$, we square its coefficient in this sum:
@@ -294,7 +296,8 @@ To determine the probability of measuring $\ket{00\cdots01}$, we square its coef
 \end{align*}
 (since $\sigma_{x,y} = 0$, if $x = (00\cdots0)$)
 
-Notice that the terms sum to $1$ if $g$ is constant.
+Notice that the terms sum to $1$ if $g$ is constant. If $g$ is balanced then precisely half the terms are $+1$ and half the terms are $-1$, so they sum to $0$.
+Therefore, if $g$ is constant, then we are certain to get the answer $00\cdots01$, and if $g$ is balanced then we are certain \emph{not} to get this answer.
 
 \section{Quantum programming languages}
 
