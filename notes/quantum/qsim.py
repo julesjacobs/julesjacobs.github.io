@@ -4,7 +4,7 @@ n = 5  # number of bits in our state
        # we represent bit strings as integers
 
 def print_state(s):
-  print(" + ".join([f'{s[i]}|{bin(i)[2:].zfill(n)}>'
+  print(" + ".join([f'{s[i]:.5f}|{bin(i)[2:].zfill(n)}>'
                       for i in range(len(s)) if s[i] != 0]))
 
 # initialize the basis state |x>, where x is a string of 0's and 1's
@@ -30,9 +30,13 @@ def hadamard(s,k):
   return s2
 
 # example
-s = init("00010")
-print_state(s)              # 1|00010>
-print()
-print_state(hadamard(s,3))  # 0.7071067811865475|00010> + 0.7071067811865475|01010>
-print()
-print_state(hadamard(s,1))  # 0.7071067811865475|00000> + -0.7071067811865475|00010>
+s = init("10101")
+print_state(s) # 1.00000|10101>
+s = hadamard(s,1)
+print_state(s) # 0.70711|10101> + 0.70711|10111>
+s = classical(s, lambda x: ~x)
+print_state(s) # 0.70711|01000> + 0.70711|01010>
+s = hadamard(s,3)
+print_state(s) # 0.50000|00000> + 0.50000|00010> + -0.50000|01000> + -0.50000|01010>
+s = hadamard(s,1)
+print_state(s) # 0.70711|00000> + -0.70711|01000>
