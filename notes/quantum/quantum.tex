@@ -189,10 +189,10 @@ Equivalently, we can define it using matrix notation, as
 
 If we have $n$ bits in the state, then we have Hadamard gates $\Ha_1, \Ha_2, \cdots, \Ha_n$, each operating on a different bit.
 This is what $\Ha_1$ does:
-\begin{align*}
-  \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}) \\
+\begin{align}
+  \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}) \label{eqn:hadamard}\\
   \Ha_1 \ket{1 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} - \ket{1 b_1 b_2 \cdots b_n})
-\end{align*}
+\end{align}
 Try writing down $H_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
 
 \subsection{Classical gates}
@@ -251,7 +251,7 @@ The function $g$ is assumed to be efficiently implementable using logic gates.
 Classically, it seems that we cannot do better than testing $g$ on $2^n/2+ 1$ inputs:
 if they are all the same, then $g$ is constant, and if they are not all the same, then by assumption $g$ must be balanced.
 
-The Deutsch–Jozsa algorithm for this problem operates on $n+1$ bits and is given by
+The Deutsch–Jozsa algorithm \cite{DeutschJozsaAlgorithm2021} for this problem operates on $n+1$ bits and is given by
 \begin{align*}
   U = H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1}
 \end{align*}
@@ -262,8 +262,39 @@ where
 \end{itemize}
 
 Running this algorithm on input $\ket{00\cdots01}$ always produces an output of the form $\ket{00\cdots0b}$ if $g$ is constant,
-and will give a different output if $g$ is balanced \cite{DeutschJozsaAlgorithm2021}.
+and will give a different output if $g$ is balanced.
 Thus, if we can encode $g$ efficiently using gates, then a quantum computer can efficiently determine whether it is constant or balanced.
+
+Let us first see what the operator $H^{\otimes n}$ does on a general definite state $\ket{x}$, where $x$ is a bit string of length $n$.
+Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings:
+\begin{align*}
+  H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_y (-1)^{\sigma_{x,y}} \ket{y}
+\end{align*}
+where $(-1)^{\sigma_{x,y}}$ is the sign of $\ket{y}$ in the sum.
+What is this sign?
+By the definition of the Hadamard gate (\ref{eqn:hadamard}), we get a minus sign each each time the bits in \emph{both} $x$ and $y$ are $1$.
+Thus, $\sigma_{x,y} =$ the number of $1$ bits in the bitwise AND $x \& y$.
+For example, if $x = (00\cdots0)$ then $\sigma_{x,y} = 0$ and therefore $H^{\otimes n} \ket{00\cdots0} = \frac{1}{\sqrt{2}^n} \sum_y \ket{y}$.
+
+We calculate what our $U$ does on $\ket{00\cdots01}$:
+\begin{align*}
+  U\ket{00\cdots01} &= H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1} \ket{00\cdots01} \tag{perform $H$ on the first $n$ bits}\\
+  &= H^{\otimes n+1} \cdot C_f \cdot H_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \tag{perform $H$ on the last bit}\\
+  &= H^{\otimes n+1} \cdot C_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \\
+  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \\
+  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \\
+  &= H^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \\
+  &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)\sigma_{x,y}}\ket{y1} \\
+  &= \sum_y \left(\sum_x \frac{(-1)^{g(x)\sigma_{x,y}}}{2^n}\right)\ket{y1}
+\end{align*}
+
+To determine the probability of measuring $\ket{00\cdots01}$, we square its coefficient in this sum:
+\begin{align*}
+  p_{00\cdots01} =\left|\sum_x \frac{(-1)^{g(x)}}{2^n}\right|^2
+\end{align*}
+(since $\sigma_{x,y} = 0$, if $x = (00\cdots0)$)
+
+Notice that the terms sum to $1$ if $g$ is constant.
 
 \section{Quantum programming languages}
 
