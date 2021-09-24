@@ -6,9 +6,7 @@
 \maketitle
 
 \begin{abstract}
-  Church naturals allow us to represent numbers in pure lambda calculus.
-  In this short note we'll see how to define addition, multiplication, and exponentiation on Church nats using a cute notational trick.
-  We'll also see how to define predecessor and fast growing functions.
+  Church numerals allow us to represent numbers in pure lambda calculus. In this short note we'll see how to define addition, multiplication, and exponentiation on Church numerals using a cute notational trick. As a bonus, we'll see how to define predecessor and fast growing functions.
 \end{abstract}
 
 \newcommand{\ch}[1]{\mathbf{#1}}
@@ -20,10 +18,10 @@ The function $\ch{n}$ takes another function $f$ and composes $f$ with itself $n
 \[
   \ch{n}\ f = \underbrace{f \circ f \cdots \circ f}_{n\text{ times}} = f^n
 \]
-We can convert a Church nat $\ch{n}$ back to an ordinary nat by applying it to the ordinary successor function $S : \N \to \N$ given by $S\ n = n+1$:
+We can convert a Church numeral $\ch{n}$ back to an ordinary nat by applying it to the ordinary successor function $S : \N \to \N$ given by $S\ n = n+1$:
 then $\ch{n}\ S\ 0$ gives us back an ordinary natural number $n$ because $\ch{n}\ S\ 0$ is the $n$-fold application of the successor function to the number $0$, which just increments it $n$ times.
 
-The first few Church natural numbers are:
+The first few Church numerals are:
 \begin{align*}
   \ch{0} &\triangleq{} \lambda f.\lambda z. z\\
   \ch{1} &\triangleq{} \lambda f.\lambda z. f z\\
@@ -31,14 +29,14 @@ The first few Church natural numbers are:
   \ch{3} &\triangleq{} \lambda f.\lambda z.f (f (f z))
 \end{align*}
 
-Many descriptions of Church nats will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and exponentiation.
+Many descriptions of Church numerals will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and exponentiation.
 So think about $\ch{n} f = f^n$ as performing $n$-fold function composition.
 
 If will be helpful to introduce an alternative notation for function application:
 \begin{align*}
   x^f \equiv f(x)
 \end{align*}
-This may seem strange at first, but consider that using this notation we can \emph{define} the first few Church natural numbers as:
+This may seem strange at first, but consider that using this notation we can \emph{define} the first few Church numeral as:
 \begin{align*}
   f^\ch{0} &\triangleq{} \mathsf{id}\\
   f^\ch{1} &\triangleq{} f \\
@@ -47,25 +45,25 @@ This may seem strange at first, but consider that using this notation we can \em
 \end{align*}
 Note that on the left hand side, we are really defining $\ch{3}$ as $\ch{3}(f) \triangleq{} f \circ f \circ f$.
 
-The advantage of this notation is apparent when defining addition and multiplication on Church nats:
+The advantage of this notation is apparent when defining addition and multiplication on Church numerals:
 \begin{align*}
   f^{\ch{n}+\ch{m}} \triangleq{} f^\ch{n} \circ f^\ch{m} &&
   f^{\ch{n}\cdot\ch{m}} \triangleq{} (f^\ch{n})^\ch{m}
 \end{align*}
-Exponentiation of Church nats is even better: our notation already makes $\ch{n}^\ch{m}$ do the right thing:
+Exponentiation of Church numerals is even better: our notation already makes $\ch{n}^\ch{m}$ do the right thing:
 \begin{align*}
   \ch{n}^\ch{m} \equiv \ch{m}(\ch{n}) \tag{already does the right thing!}
 \end{align*}
 
-The notation makes the proofs that this does arithmetic correctly a triviality: if $[n]$ is the Church nat corresponding to an ordinary natural number $n \in \N$, then
+The notation makes the proofs that this does arithmetic correctly a triviality: if $[n]$ is the Church numeral corresponding to an ordinary natural number $n \in \N$, then
 \begin{align*}
   f^{[n]+[m]} = f^{[n]} \circ f^{[m]} = f^n \circ f^m = f^{n+m} = f^{[n+m]}
 \end{align*}
 where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary natural number $n \in \N$ is $n$-fold function composition.
 The proofs for multiplication and exponentiation are analogous.
 
-\section{Predecessor}
-Surprisingly, defining the predecessor on Church nats is the most difficult. I think this is due to Curry.
+\section*{Predecessor}
+Surprisingly, defining the predecessor on Church numerals is the most difficult. I think this is due to Curry.
 
 We define the function $f : \N \times \N \to \N \times \N$:
 
@@ -96,7 +94,7 @@ So we can define the predecessor function:
 
 So that $p(0) = 0$ and $p(n) = n-1$ for $n>0$.
 
-\subsection{Pairs}
+\subsection*{Pairs}
 
 We made use of pairs to define the predecessor, so to use pure lambda calculus we need to define pairs in terms of lambda. We represent a pair $(a,b)$ as:
 \begin{align*}
@@ -108,7 +106,7 @@ We can extract the components by passing in the function $f$:
   \mathsf{snd} &= \lambda x. x\ (\lambda a. \lambda b. b)\\
 \end{align*}
 
-\subsection{Disjoint union}
+\subsection*{Disjoint union}
 
 Another way to define the predecessor is with disjoint unions. We take:
 \begin{align*}
@@ -133,14 +131,14 @@ And we can define:
   p(n) = (n\ f\ \mathsf{inl}(0))\ (\lambda x. x)\ (\lambda x. x)
 \end{align*}
 
-\section{Fast growing functions}
+\section*{Fast growing functions}
 Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
 \begin{align*}
   f_0(n) &= g(n)\\
   f_{k+1}(n) &= f^n_k(n)
 \end{align*}
 
-We can define this function using Church naturals:
+We can define this function using Church numerals:
 \begin{align*}
   f_k = k\ (\lambda f. \lambda n. n f n)\ g
 \end{align*}
@@ -165,7 +163,7 @@ To get a feeling for how fast this grows, consider $h_1$:
          &= A(A(A(\dots A(f_n(n)))))\\
          &= A(A(A(\dots f_{f_n(n)}(f_n(n)))))\\
 \end{align*}
-An expression like $h_3(3)$ gives us a relatively short lambda term that will normalise to a huge term. We might as well start with $g(n) = n^n$ since that's even easier to write using Church naturals:
+An expression like $h_3(3)$ gives us a relatively short lambda term that will normalise to a huge term. We might as well start with $g(n) = n^n$ since that's even easier to write using Church numerals:
 \begin{align*}
   g &= \lambda a. a\ a\\
   A &= \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\ k\\
@@ -190,8 +188,10 @@ So we get an even more compact, yet much larger number with:
   f &= \lambda g. \lambda k. k\ (\lambda f. \lambda n. n f n)\ g\ k\\
   Y &= (3\ f)\ (\lambda a. a a)\ 3
 \end{align*}
-Of course, you can easily define much faster growing functions. But here's a challenge: what's the shortest lambda term that normalises, but takes more than the age of the universe to normalise? Or: what's the largest Church natural you can write down in less than 30 symbols?
+Of course, you can easily define much faster growing functions. But here's a challenge: what's the shortest lambda term that normalises, but takes more than the age of the universe to normalise? Or: what's the largest Church numeral you can write down in less than 30 symbols?
 
-Please let me know of any mistakes. I haven't checked for mistakes at all :)
+Please let me know of any mistakes. I haven't checked for mistakes :)
+
+--- Jules
 
 \end{document}
