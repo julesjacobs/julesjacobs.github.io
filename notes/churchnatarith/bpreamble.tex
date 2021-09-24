@@ -1,0 +1,119 @@
+% \documentclass[a4paper, 11pt]{article}
+\documentclass[a4paper, 11pt]{article}
+\usepackage[scaled=0.84]{beramono}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{titlesec}
+
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xspace}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\newcommand{\linkcolor}{Maroon}
+
+\usepackage[all]{hypcap}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=\linkcolor,
+    citecolor=\linkcolor,
+    filecolor=\linkcolor,
+    urlcolor=\linkcolor,
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+% \usepackage{tcolorbox}
+
+\lstdefinelanguage{Python}{
+  keywords={from, import, def, for, in, if, return, lambda},
+  comment=[l]{\#},
+  morestring=[b]',
+  morestring=[b]",
+}
+
+\lstset{
+   columns=fullflexible,
+   language=Python,
+  %  keywordstyle=\color{RoyalBlue!30!black},
+  %  keywordstyle=\color{Maroon},
+   keywordstyle=\bfseries\color{Maroon!65},
+   commentstyle=\color{Green!80!black}\ttfamily,
+   identifierstyle=\color{RoyalBlue!70!black},
+   stringstyle=\color{red!50!black}\ttfamily,
+   showstringspaces=false,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   % breaklines=true,
+}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+
+\usepackage{mathpartir}
+\usepackage{todonotes}
+
+
+% \usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+% \usepackage{multicol}
+
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\makeatletter
+\renewcommand\maketitle
+  {
+  \begin{center}
+   {\color{black}\Large{\sc\@title}}\\\bigskip%
+   \large{\@author}\\\medskip%
+   \small{\@date}\bigskip%
+  \end{center}%
+  }
+
+
+% \newcommand{\sectionnumbercolor}{Maroon!40}
+\newcommand{\sectionnumbercolor}{black!40}
+
+\titleformat{\section}
+  {\normalfont\fontsize{12}{15}\bfseries}
+  {\llap{\color{\sectionnumbercolor}\thesection\quad}}
+  {0em}
+  {}
+
+\titleformat{\subsection}
+  {\normalfont\fontsize{11}{10}\bfseries}
+  {\llap{\color{\sectionnumbercolor}\thesubsection\quad}}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{10}{10}\bfseries}
+  {\llap{\color{\sectionnumbercolor}\thesubsubsection\quad}}
+  {0em}
+  {}
+
+\newcommand{\equationnumbercolor}{black!50}
+\newtagform{brackets}{\color{\equationnumbercolor}(}{)}
+\usetagform{brackets}

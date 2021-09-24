@@ -1,79 +1,4 @@
-\documentclass[a4paper, 11pt]{article}
-\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage[bitstream-charter]{mathdesign}
-\usepackage{microtype}
-\usepackage{textcomp}
-
-\usepackage{mathtools}
-\newcommand\SetSymbol[1][]{\nonscript\:#1\vert\allowbreak\nonscript\:\mathopen{}}
-\providecommand\given{} % to make it exist
-\DeclarePairedDelimiterX\Set[1]\{\}{\renewcommand\given{\SetSymbol[\delimsize]}#1}
-
-\usepackage{hyperref}
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,
-    urlcolor=blue,
-}
-\usepackage{listings}
-\usepackage{color}
-\definecolor{lightgray}{rgb}{.9,.9,.9}
-\definecolor{darkgray}{rgb}{.4,.4,.4}
-\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
-
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, in, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, end},
-  keywordstyle=\color{blue},
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  commentstyle=\color{purple}\ttfamily,
-  stringstyle=\color{red}\ttfamily
-}
-
-\lstset{
-   language=JavaScript,
-   extendedchars=true,
-   basicstyle=\small\ttfamily,
-   showstringspaces=false,
-   showspaces=false,
-   literate=
-    {forall}{$\forall$}1
-    {exists}{$\exists$}1
-    {<->}{$\iff$}1
-    {->}{$\to$}1
-    {=>}{$\implies$}1
-    {fun}{$\lambda$}1
-    {and}{$\wedge$}1
-    {or}{$\vee$}1
-}
-
-\newcommand{\N}{\mathbb{N}}
-\newcommand{\Z}{\mathbb{Z}}
-\newcommand{\Q}{\mathbb{Q}}
-\newcommand{\R}{\mathbb{R}}
-
-\usepackage{amsmath}
-\usepackage{amsthm}
-
-\usepackage[shortlabels]{enumitem}
-\usepackage{mathpartir}
-\newcommand{\mif}{\mathsf{if}\ }
-\newcommand{\mthen}{\ \mathsf{then}\ }
-\newcommand{\melse}{\ \mathsf{else}\ }
-\newcommand{\rec}{\mathsf{rec}}
-\newtheorem{theorem}{Theorem}[section]
-\newtheorem{lemma}[theorem]{Lemma}
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
-\newtheorem{corollary}{Corollary}[theorem]
-\usepackage{parskip}
+\input{bpreamble}
 
 \title{Arithmetic on Church numerals using a notational trick}
 \author{Jules Jacobs}
@@ -81,10 +6,14 @@
 \maketitle
 
 \begin{abstract}
-  Church naturals allow us to represent numbers in pure lambda calculus. In this short note we'll see how to define addition, multiplication, and exponentiation on Church nats using a cute notational trick. As a bonus, we'll see how to define predecessor and fast growing functions.
+  Church naturals allow us to represent numbers in pure lambda calculus.
+  In this short note we'll see how to define addition, multiplication, and exponentiation on Church nats using a cute notational trick.
+  We'll also see how to define predecessor and fast growing functions.
 \end{abstract}
 
 \newcommand{\ch}[1]{\mathbf{#1}}
+
+\section{Addition, multiplication, and exponentiation}
 
 Church repesents a natural number $n$ as a higher order function, which I'll denote $\ch{n}$.
 The function $\ch{n}$ takes another function $f$ and composes $f$ with itself $n$ times:
@@ -135,7 +64,7 @@ The notation makes the proofs that this does arithmetic correctly a triviality: 
 where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary natural number $n \in \N$ is $n$-fold function composition.
 The proofs for multiplication and exponentiation are analogous.
 
-\section*{Predecessor}
+\section{Predecessor}
 Surprisingly, defining the predecessor on Church nats is the most difficult. I think this is due to Curry.
 
 We define the function $f : \N \times \N \to \N \times \N$:
@@ -167,7 +96,7 @@ So we can define the predecessor function:
 
 So that $p(0) = 0$ and $p(n) = n-1$ for $n>0$.
 
-\subsection*{Pairs}
+\subsection{Pairs}
 
 We made use of pairs to define the predecessor, so to use pure lambda calculus we need to define pairs in terms of lambda. We represent a pair $(a,b)$ as:
 \begin{align*}
@@ -179,7 +108,7 @@ We can extract the components by passing in the function $f$:
   \mathsf{snd} &= \lambda x. x\ (\lambda a. \lambda b. b)\\
 \end{align*}
 
-\subsection*{Disjoint union}
+\subsection{Disjoint union}
 
 Another way to define the predecessor is with disjoint unions. We take:
 \begin{align*}
@@ -204,7 +133,7 @@ And we can define:
   p(n) = (n\ f\ \mathsf{inl}(0))\ (\lambda x. x)\ (\lambda x. x)
 \end{align*}
 
-\section*{Fast growing functions}
+\section{Fast growing functions}
 Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
 \begin{align*}
   f_0(n) &= g(n)\\
