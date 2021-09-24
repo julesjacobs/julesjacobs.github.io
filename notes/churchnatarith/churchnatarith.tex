@@ -30,20 +30,20 @@ The first few Church numerals are:
 \end{align*}
 
 Many descriptions of Church numerals will view them in that way: as a function that takes \emph{two} arguments $f$ and $z$ that computes $f (f (\dots (f z) \dots))$, but this point of view gets incredibly confusing when you try to define arithmetic on them, particularly multiplication and exponentiation.
-So think about $\ch{n} f = f^n$ as performing $n$-fold function composition.
+So think about $\ch{n}\ f = f^n$ as performing $n$-fold function composition.
 
 If will be helpful to introduce an alternative notation for function application:
 \begin{align*}
   x^f \equiv f(x)
 \end{align*}
-This may seem strange at first, but consider that using this notation we can \emph{define} the first few Church numeral as:
+This may seem strange, but using this notation we can \emph{define} the first few Church numerals as:
 \begin{align*}
   f^\ch{0} &\triangleq{} \mathsf{id}\\
   f^\ch{1} &\triangleq{} f \\
   f^\ch{2} &\triangleq{} f \circ f\\
   f^\ch{3} &\triangleq{} f \circ f \circ f
 \end{align*}
-Note that on the left hand side, we are really defining $\ch{3}$ as $\ch{3}(f) \triangleq{} f \circ f \circ f$.
+Note that on the left hand side, we are really defining $\ch{3}$ as the function $\ch{3}(f) \triangleq{} f \circ f \circ f$.
 
 The advantage of this notation is apparent when defining addition and multiplication on Church numerals:
 \begin{align*}
@@ -63,22 +63,17 @@ where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary 
 The proofs for multiplication and exponentiation are analogous.
 
 \section{Predecessor}
-Surprisingly, defining the predecessor on Church numerals is the most difficult. I think this is due to Curry.
+Surprisingly, defining the predecessor on Church numerals is the most difficult. I think this solution is due to Curry.
 
 We define the function $f : \N \times \N \to \N \times \N$:
-
 \begin{align*}
   f((a,b)) &= (s(a),a)
 \end{align*}
-
 If we start with $(0,x)$ and keep applying $f$ we get the following sequence:
-
 \begin{align*}
   (0,x) \to (1,0) \to (2,1) \to (3,2) \to (4,3) \to \cdots
 \end{align*}
-
 So
-
 \begin{align*}
   f^n((0,x))_1 &= n\\
   f^n((0,x))_2 &= \begin{cases}
@@ -86,19 +81,17 @@ So
     n-1 & \text{if } n > 0
   \end{cases}
 \end{align*}
-
 So we can define the predecessor function:
 \begin{align*}
   p = \lambda n. n\ f\ (0,0)
 \end{align*}
-
 So that $p(0) = 0$ and $p(n) = n-1$ for $n>0$.
 
 \subsection{Pairs}
 
 We made use of pairs to define the predecessor, so to use pure lambda calculus we need to define pairs in terms of lambda. We represent a pair $(a,b)$ as:
 \begin{align*}
-  (a,b) &= \lambda f. f\ a\ b \\
+  (a,b) &= \lambda f. f\ a\ b
 \end{align*}
 We can extract the components by passing in the function $f$:
 \begin{align*}
@@ -113,19 +106,15 @@ Another way to define the predecessor is with disjoint unions. We take:
   \mathsf{inl}(a) &= \lambda f. \lambda g. f a \\
   \mathsf{inr}(a) &= \lambda f. \lambda g. g a
 \end{align*}
-
 Then we can define:
 \begin{align*}
   f(\mathsf{inl}(a)) &= \mathsf{inr}(a)\\
   f(\mathsf{inr}(a)) &= \mathsf{inr}(s(a))
 \end{align*}
-
 We can do this pattern match on an inl/inr by calling it with the two branches as arguments:
 \begin{align*}
   f(x) &= x\ (\lambda a. \mathsf{inr}(a))\ (\lambda a.\mathsf{inr}(s(a)))
 \end{align*}
-
-
 And we can define:
 \begin{align*}
   p(n) = (n\ f\ \mathsf{inl}(0))\ (\lambda x. x)\ (\lambda x. x)
@@ -137,31 +126,27 @@ Given any function $g : N \to N$ we can define a series of ever faster growing f
   f_0(n) &= g(n)\\
   f_{k+1}(n) &= f^n_k(n)
 \end{align*}
-
 We can define this function using Church numerals:
 \begin{align*}
   f_k = k\ (\lambda f. \lambda n. n f n)\ g
 \end{align*}
-
 If we take $g = s$ then,
 \begin{align*}
   f_0(n) &= n+1\\
   f_1(n) &= 2n\\
-  f_2(n) &= 2^n \cdot n\\
+  f_2(n) &= 2^n \cdot n
 \end{align*}
-
 The function $A(n) = f_n(n)$ grows pretty quickly. We can play the same game again, by putting $g = A$, obtaining a sequence:
 \begin{align*}
   h_0(n) &= A(n)\\
   h_{k+1}(n) &= h^n_k(n)
 \end{align*}
-
 To get a feeling for how fast this grows, consider $h_1$:
 \begin{align*}
   h_1(n) &= h_0^n(n)\\
          &= A(A(A(\dots A(A(n)))))\\
          &= A(A(A(\dots A(f_n(n)))))\\
-         &= A(A(A(\dots f_{f_n(n)}(f_n(n)))))\\
+         &= A(A(A(\dots f_{f_n(n)}(f_n(n)))))
 \end{align*}
 An expression like $h_3(3)$ gives us a relatively short lambda term that will normalise to a huge term. We might as well start with $g(n) = n^n$ since that's even easier to write using Church numerals:
 \begin{align*}
