@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  24 SEP 2021 23:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  24 SEP 2021 23:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -999,7 +999,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  63i,16n,85p,1263b,336s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7v.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr8t.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chrma.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb>
-Output written on /Users/jules/git/julesjacobs.github.io/notes/churchnatarith/churchnatarith.pdf (4 pages, 69986 bytes).
+Output written on /Users/jules/git/julesjacobs.github.io/notes/churchnatarith/churchnatarith.pdf (4 pages, 69962 bytes).
 PDF statistics:
  118 PDF objects out of 1000 (max. 8388607)
  85 compressed objects within 1 object stream
