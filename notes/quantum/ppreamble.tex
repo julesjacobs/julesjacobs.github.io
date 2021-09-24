@@ -1,0 +1,171 @@
+\documentclass[a4paper, 11pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled=0.88]{beraserif}
+\usepackage[scaled=0.85]{berasans}
+\usepackage[scaled=0.84]{beramono}
+\usepackage[dottedtoc]{classicthesis}
+% \clearscrheadfoot
+% \ohead[]{\headmark}
+% \cfoot[\pagemark]{\pagemark}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
+\linespread{1.05}
+\usepackage[T1,small,euler-digits]{eulervm}
+\setkomafont{disposition}{}
+\setkomafont{section}{}
+\newcommand{\sectioncolor}{black}
+\newcommand{\sectionnumbercolor}{Maroon!60}
+\titleformat{\section}
+            {\color{\sectioncolor}\large\usekomafont{disposition}\usekomafont{section}}
+            {\color{\sectionnumbercolor}\llap{\textsc{\MakeTextLowercase{\thesection}}\hspace{0.7em}}}
+            {0pt}
+            {\usekomafont{disposition}\usekomafont{section}\spacedlowsmallcaps}
+            % [{\color{Maroon}\titlerule}]
+
+\titleformat{\subsection}
+            {\color{\sectioncolor}\large\usekomafont{disposition}\usekomafont{section}}
+            {\color{\sectionnumbercolor}\llap{\textsc{\MakeTextLowercase{\thesubsection}}\hspace{0.7em}}}
+            {0pt}
+            {\usekomafont{disposition}\usekomafont{section}\spacedlowsmallcaps}
+
+\pagestyle{plain}
+
+% \usepackage[T1]{fontenc}
+% \usepackage[bitstream-charter]{mathdesign}
+
+% \RequirePackage[T1]{fontenc}
+% \RequirePackage[tt=false, type1=true]{libertine}
+% \RequirePackage[varqu]{zi4}
+% \RequirePackage[libertine]{newtxmath}
+
+\usepackage{xspace}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{textcomp}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    % colorlinks=true,
+    % linkcolor=blue,
+    % filecolor=magenta,
+    % urlcolor=blue,
+    linktoc=all
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  keywordstyle=\color{RoyalBlue},%\bfseries,
+  basicstyle=\small\ttfamily,
+  % identifierstyle=\color{NavyBlue},
+  commentstyle=\color{Green}\ttfamily,
+  stringstyle=\rmfamily,
+  numbers=none,%left,%
+  numberstyle=\scriptsize,%\tiny
+  stepnumber=5,
+  numbersep=8pt,
+  showstringspaces=false,
+  breaklines=true,
+}
+% \lstset{language=[LaTeX]Tex,%C++,
+%   morekeywords={PassOptionsToPackage,selectlanguage},
+%   keywordstyle=\color{RoyalBlue},%\bfseries,
+%   basicstyle=\small\ttfamily,
+%   %identifierstyle=\color{NavyBlue},
+%   commentstyle=\color{Green}\ttfamily,
+%   stringstyle=\rmfamily,
+%   numbers=none,%left,%
+%   numberstyle=\scriptsize,%\tiny
+%   stepnumber=5,
+%   numbersep=8pt,
+%   showstringspaces=false,
+%   breaklines=true,
+%   %frameround=ftff,
+%   %frame=single,
+%   belowcaptionskip=.75\baselineskip
+%   %frame=L
+% }
+\lstset{
+   columns=fullflexible,
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   literate=
+    % {epsilon}{$\epsilon$}1
+    % {empty}{$\emptyset$}1
+    % {forall}{$\forall$}1
+    % {exists}{$\exists$}1
+    % {<->}{$\iff$}1
+    {->}{$\to\ $}1
+    % {<-}{$\leftarrow\ $}1
+    {=>}{$\implies\ $}1
+    % {fun}{$\lambda$}1
+    % {and}{$\wedge$}1
+    % {or}{$\vee$}1
+    {cdot}{$\cdot$ }1
+}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+\usepackage{amsmath}
+\let\openbox\undefined
+\usepackage{amsthm}
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+% =========== TIKZ ===========
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.geometric, arrows}
+% \usetikzlibrary{fit}
+% \usetikzlibrary{svg.path}
+% % \usetikzlibrary{graphdrawing}
+% % \usetikzlibrary{graphdrawing.force}
+% % \usetikzlibrary{graphdrawing.layered}
+% \usetikzlibrary{decorations}
+% \usetikzlibrary{decorations.markings}
+% \usetikzlibrary{backgrounds}
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\makeatletter
+\renewcommand\maketitle
+  {
+  \begin{center}
+   {\color{black}\large\spacedallcaps{\@title}}\\\bigskip%
+   \large{\@author}\\\medskip%
+   \normalsize{\@date}\bigskip%
+  \end{center}%
+  }

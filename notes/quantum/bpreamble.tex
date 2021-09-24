@@ -1,0 +1,118 @@
+% \documentclass[a4paper, 11pt]{article}
+\documentclass[a4paper, 11pt]{article}
+\usepackage[scaled=0.84]{beramono}
+\usepackage{titlesec}
+
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{xspace}
+\usepackage[bitstream-charter]{mathdesign}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage{tikz}
+
+\usepackage[all]{hypcap}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,
+    urlcolor=blue,
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\lstdefinelanguage{JavaScript}{
+  keywordstyle=\color{blue},
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily
+}
+
+\lstset{
+   columns=fullflexible,
+   language=JavaScript,
+   extendedchars=true,
+   basicstyle=\small\ttfamily
+}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+% \setdescription{noitemsep, topsep=0pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+
+\usepackage{mathpartir}
+\usepackage{todonotes}
+
+
+% \usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+% \usepackage{multicol}
+
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\newcommand*{\palatino}{\fontfamily{ppl}\selectfont}
+
+\makeatletter
+\renewcommand\maketitle
+  {
+  \begin{center}
+   {\color{black}\huge{\palatino\sc\@title}}\\\bigskip%
+   \large{\@author}\\\medskip%
+   \normalsize{\@date}\bigskip%
+  \end{center}%
+  }
+
+% \titleformat*{\section}{\fontfamily{Palatino}\selectfont}
+% \titleformat{\section}
+%   {\normalfont\sffamily\Large\bfseries\color{cyan}}
+%   {\thesection}{1em}{}
+% \usepackage{fontspec}
+
+
+\titleformat{\section}
+  {\normalfont\fontsize{12}{15}\bfseries}
+  {\llap{\thesection\quad}}
+  {0em}
+  {}
+
+\titleformat{\subsection}
+  {\normalfont\fontsize{11}{10}\bfseries}
+  {\llap{\thesubsection\quad}}
+  {0em}
+  {}
+
+\titleformat{\subsubsection}
+  {\normalfont\fontsize{10}{10}\bfseries}
+  {\llap{\thesubsubsection\quad}}
+  {0em}
+  {}
+% \definecolor{MSBlue}{rgb}{.204,.353,.541}
+% \definecolor{MSLightBlue}{rgb}{.31,.506,.741}
+% % Define a new fontfamily for the subsubsection font
+% % Don't use \fontspec directly to change the font
+% \newfontfamily\subsubsectionfont[Color=MSLightBlue]{Times New Roman}
+% % Set formats for each heading level
+% \titleformat*{\section}{\Large\bfseries\sffamily\color{MSBlue}}
+% \titleformat*{\subsection}{\large\bfseries\sffamily\color{MSLightBlue}}
+% \titleformat*{\subsubsection}{\itshape\subsubsectionfont}
