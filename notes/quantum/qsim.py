@@ -1,7 +1,7 @@
 from math import sqrt
 
 n = 5  # number of bits in our state
-       # we represent bit strings as integers
+        # we represent bit strings as integers
 
 def print_state(s):
   print(" + ".join([f'{s[i]:.5f}|{bin(i)[2:].zfill(n)}>'
