@@ -62,7 +62,7 @@ The notation makes the proofs that this does arithmetic correctly a triviality: 
 where $f^{[m]} \equiv [m](f)$ according to our notation, and $f^n$ for ordinary natural number $n \in \N$ is $n$-fold function composition.
 The proofs for multiplication and exponentiation are analogous.
 
-\section*{Predecessor}
+\section{Predecessor}
 Surprisingly, defining the predecessor on Church numerals is the most difficult. I think this is due to Curry.
 
 We define the function $f : \N \times \N \to \N \times \N$:
@@ -94,7 +94,7 @@ So we can define the predecessor function:
 
 So that $p(0) = 0$ and $p(n) = n-1$ for $n>0$.
 
-\subsection*{Pairs}
+\subsection{Pairs}
 
 We made use of pairs to define the predecessor, so to use pure lambda calculus we need to define pairs in terms of lambda. We represent a pair $(a,b)$ as:
 \begin{align*}
@@ -106,7 +106,7 @@ We can extract the components by passing in the function $f$:
   \mathsf{snd} &= \lambda x. x\ (\lambda a. \lambda b. b)\\
 \end{align*}
 
-\subsection*{Disjoint union}
+\subsection{Disjoint union}
 
 Another way to define the predecessor is with disjoint unions. We take:
 \begin{align*}
@@ -131,7 +131,7 @@ And we can define:
   p(n) = (n\ f\ \mathsf{inl}(0))\ (\lambda x. x)\ (\lambda x. x)
 \end{align*}
 
-\section*{Fast growing functions}
+\section{Fast growing functions}
 Given any function $g : N \to N$ we can define a series of ever faster growing functions as follows:
 \begin{align*}
   f_0(n) &= g(n)\\
