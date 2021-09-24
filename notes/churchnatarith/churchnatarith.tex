@@ -55,7 +55,7 @@ Exponentiation of Church numerals is even better: our notation already makes $\c
   \ch{n}^\ch{m} \equiv \ch{m}(\ch{n}) \tag{already does the right thing!}
 \end{align*}
 
-The notation makes the proofs that this does arithmetic correctly a triviality: if $[n]$ is the Church numeral corresponding to an ordinary natural number $n \in \N$, then
+The notation makes the proofs that this does arithmetic correctly a triviality: if $[n]$ is the Church numeral corresponding to an ordinary natural number $n \in \N$ (\ie satisfying $f^{[n]} = f^n$), then
 \begin{align*}
   f^{[n]+[m]} = f^{[n]} \circ f^{[m]} = f^n \circ f^m = f^{n+m} = f^{[n+m]}
 \end{align*}
