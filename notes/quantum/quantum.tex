@@ -79,8 +79,8 @@ since for a superposition $\phi = \sum_x \phi_x \ket{x}$ we have $A\phi = \sum_x
 
 \subsection{The Hadamard gate}
 
-\newcommand{\Ha}{H}
-\newcommand{\CCNOT}{\mathsf{CCNOT}}
+\newcommand{\Ha}{\mathrm{H}}
+\newcommand{\CCNOT}{\mathrm{CCNOT}}
 
 The Hadamard gate $\Ha$ operates on one bit, and is defined as:
 \begin{align*}
@@ -101,13 +101,15 @@ This is what $\Ha_1$ does:
   \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}) \label{eqn:hadamard}\\
   \Ha_1 \ket{1 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} - \ket{1 b_1 b_2 \cdots b_n})
 \end{align}
-Try writing down $H_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
+Try writing down $\Ha_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
 
 \subsection{Classical gates}
 
-Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define a classical gate $C_f$ given by:
+\newcommand{\Cl}{\mathrm{C}}
+
+Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define a classical gate $\Cl_f$ given by:
 \begin{align}
-  C_f \ket{x} = \ket{f(x)}         \label{eqn:classicalgate}
+  \Cl_f \ket{x} = \ket{f(x)}         \label{eqn:classicalgate}
 \end{align}
 That is, given a basis state $\ket{x}$, it outputs another basis state $\ket{f(x)}$.
 The function $f$ must be bijective in order for this to be a unitary operator.
@@ -133,16 +135,16 @@ That is, it flips the third bit if the first two bits are $1$, and leaves the ot
 
 We input the matrix $U$ into the quantum computer as a sequence of operations, e.g.:
 \begin{align*}
-  U = H_2 \cdot H_3 \cdot \CCNOT_{234} \cdot H_2 \cdot H_4 \cdot \CCNOT_{123} \cdot H_1 \cdot H_2
+  U = \Ha_2 \cdot \Ha_3 \cdot \CCNOT_{234} \cdot \Ha_2 \cdot \Ha_4 \cdot \CCNOT_{123} \cdot \Ha_1 \cdot \Ha_2
 \end{align*}
 We can graphically represent this circuit as follows:
 \\
 \begin{center}
 \begin{quantikz}
-  & \gate{H} & \gate[wires=3][2cm]{CCNOT} & \qw & \qw & \qw & \qw \\
-  & \gate{H} & & \gate{H} & \gate[wires=3][2cm]{CCNOT} & \gate{H} & \qw \\
-  & \qw & \qw & \qw & & \gate{H} & \qw \\
-  & \qw & \qw & \gate{H} & & \qw & \qw \\
+  & \gate{\Ha} & \gate[wires=3][2cm]{\CCNOT} & \qw & \qw & \qw & \qw \\
+  & \gate{\Ha} & & \gate{\Ha} & \gate[wires=3][2cm]{\CCNOT} & \gate{\Ha} & \qw \\
+  & \qw & \qw & \qw & & \gate{\Ha} & \qw \\
+  & \qw & \qw & \gate{\Ha} & & \qw & \qw \\
 \end{quantikz}
 \end{center}
 
@@ -161,12 +163,12 @@ if they are all the same, then $g$ is constant, and if they are not all the same
 
 The Deutsch–Jozsa algorithm \cite{DeutschJozsaAlgorithm2021} is a quantum algorithm for this problem that operates on $n+1$ bits and is given by:
 \begin{align*}
-  U = H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1}
+  U = \Ha^{\otimes n+1} \cdot \Cl_f \cdot \Ha^{\otimes n+1}
 \end{align*}
 where
 \begin{itemize}
-  \item $H^{\otimes n+1} = H_1 \cdot H_2 \cdots H_n \cdot H_{n+1}$ applies a Hadamard gate to every bit.
-  \item $C_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $(n+1)$-th bit with $g(b_1,\cdots,b_{n})$.
+  \item $\Ha^{\otimes n+1} = \Ha_1 \cdot \Ha_2 \cdots \Ha_n \cdot \Ha_{n+1}$ applies a Hadamard gate to every bit.
+  \item $\Cl_f$ is the classical gate defined in (\ref{eqn:classicalgate}) and (\ref{eqn:xortrick}), that XORs the $(n+1)$-th bit with $g(b_1,\cdots,b_{n})$.
 \end{itemize}
 
 Running this algorithm on input $00\cdots01$ always produces the output $00\cdots01$ if $g$ is constant,
@@ -175,27 +177,27 @@ Thus, if we can encode $g$ efficiently using gates, then a quantum computer can 
 
 \subsection{Correctness of the algorithm}
 
-Let us first see what the operator $H^{\otimes n}$ does on a general basis state $\ket{x}$, where $x$ is a bit string of length $n$.
-Since $H$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings,
+Let us first see what the operator $\Ha^{\otimes n}$ does on a general basis state $\ket{x}$, where $x$ is a bit string of length $n$.
+Since $\Ha$ creates a superposition of the two bit positions for each bit, we will get a sum over all possible bit strings,
 \begin{align*}
-  H^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_{y \in \{0,1\}^n} (-1)^{\sigma_{x,y}} \ket{y}
+  \Ha^{\otimes n} \ket{x} = \frac{1}{\sqrt{2}^n} \sum_{y \in \{0,1\}^n} (-1)^{\sigma_{x,y}} \ket{y}
 \end{align*}
 where $(-1)^{\sigma_{x,y}}$ is the sign of $\ket{y}$ in the sum.
 What is this sign?
 By the definition of the Hadamard gate (\ref{eqn:hadamard}), we get a minus sign each each time the bits in \emph{both $x$ and $y$} are $1$.
 Thus, $\sigma_{x,y} =$ the number of $1$ bits in the bitwise AND $x \& y$.
-For example, if $x = (00\cdots0)$ then $\sigma_{x,y} = 0$ and therefore $H^{\otimes n} \ket{00\cdots0} = \frac{1}{\sqrt{2}^n} \sum_y \ket{y}$.
+For example, if $x = (00\cdots0)$ then $\sigma_{x,y} = 0$ and therefore $\Ha^{\otimes n} \ket{00\cdots0} = \frac{1}{\sqrt{2}^n} \sum_y \ket{y}$.
 
 \newcommand{\nexttag}[1]{\tag{#1 $\mapsto$}}
 
 We calculate what our $U$ does on $\ket{00\cdots01}$:
 \begin{align*}
-  U\ket{00\cdots01} &= H^{\otimes n+1} \cdot C_f \cdot H^{\otimes n+1} \ket{00\cdots01} \nexttag{perform $H$ on the first $n$ bits}\\
-  &= H^{\otimes n+1} \cdot C_f \cdot H_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \nexttag{perform $H$ on the last bit}\\
-  &= H^{\otimes n+1} \cdot C_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \nexttag{perform $C_f$}\\
-  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \nexttag{rewrite}\\
-  &= H^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \nexttag{perform $H$ on the last bit}\\
-  &= H^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \nexttag{perform $H$ on the first $n$ bits}\\
+  U\ket{00\cdots01} &= \Ha^{\otimes n+1} \cdot \Cl_f \cdot \Ha^{\otimes n+1} \ket{00\cdots01} \nexttag{perform $\Ha$ on the first $n$ bits}\\
+  &= \Ha^{\otimes n+1} \cdot \Cl_f \cdot \Ha_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \nexttag{perform $\Ha$ on the last bit}\\
+  &= \Ha^{\otimes n+1} \cdot \Cl_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \nexttag{perform $\Cl_f$}\\
+  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \nexttag{rewrite}\\
+  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \nexttag{perform $\Ha$ on the last bit}\\
+  &= \Ha^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \nexttag{perform $\Ha$ on the first $n$ bits}\\
   &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)+\sigma_{x,y}}\ket{y1} \nexttag{rewrite}\\
   &= \sum_y \left(\sum_x \frac{(-1)^{g(x)+\sigma_{x,y}}}{2^n}\right)\ket{y1}
 \end{align*}
