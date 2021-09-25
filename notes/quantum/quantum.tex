@@ -122,7 +122,7 @@ A common trick is to start with a boolean function $g : \{0,1\}^{k-1} \to \{0,1\
 This function $f$ leaves the first $k-1$ bits alone, and XORs the last bit with $g(b_1,\cdots,b_{k-1})$.
 You may verify that $f$ is always bijective.
 
-The CCNOT gate is an example of this: we take $g(b_1,b_2)$ to be the local AND of $b_1$ and $b_2$.
+The CCNOT gate is an example of this: we take $g(b_1,b_2)$ to be the logical AND of $b_1$ and $b_2$.
 This gives us a gate that operates on three bits, which leaves the first two bits alone and flips the third bit if the first two bits are both $1$.
 The CCNOT gate is a universal classical gate: any bijection $f$ can be built out of CCNOT gates (analogous to how any boolean function can be built out of NAND gates).
 As with Hadamard gates, we can apply a CCNOT gate to any three bits in the state, and thus we have $\CCNOT_{ijk}$ gates,
