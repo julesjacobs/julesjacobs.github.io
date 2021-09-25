@@ -81,25 +81,26 @@ since for a superposition $\phi = \sum_x \phi_x \ket{x}$ we have $A\phi = \sum_x
 
 \newcommand{\Ha}{\mathrm{H}}
 \newcommand{\CCNOT}{\mathrm{CCNOT}}
+\newcommand{\kets}[1]{\big(\kern-0.1em #1\!\big)}
 
 The Hadamard gate $\Ha$ operates on one bit, and is defined as:
 \begin{align*}
-  \Ha\ket{0} = \frac{1}{\sqrt{2}}(\ket{0} + \ket{1}) \\
-  \Ha\ket{1} = \frac{1}{\sqrt{2}}(\ket{0} - \ket{1})
+  \Ha\ket{0} = \frac{1}{\sqrt{2}}\kets{\ket{0} + \ket{1}} \\
+  \Ha\ket{1} = \frac{1}{\sqrt{2}}\kets{\ket{0} - \ket{1}}
 \end{align*}
 Equivalently, we can define it using matrix notation, as
 \begin{align*}
   \Ha = \frac{1}{\sqrt{2}}\begin{pmatrix}
-    1 & 1 \\
-    1 & -1
+    1 & \!\!\!\phantom{-}1 \\
+    1 & \!\!\!-1
   \end{pmatrix}
 \end{align*}
 
 If we have $n$ bits in the state, then we have Hadamard gates $\Ha_1, \Ha_2, \cdots, \Ha_n$, each operating on a different bit.
 This is what $\Ha_1$ does:
 \begin{align}
-  \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}) \label{eqn:hadamard}\\
-  \Ha_1 \ket{1 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}(\ket{0 b_1 b_2 \cdots b_n} - \ket{1 b_1 b_2 \cdots b_n})
+  \Ha_1 \ket{0 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}\kets{\ket{0 b_1 b_2 \cdots b_n} + \ket{1 b_1 b_2 \cdots b_n}} \label{eqn:hadamard}\\
+  \Ha_1 \ket{1 b_1 b_2 \cdots b_n} = \frac{1}{\sqrt{2}}\kets{\ket{0 b_1 b_2 \cdots b_n} - \ket{1 b_1 b_2 \cdots b_n}}
 \end{align}
 Try writing down $\Ha_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this notation is useful.
 
@@ -107,7 +108,7 @@ Try writing down $\Ha_1$ as a $2^n$-by-$2^n$ matrix, and you'll see why this not
 
 \newcommand{\Cl}{\mathrm{C}}
 
-Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define a classical gate $\Cl_f$ given by:
+Given a function $f : \{0,1\}^k \to \{0,1\}^k$ on bit strings of length $k$, we define the classical gate $\Cl_f$:
 \begin{align}
   \Cl_f \ket{x} = \ket{f(x)}         \label{eqn:classicalgate}
 \end{align}
@@ -194,9 +195,9 @@ We calculate what our $U$ does on $\ket{00\cdots01}$:
 \begin{align*}
   U\ket{00\cdots01} &= \Ha^{\otimes n+1} \cdot \Cl_f \cdot \Ha^{\otimes n+1} \ket{00\cdots01} \nexttag{perform $\Ha$ on the first $n$ bits}\\
   &= \Ha^{\otimes n+1} \cdot \Cl_f \cdot \Ha_{n+1} \frac{1}{\sqrt{2}^n} \sum_x \ket{x1} \nexttag{perform $\Ha$ on the last bit}\\
-  &= \Ha^{\otimes n+1} \cdot \Cl_f \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x0} - \ket{x1}) \nexttag{perform $\Cl_f$}\\
-  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}) \nexttag{rewrite}\\
-  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}(\ket{x0} - \ket{x1}) \nexttag{perform $\Ha$ on the last bit}\\
+  &= \Ha^{\otimes n+1} \cdot \Cl_f \frac{1}{\sqrt{2}^{n+1}} \sum_x \kets{\ket{x0} - \ket{x1}} \nexttag{perform $\Cl_f$}\\
+  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x \kets{\ket{x(0 \oplus g(x))} - \ket{x(1 \oplus g(x))}} \nexttag{rewrite}\\
+  &= \Ha^{\otimes n+1} \frac{1}{\sqrt{2}^{n+1}} \sum_x (-1)^{g(x)}\kets{\ket{x0} - \ket{x1}} \nexttag{perform $\Ha$ on the last bit}\\
   &= \Ha^{\otimes n} \frac{1}{\sqrt{2}^{n}} \sum_x (-1)^{g(x)}\ket{x1} \nexttag{perform $\Ha$ on the first $n$ bits}\\
   &= \frac{1}{2^n} \sum_x \sum_y (-1)^{g(x)+\sigma_{x,y}}\ket{y1} \nexttag{rewrite}\\
   &= \sum_y \left(\sum_x \frac{(-1)^{g(x)+\sigma_{x,y}}}{2^n}\right)\ket{y1}

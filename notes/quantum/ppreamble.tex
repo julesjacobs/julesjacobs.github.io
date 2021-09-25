@@ -14,6 +14,7 @@
 % \usepackage[T1,small,euler-digits]{eulervm}
 % \usepackage{newpxmath}
 \usepackage[smallerops]{newpxmath}
+% \usepackage{newpxtext}
 % \usepackage{eulerpx}
 
 \setkomafont{disposition}{}
@@ -144,3 +145,7 @@
    \normalsize{\@date}\bigskip%
   \end{center}%
   }
+
+\newcommand{\equationnumbercolor}{black!60}
+\newtagform{brackets}{\color{\equationnumbercolor}(}{)}
+\usetagform{brackets}
