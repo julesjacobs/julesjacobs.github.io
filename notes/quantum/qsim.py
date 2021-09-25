@@ -5,7 +5,7 @@ n = 5  # number of bits in our state
 
 def print_state(s):
   print(" + ".join([f'{s[i]:.5f}|{bin(i)[2:].zfill(n)}>'
-                      for i in range(len(s)) if s[i] != 0]))
+                          for i in range(len(s)) if s[i] != 0]))
 
 # gives the basis state |x>, where x is a string of 0's and 1's
 def basis(x):
