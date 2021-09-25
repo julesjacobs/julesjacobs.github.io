@@ -59,59 +59,29 @@
 \usepackage{color}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{tcolorbox}
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, while, do, else, case, break, val, then, Definition, Check, Lemma, Proof, Qed, Inductive, Fixpoint, match, for, class, object, extends, override, def, if},
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  keywordstyle=\color{RoyalBlue},%\bfseries,
-  basicstyle=\small\ttfamily,
-  % identifierstyle=\color{NavyBlue},
-  commentstyle=\color{Green}\ttfamily,
-  stringstyle=\rmfamily,
-  numbers=none,%left,%
-  numberstyle=\scriptsize,%\tiny
-  stepnumber=5,
-  numbersep=8pt,
-  showstringspaces=false,
-  breaklines=true,
+
+\lstdefinelanguage{Python}{
+  keywords={from, import, def, for, in, if, return, lambda},
+  comment=[l]{\#},
+  morestring=[b]',
+  morestring=[b]",
 }
-% \lstset{language=[LaTeX]Tex,%C++,
-%   morekeywords={PassOptionsToPackage,selectlanguage},
-%   keywordstyle=\color{RoyalBlue},%\bfseries,
-%   basicstyle=\small\ttfamily,
-%   %identifierstyle=\color{NavyBlue},
-%   commentstyle=\color{Green}\ttfamily,
-%   stringstyle=\rmfamily,
-%   numbers=none,%left,%
-%   numberstyle=\scriptsize,%\tiny
-%   stepnumber=5,
-%   numbersep=8pt,
-%   showstringspaces=false,
-%   breaklines=true,
-%   %frameround=ftff,
-%   %frame=single,
-%   belowcaptionskip=.75\baselineskip
-%   %frame=L
-% }
+
 \lstset{
    columns=fullflexible,
-   language=JavaScript,
+   language=Python,
+  %  keywordstyle=\color{RoyalBlue!30!black},
+  %  keywordstyle=\color{Maroon},
+   keywordstyle=\bfseries\color{Maroon!65},
+   commentstyle=\color{Green!80!black}\ttfamily,
+   identifierstyle=\color{RoyalBlue!70!black},
+   stringstyle=\color{red!50!black}\ttfamily,
+   showstringspaces=false,
    extendedchars=true,
    basicstyle=\small\ttfamily,
-   literate=
-    % {epsilon}{$\epsilon$}1
-    % {empty}{$\emptyset$}1
-    % {forall}{$\forall$}1
-    % {exists}{$\exists$}1
-    % {<->}{$\iff$}1
-    {->}{$\to\ $}1
-    % {<-}{$\leftarrow\ $}1
-    {=>}{$\implies\ $}1
-    % {fun}{$\lambda$}1
-    % {and}{$\wedge$}1
-    % {or}{$\vee$}1
-    {cdot}{$\cdot$ }1
+   % breaklines=true,
 }
+
 
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\Z}{\mathbb{Z}}
