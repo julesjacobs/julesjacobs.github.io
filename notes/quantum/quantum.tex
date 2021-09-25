@@ -17,7 +17,7 @@
 
   After reading this note, you will understand the Deutsch-Jozsa quantum algorithm,
   which demonstrates that quantum computers can solve some problems asymptotically faster than classical computers.
-  
+
   You will also be able to write a computer program that simulates a quantum computer,
   albeit exponentially more slowly than an actual quantum computer would execute a circuit, which is the point!
 \end{abstract}
@@ -208,13 +208,13 @@ We calculate what our $U$ does on $\ket{00\cdots01}$:
 
 To determine the probability of measuring $\ket{00\cdots01}$, we square its coefficient in this sum:
 \begin{align*}
-  p_{00\cdots01} =\left|\sum_x \frac{(-1)^{g(x)}}{2^n}\right|^2
+  p_{00\cdots01} =\left|\kern-0.8em\sum_{\text{\ \ \ \ }x \in \{0,1\}^n} \frac{(-1)^{g(x)}}{2^n}\right|^2
 \end{align*}
 (since $\sigma_{x,y} = 0$, if $x = (00\cdots0)$)
 
 \begin{itemize}
   \item If $g$ is constant: the terms sum to $1$ or $-1$, so $p_{00\cdots01} = 1$.
-  \item If $g$ is balanced: half the terms are $+1$ and half are $-1$, so $p_{00\cdots01} = 0$.
+  \item If $g$ is balanced: half the terms are $+\frac{1}{2^n}$ and half are $-\frac{1}{2^n}$, so $p_{00\cdots01} = 0$.
 \end{itemize}
 Therefore, if $g$ is constant, then we are certain to get the answer $00\cdots01$,
 and if $g$ is balanced then we are certain \emph{not} to get this answer;
