@@ -55,7 +55,11 @@ Thus, a quantum computer is a kind of universal quantum mechanics simulator:
   \item The quantum computer \emph{outputs} answer $y \in S$ with probability $|U_{x,y}|^2$
 \end{enumerate}
 
-We will refine this description in the next section.
+One should probably not think of quantum computers as a replacement for classical computers,
+but rather as coprocessors (like GPUs) that allow you to perform \emph{some} subroutines asymptotically faster.
+For instance, Shor's algorithm for prime factorization is a classical algorithm that makes use of a \emph{period finding subroutine} that is run on a quantum computer.
+
+We will now look at how the matrix $U$ is represented as a quantum circuit.
 
 \section{Quantum circuits}
 
