@@ -70,7 +70,7 @@ The problem with this approach is that it is inefficient and not even very easy 
 
 A more systematic way to do this is to schedule the rewrites bottom up. For instance, if $r = r_1 + r_2$ then we first recursively rewrite $r_1$ and $r_2$ to normal form. We then only need to check if $r_1 + r_2$ itself is in normal form. If it is, then we're done. If one of the left hand sides of the equations match, then we apply the rewrite rule. We then start the whole normalization process all over again, because after we've applied the rewrite rule there might be new opportunities for further rewriting.
 
-This is better, but still not great. Suppose $r = (r_1 + r_2) + r_3$, and we've already rewritten $r_1,r_2,r_3$ to normal form. Now the associativity rewrite rule wants to rewrite this to $r_1 + (r_2 + r_3)$. This is a new regular expression, so maybe more rewrite rules match. However, we do know that $r_1, r_2, r_3$ themselves are still in normal form. So in order to rewrite $r_1 + (r_2 + r_3)$ to normal form, we don't need to recursively re-normalize $r_1, r_2, r_3$. We only need to check if any rewrite rule matches for the two newly created $(+)$ nodes. We thus want to keep track of which nodes are already in normal form, so that we never need to recurse into them again to uselessly try and fail to rewrite them further. Note we do need to \emph{look into} nodes that are already in normal form: if $r_2 = r_{21} + r_{22}$ then further rewrites do apply to $r_2 + r_3$, even if $r_2$ and $r_3$ are in normal form. This may seem like it can get a little bit complicated, but in the next section we'll discuss a well known technique to do this easily and very efficiently.
+This is better, but still not great. Suppose $r = (r_1 + r_2) + r_3$, and we've already rewritten $r_1,r_2,r_3$ to normal form. Now the associativity rewrite rule wants to rewrite this to $r_1 + (r_2 + r_3)$. This is a new regular expression, so maybe more rewrite rules match. However, we do know that $r_1, r_2, r_3$ themselves are still in normal form. So in order to rewrite $r_1 + (r_2 + r_3)$ to normal form, we don't need to recursively re-normalize $r_1, r_2, r_3$. We only need to check if any rewrite rule matches for the two newly created $(+)$ nodes. We thus want to keep track of which nodes are already in normal form, so that we never need to recurse into them again to uselessly try and fail to rewrite them further. Note we do need to \emph{look into} nodes that are already in normal form: if $r_2 = r_{21} + r_{22}$ then further rewrites do apply to $r_2 + r_3$, even if $r_2$ and $r_3$ are in normal form. This may seem like it can get a little bit complicated, but in the next section we will discuss a well known technique to do this easily and very efficiently.
 
 
 
@@ -299,7 +299,7 @@ One method for doing that is called \emph{hereditary substitution} \cite{keller:
 
 Hereditary substitution can be viewed as a smart constructor for $\ap$: whenever $\ap(e_1,e_2)$ sees that $e_1 = \lambda x, e$ is a lambda term, it will do the substitution instead of constructing an $\ap$ syntax tree node.
 
-To turn this idea into code, we'll first need to decide how to represent lambda terms in our program.
+To turn this idea into code, we will first need to decide how to represent lambda terms in our program.
 We could represent variables $x$ as strings \id{"x"}, but this makes it quite difficult to write a correct substitution function in a purely functional way.
 The difficulty is that we want to apply the $\ap$ rule under lambdas, so the terms we are substituting may have free variables that need to be renamed to avoid name clashes.
 At first, you may think that giving all variables in the initial lambda term unique names solves the name clash problem, but that isn't the case: because of substitution the terms get copied so the invariant that all names are unique gets violated, and name clashes can still result.
@@ -326,7 +326,7 @@ We define a substitution function \id{subst(e,f)} that substitutes the term \id{
 def subst(a:Tm, f:Int => Tm):Tm =
   a match {
     case Var(n) => f(n)
-    case Lam(a) => Lam(subst(a,liftS(f))) // we'll get to the liftS function later
+    case Lam(a) => Lam(subst(a,liftS(f))) // we will get to the liftS function later
     case App(a,b) => app(subst(a,f),subst(b,f))
   }
 \end{lstlisting}
@@ -442,7 +442,7 @@ def norm(a:Sem):Sem =
   }
 \end{lstlisting}
 
-This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine "normalization by evaluation" to mean what the \id{norm} function does, namely HOAS $\to$ HOAS normalization, and handle conversion to and from HOAS separately.}
+This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine "normalization by evaluation" to mean what the \id{norm} function does, namely HOAS $\to$ HOAS normalization, and handle conversion to and from HOAS separately. Type directed normalization by evaluation may also be formulated in a style where HOAS is used throughout. One may also still distinguish between HOAS terms and semantic values represented in a representation tailored to normal forms (similar to what we did with regular expression), and have HOAS $\to$ Sem $\to$ HOAS.}
 
 \subsection{From ordinary lambda terms to HOAS and back}
 
@@ -468,7 +468,11 @@ def eval(env:Map[String,Sem], a:Tm):Sem =
 def tmToSem(a:Tm):Sem = eval(Map(),a)
 \end{lstlisting}
 
-In order to convert from \id{Sem} to \id{Tm}, we have to extend the \id{Sem} data type with one additional constructor, that injects \id{Tm} terms into the \id{Sem} data type:
+In order to convert from \id{Sem} to \id{Tm}, we have to extend the \id{Sem} data type with one additional constructor, that injects \id{Tm} terms into the \id{Sem} data type:\footnote{
+  It is ugly to have to extend the \id{Sem} type with a new constructor \id{case class TS(a:T) extends Sem} every time we want to write a function \id{Sem} $\to$ \id{T} for a new type \id{T}.
+  What we \emph{really} want here is a \emph{polymorphic} elimination function \id{elim(app,lam)} that takes \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} and gives \id{elim(app,lam)} : \id{Sem} $\to$ \id{T}.
+  But I'll take the path of least resistance here.
+}
 
 \begin{lstlisting}
 case class TmS(a:Tm) extends Sem
@@ -505,12 +509,15 @@ val s = LamS(n => LamS(f => LamS(z => AppS(AppS(n,f),AppS(f,z)))))
 val one = AppS(s,z)
 val two = AppS(s,one)
 
-reify(two) // App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x3)))))),
-                    // App(Lam(x4,Lam(x5,Lam(x6,App(App(Var(x4),Var(x5)),App(Var(x5),Var(x6)))))),
-                         // Lam(x7,Lam(x8,Var(x8)))))
+reify(two) /* App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x3)))))),
+                        App(Lam(x4,Lam(x5,Lam(x6,App(App(Var(x4),Var(x5)),
+                                                          App(Var(x5),Var(x6)))))),
+                              Lam(x7,Lam(x8,Var(x8))))) */
 
 reify(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 \end{lstlisting}
+
+% \subsection{Type directed normalization by evaluation}
 
 \section{Conclusion}
 
@@ -522,6 +529,8 @@ We saw that hereditary substitution and normalization by evaluation are both sma
   \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
 \end{align*}
 The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.
+
+\paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography.
 
 \bibliographystyle{alphaurl}
 \bibliography{references}
