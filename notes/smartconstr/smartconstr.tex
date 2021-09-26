@@ -188,7 +188,7 @@ alt1(a,alt1(b,a)) // Alt(Chr('b'), Chr('a'))
 
 As you can see in the previous example, an alternative to first constructing a regex and then converting it to normal form, is to use the smart constructors to construct the initial regex in the first place. The parser could call the smart constructors instead of the ordinary constructors.
 
-This is what the JVM does for JVM bytecode. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR that you could potentially write a reasonably good compiler by just doing optimization with smart constructors \cite{click95}.
+This is what the JVM does when converting JVM bytecode to its sea-of-nodes intermediate representation \cite{click95}. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR that you could potentially write a reasonably good compiler by just doing optimization with smart constructors.
 
 
 \section{Better normal form representations}
