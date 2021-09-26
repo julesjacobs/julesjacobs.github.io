@@ -16,7 +16,7 @@
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation\footnote{E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}. Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation, and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.}, which (in my view) intertwines conversion to and from HOAS with normalization itself.
+  The formulation of normalization by evaluation in this note is slightly simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.\footnote{E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}. Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation, and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.}
 \end{abstract}
 
 \tableofcontents
@@ -528,7 +528,6 @@ We saw that hereditary substitution and normalization by evaluation are both sma
   \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
   \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
 \end{align*}
-The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.
 
 \paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography.
 
