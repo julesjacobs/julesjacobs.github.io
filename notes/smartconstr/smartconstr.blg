@@ -9,46 +9,48 @@ Reallocated singl_function (elt_size=4) to 100 items from 50.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 Database file #1: references.bib
 Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Warning--to sort, need author or key in BruijnIndex2021
+Warning--empty author in BruijnIndex2021
 Warning--empty booktitle in keller:inria-00520606
-You've used 6 entries,
+You've used 7 entries,
             3307 wiz_defined-function locations,
-            734 strings with 6662 characters,
-and the built_in function-call counts, 3426 in all, are:
-= -- 356
-> -- 119
+            739 strings with 6724 characters,
+and the built_in function-call counts, 3739 in all, are:
+= -- 387
+> -- 122
 < -- 2
 + -- 37
 - -- 35
-* -- 231
-:= -- 503
-add.period$ -- 24
-call.type$ -- 6
-change.case$ -- 36
-chr.to.int$ -- 6
-cite$ -- 7
-duplicate$ -- 101
-empty$ -- 307
+* -- 250
+:= -- 536
+add.period$ -- 26
+call.type$ -- 7
+change.case$ -- 40
+chr.to.int$ -- 7
+cite$ -- 11
+duplicate$ -- 114
+empty$ -- 343
 format.name$ -- 42
-if$ -- 845
+if$ -- 932
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 6
-newline$ -- 39
+missing$ -- 7
+newline$ -- 43
 num.names$ -- 18
-pop$ -- 51
+pop$ -- 60
 preamble$ -- 1
-purify$ -- 42
+purify$ -- 47
 quote$ -- 0
-skip$ -- 237
+skip$ -- 267
 stack$ -- 0
-substring$ -- 174
-swap$ -- 26
+substring$ -- 182
+swap$ -- 27
 text.length$ -- 2
 text.prefix$ -- 1
 top$ -- 0
-type$ -- 48
-warning$ -- 1
+type$ -- 56
+warning$ -- 3
 while$ -- 23
-width$ -- 8
-write$ -- 91
-(There was 1 warning)
+width$ -- 9
+write$ -- 101
+(There were 3 warnings)

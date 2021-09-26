@@ -1,10 +1,12 @@
 \contentsline {section}{\numberline {1}{Introduction}}{1}{section.1}%
 \contentsline {section}{\numberline {2}{Bottom-up rewriting with smart constructors}}{2}{section.2}%
-\contentsline {subsection}{\numberline {2.1}{Smart constructors}}{2}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.1}{Smart constructors}}{3}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}{Converting to normal form}}{3}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}{Handling commutativity}}{4}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}{Optimizing at parse time}}{4}{subsection.2.4}%
-\contentsline {section}{\numberline {3}{Better normal form representations}}{4}{section.3}%
+\contentsline {section}{\numberline {3}{Better normal form representations}}{5}{section.3}%
 \contentsline {section}{\numberline {4}{Hereditary substitution}}{6}{section.4}%
-\contentsline {section}{\numberline {5}{Normalization by evaluation}}{7}{section.5}%
-\contentsline {section}{\numberline {6}{Conclusion}}{9}{section.6}%
+\contentsline {subsection}{\numberline {4.1}{De Bruijn indices}}{8}{subsection.4.1}%
+\contentsline {section}{\numberline {5}{Normalization by evaluation}}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}{From ordinary lambda terms to HOAS and back}}{9}{subsection.5.1}%
+\contentsline {section}{\numberline {6}{Conclusion}}{10}{section.6}%

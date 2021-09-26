@@ -1,4 +1,5 @@
 \input{ppreamble}
+\newcommand{\id}[1]{\lstinline\|#1\|}
 
 \title{Bottom-up rewriting with smart constructors, hereditary substitution \& \\normalization by evaluation}
 \author{\large{Jules Jacobs}}
@@ -9,7 +10,12 @@
 \blfootnote{Contact information: \url{https://julesjacobs.com}}
 
 \begin{abstract}
-  In this note I explain these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these three techniques share the same key idea.
+  \noindent
+  In this note I explain these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
+  \begin{align*}
+    \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
+    \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution} \\
+  \end{align*}
 \end{abstract}
 
 \tableofcontents
@@ -54,9 +60,12 @@ We want to rewrite by repeatedly using the following equations from left to righ
 
 For example, $(a \seq 0^*)^{**} + 0 = a^*$.
 
- Simplifying regexes using those equations is useful for implementing regular expression matching with Brzozowski derivatives \cite{brzozowski64,owens_reppy_turon_2009}, though the point isn't this particular example; rewriting expressions to normal form for a given set of equations is more broadly useful.
+Simplifying regexes using those equations is useful for implementing regular expression matching with Brzozowski derivatives \cite{brzozowski64,owens_reppy_turon_2009}.
+The point isn't this particular example; rewriting expressions to normal form for a given set of equations is more broadly useful.
 
-The naive way to do this is to take the regular expression $r$, and try to find some subnode of $r$ where one of the left hand sides of the equations can be rewritten to the right hand side. If we repeat this as much as possible, until no equation matches any subnode, we have rewritten the regex to normal form. The problem with this approach is that it is extremely inefficient and not even very easy to implement. At each step we have to search through $r$ to find a place to apply a rewrite rule.
+The naive way to do this is to take the regular expression $r$, and try to find some subnode of $r$ where one of the left hand sides of the equations can be rewritten to the right hand side.
+If we repeat this as much as possible, until no equation matches any subnode, we have rewritten the regex to normal form.
+The problem with this approach is that it is extremely inefficient and not even very easy to implement. At each step we have to search through $r$ to find a place to apply a rewrite rule.
 
 A more systematic way to do this is to schedule the rewrites bottom up. For instance, if $r = r_1 + r_2$ then we first recursively rewrite $r_1$ and $r_2$ to normal form. We then only need to check if $r_1 + r_2$ itself is in normal form. If it is, then we're done. If one of the left hand sides of the equations match, then we apply the rewrite rule. We then start the whole normalization process all over again, because after we've applied the rewrite rule there might be new opportunities for further rewriting.
 
@@ -80,7 +89,7 @@ case class Star(a:Re) extends Re // r*
 
 \subsection{Smart constructors}
 
-The key idea is to define \emph{smart constructors} \lstinline|seq,alt,star| for the ordinary constructors \lstinline|Seq,Alt,Star|. We want these smart constructors to satisfy the following property:
+The key idea is to define \emph{smart constructors} \id{seq}, \id{alt}, and \id{star} for the ordinary constructors \id{Seq}, \id{Alt}, and \id{Star}. We want these smart constructors to satisfy the following property:
 
 \emph{If we use a smart constructor on values that are in normal form, it must return a value in normal form.}
 
@@ -100,7 +109,7 @@ def seq(a:Re, b:Re):Re =
 
 We check if any of the equations for $(\cdot)$ match, and if so we return the right hand side. Whenever we construct a new node after a rewrite, we \emph{have to use the smart constructors}. That guarantees that the returned value is in normal form. If no equation matches (last case), we can use the ordinary constructor \lstinline|Seq|.
 
-Here are the smart constructors \lstinline|alt,star|:
+Here are the smart constructors \lstinline|alt| and \lstinline|star|:
 
 \begin{lstlisting}
 def alt(a:Re, b:Re):Re =
@@ -122,7 +131,8 @@ def star(a:Re):Re =
 
 \subsection{Converting to normal form}
 
-To convert a regular expression to normal form, we simply \emph{``copy''} it with the smart constructors:
+To convert a regular expression to normal form, we simply \emph{"copy"} it with the smart constructors.
+Let's call this idea \emph{smart copying}: like a copy function, but calling the smart constructors instead.
 
 \begin{lstlisting}
 def nf(a:Re):Re =
@@ -177,14 +187,14 @@ alt1(a,alt1(b,a)) // Alt(Chr('b'), Chr('a'))
 
 As you can see in the previous example, an alternative to first constructing a regex and then converting it to normal form, is to use the smart constructors to construct the initial regex in the first place. The parser could call the smart constructors instead of the ordinary constructors.
 
-This is what the JVM does. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR that you could potentially write a reasonably good compiler just doing optimization with smart constructors \cite{click95}.
+This is what the JVM does. It speeds up the JIT compiler because simple local rewrite rules are able to shrink the IR significantly, so the rest of the compiler has to wade though less code. In fact, the local rewrite rules are so effective in combination with the sea of nodes IR that you could potentially write a reasonably good compiler by just doing optimization with smart constructors \cite{click95}.
 
 
 \section{Better normal form representations}
 
 The implementation of the smart constructor that handles commutativity is rather complicated. We're essentially implementing a very bad version of bubble sort. We even need separate cases for an element in the middle of the list and an element at the end of the list.
 
-A better way is to use a representation of regular expressions tailored to normal forms. We represent n-ary sequential composition as a list. This builds associativity $(r \seq s) \seq t = r \seq (s \seq t)$ into the representation. We represent n-ary alternative with a set. This builds associativity $(r + s) + t = r + (s + t)$
+A better way is to use a representation of regular expressions tailored to normal forms. We represent n-ary sequential composition as a list. This builds associativity $(r \seq s) \seq t = r \seq (s \seq t)$ into the representation. We represent n-ary alternative with a set. This builds associativity $(r + s) + t = r + (s + t)$ and commutativity $r + s = s + r$ and idempotence $r + r = r$ into the representation.
 
 \begin{lstlisting}
 class Re2
@@ -194,23 +204,25 @@ case class Alt2(rs:Set[Re2]) extends Re2
 case class Star2(r:Re2) extends Re2
 \end{lstlisting}
 
+We no longer need the \lstinline|Eps| and \lstinline|Emp| classes for $0$ and $1$, because we can represent them as empty alternative and sequence nodes.
+
 \begin{lstlisting}
 val emp2 = Alt2(Set())
 val eps2 = Seq2(List())
 \end{lstlisting}
 
+The smart constructors for \id{Seq2} and \id{Alt2} are significantly simpler than those for \id{Seq} and \id{Alt}:
+
 \begin{lstlisting}
 def seq2(rs:List[Re2]):Re2 = {
-  val rs2 = rs.flatMap{case Seq2(rs) => rs
-                         case x => List(x)}
+  val rs2 = rs.flatMap{case Seq2(rs) => rs; case x => List(x)}
   if(rs2.contains(emp2)) emp2
   else if(rs2.size == 1) rs2.head
   else Seq2(rs2)
 }
 
 def alt2(rs:Set[Re2]):Re2 = {
-  val rs2 = rs.flatMap{case Alt2(rs) => rs
-                         case x => Set(x)}
+  val rs2 = rs.flatMap{case Alt2(rs) => rs; case x => Set(x)}
   if(rs2.size == 1) rs2.head
   else Alt2(rs2)
 }
@@ -224,11 +236,10 @@ def star2(a:Re2):Re2 =
   }
 \end{lstlisting}
 
+We can define conversion functions from \id{Re} to \id{Re2} and vice versa that put the regex in normal form.
+Alternatively, we could also use the \id{Re2} representation throughout and remove \id{Re} entirely, but I show the conversion functions here for illustration:
+
 \begin{lstlisting}
-
-// We can define conversion functions from Re to Re2 and vice versa that put the regex in normal form
-// Alternatively we could always use the Re2 representation
-
 def reToRe2(r:Re):Re2 =
   r match {
     case Eps => eps2
@@ -255,42 +266,110 @@ def re2ToRe(r:Re2):Re =
     case Alt2(rs) => fold1(rs.map(re2ToRe), Eps, Alt)
     case Star2(r) => Star(re2ToRe(r))
   }
+\end{lstlisting}
 
+Some examples:
+
+\begin{lstlisting}
 val a = Chr2('a')
 val b = Chr2('b')
-val z = alt2(Set(a,b,emp2,eps2))
-alt2(Set(z,z,a))
-seq2(List(emp2, a, b))
-re2ToRe(z)
-
+val z = alt2(Set(a,b,emp2,eps2)) // Alt2(Set(Chr2(c), Chr2(d), Seq2(List())))
+alt2(Set(z,z,a)) // Alt2(Set(Chr2(c), Chr2(d), Seq2(List())))
+seq2(List(emp2, a, b)) // Alt2(Set())
+re2ToRe(z) // Alt(Eps,Alt(Chr(d),Chr(c)))
 \end{lstlisting}
 
 
 \section{Hereditary substitution}
 
-\cite{keller:inria-00520606}
-
 \newcommand{\ap}{\mathsf{app}}
+\newcommand{\steps}{\leadsto}
 
+While regexes are fun, simplification becomes more interesting when binders are involved, such as with lambda calculus with $\lambda x. e$ and function application $f\ x \equiv \ap(f,x)$:
 \begin{align*}
   e \in \mathsf{Tm} \ ::=\  x \md \lambda x. e \md \ap(e,e)
 \end{align*}
-
+We want to simplify with respect to the $\beta$-rule that applies a lambda to an argument:
 \begin{align*}
-  \ap((\lambda x. e_1), e_2)  e_1[x := e_2]
+  \ap((\lambda x. e_1), e_2) \steps e_1[x := e_2]
 \end{align*}
+We could start with a lambda term and keep applying this rule wherever it applies (and choosing a position when it applies in multiple places), we'd like to do something like the smart constructors we used for regexes.\footnote{Applying the $\beta$-rule repeatedly may not terminate for all lambda terms, such as for the term $\ap((\lambda x. \ap(x,x)), \lambda x. \ap(x,x))$. We will assume that the lambda term that we want to simplify satisfies strong normalization, which means that any order of applying the $\beta$-rule will eventually terminate. This is guaranteed if the term type-checks in the simply typed lambda calculus, for instance.}
+One method for doing that is called \emph{hereditary substitution} \cite{keller:inria-00520606}.
 
+Hereditary substitution can be viewed as a smart constructor for $\ap$: whenever $\ap(e_1,e_2)$ sees that $e_1 = \lambda x, e$ is a lambda term, it will do the substitution instead of constructing an $\ap$ syntax tree node.
 
+To turn this idea into code, we'll first need to decide how to represent lambda terms in our program.
+We could represent variables $x$ as strings \id{"x"}, but this makes it quite difficult to write a correct substitution function in a purely functional way.
+The difficulty is that we want to apply the $\ap$ rule under lambdas, so the terms we are substituting may have free variables that need to be renamed to avoid name clashes.
+At first, you may think that giving all variables in the initial lambda term unique names solves the name clash problem, but that isn't the case: because of substitution the terms get copied so the invariant that all names are unique gets violated, and name clashes can still result.
+
+Instead of string names, we're going to use De Bruijn indices \cite{BruijnIndex2021}.
+We represent a variable with a number that indicates how many $\lambda$ nesting levels we need to traverse to find the $\lambda$ that the variable belongs to.
+If we have a term $\lambda x. \lambda y. \lambda z. x$ then the De Bruijn index of $x$ will be $2$, because we need to traverse over the $\lambda z$ and $\lambda y$ in order to find the $\lambda x$.
+This way, we do not have to use any variable names, and can simply write $\lambda x. \lambda y. \lambda z. x \equiv \lambda. \lambda. \lambda. 2$.
+The $\ap$ nodes have no effect on the De Bruijn indices.
+For instance, the term $\lambda. \lambda. \ap(0,\lambda. \ap(0,2))$ means $\lambda x. \lambda y. \ap(y, \lambda z. \ap(z,x))$.
+The details of this encoding are not so important: the important part is that this allows us to write a substitution function without much trouble.
+
+We first define the syntax tree nodes:
 \begin{lstlisting}
-// Normalization by hereditary substitution for De Bruijn terms
-
 class Tm
 case class Var(n:Int) extends Tm
 case class Lam(a:Tm) extends Tm
 case class App(a:Tm,b:Tm) extends Tm
+\end{lstlisting}
 
-// Renaming
+We define a substitution function \id{subst(e,f)} that substitutes the term \id{f(i)} for each variable \id{i} in \id{e}. This is called a \emph{parallel substitution} because it substitutes terms for all variables simultaneously:
 
+\begin{lstlisting}
+def subst(a:Tm, f:Int => Tm):Tm =
+  a match {
+    case Var(n) => f(n)
+    case Lam(a) => Lam(subst(a,liftS(f))) // we'll get to the liftS function later
+    case App(a,b) => app(subst(a,f),subst(b,f))
+  }
+\end{lstlisting}
+
+Notice that the \id{subst} function is calling the smart constructor \id{app}, which we still need to define!
+
+In terms of the parallel substitution function \id{subst(e,f)} we can define \id{subst0(e,v)} that substitutes only the first variable $0 \mapsto$ \id{v} in \id{e}.
+Now that variable $0$ is gone, we have to decrement all other variable indices:
+
+\begin{lstlisting}
+def subst0(e:Tm, v:Tm):Tm = subst(e, (n) => if(n==0) v else Var(n-1))
+\end{lstlisting}
+
+With this substitution function at hand, we can finally define the smart constructor \id{app}:
+
+\begin{lstlisting}
+def app(a:Tm, b:Tm):Tm =
+  a match {
+    case Lam(e) => subst0(e, b)
+    case _ => App(a,b)
+  }
+\end{lstlisting}
+
+The mutual recursion between \id{subst} and \id{app} ensures that no $\ap(e_1,e_2)$ term gets created where $e_1$ is a lambda.
+
+We can "smart copy" a lambda term to $\beta$-normalize it:
+
+\begin{lstlisting}
+def norm(a:Tm):Tm =
+  a match {
+    case Var(n) => Var(n)
+    case Lam(a) => Lam(norm(a))
+    case App(a,b) => app(norm(a),norm(b))
+  }
+\end{lstlisting}
+
+That's all there's to it!
+
+\subsection{De Bruijn indices}
+
+The \id{liftS} function lifts a substitution over a lambda.
+To implement this, we first define a renaming function \id{rename(e,f)} that renames all variables \id{i} to \id{f(i)} in \id{e}:
+
+\begin{lstlisting}
 def liftR(f : Int => Int): Int => Int =
   (n) => if(n==0) 0 else f(n-1) + 1
 
@@ -300,92 +379,84 @@ def rename(a:Tm, f:Int => Int):Tm =
     case Lam(a) => Lam(rename(a,liftR(f)))
     case App(a,b) => App(rename(a,f),rename(b,f))
   }
+\end{lstlisting}
 
-// Substitution
+Using these, we can implement \id{shift} and \id{liftS}:
 
+\begin{lstlisting}
 def shift(e:Tm, f:Int => Tm):Int => Tm =
   (n) => if(n==0) e else f(n-1)
 
 def liftS(f : Int => Tm):Int => Tm =
   shift(Var(0), k => rename(f(k), (_+1)))
-
-def subst(a:Tm, f:Int => Tm):Tm =
-  a match {
-    case Var(n) => f(n)
-    case Lam(a) => Lam(subst(a,liftS(f)))
-    case App(a,b) => App(subst(a,f),subst(b,f))
-  }
-
-def subst1(a:Tm, b:Tm):Tm = subst(a, shift(b,Var))
-
-// Hereditary substitution
-
-def app(a:Tm, b:Tm):Tm =
-  a match {
-    case Lam(e) => subst1(e, b)
-    case _ => App(a,b)
-  }
-
-def hsubst(a:Tm, f:Int => Tm):Tm =
-  a match {
-    case Var(n) => f(n)
-    case Lam(a) => Lam(hsubst(a,liftS(f)))
-    case App(a,b) => app(hsubst(a,f),hsubst(b,f))
-  }
-
-def hsubst1(a:Tm, b:Tm):Tm = hsubst(a, shift(b,Var))
-
-def norm(a:Tm):Tm =
-  a match {
-    case Var(n) => Var(n)
-    case Lam(a) => Lam(norm(a))
-    case App(a,b) => app(norm(a),norm(b))
-  }
 \end{lstlisting}
 
+The function \id{Var} is the identity substitution, so \id{shift(e,Var)} substitutes $0 \mapsto e$ and decrements all other variables by $1$, so we can now define \id{subst0} more concisely as:
+
+\begin{lstlisting}
+def subst0(e:Tm, v:Tm):Tm = subst(e, shift(v,Var))
+\end{lstlisting}
 
 \section{Normalization by evaluation}
 
-\cite{pfenning88}
-\cite{berger91}
+A more funky representation for lambda terms is \emph{higher order abstract syntax} (HOAS) \cite{pfenning88}.
+We represent lambda nodes \emph{as its substitution function}: the lambda term $\lambda x. e$ gets represented as a Scala function that does $f(v) = e[x \mapsto v]$.
+The return value is another lambda term, that is again represented in this HOAS representation.
+We call the data type for lambda terms in this representation \id{Sem}:
 
 \begin{lstlisting}
-// Normalization by evaluation for untyped lambda calculus
-
-
-// Lambda terms with named variables
-
-class Tm
-case class Var(x:String) extends Tm
-case class Lam(x:String, a:Tm) extends Tm
-case class App(a:Tm, b:Tm) extends Tm
-
-// HOAS lambda terms
-
 class Sem
-case class TmS(a:Tm) extends Sem
 case class LamS(f:Sem => Sem) extends Sem
 case class AppS(a:Sem, b:Sem) extends Sem
+\end{lstlisting}
 
-// Smart constructor for AppS
+Here's an example term $\lambda x. \lambda y. \ap(y, \lambda z. \ap(x,z))$:
+\begin{lstlisting}
+LamS(x => LamS(y => AppS(y, LamS(z => AppS(x,z)))))
+\end{lstlisting}
 
+The smart constructor \id{app} is now extremely easy to write:
+\begin{lstlisting}
 def appS(a:Sem, b:Sem):Sem =
   a match {
     case LamS(f) => f(b)
     case _ => AppS(a,b)
   }
+\end{lstlisting}
 
-// Normalizing a Sem term is easy
+The issue is that this doesn't mutually recursively call itself, like the hereditary substitution did.
+We can fix that by using \id{appS} instead of \id{AppS} in the original lambda terms we construct:
+\begin{lstlisting}
+LamS(x => LamS(y => appS(y, LamS(z => appS(x,z)))))
+\end{lstlisting}
+If we do this consistently, then the only place in our program where the constructor \id{AppS} is called is in \id{appS}, and there we have made sure that the the first argument isn't a lambda, so we're guaranteed to get a $\beta$ normal form.
 
+Instead of writing our lambda terms using \id{appS} in the first place, we can write a smart copy function that does it for us:
+
+\begin{lstlisting}
 def norm(a:Sem):Sem =
   a match {
-    case TmS(a) => TmS(a)
     case LamS(f) => LamS(x => norm(f(x)))
     case AppS(a,b) => appS(norm(a),norm(b))
   }
+\end{lstlisting}
 
-// Conversion from Tm to Sem
+This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine normalization by evaluation to mean what the \id{norm} function does, and define conversion to and from HOAS separately.}
 
+\subsection{From ordinary lambda terms to HOAS and back}
+
+This may all seem incredibly weird, so we're going to write functions that convert from ordinary lambda terms (where variables are represented as strings) to \id{Sem} terms and back:
+
+\begin{lstlisting}
+class Tm
+case class Var(x:String) extends Tm
+case class Lam(x:String, a:Tm) extends Tm
+case class App(a:Tm, b:Tm) extends Tm
+\end{lstlisting}
+
+Conversion from \id{Tm} to \id{Sem}:
+
+\begin{lstlisting}
 def eval(env:Map[String,Sem], a:Tm):Sem =
   a match {
     case Var(x) => env(x)
@@ -394,12 +465,26 @@ def eval(env:Map[String,Sem], a:Tm):Sem =
   }
 
 def tmToSem(a:Tm):Sem = eval(Map(),a)
+\end{lstlisting}
 
-// Conversion from Sem to Tm
+In order to convert from \id{Sem} to \id{Tm}, we have to extend the \id{Sem} data type with one additional constructor, that injects \id{Tm} terms into the \id{Sem} data type:
 
+\begin{lstlisting}
+case class TmS(a:Tm) extends Sem
+\end{lstlisting}
+
+The \id{norm} function is the only function that pattern matches on \id{Sem}. We extend it by making it do nothing on \id{TmS} values: \id{case TmS(a) => TmS(a)}.
+
+We're also going to need a fresh variable name generation facility, because \id{Sem} values have no variable names whereas \id{Tm} values do:
+
+\begin{lstlisting}
 var n = 0
 def fresh() = { n += 1; s"x$n" }
+\end{lstlisting}
 
+We can now convert \id{Sem} values to \id{Tm} values:
+
+\begin{lstlisting}
 def reify(a:Sem):Tm =
   a match {
     case TmS(a) => a
@@ -408,20 +493,33 @@ def reify(a:Sem):Tm =
   }
 
 def semToTm(a:Sem):Tm = reify(a)
+\end{lstlisting}
 
-// Example
+Here's an example:
 
+\begin{lstlisting}
 val z = LamS(f => LamS(x => x))
 val s = LamS(n => LamS(f => LamS(z => AppS(AppS(n,f),AppS(f,z)))))
 
 val one = AppS(s,z)
 val two = AppS(s,one)
 
-reify(two)
-reify(norm(two))
+reify(two) // App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x3)))))),
+                    // App(Lam(x4,Lam(x5,Lam(x6,App(App(Var(x4),Var(x5)),App(Var(x5),Var(x6)))))),
+                         // Lam(x7,Lam(x8,Var(x8)))))
+
+reify(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 \end{lstlisting}
 
 \section{Conclusion}
+
+We saw that the essence of the techniques discussed is the \emph{smart constructor} that ensures that its return value is in normal form.
+On top of those, we can build a \emph{smart copy function} that copies a value but constructs the copy using smart constructors, in order to rewrite it to normal form.
+We saw that hereditary substitution and normalization by evaluation are both smart constructors for $\ap$, but use a different mechanism to compute the substitution:
+\begin{align*}
+  \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
+  \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution} \\
+\end{align*}
 
 \bibliographystyle{alphaurl}
 \bibliography{references}
