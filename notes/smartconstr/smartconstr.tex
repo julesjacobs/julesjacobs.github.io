@@ -310,7 +310,7 @@ If we have a term $\lambda x. \lambda y. \lambda z. x$ then the De Bruijn index 
 This way, we do not have to use any variable names, and can simply write $\lambda x. \lambda y. \lambda z. x \equiv \lambda. \lambda. \lambda. 2$.
 The $\ap$ nodes have no effect on the De Bruijn indices.
 For instance, the term $\lambda. \lambda. \ap(0,\lambda. \ap(0,2))$ means $\lambda x. \lambda y. \ap(y, \lambda z. \ap(z,x))$.
-The details of this encoding are not so important: the important part is that this allows us to write a substitution function without much trouble.
+The details of this encoding are not so important and I leave them to the next subsection: the important part is that this allows us to write a substitution function without much trouble.
 
 We first define the syntax tree nodes:
 \begin{lstlisting}
