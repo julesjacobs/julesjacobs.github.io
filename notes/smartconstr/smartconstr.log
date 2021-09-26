@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  12 MAY 2021 11:05
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.12.18)  26 SEP 2021 14:50
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -6,7 +6,7 @@ entering extended mode
 **/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.tex
 (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.tex
 LaTeX2e <2020-02-02> patch level 5
-L3 programming layer <2020-03-06> (/usr/local/texlive/2020/texmf-dist/tex/latex/koma-script/scrartcl.cls
+L3 programming layer <2020-03-06> (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/ppreamble.tex (/usr/local/texlive/2020/texmf-dist/tex/latex/koma-script/scrartcl.cls
 Document Class: scrartcl 2020/01/24 v3.29 KOMA-Script document class (article)
 (/usr/local/texlive/2020/texmf-dist/tex/latex/koma-script/scrkbase.sty
 Package: scrkbase 2020/01/24 v3.29 KOMA-Script package (KOMA-Script-dependent basics and keyval usage)
@@ -119,17 +119,8 @@ Class scrartcl Info: Redefining `\numberline' on input line 6178.
 Package: inputenc 2018/08/11 v1.3c Input encoding file
 \inpenc@prehook=\toks16
 \inpenc@posthook=\toks17
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/bera/beraserif.sty
-Package: beraserif 2004/01/30 (WaS)
-LaTeX Font Info:    Trying to load font information for OT1+fve on input line 30.
-LaTeX Font Info:    No file OT1fve.fd. on input line 30.
-
-
-LaTeX Font Warning: Font shape `OT1/fve/m/n' undefined
-(Font)              using `OT1/cmr/m/n' instead on input line 30.
-
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/bera/berasans.sty
-Package: berasans 2004/01/30 (WaS)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2020/02/11 v2.0o Standard LaTeX package
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/bera/beramono.sty
 Package: beramono 2004/01/31 (WaS)
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/classicthesis/classicthesis.sty
@@ -494,49 +485,16 @@ Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
 \Gm@layouthoffset=\dimen171
 \Gm@layoutvoffset=\dimen172
 \Gm@dimlist=\toks20
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/base/fontenc.sty
-Package: fontenc 2020/02/11 v2.0o Standard LaTeX package
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/eulervm/eulervm.sty
-Package: eulervm 2005/01/11 v4.0 (WaS)
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/xspace.sty
-Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
-)
+) (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/ceulerpx.sty
 
-Class scrartcl Warning: Usage of package `parskip' together
-(scrartcl)              with a KOMA-Script class is not recommended.
-(scrartcl)              I'd suggest to use option
-(scrartcl)              `parskip' with one of it's several values.
-(scrartcl)              Nevertheless, using requested
-(scrartcl)              package `parskip' on input line 44.
+LaTeX Warning: You have requested package `ceulerpx',
+               but the package provides `eulerpx'.
 
-(/usr/local/texlive/2020/texmf-dist/tex/latex/parskip/parskip.sty
-Package: parskip 2020-01-22 v2.0d non-zero parskip adjustments
- (/usr/local/texlive/2020/texmf-dist/tex/latex/etoolbox/etoolbox.sty
-Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
-\etb@tempcnta=\count198
-)
-Couldn't patch \@startsection
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/base/textcomp.sty
-Package: textcomp 2020/02/02 v2.0n Standard LaTeX package
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/mathtools/mathtools.sty
-Package: mathtools 2020/03/24 v1.24 mathematical typesetting tools
- (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/calc.sty
-Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
-\calc@Acount=\count199
-\calc@Bcount=\count266
-\calc@Adimen=\dimen173
-\calc@Bdimen=\dimen174
-\calc@Askip=\skip103
-\calc@Bskip=\skip104
-LaTeX Info: Redefining \setlength on input line 80.
-LaTeX Info: Redefining \addtolength on input line 81.
-\calc@Ccount=\count267
-\calc@Cskip=\skip105
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/mathtools/mhsetup.sty
-Package: mhsetup 2017/03/31 v1.3 programming setup (MH)
-) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: eulerpx 2021/07/12 v0.3.1
+Package: `eulerpx' v0.3.1 <2021/07/12>
+(/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsmath.sty
 Package: amsmath 2020/01/20 v2.17e AMS math features
-\@mathmargin=\skip106
+\@mathmargin=\skip103
 
 For additional information on amsmath, use the `?' option.
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amstext.sty
@@ -544,56 +502,270 @@ Package: amstext 2000/06/29 v2.01 AMS text
  (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
 \@emptytoks=\toks21
-\ex@=\dimen175
+\ex@=\dimen173
 )) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsbsy.sty
 Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen176
+\pmbraise@=\dimen174
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count268
+\inf@bad=\count198
 LaTeX Info: Redefining \frac on input line 227.
-\uproot@=\count269
-\leftroot@=\count270
+\uproot@=\count199
+\leftroot@=\count266
 LaTeX Info: Redefining \overline on input line 389.
-\classnum@=\count271
-\DOTSCASE@=\count272
+\classnum@=\count267
+\DOTSCASE@=\count268
 LaTeX Info: Redefining \ldots on input line 486.
 LaTeX Info: Redefining \dots on input line 489.
 LaTeX Info: Redefining \cdots on input line 610.
 \Mathstrutbox@=\box48
 \strutbox@=\box49
-\big@size=\dimen177
+\big@size=\dimen175
 LaTeX Font Info:    Redeclaring font encoding OML on input line 733.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
-\macc@depth=\count273
-\c@MaxMatrixCols=\count274
+\macc@depth=\count269
+\c@MaxMatrixCols=\count270
 \dotsspace@=\muskip17
-\c@parentequation=\count275
-\dspbrk@lvl=\count276
+\c@parentequation=\count271
+\dspbrk@lvl=\count272
 \tag@help=\toks22
-\row@=\count277
-\column@=\count278
-\maxfields@=\count279
+\row@=\count273
+\column@=\count274
+\maxfields@=\count275
 \andhelp@=\toks23
-\eqnshift@=\dimen178
-\alignsep@=\dimen179
-\tagshift@=\dimen180
-\tagwidth@=\dimen181
-\totwidth@=\dimen182
-\lineht@=\dimen183
+\eqnshift@=\dimen176
+\alignsep@=\dimen177
+\tagshift@=\dimen178
+\tagwidth@=\dimen179
+\totwidth@=\dimen180
+\lineht@=\dimen181
 \@envbody=\toks24
-\multlinegap=\skip107
-\multlinetaggap=\skip108
+\multlinegap=\skip104
+\multlinetaggap=\skip105
 \mathdisplay@stack=\toks25
 LaTeX Info: Redefining \[ on input line 2859.
 LaTeX Info: Redefining \] on input line 2860.
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/newpxmath.sty
+Package: newpxmath 2020/01/09 v1.409
+ `newpxmath' v1.409, 2020/01/09 Math macros based on pxfonts (msharpe) (/usr/local/texlive/2020/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count276
+) (/usr/local/texlive/2020/texmf-dist/tex/generic/kastrup/binhex.tex) (/usr/local/texlive/2020/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
+ (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkvutils.tex
+\XKV@toks=\toks26
+\XKV@tempa@toks=\toks27
+)
+\XKV@depth=\count277
+File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
+)) (/usr/local/texlive/2020/texmf-dist/tex/latex/oberdiek/centernot.sty
+Package: centernot 2016/05/16 v1.4 Centers the not symbol horizontally (HO)
+)
+\px@tA=\toks28
+\px@tB=\toks29
+\px@su=\read2
+\px@Isdigit=\count278
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 194.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/pplx/m/n --> OT1/pplj/m/n on input line 194.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/pplx/b/n --> OT1/pplj/m/n on input line 194.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/pplj/m/n --> OT1/pplj/b/n on input line 195.
+LaTeX Font Info:    Redeclaring math alphabet \mathsf on input line 198.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> T1/cmss/m/n on input line 198.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> T1/cmss/m/n on input line 198.
+LaTeX Font Info:    Redeclaring math alphabet \mathit on input line 199.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/pplx/m/it --> OT1/pplj/m/it on input line 199.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/pplx/b/it --> OT1/pplj/m/it on input line 199.
+LaTeX Font Info:    Redeclaring math alphabet \mathtt on input line 200.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> T1/fvm/m/n on input line 200.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> T1/fvm/m/n on input line 200.
+LaTeX Font Info:    Redeclaring math alphabet \mathbf on input line 202.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/zplm/b/n --> OT1/pplj/b/n on input line 202.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `bold'
+(Font)                  OT1/zplm/b/n --> OT1/pplj/b/n on input line 202.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/pplj/m/it --> OT1/pplj/b/it on input line 203.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  T1/cmss/m/n --> T1/cmss/b/n on input line 205.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  T1/fvm/m/n --> T1/fvm/b/n on input line 206.
+LaTeX Font Info:    Redeclaring symbol font `letters' on input line 217.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `normal'
+(Font)                  OML/zplm/m/it --> OML/npxmi/m/it on input line 217.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/zplm/b/it --> OML/npxmi/m/it on input line 217.
+LaTeX Font Info:    Overwriting symbol font `letters' in version `bold'
+(Font)                  OML/npxmi/m/it --> OML/npxmi/b/it on input line 218.
+\symlettersA=\mathgroup5
+LaTeX Font Info:    Overwriting symbol font `lettersA' in version `bold'
+(Font)                  U/npxmia/m/it --> U/npxmia/b/it on input line 236.
+Now handling font encoding LMS ...
+... no UTF-8 mapping file for font encoding LMS
+LaTeX Font Info:    Redeclaring symbol font `symbols' on input line 246.
+LaTeX Font Info:    Encoding `OMS' has changed to `LMS' for symbol font
+(Font)              `symbols' in the math version `normal' on input line 246.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
+(Font)                  OMS/zplm/m/n --> LMS/npxsy/m/n on input line 246.
+LaTeX Font Info:    Encoding `OMS' has changed to `LMS' for symbol font
+(Font)              `symbols' in the math version `bold' on input line 246.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  OMS/zplm/b/n --> LMS/npxsy/m/n on input line 246.
+LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
+(Font)                  LMS/npxsy/m/n --> LMS/npxsy/b/n on input line 247.
+\symAMSm=\mathgroup6
+LaTeX Font Info:    Overwriting symbol font `AMSm' in version `bold'
+(Font)                  U/npxsym/m/n --> U/npxsym/b/n on input line 265.
+\symsymbolsC=\mathgroup7
+LaTeX Font Info:    Overwriting symbol font `symbolsC' in version `bold'
+(Font)                  U/npxsyc/m/n --> U/npxsyc/b/n on input line 287.
+Now handling font encoding LMX ...
+... no UTF-8 mapping file for font encoding LMX
+LaTeX Font Info:    Redeclaring symbol font `largesymbols' on input line 307.
+LaTeX Font Info:    Encoding `OMX' has changed to `LMX' for symbol font
+(Font)              `largesymbols' in the math version `normal' on input line 307.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
+(Font)                  OMX/zplm/m/n --> LMX/npxexx/m/n on input line 307.
+LaTeX Font Info:    Encoding `OMX' has changed to `LMX' for symbol font
+(Font)              `largesymbols' in the math version `bold' on input line 307.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  OMX/zplm/m/n --> LMX/npxexx/m/n on input line 307.
+LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
+(Font)                  LMX/npxexx/m/n --> LMX/npxexx/b/n on input line 308.
+\symlargesymbolsPXA=\mathgroup8
+LaTeX Font Info:    Overwriting symbol font `largesymbolsPXA' in version `bold'
+(Font)                  U/npxexa/m/n --> U/npxexa/b/n on input line 315.
+\px@cntz=\count279
+\px@IsAlNum=\count280
+\px@sbptoks=\toks30
+LaTeX Font Info:    Redeclaring math delimiter \lfloor on input line 470.
+LaTeX Font Info:    Redeclaring math delimiter \rfloor on input line 471.
+LaTeX Font Info:    Redeclaring math delimiter \lceil on input line 472.
+LaTeX Font Info:    Redeclaring math delimiter \rceil on input line 473.
+LaTeX Font Info:    Redeclaring math delimiter \lbrace on input line 474.
+LaTeX Font Info:    Redeclaring math delimiter \rbrace on input line 475.
+LaTeX Font Info:    Redeclaring math delimiter \langle on input line 476.
+LaTeX Font Info:    Redeclaring math delimiter \rangle on input line 478.
+LaTeX Font Info:    Redeclaring math delimiter \arrowvert on input line 482.
+LaTeX Font Info:    Redeclaring math delimiter \vert on input line 483.
+LaTeX Font Info:    Redeclaring math symbol \parallel on input line 484.
+LaTeX Font Info:    Redeclaring math delimiter \Arrowvert on input line 485.
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 511.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 525.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 526.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 527.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 528.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 529.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 530.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 531.
+LaTeX Font Info:    Redeclaring math accent \check on input line 532.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 536.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 537.
+LaTeX Font Info:    Redeclaring math accent \vec on input line 1579.
+\npx@numstart=\count281
+\npx@UCstart=\count282
+\npx@lcstart=\count283
+\npx@tmpc=\count284
+\npx@imath=\count285
+\npx@jmath=\count286
+LaTeX Info: Redefining \not on input line 2132.
+)
+\symEulerRoman=\mathgroup9
+LaTeX Font Info:    Overwriting symbol font `EulerRoman' in version `bold'
+(Font)                  U/zeur/m/n --> U/zeur/b/n on input line 16.
+LaTeX Font Info:    Overwriting math alphabet `\mathscr' in version `bold'
+(Font)                  U/zeus/m/n --> U/zeus/b/n on input line 23.
+LaTeX Font Info:    Redeclaring math alphabet \mathfrak on input line 26.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 27.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 30.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 31.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 32.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 33.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 34.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 35.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 37.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 38.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 39.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 40.
+LaTeX Font Info:    Redeclaring math symbol \alpha on input line 43.
+LaTeX Font Info:    Redeclaring math symbol \beta on input line 44.
+LaTeX Font Info:    Redeclaring math symbol \gamma on input line 45.
+LaTeX Font Info:    Redeclaring math symbol \delta on input line 46.
+LaTeX Font Info:    Redeclaring math symbol \epsilon on input line 47.
+LaTeX Font Info:    Redeclaring math symbol \zeta on input line 48.
+LaTeX Font Info:    Redeclaring math symbol \eta on input line 49.
+LaTeX Font Info:    Redeclaring math symbol \theta on input line 50.
+LaTeX Font Info:    Redeclaring math symbol \iota on input line 51.
+LaTeX Font Info:    Redeclaring math symbol \kappa on input line 52.
+LaTeX Font Info:    Redeclaring math symbol \lambda on input line 53.
+LaTeX Font Info:    Redeclaring math symbol \mu on input line 54.
+LaTeX Font Info:    Redeclaring math symbol \nu on input line 55.
+LaTeX Font Info:    Redeclaring math symbol \xi on input line 56.
+LaTeX Font Info:    Redeclaring math symbol \pi on input line 57.
+LaTeX Font Info:    Redeclaring math symbol \rho on input line 58.
+LaTeX Font Info:    Redeclaring math symbol \sigma on input line 59.
+LaTeX Font Info:    Redeclaring math symbol \tau on input line 60.
+LaTeX Font Info:    Redeclaring math symbol \upsilon on input line 61.
+LaTeX Font Info:    Redeclaring math symbol \phi on input line 62.
+LaTeX Font Info:    Redeclaring math symbol \chi on input line 63.
+LaTeX Font Info:    Redeclaring math symbol \psi on input line 64.
+LaTeX Font Info:    Redeclaring math symbol \omega on input line 65.
+LaTeX Font Info:    Redeclaring math symbol \varepsilon on input line 66.
+LaTeX Font Info:    Redeclaring math symbol \vartheta on input line 67.
+LaTeX Font Info:    Redeclaring math symbol \varpi on input line 68.
+LaTeX Font Info:    Redeclaring math symbol \varphi on input line 71.
+LaTeX Font Info:    Redeclaring math symbol \partial on input line 88.
+LaTeX Font Info:    Redeclaring math symbol \ell on input line 118.
+LaTeX Font Info:    Redeclaring math symbol \imath on input line 148.
+LaTeX Font Info:    Redeclaring math symbol \jmath on input line 149.
+LaTeX Font Info:    Redeclaring math symbol \wp on input line 150.
+LaTeX Font Info:    Redeclaring math symbol \hslash on input line 152.
+)
+
+Class scrartcl Warning: Usage of package `parskip' together
+(scrartcl)              with a KOMA-Script class is not recommended.
+(scrartcl)              I'd suggest to use option
+(scrartcl)              `parskip' with one of it's several values.
+(scrartcl)              Nevertheless, using requested
+(scrartcl)              package `parskip' on input line 31.
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/parskip/parskip.sty
+Package: parskip 2020-01-22 v2.0d non-zero parskip adjustments
+
+Couldn't patch \@startsection
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/mathtools/mathtools.sty
+Package: mathtools 2020/03/24 v1.24 mathematical typesetting tools
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2017/05/25 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count287
+\calc@Bcount=\count288
+\calc@Adimen=\dimen182
+\calc@Bdimen=\dimen183
+\calc@Askip=\skip106
+\calc@Bskip=\skip107
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count289
+\calc@Cskip=\skip108
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/mathtools/mhsetup.sty
+Package: mhsetup 2017/03/31 v1.3 programming setup (MH)
 )
 LaTeX Info: Thecontrolsequence`\('isalreadyrobust on input line 130.
 LaTeX Info: Thecontrolsequence`\)'isalreadyrobust on input line 130.
 LaTeX Info: Thecontrolsequence`\['isalreadyrobust on input line 130.
 LaTeX Info: Thecontrolsequence`\]'isalreadyrobust on input line 130.
-\g_MT_multlinerow_int=\count280
+\g_MT_multlinerow_int=\count290
 \l_MT_multwidth_dim=\dimen184
 \origjot=\skip109
 \l_MT_shortvdotswithinadjustabove_dim=\dimen185
@@ -624,28 +796,28 @@ Package cleveref Info: include cross-reference names in hyperlinks on input line
 Package cleveref Info: no abbreviation of names on input line 7852.
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/float/float.sty
 Package: float 2001/11/08 v1.3d Float enhancements (AL)
-\c@float@type=\count281
-\float@exts=\toks26
+\c@float@type=\count291
+\float@exts=\toks31
 \float@box=\box51
-\@float@everytoks=\toks27
+\@float@everytoks=\toks32
 \@floatcapt=\box52
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/listings/listings.sty
-\lst@mode=\count282
+\lst@mode=\count292
 \lst@gtempboxa=\box53
-\lst@token=\toks28
-\lst@length=\count283
+\lst@token=\toks33
+\lst@length=\count293
 \lst@currlwidth=\dimen192
-\lst@column=\count284
-\lst@pos=\count285
+\lst@column=\count294
+\lst@pos=\count295
 \lst@lostspace=\dimen193
 \lst@width=\dimen194
-\lst@newlines=\count286
-\lst@lineno=\count287
+\lst@newlines=\count296
+\lst@lineno=\count297
 \lst@maxwidth=\dimen195
  (/usr/local/texlive/2020/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2020/03/24 1.8d (Carsten Heinz)
-\c@lstnumber=\count288
-\lst@skipnumbers=\count289
+\c@lstnumber=\count298
+\lst@skipnumbers=\count299
 \lst@framebox=\box54
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/listings/listings.cfg
 File: listings.cfg 2020/03/24 1.8d listings configuration
@@ -654,7 +826,7 @@ Package: listings 2020/03/24 1.8d (Carsten Heinz)
  (/usr/local/texlive/2020/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty
 Package: tcolorbox 2019/11/15 version 4.22 text color boxes
  (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/basiclayer/pgf.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/utilities/pgfrcs.sty (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-common.tex
-\pgfutil@everybye=\toks29
+\pgfutil@everybye=\toks34
 \pgfutil@tempdima=\dimen196
 \pgfutil@tempdimb=\dimen197
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-common-lists.tex)) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfutil-latex.def
@@ -681,10 +853,10 @@ Package graphics Info: Driver file: pdftex.def on input line 105.
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/pgf/systemlayer/pgfsys.sty (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsys.code.tex
 Package: pgfsys 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex
-\pgfkeys@pathtoks=\toks30
-\pgfkeys@temptoks=\toks31
+\pgfkeys@pathtoks=\toks35
+\pgfkeys@temptoks=\toks36
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/utilities/pgfkeysfiltered.code.tex
-\pgfkeys@tmptoks=\toks32
+\pgfkeys@tmptoks=\toks37
 ))
 \pgf@x=\dimen256
 \pgf@y=\dimen257
@@ -697,15 +869,15 @@ Package: pgfsys 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@xd=\dimen264
 \pgf@yd=\dimen265
 \w@pgf@writea=\write3
-\r@pgf@reada=\read2
-\c@pgf@counta=\count290
-\c@pgf@countb=\count291
-\c@pgf@countc=\count292
-\c@pgf@countd=\count293
-\t@pgf@toka=\toks33
-\t@pgf@tokb=\toks34
-\t@pgf@tokc=\toks35
-\pgf@sys@id@count=\count294
+\r@pgf@reada=\read3
+\c@pgf@counta=\count300
+\c@pgf@countb=\count301
+\c@pgf@countc=\count302
+\c@pgf@countd=\count303
+\t@pgf@toka=\toks38
+\t@pgf@tokb=\toks39
+\t@pgf@tokc=\toks40
+\pgf@sys@id@count=\count304
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgf.cfg
 File: pgf.cfg 2020/01/08 v3.1.5b (3.1.5b)
 )
@@ -716,21 +888,21 @@ File: pgfsys-pdftex.def 2020/01/08 v3.1.5b (3.1.5b)
 File: pgfsys-common-pdf.def 2020/01/08 v3.1.5b (3.1.5b)
 ))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsyssoftpath.code.tex
 File: pgfsyssoftpath.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgfsyssoftpath@smallbuffer@items=\count295
-\pgfsyssoftpath@bigbuffer@items=\count296
+\pgfsyssoftpath@smallbuffer@items=\count305
+\pgfsyssoftpath@bigbuffer@items=\count306
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/systemlayer/pgfsysprotocol.code.tex
 File: pgfsysprotocol.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 )) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcore.code.tex
 Package: pgfcore 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathcalc.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathutil.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathparser.code.tex
 \pgfmath@dimen=\dimen266
-\pgfmath@count=\count297
+\pgfmath@count=\count307
 \pgfmath@box=\box56
-\pgfmath@toks=\toks36
-\pgfmath@stack@operand=\toks37
-\pgfmath@stack@operation=\toks38
+\pgfmath@toks=\toks41
+\pgfmath@stack@operand=\toks42
+\pgfmath@stack@operation=\toks43
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.code.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.basic.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.trigonometric.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.random.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.comparison.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.base.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.round.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.misc.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfunctions.integerarithmetics.code.tex))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmathfloat.code.tex
-\c@pgfmathroundto@lastzeros=\count298
+\c@pgfmathroundto@lastzeros=\count308
 )) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfint.code.tex) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepoints.code.tex
 File: pgfcorepoints.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@picminx=\dimen267
@@ -760,7 +932,7 @@ File: pgfcorescopes.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgfpic=\box57
 \pgf@hbox=\box58
 \pgf@layerbox@main=\box59
-\pgf@picture@serial@count=\count299
+\pgf@picture@serial@count=\count309
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.code.tex
 File: pgfcoregraphicstate.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgflinewidth=\dimen285
@@ -781,8 +953,8 @@ File: pgfcorearrows.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
 File: pgfcoreshade.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \pgf@max=\dimen290
-\pgf@sys@shading@range@num=\count300
-\pgf@shadingcount=\count301
+\pgf@sys@shading@range@num=\count310
+\pgf@shadingcount=\count311
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
 File: pgfcoreimage.code.tex 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.tex
@@ -809,9 +981,9 @@ Package: pgfcomp-version-0-65 2020/01/08 v3.1.5b (3.1.5b)
 Package: pgfcomp-version-1-18 2020/01/08 v3.1.5b (3.1.5b)
 )) (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/verbatim.sty
 Package: verbatim 2019/11/10 v1.5r LaTeX2e package for verbatim enhancements
-\every@verbatim=\toks39
-\verbatim@line=\toks40
-\verbatim@in@stream=\read3
+\every@verbatim=\toks44
+\verbatim@line=\toks45
+\verbatim@in@stream=\read4
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/environ/environ.sty
 Package: environ 2014/05/04 v0.3 A new way to define environments
  (/usr/local/texlive/2020/texmf-dist/tex/latex/trimspaces/trimspaces.sty
@@ -821,9 +993,9 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@upperbox=\box63
 \tcb@lowerbox=\box64
 \tcb@phantombox=\box65
-\c@tcbbreakpart=\count302
-\c@tcblayer=\count303
-\tcolorbox@number=\count304
+\c@tcbbreakpart=\count312
+\c@tcblayer=\count313
+\tcolorbox@number=\count314
 \tcb@temp=\box66
 \tcb@temp=\box67
 \tcb@temp=\box68
@@ -832,62 +1004,54 @@ Package: trimspaces 2009/09/17 v1.1 Trim spaces around a token list
 \tcb@record@out=\write5
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/amscls/amsthm.sty
 Package: amsthm 2017/10/31 v2.20.4
-\thm@style=\toks41
-\thm@bodyfont=\toks42
-\thm@headfont=\toks43
-\thm@notefont=\toks44
-\thm@headpunct=\toks45
+\thm@style=\toks46
+\thm@bodyfont=\toks47
+\thm@headfont=\toks48
+\thm@notefont=\toks49
+\thm@headpunct=\toks50
 \thm@preskip=\skip110
 \thm@postskip=\skip111
 \thm@headsep=\skip112
-\dth@everypar=\toks46
+\dth@everypar=\toks51
+LaTeX Info: Redefining \textsquare on input line 428.
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/xpatch/xpatch.sty (/usr/local/texlive/2020/texmf-dist/tex/latex/l3kernel/expl3.sty
 Package: expl3 2020-03-06 L3 programming layer (loader) 
  (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count305
+\l__kernel_color_stack_int=\count315
 \l__pdf_internal_box=\box70
 ))
 Package: xpatch 2020/03/25 v0.3a Extending etoolbox patching commands
  (/usr/local/texlive/2020/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
 Package: xparse 2020-03-06 L3 Experimental document command parser
-\l__xparse_current_arg_int=\count306
-\g__xparse_grabber_int=\count307
-\l__xparse_m_args_int=\count308
-\l__xparse_v_nesting_int=\count309
+\l__xparse_current_arg_int=\count316
+\g__xparse_grabber_int=\count317
+\l__xparse_m_args_int=\count318
+\l__xparse_v_nesting_int=\count319
 ))
 Class scrartcl Info: amsthm's \deferred@thm@head patched.
+\c@theorem=\count320
+\c@definition=\count321
+\c@corollary=\count322
  (/usr/local/texlive/2020/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2019/06/20 v3.9 Customized lists
 \labelindent=\skip113
 \enit@outerparindent=\dimen293
-\enit@toks=\toks47
+\enit@toks=\toks52
 \enit@inbox=\box71
-\enit@count@id=\count310
-\enitdp@description=\count311
+\enit@count@id=\count323
+\enitdp@description=\count324
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/mathpartir/mathpartir.sty
 Package: mathpartir 2016/02/24 version 1.3.2 Math Paragraph for Typesetting Inference Rules
 \mpr@andskip=\skip114
-\mpr@lista=\toks48
-\mpr@listb=\toks49
+\mpr@lista=\toks53
+\mpr@listb=\toks54
 \mpr@hlist=\box72
 \mpr@vlist=\box73
 \mpr@right=\box74
-)
-\c@theorem=\count312
-\c@definition=\count313
-\c@corollary=\count314
- (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/adjustbox.sty
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/adjustbox.sty
 Package: adjustbox 2019/01/04 v1.2 Adjusting TeX boxes (trim, clip, ...)
- (/usr/local/texlive/2020/texmf-dist/tex/latex/xkeyval/xkeyval.sty
-Package: xkeyval 2014/12/03 v2.7a package option processing (HA)
- (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkeyval.tex (/usr/local/texlive/2020/texmf-dist/tex/generic/xkeyval/xkvutils.tex
-\XKV@toks=\toks50
-\XKV@tempa@toks=\toks51
-)
-\XKV@depth=\count315
-File: xkeyval.tex 2014/12/03 v2.7a key=value parser (HA)
-)) (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/adjcalc.sty
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/adjcalc.sty
 Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back-ends (calc, etex, pgfmath)
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/adjustbox/trimclip.sty
 Package: trimclip 2018/04/08 v1.1 Trim and clip general TeX material
@@ -913,11 +1077,11 @@ File: tc-pdftex.def 2019/01/04 v2.2 Clipping driver for pdftex
 \adjbox@ptotalheight=\dimen305
  (/usr/local/texlive/2020/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
 Package: ifoddpage 2016/04/23 v1.1 Conditionals for odd/even page detection
-\c@checkoddpage=\count316
+\c@checkoddpage=\count325
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/varwidth/varwidth.sty
 Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
 \@vwid@box=\box76
-\sift@deathcycles=\count317
+\sift@deathcycles=\count326
 \@vwid@loff=\dimen306
 \@vwid@roff=\dimen307
 )) (/usr/local/texlive/2020/texmf-dist/tex/latex/todonotes/todonotes.sty
@@ -928,13 +1092,13 @@ Package: pgffor 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex)
 \pgffor@iter=\dimen308
 \pgffor@skip=\dimen309
-\pgffor@stack=\toks52
-\pgffor@toks=\toks53
+\pgffor@stack=\toks55
+\pgffor@toks=\toks56
 )) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
 Package: tikz 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers.code.tex
 File: pgflibraryplothandlers.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgf@plot@mark@count=\count318
+\pgf@plot@mark@count=\count327
 \pgfplotmarksize=\dimen310
 )
 \tikz@lastx=\dimen311
@@ -949,17 +1113,17 @@ File: pgflibraryplothandlers.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 \tikz@figbox@bg=\box78
 \tikz@tempbox=\box79
 \tikz@tempbox@bg=\box80
-\tikztreelevel=\count319
-\tikznumberofchildren=\count320
-\tikznumberofcurrentchild=\count321
-\tikz@fig@count=\count322
+\tikztreelevel=\count328
+\tikznumberofchildren=\count329
+\tikznumberofcurrentchild=\count330
+\tikz@fig@count=\count331
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
 File: pgfmodulematrix.code.tex 2020/01/08 v3.1.5b (3.1.5b)
-\pgfmatrixcurrentrow=\count323
-\pgfmatrixcurrentcolumn=\count324
-\pgf@matrix@numberofcolumns=\count325
+\pgfmatrixcurrentrow=\count332
+\pgfmatrixcurrentcolumn=\count333
+\pgf@matrix@numberofcolumns=\count334
 )
-\tikz@expandcount=\count326
+\tikz@expandcount=\count335
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarytopaths.code.tex
 File: tikzlibrarytopaths.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 ))) (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tikzlibrarypositioning.code.tex
@@ -971,17 +1135,17 @@ File: tikzlibraryfadings.code.tex 2020/01/08 v3.1.5b (3.1.5b)
  (/usr/local/texlive/2020/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code.tex
 File: pgflibraryfadings.code.tex 2020/01/08 v3.1.5b (3.1.5b)
 )))
-\c@@todonotes@numberoftodonotes=\count327
+\c@@todonotes@numberoftodonotes=\count336
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/tools/multicol.sty
 Package: multicol 2019/12/09 v1.8y multicolumn formatting (FMi)
-\c@tracingmulticols=\count328
+\c@tracingmulticols=\count337
 \mult@box=\box81
 \multicol@leftmargin=\dimen319
-\c@unbalance=\count329
-\c@collectmore=\count330
-\doublecol@number=\count331
-\multicoltolerance=\count332
-\multicolpretolerance=\count333
+\c@unbalance=\count338
+\c@collectmore=\count339
+\doublecol@number=\count340
+\multicoltolerance=\count341
+\multicolpretolerance=\count342
 \full@width=\dimen320
 \page@free=\dimen321
 \premulticols=\dimen322
@@ -1032,64 +1196,84 @@ Package: multicol 2019/12/09 v1.8y multicolumn formatting (FMi)
 \@tempa=\box122
 \@tempa=\box123
 \@tempa=\box124
-\c@minrows=\count334
-\c@columnbadness=\count335
-\c@finalcolumnbadness=\count336
+\c@minrows=\count343
+\c@columnbadness=\count344
+\c@finalcolumnbadness=\count345
 \last@try=\dimen325
 \multicolovershoot=\dimen326
 \multicolundershoot=\dimen327
 \mult@nat@firstbox=\box125
 \colbreak@box=\box126
-\mc@col@check@num=\count337
-) (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.aux)
+\mc@col@check@num=\count346
+)) (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.aux)
 \openout1 = `smartconstr.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 166.
-LaTeX Font Info:    ... okay on input line 166.
-Package scrbase Info: activating english \contentsname on input line 166.
-Package scrbase Info: activating english \listfigurename on input line 166.
-Package scrbase Info: activating english \listtablename on input line 166.
+LaTeX Font Info:    Checking defaults for OML/npxmi/m/it on input line 7.
+LaTeX Font Info:    Trying to load font information for OML+npxmi on input line 7.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/omlnpxmi.fd
+File: omlnpxmi.fd 2013/03/21 Fontinst v1.933 font definitions for OML/npxmi.
+)
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for U/npxexa/m/n on input line 7.
+LaTeX Font Info:    Trying to load font information for U+npxexa on input line 7.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/unpxexa.fd
+File: unpxexa.fd 2013/03/24 Fontinst v1.933 font definitions for U/npxexa.
+)
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 7.
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for LMS/npxsy/m/n on input line 7.
+LaTeX Font Info:    Trying to load font information for LMS+npxsy on input line 7.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/lmsnpxsy.fd
+File: lmsnpxsy.fd 2016/07/04 Fontinst v1.933 font definitions for LMS/npxsy.
+)
+LaTeX Font Info:    ... okay on input line 7.
+LaTeX Font Info:    Checking defaults for LMX/npxexx/m/n on input line 7.
+LaTeX Font Info:    Trying to load font information for LMX+npxexx on input line 7.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/lmxnpxexx.fd
+File: lmxnpxexx.fd 2016/07/04 Fontinst v1.933 font definitions for LMX/npxexx.
+)
+LaTeX Font Info:    ... okay on input line 7.
+Package scrbase Info: activating english \contentsname on input line 7.
+Package scrbase Info: activating english \listfigurename on input line 7.
+Package scrbase Info: activating english \listtablename on input line 7.
  (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count338
+\scratchcounter=\count347
 \scratchdimen=\dimen328
 \scratchbox=\box127
-\nofMPsegments=\count339
-\nofMParguments=\count340
-\everyMPshowfont=\toks54
-\MPscratchCnt=\count341
+\nofMPsegments=\count348
+\nofMParguments=\count349
+\everyMPshowfont=\toks57
+\MPscratchCnt=\count350
 \MPscratchDim=\dimen329
-\MPnumerator=\count342
-\makeMPintoPDFobject=\count343
-\everyMPtoPDFconversion=\toks55
+\MPnumerator=\count351
+\makeMPintoPDFobject=\count352
+\everyMPtoPDFconversion=\toks58
 ) (/usr/local/texlive/2020/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
 Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 485.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-LaTeX Info: Redefining \microtypecontext on input line 166.
+LaTeX Info: Redefining \microtypecontext on input line 7.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `basictext'.
-LaTeX Info: Redefining \showhyphens on input line 166.
+LaTeX Info: Redefining \showhyphens on input line 7.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -1103,7 +1287,7 @@ Package caption Info: hypcap package is loaded.
 Package caption Info: listings package is loaded.
 Package caption Info: End \AtBeginDocument code.
 \AtBeginShipoutBox=\box128
-Package hyperref Info: Link coloring ON on input line 166.
+Package hyperref Info: Link coloring ON on input line 7.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
  (/usr/local/texlive/2020/texmf-dist/tex/latex/refcount/refcount.sty
@@ -1111,11 +1295,11 @@ Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
 ) (/usr/local/texlive/2020/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
 Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
-\c@section@level=\count344
+\c@section@level=\count353
 )
-LaTeX Info: Redefining \ref on input line 166.
-LaTeX Info: Redefining \pageref on input line 166.
-LaTeX Info: Redefining \nameref on input line 166.
+LaTeX Info: Redefining \ref on input line 7.
+LaTeX Info: Redefining \pageref on input line 7.
+LaTeX Info: Redefining \nameref on input line 7.
  (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.out) (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.out)
 \@outlinefile=\write6
 \openout6 = `smartconstr.out'.
@@ -1127,14 +1311,14 @@ Class scrartcl Info: loading recommended package `bookmark'.
 (scrartcl)           `bookmarkpackage=false' before \begin{document} and
 (scrartcl)           you can avoid this message adding:
 (scrartcl)             \usepackage{bookmark}
-(scrartcl)           before \begin{document} on input line 166.
+(scrartcl)           before \begin{document} on input line 7.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/bookmark/bookmark.sty
 Package: bookmark 2019/12/03 v1.28 PDF bookmarks (HO)
  (/usr/local/texlive/2020/texmf-dist/tex/latex/bookmark/bkm-pdftex.def
 File: bkm-pdftex.def 2019/12/03 v1.28 bookmark driver for pdfTeX (HO)
 Package auxhook Info: \AddLineBeginMainAux comes a little late,
 (auxhook)             because the main .aux file is already opened on input line 168.
-\BKM@id=\count345
+\BKM@id=\count354
 ))
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -1157,8 +1341,8 @@ Package auxhook Info: \AddLineBeginMainAux comes a little late,
 * \headsep=20.40001pt
 * \topskip=11.0pt
 * \footskip=47.60002pt
-* \marginparwidth=76.65019pt
-* \marginparsep=21.90005pt
+* \marginparwidth=76.21515pt
+* \marginparsep=21.77576pt
 * \columnsep=10.0pt
 * \skip\footins=10.0pt plus 4.0pt minus 2.0pt
 * \hoffset=0.0pt
@@ -1171,45 +1355,13 @@ Package auxhook Info: \AddLineBeginMainAux comes a little late,
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 Couldn't patch \deferred@thm@head!
-\c@lstlisting=\count346
+\c@lstlisting=\count355
 ABD: EveryShipout initializing macros
-LaTeX Font Info:    Trying to load font information for U+zeur on input line 168.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/eulervm/uzeur.fd
-File: uzeur.fd 2005/01/11 v4.0 (WaS)
+LaTeX Font Info:    Trying to load font information for OT1+pplj on input line 8.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ot1pplj.fd
+File: ot1pplj.fd 2004/09/06 font definitions for OT1/pplj.
 )
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 11.39996pt on input line 168.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-eur.cfg
-File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
-)
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 168.
-LaTeX Font Info:    Trying to load font information for U+zeus on input line 168.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/eulervm/uzeus.fd
-File: uzeus.fd 2005/01/11 v4.0 (WaS)
-)
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 11.39996pt on input line 168.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-eus.cfg
-File: mt-eus.cfg 2006/07/28 v1.2 microtype config. file: AMS Euler Script (RS)
-)
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 168.
-LaTeX Font Info:    Trying to load font information for U+zeuex on input line 168.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/eulervm/uzeuex.fd
-File: uzeuex.fd 2005/01/11 v4.0 (WaS)
-)
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 11.39996pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 8.54997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 6.64998pt on input line 168.
-LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 168.
+LaTeX Font Info:    Trying to load font information for OT1+zplm on input line 8.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ot1zplm.fd
 File: ot1zplm.fd 2002/09/08 Fontinst v1.914 font definitions for OT1/zplm.
 )
@@ -1217,53 +1369,35 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `zplm' (encoding: OT1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 13.67995pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 9.49997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 7.59998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 13.67995pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 9.49997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 7.59998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 13.67995pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 9.49997pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 7.59998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 10.40245pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 5.69998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 10.40245pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 5.69998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 10.40245pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 5.69998pt on input line 168.
-LaTeX Font Info:    Trying to load font information for T1+fvm on input line 168.
+LaTeX Font Info:    Trying to load font information for U+npxmia on input line 8.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/unpxmia.fd
+File: unpxmia.fd 2013/03/24 Fontinst v1.933 font definitions for U/npxmia.
+)
+LaTeX Font Info:    Trying to load font information for U+npxsym on input line 8.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/unpxsym.fd
+File: unpxsym.fd 2015/03/21 Fontinst v1.933 font definitions for U/npxsym.
+)
+LaTeX Font Info:    Trying to load font information for U+npxsyc on input line 8.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/newpx/unpxsyc.fd
+File: unpxsyc.fd 2013/03/24 Fontinst v1.933 font definitions for U/npxsyc.
+)
+LaTeX Font Info:    Trying to load font information for U+zeur on input line 8.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/eulervm/uzeur.fd
+File: uzeur.fd 2005/01/11 v4.0 (WaS)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/microtype/mt-eur.cfg
+File: mt-eur.cfg 2006/07/31 v1.1 microtype config. file: AMS Euler Roman (RS)
+)
+LaTeX Font Info:    Trying to load font information for T1+fvm on input line 9.
  (/usr/local/texlive/2020/texmf-dist/tex/latex/bera/t1fvm.fd
 File: t1fvm.fd 2004/09/07 scalable font definitions for T1/fvm.
 )
 LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
-(Font)              scaled to size 7.55997pt on input line 168.
+(Font)              scaled to size 7.55997pt on input line 9.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `fvm' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 168.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 4.74998pt on input line 168.
-Package tocbasic Info: character protrusion at toc deactivated on input line 174.
+Package tocbasic Info: character protrusion at toc deactivated on input line 15.
  (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.toc
 Package microtype Info: Character `029' is missing
 (microtype)             in font `T1/pplj/m/sc/10.95'.
@@ -1272,81 +1406,65 @@ Package microtype Info: Character `029' is missing
 \tf@toc=\write7
 \openout7 = `smartconstr.toc'.
 
-Package microtype Info: Character `029' is missing
-(microtype)             in font `T1/pplj/m/sc/14.4'.
-(microtype)             Ignoring protrusion settings for this character.
-LaTeX Font Info:    Trying to load font information for T1+fvs on input line 186.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/bera/t1fvs.fd
-File: t1fvs.fd 2004/09/07 scalable font definitions for T1/fvs.
+LaTeX Font Info:    Trying to load font information for T1+cmss on input line 27.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/base/t1cmss.fd
+File: t1cmss.fd 2019/12/16 v2.5j Standard LaTeX font definitions
 )
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 9.30756pt on input line 186.
 Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `fvs' (encoding: T1).
+(microtype)             `cmss' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 6.80005pt on input line 186.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 5.10004pt on input line 186.
-LaTeX Font Info:    Font shape `U/zeur/m/n' will be
-(Font)              scaled to size 7.21997pt on input line 214.
-LaTeX Font Info:    Font shape `U/zeus/m/n' will be
-(Font)              scaled to size 7.21997pt on input line 214.
-LaTeX Font Info:    Font shape `U/zeuex/m/n' will be
-(Font)              scaled to size 7.21997pt on input line 214.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 8.50006pt on input line 214.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 6.46004pt on input line 214.
- [1
 
+
+LaTeX Font Warning: Font shape `T1/cmss/m/n' in size <5.5> not available
+(Font)              size <5> substituted on input line 59.
+
+[1
 
 {/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 12.24008pt on input line 226.
 LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
-(Font)              scaled to size 8.39996pt on input line 230.
- [2]
-Package microtype Info: Character `029' is missing
-(microtype)             in font `T1/pplj/m/sc/12'.
-(microtype)             Ignoring protrusion settings for this character.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 10.20007pt on input line 240.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 7.65005pt on input line 240.
-LaTeX Font Info:    Font shape `T1/fvs/m/n' will be
-(Font)              scaled to size 5.95004pt on input line 240.
- [3] [4] [5] [6] [7] [8] (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
+(Font)              scaled to size 8.39996pt on input line 71.
+
+Overfull \hbox (7.33105pt too wide) in paragraph at lines 83--84
+\T1/pplj/m/n/10.95 (-20) The key idea is to de-fine \T1/pplj/m/it/10.95 (-20) smart con-struc-tors [][][][][][][][][][][][][] \T1/pplj/m/n/10.95 (-20) for the or-di-nary con-struc-tors [][][][][][][][][][][][][].
+ []
+
+[2] [3] [4]
+Overfull \hbox (55.49046pt too wide) in paragraph at lines 229--230
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+[5] [6] [7] (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
 LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
 (Font)              scaled to size 9.19795pt on input line 8.
-) [9]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 589.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 589.
+ [8]) [9]
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 430.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 430.
  (/Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 589.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 589.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 430.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 430.
 Package rerunfilecheck Info: File `smartconstr.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
 
 
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+LaTeX Font Warning: Size substitutions with differences
+(Font)              up to 0.5pt have occurred.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 589.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 430.
  ) 
 Here is how much of TeX's memory you used:
- 34341 strings out of 480608
- 683667 string characters out of 5903629
- 1223366 words of memory out of 5000000
- 48989 multiletter control sequences out of 15000+600000
- 664481 words of font info for 346 fonts, out of 8000000 for 9000
+ 35965 strings out of 480608
+ 701353 string characters out of 5903629
+ 1111029 words of memory out of 5000000
+ 50578 multiletter control sequences out of 15000+600000
+ 642126 words of font info for 396 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 63i,21n,88p,10190b,2029s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eufm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eurm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eurm7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eusm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/fpl/fplrc8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/fpl/fplrij8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/bera/fvmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/bera/fvsr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.pdf (9 pages, 137454 bytes).
+ 66i,21n,90p,10208b,2005s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2020/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/texlive/2020/texmf-dist/fonts/type1/public/newpx/NewPXMI_gnu.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eurm10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/euler/eurm7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/fpl/fplrc8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/fpl/fplrij8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/bera/fvmr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/newpx/pxmiaX.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/newpx/pxsys.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/cm-super/sfss1095.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
+Output written on /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.pdf (9 pages, 124226 bytes).
 PDF statistics:
- 539 PDF objects out of 1000 (max. 8388607)
- 494 compressed objects within 5 object streams
+ 522 PDF objects out of 1000 (max. 8388607)
+ 479 compressed objects within 5 object streams
  293 named destinations out of 1000 (max. 500000)
- 82621 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 86717 words of extra memory for PDF output out of 89155 (max. 10000000)
 

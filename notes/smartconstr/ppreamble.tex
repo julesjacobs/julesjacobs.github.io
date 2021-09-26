@@ -44,6 +44,7 @@
 
 \lstdefinelanguage{Python}{
   keywords={from, import, def, for, in, if, return, lambda},
+  % keywordstyle=\bfseries\color{Maroon!65},
   comment=[l]{\#},
   morestring=[b]',
   morestring=[b]",
@@ -51,22 +52,23 @@
 
 \lstdefinelanguage{Scala}{
   keywords={def, class, object, extends, case, for, if, else, var, val, match},
+  keywordstyle=\color{Maroon!80},
   comment=[l]{//},
   morestring=[b]',
   morestring=[b]",
 }
 
 \lstset{
-  columns=fullflexible,
-  language=Scala,
-  keywordstyle=\color{Maroon!80},
-  commentstyle=\color{Green!80!black}\ttfamily,
-  identifierstyle=\color{RoyalBlue!70!black},
-  stringstyle=\color{red!50!black}\ttfamily,
-  showstringspaces=false,
-  extendedchars=true,
-  basicstyle=\small\ttfamily,
-  % breaklines=true,
+   columns=fullflexible,
+   language=Scala,
+   keywordstyle=\color{Maroon!80},
+   commentstyle=\color{Green!80!black}\ttfamily,
+   identifierstyle=\color{RoyalBlue!70!black},
+   stringstyle=\color{red!50!black}\ttfamily,
+   showstringspaces=false,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   % breaklines=true,
 }
 
 
