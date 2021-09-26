@@ -14,34 +14,34 @@ Warning--empty author in BruijnIndex2021
 Warning--empty booktitle in keller:inria-00520606
 You've used 7 entries,
             3307 wiz_defined-function locations,
-            739 strings with 6724 characters,
-and the built_in function-call counts, 3739 in all, are:
-= -- 387
+            740 strings with 6769 characters,
+and the built_in function-call counts, 3779 in all, are:
+= -- 394
 > -- 122
 < -- 2
 + -- 37
 - -- 35
-* -- 250
-:= -- 536
-add.period$ -- 26
+* -- 253
+:= -- 540
+add.period$ -- 27
 call.type$ -- 7
 change.case$ -- 40
 chr.to.int$ -- 7
 cite$ -- 11
-duplicate$ -- 114
-empty$ -- 343
+duplicate$ -- 116
+empty$ -- 348
 format.name$ -- 42
-if$ -- 932
+if$ -- 944
 int.to.chr$ -- 1
 int.to.str$ -- 0
 missing$ -- 7
-newline$ -- 43
+newline$ -- 44
 num.names$ -- 18
 pop$ -- 60
 preamble$ -- 1
 purify$ -- 47
 quote$ -- 0
-skip$ -- 267
+skip$ -- 270
 stack$ -- 0
 substring$ -- 182
 swap$ -- 27
@@ -52,5 +52,5 @@ type$ -- 56
 warning$ -- 3
 while$ -- 23
 width$ -- 9
-write$ -- 101
+write$ -- 103
 (There were 3 warnings)

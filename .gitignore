@@ -16,3 +16,11 @@ notes/kirchoff/kirchoff.fdb_latexmk
 *.db
 *.log
 *.synctex(busy)
+*.bbl
+*.bbl
+*.blg
+*.log
+notes/smartconstr/smartconstr.bbl
+notes/smartconstr/smartconstr.blg
+notes/smartconstr/smartconstr.log
+notes/smartconstr/smartconstr.synctex.gz
