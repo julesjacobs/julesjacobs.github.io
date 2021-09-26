@@ -154,7 +154,7 @@ By the property that smart constructors return normal forms if you pass them nor
 
 \subsection{Handling commutativity}
 
-Suppose we also want to use commutativity $r + s = s + r$. This is nice, because then if we have $(r + s) + r$ we can use commutativity and associativity to rewrite that to $s + (r + r)$, so that the cancellation rule $r + r = r$ can be used to simplify it. We can't simply keep rewriting from right to left, because that would result in an infinite loop. What we want is to bring equal regexes next to each other, so that the cancellation rule applies.
+Suppose we also want to use commutativity $r + s = s + r$. This is nice, because then if we have $(r + s) + r$ we can use commutativity and associativity to rewrite that to $s + (r + r)$, so that the cancellation rule $r + r = r$ can be used to simplify it. We can't keep repeatedly rewriting using commutativity, because that would result in an infinite loop. What we want is to bring equal regexes next to each other, so that the cancellation rule applies.
 
 To do this, we define an \emph{ordering} $(<)$ on regular expressions, and rewrite $r + s = s + r$ only if $s < r$. This will bring longer sequences $r_1 + r_2 + \cdots + r_n$ into sorted order, so that adjacent equal elements can be canceled. Any ordering will do. A convenient option is to sort them by their hash code. That leads to the following smart constructor:
 
