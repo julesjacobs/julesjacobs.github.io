@@ -442,7 +442,7 @@ def norm(a:Sem):Sem =
   }
 \end{lstlisting}
 
-This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine normalization by evaluation to mean what the \id{norm} function does, and define conversion to and from HOAS separately.}
+This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine "normalization by evaluation" to mean what the \id{norm} function does, namely HOAS $\to$ HOAS normalization, and handle conversion to and from HOAS separately.}
 
 \subsection{From ordinary lambda terms to HOAS and back}
 
