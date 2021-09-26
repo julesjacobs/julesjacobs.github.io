@@ -66,7 +66,7 @@ The point isn't this particular example; rewriting expressions to normal form fo
 
 The naive way to do this is to take the regular expression $r$, and try to find some subnode of $r$ where one of the left hand sides of the equations can be rewritten to the right hand side.
 If we repeat this as much as possible, until no equation matches any subnode, we have rewritten the regex to normal form.
-The problem with this approach is that it is extremely inefficient and not even very easy to implement. At each step we have to search through $r$ to find a place to apply a rewrite rule.
+The problem with this approach is that it is inefficient and not even very easy to implement. At each step we have to search through $r$ to find a place to apply a rewrite rule.
 
 A more systematic way to do this is to schedule the rewrites bottom up. For instance, if $r = r_1 + r_2$ then we first recursively rewrite $r_1$ and $r_2$ to normal form. We then only need to check if $r_1 + r_2$ itself is in normal form. If it is, then we're done. If one of the left hand sides of the equations match, then we apply the rewrite rule. We then start the whole normalization process all over again, because after we've applied the rewrite rule there might be new opportunities for further rewriting.
 
@@ -416,7 +416,7 @@ Here's an example term $\lambda x. \lambda y. \ap(y, \lambda z. \ap(x,z))$:
 LamS(x => LamS(y => AppS(y, LamS(z => AppS(x,z)))))
 \end{lstlisting}
 
-The smart constructor \id{app} is now extremely easy to write:
+The smart constructor \id{app} is now easy to write:
 \begin{lstlisting}
 def appS(a:Sem, b:Sem):Sem =
   a match {
