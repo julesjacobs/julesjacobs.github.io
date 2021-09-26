@@ -11,11 +11,12 @@
 
 \begin{abstract}
   \noindent
-  In this note I explain these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
+  In this note we will investigate these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
   \begin{align*}
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
-    \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution} \\
+    \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
+  The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.
 \end{abstract}
 
 \tableofcontents
@@ -518,8 +519,9 @@ On top of those, we can build a \emph{smart copy function} that copies a value b
 We saw that hereditary substitution and normalization by evaluation are both smart constructors for $\ap$, but use a different mechanism to compute the substitution:
 \begin{align*}
   \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
-  \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution} \\
+  \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
 \end{align*}
+The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.
 
 \bibliographystyle{alphaurl}
 \bibliography{references}
