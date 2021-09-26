@@ -7,7 +7,7 @@
 
 \begin{document}
 \maketitle
-\blfootnote{Contact information: \url{https://julesjacobs.com}}
+% \blfootnote{Contact information: \url{https://julesjacobs.com}}
 
 \begin{abstract}
   \noindent
@@ -16,7 +16,7 @@
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.
+  The formulation of normalization by evaluation in this note is somewhat simpler than the conventional presentation\footnote{E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}. Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation, and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.}, which (in my view) intertwines conversion to and from HOAS with normalization itself.
 \end{abstract}
 
 \tableofcontents
