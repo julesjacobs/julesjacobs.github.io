@@ -593,7 +593,8 @@ The semantic domain is going to depend on the type of values we're representing:
   \mathsf{Sem}_{\mathsf{A} \to \mathsf{B}} &:= \mathsf{Sem}_\mathsf{A} \to \mathsf{Sem}_\mathsf{B}
 \end{align*}
 In other words, the semantic domain of base types is HOAS terms \id{Hs}, but the semantic domain for function types is going to be Scala functions between the respective semantic domains.
-Unfortunately, we are not using Agda, and my Scala knowledge is insufficient to know if it is possible to do this in Scala, and in any case I'd like to keep the code here simple, and possible to translate into other languages without Scala's fancy type system.
+Unfortunately, we are not using Agda, and my Scala knowledge is insufficient to know if it is possible to do this in Scala.
+In any case I'd like to keep the code here simple, and make it possible to translate into other languages without Agda's (or Scala's) fancy type system.
 So we're going to smush the semantic domain together into a single type, and we're going to put the dependent types in comments:
 \begin{lstlisting}
 enum Sem:
