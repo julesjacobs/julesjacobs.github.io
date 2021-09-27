@@ -11,19 +11,20 @@
 
 \begin{abstract}
   \noindent
-  In this note we will investigate these three well-known techniques for rewriting to normal form.
-  We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms.
+  We will investigate these three well-known techniques for rewriting to normal form, and how
+  to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms.
   We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
   \begin{align*}
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The formulation of normalization by evaluation in this note is slightly simpler than the conventional presentation,
-  which (in my view) intertwines conversion to and from HOAS with normalization itself.
+  The formulation of normalization by evaluation in this note is slightly simpler than some conventional presentations,
+  which (in my view) intertwine conversion to and from HOAS with normalization itself.%
   \footnote{
-    E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}.
+    E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/normalization_by_evaluation}.
     Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation,
     and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.
+    Some approaches, such as \emph{finally tagless} \cite{FinallyTagless2007} do use HOAS throughout.
   }
 \end{abstract}
 
@@ -89,13 +90,13 @@ This is better, but still not great. Suppose $r = (r_1 + r_2) + r_3$, and we've 
 Let us first define a data type of regular expressions:
 
 \begin{lstlisting}
-class Re
-object Emp extends Re // 0
-object Eps extends Re // 1
-case class Chr(a:Char) extends Re // 'c'
-case class Seq(a:Re, b:Re) extends Re // r cdot s
-case class Alt(a:Re, b:Re) extends Re // r + s
-case class Star(a:Re) extends Re // r*
+enum Re:
+  case Emp // 0
+  case Eps // 1
+  case Chr(c:Char) // 'c'
+  case Seq(a:Re, b:Re) // r cdot s
+  case Alt(a:Re, b:Re) // r + s
+  case Star(a:Re) // r*
 \end{lstlisting}
 
 \subsection{Smart constructors}
@@ -109,12 +110,12 @@ Here's the one for \lstinline|seq|:
 \begin{lstlisting}
 def seq(a:Re, b:Re):Re =
   (a,b) match {
-    case (Emp,_) => Emp
-    case (_,Emp) => Emp
-    case (Eps,x) => x
-    case (x,Eps) => x
-    case (Seq(x,y),b) => seq(x,seq(y,b))
-    case _ => Seq(a,b)
+    case (Re.Emp,_) => Re.Emp
+    case (_,Re.Emp) => Re.Emp
+    case (Re.Eps,x) => x
+    case (x,Re.Eps) => x
+    case (Re.Seq(x,y),b) => seq(x,seq(y,b))
+    case _ => Re.Seq(a,b)
   }
 \end{lstlisting}
 
@@ -125,18 +126,18 @@ Here are the smart constructors \lstinline|alt| and \lstinline|star|:
 \begin{lstlisting}
 def alt(a:Re, b:Re):Re =
   (a,b) match {
-    case (Emp,x) => x
-    case (x,Emp) => x
-    case (Alt(x,y),b) => alt(x,alt(y,b))
-    case _ => if(a==b) a else Alt(a,b)
+    case (Re.Emp,x) => x
+    case (x,Re.Emp) => x
+    case (Re.Alt(x,y),b) => alt(x,alt(y,b))
+    case _ => if(a==b) a else Re.Alt(a,b)
   }
 
 def star(a:Re):Re =
   a match {
-    case Emp => Eps
-    case Eps => Eps
-    case Star(_) => a
-    case _ => Star(a)
+    case Re.Emp => Re.Eps
+    case Re.Eps => Re.Eps
+    case Re.Star(_) => a
+    case _ => Re.Star(a)
   }
 \end{lstlisting}
 
@@ -146,18 +147,18 @@ To convert a regular expression to normal form, we simply \emph{"copy"} it with 
 Let's call this idea \emph{smart copying}: like a copy function, but calling the smart constructors instead.
 
 \begin{lstlisting}
-def nf(a:Re):Re =
+def norm(a:Re):Re =
   a match {
-    case Emp => Emp
-    case Eps => Eps
-    case Chr(c) => Chr(c)
-    case Alt(a,b) => alt(nf(a),nf(b))
-    case Seq(a,b) => seq(nf(a),nf(b))
-    case Star(a) => star(nf(a))
+    case Re.Emp => Re.Emp
+    case Re.Eps => Re.Eps
+    case Re.Chr(c) => Re.Chr(c)
+    case Re.Alt(a,b) => alt(nf(a),nf(b))
+    case Re.Seq(a,b) => seq(nf(a),nf(b))
+    case Re.Star(a) => star(nf(a))
   }
 
-val r = Alt(Star(Star(Seq(Chr('a'),Star(Emp)))),Emp)
-nf(r) // Star(Chr('a'))
+val r = Re.Alt(Re.Star(Re.Star(Re.Seq(Re.Chr('a'),Re.Star(Re.Emp)))),Re.Emp)
+norm(r) // Star(Chr('a'))
 \end{lstlisting}
 
 By the property that smart constructors return normal forms if you pass them normal forms, this function will return a normal form. What's more, this is very efficient: we only recurse over the initial regular expression \emph{once}, and we \emph{only ever allocate regular expressions that are in normal form}. We never allocate an intermediate value like $(r_1 + r_2) + r_3$ to which a rewrite rule applies; we rewrite it before even constructing it.
@@ -171,25 +172,25 @@ To do this, we define an \emph{ordering} $(<)$ on regular expressions, and rewri
 \begin{lstlisting}
 def alt1(a:Re, b:Re):Re =
   (a,b) match {
-    case (Emp,x) => x
-    case (x,Emp) => x
-    case (Alt(x,y),b) => alt1(x,alt1(y,b))
-    case (a,Alt(x,y)) =>
+    case (Re.Emp,x) => x
+    case (x,Re.Emp) => x
+    case (Re.Alt(x,y),b) => alt1(x,alt1(y,b))
+    case (a,Re.Alt(x,y)) =>
       if(a==x) b
-      else if(a.hashCode() < x.hashCode()) Alt(a,b)
+      else if(a.hashCode() < x.hashCode()) Re.Alt(a,b)
       else alt1(x,alt1(a,y))
     case _ =>
       if(a==b) a
-      else if(a.hashCode() < b.hashCode()) Alt(a,b)
-      else Alt(b,a)
+      else if(a.hashCode() < b.hashCode()) Re.Alt(a,b)
+      else Re.Alt(b,a)
   }
 \end{lstlisting}
 
 This smart constructor is able to do that optimization:
 
 \begin{lstlisting}
-val a = Chr('a')
-val b = Chr('b')
+val a = Re.Chr('a')
+val b = Re.Chr('b')
 alt(a,alt(b,a)) // Alt(Chr('a'), Alt(Chr('b'), Chr('a')))
 alt1(a,alt1(b,a)) // Alt(Chr('b'), Chr('a'))
 \end{lstlisting}
@@ -208,59 +209,64 @@ The implementation of the smart constructor that handles commutativity is rather
 A better way is to use a representation of regular expressions tailored to normal forms. We represent n-ary sequential composition as a list. This builds associativity $(r \seq s) \seq t = r \seq (s \seq t)$ into the representation. We represent n-ary alternative with a set. This builds associativity $(r + s) + t = r + (s + t)$ and commutativity $r + s = s + r$ and idempotence $r + r = r$ into the representation.
 
 \begin{lstlisting}
-class Re2
-case class Chr2(a:Char) extends Re2
-case class Seq2(rs:List[Re2]) extends Re2
-case class Alt2(rs:Set[Re2]) extends Re2
-case class Star2(r:Re2) extends Re2
+enum Re2:
+  case Chr(a:Char)
+  case Seq(rs:List[Re2])
+  case Alt(rs:Set[Re2])
+  case Star(r:Re2)
 \end{lstlisting}
 
 We no longer need the \lstinline|Eps| and \lstinline|Emp| classes for $0$ and $1$, because we can represent them as empty alternative and sequence nodes.
 
 \begin{lstlisting}
-val emp2 = Alt2(Set())
-val eps2 = Seq2(List())
+val emp2 = Re2.Alt(Set())
+val eps2 = Re2.Seq(List())
 \end{lstlisting}
 
 The smart constructors for \id{Seq2} and \id{Alt2} are significantly simpler than those for \id{Seq} and \id{Alt}:
 
 \begin{lstlisting}
 def seq2(rs:List[Re2]):Re2 = {
-  val rs2 = rs.flatMap{case Seq2(rs) => rs; case x => List(x)}
+  val rs2 = rs.flatMap{case Re2.Seq(rs) => rs; case x => List(x)}
   if(rs2.contains(emp2)) emp2
   else if(rs2.size == 1) rs2.head
-  else Seq2(rs2)
+  else Re2.Seq(rs2)
 }
 
 def alt2(rs:Set[Re2]):Re2 = {
-  val rs2 = rs.flatMap{case Alt2(rs) => rs; case x => Set(x)}
+  val rs2 = rs.flatMap{case Re2.Alt(rs) => rs; case x => Set(x)}
   if(rs2.size == 1) rs2.head
-  else Alt2(rs2)
+  else Re2.Alt(rs2)
 }
 
 def star2(a:Re2):Re2 =
   a match {
-    case Alt2(rs) if rs.isEmpty => eps2
-    case Seq2(rs) if rs.isEmpty => eps2
-    case Star2(_) => a
-    case _ => Star2(a)
+    case Re2.Alt(rs) if rs.isEmpty => eps2
+    case Re2.Seq(rs) if rs.isEmpty => eps2
+    case Re2.Star(_) => a
+    case _ => Re2.Star(a)
   }
 \end{lstlisting}
 
 We can define conversion functions from \id{Re} to \id{Re2} and vice versa that put the regex in normal form.
-Alternatively, we could also use the \id{Re2} representation throughout and remove \id{Re} entirely, but I show the conversion functions here for illustration:
+Alternatively, we could also use the \id{Re2} representation throughout and remove \id{Re} entirely, but I show the conversion functions here for illustration.
+We use the name \id{norm} : \id{Re} $\to$ \id{Re2} because normalization is now done by conversion to the tailored normal form representation:
 
 \begin{lstlisting}
-def reToRe2(r:Re):Re2 =
+def norm(r:Re):Re2 =
   r match {
-    case Eps => eps2
-    case Emp => emp2
-    case Chr(c) => Chr2(c)
-    case Alt(a,b) => alt2(Set(reToRe2(a),reToRe2(b)))
-    case Seq(a,b) => seq2(List(reToRe2(a),reToRe2(b)))
-    case Star(a) => star2(reToRe2(a))
+    case Re.Eps => eps2
+    case Re.Emp => emp2
+    case Re.Chr(c) => Re2.Chr(c)
+    case Re.Alt(a,b) => alt2(Set(norm(a),norm(b)))
+    case Re.Seq(a,b) => seq2(List(norm(a),norm(b)))
+    case Re.Star(a) => star2(norm(a))
   }
+\end{lstlisting}
 
+We use the name \id{reify} : \id{Re2} $\to$ \id{Re} because this conversion reifies the normal form representation back to the original syntax:
+
+\begin{lstlisting}
 def fold1[A](xs:Iterable[A], z:A, f:(A,A) => A):A = {
   if(xs.isEmpty) z
   else {
@@ -270,24 +276,24 @@ def fold1[A](xs:Iterable[A], z:A, f:(A,A) => A):A = {
   }
 }
 
-def re2ToRe(r:Re2):Re =
+def reify(r:Re2):Re =
   r match {
-    case Chr2(c) => Chr(c)
-    case Seq2(rs) => fold1(rs.map(re2ToRe), Eps, Seq)
-    case Alt2(rs) => fold1(rs.map(re2ToRe), Eps, Alt)
-    case Star2(r) => Star(re2ToRe(r))
+    case Re2.Chr(c) => Re.Chr(c)
+    case Re2.Seq(rs) => fold1(rs.map(reify), Re.Eps, Re.Seq)
+    case Re2.Alt(rs) => fold1(rs.map(reify), Re.Eps, Re.Alt)
+    case Re2.Star(r) => Re.Star(reify(r))
   }
 \end{lstlisting}
 
 Some examples:
 
 \begin{lstlisting}
-val a = Chr2('a')
-val b = Chr2('b')
-val z = alt2(Set(a,b,emp2,eps2)) // Alt2(Set(Chr2(c), Chr2(d), Seq2(List())))
-alt2(Set(z,z,a)) // Alt2(Set(Chr2(c), Chr2(d), Seq2(List())))
-seq2(List(emp2, a, b)) // Alt2(Set())
-re2ToRe(z) // Alt(Eps,Alt(Chr(d),Chr(c)))
+val c = Re2.Chr('c')
+val d = Re2.Chr('d')
+val z = alt2(Set(c,d,emp2,eps2))
+alt2(Set(z,z,c)) // Alt(Set(Chr(c), Chr(d), Seq(List())))
+seq2(List(emp2, c, d)) // Alt(Set())
+reify(z) // Alt(Eps,Alt(Chr(d),Chr(c)))
 \end{lstlisting}
 
 
@@ -322,22 +328,22 @@ The $\ap$ nodes have no effect on the De Bruijn indices.
 For instance, the term $\lambda. \lambda. \ap(0,\lambda. \ap(0,2))$ means $\lambda x. \lambda y. \ap(y, \lambda z. \ap(z,x))$.
 The details of this encoding are not so important and I leave them to the next subsection: the important part is that this allows us to write a substitution function without much trouble.
 
-We first define the syntax tree nodes:
+We first define De Bruijn syntax tree nodes:
 \begin{lstlisting}
-class Tm
-case class Var(n:Int) extends Tm
-case class Lam(a:Tm) extends Tm
-case class App(a:Tm,b:Tm) extends Tm
+enum Db:
+  case Var(x:Int)
+  case Lam(a:Db)
+  case App(a:Db, b:Db)
 \end{lstlisting}
 
 We define a substitution function \id{subst(e,f)} that substitutes the term \id{f(i)} for each variable \id{i} in \id{e}. This is called a \emph{parallel substitution} because it substitutes terms for all variables simultaneously:
 
 \begin{lstlisting}
-def subst(a:Tm, f:Int => Tm):Tm =
+def subst(a:Db, f:Int => Db):Db =
   a match {
-    case Var(n) => f(n)
-    case Lam(a) => Lam(subst(a,liftS(f))) // we will get to the liftS function later
-    case App(a,b) => app(subst(a,f),subst(b,f))
+    case Db.Var(n) => f(n)
+    case Db.Lam(a) => Db.Lam(subst(a,liftS(f))) // we will get to the liftS function later
+    case Db.App(a,b) => Db.App(subst(a,f),subst(b,f))
   }
 \end{lstlisting}
 
@@ -347,16 +353,16 @@ In terms of the parallel substitution function \id{subst(e,f)} we can define \id
 Now that variable $0$ is gone, we have to decrement all other variable indices:
 
 \begin{lstlisting}
-def subst0(e:Tm, v:Tm):Tm = subst(e, (n) => if(n==0) v else Var(n-1))
+def subst0(e:Db, v:Db):Db = subst(e, (n) => if(n==0) v else Db.Var(n-1))
 \end{lstlisting}
 
 With this substitution function at hand, we can finally define the smart constructor \id{app}:
 
 \begin{lstlisting}
-def app(a:Tm, b:Tm):Tm =
+def app(a:Db, b:Db):Db =
   a match {
-    case Lam(e) => subst0(e, b)
-    case _ => App(a,b)
+    case Db.Lam(e) => subst1(e, b)
+    case _ => Db.App(a,b)
   }
 \end{lstlisting}
 
@@ -365,11 +371,11 @@ The mutual recursion between \id{subst} and \id{app} ensures that no $\ap(e_1,e_
 We can "smart copy" a lambda term to $\beta$-normalize it:
 
 \begin{lstlisting}
-def norm(a:Tm):Tm =
+def norm(a:Db):Db =
   a match {
-    case Var(n) => Var(n)
-    case Lam(a) => Lam(norm(a))
-    case App(a,b) => app(norm(a),norm(b))
+    case Db.Var(n) => Db.Var(n)
+    case Db.Lam(a) => Db.Lam(norm(a))
+    case Db.App(a,b) => app(norm(a),norm(b))
   }
 \end{lstlisting}
 
@@ -384,28 +390,28 @@ To implement this, we first define a renaming function \id{rename(e,f)} that ren
 def liftR(f : Int => Int): Int => Int =
   (n) => if(n==0) 0 else f(n-1) + 1
 
-def rename(a:Tm, f:Int => Int):Tm =
+def rename(a:Db, f:Int => Int):Db =
   a match {
-    case Var(n) => Var(f(n))
-    case Lam(a) => Lam(rename(a,liftR(f)))
-    case App(a,b) => App(rename(a,f),rename(b,f))
+    case Db.Var(n) => Db.Var(f(n))
+    case Db.Lam(a) => Db.Lam(rename(a,liftR(f)))
+    case Db.App(a,b) => Db.App(rename(a,f),rename(b,f))
   }
 \end{lstlisting}
 
 Using these, we can implement \id{shift} and \id{liftS}:
 
 \begin{lstlisting}
-def shift(e:Tm, f:Int => Tm):Int => Tm =
+def shift(e:Db, f:Int => Db):Int => Db =
   (n) => if(n==0) e else f(n-1)
 
-def liftS(f : Int => Tm):Int => Tm =
-  shift(Var(0), k => rename(f(k), (_+1)))
+def liftS(f : Int => Db):Int => Db =
+  shift(Db.Var(0), k => rename(f(k), (_+1)))
 \end{lstlisting}
 
 The function \id{Var} is the identity substitution, so \id{shift(e,Var)} substitutes $0 \mapsto e$ and decrements all other variables by $1$, so we can now define \id{subst0} more concisely as:
 
 \begin{lstlisting}
-def subst0(e:Tm, v:Tm):Tm = subst(e, shift(v,Var))
+def subst0(e:Db, v:Db):Db = subst(e, shift(v,Db.Var))
 \end{lstlisting}
 
 \section{Normalization by evaluation}
@@ -413,42 +419,42 @@ def subst0(e:Tm, v:Tm):Tm = subst(e, shift(v,Var))
 A more funky representation for lambda terms is \emph{higher order abstract syntax} (HOAS) \cite{pfenning88}.
 We represent lambda nodes \emph{as its substitution function}: the lambda term $\lambda x. e$ gets represented as a Scala function that does $f(v) = e[x \mapsto v]$.
 The return value is another lambda term, that is again represented in this HOAS representation.
-We call the data type for lambda terms in this representation \id{Sem}:
+We call the data type for lambda terms in this representation \id{Hs}:
 
 \begin{lstlisting}
-class Sem
-case class LamS(f:Sem => Sem) extends Sem
-case class AppS(a:Sem, b:Sem) extends Sem
+enum Hs:
+  case Lam(f:Hs => Hs)
+  case App(a:Hs, b:Hs)
 \end{lstlisting}
 
 Here's an example term $\lambda x. \lambda y. \ap(y, \lambda z. \ap(x,z))$:
 \begin{lstlisting}
-LamS(x => LamS(y => AppS(y, LamS(z => AppS(x,z)))))
+Hs.Lam(x => Hs.Lam(y => Hs.App(y, Hs.Lam(z => Hs.App(x,z)))))
 \end{lstlisting}
 
 The smart constructor \id{app} is now easy to write:
 \begin{lstlisting}
-def appS(a:Sem, b:Sem):Sem =
+def app(a:Hs, b:Hs):Hs =
   a match {
-    case LamS(f) => f(b)
-    case _ => AppS(a,b)
+    case Hs.Lam(f) => f(b)
+    case _ => Hs.App(a,b)
   }
 \end{lstlisting}
 
 The issue is that this doesn't mutually recursively call itself, like the hereditary substitution did.
-We can fix that by using \id{appS} instead of \id{AppS} in the original lambda terms we construct:
+We can fix that by using \id{app} instead of \id{App} in the original lambda terms we construct:
 \begin{lstlisting}
-LamS(x => LamS(y => appS(y, LamS(z => appS(x,z)))))
+Hs.Lam(x => Hs.Lam(y => app(y, Hs.Lam(z => app(x,z)))))
 \end{lstlisting}
-If we do this consistently, then the only place in our program where the constructor \id{AppS} is called is in \id{appS}, and there we have made sure that the the first argument isn't a lambda, so we're guaranteed to get a $\beta$ normal form.
+If we do this consistently, then the only place in our program where the constructor \id{App} is called is in \id{app}, and there we have made sure that the the first argument isn't a lambda, so we're guaranteed to get a $\beta$ normal form.
 
-Instead of writing our lambda terms using \id{appS} in the first place, we can write a smart copy function that does it for us:
+Instead of writing our lambda terms using \id{app} in the first place, we can write a smart copy function that does it for us:
 
 \begin{lstlisting}
-def norm(a:Sem):Sem =
+def norm(a:Hs):Hs =
   a match {
-    case LamS(f) => LamS(x => norm(f(x)))
-    case AppS(a,b) => appS(norm(a),norm(b))
+    case Hs.Lam(f) => Hs.Lam(x => norm(f(x)))
+    case Hs.App(a,b) => app(norm(a),norm(b))
   }
 \end{lstlisting}
 
@@ -456,104 +462,244 @@ This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conv
 
 \subsection{From ordinary lambda terms to HOAS and back}
 
-This may all seem incredibly weird, so we're going to write functions that convert from ordinary lambda terms (where variables are represented as strings) to \id{Sem} terms and back:
+This may all seem incredibly weird, so we're going to write functions that convert from ordinary lambda terms (where variables are represented as strings) to \id{Hs} terms and back:
 
 \begin{lstlisting}
-class Tm
-case class Var(x:String) extends Tm
-case class Lam(x:String, a:Tm) extends Tm
-case class App(a:Tm, b:Tm) extends Tm
+enum Tm:
+  case Var(x:String)
+  case Lam(x:String, a:Tm)
+  case App(a:Tm, b:Tm)
 \end{lstlisting}
 
-Conversion from \id{Tm} to \id{Sem}:
+Conversion from \id{Tm} to \id{Hs}:
 
 \begin{lstlisting}
-def eval(env:Map[String,Sem], a:Tm):Sem =
+def eval(env:Map[String,Hs], a:Tm):Hs =
   a match {
-    case Var(x) => env(x)
-    case Lam(x, a) => LamS(v => eval(env + (x -> v), a))
-    case App(a,b) => AppS(eval(env,a),eval(env,b))
+    case Tm.Var(x) => env(x)
+    case Tm.Lam(x, a) => Hs.Lam(v => eval(env + (x -> v), a))
+    case Tm.App(a,b) => Hs.App(eval(env,a),eval(env,b))
   }
 
-def tmToSem(a:Tm):Sem = eval(Map(),a)
+def toHs(a:Tm):Hs = eval(Map(),a)
 \end{lstlisting}
 
-In order to convert from \id{Sem} to \id{Tm}, we have to extend the \id{Sem} data type with one additional constructor, that injects \id{Tm} terms into the \id{Sem} data type:\footnote{
-  It is ugly to have to extend the \id{Sem} type with a new constructor \id{case class TS(a:T) extends Sem} every time we want to write a function \id{Sem} $\to$ \id{T} for a new type \id{T}.
-  What we \emph{really} want here is a \emph{polymorphic} elimination function \id{elim(app,lam)} that takes \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} and gives \id{elim(app,lam)} : \id{Sem} $\to$ \id{T}.
-  But I'll take the path of least resistance here. See \cite{BoxesGoBananas2003} for the non-hacky approach.
-}
+In order to convert from \id{Hs} to \id{Tm}, we have to extend the \id{Hs} data type with one additional constructor, that injects \id{Tm} terms into the \id{Hs} data type:
 
 \begin{lstlisting}
-case class TmS(a:Tm) extends Sem
+case class ResTm(a:Tm) extends Hs
 \end{lstlisting}
 
-The \id{norm} function is the only function that pattern matches on \id{Sem}. We extend it by making it do nothing on \id{TmS} values: \id{case TmS(a) => TmS(a)}.
-
-We're also going to need a fresh variable name generation facility, because \id{Sem} values have no variable names whereas \id{Tm} values do:
+We're also going to need a fresh variable name generation facility, because \id{Hs} values have no variable names whereas \id{Tm} values do:
 
 \begin{lstlisting}
 var n = 0
 def fresh() = { n += 1; s"x$n" }
 \end{lstlisting}
 
-We can now convert \id{Sem} values to \id{Tm} values:
+We can now convert \id{Hs} values to \id{Tm} values:
 
 \begin{lstlisting}
-def reify(a:Sem):Tm =
-  a match {
-    case TmS(a) => a
-    case LamS(f) => val x = fresh(); Lam(x, reify(f(TmS(Var(x)))))
-    case AppS(a,b) => App(reify(a),reify(b))
-  }
+def freshLam(f:Tm => Tm):Tm = { val x = fresh(); Tm.Lam(x, f(Tm.Var(x))) }
 
-def semToTm(a:Sem):Tm = reify(a)
+def toTm(a:Hs):Tm =
+  a match {
+    case Hs.ResTm(a) => a
+    case Hs.Lam(f) => freshLam(x => toTm(f(Hs.ResTm(x))))
+    case Hs.App(a,b) => Tm.App(toTm(a),toTm(b))
+  }
 \end{lstlisting}
 
 Here's an example:
 
 \begin{lstlisting}
-val z = LamS(f => LamS(x => x))
-val s = LamS(n => LamS(f => LamS(z => AppS(AppS(n,f),AppS(f,z)))))
+val zero = Hs.Lam(f => Hs.Lam(x => x))
+val succ = Hs.Lam(n => Hs.Lam(f => Hs.Lam(z => Hs.App(Hs.App(n,f),Hs.App(f,z)))))
 
-val one = AppS(s,z)
-val two = AppS(s,one)
+val one = Hs.App(succ,zero)
+val two = Hs.App(succ,one)
 
-reify(two) /* App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x3)))))),
-                        App(Lam(x4,Lam(x5,Lam(x6,App(App(Var(x4),Var(x5)),
-                                                          App(Var(x5),Var(x6)))))),
-                              Lam(x7,Lam(x8,Var(x8))))) */
+toTm(two) /* App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x3)))))),
+                       App(Lam(x4,Lam(x5,Lam(x6,App(App(Var(x4),Var(x5)),
+                                                         App(Var(x5),Var(x6)))))),
+                             Lam(x7,Lam(x8,Var(x8))))) */
 
-reify(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
+toTm(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 \end{lstlisting}
 
-% \subsection{A tailored normal form representation}
-% \subsection{Type directed normalization by evaluation}
-% \subsection{$\eta$ normal form}
+\subsection{Folding HOAS \& finally tagless style}
+
+The \id{toTm} : \id{Hs} $\to$ \id{Tm} and \id{norm} : \id{Hs} $\to$ \id{Hs} functions are somewhat similar.
+We can factor out the pattern by defining a \id{fold} function on \id{Hs}, using which we can write functions \id{Hs} $\to$ \id{T} for any \id{T}.
+The \id{fold} function takes smart constructors \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} as arguments, and gives \id{fold(a:Hs, app,lam)} : \id{T}.
+In order to write \id{fold}, we need to extend \id{Hs} with a new constructor, as we did before:
+
+\begin{lstlisting}
+case class Res(a:Object) extends Hs // hack for fold
+\end{lstlisting}
+
+We can then write \id{fold}:
+
+\begin{lstlisting}
+def fold[T](a:Hs, app : (T,T) => T, lam : (T => T) => T) : T =
+  a match {
+    case Hs.Res(x) => x.asInstanceOf[T]
+    case Hs.Lam(f) => lam(t => fold(f(Hs.Res(t.asInstanceOf[Object])), app, lam))
+    case Hs.App(a,b) => app(fold(a, app, lam), fold(b, app, lam))
+  }
+\end{lstlisting}
+
+As you can see, this a bit of a hacky approach that requires unsafe casts.
+It has the advantage of being fairly simple and require minimal changes to what we already have.
+See \cite{BoxesGoBananas2003} for a non-hacky approach.
+
+We can now rewrite \id{toTm} and \id{norm} as one-liners:
+
+\begin{lstlisting}
+def toTm(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
+def norm(a:Hs):Hs = fold[Hs](a, app, Hs.Lam)
+\end{lstlisting}
+
+We can also represent \id{a:Hs} values \emph{as their folding function} \id{(app,lam) => fold(a, app, lam)}.
+This approach is called \emph{finally tagless} \cite{FinallyTagless2007} and it works very nicely.
+I would highly recommend checking out that paper.
+
+\section{Type directed normalization by evaluation}
+
+Type directed normalization by evaluation can be used to put values in $\eta$ expanded form.
+In $\eta$ expanded form we can only use $f : A \to B$ as the first argument of $\ap$ because $f$ has a function type;
+if we want to use $f$ in any other place then we must instead write $\lambda x. \ap(f,x)$.
+We need type information because the types determine how much we $\eta$ expand:
+\begin{itemize}
+  \item Expanding $\lambda x. x$ at type $A \to A$ gives $\lambda x. x$
+  \item Expanding $\lambda x. x$ at type $(A \to A) \to (A \to A)$ gives $\lambda f. \lambda x. \ap(f,x)$
+\end{itemize}
+
+We start by defining a data type for types:
+
+\begin{lstlisting}
+enum Ty:
+  case Base
+  case Arrow(a:Ty, b:Ty)
+\end{lstlisting}
+
+Instead of \id{norm} : \id{Hs} $\to$ \id{Hs}, we're going to use a tailored representation for normal forms, like we did for regular expressions.
+We're going to have \id{norm} : \id{Hs} $\to$ \id{Sem} and \id{reify} : \id{Sem} $\to$ \id{Hs}, where \id{Sem} is the "semantic domain" tailored to representing normal forms.
+
+In fact, the situation is a little bit more interesting.
+The semantic domain is going to depend on the type of values we're representing: the domain $\mathsf{Sem}_A$ is going to be indexed by the type $A$ in the following way:
+\begin{align*}
+  \mathsf{Sem}_\mathsf{Base} &:= \mathsf{Hs} \\
+  \mathsf{Sem}_{\mathsf{A} \to \mathsf{B}} &:= \mathsf{Sem}_\mathsf{A} \to \mathsf{Sem}_\mathsf{B}
+\end{align*}
+In other words, the semantic domain of base types is HOAS terms \id{Hs}, but the semantic domain for function types is going to be Scala functions between the respective semantic domains.
+Unfortunately, my Scala knowledge is insufficient to know if it is possible to do this in Scala, and in any case I'd like to keep the code here simple, and possible to translate into other languages without Scala's fancy type system.
+So we're going to smush the semantic domain together into a single type, and we're going to put the dependent types in comments:
+\begin{lstlisting}
+enum Sem:
+  case Syn(a:Hs) // Sem_Base = syntactic terms Hs
+  case Lam(f:Sem => Sem) // Sem_Arrow(A,B) = Sem_A -> Sem_B
+\end{lstlisting}
+
+Although the \id{Sem} domain doesn't have a case for \id{App}, we can still write a smart constructor for it:
+
+\begin{lstlisting}
+  // Smart constructor
+  // appS : Sem_{A -> B} -> Sem_A -> Sem_B
+  def appS(a:Sem, b:Sem):Sem =
+    a match {
+      case Sem.Lam(f) => f(b)
+      // Types guarantee that we don't need any other case!
+    }
+\end{lstlisting}
+
+Since we assume that \id{a} is of function type, we can ignore the \id{Syn} case.
+We'll need to be careful to only pass \id{a}'s of function type into \id{appS}, of course.
+
+We can write \id{norm} : \id{Hs} $\to$ \id{Sem} as a fold using this smart constructor:
+
+\begin{lstlisting}
+// norm : Hs_t -> Sem_t
+def norm(x:Hs):Sem = fold[Sem](x, appS, Sem.Lam)
+\end{lstlisting}
+
+The more complicated direction turns out to be reifying \id{Sem} values back to syntactic \id{Hs} values:
+
+\begin{lstlisting}
+// reify : Sem_t -> Hs_t
+def reify(t:Ty, x:Sem):Hs =
+  (t,x) match {
+    case (Ty.Arrow(a,b), Sem.Lam(f)) => Hs.Lam(y => reify(b, f(reflect(a, y))))
+    case (Ty.Base, Sem.Syn(y)) => y
+  }
+
+// does eta expansion
+// reflect : Hs_t -> Sem_t
+def reflect(t:Ty, x:Hs):Sem =
+  t match {
+    case Ty.Arrow(a,b) => Sem.Lam(y => reflect(b, Hs.App(x, reify(a,y))))
+    case Ty.Base => Sem.Syn(x)
+  }
+\end{lstlisting}
+
+Because the \id{Sem} domain only contains function values for function types, we are \emph{forced} to do $\eta$-expansion:
+there is simply no way to represent a plain variable $f$ in the semantic domain at function type, we must write $\lambda x. \ap(f,x)$.
+
+By normalising and then reifying, we can write do typed normalization by evaluation from HOAS terms to HOAS terms:
+
+\begin{lstlisting}
+// nbe : Hs_t -> Hs_t
+def nbe(t:Ty, e:Hs) = reify(t, norm(e))
+\end{lstlisting}
+
+By using the conversion functions we can also obtain normalization by evaluation on ordinary terms:
+\begin{lstlisting}
+// nbeT : Tm_t -> Tm_t
+def nbeT(t:Ty, e:Tm) = toTm(nbe(t,toHs(e)))
+\end{lstlisting}
+
+Here's an example that normalizes SK combinators \cite{NbEwiki2021}:
+
+\begin{lstlisting}
+val k = Hs.Lam(x => Hs.Lam(y => x))
+val s = Hs.Lam(x => Hs.Lam(y => Hs.Lam(z => Hs.App(Hs.App(x,z), Hs.App(y,z)))))
+val skk = Hs.App(Hs.App(s,k),k)
+
+toTm(skk) /* App(App(Lam(x11,Lam(x12,Lam(x13,
+                  App(App(Var(x11),Var(x13)),App(Var(x12),Var(x13)))))),
+                     Lam(x14,Lam(x15,Var(x14)))), Lam(x16,Lam(x17,Var(x16)))) */
+
+val tb = Ty.Arrow(Ty.Base,Ty.Base)
+
+// normalizes to the identify function
+toTm(nbe(tb, skk)) // Lam(x18,Var(x18))
+
+val tbb = Ty.Arrow(tb, tb)
+
+// at higher type, it eta expands the identity function
+toTm(nbe(tbb, skk)) // Lam(x19,Lam(x20,App(Var(x19),Var(x20))))
+\end{lstlisting}
+
+I would highly recommend looking at Sam Lindley's slide deck \cite{NbELindley2016slides} if you want to learn more about typed normalization by evaluation.
+It is excellent and explains simple normalization by evaluation very clearly, but also goes much beyond this.
 
 \section{Summary}
 
 We saw that the essence of these techniques is the \emph{smart constructor} that ensures that its return value is in normal form.
-On top of those, we can build a \emph{smart copy function} that copies a value but constructs the copy using smart constructors, in order to rewrite it to normal form.
+On top of those, we can build a \emph{smart copy function} \id{norm} that copies a value but constructs the copy using smart constructors, in order to rewrite it to normal form.
 The smart copy function is the same as \id{fold}\emph{ing} the data type with the smart constructors.
-The smart constructors do not need to have to use the original syntactic representation: we can use a \emph{tailored normal form representation} as we did with regular expressions with \id{Seq} represented as a list and \id{Alt} as as set.
-In this case, the smart copy function has the syntactic representation type as input and the normal form representation type as output
-We can write a \id{reify} function to convert the normal form representation back into the syntactic representation.
-We saw that hereditary substitution and normalization by evaluation are both smart constructors for $\ap$,
-but use a different representation and mechanism to compute the substitution:
-\begin{align*}
-  \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
-  \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
-\end{align*}
-% We can do the AST $\leftrightarrow$ HOAS conversion and HOAS $\leftrightarrow$ normal form transformation separately, which makes each individual piece a bit simpler:
-% \begin{itemize}
-%   \item AST $\to$ HOAS conversion takes care of tracking the variable environment
-%   \item HOAS $\to$ AST conversion handles fresh variable generation
-%   \item HOAS $\to$ normal form handles evaluation by applying the smart constructors
-%   \item normal form $\to$ HOAS handles reification
-% \end{itemize}
+The smart constructors do not have to use the original syntactic representation: we can use a \emph{tailored normal form representation} as we did with regular expressions with \id{Seq} represented as a list and \id{Alt} as as set.
+In this case, the smart copy function has the syntactic representation type as input and the normal form representation type as output.
+We can \id{reify} the normal form representation back into the syntactic representation.
 
-\paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography.
+Hereditary substitution and untyped normalization by evaluation are both smart constructors for $\ap$,
+but use a different representation and mechanism to compute the substitution.
+Typed normalization by evaluation uses a separate semantic domain to tailored to representing normal forms.
+This semantic domain is indexed by the type of the expressions.
+We can still separate the AST $\leftrightarrow$ HOAS conversion and HOAS $\leftrightarrow$ Normal Form transformation, which makes each individual piece a bit simpler.
+
+\paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography,
+and Molossus Spookee and Paolo Giarrusso for their suggestions.
 
 \bibliographystyle{alphaurl}
 \bibliography{references}

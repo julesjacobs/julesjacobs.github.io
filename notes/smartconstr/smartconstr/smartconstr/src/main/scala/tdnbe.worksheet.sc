@@ -11,6 +11,7 @@ enum Hs:
   case Lam(f:Hs => Hs)
   case App(a:Hs, b:Hs)
   case Res(a:Object) // hack for fold
+  case ResTm(a:Tm)
 
 def fold[T](a:Hs, app : (T,T) => T, lam : (T => T) => T) : T =
   a match {
@@ -39,8 +40,14 @@ def fresh() = { n += 1; s"x$n" }
 
 def freshLam(f : Tm => Tm):Tm = { val x = fresh(); Tm.Lam(x, f(Tm.Var(x))) }
 
-def toTm(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
+def toTm1(a:Hs):Tm =
+  a match {
+    case Hs.ResTm(a) => a
+    case Hs.Lam(f) => freshLam(x => toTm1(f(Hs.ResTm(x))))
+    case Hs.App(a,b) => Tm.App(toTm1(a),toTm1(b))
+  }
 
+def toTm(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
 
 // Smart constructor
 
@@ -51,6 +58,12 @@ def app(a:Hs, b:Hs):Hs =
   }
 
 // Normalization
+
+def norm1(a:Hs):Hs =
+  a match {
+    case Hs.Lam(f) => Hs.Lam(x => norm(f(x)))
+    case Hs.App(a,b) => app(norm(a),norm(b))
+  }
 
 def norm(a:Hs):Hs = fold[Hs](a, app, Hs.Lam)
 

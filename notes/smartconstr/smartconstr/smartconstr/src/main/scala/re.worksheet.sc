@@ -3,12 +3,12 @@
 // A datatype of regular expressions, and functions to optimise them using rewrite rules
 
 enum Re:
-  case Emp
-  case Eps
-  case Chr(a:Char)
-  case Seq(a:Re, b:Re)
-  case Alt(a:Re, b:Re)
-  case Star(a:Re)
+  case Emp // 0
+  case Eps // 1
+  case Chr(c:Char) // 'c'
+  case Seq(a:Re, b:Re) // r cdot s
+  case Alt(a:Re, b:Re) // r + s
+  case Star(a:Re) // r*
 
 // Smart constructors
 // If you pass normal forms to these, they also return normal forms
@@ -113,14 +113,14 @@ def star2(a:Re2):Re2 =
 // We can define conversion functions from Re to Re2 and vice versa that put the regex in normal form
 // Re.Alternatively we could always use the Re2 representation
 
-def reToRe2(r:Re):Re2 =
+def norm(r:Re):Re2 =
   r match {
     case Re.Eps => eps2
     case Re.Emp => emp2
     case Re.Chr(c) => Re2.Chr(c)
-    case Re.Alt(a,b) => alt2(Set(reToRe2(a),reToRe2(b)))
-    case Re.Seq(a,b) => seq2(List(reToRe2(a),reToRe2(b)))
-    case Re.Star(a) => star2(reToRe2(a))
+    case Re.Alt(a,b) => alt2(Set(norm(a),norm(b)))
+    case Re.Seq(a,b) => seq2(List(norm(a),norm(b)))
+    case Re.Star(a) => star2(norm(a))
   }
 
 def fold1[A](xs:Iterable[A], z:A, f:(A,A) => A):A = {
@@ -132,12 +132,12 @@ def fold1[A](xs:Iterable[A], z:A, f:(A,A) => A):A = {
   }
 }
 
-def re2ToRe(r:Re2):Re =
+def reify(r:Re2):Re =
   r match {
     case Re2.Chr(c) => Re.Chr(c)
-    case Re2.Seq(rs) => fold1(rs.map(re2ToRe), Re.Eps, Re.Seq)
-    case Re2.Alt(rs) => fold1(rs.map(re2ToRe), Re.Eps, Re.Alt)
-    case Re2.Star(r) => Re.Star(re2ToRe(r))
+    case Re2.Seq(rs) => fold1(rs.map(reify), Re.Eps, Re.Seq)
+    case Re2.Alt(rs) => fold1(rs.map(reify), Re.Eps, Re.Alt)
+    case Re2.Star(r) => Re.Star(reify(r))
   }
 
 val c = Re2.Chr('c')
@@ -146,4 +146,4 @@ val d = Re2.Chr('d')
 val z = alt2(Set(c,d,emp2,eps2))
 alt2(Set(z,z,c))
 seq2(List(emp2, c, d))
-re2ToRe(z)
+reify(z)

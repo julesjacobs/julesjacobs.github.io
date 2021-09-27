@@ -20,6 +20,12 @@ U.~Berger and H.~Schwichtenberg.
 \newblock \href {https://doi.org/10.1109/LICS.1991.151645}
   {\path{doi:10.1109/LICS.1991.151645}}.
 
+\bibitem[CKS07]{FinallyTagless2007}
+Jacques Carette, Oleg Kiselyov, and Chung-chieh Shan.
+\newblock Finally tagless, partially evaluated.
+\newblock In Zhong Shao, editor, {\em Programming Languages and Systems}, pages
+  222--238, Berlin, Heidelberg, 2007. Springer Berlin Heidelberg.
+
 \bibitem[CP95]{click95}
 Cliff Click and Michael Paleczny.
 \newblock A simple graph-based intermediate representation.
@@ -33,6 +39,18 @@ Chantal Keller and Thorsten Altenkirch.
 \newblock Proceedings of the Mathematically Structured Functional Programming
   workshop, 2010.
 \newblock URL: \url{https://hal.inria.fr/inria-00520606}.
+
+\bibitem[Lin16]{NbELindley2016slides}
+Sam Lindley.
+\newblock Normalization by evaluation.
+\newblock 2016.
+\newblock URL:
+  \url{http://homepages.inf.ed.ac.uk/slindley/nbe/nbe-cambridge2016.pdf}.
+
+\bibitem[NbE21]{NbEwiki2021}
+Normalization by evaluation.
+\newblock {\em Wikipedia}, August 2021.
+\newblock URL: \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}.
 
 \bibitem[ORT09]{owens_reppy_turon_2009}
 Scott Owens, John Reppy, and Aaron Turon.
