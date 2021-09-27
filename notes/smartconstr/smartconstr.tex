@@ -531,7 +531,7 @@ toTm(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 
 The \id{toTm} : \id{Hs} $\to$ \id{Tm} and \id{norm} : \id{Hs} $\to$ \id{Hs} functions are somewhat similar.
 We can factor out the pattern by defining a \id{fold} function on \id{Hs}, with which we can write functions \id{Hs} $\to$ \id{T} for any \id{T}.
-The \id{fold} function takes smart constructors \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} as arguments, and gives \id{fold(a:Hs, app, lam)} : \id{T}.
+The \id{fold} function takes smart constructors \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} as arguments, and copies the \id{Hs} term with them to obtain a value of type \id{T}.
 In order to write \id{fold}, we need to extend \id{Hs} with a new constructor, as we did before:
 
 \begin{lstlisting}
