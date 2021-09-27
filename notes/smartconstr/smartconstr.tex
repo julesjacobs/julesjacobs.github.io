@@ -527,11 +527,11 @@ toTm(two) /* App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(x
 toTm(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 \end{lstlisting}
 
-\subsection{Folding HOAS \& finally tagless style}
+\subsection{Folding HOAS \& finally tagless}
 
 The \id{toTm} : \id{Hs} $\to$ \id{Tm} and \id{norm} : \id{Hs} $\to$ \id{Hs} functions are somewhat similar.
-We can factor out the pattern by defining a \id{fold} function on \id{Hs}, using which we can write functions \id{Hs} $\to$ \id{T} for any \id{T}.
-The \id{fold} function takes smart constructors \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} as arguments, and gives \id{fold(a:Hs, app,lam)} : \id{T}.
+We can factor out the pattern by defining a \id{fold} function on \id{Hs}, with which we can write functions \id{Hs} $\to$ \id{T} for any \id{T}.
+The \id{fold} function takes smart constructors \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} as arguments, and gives \id{fold(a:Hs, app, lam)} : \id{T}.
 In order to write \id{fold}, we need to extend \id{Hs} with a new constructor, as we did before:
 
 \begin{lstlisting}
@@ -553,14 +553,14 @@ As you can see, this a bit of a hacky approach that requires unsafe casts.
 It has the advantage of being fairly simple and require minimal changes to what we already have.
 See \cite{BoxesGoBananas2003} for a non-hacky approach.
 
-We can now rewrite \id{toTm} and \id{norm} as one-liners:
+We can use \id{fold} to write \id{toTm} and \id{norm} as one-liners:
 
 \begin{lstlisting}
 def toTm(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
 def norm(a:Hs):Hs = fold[Hs](a, app, Hs.Lam)
 \end{lstlisting}
 
-We can also represent \id{a:Hs} values \emph{as their folding function} \id{(app,lam) => fold(a, app, lam)}.
+An alternative is to represent \id{a:Hs} values \emph{as their folding function} \id{(app,lam) => fold(a, app, lam)}.
 This approach is called \emph{finally tagless} \cite{FinallyTagless2007} and it works very nicely.
 I would highly recommend checking out that paper.
 
