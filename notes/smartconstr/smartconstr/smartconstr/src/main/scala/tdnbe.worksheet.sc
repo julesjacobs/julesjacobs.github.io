@@ -1,4 +1,4 @@
-// Type directed normalization by evaluation for simply typed lambda calculus
+// Untyped normalization by evaluation
 
 // Lambda terms with named variables
 enum Tm:
@@ -39,8 +39,35 @@ def fresh() = { n += 1; s"x$n" }
 
 def freshLam(f : Tm => Tm):Tm = { val x = fresh(); Tm.Lam(x, f(Tm.Var(x))) }
 
-def toT(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
+def toTm(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
 
+
+// Smart constructor
+
+def app(a:Hs, b:Hs):Hs =
+  a match {
+    case Hs.Lam(f) => f(b)
+    case _ => Hs.App(a,b)
+  }
+
+// Normalization
+
+def norm(a:Hs):Hs = fold[Hs](a, app, Hs.Lam)
+
+
+// Example
+
+val zero = Hs.Lam(f => Hs.Lam(x => x))
+val succ = Hs.Lam(n => Hs.Lam(f => Hs.Lam(z => Hs.App(Hs.App(n,f),Hs.App(f,z)))))
+
+val one = Hs.App(succ,zero)
+val two = Hs.App(succ,one)
+
+toTm(two)
+toTm(norm(two))
+
+
+// Typed normalization by evaluation
 
 // Types
 enum Ty:
@@ -49,10 +76,10 @@ enum Ty:
 
 // Semantic domain
 enum Sem:
-  case Syn(a:Hs) // Sem_Base = Sem.Syntactic terms Hs
+  case Syn(a:Hs) // Sem_Base = syntactic terms Hs
   case Lam(f:Sem => Sem) // Sem_{A -> B} = Sem_A -> Sem_B
 
-// reflect η expands
+// η expansion
 // reflect : Hs_t -> Sem_t
 def reflect(t:Ty, x:Hs):Sem =
   t match {
@@ -84,7 +111,7 @@ def meaning(x:Hs):Sem = fold[Sem](x, appS, Sem.Lam)
 def nbe(t:Ty, e:Hs) = reify(t, meaning(e))
 
 // nbeT : Tm_t -> Tm_t
-def nbeT(t:Ty, e:Tm) = toT(nbe(t,toHs(e)))
+def nbeT(t:Ty, e:Tm) = toTm(nbe(t,toHs(e)))
 
 
 // SKK example from wikipedia
@@ -93,12 +120,12 @@ val k = Hs.Lam(x => Hs.Lam(y => x))
 val s = Hs.Lam(x => Hs.Lam(y => Hs.Lam(z => Hs.App(Hs.App(x,z), Hs.App(y,z)))))
 val skk = Hs.App(Hs.App(s,k),k)
 
-toT(skk)
+toTm(skk)
 
 val tb = Ty.Arrow(Ty.Base,Ty.Base)
 
-toT(nbe(tb, skk))
+toTm(nbe(tb, skk))
 
 val tbb = Ty.Arrow(tb, tb)
 
-toT(nbe(tbb, skk))
+toTm(nbe(tbb, skk))
