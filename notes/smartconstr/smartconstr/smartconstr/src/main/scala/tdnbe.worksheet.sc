@@ -32,7 +32,7 @@ def eval(env:Map[String,Hs], a:Tm):Hs =
 def toHs(a:Tm):Hs = eval(Map(),a)
 
 
-// Conversion from Hs to T
+// Conversion from Hs to Tm
 
 var n = 0
 def fresh() = { n += 1; s"x$n" }
@@ -44,7 +44,7 @@ def toT(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
 
 // Types
 enum Ty:
-  case Base(name:String)
+  case Base
   case Arrow(a:Ty, b:Ty)
 
 // Semantic domain
@@ -57,14 +57,14 @@ enum Sem:
 def reflect(t:Ty, x:Hs):Sem =
   t match {
     case Ty.Arrow(a,b) => Sem.Lam(y => reflect(b, Hs.App(x, reify(a,y))))
-    case Ty.Base(_) => Sem.Syn(x)
+    case Ty.Base => Sem.Syn(x)
   }
 
 // reify : Sem_t -> Hs_t
 def reify(t:Ty, x:Sem):Hs =
   (t,x) match {
     case (Ty.Arrow(a,b),Sem.Lam(f)) => Hs.Lam(y => reify(b, f(reflect(a, y))))
-    case (Ty.Base(_), Sem.Syn(y)) => y
+    case (Ty.Base, Sem.Syn(y)) => y
   }
 
 
@@ -95,10 +95,10 @@ val skk = Hs.App(Hs.App(s,k),k)
 
 toT(skk)
 
-val ta = Ty.Arrow(Ty.Base("a"),Ty.Base("a"))
+val tb = Ty.Arrow(Ty.Base,Ty.Base)
 
-toT(nbe(ta, skk))
+toT(nbe(tb, skk))
 
-val taa = Ty.Arrow(ta, ta)
+val tbb = Ty.Arrow(tb, tb)
 
-toT(nbe(taa, skk))
+toT(nbe(tbb, skk))
