@@ -11,12 +11,20 @@
 
 \begin{abstract}
   \noindent
-  In this note we will investigate these three well-known techniques for rewriting to normal form. We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms. We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
+  In this note we will investigate these three well-known techniques for rewriting to normal form.
+  We'll look at how to use them to optimize regular expressions and compute $\beta$ normal forms of lambda terms.
+  We will see that these techniques share the same key idea, but differ in how binders are represented and how substitution is handled:
   \begin{align*}
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The formulation of normalization by evaluation in this note is slightly simpler than the conventional presentation, which (in my view) intertwines conversion to and from HOAS with normalization itself.\footnote{E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}. Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation, and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.}
+  The formulation of normalization by evaluation in this note is slightly simpler than the conventional presentation,
+  which (in my view) intertwines conversion to and from HOAS with normalization itself.
+  \footnote{
+    E.g., the one on wikipedia \url{https://en.wikipedia.org/wiki/Normalisation_by_evaluation}.
+    Note how \id{reify} does both HOAS $\to$ AST conversion and $\eta$-long normal form creation,
+    and \id{meaning} does both AST $\to$ HOAS conversion and evaluation.
+  }
 \end{abstract}
 
 \tableofcontents
@@ -28,7 +36,9 @@
 \newcommand{\seq}{\cdot}
 \newcommand{\md}{\ \mid \ }
 
-Suppose we want to simplify regular expressions consisting of the following operations. The symbol $0$ represents the regex that doesn't match anything, $1$ represents the regex that only matches the empty string, $`c`$ represents a single character, $(+)$ represents union, $(\cdot)$ represents concatenation, and $*$ represents repetition:
+Suppose we want to simplify regular expressions consisting of the following operations.
+The symbol $0$ represents the regex that doesn't match anything, $1$ represents the regex that only matches the empty string,
+$`c`$ represents a single character, $(+)$ represents union, $(\cdot)$ represents concatenation, and $*$ represents repetition:
 \begin{align*}
   r \in \mathsf{Re} \ ::=\  \emp \md \eps \md `c` \md r + r \md r \seq r \md r^*,
 \end{align*}
@@ -521,15 +531,27 @@ reify(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 % \subsection{Type directed normalization by evaluation}
 % \subsection{$\eta$ normal form}
 
-\section{Conclusion}
+\section{Summary}
 
-We saw that the essence of the techniques discussed is the \emph{smart constructor} that ensures that its return value is in normal form.
+We saw that the essence of these techniques is the \emph{smart constructor} that ensures that its return value is in normal form.
 On top of those, we can build a \emph{smart copy function} that copies a value but constructs the copy using smart constructors, in order to rewrite it to normal form.
-We saw that hereditary substitution and normalization by evaluation are both smart constructors for $\ap$, but use a different mechanism to compute the substitution:
+The smart copy function is the same as \id{fold}\emph{ing} the data type with the smart constructors.
+The smart constructors do not need to have to use the original syntactic representation: we can use a \emph{tailored normal form representation} as we did with regular expressions with \id{Seq} represented as a list and \id{Alt} as as set.
+In this case, the smart copy function has the syntactic representation type as input and the normal form representation type as output
+We can write a \id{reify} function to convert the normal form representation back into the syntactic representation.
+We saw that hereditary substitution and normalization by evaluation are both smart constructors for $\ap$,
+but use a different representation and mechanism to compute the substitution:
 \begin{align*}
   \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
   \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
 \end{align*}
+We can do the AST $\leftrightarrow$ HOAS conversion and HOAS $\leftrightarrow$ normal form transformation separately, which makes each individual piece a bit simpler:
+\begin{itemize}
+  \item AST $\to$ HOAS conversion takes care of tracking the variable environment
+  \item HOAS $\to$ AST conversion handles fresh variable generation
+  \item HOAS $\to$ normal form handles evaluation by applying the smart constructors
+  \item normal form $\to$ HOAS handles reification
+\end{itemize}
 
 \paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography.
 
