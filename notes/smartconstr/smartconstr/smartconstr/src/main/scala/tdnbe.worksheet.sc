@@ -1,16 +1,12 @@
-// Warning: code hasn't been tested
-
-// Type directed normalization by evaluation for simply typed lambda calculus with pairs
+// Type directed normalization by evaluation for simply typed lambda calculus
 
 // Lambda terms with named variables
-
 class Tm
 case class Var(x:String) extends Tm
 case class Lam(x:String, a:Tm) extends Tm
 case class App(a:Tm, b:Tm) extends Tm
 
 // HOAS lambda terms
-
 class HTm
 case class LamH(f:HTm => HTm) extends HTm
 case class AppH(a:HTm, b:HTm) extends HTm
@@ -48,13 +44,11 @@ def toTm(a:HTm):Tm = elim[Tm](a, App, lamFresh)
 
 
 // Types
-
 class Ty
 case class Base(name:String) extends Ty
 case class Arrow(a:Ty, b:Ty) extends Ty
 
 // Semantic domain
-
 class Sem
 case class Syn(a:HTm) extends Sem // syntactic values
 case class LamS(f:Sem => Sem) extends Sem
@@ -76,7 +70,6 @@ def reify(t:Ty, x:Sem):HTm =
 
 
 // Smart constructor
-
 def appS(a:Sem, b:Sem):Sem =
   a match {
     case LamS(f) => f(b)
@@ -86,7 +79,14 @@ def appS(a:Sem, b:Sem):Sem =
 // Convert HTm -> Sem
 def meaning(x:HTm):Sem = elim[Sem](x, appS, LamS)
 
+// HOAS -> HOAS NbE
 def nbe(t:Ty, e:HTm) = reify(t, meaning(e))
+
+// Tm -> Tm NbE
+def nbeTm(t:Ty, e:Tm) = toTm(nbe(t,toHTm(e)))
+
+
+// SKK example from wikipedia
 
 val k = LamH(x => LamH(y => x))
 val s = LamH(x => LamH(y => LamH(z => AppH(AppH(x,z), AppH(y,z)))))
