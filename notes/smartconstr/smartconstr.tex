@@ -194,12 +194,12 @@ def alt1(a:Re, b:Re):Re =
 
 This smart constructor is able to do that optimization:
 
-\begin{lstlisting}
+\begin{minipage}{\textwidth}\begin{lstlisting}
 val a = Re.Chr('a')
 val b = Re.Chr('b')
 alt(a,alt(b,a)) // Alt(Chr('a'), Alt(Chr('b'), Chr('a')))
 alt1(a,alt1(b,a)) // Alt(Chr('b'), Chr('a'))
-\end{lstlisting}
+\end{lstlisting}\end{minipage}
 
 \subsection{Optimizing at parse time}
 
@@ -229,7 +229,7 @@ val emp2 = Re2.Alt(Set())
 val eps2 = Re2.Seq(List())
 \end{lstlisting}
 
-The smart constructors for \id{Seq2} and \id{Alt2} are significantly simpler than those for \id{Seq} and \id{Alt}:
+The smart constructors for \id{Seq} and \id{Alt} are significantly simpler with the \id{Re2} representation:
 
 \begin{lstlisting}
 def seq2(rs:List[Re2]):Re2 = {
@@ -239,12 +239,18 @@ def seq2(rs:List[Re2]):Re2 = {
   else Re2.Seq(rs2)
 }
 
+
+
 def alt2(rs:Set[Re2]):Re2 = {
   val rs2 = rs.flatMap{case Re2.Alt(rs) => rs; case x => Set(x)}
   if(rs2.size == 1) rs2.head
   else Re2.Alt(rs2)
 }
+\end{lstlisting}
 
+The smart constructor for \id{Star} does not change much:
+
+\begin{lstlisting}
 def star2(a:Re2):Re2 =
   a match {
     case Re2.Alt(rs) if rs.isEmpty => eps2
@@ -273,15 +279,6 @@ def norm(r:Re):Re2 =
 We use the name \id{reify} : \id{Re2} $\to$ \id{Re} because this conversion reifies the normal form representation back to the original syntax:
 
 \begin{lstlisting}
-def fold1[A](xs:Iterable[A], z:A, f:(A,A) => A):A = {
-  if(xs.isEmpty) z
-  else {
-    var y = xs.head
-    for(x <- xs.tail) y = f(x,y)
-    return y
-  }
-}
-
 def reify(r:Re2):Re =
   r match {
     case Re2.Chr(c) => Re.Chr(c)
@@ -292,7 +289,6 @@ def reify(r:Re2):Re =
 \end{lstlisting}
 
 Some examples:
-
 \begin{lstlisting}
 val c = Re2.Chr('c')
 val d = Re2.Chr('d')
@@ -334,6 +330,8 @@ The $\ap$ nodes have no effect on the De Bruijn indices.
 For instance, the term $\lambda. \lambda. \ap(0,\lambda. \ap(0,2))$ means $\lambda x. \lambda y. \ap(y, \lambda z. \ap(z,x))$.
 The details of this encoding are not so important and I leave them to the next subsection: the important part is that this allows us to write a substitution function without much trouble.
 
+
+
 We first define De Bruijn syntax tree nodes:
 \begin{lstlisting}
 enum Db:
@@ -344,14 +342,14 @@ enum Db:
 
 We define a substitution function \id{subst(e,f)} that substitutes the term \id{f(i)} for each variable \id{i} in \id{e}. This is called a \emph{parallel substitution} because it substitutes terms for all variables simultaneously:
 
-\begin{lstlisting}
+\begin{minipage}{\textwidth}\begin{lstlisting}
 def subst(a:Db, f:Int => Db):Db =
   a match {
     case Db.Var(n) => f(n)
     case Db.Lam(a) => Db.Lam(subst(a,liftS(f))) // we will get to the liftS function later
     case Db.App(a,b) => Db.App(subst(a,f),subst(b,f))
   }
-\end{lstlisting}
+\end{lstlisting}\end{minipage}
 
 Notice that the \id{subst} function is calling the smart constructor \id{app}, which we still need to define!
 
@@ -434,11 +432,13 @@ enum Hs:
 \end{lstlisting}
 
 Here's an example term $\lambda x. \lambda y. \ap(y, \lambda z. \ap(x,z))$:
+
 \begin{lstlisting}
 Hs.Lam(x => Hs.Lam(y => Hs.App(y, Hs.Lam(z => Hs.App(x,z)))))
 \end{lstlisting}
 
 The smart constructor \id{app} is now easy to write:
+
 \begin{lstlisting}
 def app(a:Hs, b:Hs):Hs =
   a match {
@@ -449,9 +449,11 @@ def app(a:Hs, b:Hs):Hs =
 
 The issue is that this doesn't mutually recursively call itself, like the hereditary substitution did.
 We can fix that by using \id{app} instead of \id{App} in the original lambda terms we construct:
+
 \begin{lstlisting}
 Hs.Lam(x => Hs.Lam(y => app(y, Hs.Lam(z => app(x,z)))))
 \end{lstlisting}
+
 If we do this consistently, then the only place in our program where the constructor \id{App} is called is in \id{app}, and there we have made sure that the the first argument isn't a lambda, so we're guaranteed to get a $\beta$ normal form.
 
 Instead of writing our lambda terms using \id{app} in the first place, we can write a smart copy function that does it for us:
@@ -602,6 +604,7 @@ In other words, the semantic domain of base types is HOAS terms \id{Hs}, but the
 Unfortunately, we are not using Agda, and my Scala knowledge is insufficient to know if it is possible to do this in Scala.
 In any case I'd like to keep the code here simple, and make it possible to translate into other languages without Agda's (or Scala's) fancy type system.
 So we're going to smush the semantic domain together into a single type, and we're going to put the dependent types in comments:
+
 \begin{lstlisting}
 enum Sem:
   case Syn(a:Hs) // Sem_Base = syntactic terms Hs
@@ -659,7 +662,8 @@ By normalising and then reifying, we can do typed normalization by evaluation fr
 def nbe(t:Ty, e:Hs) = reify(t, norm(e))
 \end{lstlisting}
 
-By using the conversion functions we can also get normalization by evaluation on ordinary terms:
+Using the conversion functions we can also get normalization by evaluation on ordinary terms:
+
 \begin{lstlisting}
 // nbeT : Tm_t -> Tm_t
 def nbeT(t:Ty, e:Tm) = toTm(nbe(t,toHs(e)))

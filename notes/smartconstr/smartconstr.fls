@@ -585,7 +585,6 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/newpx/zplmi.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/newpx/NewPXMI_gnu.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/newpx/NewPXMI.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/newtx/stxscr.tfm
-INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/bera/fvmr8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/newpx/zplsyc.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/newtx/ntxsyc.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/newtx/ntxsyc.vf
@@ -599,6 +598,7 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplr9d.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplrc9d.tfm
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
+INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/bera/fvmr8t.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/bera/fvmr8t.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/bera/fvmr8r.tfm
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.aux
