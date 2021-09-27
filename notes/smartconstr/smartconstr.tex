@@ -646,14 +646,14 @@ def reflect(t:Ty, x:Hs):Sem =
 Because the \id{Sem} domain only contains function values for function types, we are \emph{forced} to do $\eta$-expansion:
 there is simply no way to represent a plain variable $f$ in the semantic domain at function type, we must write $\lambda x. \ap(f,x)$.
 
-By normalising and then reifying, we can write do typed normalization by evaluation from HOAS terms to HOAS terms:
+By normalising and then reifying, we can do typed normalization by evaluation from HOAS terms to HOAS terms:
 
 \begin{lstlisting}
 // nbe : Hs_t -> Hs_t
 def nbe(t:Ty, e:Hs) = reify(t, norm(e))
 \end{lstlisting}
 
-By using the conversion functions we can also obtain normalization by evaluation on ordinary terms:
+By using the conversion functions we can also get normalization by evaluation on ordinary terms:
 \begin{lstlisting}
 // nbeT : Tm_t -> Tm_t
 def nbeT(t:Ty, e:Tm) = toTm(nbe(t,toHs(e)))
