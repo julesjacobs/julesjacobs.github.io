@@ -545,13 +545,13 @@ but use a different representation and mechanism to compute the substitution:
   \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
   \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
 \end{align*}
-We can do the AST $\leftrightarrow$ HOAS conversion and HOAS $\leftrightarrow$ normal form transformation separately, which makes each individual piece a bit simpler:
-\begin{itemize}
-  \item AST $\to$ HOAS conversion takes care of tracking the variable environment
-  \item HOAS $\to$ AST conversion handles fresh variable generation
-  \item HOAS $\to$ normal form handles evaluation by applying the smart constructors
-  \item normal form $\to$ HOAS handles reification
-\end{itemize}
+% We can do the AST $\leftrightarrow$ HOAS conversion and HOAS $\leftrightarrow$ normal form transformation separately, which makes each individual piece a bit simpler:
+% \begin{itemize}
+%   \item AST $\to$ HOAS conversion takes care of tracking the variable environment
+%   \item HOAS $\to$ AST conversion handles fresh variable generation
+%   \item HOAS $\to$ normal form handles evaluation by applying the smart constructors
+%   \item normal form $\to$ HOAS handles reification
+% \end{itemize}
 
 \paragraph{Acknowledgements.} I thank Arjen Rouvoet for his suggestions on style and typography.
 

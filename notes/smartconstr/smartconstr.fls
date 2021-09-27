@@ -587,15 +587,11 @@ INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/adobe/palatino/pplri9d.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplri8r.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/mathpazo/fplmri.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplrij8r.tfm
-INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ts1pplj.fd
-INPUT /usr/local/texlive/2020/texmf-dist/tex/latex/psnfss/ts1pplj.fd
-INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplr9c.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplr9d.tfm
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/adobe/palatino/pplrc9d.tfm
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.bbl
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/bera/fvmr8t.tfm
-INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/adobe/palatino/pplr9c.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/vf/public/bera/fvmr8t.vf
 INPUT /usr/local/texlive/2020/texmf-dist/fonts/tfm/public/bera/fvmr8r.tfm
 INPUT /Users/jules/git/julesjacobs.github.io/notes/smartconstr/smartconstr.aux
