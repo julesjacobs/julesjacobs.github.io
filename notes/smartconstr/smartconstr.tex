@@ -420,7 +420,7 @@ The function \id{Var} is the identity substitution, so \id{shift(e,Var)} substit
 def subst0(e:Db, v:Db):Db = subst(e, shift(v,Db.Var))
 \end{lstlisting}
 
-\section{Normalization by evaluation}
+\section{Untyped normalization by evaluation}
 
 A more funky representation for lambda terms is \emph{higher order abstract syntax} (HOAS) \cite{pfenning88}.
 We represent lambda nodes \emph{as its substitution function}: the lambda term $\lambda x. e$ gets represented as a Scala function that does $f(v) = e[x \mapsto v]$.
@@ -570,7 +570,7 @@ An alternative is to represent \id{a:Hs} values \emph{as their folding function}
 This approach is called \emph{finally tagless} \cite{FinallyTagless2007} and it works very nicely.
 I would highly recommend checking out that paper.
 
-\section{Type directed normalization by evaluation}
+\section{Typed normalization by evaluation}
 
 Type directed normalization by evaluation can be used to put values in $\eta$ expanded form.
 In $\eta$ expanded form we are only allowed to use variables $f : A \to B$ of function type as the first argument of $\ap$.

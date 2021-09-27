@@ -7,9 +7,9 @@
 \contentsline {section}{\numberline {3}{Better normal form representations}}{5}{section.3}%
 \contentsline {section}{\numberline {4}{Hereditary substitution}}{7}{section.4}%
 \contentsline {subsection}{\numberline {4.1}{De Bruijn indices}}{8}{subsection.4.1}%
-\contentsline {section}{\numberline {5}{Normalization by evaluation}}{9}{section.5}%
+\contentsline {section}{\numberline {5}{Untyped normalization by evaluation}}{9}{section.5}%
 \contentsline {subsection}{\numberline {5.1}{From ordinary lambda terms to HOAS and back}}{10}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}{Folding HOAS \& finally tagless}}{11}{subsection.5.2}%
-\contentsline {section}{\numberline {6}{Type directed normalization by evaluation}}{11}{section.6}%
+\contentsline {section}{\numberline {6}{Typed normalization by evaluation}}{11}{section.6}%
 \contentsline {section}{\numberline {7}{Summary}}{13}{section.7}%
 \contentsline {paragraph}{{Acknowledgements.}}{14}{paragraph*.1}%
