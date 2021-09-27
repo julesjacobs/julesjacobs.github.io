@@ -568,7 +568,7 @@ I would highly recommend checking out that paper.
 
 Type directed normalization by evaluation can be used to put values in $\eta$ expanded form.
 In $\eta$ expanded form we are only allowed to use variables $f : A \to B$ of function type as the first argument of $\ap$.
-If we want to use $f$ in any other place then we must instead write $\lambda x. \ap(f,x)$.
+To use $f$ in any other place then we must instead write $f \equiv \lambda x. \ap(f,x)$.
 We need type information because the types determine how much we $\eta$ expand:
 \begin{itemize}
   \item Expanding $\lambda x. x$ at type $A \to A$ gives $\lambda x. x$
