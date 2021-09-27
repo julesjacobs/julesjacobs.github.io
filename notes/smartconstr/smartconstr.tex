@@ -442,7 +442,7 @@ def norm(a:Sem):Sem =
   }
 \end{lstlisting}
 
-This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine "normalization by evaluation" to mean what the \id{norm} function does, namely HOAS $\to$ HOAS normalization, and handle conversion to and from HOAS separately. Type directed normalization by evaluation may also be formulated in a style where HOAS is used throughout. One may also still distinguish between HOAS terms and semantic values represented in a representation tailored to normal forms (similar to what we did with regular expression), and have HOAS $\to$ Sem $\to$ HOAS.}
+This is called \emph{normalization by evaluation} \cite{berger91}.\footnote{Conventionally, normalization by evaluation is intertwined with conversion to and from HOAS. I find that confusing, because it intertwines separate concerns. So I opted to redefine "normalization by evaluation" to mean what the \id{norm} function does, namely HOAS $\to$ HOAS normalization, and handle conversion to and from HOAS separately. Type directed normalization by evaluation may also be formulated in a style where HOAS is used throughout. One may also still distinguish between HOAS terms and semantic values in a representation tailored to normal forms (similar to what we did with regular expression), and have HOAS $\to$ Sem $\to$ HOAS.}
 
 \subsection{From ordinary lambda terms to HOAS and back}
 
@@ -517,7 +517,9 @@ reify(two) /* App(Lam(x1,Lam(x2,Lam(x3,App(App(Var(x1),Var(x2)),App(Var(x2),Var(
 reify(norm(two)) // Lam(x9,Lam(x10,App(Var(x9),App(Var(x9),Var(x10)))))
 \end{lstlisting}
 
+% \subsection{A tailored normal form representation}
 % \subsection{Type directed normalization by evaluation}
+% \subsection{$\eta$ normal form}
 
 \section{Conclusion}
 

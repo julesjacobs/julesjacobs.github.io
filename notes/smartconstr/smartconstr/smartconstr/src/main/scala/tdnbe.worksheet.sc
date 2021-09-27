@@ -11,60 +11,93 @@ case class App(a:Tm, b:Tm) extends Tm
 
 // HOAS lambda terms
 
-class Sem
-case class TmS(a:Tm) extends Sem
-case class LamS(f:Sem => Sem) extends Sem
-case class AppS(a:Sem, b:Sem) extends Sem
+class HTm
+case class LamH(f:HTm => HTm) extends HTm
+case class AppH(a:HTm, b:HTm) extends HTm
+case class ResH(a:Object) extends HTm // hack for elim
 
-// Smart constructor for AppS
-
-def appS(a:Sem, b:Sem):Sem =
+def elim[T](a:HTm, app : (T,T) => T, lam : (T => T) => T) : T =
   a match {
-    case LamS(f) => f(b)
-    case _ => AppS(a,b)
+    case ResH(x) => x.asInstanceOf[T]
+    case LamH(f) => lam(t => elim(f(ResH(t.asInstanceOf[Object])), app, lam))
+    case AppH(a,b) => app(elim(a, app, lam), elim(b, app, lam))
   }
 
-// Normalizing a Sem term is easy
 
-def norm(a:Sem):Sem =
-  a match {
-    case TmS(a) => TmS(a)
-    case LamS(f) => LamS(x => norm(f(x)))
-    case AppS(a,b) => appS(norm(a),norm(b))
-  }
+// Conversion from Tm to HTm
 
-// Conversion from Tm to Sem
-
-def eval(env:Map[String,Sem], a:Tm):Sem =
+def eval(env:Map[String,HTm], a:Tm):HTm =
   a match {
     case Var(x) => env(x)
-    case Lam(x, a) => LamS(v => eval(env + (x -> v), a))
-    case App(a,b) => AppS(eval(env,a),eval(env,b))
+    case Lam(x, a) => LamH(v => eval(env + (x -> v), a))
+    case App(a,b) => AppH(eval(env,a),eval(env,b))
   }
 
-def tmToSem(a:Tm):Sem = eval(Map(),a)
+def toHTm(a:Tm):HTm = eval(Map(),a)
 
-// Conversion from Sem to Tm
+
+// Conversion from HTm to Tm
 
 var n = 0
 def fresh() = { n += 1; s"x$n" }
 
-def reify(a:Sem):Tm =
-  a match {
-    case TmS(a) => a
-    case LamS(f) => val x = fresh(); Lam(x, reify(f(TmS(Var(x)))))
-    case AppS(a,b) => App(reify(a),reify(b))
+def lamFresh(f : Tm => Tm):Tm = { val x = fresh(); Lam(x, f(Var(x))) }
+
+def toTm(a:HTm):Tm = elim[Tm](a, App, lamFresh)
+
+
+
+// Types
+
+class Ty
+case class Base(name:String) extends Ty
+case class Arrow(a:Ty, b:Ty) extends Ty
+
+// Semantic domain
+
+class Sem
+case class Syn(a:HTm) extends Sem // syntactic values
+case class LamS(f:Sem => Sem) extends Sem
+
+
+// Creates η expanded term
+def reflect(t:Ty, x:HTm):Sem =
+  t match {
+    case Arrow(a,b) => LamS(y => reflect(b, AppH(x, reify(a,y))))
+    case Base(_) => Syn(x)
   }
 
-def semToTm(a:Sem):Tm = reify(a)
+// Convert Sem -> HTm
+def reify(t:Ty, x:Sem):HTm =
+  (t,x) match {
+    case (Arrow(a,b),LamS(f)) => LamH(y => reify(b, f(reflect(a, y))))
+    case (Base(_), Syn(y)) => y
+  }
 
-// Example
 
-val z = LamS(f => LamS(x => x))
-val s = LamS(n => LamS(f => LamS(z => AppS(AppS(n,f),AppS(f,z)))))
+// Smart constructor
 
-val one = AppS(s,z)
-val two = AppS(s,one)
+def appS(a:Sem, b:Sem):Sem =
+  a match {
+    case LamS(f) => f(b)
+    // Types guarantee that we don't need any other case!
+  }
 
-reify(two)
-reify(norm(two))
+// Convert HTm -> Sem
+def meaning(x:HTm):Sem = elim[Sem](x, appS, LamS)
+
+def nbe(t:Ty, e:HTm) = reify(t, meaning(e))
+
+val k = LamH(x => LamH(y => x))
+val s = LamH(x => LamH(y => LamH(z => AppH(AppH(x,z), AppH(y,z)))))
+val skk = AppH(AppH(s,k),k)
+
+toTm(skk)
+
+val tab = Arrow(Base("a"),Base("b"))
+
+toTm(nbe(tab, skk))
+
+val tabab = Arrow(tab, tab)
+
+toTm(nbe(tabab, skk))
