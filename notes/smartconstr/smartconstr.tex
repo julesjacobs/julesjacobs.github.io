@@ -602,7 +602,7 @@ enum Sem:
   case Lam(f:Sem => Sem) // Sem_Arrow(A,B) = Sem_A -> Sem_B
 \end{lstlisting}
 
-Although the \id{Sem} domain doesn't have a case for \id{App}, we can still write a smart constructor for it:
+Although the \id{Sem} domain doesn't have a case for \id{App}, we \emph{can} write a smart constructor for it:
 
 \begin{lstlisting}
   // Smart constructor
@@ -614,7 +614,7 @@ Although the \id{Sem} domain doesn't have a case for \id{App}, we can still writ
     }
 \end{lstlisting}
 
-Since we assume that \id{a} is of function type, we can ignore the \id{Syn} case.
+Because we assume that \id{a} is of function type, we can ignore the \id{Syn} case.
 We'll need to be careful to only pass \id{a}'s of function type into \id{appS}, of course.
 
 We can write \id{norm} : \id{Hs} $\to$ \id{Sem} as a fold using this smart constructor:
