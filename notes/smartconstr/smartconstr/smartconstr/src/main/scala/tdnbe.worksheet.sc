@@ -1,103 +1,104 @@
 // Type directed normalization by evaluation for simply typed lambda calculus
 
 // Lambda terms with named variables
-class Tm
-case class Var(x:String) extends Tm
-case class Lam(x:String, a:Tm) extends Tm
-case class App(a:Tm, b:Tm) extends Tm
+enum Tm:
+  case Var(x:String)
+  case Lam(x:String, a:Tm)
+  case App(a:Tm, b:Tm)
 
 // HOAS lambda terms
-class HTm
-case class LamH(f:HTm => HTm) extends HTm
-case class AppH(a:HTm, b:HTm) extends HTm
-case class ResH(a:Object) extends HTm // hack for elim
+enum Hs:
+  case Lam(f:Hs => Hs)
+  case App(a:Hs, b:Hs)
+  case Res(a:Object) // hack for fold
 
-def elim[T](a:HTm, app : (T,T) => T, lam : (T => T) => T) : T =
+def fold[T](a:Hs, app : (T,T) => T, lam : (T => T) => T) : T =
   a match {
-    case ResH(x) => x.asInstanceOf[T]
-    case LamH(f) => lam(t => elim(f(ResH(t.asInstanceOf[Object])), app, lam))
-    case AppH(a,b) => app(elim(a, app, lam), elim(b, app, lam))
+    case Hs.Res(x) => x.asInstanceOf[T]
+    case Hs.Lam(f) => lam(t => fold(f(Hs.Res(t.asInstanceOf[Object])), app, lam))
+    case Hs.App(a,b) => app(fold(a, app, lam), fold(b, app, lam))
   }
 
 
-// Conversion from Tm to HTm
+// Conversion from Tm to Hs
 
-def eval(env:Map[String,HTm], a:Tm):HTm =
+def eval(env:Map[String,Hs], a:Tm):Hs =
   a match {
-    case Var(x) => env(x)
-    case Lam(x, a) => LamH(v => eval(env + (x -> v), a))
-    case App(a,b) => AppH(eval(env,a),eval(env,b))
+    case Tm.Var(x) => env(x)
+    case Tm.Lam(x, a) => Hs.Lam(v => eval(env + (x -> v), a))
+    case Tm.App(a,b) => Hs.App(eval(env,a),eval(env,b))
   }
 
-def toHTm(a:Tm):HTm = eval(Map(),a)
+def toHs(a:Tm):Hs = eval(Map(),a)
 
 
-// Conversion from HTm to Tm
+// Conversion from Hs to T
 
 var n = 0
 def fresh() = { n += 1; s"x$n" }
 
-def lamFresh(f : Tm => Tm):Tm = { val x = fresh(); Lam(x, f(Var(x))) }
+def freshLam(f : Tm => Tm):Tm = { val x = fresh(); Tm.Lam(x, f(Tm.Var(x))) }
 
-def toTm(a:HTm):Tm = elim[Tm](a, App, lamFresh)
-
+def toT(a:Hs):Tm = fold[Tm](a, Tm.App, freshLam)
 
 
 // Types
-class Ty
-case class Base(name:String) extends Ty
-case class Arrow(a:Ty, b:Ty) extends Ty
+enum Ty:
+  case Base(name:String)
+  case Arrow(a:Ty, b:Ty)
 
 // Semantic domain
-class Sem
-case class Syn(a:HTm) extends Sem // syntactic values
-case class LamS(f:Sem => Sem) extends Sem
+enum Sem:
+  case Syn(a:Hs) // Sem_Base = Sem.Syntactic terms Hs
+  case Lam(f:Sem => Sem) // Sem_{A -> B} = Sem_A -> Sem_B
 
-
-// Creates η expanded term
-def reflect(t:Ty, x:HTm):Sem =
+// reflect η expands
+// reflect : Hs_t -> Sem_t
+def reflect(t:Ty, x:Hs):Sem =
   t match {
-    case Arrow(a,b) => LamS(y => reflect(b, AppH(x, reify(a,y))))
-    case Base(_) => Syn(x)
+    case Ty.Arrow(a,b) => Sem.Lam(y => reflect(b, Hs.App(x, reify(a,y))))
+    case Ty.Base(_) => Sem.Syn(x)
   }
 
-// Convert Sem -> HTm
-def reify(t:Ty, x:Sem):HTm =
+// reify : Sem_t -> Hs_t
+def reify(t:Ty, x:Sem):Hs =
   (t,x) match {
-    case (Arrow(a,b),LamS(f)) => LamH(y => reify(b, f(reflect(a, y))))
-    case (Base(_), Syn(y)) => y
+    case (Ty.Arrow(a,b),Sem.Lam(f)) => Hs.Lam(y => reify(b, f(reflect(a, y))))
+    case (Ty.Base(_), Sem.Syn(y)) => y
   }
 
 
 // Smart constructor
+// appS : Sem_{A -> B} -> Sem_A -> Sem_B
 def appS(a:Sem, b:Sem):Sem =
   a match {
-    case LamS(f) => f(b)
+    case Sem.Lam(f) => f(b)
     // Types guarantee that we don't need any other case!
   }
 
-// Convert HTm -> Sem
-def meaning(x:HTm):Sem = elim[Sem](x, appS, LamS)
+// meaning : Hs_t -> Sem_t
+def meaning(x:Hs):Sem = fold[Sem](x, appS, Sem.Lam)
 
 // HOAS -> HOAS NbE
-def nbe(t:Ty, e:HTm) = reify(t, meaning(e))
+// nbe : Hs_t -> Hs_t
+def nbe(t:Ty, e:Hs) = reify(t, meaning(e))
 
-// Tm -> Tm NbE
-def nbeTm(t:Ty, e:Tm) = toTm(nbe(t,toHTm(e)))
+// nbeT : Tm_t -> Tm_t
+def nbeT(t:Ty, e:Tm) = toT(nbe(t,toHs(e)))
 
 
 // SKK example from wikipedia
 
-val k = LamH(x => LamH(y => x))
-val s = LamH(x => LamH(y => LamH(z => AppH(AppH(x,z), AppH(y,z)))))
-val skk = AppH(AppH(s,k),k)
+val k = Hs.Lam(x => Hs.Lam(y => x))
+val s = Hs.Lam(x => Hs.Lam(y => Hs.Lam(z => Hs.App(Hs.App(x,z), Hs.App(y,z)))))
+val skk = Hs.App(Hs.App(s,k),k)
 
-toTm(skk)
+toT(skk)
 
-val tab = Arrow(Base("a"),Base("b"))
+val ta = Ty.Arrow(Ty.Base("a"),Ty.Base("a"))
 
-toTm(nbe(tab, skk))
+toT(nbe(ta, skk))
 
-val tabab = Arrow(tab, tab)
+val taa = Ty.Arrow(ta, ta)
 
-toTm(nbe(tabab, skk))
+toT(nbe(taa, skk))

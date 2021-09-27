@@ -48,4 +48,12 @@ F.~Pfenning and C.~Elliott.
 \newblock \href {https://doi.org/10.1145/960116.54010}
   {\path{doi:10.1145/960116.54010}}.
 
+\bibitem[WW03]{BoxesGoBananas2003}
+Geoffrey Washburn and Stephanie Weirich.
+\newblock Boxes go bananas: Encoding higher-order abstract syntax with
+  parametric polymorphism.
+\newblock 38(9):249–262, August 2003.
+\newblock \href {https://doi.org/10.1145/944746.944728}
+  {\path{doi:10.1145/944746.944728}}.
+
 \end{thebibliography}

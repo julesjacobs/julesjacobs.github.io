@@ -471,7 +471,7 @@ def tmToSem(a:Tm):Sem = eval(Map(),a)
 In order to convert from \id{Sem} to \id{Tm}, we have to extend the \id{Sem} data type with one additional constructor, that injects \id{Tm} terms into the \id{Sem} data type:\footnote{
   It is ugly to have to extend the \id{Sem} type with a new constructor \id{case class TS(a:T) extends Sem} every time we want to write a function \id{Sem} $\to$ \id{T} for a new type \id{T}.
   What we \emph{really} want here is a \emph{polymorphic} elimination function \id{elim(app,lam)} that takes \id{app} : \id{T} $\times$ \id{T} $\to$ \id{T} and \id{lam} : (\id{T} $\to$ \id{T}) $\to$ \id{T} and gives \id{elim(app,lam)} : \id{Sem} $\to$ \id{T}.
-  But I'll take the path of least resistance here.
+  But I'll take the path of least resistance here. See \cite{BoxesGoBananas2003} for the non-hacky approach.
 }
 
 \begin{lstlisting}
