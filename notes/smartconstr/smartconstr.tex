@@ -18,9 +18,8 @@
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The key idea is that the smart term constructors always create normal forms by
-  performing an applicable rewrite rule before returning the term that they construct.
-  By constructing the rewritten term using smart constructors, we get a mutually recursive set of functions that rewrite to normal form.
+  The key idea is that the smart term constructors first check if a rewrite rule applies to the term they are about to construct, and if so they construct the right hand side of the rewrite rule instead.
+  By constructing that new term using the smart constructors, we get a mutually recursive set of functions that rewrite to normal form.
   If we have rewrite rules that do substitution, then the substitution function must also construct its new term using the smart constructors, which makes it part of the mutual recursion.
 
   The formulation of normalization by evaluation in this note is slightly simpler than some conventional presentations,
@@ -125,7 +124,7 @@ def seq(a:Re, b:Re):Re =
   }
 \end{lstlisting}
 
-We check if any of the equations for $(\cdot)$ match, and if so we return the right hand side. Whenever we construct a new node after a rewrite, we \emph{have to use the smart constructors}. That guarantees that the returned value is in normal form. If no equation matches (last case), we can use the ordinary constructor \lstinline|Seq|.
+We check if any of the rewrite rules for $(\cdot)$ match, and if so we construct the right hand side of the rewrite rule instead. Importantly, we \emph{have to use the smart constructors to construct the right hand side}. That guarantees that the returned value is in normal form. If no equation matches (last case), we can use the ordinary constructor \lstinline|Seq|, because then we know that the it already is in normal form.
 
 Here are the smart constructors \lstinline|alt| and \lstinline|star|:
 
