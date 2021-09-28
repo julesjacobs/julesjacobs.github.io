@@ -18,8 +18,8 @@
     \text{Hereditary substitution} &= \text{smart constructors} + \text{AST substitution} \\
     \text{Normalization by evaluation} &= \text{smart constructors} + \text{HOAS substitution}
   \end{align*}
-  The key idea is that the smart constructors always create normal forms by first
-  performing applicable rewrite rules to the new term that we want to construct.
+  The key idea is that the smart term constructors always create normal forms by
+  performing an applicable rewrite rule before returning the term that they construct.
   By constructing the rewritten term using smart constructors, we get a mutually recursive set of functions that rewrite to normal form.
   If we have rewrite rules that do substitution, then the substitution function must also construct its new term using the smart constructors, which makes it part of the mutual recursion.
 
