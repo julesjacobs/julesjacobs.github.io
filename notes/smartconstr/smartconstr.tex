@@ -420,7 +420,7 @@ def subst0(e:Db, v:Db):Db = subst(e, shift(v,Db.Var))
 \section{Untyped normalization by evaluation}
 
 A more funky representation for lambda terms is \emph{higher order abstract syntax} (HOAS) \cite{pfenning88}.
-We represent lambda nodes \emph{as its substitution function}: the lambda term $\lambda x. e$ gets represented as a Scala function that does $f(v) = e[x \mapsto v]$.
+We represent a lambda abstraction \emph{as its substitution function}: the lambda term $\lambda x. e$ gets represented as a Scala function that does $f(v) = e[x \mapsto v]$.
 The return value is another lambda term, that is again represented in this HOAS representation.
 We call the data type for lambda terms in this representation \id{Hs}:
 
