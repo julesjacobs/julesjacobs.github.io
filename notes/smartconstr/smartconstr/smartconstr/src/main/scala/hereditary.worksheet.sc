@@ -40,7 +40,7 @@ def subst1(a:Db, b:Db):Db = subst(a, shift(b,Db.Var))
 
 def app(a:Db, b:Db):Db =
   a match {
-    case Db.Lam(e) => subst1(e, b)
+    case Db.Lam(e) => hsubst1(e, b)
     case _ => Db.App(a,b)
   }
 
@@ -59,3 +59,7 @@ def norm(a:Db):Db =
     case Db.Lam(a) => Db.Lam(norm(a))
     case Db.App(a,b) => app(norm(a),norm(b))
   }
+
+val e1 = Db.Lam(Db.Lam(Db.App(Db.Var(1),Db.Var(0))))
+val e2 = Db.App(e1,e1)
+norm(e2)
