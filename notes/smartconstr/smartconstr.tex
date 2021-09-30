@@ -346,7 +346,7 @@ def subst(a:Db, f:Int => Db):Db =
   a match {
     case Db.Var(n) => f(n)
     case Db.Lam(a) => Db.Lam(subst(a,liftS(f))) // we will get to the liftS function later
-    case Db.App(a,b) => Db.App(subst(a,f),subst(b,f))
+    case Db.App(a,b) => app(subst(a,f),subst(b,f))
   }
 \end{lstlisting}\end{minipage}
 
@@ -573,7 +573,11 @@ I would highly recommend checking out that paper.
 
 \section{Typed normalization by evaluation}
 
-Type directed normalization by evaluation can be used to put values in $\eta$ expanded form.
+Type directed normalization by evaluation can be used to put values in $\eta$ expanded form.\footnote{
+  The relevance of $\eta$ expansion appears to be primarily theoretical.
+  In practice we usually only need to decide $\eta$ \emph{equivalence} of two lambda terms, for instance when implementing a type checker for dependent type theory.
+  Deciding $\eta$ equivalence can be done on \emph{untyped} terms by recursion on the term, and $\eta$ expanding lazily if one side is a lambda and the other side is not.
+}
 In $\eta$ expanded form we are only allowed to use non-lambda terms $f : A \to B$ of function type as the first argument of $\ap$.
 To use $f$ in any other place we must instead write $f \equiv \lambda x. \ap(f,x)$.
 We need type information because the types determine how much we $\eta$ expand:
