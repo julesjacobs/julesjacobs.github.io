@@ -577,7 +577,8 @@ Type directed normalization by evaluation can be used to put values in $\eta$ ex
   The relevance of $\eta$ expansion appears to be primarily theoretical.
   In practice we usually only need to decide $\eta$ \emph{equivalence} of two lambda terms, for instance when implementing a type checker for dependent type theory.
   Deciding $\eta$ equivalence can be done on \emph{untyped} terms by recursion on the term, and $\eta$ expanding lazily if one side is a lambda and the other side is not.
-  For $\eta$ equivalence of other types (e.g., the unit type), one does seem to need type information anyway.
+  A similar trick works for non-empty products / records.
+  For $\eta$ equivalence of some other types (e.g., the unit type), one does seem to need type information anyway.
 }
 In $\eta$ expanded form we are only allowed to use non-lambda terms $f : A \to B$ of function type as the first argument of $\ap$.
 To use $f$ in any other place we must instead write $f \equiv \lambda x. \ap(f,x)$.
