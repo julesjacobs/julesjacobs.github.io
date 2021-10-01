@@ -150,6 +150,37 @@
       cursor: pointer;
     }
 
+    #notes .authors {
+      display: none;
+    }
+
+    #notes .info {
+      display: inline;
+    }
+
+    #notes tr td:first-child {
+      width: 6em;
+    }
+
+    #talks .info {
+      display: inline;
+      border-left: 1px solid black;
+      margin-left: 5px;
+      padding-left: 5px;
+    }
+
+    #talks tr td:first-child {
+      width: 7em;
+    }
+
+    #talks td {
+      vertical-align: top;
+    }
+
+    #talks .slides {
+      display: none;
+    }
+
     .info .button:first-of-type {
       margin-left: 10px;
     }
@@ -272,10 +303,10 @@
     </tr>
   </table>
 
-  <h2>Drafts &amp; Notes</h2>
+  <h2>Notes</h2>
   I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an email :)
   <p>
-  <table class="pub">
+  <table class="pub" id="notes">
     <tr>
       <td>Sep. 2021</td>
       <td>
@@ -284,7 +315,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/smartconstr/smartconstr.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -296,7 +326,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/quantum/quantum.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -308,7 +337,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/permutationsign/permutationsign.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -320,7 +348,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/infresampling/infresampling.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -332,23 +359,9 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/satpre/bce.pdf">pdf</a>
       </div>
       </td>
     </tr>
-    <!-- <tr>
-      <td>May. 2021</td>
-      <td>
-      <a class="title" href="notes/deadlocks/deadlocks.pdf">
-        Mechanized deadlock freedom for session types
-      </a>
-      <div class="info">
-        <div class="authors">Jules Jacobs, Stephanie Balzer, Robbert Krebbers</div>
-        <a class="button" href="notes/deadlocks/deadlocks.pdf">pdf</a>
-        <a class="button" href="https://github.com/julesjacobs/diris">code</a>
-      </div>
-      </td>
-    </tr> -->
     <tr>
       <td>Apr. 2021</td>
       <td>
@@ -357,7 +370,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/nfa/nfa.pdf">pdf</a>
         <a class="button" href="notes/nfa/nfa.sc">code</a>
       </div>
       </td>
@@ -370,7 +382,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/patternmatching/patternmatching.pdf">pdf</a>
         <a class="button" href="notes/patternmatching/pmatch.sc">code</a>
       </div>
       </td>
@@ -383,7 +394,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/churchnatarith/churchnatarith.pdf">pdf</a>
         <a class="button" href="notes/churchnatarith/churchnatarith.v">code</a>
       </div>
       </td>
@@ -396,7 +406,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf">pdf</a>
         <a class="button" href="notes/classicalvsintuitionistic/test.v">code</a>
       </div>
       </td>
@@ -409,7 +418,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/inductiononderivations/inductiononderivations.pdf">pdf</a>
         <a class="button" href="notes/inductiononderivations/iod.v">code</a>
       </div>
       </td>
@@ -422,7 +430,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/tait/tait.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -435,7 +442,6 @@
       </a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/kirchoff/kirchoff.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -446,7 +452,6 @@
         <small><i>An alternative way to handle evaluation contexts in proof assistants like Coq</small></i></a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/functionalctxs/functionalctxs.pdf">pdf</a>
         <a class="button" href="notes/functionalctxs/functionalctxs.v">code</a>
       </div>
       </td>
@@ -457,7 +462,6 @@
       <a class="title" href="notes/sortingreals/sortingreals.pdf">Sorting Real Numbers, Constructively</a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/sortingreals/sortingreals.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -467,7 +471,6 @@
       <a class="title" href="notes/binarysearch/binarysearch.pdf">Binary Search a Little Simpler &amp; More Generic</a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="notes/binarysearch/binarysearch.pdf">pdf</a>
       </div>
       </td>
     </tr>
@@ -477,7 +480,6 @@
       <a class="title" href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a>
       <div class="info">
         <div class="authors">Jules Jacobs</div>
-        <a class="button" href="pdf/sympoly.pdf">pdf</a>
         <a class="button" href="code/sympoly.jl">code</a>
       </div>
       </td>
@@ -485,15 +487,14 @@
   </table>
 
   <h2>Talks</h2>
-  <table class="pub">
+  <table class="pub" id="talks">
     <tr>
       <td>19 July 2021</td>
       <td>
-        <a class="title" href="slides/veriprop2021.pdf">Pardoxes of Probabilistic Programming<br>
+        <a class="title" href="slides/veriprop2021.pdf">Pardoxes of Probabilistic Programming
         <small><i>(and deleted scenes)</i></small></a>
         <div class="info">
           VeriProP'21
-          <a class="button" href="slides/veriprop2021.pdf">slides</a>
         </div>
       </td>
     </tr>
@@ -503,7 +504,6 @@
         <a class="title" href="slides/vest2021.pdf">Mechanized Deadlock Fredom for Session Types</a>
         <div class="info">
           VEST'21
-          <a class="button" href="slides/vest2021.pdf">slides</a>
         </div>
       </td>
     </tr>
@@ -513,47 +513,42 @@
         <a class="title" href="slides/deadlocks_ru.pdf">Deadlock Freedom for Session Types Using Separation Logic</a>
         <div class="info">
           SWS Seminar
-          <a class="button" href="slides/deadlocks_ru.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>22 Jan 2021</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
+        <a class="title paradoxes" href="slides/measurezero.pdf">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           POPL'21
-          <a class="button" href="slides/measurezero.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>25 Nov. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
+        <a class="title paradoxes" href="slides/measurezero_delft.pdf">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           PL Seminar, TU Delft
-          <a class="button" href="slides/measurezero_delft.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>23 Nov. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
+        <a class="title paradoxes" href="slides/measurezero_ucl.pdf">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           PPLV, University College London
-          <a class="button" href="slides/measurezero_ucl.pdf">slides</a>
         </div>
       </td>
     </tr>
     <tr>
       <td>28 Oct. 2020</td>
       <td>
-        <a class="title paradoxes" href="#paradoxes">Paradoxes of Probabilistic Programming</a>
+        <a class="title paradoxes" href="slides/measurezero.pdf">Paradoxes of Probabilistic Programming</a>
         <div class="info">
           SWS Seminar, Radboud University
-          <a class="button" href="slides/measurezero.pdf">slides</a>
         </div>
       </td>
     </tr>
@@ -561,6 +556,24 @@
 
   <h2>Teaching</h2>
   <table class="pub">
+    <tr>
+      <td>2021</td>
+      <td>
+        Assisting with the Type Theory course at RU.
+      </td>
+    </tr>
+    <tr>
+      <td>2021</td>
+      <td>
+        Assisting with the MFOCS seminar at RU.
+      </td>
+    </tr>
+    <tr>
+      <td>2020</td>
+      <td>
+        Assisting with the Type Theory course at RU.
+      </td>
+    </tr>
     <tr>
       <td>2020</td>
       <td>
@@ -577,6 +590,7 @@
 
   <h2>Academic Service</h2>
   <table class="pub">
+    <tr><td>2021</td><td>VCA for Behavioural Types: Bridging Theory and Practice</tr>
     <tr><td>2020</td><td>Reviewer for ESOP'21.</td></tr>
     <tr><td>2020</td><td>Reviewer for ICFP'20.</td></tr>
   </table>
