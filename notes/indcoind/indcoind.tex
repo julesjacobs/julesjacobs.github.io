@@ -1,0 +1,33 @@
+\input{ppreamble}
+\newcommand{\id}[1]{\lstinline\|#1\|}
+
+\title{On the relationship between coinductively defined $R$ and inductively defined $\not R$}
+\author{\large{Jules Jacobs}}
+\date{\normalsize	\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  In this note we show that if a set $R$ has been coinductively defined, then the complement $\not R$ can be defined inductively and vice versa.
+  That is, from coinductive rules for $R$ we can mechanically derive inductive rules for $\not R$ and vice versa.
+  In the case when $R$ is coinductively defined bisimulation, we get the inductive rules for apartness.
+\end{abstract}
+
+\section{Introduction}
+
+\newcommand{\lfp}{\mathsf{lfp}}
+\newcommand{\gfp}{\mathsf{gfp}}
+
+\begin{align*}
+  R \text{ inductively defined} & \iff R \triangleq \lfp(F) \\
+  R \text{ coinductively defined} & \iff R \triangleq \gfp(G)
+\end{align*}
+
+\cite{owens_reppy_turon_2009}
+
+
+\bibliographystyle{alphaurl}
+\bibliography{references}
+
+\end{document}

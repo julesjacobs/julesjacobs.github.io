@@ -128,3 +128,30 @@ Proof.
     + destruct H1. do_ctx_step (λ x, App x e2).
   - left. constructor.
 Qed.
+
+From Coq.Logic Require Import FunctionalExtensionality.
+
+Lemma ctx1_not_val e k :
+  ctx1 k -> value (k e) -> False.
+Proof.
+  intros [] Hv; inversion Hv.
+Qed.
+
+Lemma ctx_val e k :
+  ctx k -> value (k e) -> k = id.
+Proof.
+  intros Hk Hv.
+  induction Hk.
+  - by apply functional_extensionality.
+  - exfalso. by eapply ctx1_not_val.
+Qed.
+
+
+Lemma val_no_step e e' :
+  value e → ¬ step e e'.
+Proof.
+  intros Hv Hs.
+  destruct Hs.
+  assert (k = id) as -> by eauto using ctx_val.
+  destruct H0; inversion Hv.
+Qed.
