@@ -1,0 +1,259 @@
+
+\def\fileversion{v0.3.1}
+\def\filedate{2021/07/12}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{eulerpx}[\filedate\space\fileversion]
+\typeout{Package: `eulerpx' \fileversion\space<\filedate>}
+
+% Inherit custom integral definitions from `amsmath'
+\RequirePackage{amsmath}
+
+% Inherit math symbols from the `newpxmath' package
+\RequirePackage{newpxmath}
+
+% Declare Euler Roman as symbol font
+\DeclareSymbolFont{EulerRoman}{U}{zeur}{m}{n}
+\SetSymbolFont{EulerRoman}{bold}{U}{zeur}{b}{n}
+\DeclareSymbolFontAlphabet{\mathnormal}{EulerRoman}
+
+% Declare Euler math alphabets
+% Euler Script
+\let\mathscr=\undefined
+\DeclareMathAlphabet\mathscr{U}{zeus}{m}{n}
+\SetMathAlphabet\mathscr{bold}{U}{zeus}{b}{n}
+
+% Euler Fraktur
+\DeclareMathAlphabet\mathfrak{U}{euf}{m}{n}
+\SetMathAlphabet\mathfrak{bold}{U}{euf}{b}{n}
+
+% Upper-case Greek letters
+\DeclareMathSymbol{\Gamma}{\mathalpha}{EulerRoman}{0}
+\DeclareMathSymbol{\Delta}{\mathalpha}{EulerRoman}{1}
+\DeclareMathSymbol{\Theta}{\mathalpha}{EulerRoman}{2}
+\DeclareMathSymbol{\Lambda}{\mathalpha}{EulerRoman}{3}
+\DeclareMathSymbol{\Xi}{\mathalpha}{EulerRoman}{4}
+\DeclareMathSymbol{\Pi}{\mathalpha}{EulerRoman}{5}
+\DeclareMathSymbol{\Sigma}{\mathalpha}{EulerRoman}{6}
+\DeclareMathSymbol{\Upsilon}{\mathalpha}{EulerRoman}{7}
+\DeclareMathSymbol{\Phi}{\mathalpha}{EulerRoman}{8}
+\DeclareMathSymbol{\Psi}{\mathalpha}{EulerRoman}{9}
+\DeclareMathSymbol{\Omega}{\mathalpha}{EulerRoman}{10}
+
+% Lower-case Greek letters
+\DeclareMathSymbol{\alpha}{\mathord}{EulerRoman}{11}
+\DeclareMathSymbol{\beta}{\mathord}{EulerRoman}{12}
+\DeclareMathSymbol{\gamma}{\mathord}{EulerRoman}{13}
+\DeclareMathSymbol{\delta}{\mathord}{EulerRoman}{14}
+\DeclareMathSymbol{\epsilon}{\mathord}{EulerRoman}{15}
+\DeclareMathSymbol{\zeta}{\mathord}{EulerRoman}{16}
+\DeclareMathSymbol{\eta}{\mathord}{EulerRoman}{17}
+\DeclareMathSymbol{\theta}{\mathord}{EulerRoman}{18}
+\DeclareMathSymbol{\iota}{\mathord}{EulerRoman}{19}
+\DeclareMathSymbol{\kappa}{\mathord}{EulerRoman}{20}
+\DeclareMathSymbol{\lambda}{\mathord}{EulerRoman}{21}
+\DeclareMathSymbol{\mu}{\mathord}{EulerRoman}{22}
+\DeclareMathSymbol{\nu}{\mathord}{EulerRoman}{23}
+\DeclareMathSymbol{\xi}{\mathord}{EulerRoman}{24}
+\DeclareMathSymbol{\pi}{\mathord}{EulerRoman}{25}
+\DeclareMathSymbol{\rho}{\mathord}{EulerRoman}{26}
+\DeclareMathSymbol{\sigma}{\mathord}{EulerRoman}{27}
+\DeclareMathSymbol{\tau}{\mathord}{EulerRoman}{28}
+\DeclareMathSymbol{\upsilon}{\mathord}{EulerRoman}{29}
+\DeclareMathSymbol{\phi}{\mathord}{EulerRoman}{30}
+\DeclareMathSymbol{\chi}{\mathord}{EulerRoman}{31}
+\DeclareMathSymbol{\psi}{\mathord}{EulerRoman}{32}
+\DeclareMathSymbol{\omega}{\mathord}{EulerRoman}{33}
+\DeclareMathSymbol{\varepsilon}{\mathord}{EulerRoman}{34}
+\DeclareMathSymbol{\vartheta}{\mathord}{EulerRoman}{35}
+\DeclareMathSymbol{\varpi}{\mathord}{EulerRoman}{36}
+\let\varsigma=\sigma
+\let\varrho=\rho
+\DeclareMathSymbol{\varphi}{\mathord}{EulerRoman}{39}
+
+%% Arabic (lining) numerals
+\DeclareMathSymbol{0}{\mathalpha}{EulerRoman}{48}
+\DeclareMathSymbol{1}{\mathalpha}{EulerRoman}{49}
+\DeclareMathSymbol{2}{\mathalpha}{EulerRoman}{50}
+\DeclareMathSymbol{3}{\mathalpha}{EulerRoman}{51}
+\DeclareMathSymbol{4}{\mathalpha}{EulerRoman}{52}
+\DeclareMathSymbol{5}{\mathalpha}{EulerRoman}{53}
+\DeclareMathSymbol{6}{\mathalpha}{EulerRoman}{54}
+\DeclareMathSymbol{7}{\mathalpha}{EulerRoman}{55}
+\DeclareMathSymbol{8}{\mathalpha}{EulerRoman}{56}
+\DeclareMathSymbol{9}{\mathalpha}{EulerRoman}{57}
+%
+%\DeclareMathSymbol{.}{\mathord}{EulerRoman}{58}
+%\DeclareMathSymbol{,}{\mathpunct}{EulerRoman}{59}
+
+\DeclareMathSymbol{\partial}{\mathord}{EulerRoman}{64}
+
+% Upper-case Roman letters
+\DeclareMathSymbol{A}{\mathalpha}{EulerRoman}{65}
+\DeclareMathSymbol{B}{\mathalpha}{EulerRoman}{66}
+\DeclareMathSymbol{C}{\mathalpha}{EulerRoman}{67}
+\DeclareMathSymbol{D}{\mathalpha}{EulerRoman}{68}
+\DeclareMathSymbol{E}{\mathalpha}{EulerRoman}{69}
+\DeclareMathSymbol{F}{\mathalpha}{EulerRoman}{70}
+\DeclareMathSymbol{G}{\mathalpha}{EulerRoman}{71}
+\DeclareMathSymbol{H}{\mathalpha}{EulerRoman}{72}
+\DeclareMathSymbol{I}{\mathalpha}{EulerRoman}{73}
+\DeclareMathSymbol{J}{\mathalpha}{EulerRoman}{74}
+\DeclareMathSymbol{K}{\mathalpha}{EulerRoman}{75}
+\DeclareMathSymbol{L}{\mathalpha}{EulerRoman}{76}
+\DeclareMathSymbol{M}{\mathalpha}{EulerRoman}{77}
+\DeclareMathSymbol{N}{\mathalpha}{EulerRoman}{78}
+\DeclareMathSymbol{O}{\mathalpha}{EulerRoman}{79}
+\DeclareMathSymbol{P}{\mathalpha}{EulerRoman}{80}
+\DeclareMathSymbol{Q}{\mathalpha}{EulerRoman}{81}
+\DeclareMathSymbol{R}{\mathalpha}{EulerRoman}{82}
+\DeclareMathSymbol{S}{\mathalpha}{EulerRoman}{83}
+\DeclareMathSymbol{T}{\mathalpha}{EulerRoman}{84}
+\DeclareMathSymbol{U}{\mathalpha}{EulerRoman}{85}
+\DeclareMathSymbol{V}{\mathalpha}{EulerRoman}{86}
+\DeclareMathSymbol{W}{\mathalpha}{EulerRoman}{87}
+\DeclareMathSymbol{X}{\mathalpha}{EulerRoman}{88}
+\DeclareMathSymbol{Y}{\mathalpha}{EulerRoman}{89}
+\DeclareMathSymbol{Z}{\mathalpha}{EulerRoman}{90}
+
+\DeclareMathSymbol{\ell}{\mathord}{EulerRoman}{96}
+
+% Lower-case Roman letters
+\DeclareMathSymbol{a}{\mathalpha}{EulerRoman}{97}
+\DeclareMathSymbol{b}{\mathalpha}{EulerRoman}{98}
+\DeclareMathSymbol{c}{\mathalpha}{EulerRoman}{99}
+\DeclareMathSymbol{d}{\mathalpha}{EulerRoman}{100}
+\DeclareMathSymbol{e}{\mathalpha}{EulerRoman}{101}
+\DeclareMathSymbol{f}{\mathalpha}{EulerRoman}{102}
+\DeclareMathSymbol{g}{\mathalpha}{EulerRoman}{103}
+\DeclareMathSymbol{h}{\mathalpha}{EulerRoman}{104}
+\DeclareMathSymbol{i}{\mathalpha}{EulerRoman}{105}
+\DeclareMathSymbol{j}{\mathalpha}{EulerRoman}{106}
+\DeclareMathSymbol{k}{\mathalpha}{EulerRoman}{107}
+\DeclareMathSymbol{l}{\mathalpha}{EulerRoman}{108}
+\DeclareMathSymbol{m}{\mathalpha}{EulerRoman}{109}
+\DeclareMathSymbol{n}{\mathalpha}{EulerRoman}{110}
+\DeclareMathSymbol{o}{\mathalpha}{EulerRoman}{111}
+\DeclareMathSymbol{p}{\mathalpha}{EulerRoman}{112}
+\DeclareMathSymbol{q}{\mathalpha}{EulerRoman}{113}
+\DeclareMathSymbol{r}{\mathalpha}{EulerRoman}{114}
+\DeclareMathSymbol{s}{\mathalpha}{EulerRoman}{115}
+\DeclareMathSymbol{t}{\mathalpha}{EulerRoman}{116}
+\DeclareMathSymbol{u}{\mathalpha}{EulerRoman}{117}
+\DeclareMathSymbol{v}{\mathalpha}{EulerRoman}{118}
+\DeclareMathSymbol{w}{\mathalpha}{EulerRoman}{119}
+\DeclareMathSymbol{x}{\mathalpha}{EulerRoman}{120}
+\DeclareMathSymbol{y}{\mathalpha}{EulerRoman}{121}
+\DeclareMathSymbol{z}{\mathalpha}{EulerRoman}{122}
+
+\DeclareMathSymbol{\imath}{\mathord}{EulerRoman}{123}
+\DeclareMathSymbol{\jmath}{\mathord}{EulerRoman}{124}
+\DeclareMathSymbol{\wp}{\mathord}{EulerRoman}{125}
+
+\DeclareMathSymbol{\hslash}{\mathord}{EulerRoman}{128}
+\let\hbar=\hslash
+
+% Renew the definition of #1 to #3, only if #3 exists,
+% and store the old definition of #1 in #2
+\def\epx@renewifdefined#1#2#3{%
+  \ifdefined#3%
+    \let#2=#1%
+    \let#1=#3%
+  \fi%
+}
+
+% Change geq, leq and their shorthands/negations to slanted versions
+\epx@renewifdefined{\geq}{\geqnormal}{\geqslant}
+\let\ge=\geq
+\epx@renewifdefined{\leq}{\leqnormal}{\leqslant}
+\let\le=\leq
+\epx@renewifdefined{\ngeq}{\ngeqnormal}{\ngeqslant}
+\epx@renewifdefined{\nleq}{\nleqnormal}{\nleqslant}
+
+% Upright integrals
+\epx@renewifdefined{\smallint}{\smallintsl}{\smallintup}
+\epx@renewifdefined{\smalliint}{\smalliintsl}{\smalliintup}
+\epx@renewifdefined{\smalliiint}{\smalliiintsl}{\smalliiintup}
+\epx@renewifdefined{\smalloint}{\smallointsl}{\smallointup}
+\epx@renewifdefined{\smalloiint}{\smalloiintsl}{\smalloiintup}
+\epx@renewifdefined{\smalloiiint}{\smalloiiintsl}{\smalloiiintup}
+\epx@renewifdefined{\smallvarointclockwise}{\smallvarointclockwisesl}{\smallvarointclockwiseup}
+\epx@renewifdefined{\smallointctrclockwise}{\smallointctrclockwisesl}{\smallointctrclockwiseup}
+\epx@renewifdefined{\smallsumint}{\smallsumintsl}{\smallsumintup}
+\epx@renewifdefined{\smalliiiint}{\smalliiiintsl}{\smalliiiintup}
+\epx@renewifdefined{\smallfint}{\smallfintsl}{\smallfintup}
+\epx@renewifdefined{\smallsqint}{\smallsqintsl}{\smallsqintup}
+
+\epx@renewifdefined{\intop}{\intslop}{\intupop}
+\epx@renewifdefined{\iintop}{\iintslop}{\iintupop}
+\epx@renewifdefined{\iiintop}{\iiintslop}{\iiintupop}
+\epx@renewifdefined{\ointop}{\ointslop}{\ointupop}
+\epx@renewifdefined{\oiintop}{\oiintslop}{\oiintupop}
+\epx@renewifdefined{\oiiintop}{\oiiintslop}{\oiiintupop}
+\epx@renewifdefined{\varointclockwiseop}{\varointclockwiseslop}{\varointclockwiseupop}
+\epx@renewifdefined{\ointctrclockwiseop}{\ointctrclockwiseslop}{\ointctrclockwiseupop}
+\epx@renewifdefined{\sumintop}{\sumintslop}{\sumintupop}
+\epx@renewifdefined{\iiiintop}{\iiiintslop}{\iiiintupop}
+\epx@renewifdefined{\fintop}{\fintslop}{\fintupop}
+\epx@renewifdefined{\sqintop}{\sqintslop}{\sqintupop}
+
+% Sans-serif maths
+\DeclareOption{sansmath}{
+  % Declare the math serif font
+  \DeclareMathVersion{normal}
+  \SetSymbolFont{operators}{normal}{T1}{\rmdefault}{m}{n}
+  \SetMathAlphabet{\mathrm}{normal}{T1}{\rmdefault}{m}{n}
+
+  % Declare the math sans font
+  \DeclareMathVersion{sans}
+  \SetSymbolFont{operators}{sans}{T1}{\sfdefault}{m}{n}
+  \SetMathAlphabet{\mathrm}{sans}{T1}{\sfdefault}{m}{n}
+
+  % Make the package toggle between sans/serif math automatically
+  \let\oldrmfamily=\rmfamily
+  \let\oldsffamily=\sffamily
+  \renewcommand{\rmfamily}{\oldrmfamily\mathversion{normal}}
+  \renewcommand{\sffamily}{\oldsffamily\mathversion{sans}}
+}
+
+% Unicode input
+\DeclareOption{utf8}{
+  \DeclareUnicodeCharacter{0393}{\Gamma}
+  \DeclareUnicodeCharacter{0394}{\Delta}
+  \DeclareUnicodeCharacter{0398}{\Theta}
+  \DeclareUnicodeCharacter{039B}{\Lambda}
+  \DeclareUnicodeCharacter{039E}{\Xi}
+  \DeclareUnicodeCharacter{03A0}{\Pi}
+  \DeclareUnicodeCharacter{03A3}{\Sigma}
+  \DeclareUnicodeCharacter{03A5}{\Upsilon}
+  \DeclareUnicodeCharacter{03A6}{\Phi}
+  \DeclareUnicodeCharacter{03A8}{\Psi}
+  \DeclareUnicodeCharacter{03A9}{\Omega}
+  \DeclareUnicodeCharacter{03B1}{\alpha}
+  \DeclareUnicodeCharacter{03B2}{\beta}
+  \DeclareUnicodeCharacter{03B3}{\gamma}
+  \DeclareUnicodeCharacter{03B4}{\delta}
+  \DeclareUnicodeCharacter{03B5}{\epsilon}
+  \DeclareUnicodeCharacter{03B6}{\zeta}
+  \DeclareUnicodeCharacter{03B7}{\eta}
+  \DeclareUnicodeCharacter{03B8}{\theta}
+  \DeclareUnicodeCharacter{03B9}{\iota}
+  \DeclareUnicodeCharacter{03BA}{\kappa}
+  \DeclareUnicodeCharacter{03BB}{\lambda}
+  \DeclareUnicodeCharacter{03BC}{\mu}
+  \DeclareUnicodeCharacter{03BD}{\nu}
+  \DeclareUnicodeCharacter{03BE}{\xi}
+  \DeclareUnicodeCharacter{03C0}{\pi}
+  \DeclareUnicodeCharacter{03C1}{\rho}
+  \DeclareUnicodeCharacter{03C2}{\sigma}
+  \DeclareUnicodeCharacter{03C3}{\sigma}
+  \DeclareUnicodeCharacter{03C4}{\tau}
+  \DeclareUnicodeCharacter{03C5}{\upsilon}
+  \DeclareUnicodeCharacter{03C6}{\varphi}
+  \DeclareUnicodeCharacter{03C7}{\chi}
+  \DeclareUnicodeCharacter{03C8}{\psi}
+  \DeclareUnicodeCharacter{03C9}{\omega}
+}
+
+\ProcessOptions\relax
+
+\endinput
