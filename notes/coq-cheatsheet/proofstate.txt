@@ -1,0 +1,8 @@
+P: nat -> Prop
+H: forall n : nat, (forall m : nat, m < n -> P m) -> P n
+n: nat
+IHn: forall m : nat, m < n -> P m
+m: nat
+Hm: m < S n
+----------------------------
+P m

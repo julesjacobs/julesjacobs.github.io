@@ -1,0 +1,235 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline~#1~}
+
+\title{Coq cheatsheet}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+
+This is Coq code that proves the strong induction principle for natural numbers:
+
+\lstinputlisting[language=Coq]{lemma.v}
+
+Coq proofs manipulate the \emph{proof state} by executing a sequence of \emph{tactics} such as \tac{intros}, \tac{eapply}, \tac{induction}.
+Coq calculates the proof state for you after executing each tactic.
+Here's what Coq displays after executing the second \lstinline|intros m Hm.|:
+
+\lstinputlisting[language=Coq]{proofstate.txt}
+
+The proof state consists of a list of variables and hypotheses above the line, and a goal below the line.
+A tactic may create $0$, $1$, $2$, or more subgoals. A goal is solved if we succesfully apply a tactic that creates no subgoals (such as the \tac{lia} tactic).
+Some tactics create multiple subgoals, such as the \tac{induction} tactic: it creates one subgoal for the base case of the induction, and one subgoal for the inductive case.\footnote{Coq allows us to do induction not only on natural numbers, but also on other data types. Induction on other data types may create any number of subgoals, one for each constructor of the data type.}
+We have to solve all the subgoals with a bulleted list of tactic scripts:
+\begin{lstlisting}
+  tac1.
+  + tac2.
+  + tac3.
+  + tac4.
+\end{lstlisting}
+Bullets can nested by using different bullets for different levels (\tac{-, +, *}):
+\begin{lstlisting}
+  tac1.
+  + tac2.
+     * tac3
+     * tac4.
+  + tac5.
+\end{lstlisting}
+We can also enter subgoals using brackets:
+\begin{lstlisting}
+  tac1.
+  { tac2. }
+  { tac3. }
+  tac4.
+  { tac5. }
+  tac6.
+\end{lstlisting}
+
+This is most useful for solving side conditions.
+With bullets, we get a deep level of nesting if we have a sequence of tactics with side conditions.
+With brackets, we do not need to enclose the last subgoal in brackets, thus preventing deep nesting.
+
+\section{Goal tactics}
+
+\begin{tabular}{c l}
+  Goal & Tactic \\ \midrule
+  $P \to Q$ & \tac{intros H} \\
+  $\neg P$ & \tac{intros H} \\
+  $\forall x, P(x)$ & \tac{intros x} \\
+  $\exists x, P(x)$ & \tac{exists x}, \tac{eexists} \\
+  $P \land Q$ & \tac{split} \\
+  $P \lor Q$ & \tac{left}, \tac{right} \\
+  $Q$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to Q$ is a lemma or hypothesis with conclusion $Q$) \\
+  $False$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to \neg P$ is a lemma or hypothesis with conclusion $\neg P$) \\
+  Any goal & \tac{exfalso} (turns any goal into $False$) \\
+  Skip goal & \tac{admit} (skips goal so that you can work on other subgoals)\\
+\end{tabular}
+
+\section{Hypothesis tactics}
+
+\begin{tabular}{c l}
+  Hypothesis & Tactic \\ \midrule
+  $H : False$ & \tac{destruct H} \\
+  $H : \exists x, P(x)$ & \tac{destruct H as [x H]} \\
+  $H : P \land Q$ & \tac{destruct H as [H1 H2]} \\
+  $H : P \lor Q$ & \tac{destruct H as [H1|H2]} \\
+  $H : \forall x, P(x)$ & \tac{specialize (H y)}\\
+  $H : P \to Q$ & \tac{specialize (H G)} (where $G : P$ is a lemma or hypothesis) \\
+  $H : P$ & \tac{apply G in H}, \tac{eapply G in H} (where $G : P \to (...)$ is a lemma or hypothesis) \\
+\end{tabular}
+
+\section{Equality, rewriting, and computation rules}
+\begin{tabular}{c l}
+  Tactic & Meaning \\ \midrule
+  \tac{reflexivity} & Solve goal of the form $x = x$ or $P \leftrightarrow P$ \\
+  \tac{symmetry} & Turn goal $x = y$ into $y = x$ (or $P \leftrightarrow Q$) \\
+  \tac{symmetry in H} & Turn hypothesis $H : x = y$ into $H : y = x$ (or $P \leftrightarrow Q$)\\ \midrule
+  \tac{unfold f} & Replace constant $f$ with its definition (only in the goal) \\
+  \tac{unfold f in H} & Replace constant $f$ with its definition (in hypothesis $H$) \\
+  \tac{unfold f in *} & Replace constant $f$ with its definition (everywhere) \\ \midrule
+  \tac{simpl} & Rewrite with computation rules (in the goal) \\
+  \tac{simpl in H} & Rewrite with computation rules (in hypothesis $H$) \\
+  \tac{simpl in *} & Rewrite with computation rules (everywhere) \\ \midrule
+  \tac{rewrite H.} & Rewrite \tac{H : x = y} (in the goal). \\
+  \tac{rewrite H in G.} & Rewrite \tac{H : x = y} (in hypothesis $G$). \\
+  \tac{rewrite H in *.} & Rewrite \tac{H1} (everywhere). \\ \midrule
+  \tac{rewrite <-H.} & Rewrite \tac{H : x = y} backwards. \\
+  \tac{rewrite H,G.} & Rewrite using \tac{H} and then \tac{G}. \\
+  \tac{rewrite !H.} & Repeatedly rewrite using \tac{H}. \\
+  \tac{rewrite ?H.} & Try rewriting using \tac{H}. \\ \midrule
+  \tac{subst} & Substitute away all equations \tac{H : x = A} with a variable on one side. \\
+  \tac{injection H as H} & Use injectivity of $C$ to turn $H : C\ x = C\ y$ into $H : x = y$. \\
+  \tac{discriminate H} & Solve goal with inconsistent assumption $H : C\ x = D\ y$. \\
+  \tac{simplify\_eq} & Automated tactic that does \tac{subst}, \tac{injection}, and \tac{discriminate} automatically.
+\end{tabular}
+
+\section{Inductive types and relations}
+
+Assume that $Foo$ is some inductive type or $Foo\ x\ y$ is an inductive relation.
+
+\begin{tabular}{c l}
+  Goal & Tactic \\ \midrule
+  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} (tries to solve goal using some constructor of $Foo$) \vspace{0.5cm} \\
+  Hypothesis & Tactic \\ \midrule
+  $H : Foo$ & \tac{destruct H as [a b|c d e|f]} \\
+  $H : Foo$ & \tac{induction H as [a b IH|c d e IH1 IH2|f IH]} \\ \midrule
+  $H : Foo\ x\ y$ & \tac{inversion H} (use when $x$,$y$ are fixed terms) \\
+  $H : Foo\ x\ y$ & \tac{induction H} (use when $x$,$y$ are variables)\\
+\end{tabular}
+
+It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
+
+The following tactics are useful to obtain the correct induction hypothesis:
+
+\begin{tabular}{c l}
+Hypothesis & Tactic \\ \midrule
+$H : P$ & \tac{revert H} (opposite of \tac{intros H}: turn goal $Q$ into $P \to Q$) \\
+$x : A$ & \tac{revert x} (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
+$H : P, x : A$ & \tac{clear H}, \tac{clear x} (remove hypothesis $H$ or variable $x$) \\
+\end{tabular}
+
+\section{Intro patterns}
+
+The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using \emph{intro patterns}. The intros tactic can be chained: \tac{intros x y z.} $\equiv$ \tac{intros x. intros y. intros z.}
+
+\begin{tabular}{c l}
+  Data & Pattern \\ \midrule
+  $\exists x, P$ & \tac{[x H]} \\
+  $P \land Q$ & \tac{[H1 H2]} \\
+  $P \lor Q$ & \tac{[H1|H2]} \\
+  $x = y$ & \tac{->} or \tac{<-} \\
+  Inductive type & \tac{[a b|c d e|f]}
+\end{tabular}
+
+Furthermore, \tac{(x \& y \& z \& ...)} is equivalent to \tac{[x [y [z ...]]]}.
+
+% and in combination \tac{eapply H1 in H2 as pat}.
+
+\section{Forward reasoning}
+
+\begin{tabular}{c l}
+  Tactic & Meaning \\ \midrule
+  \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
+  \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
+  % \tac{wlog} & ... \\
+\end{tabular}
+
+Intro patterns can be used in combination with the \tac{assert} tactic,
+e.g. \tac{assert (A = B) as ->} or \tac{assert (exists x, P) as [x H].}
+
+\section{Composing tactics}
+
+\begin{tabular}{c l}
+  Tactic & Meaning \\ \midrule
+  \tac{tac1; tac2} & Do \tac{tac2} on all subgoals created by \tac{tac1}. \\
+  \tac{tac1; [tac2|..]} & Do \tac{tac2} only on the first subgoal. \\
+  \tac{tac1; [..|tac2]} & Do \tac{tac2} only on the last subgoal. \\
+  \tac{tac1; [tac2|..|tac3|tac4]} & Do tactics on corresponding subgoals. \\
+  \tac{tac1; [tac2|tac3..|tac4]} & Do tactics on corresponding subgoals. \\
+  \tac{tac1 || tac2} & Try \tac{tac1} and if it fails do \tac{tac2}. \\
+  \tac{try tac1} & Try \tac{tac1}, and do nothing if it fails. \\
+  \tac{repeat tac1} & Repeatedly do \tac{tac1} until it fails. \\
+  \tac{progress tac1} & Do \tac{tac1} and fail if it does nothing. \\
+\end{tabular}
+
+\section{Automation with \texttt{eauto}}
+
+The \tac{eauto} tactic tries to solve goals using \tac{eapply}, \tac{reflexivity}, \tac{eexists}, \tac{split}, \tac{left}, \tac{right}.
+You can specify the search depth using \tac{eauto n} (the default is $n=5$).
+
+You can give \tac{eauto} additional lemmas to use with \tac{eauto using lemma1,lemma2}.
+You can also use \tac{eauto using foo} where \tac{foo} is an inductive type. This will use all the constructors of \tac{foo} as lemmas.
+
+\section{Common error messages}
+
+Please submit your errors to me so that I can add them to this section.
+
+You can also suggest additional content.
+
+\texttt{julesjacobs@gmail.com}
+
+% \section{Advanced}
+
+% \subsection{Hint databases}
+
+% TODO
+
+% \subsection{Type classes}
+
+% TODO
+
+% \subsection{Match goal}
+
+% TODO
+
+% \subsection{Useful higher level tactics}
+
+% From Coq itself:
+
+% \begin{itemize}
+%   \item \tac{lia}
+%   \item \tac{setoid\_rewrite}
+%   \item \tac{symmetry}, \tac{transitivity}, \tac{etransitivity}
+%   \item \tac{congruence}
+%   \item \tac{f\_equal}, \tac{f\_equiv}
+% \end{itemize}
+
+% From stdpp:
+
+% \begin{itemize}
+%   \item \tac{done}, \tac{by}
+%   \item \tac{simplify\_eq}
+%   \item \tac{naive\_solver}
+%   \item \tac{set\_solver}
+%   \item \tac{case\_decide}, \tac{case\_match}
+%   \item For more, see \url{https://plv.mpi-sws.org/coqdoc/stdpp/stdpp.tactics.html}
+% \end{itemize}
+
+% Another useful aspect of stdpp it that it defines hint databases for several tactics, so that you can use them with \tac{eauto}, e.g. \tac{eauto with lia}.
+
+\end{document}

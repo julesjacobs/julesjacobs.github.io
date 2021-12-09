@@ -1,0 +1,10 @@
+\contentsline {section}{\numberline {1}{Introduction}}{1}{section.1}%
+\contentsline {section}{\numberline {2}{Goal tactics}}{2}{section.2}%
+\contentsline {section}{\numberline {3}{Hypothesis tactics}}{3}{section.3}%
+\contentsline {section}{\numberline {4}{Equality, rewriting, and computation rules}}{3}{section.4}%
+\contentsline {section}{\numberline {5}{Inductive types and relations}}{3}{section.5}%
+\contentsline {section}{\numberline {6}{Intro patterns}}{4}{section.6}%
+\contentsline {section}{\numberline {7}{Forward reasoning}}{4}{section.7}%
+\contentsline {section}{\numberline {8}{Composing tactics}}{5}{section.8}%
+\contentsline {section}{\numberline {9}{Automation with \texttt {eauto}}}{5}{section.9}%
+\contentsline {section}{\numberline {10}{Common error messages}}{5}{section.10}%
