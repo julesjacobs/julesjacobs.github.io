@@ -59,7 +59,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 \begin{tabular}{c l}
   Goal & Tactic \\ \midrule
   $P \to Q$ & \tac{intros H} \\
-  $\neg P$ & \tac{intros H} \\
+  $\neg P$ & \tac{intros H} (Coq defines $\neg P$ as $P \to False$) \\
   $\forall x, P(x)$ & \tac{intros x} \\
   $\exists x, P(x)$ & \tac{exists x}, \tac{eexists} \\
   $P \land Q$ & \tac{split} \\
@@ -132,6 +132,8 @@ $H : P$ & \tac{revert H} (opposite of \tac{intros H}: turn goal $Q$ into $P \to 
 $x : A$ & \tac{revert x} (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
 $H : P, x : A$ & \tac{clear H}, \tac{clear x} (remove hypothesis $H$ or variable $x$) \\
 \end{tabular}
+
+A common pattern is \tac{revert x. induction n; intros x; simpl.}
 
 \section{Intro patterns}
 
