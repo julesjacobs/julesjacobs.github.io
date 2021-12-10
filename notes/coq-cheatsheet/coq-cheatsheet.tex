@@ -181,6 +181,7 @@ Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as i
   Tactic & Meaning \\ \midrule
   \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
   \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
+  \tac{assert (G := H)} & Duplicate hypothesis \\
   \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
   % \tac{wlog} & ... \\
 \end{tabular}
