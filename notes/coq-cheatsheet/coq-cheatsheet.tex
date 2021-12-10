@@ -65,15 +65,15 @@ We divide the logical reasoning tactics into those that modify the goal and thos
 \begin{tabular}{c l}
   Goal & Tactic \\ \midrule
   $P \to Q$ & \tac{intros H} \\
-  $\neg P$ & \tac{intros H} (Coq defines $\neg P$ as $P \to False$) \\
+  $\neg P$ & \tac{intros H} \quad (Coq defines $\neg P$ as $P \to False$) \\
   $\forall x, P(x)$ & \tac{intros x} \\
   $\exists x, P(x)$ & \tac{exists x}, \tac{eexists} \\
   $P \land Q$ & \tac{split} \\
   $P \lor Q$ & \tac{left}, \tac{right} \\
   $Q$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to Q$ is a lemma or hypothesis with conclusion $Q$) \\
   $False$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to \neg P$ is a lemma or hypothesis with conclusion $\neg P$) \\
-  Any goal & \tac{exfalso} (turns any goal into $False$) \\
-  Skip goal & \tac{admit} (skips goal so that you can work on other subgoals)\\
+  Any goal & \tac{exfalso} \quad (turns any goal into $False$) \\
+  Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
 \end{tabular}
 
 \subsection{Hypothesis tactics}
@@ -85,9 +85,9 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   $H : P \land Q$ & \tac{destruct H as [H1 H2]} \\
   $H : P \lor Q$ & \tac{destruct H as [H1|H2]} \\
   $H : \forall x, P(x)$ & \tac{specialize (H y)}\\
-  $H : P \to Q$ & \tac{specialize (H G)} (where $G : P$ is a lemma or hypothesis) \\
-  $H : P$ & \tac{apply G in H}, \tac{eapply G in H} (where $G : P \to (...)$ is a lemma or hypothesis) \\
-  $H : P, x : A$ & \tac{clear H}, \tac{clear x} (remove hypothesis $H$ or variable $x$) \\
+  $H : P \to Q$ & \tac{specialize (H G)} \quad (where $G : P$ is a lemma or hypothesis) \\
+  $H : P$ & \tac{apply G in H}, \tac{eapply G in H} \quad (where $G : P \to (...)$ is a lemma or hypothesis) \\
+  $H : P, x : A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis $H$ or variable $x$) \\
 \end{tabular}
 
 \section{Equality, rewriting, and computation rules}
@@ -120,9 +120,9 @@ We divide the logical reasoning tactics into those that modify the goal and thos
 \subsection{Inductive types $Foo$}
 
 \begin{tabular}{c l}
-  Hypothesis / Term & Tactic \\ \midrule
+  Term & Tactic \\ \midrule
   $x : Foo$ & \tac{destruct x as [a b|c d e|f]} \\
-  $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} (adds equation E : x = (...) to context)\\
+  $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} \quad (adds equation E : x = (...) to context)\\
   $x : Foo$ & \tac{induction x as [a b IH|c d e IH1 IH2|f IH]} \\
 \end{tabular}
 
@@ -130,10 +130,10 @@ We divide the logical reasoning tactics into those that modify the goal and thos
 
 \begin{tabular}{c l}
   Goal & Tactic \\ \midrule
-  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} (tries to solve goal by applying all constructors of $Foo$) \vspace{0.5cm} \\
+  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} \quad (tries to solve goal by applying all constructors of $Foo$) \vspace{0.5cm} \\
   Hypothesis & Tactic \\ \midrule
-  $H : Foo\ x\ y$ & \tac{inversion H} (use when $x$,$y$ are fixed terms) \\
-  $H : Foo\ x\ y$ & \tac{induction H} (use when $x$,$y$ are variables)\\
+  $H : Foo\ x\ y$ & \quad \tac{inversion H} (use when $x$,$y$ are fixed terms) \\
+  $H : Foo\ x\ y$ & \quad \tac{induction H} (use when $x$,$y$ are variables)\\
 \end{tabular}
 
 It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
@@ -143,8 +143,8 @@ The \tac{revert} tactic is useful to obtain the correct induction hypothesis:
 
 \begin{tabular}{c l}
 Hypothesis & Tactic \\ \midrule
-$H : P$ & \tac{revert H} (opposite of \tac{intros H}: turn goal $Q$ into $P \to Q$) \\
-$x : A$ & \tac{revert x} (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
+$H : P$ & \tac{revert H} \quad (opposite of \tac{intros H}: turn goal $Q$ into $P \to Q$) \\
+$x : A$ & \tac{revert x} \quad (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
 \end{tabular}
 
 A common pattern is \tac{revert x. induction n; intros x; simpl.}
@@ -169,7 +169,7 @@ The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros 
   $list\ A$ & \tac{[x xs|]} \\
   Inductive type & \tac{[a b|c d e|f]} \\
   Inductive type & \tac{[]}\quad (unpack with names chosen by Coq) \\ \midrule
-  $x = y$ & \tac{->} or \tac{<-} (substitute the equality)\\ \midrule
+  $x = y$ & \tac{->} or \tac{<-} \quad (substitute the equality)\\ \midrule
   Any & \tac{?}\quad (introduce variable/hypothesis with name chosen by Coq)
 \end{tabular}
 
