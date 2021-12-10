@@ -103,6 +103,21 @@ When you run into issues, try giving the instantiation explicitly.
   $H : P, x : A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis $H$ or variable $x$) \\
 \end{tabular}
 
+\subsection{Forward reasoning}
+
+\begin{tabular}{l l}
+  Tactic & Meaning \\ \midrule
+  \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
+  \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
+  \tac{assert (G := H)} & Duplicate hypothesis \\
+  \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
+  % \tac{wlog} & ... \\
+\end{tabular}
+
+The brackets are useful in combination with the assert tactic:
+
+\tac{assert P as H. \{ ... proof of P ... \}}
+
 \section{Equality, rewriting, and computation rules}
 \begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
@@ -197,21 +212,9 @@ Furthermore, \tac{(x \& y \& z \& ...)} is equivalent to \tac{[x [y [z ...]]]}.
 
 Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as inductive types, their intro patterns are special cases of the intro pattern for inductive types, and you can also use the \tac{[]} intro pattern for them.
 
-% and in combination \tac{eapply H1 in H2 as pat}.
-
-\section{Forward reasoning}
-
-\begin{tabular}{l l}
-  Tactic & Meaning \\ \midrule
-  \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
-  \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
-  \tac{assert (G := H)} & Duplicate hypothesis \\
-  \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
-  % \tac{wlog} & ... \\
-\end{tabular}
-
-Intro patterns can be used in combination with the \tac{assert} tactic,
+Intro patterns can be used with the \tac{assert P as pat} tactic,
 e.g. \tac{assert (A = B) as ->} or \tac{assert (exists x, P) as [x H].}
+You can also use them with the \tac{apply H in G as pat} tactic.
 
 \section{Composing tactics}
 
