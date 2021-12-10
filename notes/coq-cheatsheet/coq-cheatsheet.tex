@@ -20,7 +20,9 @@ Coq proofs manipulate the \emph{proof state} by executing a sequence of \emph{ta
 Coq calculates the proof state for you after executing each tactic.
 Here's what Coq displays after executing the second \lstinline|intros m Hm.|:
 
+\begin{minipage}{\textwidth}
 \lstinputlisting[language=Coq]{proofstate.txt}
+\end{minipage}
 
 The proof state consists of a list of variables and hypotheses above the line, and a goal below the line.
 A tactic may create $0$, $1$, $2$, or more subgoals. A goal is solved if we succesfully apply a tactic that creates no subgoals (such as the \tac{lia} tactic).
@@ -81,6 +83,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
   $H : \forall x, P(x)$ & \tac{specialize (H y)}\\
   $H : P \to Q$ & \tac{specialize (H G)} (where $G : P$ is a lemma or hypothesis) \\
   $H : P$ & \tac{apply G in H}, \tac{eapply G in H} (where $G : P \to (...)$ is a lemma or hypothesis) \\
+  $H : P, x : A$ & \tac{clear H}, \tac{clear x} (remove hypothesis $H$ or variable $x$) \\
 \end{tabular}
 
 \section{Equality, rewriting, and computation rules}
@@ -110,30 +113,37 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 
 \section{Inductive types and relations}
 
-Assume that $Foo$ is some inductive type or $Foo\ x\ y$ is an inductive relation.
+\subsection{Inductive types $Foo$}
+
+\begin{tabular}{c l}
+  Hypothesis & Tactic \\ \midrule
+  $H : Foo$ & \tac{destruct H as [a b|c d e|f]} \\
+  $H : Foo$ & \tac{induction H as [a b IH|c d e IH1 IH2|f IH]} \\
+\end{tabular}
+
+\subsection{Inductive relations $Foo\ x\ y$}
 
 \begin{tabular}{c l}
   Goal & Tactic \\ \midrule
-  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} (tries to solve goal using some constructor of $Foo$) \vspace{0.5cm} \\
+  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} (tries to solve goal by applying all constructors of $Foo$) \vspace{0.5cm} \\
   Hypothesis & Tactic \\ \midrule
-  $H : Foo$ & \tac{destruct H as [a b|c d e|f]} \\
-  $H : Foo$ & \tac{induction H as [a b IH|c d e IH1 IH2|f IH]} \\ \midrule
   $H : Foo\ x\ y$ & \tac{inversion H} (use when $x$,$y$ are fixed terms) \\
   $H : Foo\ x\ y$ & \tac{induction H} (use when $x$,$y$ are variables)\\
 \end{tabular}
 
 It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
 
+\subsection{Getting the right induction hypothesis}
 The following tactics are useful to obtain the correct induction hypothesis:
 
 \begin{tabular}{c l}
 Hypothesis & Tactic \\ \midrule
 $H : P$ & \tac{revert H} (opposite of \tac{intros H}: turn goal $Q$ into $P \to Q$) \\
 $x : A$ & \tac{revert x} (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
-$H : P, x : A$ & \tac{clear H}, \tac{clear x} (remove hypothesis $H$ or variable $x$) \\
 \end{tabular}
 
 A common pattern is \tac{revert x. induction n; intros x; simpl.}
+A good rule of thumb is that you should create a separate lemma for each inductive argument, so that \tac{induction} is only ever used at the start of a lemma (possibly preceded by some \tac{revert}).
 
 \section{Intro patterns}
 

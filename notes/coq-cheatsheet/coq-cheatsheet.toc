@@ -3,6 +3,9 @@
 \contentsline {section}{\numberline {3}{Hypothesis tactics}}{3}{section.3}%
 \contentsline {section}{\numberline {4}{Equality, rewriting, and computation rules}}{3}{section.4}%
 \contentsline {section}{\numberline {5}{Inductive types and relations}}{3}{section.5}%
+\contentsline {subsection}{\numberline {5.1}{Inductive types $Foo$}}{3}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}{Inductive relations $Foo\ x\ y$}}{4}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}{Getting the right induction hypothesis}}{4}{subsection.5.3}%
 \contentsline {section}{\numberline {6}{Intro patterns}}{4}{section.6}%
 \contentsline {section}{\numberline {7}{Forward reasoning}}{4}{section.7}%
 \contentsline {section}{\numberline {8}{Composing tactics}}{5}{section.8}%
