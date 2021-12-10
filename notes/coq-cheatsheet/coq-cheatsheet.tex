@@ -134,7 +134,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
 
 \subsection{Getting the right induction hypothesis}
-The following tactics are useful to obtain the correct induction hypothesis:
+The \tac{revert} tactic is useful to obtain the correct induction hypothesis:
 
 \begin{tabular}{c l}
 Hypothesis & Tactic \\ \midrule
