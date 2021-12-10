@@ -164,7 +164,7 @@ The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros 
 
 Furthermore, \tac{(x \& y \& z \& ...)} is equivalent to \tac{[x [y [z ...]]]}.
 
-Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as inductive types, their intro patterns are special cases of the intro pattern for inductive types.
+Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as inductive types, their intro patterns are special cases of the intro pattern for inductive types, and you can also use the \tac{[]} intro pattern for them.
 
 % and in combination \tac{eapply H1 in H2 as pat}.
 
