@@ -80,9 +80,10 @@ When using \tac{apply H} with a quantified lemma or hypothesis $H : \forall x, (
 The \tac{apply} tactic will fail if Coq cannot determine $x$.
 In this case you can use \tac{eapply H} to use an E-var $?x$, which means that the instanation will be determined later.
 You can also explicitly choose an instantiation $x = 4$ using \tac{eapply (H 4)}.
-If there are multiple quantifiers you can do \tac{eapply (H _ _ 4 _)}, which means that you instantiate the third one with $4$ and let Coq determine the ones where you put $\_$.
+If there are multiple $\forall$-quantifiers you can do \tac{eapply (H _ _ 4 _)}, which means that you instantiate the third one with $4$ and let Coq determine the ones where you put $\_$.
 
 Similarly, \tac{eexists} will instantiate an existential quantifier with an E-var.
+For instance if the goal is $\exists n, P n$ and you have $H : P(3)$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$ from the hypothesis.
 
 \subsection{Hypothesis tactics}
 
