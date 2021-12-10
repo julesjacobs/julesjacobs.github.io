@@ -147,7 +147,6 @@ Rewriting also works with quantified equalities.
 If you have $H : \forall n m, n + m = m + n$ then you can do \tac{rewrite H}.
 Coq will instantiate $n$ and $m$ based on what it finds in the goal.
 You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5).}
-You can also specify which occurence you want to rewrite: \tac{rewrite H at 2} rewrites only the second occurence of the pattern $n + m$.
 
 \section{Inductive types and relations}
 
