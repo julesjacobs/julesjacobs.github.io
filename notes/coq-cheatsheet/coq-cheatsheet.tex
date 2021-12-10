@@ -117,8 +117,9 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 
 \begin{tabular}{c l}
   Hypothesis / Term & Tactic \\ \midrule
-  $H : Foo$ & \tac{destruct H as [a b|c d e|f]} \\
-  $H : Foo$ & \tac{induction H as [a b IH|c d e IH1 IH2|f IH]} \\
+  $x : Foo$ & \tac{destruct x as [a b|c d e|f]} \\
+  $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} (adds equation E : x = (...) to context)\\
+  $x : Foo$ & \tac{induction x as [a b IH|c d e IH1 IH2|f IH]} \\
 \end{tabular}
 
 \subsection{Inductive relations $Foo\ x\ y$}
@@ -159,6 +160,7 @@ The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros 
   $A * B$ & \tac{[x y]} \\
   $A + B$ & \tac{[x|y]} \\
   $option\ A$ & \tac{[x|]} \\
+  $bool$ & \tac{[|]} \\
   $nat$ & \tac{[|n]} \\
   $list\ A$ & \tac{[x xs|]} \\
   Inductive type & \tac{[a b|c d e|f]} \\
@@ -178,6 +180,7 @@ Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as i
 \begin{tabular}{c l}
   Tactic & Meaning \\ \midrule
   \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
+  \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
   \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
   % \tac{wlog} & ... \\
 \end{tabular}
