@@ -147,18 +147,24 @@ A good rule of thumb is that you should create a separate lemma for each inducti
 
 \section{Intro patterns}
 
-The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using \emph{intro patterns}. The intros tactic can be chained: \tac{intros x y z.} $\equiv$ \tac{intros x. intros y. intros z.}
+The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using nested\emph{intro patterns}.
+The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros x. intros y. intros z.}
 
 \begin{tabular}{c l}
   Data & Pattern \\ \midrule
   $\exists x, P$ & \tac{[x H]} \\
   $P \land Q$ & \tac{[H1 H2]} \\
   $P \lor Q$ & \tac{[H1|H2]} \\
+  $False$ & \tac{[]} \\
+  Inductive type & \tac{[a b|c d e|f]} \\
+  Any of the above & \tac{[]}\quad (unpack with names chosen by Coq) \\
   $x = y$ & \tac{->} or \tac{<-} \\
-  Inductive type & \tac{[a b|c d e|f]}
+  Any & \tac{?}\quad (introduce hypothesis with name chosen by Coq)
 \end{tabular}
 
 Furthermore, \tac{(x \& y \& z \& ...)} is equivalent to \tac{[x [y [z ...]]]}.
+
+Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as inductive types, their intro patterns are special cases of the intro pattern for inductive types.
 
 % and in combination \tac{eapply H1 in H2 as pat}.
 
@@ -212,16 +218,18 @@ You can also suggest additional content.
 For instance:
 
 \begin{itemize}
+  \item Installing Coq
+  \item Compilation and multiple files
+  \item Definition, Fixpoint, Inductive
   \item Searching for lemmas
-  \item ssreflect
-  \item stdpp
   \item Hint databases
+  \item match\_goal
   \item Type classes
   \item setoid\_rewrite
-  \item Definition, Fixpoint, Inductive
   \item CoInductive, cofix (and fix)
   \item Mutually inductive lemmas
-  \item match\_goal
+  \item ssreflect
+  \item stdpp
 \end{itemize}
 
 \texttt{julesjacobs@gmail.com}
