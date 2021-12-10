@@ -76,6 +76,14 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
 \end{tabular}
 
+When using \tac{apply H} with a quantified lemma or hypothesis $H : \forall x, (...)$, Coq will try to automatically find the right $x$ for you.
+The \tac{apply} tactic will fail if Coq cannot determine $x$.
+In this case you can use \tac{eapply H} to use an E-var $?x$, which means that the instanation will be determined later.
+You can also explicitly choose an instantiation $x = 4$ using \tac{eapply (H 4)}.
+If there are multiple quantifiers you can do \tac{eapply (H _ _ 4 _)}, which means that you instantiate the third one with $4$ and let Coq determine the ones where you put $\_$.
+
+Similarly, \tac{eexists} will instantiate an existential quantifier with an E-var.
+
 \subsection{Hypothesis tactics}
 
 \begin{tabular}{l l}
@@ -114,6 +122,12 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   \tac{discriminate H} & Solve goal with inconsistent assumption $H : C\ x = D\ y$. \\
   \tac{simplify\_eq} & Automated tactic that does \tac{subst}, \tac{injection}, and \tac{discriminate} automatically.
 \end{tabular}
+
+Rewriting also works with quantified equalities.
+If you have $H : \forall n m, n + m = m + n$ then you can do \tac{rewrite H}.
+Coq will instantiate $n$ and $m$ based on what it finds in the goal.
+You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5).}
+You can also specify which occurence you want to rewrite: \tac{rewrite H at 2} rewrites only the second occurence of the pattern $n + m$.
 
 \section{Inductive types and relations}
 
