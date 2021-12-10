@@ -158,7 +158,7 @@ The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros 
   $False$ & \tac{[]} \\
   Inductive type & \tac{[a b|c d e|f]} \\
   Inductive type & \tac{[]}\quad (unpack with names chosen by Coq) \\
-  $x = y$ & \tac{->} or \tac{<-} \\
+  $x = y$ & \tac{->} or \tac{<-} (substitute the equality)\\
   Any & \tac{?}\quad (introduce hypothesis with name chosen by Coq)
 \end{tabular}
 
@@ -221,6 +221,7 @@ For instance:
   \item Installing Coq
   \item Compilation and multiple files
   \item Definition, Fixpoint, Inductive
+  \item Implicit arguments
   \item Searching for lemmas
   \item Hint databases
   \item match\_goal
@@ -230,6 +231,7 @@ For instance:
   \item Mutually inductive lemmas
   \item ssreflect
   \item stdpp
+  \item Modules
 \end{itemize}
 
 \texttt{julesjacobs@gmail.com}
