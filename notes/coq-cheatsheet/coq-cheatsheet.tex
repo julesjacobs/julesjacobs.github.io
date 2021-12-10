@@ -168,8 +168,8 @@ You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5)
   Goal & Tactic \\ \midrule
   $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} \quad (tries to solve goal by applying all constructors of $Foo$) \vspace{0.5cm} \\
   Hypothesis & Tactic \\ \midrule
-  $H : Foo\ x\ y$ & \quad \tac{inversion H} (use when $x$,$y$ are fixed terms) \\
-  $H : Foo\ x\ y$ & \quad \tac{induction H} (use when $x$,$y$ are variables)\\
+  $H : Foo\ x\ y$ & \tac{inversion H} \quad (use when $x$,$y$ are fixed terms) \\
+  $H : Foo\ x\ y$ & \tac{induction H} \quad (use when $x$,$y$ are variables)\\
 \end{tabular}
 
 It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
