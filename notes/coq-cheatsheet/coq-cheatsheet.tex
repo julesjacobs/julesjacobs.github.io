@@ -83,7 +83,7 @@ You can also explicitly choose an instantiation $x = 4$ using \tac{eapply (H 4)}
 If there are multiple $\forall$-quantifiers you can do \tac{eapply (H _ _ 4 _)}, which means that you instantiate the third one with $4$ and let Coq determine the ones where you put $\_$.
 
 Similarly, \tac{eexists} will instantiate an existential quantifier with an E-var.
-For instance if the goal is $\exists n, P n$ and you have $H : P(3)$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$ from the hypothesis.
+For instance if the goal is $\exists n, P\ n$ and you have $H : P\ 3$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$ from the hypothesis.
 
 \subsection{Hypothesis tactics}
 
