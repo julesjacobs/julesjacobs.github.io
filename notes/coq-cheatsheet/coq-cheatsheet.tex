@@ -56,7 +56,11 @@ This is most useful for solving side conditions.
 With bullets, we get a deep level of nesting if we have a sequence of tactics with side conditions.
 With brackets, we do not need to enclose the last subgoal in brackets, thus preventing deep nesting.
 
-\section{Goal tactics}
+\section{Logical reasoning}
+
+We divide the logical reasoning tactics into those that modify the goal and those that modify a hypothesis.
+
+\subsection{Goal tactics}
 
 \begin{tabular}{c l}
   Goal & Tactic \\ \midrule
@@ -72,7 +76,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
   Skip goal & \tac{admit} (skips goal so that you can work on other subgoals)\\
 \end{tabular}
 
-\section{Hypothesis tactics}
+\subsection{Hypothesis tactics}
 
 \begin{tabular}{c l}
   Hypothesis & Tactic \\ \midrule
@@ -231,6 +235,7 @@ For instance:
   \item Compilation and multiple files
   \item Definition, Fixpoint, Inductive
   \item Implicit arguments
+  \item E-vars / eexists / econstructor / eapply / erewrite
   \item Searching for lemmas
   \item Hint databases
   \item match\_goal
