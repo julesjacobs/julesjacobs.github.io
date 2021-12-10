@@ -76,7 +76,10 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
 \end{tabular}
 
-When using \tac{apply H} with a quantified lemma or hypothesis $H : \forall x, (...)$, Coq will try to automatically find the right $x$ for you.
+When using \tac{apply H} with a lemma $H : P_1 \to P_2 \to Q$, Coq will create subgoals for each assumption $P_1$ and $P_2$.
+If the lemma has no assumptions, then then \tac{apply H} finishes the goal.
+
+When using \tac{apply H} with a quantified lemma $H : \forall x, (...)$, Coq will try to automatically find the right $x$ for you.
 The \tac{apply} tactic will fail if Coq cannot determine $x$.
 In this case you can use \tac{eapply H} to use an E-var $?x$, which means that the instanation will be determined later.
 You can also explicitly choose an instantiation $x = 4$ using \tac{eapply (H 4)}.
