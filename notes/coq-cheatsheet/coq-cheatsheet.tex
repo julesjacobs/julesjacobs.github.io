@@ -116,7 +116,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 \subsection{Inductive types $Foo$}
 
 \begin{tabular}{c l}
-  Hypothesis & Tactic \\ \midrule
+  Hypothesis / Term & Tactic \\ \midrule
   $H : Foo$ & \tac{destruct H as [a b|c d e|f]} \\
   $H : Foo$ & \tac{induction H as [a b IH|c d e IH1 IH2|f IH]} \\
 \end{tabular}
