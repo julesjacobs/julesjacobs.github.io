@@ -78,7 +78,7 @@ We divide the logical reasoning tactics into those that modify the goal and thos
 
 \subsection{Hypothesis tactics}
 
-\begin{tabular}{c l}
+\begin{tabular}{l l}
   Hypothesis & Tactic \\ \midrule
   $H : False$ & \tac{destruct H} \\
   $H : \exists x, P(x)$ & \tac{destruct H as [x H]} \\
@@ -91,7 +91,7 @@ We divide the logical reasoning tactics into those that modify the goal and thos
 \end{tabular}
 
 \section{Equality, rewriting, and computation rules}
-\begin{tabular}{c l}
+\begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
   \tac{reflexivity} & Solve goal of the form $x = x$ or $P \leftrightarrow P$ \\
   \tac{symmetry} & Turn goal $x = y$ into $y = x$ (or $P \leftrightarrow Q$) \\
@@ -169,7 +169,8 @@ The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros 
   $list\ A$ & \tac{[x xs|]} \\
   Inductive type & \tac{[a b|c d e|f]} \\
   Inductive type & \tac{[]}\quad (unpack with names chosen by Coq) \\ \midrule
-  $x = y$ & \tac{->} or \tac{<-} \quad (substitute the equality)\\ \midrule
+  $x = y$ & \tac{->} \quad (substitute the equality $x \mapsto y$)\\
+  $x = y$ & \tac{<-} \quad (substitute the equality $y \mapsto x$)\\ \midrule
   Any & \tac{?}\quad (introduce variable/hypothesis with name chosen by Coq)
 \end{tabular}
 
@@ -181,7 +182,7 @@ Because $\exists x, P$, $P \land Q$, $P \lor Q$, $False$ are \emph{defined} as i
 
 \section{Forward reasoning}
 
-\begin{tabular}{c l}
+\begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
   \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
   \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
@@ -195,7 +196,7 @@ e.g. \tac{assert (A = B) as ->} or \tac{assert (exists x, P) as [x H].}
 
 \section{Composing tactics}
 
-\begin{tabular}{c l}
+\begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
   \tac{tac1; tac2} & Do \tac{tac2} on all subgoals created by \tac{tac1}. \\
   \tac{tac1; [tac2|..]} & Do \tac{tac2} only on the first subgoal. \\
