@@ -84,6 +84,10 @@ If there are multiple $\forall$-quantifiers you can do \tac{eapply (H _ _ 4 _)},
 
 Similarly, \tac{eexists} will instantiate an existential quantifier with an E-var.
 If your goal is $\exists n, P\ n$ and you have $H : P\ 3$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$ from the hypothesis.
+Coq uses \emph{unification} to determine the instantiation.
+The unification algorithm can also reason modulo certain equations.
+This is necessarily a heuristic method, because the problem is undecidable.
+When you run into issues, try giving the instantiation explicitly.
 
 \subsection{Hypothesis tactics}
 
