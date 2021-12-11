@@ -66,7 +66,7 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 
 % We divide the logical reasoning tactics into those that modify the goal and those that modify a hypothesis.
 
-\subsection{Goal tactics}
+\subsection{Tactics that modify the goal}
 
 \begin{tabular}{c l}
   \textbf{Goal} & \textbf{Tactic} \\ \midrule
@@ -98,15 +98,15 @@ If your goal is $\exists n, P\ n$ and you have \hyp\ $: P\ 3$, then you can type
 % This is necessarily a heuristic method, because the problem is undecidable.
 % When you run into issues, try giving the instantiation explicitly.
 
-\subsection{Hypothesis tactics}
+\subsection{Tactics that modify a hypothesis}
 \vspace{-0.2cm}
 
 \begin{tabular}{l l}
   \textbf{Hypothesis} & \textbf{Tactic} \\ \midrule
   \hyp\ $: False$ & \tac{destruct H} \\
-  \hyp\ $: \exists x, P(x)$ & \tac{destruct H as [x H]} \\
   \hyp\ $: P \land Q$ & \tac{destruct H as [H1 H2]} \\
   \hyp\ $: P \lor Q$ & \tac{destruct H as [H1|H2]} \\
+  \hyp\ $: \exists x, P(x)$ & \tac{destruct H as [x H]} \\
   \hyp\ $: \forall x, P(x)$ & \tac{specialize (H y)}\\
   \hyp\ $: P \to Q$ & \tac{specialize (H G)} \quad (where \hypB\ $: P$ is a lemma or hypothesis) \\
   \hyp\ $: P$ & \tac{apply G in H}, \tac{eapply G in H} \quad (where \hypB\ $: P \to (...)$ is a lemma or hypothesis) \\
