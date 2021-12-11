@@ -1,6 +1,11 @@
 \input{ppreamble}
 
-\newcommand{\tac}[1]{\lstinline~#1~}
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
 
 \title{Coq cheatsheet}
 \author{Jules Jacobs}
@@ -68,10 +73,10 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   $\neg P$ & \tac{intros H} \quad (Coq defines $\neg P$ as $P \to False$) \\
   $\forall x, P(x)$ & \tac{intros x} \\
   $\exists x, P(x)$ & \tac{exists x}, \tac{eexists} \\
-  $P \land Q$ & \tac{split} \\
+  $P \land Q$ & \tac{split} \quad (also works for $P \leftrightarrow Q$, which is defined as $(P \to Q) \land (Q \to P)$)\\
   $P \lor Q$ & \tac{left}, \tac{right} \\
-  $Q$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to Q$ is a lemma or hypothesis with conclusion $Q$) \\
-  $False$ & \tac{apply H}, \tac{eapply H} (where $H : (...) \to \neg P$ is a lemma or hypothesis with conclusion $\neg P$) \\
+  $Q$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to Q$ is a lemma or hypothesis with conclusion $Q$) \\
+  $False$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to \neg P$ is a lemma or hypothesis with conclusion $\neg P$) \\
   Any goal & \tac{exfalso} \quad (turns any goal into $False$) \\
   Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
 \end{tabular}
@@ -96,22 +101,22 @@ When you run into issues, try giving the instantiation explicitly.
 
 \begin{tabular}{l l}
   Hypothesis & Tactic \\ \midrule
-  $H : False$ & \tac{destruct H} \\
-  $H : \exists x, P(x)$ & \tac{destruct H as [x H]} \\
-  $H : P \land Q$ & \tac{destruct H as [H1 H2]} \\
-  $H : P \lor Q$ & \tac{destruct H as [H1|H2]} \\
-  $H : \forall x, P(x)$ & \tac{specialize (H y)}\\
-  $H : P \to Q$ & \tac{specialize (H G)} \quad (where $G : P$ is a lemma or hypothesis) \\
-  $H : P$ & \tac{apply G in H}, \tac{eapply G in H} \quad (where $G : P \to (...)$ is a lemma or hypothesis) \\
-  $H : P, x : A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis $H$ or variable $x$) \\
+  \hyp\ $: False$ & \tac{destruct H} \\
+  \hyp\ $: \exists x, P(x)$ & \tac{destruct H as [x H]} \\
+  \hyp\ $: P \land Q$ & \tac{destruct H as [H1 H2]} \\
+  \hyp\ $: P \lor Q$ & \tac{destruct H as [H1|H2]} \\
+  \hyp\ $: \forall x, P(x)$ & \tac{specialize (H y)}\\
+  \hyp\ $: P \to Q$ & \tac{specialize (H G)} \quad (where \hypB\ $: P$ is a lemma or hypothesis) \\
+  \hyp\ $: P$ & \tac{apply G in H}, \tac{eapply G in H} \quad (where \hypB\ $: P \to (...)$ is a lemma or hypothesis) \\
+  \hyp\ $: P$, \var\ $: A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis \hyp\ or variable \var) \\
 \end{tabular}
 
 \subsection{Forward reasoning}
 
 \begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
-  \tac{assert P as H} & Create new hypothesis $H : P$ after proving subgoal $P$ \\
-  \tac{assert P as H by tac} & Create new hypothesis $H : P$ after proving subgoal $P$ using \tac{tac} \\
+  \tac{assert P as H} & Create new hypothesis \hyp\ $: P$ after proving subgoal $P$ \\
+  \tac{assert P as H by tac} & Create new hypothesis \hyp\ $: P$ after proving subgoal $P$ using \tac{tac} \\
   \tac{assert (G := H)} & Duplicate hypothesis \\
   \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
   % \tac{wlog} & ... \\
@@ -124,25 +129,25 @@ The brackets are useful in combination with the assert tactic:
 \section{Equality, rewriting, and computation rules}
 \begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
-  \tac{reflexivity} & Solve goal of the form $x = x$ or $P \leftrightarrow P$ \\
-  \tac{symmetry} & Turn goal $x = y$ into $y = x$ (or $P \leftrightarrow Q$) \\
-  \tac{symmetry in H} & Turn hypothesis $H : x = y$ into $H : y = x$ (or $P \leftrightarrow Q$)\\ \midrule
-  \tac{unfold f} & Replace constant $f$ with its definition (only in the goal) \\
-  \tac{unfold f in H} & Replace constant $f$ with its definition (in hypothesis $H$) \\
-  \tac{unfold f in *} & Replace constant $f$ with its definition (everywhere) \\ \midrule
+  \tac{reflexivity} & Solve goal of the form \tac{x = x} or \tac{P $\ciff$ P} \\
+  \tac{symmetry} & Turn goal \tac{x = y} into \tac{y = x} (or \tac{P $\ciff$ Q}) \\
+  \tac{symmetry in H} & Turn hypothesis \tac{H : x = y} into \tac{H : y = x} (or \tac{P $\ciff$ Q})\\ \midrule
+  \tac{unfold f} & Replace constant \tac{f} with its definition (only in the goal) \\
+  \tac{unfold f in H} & Replace constant \tac{f} with its definition (in hypothesis \tac{H}) \\
+  \tac{unfold f in *} & Replace constant \tac{f} with its definition (everywhere) \\ \midrule
   \tac{simpl} & Rewrite with computation rules (in the goal) \\
-  \tac{simpl in H} & Rewrite with computation rules (in hypothesis $H$) \\
+  \tac{simpl in H} & Rewrite with computation rules (in hypothesis \tac{H}) \\
   \tac{simpl in *} & Rewrite with computation rules (everywhere) \\ \midrule
-  \tac{rewrite H.} & Rewrite \tac{H : x = y} (in the goal). \\
-  \tac{rewrite H in G.} & Rewrite \tac{H : x = y} (in hypothesis $G$). \\
-  \tac{rewrite H in *.} & Rewrite \tac{H1} (everywhere). \\ \midrule
+  \tac{rewrite H.} & Rewrite \tac{H : x = y} or \tac{H : P $\ciff$ Q} (in the goal). \\
+  \tac{rewrite H in G.} & Rewrite \tac{H} (in hypothesis \tac{G}). \\
+  \tac{rewrite H in *.} & Rewrite \tac{H} (everywhere). \\ \midrule
   \tac{rewrite <-H.} & Rewrite \tac{H : x = y} backwards. \\
   \tac{rewrite H,G.} & Rewrite using \tac{H} and then \tac{G}. \\
   \tac{rewrite !H.} & Repeatedly rewrite using \tac{H}. \\
   \tac{rewrite ?H.} & Try rewriting using \tac{H}. \\ \midrule
   \tac{subst} & Substitute away all equations \tac{H : x = A} with a variable on one side. \\
-  \tac{injection H as H} & Use injectivity of $C$ to turn $H : C\ x = C\ y$ into $H : x = y$. \\
-  \tac{discriminate H} & Solve goal with inconsistent assumption $H : C\ x = D\ y$. \\
+  \tac{injection H as H} & Use injectivity of \tac{C} to turn \tac{H : C x = C y} into \tac{H : x = y}. \\
+  \tac{discriminate H} & Solve goal with inconsistent assumption \tac{H : C x = D y}. \\
   \tac{simplify\_eq} & Automated tactic that does \tac{subst}, \tac{injection}, and \tac{discriminate} automatically.
 \end{tabular}
 
@@ -158,7 +163,7 @@ You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5)
 \begin{tabular}{c l}
   Term & Tactic \\ \midrule
   $x : Foo$ & \tac{destruct x as [a b|c d e|f]} \\
-  $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} \quad (adds equation E : x = (...) to context)\\
+  $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} \quad (adds equation \tac{E : x = (...)} to context)\\
   $x : Foo$ & \tac{induction x as [a b IH|c d e IH1 IH2|f IH]} \\
 \end{tabular}
 
@@ -259,6 +264,7 @@ For instance:
   \item Installing Coq
   \item Compilation and multiple files
   \item Definition, Fixpoint, Inductive
+  \item Records
   \item Implicit arguments
   \item E-vars / eexists / econstructor / eapply / erewrite
   \item Searching for lemmas
@@ -271,6 +277,7 @@ For instance:
   \item ssreflect
   \item stdpp
   \item Modules
+  \item Unicode
 \end{itemize}
 
 \texttt{julesjacobs@gmail.com}
