@@ -193,8 +193,10 @@ A good rule of thumb is that you should create a separate lemma for each inducti
 
 \section{Intro patterns}
 
-The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using nested \emph{intro patterns}.
-The intros tactic can also be chained: \tac{intros x y z.} $\equiv$ \tac{intros x. intros y. intros z.}
+The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using nested \emph{intro patterns}:
+if the goal is $(P \land \exists x : option\ A, Q_1 \lor Q_2) \to (...)$ then \tac{intros [H [[x|] [G|G]]]}
+splits the conjunction, unpacks the existential, case analyzes the $x : option\ A$, and case analyzes the disjunction (creating 4 subgoals).
+The intros tactic can also be chained to introduce multiple hypotheses: \tac{intros x y.} $\equiv$ \tac{intros x. intros y.}
 
 \begin{tabular}{c l}
   Data & Pattern \\ \midrule
