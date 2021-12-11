@@ -61,9 +61,10 @@ This is most useful for solving side conditions.
 With bullets, we get a deep level of nesting if we have a sequence of tactics with side conditions.
 With brackets, we do not need to enclose the last subgoal in brackets, thus preventing deep nesting.
 
+\newpage
 \section{Logical reasoning}
 
-We divide the logical reasoning tactics into those that modify the goal and those that modify a hypothesis.
+% We divide the logical reasoning tactics into those that modify the goal and those that modify a hypothesis.
 
 \subsection{Goal tactics}
 
@@ -81,21 +82,21 @@ We divide the logical reasoning tactics into those that modify the goal and thos
   Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
 \end{tabular}
 
-When using \tac{apply H} with a lemma $H : P_1 \to P_2 \to Q$, Coq will create subgoals for each assumption $P_1$ and $P_2$.
+When using \tac{apply H} with a lemma \hyp\ $: P_1 \to P_2 \to Q$, Coq will create subgoals for each assumption $P_1$ and $P_2$.
 If the lemma has no assumptions, then then \tac{apply H} finishes the goal.
 
-When using \tac{apply H} with a quantified lemma $H : \forall x, (...)$, Coq will try to automatically find the right $x$ for you.
+When using \tac{apply H} with a quantified lemma \hyp\ $: \forall x, (...)$, Coq will try to automatically find the right $x$ for you.
 The \tac{apply} tactic will fail if Coq cannot determine $x$.
-In this case you can use \tac{eapply H} to use an E-var $?x$, which means that the instanation will be determined later.
-You can also explicitly choose an instantiation $x = 4$ using \tac{eapply (H 4)}.
-If there are multiple $\forall$-quantifiers you can do \tac{eapply (H _ _ 4 _)}, which means that you instantiate the third one with $4$ and let Coq determine the ones where you put $\_$.
+You can then explicitly choose an instantiation $x = 4$ using \tac{apply (H 4)}.
+You can also use \tac{eapply H} to use an E-var $?x$, which means that the instanation will be determined later.
+If there are multiple $\forall$-quantifiers you can do \tac{eapply (H _ _ 4 _)}, to let Coq determine the ones where you put $\_$.
 
 Similarly, \tac{eexists} will instantiate an existential quantifier with an E-var.
-If your goal is $\exists n, P\ n$ and you have $H : P\ 3$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$ from the hypothesis.
-Coq uses \emph{unification} to determine the instantiation.
-The unification algorithm can also reason modulo certain equations.
-This is necessarily a heuristic method, because the problem is undecidable.
-When you run into issues, try giving the instantiation explicitly.
+If your goal is $\exists n, P\ n$ and you have \hyp\ $: P\ 3$, then you can type \tac{eexists. apply H.} This automatically determines $n=3$.
+% Coq uses \emph{unification} to determine the instantiation.
+% The unification algorithm can also reason modulo certain equations.
+% This is necessarily a heuristic method, because the problem is undecidable.
+% When you run into issues, try giving the instantiation explicitly.
 
 \subsection{Hypothesis tactics}
 
@@ -122,11 +123,12 @@ When you run into issues, try giving the instantiation explicitly.
   % \tac{wlog} & ... \\
 \end{tabular}
 
-The brackets are useful in combination with the assert tactic:
-
+Brackets are useful with the assert tactic:
 \tac{assert P as H. \{ ... proof of P ... \}}
 
+\newpage
 \section{Equality, rewriting, and computation rules}
+
 \begin{tabular}{l l}
   Tactic & Meaning \\ \midrule
   \tac{reflexivity} & Solve goal of the form \tac{x = x} or \tac{P $\ciff$ P} \\
@@ -156,6 +158,7 @@ If you have $H : \forall n m, n + m = m + n$ then you can do \tac{rewrite H}.
 Coq will instantiate $n$ and $m$ based on what it finds in the goal.
 You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5).}
 
+\newpage
 \section{Inductive types and relations}
 
 \subsection{Inductive types $Foo$}
@@ -191,6 +194,15 @@ $x : A$ & \tac{revert x} \quad (opposite of \tac{intros x}: turn goal $Q$ into $
 A common pattern is \tac{revert x. induction n; intros x; simpl.}
 A good rule of thumb is that you should create a separate lemma for each inductive argument, so that \tac{induction} is only ever used at the start of a lemma (possibly preceded by some \tac{revert}).
 
+\section{Proof search with \texttt{eauto}}
+
+The \tac{eauto} tactic tries to solve goals using \tac{eapply}, \tac{reflexivity}, \tac{eexists}, \tac{split}, \tac{left}, \tac{right}.
+You can specify the search depth using \tac{eauto n} (the default is $n=5$).
+
+You can give \tac{eauto} additional lemmas to use with \tac{eauto using lemma1,lemma2}.
+You can also use \tac{eauto using foo} where \tac{foo} is an inductive type. This will use all the constructors of \tac{foo} as lemmas.
+
+\newpage
 \section{Intro patterns}
 
 The \tac{destruct x as pat} and \tac{intros pat} tactics can unpack multiple levels at once using nested \emph{intro patterns}:
@@ -240,13 +252,6 @@ You can also use them with the \tac{apply H in G as pat} tactic.
   \tac{progress tac1} & Do \tac{tac1} and fail if it does nothing. \\
 \end{tabular}
 
-\section{Automation with \texttt{eauto}}
-
-The \tac{eauto} tactic tries to solve goals using \tac{eapply}, \tac{reflexivity}, \tac{eexists}, \tac{split}, \tac{left}, \tac{right}.
-You can specify the search depth using \tac{eauto n} (the default is $n=5$).
-
-You can give \tac{eauto} additional lemmas to use with \tac{eauto using lemma1,lemma2}.
-You can also use \tac{eauto using foo} where \tac{foo} is an inductive type. This will use all the constructors of \tac{foo} as lemmas.
 
 \section{Searching for lemmas and definitions}
 
