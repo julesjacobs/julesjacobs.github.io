@@ -160,6 +160,9 @@ If you have $H : \forall n m, n + m = m + n$ then you can do \tac{rewrite H}.
 Coq will instantiate $n$ and $m$ based on what it finds in the goal.
 You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5).}
 
+The \tac{simplify\_eq} tactic is from \href{https://plv.mpi-sws.org/coqdoc/stdpp/stdpp.tactics.html}{stdpp}.
+Although it is not a built-in tactic, I mention it because it is incredibly useful.
+
 \newpage
 \section{Inductive types and relations}
 
