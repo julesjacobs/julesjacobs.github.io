@@ -8,3 +8,9 @@ Proof.
   - intros m Hm. eapply H.
      intros k Hk. eapply IHn. lia.
 Qed.
+
+Search "+" "*" "=".
+Search Nat.add Nat.mul.
+Search (list _ -> list _).
+Search (forall a b, (a -> b) -> list a -> list b).
+Search "mod" nat.

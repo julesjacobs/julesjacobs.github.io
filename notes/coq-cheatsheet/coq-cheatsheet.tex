@@ -69,17 +69,17 @@ With brackets, we do not need to enclose the last subgoal in brackets, thus prev
 \subsection{Goal tactics}
 
 \begin{tabular}{c l}
-  Goal & Tactic \\ \midrule
+  \textbf{Goal} & \textbf{Tactic} \\ \midrule
   $P \to Q$ & \tac{intros H} \\
   $\neg P$ & \tac{intros H} \quad (Coq defines $\neg P$ as $P \to False$) \\
   $\forall x, P(x)$ & \tac{intros x} \\
   $\exists x, P(x)$ & \tac{exists x}, \tac{eexists} \\
   $P \land Q$ & \tac{split} \quad (also works for $P \leftrightarrow Q$, which is defined as $(P \to Q) \land (Q \to P)$)\\
   $P \lor Q$ & \tac{left}, \tac{right} \\
-  $Q$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to Q$ is a lemma or hypothesis with conclusion $Q$) \\
-  $False$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to \neg P$ is a lemma or hypothesis with conclusion $\neg P$) \\
+  $Q$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to Q$ is a lemma with conclusion $Q$) \\
+  $False$ & \tac{apply H}, \tac{eapply H} (where \tac{H} $: (...) \to \neg P$ is a lemma with conclusion $\neg P$) \\
   Any goal & \tac{exfalso} \quad (turns any goal into $False$) \\
-  Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\
+  Skip goal & \tac{admit} \quad (skips goal so that you can work on other subgoals)\\ \midrule
 \end{tabular}
 
 When using \tac{apply H} with a lemma \hyp\ $: P_1 \to P_2 \to Q$, Coq will create subgoals for each assumption $P_1$ and $P_2$.
@@ -99,9 +99,10 @@ If your goal is $\exists n, P\ n$ and you have \hyp\ $: P\ 3$, then you can type
 % When you run into issues, try giving the instantiation explicitly.
 
 \subsection{Hypothesis tactics}
+\vspace{-0.2cm}
 
 \begin{tabular}{l l}
-  Hypothesis & Tactic \\ \midrule
+  \textbf{Hypothesis} & \textbf{Tactic} \\ \midrule
   \hyp\ $: False$ & \tac{destruct H} \\
   \hyp\ $: \exists x, P(x)$ & \tac{destruct H as [x H]} \\
   \hyp\ $: P \land Q$ & \tac{destruct H as [H1 H2]} \\
@@ -109,17 +110,18 @@ If your goal is $\exists n, P\ n$ and you have \hyp\ $: P\ 3$, then you can type
   \hyp\ $: \forall x, P(x)$ & \tac{specialize (H y)}\\
   \hyp\ $: P \to Q$ & \tac{specialize (H G)} \quad (where \hypB\ $: P$ is a lemma or hypothesis) \\
   \hyp\ $: P$ & \tac{apply G in H}, \tac{eapply G in H} \quad (where \hypB\ $: P \to (...)$ is a lemma or hypothesis) \\
-  \hyp\ $: P$, \var\ $: A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis \hyp\ or variable \var) \\
+  \hyp\ $: P$, \var\ $: A$ & \tac{clear H}, \tac{clear x} \quad (remove hypothesis \hyp\ or variable \var) \\ \midrule
 \end{tabular}
 
 \subsection{Forward reasoning}
+\vspace{-0.2cm}
 
 \begin{tabular}{l l}
-  Tactic & Meaning \\ \midrule
+  \textbf{Tactic} & \textbf{Meaning} \\ \midrule
   \tac{assert P as H} & Create new hypothesis \hyp\ $: P$ after proving subgoal $P$ \\
   \tac{assert P as H by tac} & Create new hypothesis \hyp\ $: P$ after proving subgoal $P$ using \tac{tac} \\
   \tac{assert (G := H)} & Duplicate hypothesis \\
-  \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\
+  \tac{cut P} & Split goal $Q$ into two subgoals $P \to Q$ and $P$\\ \midrule
   % \tac{wlog} & ... \\
 \end{tabular}
 
@@ -130,7 +132,7 @@ Brackets are useful with the assert tactic:
 \section{Equality, rewriting, and computation rules}
 
 \begin{tabular}{l l}
-  Tactic & Meaning \\ \midrule
+  \textbf{Tactic} & \textbf{Meaning} \\ \midrule
   \tac{reflexivity} & Solve goal of the form \tac{x = x} or \tac{P $\ciff$ P} \\
   \tac{symmetry} & Turn goal \tac{x = y} into \tac{y = x} (or \tac{P $\ciff$ Q}) \\
   \tac{symmetry in H} & Turn hypothesis \tac{H : x = y} into \tac{H : y = x} (or \tac{P $\ciff$ Q})\\ \midrule
@@ -150,7 +152,7 @@ Brackets are useful with the assert tactic:
   \tac{subst} & Substitute away all equations \tac{H : x = A} with a variable on one side. \\
   \tac{injection H as H} & Use injectivity of \tac{C} to turn \tac{H : C x = C y} into \tac{H : x = y}. \\
   \tac{discriminate H} & Solve goal with inconsistent assumption \tac{H : C x = D y}. \\
-  \tac{simplify\_eq} & Automated tactic that does \tac{subst}, \tac{injection}, and \tac{discriminate} automatically.
+  \tac{simplify\_eq} & Automated tactic that does \tac{subst}, \tac{injection}, and \tac{discriminate} automatically. \\ \midrule
 \end{tabular}
 
 Rewriting also works with quantified equalities.
@@ -164,20 +166,19 @@ You can specify a particular instantiation $n=3, m=5$ using \tac{rewrite (H 3 5)
 \subsection{Inductive types $Foo$}
 
 \begin{tabular}{c l}
-  Term & Tactic \\ \midrule
+  \textbf{Term} & \textbf{Tactic} \\ \midrule
   $x : Foo$ & \tac{destruct x as [a b|c d e|f]} \\
   $x : Foo$ & \tac{destruct x as [a b|c d e|f] eqn:E} \quad (adds equation \tac{E : x = (...)} to context)\\
-  $x : Foo$ & \tac{induction x as [a b IH|c d e IH1 IH2|f IH]} \\
+  $x : Foo$ & \tac{induction x as [a b IH|c d e IH1 IH2|f IH]} \\ \midrule
 \end{tabular}
 
 \subsection{Inductive relations $Foo\ x\ y$}
 
 \begin{tabular}{c l}
-  Goal & Tactic \\ \midrule
-  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} \quad (tries to solve goal by applying all constructors of $Foo$) \vspace{0.5cm} \\
-  Hypothesis & Tactic \\ \midrule
+  \textbf{Goal/Hypothesi}s & \textbf{Tactic} \\ \midrule
+  $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} \quad (tries applying all constructors of $Foo$) \\
   $H : Foo\ x\ y$ & \tac{inversion H} \quad (use when $x$,$y$ are fixed terms) \\
-  $H : Foo\ x\ y$ & \tac{induction H} \quad (use when $x$,$y$ are variables)\\
+  $H : Foo\ x\ y$ & \tac{induction H} \quad (use when $x$,$y$ are variables)\\  \midrule
 \end{tabular}
 
 It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
@@ -186,9 +187,9 @@ It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H;
 The \tac{revert} tactic is useful to obtain the correct induction hypothesis:
 
 \begin{tabular}{c l}
-Hypothesis & Tactic \\ \midrule
+\textbf{Hypothesis} & \textbf{Tactic} \\ \midrule
 $H : P$ & \tac{revert H} \quad (opposite of \tac{intros H}: turn goal $Q$ into $P \to Q$) \\
-$x : A$ & \tac{revert x} \quad (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\
+$x : A$ & \tac{revert x} \quad (opposite of \tac{intros x}: turn goal $Q$ into $\forall x, Q$) \\ \midrule
 \end{tabular}
 
 A common pattern is \tac{revert x. induction n; intros x; simpl.}
@@ -211,7 +212,7 @@ splits the conjunction, unpacks the existential, case analyzes the $x : option\ 
 The intros tactic can also be chained to introduce multiple hypotheses: \tac{intros x y.} $\equiv$ \tac{intros x. intros y.}
 
 \begin{tabular}{c l}
-  Data & Pattern \\ \midrule
+  \textbf{Data} & \textbf{Pattern} \\ \midrule
   $\exists x, P$ & \tac{[x H]} \\
   $P \land Q$ & \tac{[H1 H2]} \\
   $P \lor Q$ & \tac{[H1|H2]} \\
@@ -226,7 +227,7 @@ The intros tactic can also be chained to introduce multiple hypotheses: \tac{int
   Inductive type & \tac{[]}\quad (unpack with names chosen by Coq) \\ \midrule
   $x = y$ & \tac{->} \quad (substitute the equality $x \mapsto y$)\\
   $x = y$ & \tac{<-} \quad (substitute the equality $y \mapsto x$)\\ \midrule
-  Any & \tac{?}\quad (introduce variable/hypothesis with name chosen by Coq)
+  Any & \tac{?}\quad (introduce variable/hypothesis with name chosen by Coq) \\ \midrule
 \end{tabular}
 
 Furthermore, \tac{(x \& y \& z \& ...)} is equivalent to \tac{[x [y [z ...]]]}.
@@ -240,7 +241,7 @@ You can also use them with the \tac{apply H in G as pat} tactic.
 \section{Composing tactics}
 
 \begin{tabular}{l l}
-  Tactic & Meaning \\ \midrule
+  \textbf{Tactic} & \textbf{Meaning} \\ \midrule
   \tac{tac1; tac2} & Do \tac{tac2} on all subgoals created by \tac{tac1}. \\
   \tac{tac1; [tac2|..]} & Do \tac{tac2} only on the first subgoal. \\
   \tac{tac1; [..|tac2]} & Do \tac{tac2} only on the last subgoal. \\
@@ -249,13 +250,27 @@ You can also use them with the \tac{apply H in G as pat} tactic.
   \tac{tac1 || tac2} & Try \tac{tac1} and if it fails do \tac{tac2}. \\
   \tac{try tac1} & Try \tac{tac1}, and do nothing if it fails. \\
   \tac{repeat tac1} & Repeatedly do \tac{tac1} until it fails. \\
-  \tac{progress tac1} & Do \tac{tac1} and fail if it does nothing. \\
+  \tac{progress tac1} & Do \tac{tac1} and fail if it does nothing. \\ \midrule
 \end{tabular}
 
 
 \section{Searching for lemmas and definitions}
 
-TODO
+\begin{tabular}{l l}
+  \textbf{Command} & \textbf{Meaning} \\ \midrule
+  \tac{Search nat.} & Prints all lemmas and definitions about \tac{nat}. \\
+  \tac{Search (0 + _ = _).} & Prints all lemmas containing the pattern \tac{0 + _ = _}. \\
+  \tac{Search (_ + _ = _) 0.} & Prints all lemmas containing \tac{_ + _ = _} and \tac{0}. \\
+  \tac{Search (list _ -> list _).} & Prints all definitions and lemmas containing the pattern. \\
+  \tac{Search Nat.add Nat.mul.} & Prints all lemmas relating addition and multiplication. \\
+  \tac{Search "rev".} & Prints all definitions and lemmas containing substring "rev". \\
+  \tac{Search "+"$\ $"*"$\ $"=".} & Prints all definitions and lemmas containing both\ \ \tac{+, *, =}. \\ \midrule
+  \tac{Check (1+1).} & Prints the type of \tac{1+1} \\
+  \tac{Compute (1+1).} & Prints the normal form of \tac{1+1}. \\
+  \tac{Print Nat.add.} & Prints the definition of \tac{Nat.add} \\
+  \tac{About Nat.add.} & Prints information about identifier \tac{Nat.add}. \\
+  \tac{Locate "+".} & Prints information about notation "+". \\ \midrule
+\end{tabular}
 
 \section{Common error messages}
 
