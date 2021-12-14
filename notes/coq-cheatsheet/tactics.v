@@ -14,4 +14,4 @@ Tactic Notation "simplify_eq" := repeat
   end.
 
 (* Inversion tactic that cleans up the original hypothesis and generated equalities. *)
-Ltac inv H := inversion H; clear H; simplify_eq; (fail || idtac; [idtac]).
+Ltac inv H := inversion H; clear H; simplify_eq.
