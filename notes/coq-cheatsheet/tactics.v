@@ -1,3 +1,4 @@
+(* Simplifies equations by doing substitution and injection. *)
 Tactic Notation "simplify_eq" := repeat
   match goal with
   | H : ?f _ = ?f _ |- _ => progress injection H as H
@@ -12,4 +13,6 @@ Tactic Notation "simplify_eq" := repeat
   | _ => congruence || (progress subst)
   end.
 
-Ltac inv H := inversion H; clear H; simplify_eq.
+(* Inversion tactic that cleans up the original hypothesis and generated equalities.
+   The tactic is made to fail if it produces more than 1 subgoal. *)
+Ltac inv H := inversion H; clear H; simplify_eq; (fail || idtac; [idtac]).
