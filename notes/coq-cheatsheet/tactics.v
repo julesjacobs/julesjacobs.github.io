@@ -13,6 +13,5 @@ Tactic Notation "simplify_eq" := repeat
   | _ => congruence || (progress subst)
   end.
 
-(* Inversion tactic that cleans up the original hypothesis and generated equalities.
-   The tactic is made to fail if it produces more than 1 subgoal. *)
+(* Inversion tactic that cleans up the original hypothesis and generated equalities. *)
 Ltac inv H := inversion H; clear H; simplify_eq; (fail || idtac; [idtac]).

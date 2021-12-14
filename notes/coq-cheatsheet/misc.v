@@ -15,9 +15,25 @@ Tactic Notation "simplify_eq" := repeat
   | _ => congruence || (progress subst)
   end.
 
-(* Inversion tactic that cleans up the original hypothesis and generated equalities.
-   The tactic is made to fail if it produces more than 1 subgoal. *)
-Ltac inv H := inversion H; clear H; simplify_eq; (fail || idtac; [idtac]).
+Ltac inv H := inversion H; clear H; simplify_eq.
+
+
+Inductive even : nat -> Prop :=
+  | O_even : even 0
+  | SS_even n : even n -> even (S (S n)).
+
+Inductive bha : nat -> Prop :=
+  | O_bha : bha 0.
+
+Inductive bho : nat -> Prop := .
+
+Lemma test n : bho n -> bha n -> even n -> False.
+Proof.
+  intros H1 H2 H3.
+  inversion H1; (fail || idtac); [|fail..].
+  inversion H; [idtac].
+  inv H.
+
 
 Ltac rew := repeat
   match goal with
@@ -54,6 +70,12 @@ Fixpoint add (n m : nat) :=
   | 0 => m
   | S n => S (add n m)
   end.
+
+Lemma test n : even n -> False.
+Proof.
+  intros H.
+  inversion H.
+  inv H.
 
 Lemma add_0 n : add n 0 = n.
 Proof.
