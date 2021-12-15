@@ -27,13 +27,6 @@ Inductive bha : nat -> Prop :=
 
 Inductive bho : nat -> Prop := .
 
-Lemma test n : bho n -> bha n -> even n -> False.
-Proof.
-  intros H1 H2 H3.
-  inversion H1; (fail || idtac); [|fail..].
-  inversion H; [idtac].
-  inv H.
-
 
 Ltac rew := repeat
   match goal with
@@ -52,30 +45,35 @@ Ltac simp := repeat
   | |- forall x,_ => intro
   | _ => progress simpl in *
   | _ => progress simplify_eq
-  | _ => solve eauto
+  | _ => solve [eauto]
+  | _ => solve [econstructor; eauto]
+  end.
+
+Ltac destr :=
+  match goal with
   | H : _ \/ _ |- _ => destruct H
   | |- _ /\ _ => split
-  | |- context[if ?x then _ else _] => destruct ?x eqn:?
-  | |- context[match ?x with _ => _ end] => destruct ?x eqn:?
-  | H : context[if ?x then _ else _] |- _ => destruct ?x eqn:?
-  | H : context[match ?x with _ => _ end] |- _ => destruct ?x eqn:?
+  | |- context[if ?x then _ else _] => destruct x eqn:?
+  | |- context[match ?x with _ => _ end] => destruct x eqn:?
+  | H : context[if ?x then _ else _] |- _ => destruct x eqn:?
+  | H : context[match ?x with _ => _ end] |- _ => destruct x eqn:?
   end.
 
-Inductive even : nat -> Prop :=
-  | O_even : even 0
-  | SS_even n : even n -> even (S (S n)).
+Tactic Notation "butone" tactic(tac) := (tac; fail) || (tac; [idtac]).
 
-Fixpoint add (n m : nat) :=
-  match n with
-  | 0 => m
-  | S n => S (add n m)
-  end.
+Ltac simpd := simp; do 5 try butone (destr; simp).
 
-Lemma test n : even n -> False.
+From iris Require Import bi.
+
+Lemma test (P Q R : Prop) : (P ∧ Q) ∨ Q -> (Q -> False) -> P ∧ Q.
 Proof.
-  intros H.
-  inversion H.
-  inv H.
+  simpd.
+Qed.
+
+Lemma test' (n:nat) (b:bool) : (if decide (n=0) then 0 else n) = n.
+Proof.
+  simpd.
+Qed.
 
 Lemma add_0 n : add n 0 = n.
 Proof.
