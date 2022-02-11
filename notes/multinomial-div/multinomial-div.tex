@@ -1,0 +1,75 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+
+\title{Divisibility of multinomial coefficients}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+  Together with Ike Mulder we discovered a fun little divisibility property of multinomial coefficients (probably well-known!).
+\end{abstract}
+
+Our starting point is that not only the binomial coefficient $\frac{(a+b)!}{a! b!}$ is a whole number,
+but also the Catalan numbers $\frac{(2n)!}{n! (n+1)!} = \frac{(2n)!}{n!n!} / (n+1)$ are whole numbers.
+That $(a+b)!$ is divisible by $a! b!$ is already a small miracle, but the Catalan numbers show that it can be divided even further in certain cases. Our question is: does this generalize to other binomial coefficients?
+
+The answer turns out to be yes: if $\gcd(a, b) = 1$ then $\frac {(a + b - 1)!}{a! b!}$ is a whole number.
+Note that this implies the Catalan divisibility because $\gcd(n,n+1) = 1$.
+
+The divisibility generalizes to multinomial coefficients:
+
+\begin{nlemma}
+  If $\gcd(a_1, \dots, a_n) = 1$ then
+  \begin{align}
+    \label{omultinom}
+    \frac
+      {(a_1 + \cdots + a_n - 1)!}
+      {a_1! \cdots a_n!}
+  \end{align}
+  is a whole number.
+\end{nlemma}
+\begin{proof}
+  From the $\gcd$ assumption, we have integers $k_1,\dots,k_n$ such that
+  \begin{align*}
+    1 = a_1 k_1 + \cdots + a_n k_n
+  \end{align*}
+  Multiply both sides by (\ref{omultinom}):
+  \begin{align*}
+    \frac
+      {(a_1 + \cdots + a_n - 1)!}
+      {a_1! \cdots a_n!} &=
+        \frac
+          {(a_1 + \cdots + a_n - 1)!}
+          {a_1! \cdots a_n!} a_1 k_1
+        + \cdots +
+        \frac
+          {(a_1 + \cdots + a_n - 1)!}
+          {a_1! \cdots a_n!} a_n k_n \\
+      &=
+      \frac
+          {(a_1 + \cdots + a_n - 1)!}
+          {(a_1 - 1)! \cdots a_n!} k_1
+        + \cdots +
+        \frac
+          {(a_1 + \cdots + a_n - 1)!}
+          {a_1! \cdots (a_n - 1)!} k_n
+  \end{align*}
+  The right hand side is an integer because multinomial coefficients are integers.
+\end{proof}
+
+Slightly more generally, the proof shows that
+  $\frac
+    {(a_1 + \cdots + a_n - 1)! \gcd(a_1, \dots, a_n)}
+    {a_1! \cdots a_n!}$
+is always a whole number.
+\end{document}
