@@ -1,0 +1,64 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+
+\title{A paradoxical local minimum}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+Suppose that we have a function $f : \R^2 \to \R$ and a point $p$ such that if we restrict $f$ to any line through $p$, then $p$ is a strict local minimum on that line.
+That is, if we move away from $p$ along any line, then $f$ immediately increases, in any direction.
+
+Surely, then $p$ must be a local minimum, right?
+
+Surprisingly, the answer is no. There are functions satisfying those conditions, where $p$ is not a local minimum.
+It can still happen that if we move away from $p$ in a curved line, then $f$ immediately decreases.
+
+Surely those are some kind of crazy discontinuous functions?
+Unfortunately, mathematics is cruel to us, and provides us with counterexamples that are continuous, and even smooth. Heck, there are counterexamples that are \emph{polynomials}!
+
+Take $f(x,y) = 2(x^2 + y^2 - 1)^2 - y^4$ and $p = (1,0)$, so that $f(p) = 0$.
+
+\textbf{$p$ is not a local minimum:}
+Take the path $(x(t),y(t)) = (\cos(t),\sin(t))$ for $t$ close to $0$. We have
+\begin{align*}
+  f(x(t),y(t)) = 2(\cos(t)^2 + \sin(t)^2 - 1)^2 - \sin(t)^4 = -\sin(t)^4 = -t^4 + O(t^5)
+\end{align*}
+Hence, $f(x(t),y(t)) = 0$ for $t = 0$ and then as we move $t$ slightly away from $0$, the value of $f$ becomes \emph{negative} and decrease as we move away from $t=0$ (at least, for $t$ sufficiently small).
+
+\textbf{$p$ is a local minimum on any straight line:}
+Take an aribtrary straight line $(x(t),y(t)) = (1,0) + (a,b)t = (1 + at, bt)$ where $a$ and $b$ determine the direction. We have
+\begin{align*}
+  f(x(t),y(t))
+    &= 2((1 + at)^2 + (bt)^2 - 1)^2 - (bt)^4 \\
+    &= 2((at)^2 + 2at + (bt)^2)^2 - (bt)^4 \\
+    &= 2(2at)^2 + O(t^3)
+\end{align*}
+Hence, $f(x(t),y(t)) = 0$ for $t = 0$ and then as we move $t$ slightly away from $0$, the value of $f$ becomes \emph{positive} and increases as we move away from $t=0$ (at least, for $t$ sufficiently small).
+
+Therefore, $f$ is an example of such a paradoxical function: $f(p) = 0$, and as we move away from $p$ along any line in any direction, $f$ immediately increases to above $0$, but $p$ is not a local minimum: if we move away from $p$ along our curve, $f$ immediately decreases to below $0$.
+
+\textbf{Order of quantifiers.}
+The reason for the paradox above is the difference in the order of quantifiers. The statement "$p$ is a local minimum" says that there exists a $\epsilon>0$ such that for points $p' \neq p$ at most distance $\epsilon$ away from $p$, we have $f(p') \geq f(p)$.
+The statement "$p$ is a local minimum on each line" on the other hand says that \emph{for every direction $d$} there exists a $\delta(d)>0$ such that "$f(p') < f(p)$ for $p' \neq p$ on the line".
+
+One might think that we could prove the former from the latter by taking $\epsilon = \inf_d \delta(d)$, but that doesn't work: even though $\delta(d) > 0$ for every $d$, we will have $\inf_d \delta(d) = 0$ for the example above.
+
+\textbf{The second derivative test.}
+In a calculus course we learn the second derivative test for local minima.
+For multidimensional functions $f : \R^n \to \R$ this says that $p \in R^n$ is a local minimum if the Hessian $Hf(p)$ is positive definite.
+Although this theorem is rather dull, it does have some value because it allows us to prove a quantified statement (that $p$ is a local minimum) with a computation (compute Hessian at $p$ and check that it is positive definite using the pivots of Gaussian elimination).
+The example above shows that the condition "positive definite" is necessary, and cannot be relaxed to "positive semidefinite".
+Although such counterexamples are sometimes presented in convex analysis courses to show why convexity is nice (for convex functions is truly is true that if $p$ is a local minimum if $p$ is a local minimum on every line), such counterexamples are not often presented in calculus course. Maybe they should be, as it can improve the perceived value of the second derivative test, which would seem rather weak otherwise.
+
+
+\end{document}
