@@ -39,9 +39,8 @@ Hence, $f(x(t),y(t)) = 0$ for $t = 0$ and then as we move $t$ slightly away from
 Take an aribtrary straight line $(x(t),y(t)) = (1,0) + (a,b)t = (1 + at, bt)$ where $a$ and $b$ determine the direction. We have
 \begin{align*}
   f(x(t),y(t))
-    &= 2((1 + at)^2 + (bt)^2 - 1)^2 - (bt)^4 \\
-    &= 2((at)^2 + 2at + (bt)^2)^2 - (bt)^4 \\
-    &= \begin{cases}
+    = 2((1 + at)^2 + (bt)^2 - 1)^2 - (bt)^4
+    = \begin{cases}
       2(2at)^2 + O(t^3) & \text{if $a \neq 0$} \\
       (bt)^4 & \text{if $a = 0$} \\
     \end{cases}
