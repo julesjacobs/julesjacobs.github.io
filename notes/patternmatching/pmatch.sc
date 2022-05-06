@@ -357,6 +357,25 @@ result5.pp()
 
 
 
+// let balance (l : 'a tree) (v : 'a) (r : 'a tree) : 'a tree * 'a * 'a tree =
+//   match l, v, r with
+//   | Node(Red, Node(Red, t1, a, t2), b, t3), c, t4
+//   | Node(Red, t1, a, Node(Red, t2, b, t3)), c, t4
+//   | t1, a, Node(Red, Node(Red, t2, b, t3), c, t4)
+//   | t1, a, Node(Red, t2, b, Node(Red, t3, c, t4)) ->
+//     Node(Red, t1, a, t2), b, Node(Red, t3, c, t4)
+//   | l, v, r -> l, v, r
+val leaf = Constr("leaf",List())
+def cons(a:Pat,b:Pat) = Constr("cons", List(a,b))
+def int(a:Pat) = Constr("int", List(a))
+def vall(a:Pat) = Constr("val", List(a))
+def test(a:Pat,b:Pat) = Constr("test", List(a,b))
+val i = Var("i")
+val c = Var("c")
+val e = Var("e")
+val a = Var("a")
+val op = Var("op")
+
 // Thoughts:
 // - Most real pattern matches are relatively simple; they don't have any tricky cases that lead to duplication
 // - Pretty much any reasonable algorithm will do well on those
