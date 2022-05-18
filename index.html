@@ -45,8 +45,8 @@
 
     h2 {
       font-size: 14pt;
-      margin-top: 12px;
-      margin-bottom: 5px;
+      margin-top: 15px;
+      margin-bottom: 15px;
     }
 
     h1, h2, h3 {
@@ -100,11 +100,12 @@
 
     .pub tr td:first-child {
       color: gray;
-      text-align: left;
+      text-align: center;
       padding-right: 0.3em;
       padding-top: 2px;
       vertical-align: top;
-      width: 3.8em;
+      width: 6em;
+      vertical-align: center;
       font-size: 14px;
     }
 
@@ -160,6 +161,7 @@
 
     #notes tr td:first-child {
       width: 6em;
+      text-align: center;
     }
 
     #talks .info {
@@ -171,6 +173,7 @@
 
     #talks tr td:first-child {
       width: 7em;
+      text-align: center;
     }
 
     #talks td {
@@ -243,7 +246,25 @@
 
   <h2>Publications</h2>
   <table class="pub" id="publications">
-    <tr id="paradoxes">
+    <tr id="lambdabar">
+      <td>ECOOP'22</td>
+      <td>
+        <a class="title" href="pdf/lambdabar.pdf">A Self-Dual Distillation of Session Types</a><br>
+        <div class="info">
+          <div class="authors">Jules Jacobs</div>
+          <a class="button" href="pdf/lambdabar.pdf">pdf</a>
+          <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
+          <!-- <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a> -->
+          <!-- <a class="button" href="https://zenodo.org/record/4075076">code</a> -->
+          <!-- <a class="button" href="slides/measurezero.pdf">slides</a> -->
+          <!-- <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a> -->
+
+          <!-- <textarea class="bibtex" id="paradoxes-bibtex"></textarea> -->
+        </div>
+      </td>
+    </tr>
+
+    <tr id="cgraphs">
       <td>POPL'22</td>
       <td>
         <a class="title" href="pdf/deadlocks.pdf">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a><br>
