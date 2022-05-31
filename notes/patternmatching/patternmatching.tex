@@ -87,7 +87,7 @@
 
 \abstract{
 \newcommand{\One}{\mathsf{Zero}}
-  This is a note about compiling ML-style pattern matching to decision trees. I try to keep it as simple as possible while still presenting the key idea of efficient pattern match compilation.
+  This is a note about compiling ML-style pattern matching to decision trees. I try to keep it simple while still presenting the key idea of efficient pattern match compilation \cite{maranget_compiling_2008}.
 }
 
 
@@ -283,6 +283,14 @@ To take advantage of types, you can keep track of the remaining possible constru
 \section{Code}
 
 Scala code that implements the algorithm can be found at \\ \url{https://julesjacobs.com/notes/patternmatching/pmatch.sc}
+
+\medskip
+
+\noindent
+\href{https://yorickpeterse.com/}{Yorick Peterse} implemented a much more advanced version in Rust:  \\
+\url{https://gitlab.com/yorickpeterse/pattern-matching-in-rust/-/tree/main/jacobs2021}.
+This version supports integer literals and ranges, or-patterns, and guards.
+The repository also contains a good README explaining the algorithm and how to implement the advanced features.
 
 \nocite{*}
 \bibliographystyle{alpha}
