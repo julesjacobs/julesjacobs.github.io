@@ -92,6 +92,7 @@
 
 
 \newcommand{\matchwith}[1]{&\mathbf{match}\ #1\ \mathbf{with}}
+\newcommand{\matchclauses}{&\mathbf{match}}
 \newcommand{\clause}[2]{&\mathbf{\mid}\ #1\quad &&\implies #2 &}
 \newcommand{\multimatch}{&\mathbf{multimatch}}
 \newcommand{\constr}[1]{\mathsf{\textcolor{black}{#1}}}
@@ -134,6 +135,7 @@ This does mean that we \emph{must} start by trying to match the first pattern: i
 
 It will be useful to represent the pattern matching problem as a list of conditions to be tested:
 \begin{alignat*}{4}
+\matchclauses \\
 \clause{\ba \is \Add(\Zero, \Zero)}{e_1} \\
 \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
 \clause{\ba \is \Add(\Succ(\fvar x), \fvar y)}{e_3} \\
@@ -166,6 +168,7 @@ Let's see how to do this for the example. We start working on the first equation
 \end{alignat*}
 Then we have to solve the following sub problem for $A$:
 \begin{alignat*}{4}
+  \matchclauses \\
   \clause{\bvar{a_1} \is \Zero,\ \bvar{a_2} \is \Zero}{e_1} \\
   \clause{\bvar{a_1} \is \Succ(\fvar x),\ \bvar{a_2} \is \fvar y}{e_3} \\
   \clause{\bvar{a_1} \is \fvar x,\ \bvar{a_2} \is \Zero}{e_6} \\
@@ -173,6 +176,7 @@ Then we have to solve the following sub problem for $A$:
 \end{alignat*}
 Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$. This is the sub problem for $B$:
 \begin{alignat*}{4}
+  \matchclauses \\
   \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
   \clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
   \clause{\ba \is \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
@@ -181,6 +185,7 @@ Notice how we now have multiple equations per clause, corresponding to the $\fva
 
 We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
+  \matchclauses \\
   \clause{\bvar{a_1} \is \Zero, \bvar{a_2} \is \Zero}{e_1} \\
   \clause{\bvar{a_1} \is \Succ(\fvar x)}{\lett{\fvar y}{\bvar{a_2}} e_3} \\
   \clause{\bvar{a_2} \is \Zero}{\lett{\fvar x}{\bvar{a_1}} e_6} \\
