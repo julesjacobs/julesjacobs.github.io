@@ -92,6 +92,7 @@
 
 
 \newcommand{\matchwith}[1]{&\mathbf{match}\ #1\ \mathbf{with}}
+\newcommand{\matchwithZ}[1]{&\mathbf{match\#}\ #1\ \mathbf{with}}
 \newcommand{\matchclauses}{&\mathbf{match}}
 \newcommand{\clause}[2]{&\mathbf{\mid}\ #1\quad &&\implies #2 &}
 \newcommand{\multimatch}{&\mathbf{multimatch}}
@@ -133,7 +134,7 @@ This does mean that we \emph{must} start by trying to match the first pattern: i
 
 \newcommand{\is}{\mathbf{\ is\ }}
 
-It will be useful to represent the pattern matching problem as a list of conditions to be tested:
+It will be useful to represent a $\mathbf{match}$ expression not as a list of patterns implicitly testing against an outer variable $\ba$, but as a list of clauses that each specify explicitly what it tests against:
 \begin{alignat*}{4}
 \matchclauses \\
 \clause{\ba \is \Add(\Zero, \Zero)}{e_1} \\
@@ -153,16 +154,16 @@ In general, each clause can have multiple tests and will be of the form
 Where $\bvar{a_1},\ \dots\, \bvar{a_k}$ are bound variables, and $\patt_1,\ \dots,\ \patt_k$ are patterns.
 This additional flexiblity will turn out to be useful during pattern match compilation.
 
-Our goal will be an algorithm that takes as input such a list of clauses, and outputs a tree of simple pattern matches that test against a single constructor:
+Our goal will be an algorithm that takes as input such a list of clauses, and outputs a tree of simple primitive pattern matches ($\mathbf{match\#}$) that test against a single constructor:
 \begin{alignat*}{4}
-  \matchwith{\ba} \\
+  \matchwithZ{\ba} \\
   \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{[A]} \\
   \clause{\_}{[B]}
 \end{alignat*}
 
 Let's see how to do this for the example. We start working on the first equation by testing $\ba$ against the $\Add$ constructor with the following pattern match:
 \begin{alignat*}{4}
-  \matchwith{\ba} \\
+  \matchwithZ{\ba} \\
   \clause{\Add(\fvar{a_1}, \fvar{a_2})}{[A]} \\
   \clause{\_}{[B]}
 \end{alignat*}
@@ -198,7 +199,7 @@ We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is
 
 We now continue matching by trying to match $\bvar{a_1} = \Zero$, by generating the pattern match:
 \begin{alignat*}{4}
-  \matchwith{\bvar{a_1}} \\
+  \matchwithZ{\bvar{a_1}} \\
   \clause{\Zero}{[C]} \\
   \clause{\_}{[D]}
 \end{alignat*}
@@ -213,11 +214,11 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
   \item Select one of the equations $\ba = \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
-    \matchwith{\ba} \\
-    \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{A} \\
-    \clause{\_}{B}
+    \matchwithZ{\ba} \\
+    \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{[A]} \\
+    \clause{\_}{[B]}
   \end{alignat*}
-  \item Create the two sub problems $A$ and $B$ as follows by iterating over all the clauses. One of three cases can happen:
+  \item Create the two sub problems $[A]$ and $[B]$ as follows by iterating over all the clauses. One of three cases can happen:
   \begin{enumerate}
     \item The clause contains an equation $\ba \is \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
           Add the expanded clause $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n, \dots \text{REST} \dots$ to $A$. \\
@@ -253,7 +254,7 @@ Consider this example:
   \clause{\Add(\fvar x, \Zero)}{e_5}
 \end{alignat*}
 For the outer constructor we have no choice, but for the inner constructors we can either test $\Add(\fvar x, \fvar y)$ first or $\Zero$ first. If we test $\Add(\fvar x, \fvar y)$ first, then we end up duplicating the $e_3$ and $e_4$ clauses. Our heuristic chooses to match on $\Zero$ instead, which leads to optimal code without any duplication:
-\newcommand{\matchwithp}[1]{\mathbf{match}\ #1\ \mathbf{with}}
+\newcommand{\matchwithp}[1]{\mathbf{match\#}\ #1\ \mathbf{with}}
 \newcommand{\clausep}[2]{\mathbf{\mid}\ #1\quad \implies #2 }
 \begin{flalign*}
 &\matchwithp{\ba} \\
