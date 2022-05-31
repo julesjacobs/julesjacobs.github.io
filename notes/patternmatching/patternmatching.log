@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.23)  31 MAY 2022 23:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2022.5.23)  31 MAY 2022 23:48
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -842,25 +842,20 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-
-Overfull \hbox (52.65007pt too wide) in paragraph at lines 299--305
-[][]$\T1/cmtt/m/n/10 https : / / gitlab . com / yorickpeterse / pattern-[]matching-[]in-[]rust / -[] / tree / main / jacobs2021$[][]\T1/mdbch/m/n/10 (-20) .
- []
-
-(./patternmatching.bbl) [5] (./patternmatching.aux)
+ (./patternmatching.bbl) [5] (./patternmatching.aux)
 Package rerunfilecheck Info: File `patternmatching.out' has not changed.
 (rerunfilecheck)             Checksum: F349A7905E7E4A4BF401C415FFDA264A;655.
  ) 
 Here is how much of TeX's memory you used:
- 16963 strings out of 478268
- 266463 string characters out of 5846347
+ 16961 strings out of 478268
+ 266441 string characters out of 5846347
  624755 words of memory out of 5000000
  34601 multiletter control sequences out of 15000+600000
- 542418 words of font info for 280 fonts, out of 8000000 for 9000
+ 542302 words of font info for 278 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  68i,10n,76p,1073b,496s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2022/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/local/texlive/2022/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/bitstrea/charter/bchr8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/bitstrea/charter/bchri8a.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr8t.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sfss1000.pfb></usr/local/texlive/2022/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on patternmatching.pdf (5 pages, 108358 bytes).
+Output written on patternmatching.pdf (5 pages, 102232 bytes).
 PDF statistics:
  128 PDF objects out of 1000 (max. 8388607)
  103 compressed objects within 2 object streams
