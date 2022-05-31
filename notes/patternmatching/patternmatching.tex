@@ -176,15 +176,7 @@ Then we have to solve the following sub problem for $A$:
   \clause{\bvar{a_1} \is \fvar x,\ \bvar{a_2} \is \Zero}{e_6} \\
   \clause{\ba \is \fvar x}{e_7}
 \end{alignat*}
-Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$. This is the sub problem for $B$:
-\begin{alignat*}{4}
-  [B]\ =\\
-  \matchclauses \\
-  \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
-  \clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
-  \clause{\ba \is \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
-  \clause{\ba \is \fvar x}{e_7}
-\end{alignat*}
+Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$.
 
 We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
@@ -204,6 +196,19 @@ We now continue matching by trying to match $\bvar{a_1} = \Zero$, by generating 
   \clause{\_}{[D]}
 \end{alignat*}
 And continuing recursively for $[C]$ and $[D]$.
+
+\medskip
+
+\noindent
+The sub problem for $[B]$ is obtained by removing all the clauses with $\ba \is \mathsf{Add(\dots,\dots)}$ from the original problem:
+\begin{alignat*}{4}
+  [B]\ =\\
+  \matchclauses \\
+  \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
+  \clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
+  \clause{\ba \is \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+  \clause{\ba \is \fvar x}{e_7}
+\end{alignat*}
 
 \section{The general algorithm}
 
