@@ -211,7 +211,7 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
 
 \begin{enumerate}
   \item Push bare equations $\ba \is \fvar y$ into the right hand sides, so that all the remaining equations test constructors.
-  \item Select one of the equations $\ba = \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
+  \item Select one of the equations $\ba \is \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
     \matchwithZ{\ba} \\
@@ -229,7 +229,7 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
     \item The clause contains no equation for $\ba$. Add this clause to both $A$ and $B$.
   \end{enumerate}
   (note that each clause can only have one equation for $\ba$)
-  \item Recursively generate code for $A$ and $B$.
+  \item Recursively generate code for $[A]$ and $[B]$.
 \end{enumerate}
 
 \medskip
