@@ -163,11 +163,12 @@ Our goal will be an algorithm that takes as input such a list of clauses, and ou
 Let's see how to do this for the example. We start working on the first equation by testing $\ba$ against the $\Add$ constructor with the following pattern match:
 \begin{alignat*}{4}
   \matchwith{\ba} \\
-  \clause{\Add(\fvar{a_1}, \fvar{a_2})}{A} \\
-  \clause{\_}{B}
+  \clause{\Add(\fvar{a_1}, \fvar{a_2})}{[A]} \\
+  \clause{\_}{[B]}
 \end{alignat*}
 Then we have to solve the following sub problem for $A$:
 \begin{alignat*}{4}
+  [A]\ =\\
   \matchclauses \\
   \clause{\bvar{a_1} \is \Zero,\ \bvar{a_2} \is \Zero}{e_1} \\
   \clause{\bvar{a_1} \is \Succ(\fvar x),\ \bvar{a_2} \is \fvar y}{e_3} \\
@@ -176,6 +177,7 @@ Then we have to solve the following sub problem for $A$:
 \end{alignat*}
 Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$. This is the sub problem for $B$:
 \begin{alignat*}{4}
+  [B]\ =\\
   \matchclauses \\
   \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
   \clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
@@ -185,6 +187,7 @@ Notice how we now have multiple equations per clause, corresponding to the $\fva
 
 We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
+  [A]\ =\\
   \matchclauses \\
   \clause{\bvar{a_1} \is \Zero, \bvar{a_2} \is \Zero}{e_1} \\
   \clause{\bvar{a_1} \is \Succ(\fvar x)}{\lett{\fvar y}{\bvar{a_2}} e_3} \\
@@ -196,10 +199,10 @@ We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is
 We now continue matching by trying to match $\bvar{a_1} = \Zero$, by generating the pattern match:
 \begin{alignat*}{4}
   \matchwith{\bvar{a_1}} \\
-  \clause{\Zero}{C} \\
-  \clause{\_}{D}
+  \clause{\Zero}{[C]} \\
+  \clause{\_}{[D]}
 \end{alignat*}
-And continuing recursively for $C$ and $D$.
+And continuing recursively for $[C]$ and $[D]$.
 
 \section{The general algorithm}
 
