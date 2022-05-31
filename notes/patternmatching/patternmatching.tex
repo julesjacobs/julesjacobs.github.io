@@ -130,18 +130,28 @@ This does mean that we \emph{must} start by trying to match the first pattern: i
 
 \section{Compiling the example}
 
-Let's represent the pattern matching problem as a list of equations to be tested:
+\newcommand{\is}{\mathbf{\ is\ }}
+
+It will be useful to represent the pattern matching problem as a list of conditions to be tested:
 \begin{alignat*}{4}
-\clause{\ba = \Add(\Zero, \Zero)}{e_1} \\
-\clause{\ba = \Mul(\Zero, \fvar{x})}{e_2} \\
-\clause{\ba = \Add(\Succ(\fvar x), \fvar y)}{e_3} \\
-\clause{\ba = \Mul(\fvar x, \Zero)}{e_4} \\
-\clause{\ba = \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
-\clause{\ba = \Add(\fvar x, \Zero)}{e_6} \\
-\clause{\ba = \fvar x}{e_7} \\
+\clause{\ba \is \Add(\Zero, \Zero)}{e_1} \\
+\clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
+\clause{\ba \is \Add(\Succ(\fvar x), \fvar y)}{e_3} \\
+\clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
+\clause{\ba \is \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+\clause{\ba \is \Add(\fvar x, \Zero)}{e_6} \\
+\clause{\ba \is \fvar x}{e_7} \\
 \end{alignat*}
 
-Our goal will be an algorithm that takes as input such a list of equations, and outputs a tree of simple pattern matches that test against a single constructor:
+\newcommand{\patt}{\mathit{pattern}}
+In general, each clause can have multiple tests and will be of the form
+\begin{alignat*}{4}
+  \clause{\bvar{a_1} \is \patt_1,\ \dots,\ \bvar{a_k} \is \patt_k}{e}
+\end{alignat*}
+Where $\bvar{a_1},\ \dots\, \bvar{a_k}$ are bound variables, and $\patt_1,\ \dots,\ \patt_k$ are patterns.
+This additional flexiblity will turn out to be useful during pattern match compilation.
+
+Our goal will be an algorithm that takes as input such a list of clauses, and outputs a tree of simple pattern matches that test against a single constructor:
 \begin{alignat*}{4}
   \matchwith{\ba} \\
   \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{A} \\
@@ -156,24 +166,24 @@ Let's see how to do this for the example. We start working on the first equation
 \end{alignat*}
 Then we have to solve the following sub problem for $A$:
 \begin{alignat*}{4}
-  \clause{\bvar{a_1} = \Zero, \bvar{a_2} = \Zero}{e_1} \\
-  \clause{\bvar{a_1} = \Succ(\fvar x), \bvar{a_2} = \fvar y}{e_3} \\
-  \clause{\bvar{a_1} = \fvar x, \bvar{a_2} = \Zero}{e_6} \\
-  \clause{\ba = \fvar x}{e_7}
+  \clause{\bvar{a_1} \is \Zero,\ \bvar{a_2} \is \Zero}{e_1} \\
+  \clause{\bvar{a_1} \is \Succ(\fvar x),\ \bvar{a_2} \is \fvar y}{e_3} \\
+  \clause{\bvar{a_1} \is \fvar x,\ \bvar{a_2} \is \Zero}{e_6} \\
+  \clause{\ba \is \fvar x}{e_7}
 \end{alignat*}
 Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$. This is the sub problem for $B$:
 \begin{alignat*}{4}
-  \clause{\ba = \Mul(\Zero, \fvar{x})}{e_2} \\
-  \clause{\ba = \Mul(\fvar x, \Zero)}{e_4} \\
-  \clause{\ba = \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
-  \clause{\ba = \fvar x}{e_7}
+  \clause{\ba \is \Mul(\Zero, \fvar{x})}{e_2} \\
+  \clause{\ba \is \Mul(\fvar x, \Zero)}{e_4} \\
+  \clause{\ba \is \Mul(\Add(\fvar x, \fvar y), \fvar z)}{e_5} \\
+  \clause{\ba \is \fvar x}{e_7}
 \end{alignat*}
 
-We can simplify these problems by pushing bare equations such as $\bvar{a_2} = \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
+We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
-  \clause{\bvar{a_1} = \Zero, \bvar{a_2} = \Zero}{e_1} \\
-  \clause{\bvar{a_1} = \Succ(\fvar x)}{\lett{\fvar y}{\bvar{a_2}} e_3} \\
-  \clause{\bvar{a_2} = \Zero}{\lett{\fvar x}{\bvar{a_1}} e_6} \\
+  \clause{\bvar{a_1} \is \Zero, \bvar{a_2} \is \Zero}{e_1} \\
+  \clause{\bvar{a_1} \is \Succ(\fvar x)}{\lett{\fvar y}{\bvar{a_2}} e_3} \\
+  \clause{\bvar{a_2} \is \Zero}{\lett{\fvar x}{\bvar{a_1}} e_6} \\
   \clause{}{\lett{\fvar x}{\bvar{a}} e_7}
 \end{alignat*}
 (actually, we could have done this for the last equation already in the previous step)
@@ -191,7 +201,7 @@ And continuing recursively for $C$ and $D$.
 Let's generalise and see what's going on. Given a list of clauses to generate a pattern matching tree for, we use this algorithm:
 
 \begin{enumerate}
-  \item Push bare equations $\ba = \fvar y$ into the right hand sides, so that all the remaining equations test constructors.
+  \item Push bare equations $\ba \is \fvar y$ into the right hand sides, so that all the remaining equations test constructors.
   \item Select one of the equations $\ba = \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
@@ -201,11 +211,11 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
   \end{alignat*}
   \item Create the two sub problems $A$ and $B$ as follows by iterating over all the clauses. One of three cases can happen:
   \begin{enumerate}
-    \item The clause contains an equation $\ba = \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
-          Add the expanded clause $\bvar{a_1} = \pat_1, \dots, \bvar{a_n} = \pat_n, \dots \text{REST} \dots$ to $A$. \\
+    \item The clause contains an equation $\ba \is \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
+          Add the expanded clause $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n, \dots \text{REST} \dots$ to $A$. \\
           Make sure that the fresh variable names $a_1,\dots,a_n$ are used consistently in \\
-          $\mathbf{match}\ \ba\ \mathbf{with}\ \C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the equations $\bvar{a_1} = \pat_1, \dots, \bvar{a_n} = \pat_n$.
-    \item The clause contains an equation $\ba = \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
+          $\mathbf{match}\ \ba\ \mathbf{with}\ \C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the equations $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n$.
+    \item The clause contains an equation $\ba \is \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
           Add this clause to $B$ unchanged.
     \item The clause contains no equation for $\ba$. Add this clause to both $A$ and $B$.
   \end{enumerate}
@@ -291,6 +301,7 @@ Scala code that implements the algorithm can be found at \\ \url{https://julesja
 \url{https://gitlab.com/yorickpeterse/pattern-matching-in-rust/-/tree/main/jacobs2021}.
 This version supports integer literals and ranges, or-patterns, and guards.
 The repository also contains a good README explaining the algorithm and how to implement the advanced features.
+The syntax ``$a \is pat$'' was invented by Yorick. I initially used ``$a = pat$'', but I think Yorick's syntax is clearer.
 
 \nocite{*}
 \bibliographystyle{alpha}
