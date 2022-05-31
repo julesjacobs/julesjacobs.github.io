@@ -156,8 +156,8 @@ This additional flexiblity will turn out to be useful during pattern match compi
 Our goal will be an algorithm that takes as input such a list of clauses, and outputs a tree of simple pattern matches that test against a single constructor:
 \begin{alignat*}{4}
   \matchwith{\ba} \\
-  \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{A} \\
-  \clause{\_}{B}
+  \clause{\C(\fvar{a_1}, \dots, \fvar{a_n})}{[A]} \\
+  \clause{\_}{[B]}
 \end{alignat*}
 
 Let's see how to do this for the example. We start working on the first equation by testing $\ba$ against the $\Add$ constructor with the following pattern match:
