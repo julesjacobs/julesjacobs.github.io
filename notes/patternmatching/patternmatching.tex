@@ -178,7 +178,7 @@ Then we have to solve the following sub problem for $A$:
 \end{alignat*}
 Notice how we now have multiple tests per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$.
 
-We can simplify these problems by pushing bare variable tests such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
+We can simplify these problems by pushing test against bare variables such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
   [A]\ =\\
   \matchclauses \\
@@ -215,7 +215,7 @@ The sub problem for $[B]$ is obtained by removing all the clauses with $\ba \is 
 Let's generalise and see what's going on. Given a list of clauses to generate a pattern matching tree for, we use this algorithm:
 
 \begin{enumerate}
-  \item Push bare variable tests $\ba \is \fvar y$ into the right hand sides, so that all the remaining tests test constructors.
+  \item Push tests against bare variables $\ba \is \fvar y$ into the right hand sides using $\mathbf{let}\ y = a$, so that all the remaining tests are against constructors.
   \item Select one of the tests $\ba \is \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
