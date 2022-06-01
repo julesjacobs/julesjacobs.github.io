@@ -283,9 +283,9 @@ This algorithm is a bit different than the algorithms in the literature. It is b
 
 Some of the literature spends effort on avoiding exponential code explosion, and opts to generate redundant tests instead \cite{augustsson_compiling_1985}. Exponential code explosion doesn't occur in practice \cite{scott_when_2000}. Therefore the right approach seems to me to never generate redundant tests, and to try to avoid code duplication using a heuristic as e.g. \cite{maranget_compiling_2008} does.
 
-In fact, the literature shows that for real world code, different pattern matching algorithms generate almost identical code \cite{scott_when_2000,maranget_compiling_2008}. Our approach here is to (1) always work on matching the first clause first, to avoid unnecessary tests and (2) greedily try to minimize duplication using the heuristic. This isn't exactly what is in the literature, but it combines some aspects of the best heuristics in \cite{maranget_compiling_2008}.
+In fact, the literature shows that for real world code, different pattern matching algorithms generate almost identical code \cite{scott_when_2000,maranget_compiling_2008}. Our approach here is to (1) always work on matching the first clause first, to avoid unnecessary tests and (2) greedily try to minimize duplication using the heuristic. This isn't exactly what is in the literature, but it is similar to the heuristics in \cite{maranget_compiling_2008}.
 
-Generating binary tests instead of n-way tests that simultaneously branch on several possible constructors, may be necessary to avoid duplication:
+Generating binary tests instead of n-way tests that simultaneously branch on several possible constructors may be necessary to avoid duplication:
 \begin{alignat*}{4}
   \matchwith{(a,b)} \\
   \clause{(A,\_)}{e_1} \\
@@ -302,7 +302,7 @@ Executing an n-way branch may be compiled more efficiently using a jump table th
 
 Some of the literature uses decision DAGs instead of decision trees. The easiest way to generate a decision DAG is simply to generate a decision tree and then compress it to a DAG using hash consing \cite{maranget_compiling_2008}. A simpler though less optimal solution is to only do this for the right hand sides, and not for the internal nodes of the decision tree: we could generate a separate basic block for each unique right hand side, and replace the right hand sides by a jump to the corresponding basic block.
 
-To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating the error cases when there are no remaining possible constructors. You can then do exhaustiveness checking by looking if an error case was generated or not. You can check for unreachable patterns by looking at whether one of the orignal right hand sides $e_i$ doesn't appear in the decision tree.
+To take advantage of types, you can keep track of the remaining possible constructors of each variable. This way you can avoid generating the error cases when there are no remaining possible constructors. You can then do exhaustiveness checking by looking if an error case was generated or not. You can check for redundant patterns by looking at whether one of the orignal right hand sides $e_i$ doesn't appear in the decision tree.
 
 \section{Code}
 
