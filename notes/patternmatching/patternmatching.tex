@@ -161,7 +161,7 @@ Our goal will be an algorithm that takes as input such a list of clauses, and ou
   \clause{\_}{[B]}
 \end{alignat*}
 
-Let's see how to do this for the example. We start working on the first equation by testing $\ba$ against the $\Add$ constructor with the following pattern match:
+Let's see how to do this for the example. We start working on the first test by testing $\ba$ against the $\Add$ constructor with the following pattern match:
 \begin{alignat*}{4}
   \matchwithZ{\ba} \\
   \clause{\Add(\fvar{a_1}, \fvar{a_2})}{[A]} \\
@@ -176,9 +176,9 @@ Then we have to solve the following sub problem for $A$:
   \clause{\bvar{a_1} \is \fvar x,\ \bvar{a_2} \is \Zero}{e_6} \\
   \clause{\ba \is \fvar x}{e_7}
 \end{alignat*}
-Notice how we now have multiple equations per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$.
+Notice how we now have multiple tests per clause, corresponding to the $\fvar{a_1}$ and $\fvar{a_2}$ in the generated $\mathbf{match}$, which become bound variables $\bvar{a_1}$ and $\bvar{a_2}$ in $A$.
 
-We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
+We can simplify these problems by pushing bare variable tests such as $\bvar{a_2} \is \fvar y$ into the right hand sides. Then the sub problem for $A$ becomes:
 \begin{alignat*}{4}
   [A]\ =\\
   \matchclauses \\
@@ -187,7 +187,7 @@ We can simplify these problems by pushing bare equations such as $\bvar{a_2} \is
   \clause{\bvar{a_2} \is \Zero}{\lett{\fvar x}{\bvar{a_1}} e_6} \\
   \clause{}{\lett{\fvar x}{\bvar{a}} e_7}
 \end{alignat*}
-(actually, we could have done this for the last equation already in the previous step)
+(actually, we could have done this for the last test already in the previous step)
 
 We now continue matching by trying to match $\bvar{a_1} = \Zero$, by generating the pattern match:
 \begin{alignat*}{4}
@@ -215,8 +215,8 @@ The sub problem for $[B]$ is obtained by removing all the clauses with $\ba \is 
 Let's generalise and see what's going on. Given a list of clauses to generate a pattern matching tree for, we use this algorithm:
 
 \begin{enumerate}
-  \item Push bare equations $\ba \is \fvar y$ into the right hand sides, so that all the remaining equations test constructors.
-  \item Select one of the equations $\ba \is \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
+  \item Push bare variable tests $\ba \is \fvar y$ into the right hand sides, so that all the remaining tests test constructors.
+  \item Select one of the tests $\ba \is \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
     \matchwithZ{\ba} \\
@@ -225,15 +225,15 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
   \end{alignat*}
   \item Create the two sub problems $[A]$ and $[B]$ as follows by iterating over all the clauses. One of three cases can happen:
   \begin{enumerate}
-    \item The clause contains an equation $\ba \is \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
+    \item The clause contains a test $\ba \is \C(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ for $\ba$. \\
           Add the expanded clause $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n, \dots \text{REST} \dots$ to $A$. \\
           Make sure that the fresh variable names $a_1,\dots,a_n$ are used consistently in \\
-          $\mathbf{match}\ \ba\ \mathbf{with}\ \C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the equations $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n$.
-    \item The clause contains an equation $\ba \is \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
+          $\mathbf{match}\ \ba\ \mathbf{with}\ \C(\fvar{a_1}, \dots, \fvar{a_n})$ and in the tests $\bvar{a_1} \is \pat_1, \dots, \bvar{a_n} \is \pat_n$.
+    \item The clause contains a test $\ba \is \mathsf{D}(\pat_1, \dots, \pat_n), \dots \text{REST} \dots$ where $\mathsf{D} \neq \C$. \\
           Add this clause to $B$ unchanged.
-    \item The clause contains no equation for $\ba$. Add this clause to both $A$ and $B$.
+    \item The clause contains no test for $\ba$. Add this clause to both $A$ and $B$.
   \end{enumerate}
-  (note that each clause can only have one equation for $\ba$)
+  (note that each clause can only have one test for $\ba$)
   \item Recursively generate code for $[A]$ and $[B]$.
 \end{enumerate}
 
@@ -242,12 +242,12 @@ Let's generalise and see what's going on. Given a list of clauses to generate a 
 \noindent The recursion has two base cases:
 \begin{itemize}
   \item The list of clauses is empty: all patterns failed, so generate an error:\\ ``Error: Non-exhaustive pattern match.''
-  \item The first clause is empty (has zero equations): the first clause succeeded to match, so simply return the right hand side $e_i$.
+  \item The first clause is empty (has zero tests): the first clause succeeded to match, so simply return the right hand side $e_i$.
 \end{itemize}
 
 \section{Heuristic}
 
-How do we decide which equation to pick from the first clause to branch on? Any equation works, but we'd like to generate a compact pattern matching tree. Whenever we are in case (c) for one of the other clauses, we have to add that clause to both $A$ and $B$. That can cause code explosion. To avoid it we want to select the equation that causes the least code explosion. We therefore select an equation that is present in the maximum number of other clauses.
+How do we decide which test to pick from the first clause to branch on? Any test works, but we'd like to generate a compact pattern matching tree. Whenever we are in case (c) for one of the other clauses, we have to add that clause to both $A$ and $B$. That can cause code explosion. To avoid it we want to select the test that causes the least code explosion. We therefore select a test that is present in the maximum number of other clauses.
 
 Consider this example:
 \begin{alignat*}{4}
