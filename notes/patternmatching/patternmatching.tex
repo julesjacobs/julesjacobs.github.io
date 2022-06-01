@@ -215,7 +215,7 @@ The sub problem for $[B]$ is obtained by removing all the clauses with $\ba \is 
 Let's generalise and see what's going on. Given a list of clauses to generate a pattern matching tree for, we use this algorithm:
 
 \begin{enumerate}
-  \item Push tests against bare variables $\ba \is \fvar y$ into the right hand sides using $\mathbf{let}\ y = a$, so that all the remaining tests are against constructors.
+  \item Push tests against bare variables $\ba \is \fvar y$ into the right hand sides using $\mathbf{let}\ \fvar y = \ba$, so that all the remaining tests are against constructors.
   \item Select one of the tests $\ba \is \C(\pat_1, \dots, \pat_n)$ in the first clause using some heuristic.
   \item Generate this pattern match:
   \begin{alignat*}{4}
