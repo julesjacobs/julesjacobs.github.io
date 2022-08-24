@@ -1,0 +1,79 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+\DeclareMathOperator*{\tr}{tr}
+
+
+
+\title{A Multilinear Proof of Jacobi's Formula}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+Jacobi's formula gives the determinant of a matrix exponential in terms of the trace:
+\begin{align*}
+  \det(e^{tA}) = e^{t\tr(A)}
+\end{align*}
+The usual proof of this uses the Laplace expansion of the determinant.
+Here I'll give a proof that relies on multilinearity of the determinant.
+
+Consider the function $f(t) = \det(e^{tA})$. To show that $f(t) = e^{t\tr(A)}$ it suffices to show that $f$ satisfies the differential equation that defines $e^{t\tr(A)}$:
+\begin{align*}
+  f(0) &= 1\\
+  f'(t) &= \tr(A)f(t)
+\end{align*}
+The condition $f(0) = 1$ follows immediately, so it remains to calculate the derivative of $f$.
+
+To calculate the derivative of a determinant, first consider the derivative of a product:
+\begin{align*}
+  (a_1 \cdot a_2 \cdots a_n)' = (a_1' \cdot a_2 \cdots a_n)
+                              + (a_1 \cdot a_2' \cdots a_n)
+                              + \cdots
+                              + (a_1 \cdot a_2 \cdots a_n')
+\end{align*}
+The analogous formula works for any multilinear function, in particular the determinant:
+\begin{align*}
+  \det(a_1 | a_2 | \cdots |a_n)' = \det(a_1'| a_2 | \cdots | a_n)
+                                 + \det(a_1 | a_2'| \cdots | a_n)
+                                 + \cdots
+                                 + \det(a_1 | a_2 | \cdots | a_n')
+\end{align*}
+where $\det(a_1 | a_2 | \cdots |a_n)$ is the determinant of the matrix with columns $a_2, a_2, \cdots, a_n$.
+
+Applying this to $f$, we get:
+\begin{align*}
+  \det(e^{tA})' = &\ \det((e^{tA})'_1 | (e^{tA})_2 | \cdots | (e^{tA})_n)
+                + \\&\ \det((e^{tA})_1 | (e^{tA})'_2 | \cdots | (e^{tA})_n)
+                + \\&\ +\cdots
+                + \\&\ \det((e^{tA})_1 | (e^{tA})_2 | \cdots | (e^{tA})'_n)\\
+                = &\ \det((Ae^{tA})_1 | (e^{tA})_2 | \cdots | (e^{tA})_n)
+                + \\&\ \det((e^{tA})_1 | (Ae^{tA})_2 | \cdots | (e^{tA})_n)
+                + \\&\ +\cdots
+                + \\&\ \det((e^{tA})_1 | (e^{tA})_2 | \cdots | (Ae^{tA})_n)\\
+                = &\ (\det(A_1 | b_2 | \cdots | b_n)
+                + \\&\ \det(b_1 | A_2 | \cdots | b_n)
+                + \\&\ +\cdots
+                + \\&\ \det(b_1 | b_2 | \cdots | A_n))\cdot \det(e^{tA})\\
+                = &\ tr(A)\det(e^{tA})\\
+                = &\ tr(A)f(t)
+\end{align*}
+where $b_1,\cdots,b_n$ are the basis vectors.
+This completes the proof.
+
+A similar argument where we use $1 = \det(A^{-1})\cdot det(A)$ shows that
+\begin{align*}
+  \det(A)' = \tr(A^{-1}A')\det(A)
+\end{align*}
+
+
+
+\end{document}
