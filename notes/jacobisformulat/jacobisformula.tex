@@ -19,19 +19,20 @@
 \begin{document}
 \maketitle
 
-Jacobi's formula gives the determinant of a matrix exponential in terms of the trace:
+Jacobi's formula gives the determinant of the matrix exponential in terms of the trace:
 \begin{align*}
   \det(e^{tA}) = e^{t\tr(A)}
 \end{align*}
-The usual proof of this uses the Laplace expansion of the determinant.
-Here I'll give a proof that relies on multilinearity of the determinant.
+The usual proof of this uses Laplace expansion of the determinant.
+Here is a proof that relies on multilinearity of the determinant:
 
 Consider the function $f(t) = \det(e^{tA})$. To show that $f(t) = e^{t\tr(A)}$ it suffices to show that $f$ satisfies the differential equation that defines $e^{t\tr(A)}$:
 \begin{align*}
   f(0) &= 1\\
   f'(t) &= \tr(A)f(t)
 \end{align*}
-The condition $f(0) = 1$ follows immediately, so it remains to calculate the derivative of $f$.
+The condition $f(0) = 1$ follows immediately, so it remains to show $f'(t)/f(t) = \tr(A)$.
+In other words, we have to show that $\det(e^{tA})'\det(e^{-tA}) = \tr{A}$.
 
 To calculate the derivative of a determinant, first consider the derivative of a product:
 \begin{align*}
@@ -40,39 +41,26 @@ To calculate the derivative of a determinant, first consider the derivative of a
                               + \cdots
                               + (a_1 \cdot a_2 \cdots a_n')
 \end{align*}
-The analogous formula works for any multilinear function, in particular the determinant:
+The analogous derivative formula works for any multilinear function, such as the determinant,
+where $\det(a_1 | a_2 | \cdots |a_n)$ is the determinant of the matrix with columns $a_2, a_2, \cdots, a_n$:
 \begin{align*}
   \det(a_1 | a_2 | \cdots |a_n)' = \det(a_1'| a_2 | \cdots | a_n)
                                  + \det(a_1 | a_2'| \cdots | a_n)
                                  + \cdots
                                  + \det(a_1 | a_2 | \cdots | a_n')
 \end{align*}
-where $\det(a_1 | a_2 | \cdots |a_n)$ is the determinant of the matrix with columns $a_2, a_2, \cdots, a_n$.
-
-Applying this to $f$, we get:
+Using this derivative formula and $(e^{tA})' = Ae^{tA}$ and $e^{tA}e^{-tA} = I$, we get:
 \begin{align*}
-  \det(e^{tA})' = &\ \det((e^{tA})'_1 | (e^{tA})_2 | \cdots | (e^{tA})_n)
-                + \\&\ \det((e^{tA})_1 | (e^{tA})'_2 | \cdots | (e^{tA})_n)
-                + \\&\ +\cdots
-                + \\&\ \det((e^{tA})_1 | (e^{tA})_2 | \cdots | (e^{tA})'_n)\\
-                = &\ \det((Ae^{tA})_1 | (e^{tA})_2 | \cdots | (e^{tA})_n)
-                + \\&\ \det((e^{tA})_1 | (Ae^{tA})_2 | \cdots | (e^{tA})_n)
-                + \\&\ +\cdots
-                + \\&\ \det((e^{tA})_1 | (e^{tA})_2 | \cdots | (Ae^{tA})_n)\\
-                = &\ (\det(A_1 | b_2 | \cdots | b_n)
-                + \\&\ \det(b_1 | A_2 | \cdots | b_n)
-                + \\&\ +\cdots
-                + \\&\ \det(b_1 | b_2 | \cdots | A_n))\cdot \det(e^{tA})\\
-                = &\ tr(A)\det(e^{tA})\\
-                = &\ tr(A)f(t)
+  \det(e^{tA})'\det(e^{-tA})
+                = \det(A_1 | I_2 | \cdots | I_n)
+                + \det(I_1 | A_2 | \cdots | I_n)
+                + \cdots
+                + \det(I_1 | I_2 | \cdots | A_n)
+                = tr(A)
 \end{align*}
-where $b_1,\cdots,b_n$ are the basis vectors.
 This completes the proof.
 
-A similar argument where we use $1 = \det(A^{-1})\cdot det(A)$ shows that
-\begin{align*}
-  \det(A)' = \tr(A^{-1}A')\det(A)
-\end{align*}
+A similar argument shows that $\det(A)' = \tr(A^{-1}A')\det(A)$.
 
 
 
