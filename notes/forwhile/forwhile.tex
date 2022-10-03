@@ -1,0 +1,108 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+\DeclareMathOperator*{\tr}{tr}
+
+
+
+\title{Some thoughts on loop constructs}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+Programming languages have by now mostly settled on \id{for}, \id{foreach}, \id{while-do}, and \id{do-while} as loop constructs, often enriched with \id{break} and \id{continue} statements. While nobody questions this state of affairs any more, loop constructs used to be a subject of fierce debate. Knuth's Structured Programming with go to Statements \cite{knuthgoto} is a great read if you want to know what alternative loop constructs looked like and the arguments for the various alternatives.
+
+In this note I want to revisit the arguments for them with the benefit of modern hindsight, and look at some old proposals that did not make it but perhaps should have.
+Only minimal effort was made to make this coherent, so this is mostly a collection of separate little notes.
+
+\section{A minimal but general loop construct}
+
+Assuming we want structured control flow and not \id{goto}, a minimal set of constructs that gets the job done is \lstinline|loop { ... }|, which does an infinite loop, \id{break}, which jumps past the end of the loop, and \id{continue}, which jumps back to the start of the loop. We also need \id{if}, which we assume that we already have.
+
+Wouldn't only \id{while} be more minimal? Yes, it would, but \id{while} alone is not sufficient to express all structured control flow without introducing auxiliary variables or code duplication. The combination of \id{loop + break + continue} \emph{is} sufficient for that, provided our \id{break} and \id{continue} can jump up several levels of loops.
+
+Rather than \id{loop}, we could also have \lstinline|block { ... }|, which would by default jump out of the trailing curly brace if control flow reaches that point. We can express \id{loop} in terms of \id{block} and vice versa by adding a \id{break} or \id{continue} at the end.
+So we could choose to have either \id{loop}, or \id{block}, or both.
+
+\section{Why \id{while}}
+
+That is the first argument for \id{while}: we get two constructs for the price of one by writing \id{loop} as \id{while(true)} and \id{block} as \id{while(false)}. This arguably improves clarity while losing almost nothing in terms of concision.
+
+Of course this is not a terribly strong argument in favour of \id{while}.
+The stronger argument is that we would have to write \lstinline|while(p) { ... }| as \lstinline|loop { if(!p){ break; } ... }| if we only had \id{loop}. This is longer, has an awkward double negation, a nested \id{if}, and forces the programmer to mentally recognize this very common pattern and think ``oh, that's a \id{while}-loop''.
+
+\subsection{Why not \id{do-while}}
+
+What about \id{do-while}? In my opinion, the argument for including that is weak. To resolve this question with a poor man's experiment, I solved 100 leetcode puzzles. One has to use \id{while} all the time, but \id{do-while} came up only 2 times. In both cases no clarity was lost by writing it as either \lstinline|while(true){ ... if(!p) break; }| or as \lstinline|while(false){ ... if(p) continue; }|. In fact, I've found it to be more common to have \id{break} or \id{continue} somewhere in the middle of the loop than at the end, so it seems silly to have special case syntax for the latter.
+
+\subsection{Ole-Johan Dahl's proposal}
+
+Knuth writes that Ole-Johan Dahl proposed the following: we have a \id{loop ... repeat} construct which is the same as our \lstinline|loop { ... }|, and then simply make \id{while(p)} syntactic sugar for \lstinline|if(!p){ break; }|.
+This allows us to write an ordinary while loop as \id{loop while(p) ... repeat} and a \id{do-while} loop as \id{loop ... while(p) repeat}. We can write \id{loop ... while(p) ... repeat} when the exit test is in the middle.
+There is much to like about this proposal: it teases the while loop apart into orthogonal pieces, and it gets rid of the double negation and nested \id{if} even for exit tests that appear in the middle.
+
+\section{Why \id{for}}
+
+The loop \lstinline|for(int i=0; i<10; i+=1){ ... }| can be written as \lstinline|int i=0; while(i<10){ ...; i+=1; }|. Why should we prefer the \id{for} loop?
+
+The problem with the \id{while} loop is that the different operations on \id{i} are spread out over different locations: the initialization is outside of the loop, the test is in the loop header, and the increment is all the way at the end.
+
+The \id{for} loop has the advantage that it puts all of these together in the loop header, so that we can see at a glance that the loop body will be executed for \id{i = 0,1,...,9}.
+
+Zig's while(i<10) : (i+=1)
+
+\subsection{Inline initialization}
+
+\subsection{Parallel assignment}
+
+best = 0
+while(...){
+  best = max(best,x)
+}
+
+while(...){
+  best = 0 then max(best,x)
+}
+
+while(...){
+  best = phi(0,max(best,x))
+}
+
+count = 0
+while(...){
+  if(...){
+    count += 1
+  }
+}
+
+while(...){
+  if(...){
+    count = 0 then count+1;
+  }
+}
+
+
+for i=0 then i+1 while i<10
+
+\section{Why \id{foreach}}
+
+\section{Multi-exit loops}
+
+\section{Gotos with arguments}
+
+\section{Recursive loops}
+
+
+
+\bibliographystyle{alphaurl}
+\bibliography{refs.bib}
+\end{document}
