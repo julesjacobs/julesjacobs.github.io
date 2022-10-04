@@ -3,13 +3,8 @@
 (* Simplifies equations by doing substitution and injection. *)
 Tactic Notation "simplify_eq" := repeat
   match goal with
-  | H : ?f _ = ?f _ |- _ => progress injection H as H
-  | H : ?f _ _ = ?f _ _ |- _ => progress injection H as H
-  | H : ?f _ _ _ = ?f _ _ _ |- _ => progress injection H as H
-  | H : ?f _ _ _ _ = ?f _ _ _ _ |- _ => progress injection H as H
-  | H : ?f _ _ _ _ _ = ?f _ _ _ _ _ |- _ => progress injection H as H
-  | H : ?f _ _ _ _ _ _ = ?f _ _ _ _ _ _ |- _ => progress injection H as H
   | H : ?x = ?x |- _ => clear H
+  | H : _ = _ |- _ => progress injection H as H
   | H1 : ?o = Some ?x, H2 : ?o = Some ?y |- _ =>
     assert (y = x) by congruence; clear H2
   | _ => congruence || (progress subst)
@@ -26,6 +21,11 @@ Inductive bha : nat -> Prop :=
   | O_bha : bha 0.
 
 Inductive bho : nat -> Prop := .
+
+Lemma foo_even : even 10.
+Proof.
+  eauto 10 using even.
+Qed.
 
 
 Ltac rew := repeat
@@ -58,6 +58,12 @@ Ltac destr :=
   | H : context[if ?x then _ else _] |- _ => destruct x eqn:?
   | H : context[match ?x with _ => _ end] |- _ => destruct x eqn:?
   end.
+
+Lemma foo (n: nat) (b: bool) :
+  (if b then n else n) = n -> n = n+1.
+Proof.
+  intro.
+  destr; simp.
 
 Tactic Notation "butone" tactic(tac) := (tac; fail) || (tac; [idtac]).
 

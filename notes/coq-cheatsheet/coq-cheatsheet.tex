@@ -13,7 +13,7 @@
 \begin{document}
 \maketitle
 
-\tableofcontents
+% \tableofcontents
 
 \section{Introduction}
 
@@ -30,25 +30,37 @@ Here's what Coq displays after executing the second \lstinline|intros m Hm.|:
 \end{minipage}
 
 The proof state consists of a list of variables and hypotheses above the line, and a goal below the line.
-A tactic may create $0$, $1$, $2$, or more subgoals. A goal is solved if we succesfully apply a tactic that creates no subgoals (such as the \tac{lia} tactic).
-Some tactics create multiple subgoals, such as the \tac{induction} tactic: it creates one subgoal for the base case of the induction, and one subgoal for the inductive case.\footnote{Coq allows us to do induction not only on natural numbers, but also on other data types. Induction on other data types may create any number of subgoals, one for each constructor of the data type.}
-We have to solve all the subgoals with a bulleted list of tactic scripts:
+Executing a tactic may result in zero or more subgoals. A subgoal is solved if we succesfully apply a tactic that creates no new subgoals (such as the \tac{lia} tactic).
+Some tactics create multiple subgoals, such as the \tac{induction} tactic: it creates one subgoal for the base case of the induction, and one subgoal for the inductive case.
+% \footnote{Coq allows us to do induction not only on natural numbers, but also on other data types. Induction on other data types may create any number of subgoals, one for each constructor of the data type.}
+If a tactic creates multiple subgoals, we solve them using a bulleted list of tactic scripts, or using brackets:
+
+\vspace{-0.5cm}
+\begin{minipage}[t]{0.3\textwidth}
 \begin{lstlisting}
+  (* Simple bullets *)
   tac1.
   + tac2.
   + tac3.
   + tac4.
+  + tac5.
+  + tac6.
 \end{lstlisting}
-Bullets can nested by using different bullets for different levels (\tac{-, +, *}):
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
 \begin{lstlisting}
+  (* Nested bullets *)
   tac1.
   + tac2.
      * tac3
      * tac4.
   + tac5.
+    ++ tac6.
 \end{lstlisting}
-We can also enter subgoals using brackets:
+\end{minipage}
+\begin{minipage}[t]{0.3\textwidth}
 \begin{lstlisting}
+  (* Brackets *)
   tac1.
   { tac2. }
   { tac3. }
@@ -56,12 +68,11 @@ We can also enter subgoals using brackets:
   { tac5. }
   tac6.
 \end{lstlisting}
+\end{minipage}
 
-This is most useful for solving side conditions.
-With bullets, we get a deep level of nesting if we have a sequence of tactics with side conditions.
-With brackets, we do not need to enclose the last subgoal in brackets, thus preventing deep nesting.
+We usually use bullets if the subgoals are on equal footing, and we use brackets for simple side-conditions.
+We do not have to enclose the last subgoal in brackets, thus preventing deep nesting.
 
-\newpage
 \section{Logical reasoning}
 
 % We divide the logical reasoning tactics into those that modify the goal and those that modify a hypothesis.
@@ -178,13 +189,13 @@ Although it is not a built-in tactic, I mention it because it is incredibly usef
 \subsection{Inductive relations $Foo\ x\ y$}
 
 \begin{tabular}{c l}
-  \textbf{Goal/Hypothesi}s & \textbf{Tactic} \\ \midrule
+  \textbf{Goal/Hypothesis} & \textbf{Tactic} \\ \midrule
   $Foo\ x\ y$ & \tac{constructor}, \tac{econstructor} \quad (tries applying all constructors of $Foo$) \\
   $H : Foo\ x\ y$ & \tac{inversion H} \quad (use when $x$,$y$ are fixed terms) \\
   $H : Foo\ x\ y$ & \tac{induction H} \quad (use when $x$,$y$ are variables)\\  \midrule
 \end{tabular}
 
-It is often useful to define the tactic \tac{Ltac inv H := inversion H; clear H; subst.} and use this instead of \tac{inversion}.
+It is often useful to define the tactic \tac{Ltac inv H := inversion_clear H; subst.} and use this instead of \tac{inversion}.
 
 \subsection{Getting the right induction hypothesis}
 The \tac{revert} tactic is useful to obtain the correct induction hypothesis:
@@ -275,33 +286,33 @@ You can also use them with the \tac{apply H in G as pat} tactic.
   \tac{Locate "+".} & Prints information about notation "+". \\ \midrule
 \end{tabular}
 
-\section{Useful custom tactics}
+\section{Examples of custom tactics}
 
 \lstinputlisting[language=Coq]{tactics.v}
 \url{http://julesjacobs.com/coq-cheatsheet/tactics.v}
 
-\section{Todo}
+% \section{Todo}
 
-\begin{itemize}
-  \item Installing Coq
-  \item Compilation and multiple files
-  \item Common error messages
-  \item Definition, Fixpoint, Inductive
-  \item Records
-  \item Implicit arguments
-  \item Hint databases
-  \item match\_goal
-  \item Type classes
-  \item setoid\_rewrite
-  \item CoInductive, cofix (and fix)
-  \item Mutually inductive lemmas
-  \item ssreflect
-  \item stdpp
-  \item Modules
-  \item Unicode
-\end{itemize}
+% \begin{itemize}
+%   \item Installing Coq
+%   \item Compilation and multiple files
+%   \item Common error messages
+%   \item Definition, Fixpoint, Inductive
+%   \item Records
+%   \item Implicit arguments
+%   \item Hint databases
+%   \item match\_goal
+%   \item Type classes
+%   \item setoid\_rewrite
+%   \item CoInductive, cofix (and fix)
+%   \item Mutually inductive lemmas
+%   \item ssreflect
+%   \item stdpp
+%   \item Modules
+%   \item Unicode
+% \end{itemize}
 
-\texttt{julesjacobs@gmail.com}
+% \texttt{julesjacobs@gmail.com}
 
 % \section{Advanced}
 
