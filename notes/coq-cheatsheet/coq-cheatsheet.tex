@@ -30,7 +30,7 @@ Here's what Coq displays after executing the second \lstinline|intros m Hm.|:
 \end{minipage}
 
 The proof state consists of a list of variables and hypotheses above the line, and a goal below the line.
-Executing a tactic may result in zero or more subgoals. A subgoal is solved if we succesfully apply a tactic that creates no new subgoals (such as the \tac{lia} tactic).
+Executing a tactic may result in zero or more subgoals. A subgoal is solved if we succesfully apply a tactic that creates no new subgoals (such as the \tac{lia} tactic, which solves simple numeric goals).
 Some tactics create multiple subgoals, such as the \tac{induction} tactic: it creates one subgoal for the base case of the induction, and one subgoal for the inductive case.
 % \footnote{Coq allows us to do induction not only on natural numbers, but also on other data types. Induction on other data types may create any number of subgoals, one for each constructor of the data type.}
 If a tactic creates multiple subgoals, we solve them using a bulleted list of tactic scripts, or using brackets:
@@ -267,6 +267,7 @@ You can also use them with the \tac{apply H in G as pat} tactic.
   \tac{progress tac1} & Do \tac{tac1} and fail if it does nothing. \\ \midrule
 \end{tabular}
 
+In the examples above, the two dots are part of the Coq syntax.
 
 \section{Searching for lemmas and definitions}
 
@@ -289,7 +290,7 @@ You can also use them with the \tac{apply H in G as pat} tactic.
 \section{Examples of custom tactics}
 
 \lstinputlisting[language=Coq]{tactics.v}
-\url{http://julesjacobs.com/coq-cheatsheet/tactics.v}
+\url{http://julesjacobs.com/notes/coq-cheatsheet/tactics.v}
 
 % \section{Todo}
 
