@@ -1,0 +1,73 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+\DeclareMathOperator*{\tr}{tr}
+\DeclareMathOperator*{\lcm}{lcm}
+
+
+
+\title{The product of GCD and LCM}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+This is the standard identity for the product of gcd and lcm:
+\begin{align*}
+  \gcd(a,b) \cdot \lcm(a,b) = ab
+\end{align*}
+One might wonder whether it holds that $\gcd(a,b,c) \cdot \lcm(a,b,c) = abc$.
+Unfortunately, it does not; consider $a=b=c=2$. It does however hold that
+\begin{align}
+  \label{identity3}
+  \gcd(a,b,c) \cdot \lcm(ab,ac,bc) = abc
+\end{align}
+In fact, it also holds that
+\begin{align*}
+  \gcd(ab,ac,bc) \cdot \lcm(a,b,c) = abc
+\end{align*}
+To see this, think of a number as a vector of its prime factorisation:
+\begin{align*}
+  2^2\cdot 3^1 \cdot 7^2 = (2,1,0,2,0,0,\cdots)
+\end{align*}
+On this representation, the gcd corresponds to taking the pointwise minimum, and the lcd the pointwise maximum:
+\begin{align*}
+  \gcd((a_1,a_2,\cdots),(b_1,b_2,\cdots),(c_1,c_2,c_3,\cdots)) &= (\min(a_1,b_1,c_1), \min(a_2,b_2,c_2), \cdots)\\
+  \lcm((a_1,a_2,\cdots),(b_1,b_2,\cdots),(c_1,c_2,c_3,\cdots)) &= (\min(a_1,b_1,c_1), \max(a_2,b_2,c_2), \cdots)
+\end{align*}
+And the product corresponds to the pointwise sum:
+\begin{align*}
+  (a_1,a_2,\cdots)\cdot(b_1,b_2,\cdots)\cdot(c_1,c_2,c_3,\cdots) = (a_1+b_1+c_1, a_2+b_2+c_2, \cdots)
+\end{align*}
+Thus, in this representation, \cref{identity3} translates to:
+\begin{align*}
+  \min(a_i,b_i,c_i) + \max(a_i+b_i, a_i+c_i, b_i+c_i) = a_i + b_i + c_i \text{\qquad (for all i)}
+\end{align*}
+Now it is easy to see that the identity holds: fix $i$ and assume without loss of generality that $a_i \leq b_i \leq c_i$,
+then the minimum reduces do $a_i$ and the maximum to $b_i+c_i$.
+
+We see that more generally, given $n$ numbers instead of 3 numbers:
+\begin{align*}
+  \gcd(\text{k-fold products})\cdot \lcm(\text{(n-k)-fold products}) = \text{product}
+\end{align*}
+For $n=4$, this gives that the following values are all equal to $abcd$.
+\begin{align*}
+  gcd(\emptyset)&\cdot\lcm(abcd) &(k=0)\\
+  gcd(a,b,c,d)&\cdot\lcm(bcd,acd,abd,abc) &(k=1)\\
+  gcd(ab,ab,ad,bc,bd,cd)&\cdot\lcm(ab,ab,ad,bc,bd,cd) &(k=2)\\
+  gcd(bcd,acd,abd,abc)&\cdot\lcm(a,b,c,d) &(k=3)\\
+  gcd(abcd)&\cdot\lcm(\emptyset) &(k=4)
+\end{align*}
+In fact, if we allow negative powers in the prime factorization,
+we can see that such identities hold over the positive rationals too,
+with gcd and lcm suitably extended.
+
+\end{document}
