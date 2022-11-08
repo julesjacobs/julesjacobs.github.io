@@ -24,6 +24,10 @@
       text-align: right;
       font-size: 12px;
     }
+    .conf a {
+      text-decoration: none;
+      color: black;
+    }
     .move1 {
       width: 180px;
     }
@@ -113,7 +117,10 @@ deadlines.forEach(d => {
   else{ move = 0; }
   e.classList.add("move"+move);
   lastpos = thispos;
-  e.innerText = d.conf;
+  var e2 = document.createElement('a');
+  e2.innerText = d.conf;
+  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  e.appendChild(e2);
   console.log(d);
 })
 
