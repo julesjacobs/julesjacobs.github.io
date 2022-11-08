@@ -3,13 +3,12 @@
   <style>
     body {
       font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
+      padding: 20px 50px;
     }
     #timeline {
       background: #AAA;
       position: relative;
       width: 300px;
-      margin-left: 20px;
-      margin-top: 20px;
     }
     .month {
       border-top: 1px solid #AAA;
@@ -53,6 +52,7 @@
 </head>
 
 <body>
+<h1>PL deadline calendar</h1>
 <div id="timeline">
   <div id="mid"></div>
 </div>
@@ -119,7 +119,7 @@ deadlines.forEach(d => {
   lastpos = thispos;
   var e2 = document.createElement('a');
   e2.innerText = d.conf;
-  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+programming+conference';
   e.appendChild(e2);
   console.log(d);
 })
