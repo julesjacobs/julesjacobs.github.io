@@ -12,7 +12,7 @@
       width: 300px;
     }
     .month {
-      border-top: 1px solid #AAA;
+      border-top: 1px solid #000;
       /* text-align: center; */
       /* left: 300px; */
       width: 100px;
@@ -26,7 +26,14 @@
     }
     .conf a {
       text-decoration: none;
-      color: black;
+      color: #555;
+    }
+    .main {
+      border-top: 1px solid #000;
+    }
+    .main a {
+      color: #000;
+      font-weight: bold;
     }
     #now {
       width: 10px;
@@ -43,6 +50,7 @@
       width: 5px;
       background: #AAA;
     }
+
   </style>
 </head>
 
@@ -56,7 +64,7 @@
 <script>
 var height = 800;
 var deadlines = [
-  {conf:"POPL",          deadline:"2022-07-07"},
+  {conf:"POPL",          deadline:"2022-07-07",        main:1},
   {conf:"CSL",           deadline:"2022-07-09"},
   {conf:"ASPLOS1",       deadline:"2022-03-24"},
   {conf:"ASPLOS2",       deadline:"2022-06-30"},
@@ -68,16 +76,16 @@ var deadlines = [
   {conf:"CPP",           deadline:"2022-09-14"},
   {conf:"FoSSaCS",       deadline:"2022-10-13"},
   {conf:"ESOP",          deadline:"2022-10-13"},
-  {conf:"OOPSLA1",       deadline:"2022-10-28"},
+  {conf:"OOPSLA1",       deadline:"2022-10-28",        main:1},
   {conf:"CC",            deadline:"2022-11-11"},
-  {conf:"PLDI",          deadline:"2022-11-10"},
+  {conf:"PLDI",          deadline:"2022-11-10",        main:1},
   {conf:"ECOOP1",        deadline:"2022-12-01"},
   {conf:"FLOPS",         deadline:"2022-12-8 "},
   {conf:"ITP",           deadline:"2022-01-02"},
   {conf:"LICS",          deadline:"2022-01-17"},
   {conf:"ECOOP2",        deadline:"2022-03-01"},
-  {conf:"ICFP",          deadline:"2022-03-03"},
-  {conf:"OOPSLA2",       deadline:"2022-04-14"},
+  {conf:"ICFP",          deadline:"2022-03-03",        main:1},
+  {conf:"OOPSLA2",       deadline:"2022-04-14",        main:1},
   {conf:"CONCUR",        deadline:"2022-04-22"},
   {conf:"APLAS",         deadline:"2022-06-17"},
   {conf:"CAV",           deadline:"2022-01-21"},
@@ -121,6 +129,7 @@ deadlines.forEach(d => {
   e2.innerText = d.conf;
   e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
   if(d.conf == "ICFP"){ e2.href += '+-"family planning"'; }
+  if(d.main){ e.classList.add('main'); }
   e.appendChild(e2);
   console.log(d);
 })
