@@ -120,7 +120,8 @@ deadlines.forEach(d => {
   lastpos = thispos;
   var e2 = document.createElement('a');
   e2.innerText = d.conf;
-  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference+-"family planning"';
+  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  if(d.conf == "ICFP"){ e2.href += '+-"family planning"'; }
   e.appendChild(e2);
   console.log(d);
 })
