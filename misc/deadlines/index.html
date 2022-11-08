@@ -117,6 +117,7 @@ deadlines.forEach(d => {
   var e = elemPos(new Date(d.deadline));
 
   e.classList.add("conf");
+  e.style.zIndex = deadlines.length - i;
   var thispos = pos(new Date(d.deadline));
   console.log(lastpos);
   console.log(thispos);
