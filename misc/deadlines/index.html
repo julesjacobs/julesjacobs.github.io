@@ -125,7 +125,6 @@ deadlines.forEach(d => {
   else{ move = 0; }
   if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
   e.style.width = (100 + 70*move) + 'px'
-  // e.classList.add("move"+move);
   lastpos = thispos;
   var e2 = document.createElement('a');
   e2.innerText = d.conf;
