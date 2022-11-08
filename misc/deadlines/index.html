@@ -122,6 +122,7 @@ deadlines.forEach(d => {
   console.log(thispos);
   if(height*(lastpos - thispos) < 16){ move += 1; }
   else{ move = 0; }
+  if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
   e.style.width = (100 + 70*move) + 'px'
   // e.classList.add("move"+move);
   lastpos = thispos;
@@ -129,7 +130,6 @@ deadlines.forEach(d => {
   e2.innerText = d.conf;
   e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
   if(d.conf == "ICFP"){ e2.href += '+-"family planning"'; }
-  if(d.main){ e.classList.add('main'); }
   e.appendChild(e2);
   console.log(d);
 })
