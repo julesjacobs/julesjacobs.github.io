@@ -24,8 +24,11 @@
       text-align: right;
       font-size: 12px;
     }
-    .move {
-      width: 150px;
+    .move1 {
+      width: 180px;
+    }
+    .move2 {
+      width: 110px;
     }
     #now {
       width: 10px;
@@ -50,11 +53,16 @@
   <div id="mid"></div>
 </div>
 </body>
+
 <script>
+var height = 800;
 var deadlines = [                                      // bean counting :(                                   // how much I have read from this conf
   {conf:"POPL",          deadline:"2022-07-07",        qualis:"A1",        era:"A",        core:"A*",        jules:"+++++"},
   {conf:"CSL",           deadline:"2022-07-09",        qualis:"B1",        era:"C",        core:"B",         jules:"+"},
   {conf:"CGO",           deadline:"2022-09-02",        qualis:"A2",        era:"A",        core:"A",         jules:"++"},
+  {conf:"FSCD",          deadline:"2022-02-03",        qualis:"?",        era:"?",        core:"?",         jules:"+"},
+  {conf:"OSDI",          deadline:"2022-12-07",        qualis:"?",        era:"?",        core:"?",         jules:"+"},
+  {conf:"SOSP",          deadline:"2022-04-30",        qualis:"?",        era:"?",        core:"?",         jules:"+"},
   {conf:"CPP",           deadline:"2022-09-14",        qualis:"-" ,        era:"-",        core:"-",         jules:"++++"},
   {conf:"FoSSaCS",       deadline:"2022-10-13",        qualis:"A2",        era:"C",        core:"A",         jules:"++"},
   {conf:"ESOP",          deadline:"2022-10-13",        qualis:"A2",        era:"A",        core:"A",         jules:"++"},
@@ -79,7 +87,6 @@ function pos(d){
   return Math.abs(d - d1)/Math.abs(d2 - d1);
 }
 
-var height = 800;
 document.getElementById('mid').style.height = height + "px";
 var x = document.getElementById('timeline');
 
@@ -93,6 +100,7 @@ function elemPos(d){
 
 var i = 0;
 var lastpos = 0;
+var move = 0;
 deadlines.forEach(d => {
   i += 1;
   var e = elemPos(new Date(d.deadline));
@@ -101,9 +109,9 @@ deadlines.forEach(d => {
   var thispos = pos(new Date(d.deadline));
   console.log(lastpos);
   console.log(thispos);
-  if(height*(thispos - lastpos) < 16){
-    e.classList.add("move");
-  }
+  if(height*(thispos - lastpos) < 16){ move += 1; }
+  else{ move = 0; }
+  e.classList.add("move"+move);
   lastpos = thispos;
   e.innerText = d.conf;
   console.log(d);
@@ -121,5 +129,4 @@ var now = new Date(Date.now());
 now.setYear(2022);
 var nowe = elemPos(now);
 nowe.id = "now";
-
 </script>
