@@ -28,12 +28,6 @@
       text-decoration: none;
       color: black;
     }
-    .move1 {
-      width: 180px;
-    }
-    .move2 {
-      width: 110px;
-    }
     #now {
       width: 10px;
       border-radius: 6px;
@@ -88,7 +82,7 @@ var deadlines = [
   {conf:"APLAS",         deadline:"2022-06-17"},
   {conf:"CAV",           deadline:"2022-01-21"},
 ];
-deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? 1 : -1);
+deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? -1 : 1);
 
 function pos(d){
   var d1 = new Date('2022-01-01');
@@ -108,7 +102,7 @@ function elemPos(d){
 }
 
 var i = 0;
-var lastpos = 0;
+var lastpos = 999;
 var move = 0;
 deadlines.forEach(d => {
   i += 1;
@@ -118,9 +112,10 @@ deadlines.forEach(d => {
   var thispos = pos(new Date(d.deadline));
   console.log(lastpos);
   console.log(thispos);
-  if(height*(thispos - lastpos) < 16){ move += 1; }
+  if(height*(lastpos - thispos) < 16){ move += 1; }
   else{ move = 0; }
-  e.classList.add("move"+move);
+  e.style.width = (100 + 70*move) + 'px'
+  // e.classList.add("move"+move);
   lastpos = thispos;
   var e2 = document.createElement('a');
   e2.innerText = d.conf;
