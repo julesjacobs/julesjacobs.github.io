@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <head>
+  <title>PL deadline calendar</title>
   <style>
     body {
       font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
@@ -119,7 +120,7 @@ deadlines.forEach(d => {
   lastpos = thispos;
   var e2 = document.createElement('a');
   e2.innerText = d.conf;
-  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference+-"family planning"';
   e.appendChild(e2);
   console.log(d);
 })
