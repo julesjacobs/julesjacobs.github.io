@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<head>
+  <style>
+    body {
+      font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
+    }
+    #timeline {
+      background: #AAA;
+      position: relative;
+      width: 300px;
+      margin-left: 20px;
+      margin-top: 20px;
+    }
+    .month {
+      border-top: 1px solid #AAA;
+      /* text-align: center; */
+      /* left: 300px; */
+      width: 100px;
+    }
+    .conf {
+      left: 100px;
+      border-top: 1px solid #AAA;
+      width: 250px;
+      text-align: right;
+      font-size: 12px;
+    }
+    .move {
+      width: 150px;
+    }
+    #now {
+      width: 10px;
+      border-radius: 6px;
+      left: 96px;
+      background: rgb(255, 55, 55);
+      height: 12px;
+      width: 12px;
+      transform: translate(0, -6px);
+    }
+    #mid {
+      position: absolute;
+      left: 100px;
+      width: 5px;
+      background: #AAA;
+    }
+  </style>
+</head>
+
+<body>
+<div id="timeline">
+  <div id="mid"></div>
+</div>
+</body>
+<script>
+var deadlines = [                                      // bean counting :(                                   // how much I have read from this conf
+  {conf:"POPL",          deadline:"2022-07-07",        qualis:"A1",        era:"A",        core:"A*",        jules:"+++++"},
+  {conf:"CSL",           deadline:"2022-07-09",        qualis:"B1",        era:"C",        core:"B",         jules:"+"},
+  {conf:"CGO",           deadline:"2022-09-02",        qualis:"A2",        era:"A",        core:"A",         jules:"++"},
+  {conf:"CPP",           deadline:"2022-09-14",        qualis:"-" ,        era:"-",        core:"-",         jules:"++++"},
+  {conf:"FoSSaCS",       deadline:"2022-10-13",        qualis:"A2",        era:"C",        core:"A",         jules:"++"},
+  {conf:"ESOP",          deadline:"2022-10-13",        qualis:"A2",        era:"A",        core:"A",         jules:"++"},
+  {conf:"OOPSLA1",       deadline:"2022-10-28",        qualis:"A1",        era:"A",        core:"A",         jules:"+++"},
+  {conf:"CC",            deadline:"2022-11-11",        qualis:"A2",        era:"A",        core:"-",         jules:"++"},
+  {conf:"PLDI",          deadline:"2022-11-10",        qualis:"A1",        era:"A",        core:"A*",        jules:"+++++"},
+  {conf:"ECOOP1",        deadline:"2022-12-01",        qualis:"A1",        era:"A",        core:"A",         jules:"++++"},
+  {conf:"FLOPS",         deadline:"2022-12-8 ",        qualis:"B1",        era:"A",        core:"-",         jules:"++"},
+  {conf:"ITP",           deadline:"2022-01-02",        qualis:"B4",        era:"A",        core:"A",         jules:"++"},
+  {conf:"LICS",          deadline:"2022-01-17",        qualis:"A2",        era:"A",        core:"A*",        jules:"+++"},
+  {conf:"ECOOP2",        deadline:"2022-03-01",        qualis:"A1",        era:"A",        core:"A",         jules:"++++"},
+  {conf:"ICFP",          deadline:"2022-03-03",        qualis:"A2",        era:"A",        core:"A",         jules:"+++++"},
+  {conf:"OOPSLA2",       deadline:"2022-04-14",        qualis:"A1",        era:"A",        core:"A",         jules:"+++"},
+  {conf:"CONCUR",        deadline:"2022-04-22",        qualis:"A2",        era:"A",        core:"A",         jules:"++"},
+  {conf:"APLAS",         deadline:"2022-06-17",        qualis:"B1",        era:"B",        core:"B",         jules:"++"},
+];
+deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? 1 : -1);
+
+function pos(d){
+  var d1 = new Date('2022-01-01');
+  var d2 = new Date('2023-01-01');
+  return Math.abs(d - d1)/Math.abs(d2 - d1);
+}
+
+var height = 800;
+document.getElementById('mid').style.height = height + "px";
+var x = document.getElementById('timeline');
+
+function elemPos(d){
+  var e = document.createElement('div');
+  e.style.top = height*pos(d) + "px";
+  e.style.position = "absolute";
+  x.appendChild(e);
+  return e;
+}
+
+var i = 0;
+var lastpos = 0;
+deadlines.forEach(d => {
+  i += 1;
+  var e = elemPos(new Date(d.deadline));
+
+  e.classList.add("conf");
+  var thispos = pos(new Date(d.deadline));
+  console.log(lastpos);
+  console.log(thispos);
+  if(height*(thispos - lastpos) < 16){
+    e.classList.add("move");
+  }
+  lastpos = thispos;
+  e.innerText = d.conf;
+  console.log(d);
+})
+
+for(var i=0; i<12; i++){
+  var d = new Date(2022, i);
+  var e = elemPos(d);
+  e.className = "month";
+  e.innerText = d.toLocaleString('default', { month: 'long' });
+  x.appendChild(e);
+}
+
+var now = new Date(Date.now());
+now.setYear(2022);
+var nowe = elemPos(now);
+nowe.id = "now";
+
+</script>
