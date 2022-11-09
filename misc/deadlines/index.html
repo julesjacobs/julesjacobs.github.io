@@ -9,24 +9,37 @@
     h1 {
       font-size: 20px;
     }
-    #timeline {
-      background: #AAA;
-      position: relative;
-    }
     #container {
       margin: auto;
       width: 350px;
     }
+    #timeline {
+      position: relative;
+      height: 800px;
+    }
+    #mid {
+      position: absolute;
+      left: 100px;
+      width: 6px;
+      background: #AAA;
+      height: 100%;
+    }
+    .now {
+      width: 10px;
+      border-radius: 6px;
+      left: 97px;
+      background: rgb(255, 55, 55);
+      height: 12px;
+      width: 12px;
+      transform: translate(0, -6px);
+    }
     .month {
       border-top: 1px solid #000;
-      /* text-align: center; */
-      /* left: 300px; */
       width: 100px;
     }
     .conf {
       left: 100px;
       border-top: 1px solid #AAA;
-      width: 250px;
       text-align: right;
       font-size: 12px;
     }
@@ -41,22 +54,6 @@
       color: #000;
       font-weight: bold;
     }
-    #now {
-      width: 10px;
-      border-radius: 6px;
-      left: 97px;
-      background: rgb(255, 55, 55);
-      height: 12px;
-      width: 12px;
-      transform: translate(0, -6px);
-    }
-    #mid {
-      position: absolute;
-      left: 100px;
-      width: 6px;
-      background: #AAA;
-    }
-
   </style>
 </head>
 
@@ -70,84 +67,72 @@
 </body>
 
 <script>
-var height = 800;
 var deadlines = [
-  {conf:"POPL",          deadline:"2022-07-07",        main:1},
-  {conf:"CSL",           deadline:"2022-07-09"},
-  {conf:"ASPLOS1",       deadline:"2022-03-24"},
-  {conf:"ASPLOS2",       deadline:"2022-06-30"},
-  {conf:"ASPLOS3",       deadline:"2022-10-13"},
-  {conf:"CGO",           deadline:"2022-09-02"},
-  {conf:"FSCD",          deadline:"2022-02-03"},
-  {conf:"OSDI",          deadline:"2022-12-07"},
-  {conf:"SOSP",          deadline:"2022-04-30"},
-  {conf:"CPP",           deadline:"2022-09-14"},
-  {conf:"FoSSaCS",       deadline:"2022-10-13"},
-  {conf:"ESOP",          deadline:"2022-10-13"},
-  {conf:"OOPSLA1",       deadline:"2022-10-28",        main:1},
-  {conf:"CC",            deadline:"2022-11-11"},
-  {conf:"PLDI",          deadline:"2022-11-10",        main:1},
-  {conf:"ECOOP1",        deadline:"2022-12-01"},
-  {conf:"FLOPS",         deadline:"2022-12-08 "},
-  {conf:"ITP",           deadline:"2022-01-02"},
-  {conf:"LICS",          deadline:"2022-01-17"},
-  {conf:"ECOOP2",        deadline:"2022-03-01"},
-  {conf:"ICFP",          deadline:"2022-03-03",        main:1},
-  {conf:"OOPSLA2",       deadline:"2022-04-14",        main:1},
-  {conf:"CONCUR",        deadline:"2022-04-22"},
-  {conf:"APLAS",         deadline:"2022-06-17"},
-  {conf:"CAV",           deadline:"2022-02-03"},
+  {conf:"POPL",          deadline: new Date("2022-07-07"),        main:1},
+  {conf:"CSL",           deadline: new Date("2022-07-09")},
+  {conf:"ASPLOS1",       deadline: new Date("2022-03-24")},
+  {conf:"ASPLOS2",       deadline: new Date("2022-06-30")},
+  {conf:"ASPLOS3",       deadline: new Date("2022-10-13")},
+  {conf:"CGO",           deadline: new Date("2022-09-02")},
+  {conf:"FSCD",          deadline: new Date("2022-02-03")},
+  {conf:"OSDI",          deadline: new Date("2022-12-07")},
+  {conf:"SOSP",          deadline: new Date("2022-04-30")},
+  {conf:"CPP",           deadline: new Date("2022-09-14")},
+  {conf:"FoSSaCS",       deadline: new Date("2022-10-13")},
+  {conf:"ESOP",          deadline: new Date("2022-10-13")},
+  {conf:"OOPSLA1",       deadline: new Date("2022-10-28"),        main:1},
+  {conf:"CC",            deadline: new Date("2022-11-11")},
+  {conf:"PLDI",          deadline: new Date("2022-11-10"),        main:1},
+  {conf:"ECOOP1",        deadline: new Date("2022-12-01")},
+  {conf:"FLOPS",         deadline: new Date("2022-12-08")},
+  {conf:"ITP",           deadline: new Date("2022-01-02")},
+  {conf:"LICS",          deadline: new Date("2022-01-17")},
+  {conf:"ECOOP2",        deadline: new Date("2022-03-01")},
+  {conf:"ICFP",          deadline: new Date("2022-03-03"),        main:1},
+  {conf:"OOPSLA2",       deadline: new Date("2022-04-14"),        main:1},
+  {conf:"CONCUR",        deadline: new Date("2022-04-22")},
+  {conf:"APLAS",         deadline: new Date("2022-06-17")},
+  {conf:"CAV",           deadline: new Date("2022-02-03")},
 ];
-deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? -1 : 1);
 
-function pos(d){
-  var d1 = new Date('2022-01-01');
-  var d2 = new Date('2023-01-01');
-  return Math.abs(d - d1)/Math.abs(d2 - d1);
+function elem(parent, type){
+  var e = document.createElement(type);
+  parent.appendChild(e)
+  return e
 }
 
-document.getElementById('mid').style.height = height + "px";
 var x = document.getElementById('timeline');
-
-function elemPos(d){
-  var e = document.createElement('div');
-  e.style.top = height*pos(d) + "px";
+function elemPos(d, classname){
+  var e = elem(x, 'div');
+  var d1 = new Date('2022-01-01');
+  var d2 = new Date('2023-01-01');
+  e.style.top = 100*Math.abs(d - d1)/Math.abs(d2 - d1) + "%";
   e.style.position = "absolute";
-  x.appendChild(e);
+  e.classList.add(classname);
   return e;
 }
 
-var i = 0;
-var lastpos = 999;
+deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? -1 : 1);
 var move = 0;
-deadlines.forEach(d => {
-  i += 1;
-  var e = elemPos(new Date(d.deadline));
-  e.classList.add("conf");
+for(var i=0; i<deadlines.length; i++){
+  var d = deadlines[i];
+  var e = elemPos(d.deadline, 'conf');
   e.style.zIndex = deadlines.length - i;
-  var thispos = pos(new Date(d.deadline));
-  if(height*(lastpos - thispos) < 16){ move += 1; }
-  else{ move = 0; }
+  move = i>0 && Math.abs(deadlines[i-1].deadline - d.deadline) < 1e9 ? move+1 : 0;
   if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
   e.style.width = (100 + 70*move) + 'px'
-  lastpos = thispos;
-  var e2 = document.createElement('a');
-  e2.innerText = d.conf;
-  e2.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
-  if(d.conf == "ICFP"){ e2.href += '+-"family planning"'; }
-  e.appendChild(e2);
-})
+  var elink = elem(e, 'a');
+  elink.innerText = d.conf;
+  elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  if(d.conf == "ICFP"){ elink.href += '+-"family planning"'; }
+}
 
 for(var i=0; i<12; i++){
   var d = new Date(2022, i);
-  var e = elemPos(d);
-  e.className = "month";
-  e.innerText = d.toLocaleString('default', { month: 'long' });
-  x.appendChild(e);
+  elemPos(d, 'month').innerText = d.toLocaleString('default', { month: 'long' });
 }
 
 var now = new Date(Date.now());
 now.setYear(2022);
-var nowe = elemPos(now);
-nowe.id = "now";
+var nowe = elemPos(now, 'now');
 </script>
