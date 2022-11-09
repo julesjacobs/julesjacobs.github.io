@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <head>
-  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PL deadline calendar</title>
   <style>
     body {
       font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
-      padding: 10px 10px;
     }
     h1 {
       margin-top: 0;
@@ -14,7 +13,10 @@
     #timeline {
       background: #AAA;
       position: relative;
-      width: 300px;
+    }
+    #container {
+      margin: auto;
+      width: 350px;
     }
     .month {
       border-top: 1px solid #000;
@@ -60,10 +62,12 @@
 </head>
 
 <body>
-<h1>PL deadline calendar</h1>
-<div id="timeline">
-  <div id="mid"></div>
-</div>
+  <div id="container">
+  <h1>PL deadline calendar</h1>
+  <div id="timeline">
+    <div id="mid"></div>
+  </div>
+  </div>
 </body>
 
 <script>
