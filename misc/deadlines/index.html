@@ -120,7 +120,7 @@ for(var i=0; i<deadlines.length; i++){
   e.style.zIndex = deadlines.length - i;
   move = i>0 && Math.abs(deadlines[i-1].deadline - d.deadline) < 6e8 ? move+1 : 0;
   if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
-  e.style.width = (100 + 70*move) + 'px'
+  e.style.width = 90+70*move + 'px'
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
   elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
