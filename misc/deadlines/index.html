@@ -84,7 +84,7 @@ var deadlines = [
   {conf:"CC",            deadline: new Date("2022-11-11")},
   {conf:"PLDI",          deadline: new Date("2022-11-10"),        main:1},
   {conf:"ECOOP1",        deadline: new Date("2022-12-01")},
-  {conf:"FLOPS",         deadline: new Date("2022-12-08")},
+  // {conf:"FLOPS",         deadline: new Date("2022-12-08")},
   {conf:"ITP",           deadline: new Date("2022-02-01")},
   {conf:"LICS",          deadline: new Date("2022-01-18")},
   {conf:"ECOOP2",        deadline: new Date("2022-03-01")},
@@ -123,7 +123,7 @@ for(var i=0; i<deadlines.length; i++){
   e.style.width = 90+70*move + 'px'
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
-  elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+conference';
+  elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+2023+conference';
   if(d.conf == "ICFP"){ elink.href += '+-"family planning"'; }
 }
 
