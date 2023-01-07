@@ -1,0 +1,119 @@
+\input{ppreamble}
+
+\newcommand{\tac}[1]{\lstinline[mathescape]~#1~}
+\newcommand{\ciff}{\ \leftrightarrow\ }
+\newcommand{\hyp}{\tac{H}}
+\newcommand{\hypB}{\tac{G}}
+\newcommand{\var}{\tac{x}}
+\newcommand{\varB}{\tac{y}}
+
+\newtheorem*{nlemma}{Lemma}
+
+\DeclareMathOperator*{\tr}{tr}
+\DeclareMathOperator*{\lcm}{lcm}
+
+
+
+\title{Coinduction by Induction}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+  \item Weak induction and strong induction
+  \item Knaster-Tarski and induction
+  \item Two characterisations of the least and greatest fixed point (ordinals vs pre/postfixpoints)
+\end{enumerate}
+
+\section{Preliminaries}
+
+\begin{definition}
+  A \emph{poset} $P$ is a set with a \emph{partial order} $\leq$ that is
+  \begin{itemize}
+    \item Reflexive: $x \leq x$ for all $x \in P$
+    \item Transitive: if $x \leq y$ and $y \leq z$ then $x \leq z$ for all $x,y,z \in P$
+    \item Antisymmetric: if $x \leq y$ and $y \leq x$ then $x=y$ for all $x,y \in P$
+  \end{itemize}
+
+\end{definition}
+
+\newcommand{\lb}[1]{\mathsf{lb}(#1)}
+\newcommand{\ub}[1]{\mathsf{ub}(#1)}
+
+\emph{Notation:} ``$x \leq A$'' where $x \in P$ and $A \subseteq P$ means ``$x \leq a$ for all $a \in A$'',
+and similarly for $x \geq A$.
+
+\begin{definition}
+  A \emph{complete lattice} is a poset $P$ with meet and join operations on subsets $A \subseteq P$
+  \begin{itemize}
+    \item The meet $\bigwedge A \in P$ satisfies $\bigwedge A \leq A$, and for any other $x \leq A$, we have $\bigwedge A \geq x$
+    \item The join $\bigvee A \in P$ satisfies $\bigvee A \geq A$, and for any other $x \geq A$, we have $\bigvee A \leq x$
+  \end{itemize}
+\end{definition}
+
+\emph{Mnemonic:} $\bigwedge$ is like $\bigcap$/conjunction/minimum, and $\bigvee$ is like $\bigcup$/disjunction/maximum.
+
+\begin{definition}
+  A function $f : P \to Q$ is \emph{monotone} if $x \leq y$ implies $f(x) \leq f(y)$
+\end{definition}
+
+Now let $f : P \to P$ be monotone.
+Take an element $x$ that decreases when we apply $f$, i.e., $f(x) \leq x$.
+By monotonicity, $f(f(x)) \leq f(x)$, i.e., if we apply $f$ again, the point decreases again.
+(Similarly, points that increase keep increasing.)
+
+Since $1$ can't help but decrease, we have a decreasing sequence $1 \geq f(1) \geq f(f(1)) \geq \cdots$.
+If this sequence ever stabilises, we have found a fixed point of $f$.
+If it never stabilises, we can append the meet over the entire sequence onto the end of the sequence to get an even lower point,
+and then continue iterating from there.
+If we continue doing this and iterate over a sufficiently large ordinal,
+we get a sequence with cardinality greater than $P$.
+This decreasing sequence can't have all distinct values,
+and thus the sequence must stabilise at a fixed point of $f$.
+
+The fixed point must be the greatest fixed point of $f$,
+because assume that there is some other fixed point $x$ of $f$.
+We have $x \leq 1$ so this fixed point lies below the first element of our sequence.
+By monotonicity $f(x) \leq f(1)$, and since $f(x) = x$, it also lies below the second element of our sequence.
+By transfinite induction and the property of the meet, we can show that $x$ lies below our entire sequence, including the fixed point that the sequence converges to.
+So our sequence converges the greaest fixed point.
+
+With the preceding method, the intermediate elements $f^\alpha(0)$ lie above the fixed point.
+There is an alternative way of constructing the greastest fixed point of $f$ that approaches it from below.
+Let $I = \{ x \in P \mid f(x) \geq x \}$ be the increasing elements in the lattice.
+I claim that the greatest element $\bigvee I$ is also the greatest fixed point of $f$.
+
+Proof:
+\begin{enumerate}
+  \item Take an arbitrary $x \in I$. Then $x \leq \bigvee I$, so by monotonicity $f(x) \leq f(\bigvee I)$.
+        But also $x \leq f(x)$, so $x \leq f(\bigvee I)$.
+  \item $f(\bigvee I) \geq I$
+  \item $f(\bigvee I) \geq \bigvee I$
+  \item $f(\bigvee I) \in I$
+  \item $f(\bigvee I) \leq \bigvee I$.
+  \item $f(\bigvee I) = \bigvee I$.
+  \item Every fixpoint of $f$ is in $I$, so $\bigvee I$ is the greatest fixpoint.
+\end{enumerate}
+
+
+
+
+
+\begin{theorem}[Knaster-Tarski]
+  Every monotone $f : P \to P$ has a least and greatest fixed point.
+\end{theorem}
+
+\begin{align*}
+  \mu f := \bigwedge \{ x \in P \mid f(x) \leq x \}\\
+  \nu f := \bigvee \{ x \in P \mid f(x) \geq x \}
+\end{align*}
+
+Let $D = \{ x \in P \mid f(x) \leq x \}$ be the set points that decrease when we apply $f$.
+We have
+\begin{itemize}
+  \item $f[D] \subseteq D$ by monotonicity of $f$
+  \item $\mu f \leq D$ by the meet
+  \item $\mu f \leq f(\mu f)$ by combining the above two
+\end{itemize}
+\end{document}
