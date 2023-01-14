@@ -24,7 +24,7 @@
   its induction principle is precisely that.
 
   Furthermore, we can define an "induct H" tactic that does the induction,
-  and interestingly we can usually prove the second ∪-subgoal automatically.
+  and interestingly we can usually prove the ∪-subgoal automatically.
   So if the original goal was:
 
     H : Ω x
@@ -73,8 +73,8 @@ Parameter f : L → L.
 *)
 
 Inductive Ω : L → Prop :=
-  | Ω_suc x : Ω x → Ω (f x)
-  | Ω_lim (X:set L) : (∀ x, X x → Ω x) → Ω (∪X).
+  | Ω_lim (X:set L) : (∀ x, X x → Ω x) → Ω (∪X)
+  | Ω_suc x : Ω x → Ω (f x).
 
 Check Ω_ind.
 (*
@@ -95,8 +95,58 @@ Local Hint Extern 1 (?x ≤ ?y) => eapply le_trans; [|by eauto 2] : lat.
 (* This makes the lat tactic very fast, because on a goal ?x ≤ ?y,
    the registered hints only ever create one new subgoal. *)
 Ltac lat := by eauto 10 with lat.
+
+
+(* Demonstrating the lat tactic on some properties of ∪ and ∩ *)
+
+Lemma iff_impl {P Q : set L} : (∀ x, P x ↔ Q x) ↔ (∀ x, P x → Q x) ∧ (∀ x, Q x → P x).
+Proof.
+  naive_solver.
+Qed.
+
+Lemma cup_iff (X:set L) y : y = ∪X ↔ ∀ a, y ≤ a ↔ ∀ x, X x → x ≤ a.
+Proof.
+  rewrite iff_impl. naive_solver lat.
+Qed.
+
+Definition cap (X:set L) := ∪λ y, ∀ x, X x → y ≤ x.
+Notation "∩ x" := (cap x) (at level 20).
+
+Lemma cap_le (X:set L) y : X y → ∩X ≤ y.
+Proof.
+  unfold cap. lat.
+Qed.
+
+Lemma le_cap (X:set L) y : (∀ x, X x → y ≤ x) → y ≤ ∩X.
+Proof.
+  unfold cap. lat.
+Qed.
+
+Local Hint Resolve cap_le le_cap : lat.
+
+Lemma cap_iff_unique (X:set L) y : y = ∩X ↔ ∀ a, a ≤ y ↔ ∀ x, X x → a ≤ x.
+Proof.
+  rewrite iff_impl. naive_solver lat.
+Qed.
+
+Notation "⊥" := (∪λ x, False).
+Notation "x ∩ y" := (∩λ a, a = x ∨ a = y).
+
+Lemma cap2_le x y z : x ≤ z ∨ y ≤ z → x ∩ y ≤ z.
+Proof.
+  intros []; eapply le_trans; try apply cap_le; try done; lat.
+Qed.
+
+Lemma le_cap2 x y z : z ≤ x → z ≤ y → z ≤ x ∩ y.
+Proof.
+  intros. eapply le_cap. naive_solver.
+Qed.
+
+Local Hint Resolve le_cap2 cap2_le : lat.
+
+
 (* This tactic uses induction on Ω and then tries to solve the Ω_lim subgoal automatically. *)
-Ltac induct H := induction H; [|lat].
+Ltac induct H := induction H; [lat|].
 
 (* We explicitly have `mono f` assumptions only on the lemmas that need it. *)
 Definition mono f := ∀ x y, x ≤ y → f x ≤ f y.
@@ -122,7 +172,6 @@ Lemma Ω_lfp x : mono f → f x ≤ x → ∪Ω ≤ x.
 Proof.
   intros ??. eapply cup_le. intros ? O. induct O. lat.
 Qed.
-
 
 (* Comparison with Pous' t-function proof system *)
 (* ============================================= *)
@@ -227,43 +276,222 @@ Qed.
 
 (* Weaker induction principle that hides already known info behind a guard *)
 (* This corresponds to the CoInd principle from the paper *)
-Lemma ind_param'' x y :
+Lemma ind_weak x y :
   mono f →
-  (∀ a, Ω a → a ≤ y∪x → f a ≤ y) →
+  (∀ a, Ω a → a ≤ y∩x → f a ≤ y) →
   (∀ a, Ω a → a ≤ x → a ≤ y).
 Proof.
-  intros ??? H. induct H. naive_solver lat.
+  intros ??? H. induct H. lat.
 Qed.
 
 
-(* Demonstrating the lat tactic on some properties of ∪ and ∩ *)
 
-Lemma iff_impl {P Q : set L} : (∀ x, P x ↔ Q x) ↔ (∀ x, P x → Q x) ∧ (∀ x, Q x → P x).
+(* Some other lemmas about t *)
+
+Lemma t_decr x : t x ≤ x.
 Proof.
-  naive_solver.
+  unfold t. eapply cup_le. naive_solver.
 Qed.
 
-Lemma cup_iff (X:set L) y : y = ∪X ↔ ∀ a, y ≤ a ↔ ∀ x, X x → x ≤ a.
+Lemma Ω_t x : Ω (t x).
 Proof.
-  rewrite iff_impl. naive_solver lat.
+  constructor. naive_solver.
 Qed.
 
-Definition cap (X:set L) := ∪λ y, ∀ x, X x → y ≤ x.
-Notation "∩ x" := (cap x) (at level 20).
-
-Lemma cap_le (X:set L) y : X y → ∩X ≤ y.
+(* This is the most important lemma bout t and f *)
+Lemma ft_incr x : mono f → t x ≤ f (t x).
 Proof.
-  unfold cap. lat.
+  intro Hx. induct (Ω_t x). lat.
 Qed.
 
-Lemma le_cap (X:set L) y : (∀ x, X x → y ≤ x) → y ≤ ∩X.
+Local Hint Resolve Ω_t t_decr ft_incr : lat.
+
+Lemma t_mono : mono t.
 Proof.
-  unfold cap. lat.
+  intros ???. eapply le_cup. lat.
 Qed.
 
-Local Hint Resolve cap_le le_cap : lat.
+Local Hint Resolve t_mono : lat.
 
-Lemma cap_iff_unique (X:set L) y : y = ∩X ↔ ∀ a, a ≤ y ↔ ∀ x, X x → a ≤ x.
+
+
+(* Cup-closed *)
+
+Definition cup_closed (P : set L) := ∀ X:set L, (∀ x, X x → Ω x) → (∀ x, X x → P x) → P (∪X).
+
+Lemma cup_closed_true (P : Prop) : P → cup_closed (λ a, P).
 Proof.
-  rewrite iff_impl. naive_solver lat.
+  unfold cup_closed. eauto.
+Qed.
+
+Lemma cup_closed_le x : cup_closed (λ a, a ≤ x).
+Proof.
+  unfold cup_closed. lat.
+Qed.
+
+Lemma cup_closed_and P Q : cup_closed P → cup_closed Q → cup_closed (λ x, P x ∧ Q x).
+Proof.
+  unfold cup_closed. naive_solver.
+Qed.
+
+Lemma cup_closed_forall {A} (P : A → set L) : (∀ i, cup_closed (P i)) → cup_closed (λ x, ∀ i, P i x).
+Proof.
+  unfold cup_closed. eauto.
+Qed.
+
+Lemma cup_closed_mono g : mono g → cup_closed (λ x, x ≤ g x).
+Proof.
+  unfold cup_closed. lat.
+Qed.
+
+Lemma cup_closed_impl (P Q : set L) : (∀ x y, P x → y ≤ x → P y) → cup_closed Q → cup_closed (λ a, P a → Q a).
+Proof.
+  unfold cup_closed. lat.
+Qed.
+
+Require Import Logic.Classical.
+
+Lemma cup_closed_or P Q : cup_closed P → cup_closed Q → cup_closed (λ x, P x ∨ Q x).
+Proof.
+  intros HP HQ X HΩ HPQ.
+  unfold cup_closed in *.
+  classical_left.
+Admitted.
+
+Definition f_closed (P : set L) := ∀ x, Ω x → P x → P (f x).
+
+(* The induct tactic turns a goal (∀ a, Ω a → P a) into (f_closed P),
+   provided it can solve the second (cup_closed P) subgoal using eauto with lat. *)
+
+(* The following is a basic induction lemma.
+   The bi-implication shows that doing the induct tactic doesn't make a goal un-provable,
+   provided the second subgoal is solved. *)
+Lemma ind P :
+  cup_closed P →
+  f_closed P ↔ (∀ a, Ω a → P a).
+Proof.
+  intro G.
+  split.
+  - intros ?? H. induct H. eauto.
+  - unfold f_closed. eauto with lat.
+Qed.
+
+Lemma ind_param0 P x :
+  cup_closed P →
+  (∀ a, Ω a → (a ≤ x → P a) → (f a ≤ x → P (f a))) →
+  (∀ a, Ω a → a ≤ x → P a).
+Proof.
+  intros ??? H. induct H. eauto.
+Qed.
+
+Lemma ind_param0' P x :
+  mono f →
+  cup_closed P →
+  (∀ a, Ω a → P a → f a ≤ x → P (f a)) →
+  (∀ a, Ω a → a ≤ x → P a).
+Proof.
+  intros ???? H. induct H. eauto with lat.
+Qed.
+
+Lemma ind_weak0 P x :
+  mono f →
+  cup_closed P →
+  (∀ a, Ω a → P a → a ≤ x → P (f a)) →
+  (∀ a, Ω a → a ≤ x → P a).
+Proof.
+  intros ???? H. induct H. eauto 7 with lat.
+Qed.
+
+
+
+(* Correspondence between t induction principles and Ω induction principles *)
+
+Lemma corr x y : t x ≤ y ↔ ∀ a, Ω a → a ≤ x → a ≤ y.
+Proof.
+  split; [unfold t|]; lat.
+Qed.
+
+Lemma corr' x y : mono f → f (t (y ∩ x)) ≤ y ↔ ∀ a, Ω a → a ≤ y∩x → f a ≤ y.
+Proof.
+  split; [unfold t|]; lat.
+Qed.
+
+Lemma corr'_alt x y : (∀ a, Ω a → a ≤ y∩x → f a ≤ y) ↔ (∀ a, Ω a → a ≤ y → a ≤ x → f a ≤ y).
+Proof.
+  split; lat.
+Qed.
+
+Lemma t_ind_alt_pf_fixed x y : mono f → f (t (y ∩ x)) ≤ y → t x ≤ y.
+Proof.
+  intro. rewrite corr corr' //. eauto using ind_weak.
+Qed.
+
+Lemma cup_cap x y z : x ≤ y ∩ z → x ∩ y ≤ z.
+Proof.
+  lat.
+Qed.
+
+(* I think the ↔ version of this lemma holds too, but I don't know how to prove it
+   without applealing to the ordinal sequence. *)
+Lemma corr'' x y : mono f → f (t (y ∩ x)) ∩ t x ≤ y → ∀ a, Ω a → a ≤ y → f a ≤ x → f a ≤ y.
+Proof.
+  intros Hf G ????. eapply le_trans; last exact G. unfold t. eauto 20 with lat.
+Qed.
+
+Lemma t_ind_strong_pf_fixed x y : mono f → f (t (y ∩ x)) ∩ t x ≤ y → t x ≤ y.
+Proof.
+  intros.
+  eapply corr. eapply ind_param'; eauto.
+  eapply corr''; eauto.
+Qed.
+
+Lemma check_no_loss x y : mono f → x ≤ y → t x ≤ y.
+Proof.
+  intros. eapply t_ind_strong_pf_fixed; eauto.
+  eapply cap2_le. right. by eapply t_done.
+Qed.
+
+Require Import Logic.Classical.
+
+Lemma cmp x y : mono f → Ω x → Ω y → x ≤ y ∨ f y ≤ x.
+Proof.
+  intros Hf Ωx. revert y. induction Ωx; intros y Ωy.
+  - classical_left. eapply cup_le. naive_solver lat.
+  - classical_right. eapply Hf. induct Ωy. naive_solver lat.
+Qed.
+
+Print cup_closed.
+
+Lemma cup_closed_disj y z (X:set L) :
+  (∀ x, X x → x ≤ y ∨ z ≤ x) → ∪X ≤ y ∨ z ≤ ∪X.
+Proof.
+  intro. classical_left. eapply cup_le. naive_solver lat.
+Qed.
+
+Lemma cup_closed_disj' y z (X:set L) :
+  (∀ x, X x → z ≤ x ∨ x ≤ y) → z ≤ ∪X ∨ ∪X ≤ y.
+Proof.
+  intros. rewrite comm. eapply cup_closed_disj. naive_solver.
+Qed.
+
+Local Hint Resolve cup_closed_disj cup_closed_disj' : lat.
+
+Lemma disjL {A A' B : Prop} : (A → A') → A ∨ B → A' ∨ B.
+Proof. naive_solver. Qed.
+
+Lemma disjR {A B B' : Prop} : (B → B') → A ∨ B → A ∨ B'.
+Proof. naive_solver. Qed.
+
+Lemma cmp' x y : mono f → Ω x → Ω y → x ≤ y ∨ f y ≤ x.
+Proof.
+  intros Hf Ωx. revert y. induct Ωx. intros y Ωy.
+  apply (disjR (Hf _ _)). induct Ωy. naive_solver.
+Qed.
+
+Lemma corr''_iff x y : mono f → f (t (y ∩ x)) ∩ t x ≤ y ↔ ∀ a, Ω a → a ≤ y → f a ≤ x → f a ≤ y.
+Proof.
+  split; eauto using corr''. intros.
+  destruct (cmp (t x) (t y)); try lat.
+  eapply cap2_le. left.
+  eapply le_trans; last eapply (H0 (t y)); lat.
 Qed.
