@@ -476,45 +476,41 @@ Qed.
 
 Local Hint Resolve cup_closed_disj cup_closed_disj' : lat.
 
-Lemma cmp' x y : mono f → Ω x → Ω y → x ≤ y ∨ f y ≤ x.
+Lemma cmp' x y : mono f → Ω x → Ω y →
+  x ≤ y ∨ f y ≤ x.
 Proof.
   intros Hf Ωx. revert y. induct Ωx. intros y Ωy.
   cut (f x ≤ y ∨ y ≤ x); first naive_solver.
   induct Ωy. naive_solver.
 Qed.
 
-Lemma cmp'' x y : (∀ x, Ω x → x ≤ f x) → Ω x → Ω y → x ≤ y ∨ f y ≤ x.
+Lemma cmp'' x y : (∀ x, Ω x → x ≤ f x) → Ω x → Ω y →
+  x ≤ y ∨ f y ≤ x.
 Proof.
   intros Hf Ωx. revert y. induct Ωx. intros y Ωy.
-  
-  (* Can compare x with anything in Ω. *)
-  (* Now prove that we can compare f x with anything in Ω. *)
-  induction Ωy; first admit.
-  destruct IHΩy; try lat.
-  destruct (IHΩx (f x0)); try lat.
-  destruct (IHΩx (f x)); try lat.
-  right. eapply le_trans; last eapply Hf; eauto.
-  lat.
-  - lat.
-  - lat.
-  lat.
-
-  cut (f x ≤ y ∨ f y ≤ x). {
-    intros []; try lat.
+  cut (f x ≤ y ∨ y ≤ x).
+  {
+    intros []; try lat. destruct (IHΩx y); try lat.
+    assert (x = y) as ->; lat.
   }
-  induction Ωy.
-  - admit.
-  - pose proof (IHΩx x0).
-    pose proof (IHΩx (f x0)).
-    naive_solver lat.
+  induct Ωy. destruct IHΩy; try lat.
+  destruct (IHΩx x0); try lat.
+  assert (x0 = x) as ->; lat.
+Qed.
 
-  assert (Ω (f y)) as H by lat.
-  induct H.
-  pose proof (IHΩx y).
-  pose proof (IHΩx (f y)).
-   naive_solver lat.
-  induct (Ω_suc y).
-  induct Ωy. naive_solver.
+Lemma cmp''' x y : (∀ x, Ω x → x ≤ f x) → Ω x → Ω y →
+  f x ≤ y ∨ x = y ∨ f y ≤ x.
+Proof.
+  intros.
+  destruct (cmp'' x y); eauto.
+  destruct (cmp'' y x); lat.
+Qed.
+
+Lemma incr_mono : (∀ x, Ω x → x ≤ f x) → ∀ x y, Ω x → Ω y → x ≤ y → f x ≤ f y.
+Proof.
+  intros Hf x y Ωx Ωy H.
+  destruct (cmp''' x y) as [|[]]; subst; try lat.
+  assert (x = y); try lat. subst. lat.
 Qed.
 
 Lemma corr''_iff x y : mono f → f (t (y ∩ x)) ∩ t x ≤ y ↔ ∀ a, Ω a → a ≤ y → f a ≤ x → f a ≤ y.
