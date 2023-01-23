@@ -24,8 +24,10 @@
     <title>Jules Jacobs</title>
     <style>
       body {
-        font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
-        font-size: 13pt;
+        font-family: Helvetica;
+        /* font-family:  "Helvetica Neue", Lato, Helvetica, "Trebuchet MS", Arial; */
+        /* font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif; */
+        /* font-size: 13pt; */
         font-size: 16px;
         text-align: justify;
         line-height: 1.3;
@@ -61,6 +63,7 @@
 
       h1 {
         font-size: 20pt;
+        color: #444;
       }
 
       h2 {
@@ -76,7 +79,8 @@
       }
 
       a {
-        color: #16c;
+        /* color: #16c; */
+        color: hsl(213, 50%, 40%);
         text-decoration: none;
         border-radius: 4px;
         padding: 1px;
@@ -113,7 +117,7 @@
       }
 
       .pub td {
-        padding-bottom: 10px;
+        padding-bottom: 20px;
       }
 
       .pub tr td:first-child {
@@ -140,26 +144,34 @@
 
       .title {
         padding: 0px 0px;
-        margin: 0;
         display: inline-block;
         width: auto;
+        font-weight: bold;
+        color: hsl(213, 50%, 40%);
+        /* color: #000; */
       }
 
       .authors {
         color: #444;
-        display: inline;
+        margin: 5px 0px 10px 0px;
       }
 
-      .button {
-        text-transform: uppercase;
+      .authors .me {
+
+      }
+
+      .authors a {
+        color: #333;
+      }
+
+      .button, .distinguished {
         border: 1px solid;
         border-radius: 4px;
-        padding: 2px 3px;
-        font-size: 11px;
+        padding: 3px 4px;
+        font-size: .875rem;
         color: gray;
         border-color: #aaa;
         background-color: #eee;
-        height: 3px;
       }
 
       .button:hover {
@@ -167,6 +179,16 @@
         border-color: #888;
         background-color: #888;
         cursor: pointer;
+      }
+
+      .distinguished {
+        color: hsl(213, 85%, 50%);
+        border-color: hsl(213, 85%, 50%);
+        background-color: hsl(213, 85%, 90%);
+      }
+
+      .distinguished:hover {
+        background-color: hsl(213, 85%, 90%);
       }
 
       #notes .authors {
@@ -200,10 +222,6 @@
 
       #talks .slides {
         display: none;
-      }
-
-      .info .button:first-of-type {
-        margin-left: 10px;
       }
 
       header .button {
@@ -291,33 +309,43 @@
       </p>
     </div>
 
-    <p style="border: 1px solid; text-align: center; padding: 3px">
-    Currently at POPL. I'm looking for a postdoc position after I submit my thesis in September.
-    </p>
+    <!-- <p style="border: 1px solid; text-align: center; padding: 3px"> -->
+    <!-- Currently at POPL. I'm looking for a postdoc position after I submit my thesis in September. -->
+    <!-- </p> -->
 
     <h2>Publications</h2>
     <table class="pub" id="publications">
       <tr id="locks">
         <td>POPL'23</td>
         <td>
-          <a class="title" href="pdf/locks.pdf">
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571229">
             Higher-Order Leak and Deadlock Free Locks
           </a>
           <br />
           <div class="info">
             <div class="authors">
-              Jules Jacobs, Stephanie Balzer
+              <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>
             </div>
-            <!-- <a class="button" href="pdf/multiparty.pdf">pdf</a> -->
+            <a class="button" href="pdf/locks.pdf">pdf</a>
             <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <!-- <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a> -->
             <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
-            <!-- <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a> -->
+            <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
             <!-- <a class="button" href="https://zenodo.org/record/4075076">code</a> -->
             <!-- <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a> -->
+            <a class="distinguished">distinguished paper</a>
 
-            <!-- <textarea class="bibtex" id="paradoxes-bibtex"></textarea> -->
+            <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
+  author = {Jacobs, Jules and Balzer, Stephanie},
+  title = {Higher-Order Leak and Deadlock Free Locks},
+  year = {2023},
+  volume = {7},
+  number = {POPL},
+  doi = {10.1145/3571229},
+  journal = {Proc. ACM Program. Lang.},
+  articleno = {36},
+}</textarea>
           </div>
         </td>
       </tr>
@@ -325,24 +353,33 @@
       <tr id="boa">
         <td>POPL'23</td>
         <td>
-          <a class="title" href="pdf/boa.pdf">
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571245">
             Fast Coalgebraic Bisimilarity Minimization
           </a>
           <br />
           <div class="info">
             <div class="authors">
-              Jules Jacobs, Thorsten Wiẞmann
+              <span class="me">Jules Jacobs</span>, <a href="https://thorsten-wissmann.de/">Thorsten Wiẞmann</a>
             </div>
-            <!-- <a class="button" href="pdf/multiparty.pdf">pdf</a> -->
+            <a class="button" href="pdf/boa.pdf">pdf</a>
             <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/boa">code</a>
             <!-- <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a> -->
             <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
-            <!-- <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a> -->
+            <a class="button" onclick="toggle('boa-bibtex')">bibtex</a>
             <!-- <a class="button" href="https://zenodo.org/record/4075076">code</a> -->
             <!-- <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a> -->
 
-            <!-- <textarea class="bibtex" id="paradoxes-bibtex"></textarea> -->
+            <textarea class="bibtex" id="boa-bibtex">@article{jacobs_bismin_2023,
+  author = {Jacobs, Jules and Wi\ss{}mann, Thorsten},
+  title = {Fast Coalgebraic Bisimilarity Minimization},
+  year = {2023},
+  volume = {7},
+  number = {POPL},
+  doi = {10.1145/3571245},
+  journal = {Proc. ACM Program. Lang.},
+  articleno = {52},
+}</textarea>
           </div>
         </td>
       </tr>
@@ -357,7 +394,9 @@
           <br />
           <div class="info">
             <div class="authors">
-              Jules Jacobs, Stephanie Balzer, Robbert Krebbers
+              <span class="me">Jules Jacobs</span>,
+              <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>,
+              <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="pdf/multiparty.pdf">pdf</a>
             <a class="button" href="slides/icfp22-slides.pdf">slides</a>
@@ -381,8 +420,7 @@
   doi = {10.1145/3547638},
   journal = {Proc. ACM Program. Lang.},
   month = {aug},
-}
-            </textarea>
+}</textarea>
           </div>
         </td>
       </tr>
@@ -392,7 +430,7 @@
         <td>
           <a class="title" href="https://drops.dagstuhl.de/opus/volltexte/2022/16251/">A Self-Dual Distillation of Session Types</a><br />
           <div class="info">
-            <div class="authors">Jules Jacobs</div>
+            <div class="authors"><span class="me">Jules Jacobs</span></div>
             <a class="button" href="pdf/lambdabar.pdf">pdf</a>
             <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
             <!-- <a class="button" href="https://zenodo.org/record/4075076">code</a> -->
@@ -418,8 +456,7 @@
   URL = {https://drops.dagstuhl.de/opus/volltexte/2022/16251},
   URN = {urn:nbn:de:0030-drops-162518},
   doi = {10.4230/LIPIcs.ECOOP.2022.23},
-}</textarea
-            >
+}</textarea>
           </div>
         </td>
       </tr>
@@ -433,7 +470,9 @@
           ><br />
           <div class="info">
             <div class="authors">
-              Jules Jacobs, Stephanie Balzer, Robbert Krebbers
+              <span class="me">Jules Jacobs</span>,
+              <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>,
+              <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="pdf/deadlocks.pdf">pdf</a>
             <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
@@ -456,8 +495,7 @@
   year = {2022},
   url = {https://doi.org/10.1145/3498662},
   doi = {10.1145/3498662},
-}</textarea
-            >
+}</textarea>
           </div>
         </td>
       </tr>
@@ -476,7 +514,7 @@
             <div class="authors">
               Firat Kara, Michael E. Belloy, Rick Voncken, Zahra Sarwari, Yadav
               Garima, Cynthia Anckaerts, An Langbeen, Valerie Leysen, Disha
-              Shah, Jules Jacobs, Julie Hamaide, Peter Bols, Johan Van
+              Shah, <span class="me">Jules Jacobs</span>, Julie Hamaide, Peter Bols, Johan Van
               Audekerke, Jasmijn Daans, Caroline Guglielmetti, Kejal Kantarci,
               Vincent Prevot, Steffen Roßner, Peter Ponsaerts, Annemie Van der
               Linden, Marleen Verhoye
@@ -492,8 +530,7 @@
   doi = {https://doi.org/10.1016/j.neurobiolaging.2021.02.011},
   url = {https://www.sciencedirect.com/science/article/pii/S019745802100066X},
   author = {Firat Kara and Michael E. Belloy and Rick Voncken and Zahra Sarwari and Yadav Garima and Cynthia Anckaerts and An Langbeen and Valerie Leysen and Disha Shah and Jules Jacobs and Julie Hamaide and Peter Bols and Johan {Van Audekerke} and Jasmijn Daans and Caroline Guglielmetti and Kejal Kantarci and Vincent Prevot and Steffen Roßner and Peter Ponsaerts and Annemie {Van der Linden} and Marleen Verhoye},
-}</textarea
-            >
+}</textarea>
           </div>
         </td>
       </tr>
@@ -503,14 +540,14 @@
           <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3434339">
             Paradoxes of Probabilistic Programming<br />
             <small>
-              <i>
+              <i style="font-weight: normal">
                 And How to Condition on Events of Measure Zero with
                 Infinitesimal Probabilities
               </i>
             </small>
           </a>
           <div class="info">
-            <div class="authors">Jules Jacobs</div>
+            <div class="authors"><span class="me">Jules Jacobs</span></div>
             <a class="button" href="pdf/measurezero.pdf">pdf</a>
             <!-- <a class="button" href="https://dl.acm.org/doi/abs/10.1145/3434339">acm dl</a> -->
             <a class="button" href="https://zenodo.org/record/4075076">code</a>
@@ -527,18 +564,13 @@
   title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},
   volume = {5},
   shorttitle = {Paradoxes of probabilistic programming},
-  url = {https://doi.org/10.1145/3434339},
   doi = {10.1145/3434339},
   number = {POPL},
-  urldate = {2021-01-11},
-  journal = {Proceedings of the ACM on Programming Languages},
+  journal = {Proc. {ACM} Program. Lang.},
   author = {Jacobs, Jules},
-  month = jan,
   year = {2021},
-  keywords = {probabilistic programming},
   pages = {58:1--58:26},
-}</textarea
-            >
+}</textarea>
           </div>
         </td>
       </tr>
