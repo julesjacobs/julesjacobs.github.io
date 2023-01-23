@@ -33,15 +33,38 @@
         line-height: 1.3;
         color: #333;
         max-width: 900px;
-        padding: 0 5px;
+        padding: 0px 5px;
         margin: 0px auto 200px auto;
       }
 
+      #header {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap-reverse;
+      }
+
+      #header #pic {
+        margin: auto;
+        padding-left: 20px;
+        padding-top: 10px;
+        flex: 0;
+      }
+
+      #header #panel {
+        flex: 2;
+        min-width: 400px;
+      }
+
       .desc {
-        /* border-bottom: 2px solid gray; */
-        border-top: 2px solid #999;
-        padding: 3px 0px;
+        line-height: 150%;
+        background-color: #F8F8F8;
+        padding: 5px 10px;
         margin-top:3px;
+        margin-bottom: 15px;
+        border: 1px solid #bbb;
+        border-radius: 4px;
+        box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+        color: #555;
       }
 
       .desc p {
@@ -52,7 +75,8 @@
       .links {
         /* border-top: 1px solid gray; */
         text-align: left;
-        padding-bottom: 6px;
+        padding: 10px 0px 6px 0px;
+
       }
 
       table {
@@ -89,32 +113,6 @@
         background: #ccc;
       }
 
-      header {
-        line-height: 1;
-        overflow-x: hidden;
-        width: calc(100% + 10px);
-      }
-
-      header h1 {
-        margin: 0;
-        margin-top: 7px;
-        margin-bottom: 10px;
-      }
-
-      header table {
-        width: auto;
-        margin: auto;
-        text-align: center;
-      }
-
-      header img {
-        margin-left: 1em;
-        margin-top: 5px;
-        margin-bottom: 3px;
-        max-height: 150px;
-        max-width: 150px;
-      }
-
       .pub td {
         padding-bottom: 20px;
       }
@@ -132,6 +130,11 @@
 
       #publications tr td:first-child {
         text-align: center;
+      }
+
+      #publications .info {
+        line-height: 200%;
+        text-align: left;
       }
 
       .bibtex {
@@ -152,7 +155,8 @@
 
       .authors {
         color: #444;
-        margin: 3px 0px 7px 0px;
+        line-height: 150%;
+        /* margin: 3px 0px 7px 0px; */
       }
 
       .authors .me {
@@ -164,12 +168,12 @@
       }
 
       .button, .distinguished {
-        border: 1px solid;
+        border: 1px solid #bbb;
         border-radius: 4px;
+        box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
         padding: 3px 4px;
         font-size: .875rem;
         color: gray;
-        border-color: #aaa;
         background-color: #eee;
         white-space: nowrap;
       }
@@ -261,54 +265,48 @@
   </head>
 
   <body>
-    <header>
-      <table>
-        <tr>
-          <td>
-            <h1>Jules Jacobs</h1>
-          </td>
-          <td>
-            <img
-              src="images/jules_small.webp"
-              width="110"
-              height="110"
-              alt="Jules"
-            />
-          </td>
-        </tr>
-      </table>
-    </header>
 
-    <div class="links">
-      <a class="button" href="/blog.html">blog</a>
-      <a class="button" href="https://github.com/julesjacobs">github</a>
-      <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a>
-      <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a>
-      <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
-      <a class="button" href="misc/deadlines/">PL deadlines</a>
-    </div>
-    <div class="desc">
-      Doing a PhD with
-      <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> at Radboud
-      University on formal verification and programming languages, and
-      working on deadlock freedom in collaboration with
-      <a href="http://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
-      <p>
-        Some of my favourite things are:
-        <a href="https://coq.inria.fr/">type theory</a>,
-        <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
-        <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
-        <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
-        <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
-        <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a>
-        <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>,
-        <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &
-        <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>,
-        <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the
-        <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>,
-        <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>,
-        <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
-      </p>
+
+    <div id="header">
+      <div id="panel">
+      <div class="links">
+        <a class="button" href="/blog.html">blog</a>
+        <a class="button" href="https://github.com/julesjacobs">github</a>
+        <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a>
+        <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a>
+        <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
+        <a class="button" href="misc/deadlines/">PL deadlines</a>
+      </div>
+      <div class="desc">
+        Hi, I am <b>Jules Jacobs</b>. Until September 2023 I am doing a PhD with
+        <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> at Radboud
+        University on formal verification and programming languages, and
+        working on deadlock freedom in collaboration with
+        <a href="http://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
+        <p>
+          Some of my favourite things are:
+          <a href="https://coq.inria.fr/">type theory</a>,
+          <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
+          <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
+          <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
+          <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
+          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a>
+          <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>,
+          <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &
+          <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>,
+          <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the
+          <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>,
+          <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>,
+          <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+        </p>
+      </div>
+      </div>
+      <img id="pic"
+        src="images/jules_small.webp"
+        width="150"
+        height="150"
+        alt="Jules"
+      />
     </div>
 
     <!-- <p style="border: 1px solid; text-align: center; padding: 3px"> -->
