@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <style>
+    #photos {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-auto-rows: 250px;
+      grid-auto-flow: dense;
+    }
+    #photos img {
+      object-fit: cover;
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+  <body>
+    <div id="photos">
+      <a href="1meer.jpg"><img src="thumbnails/1meer.jpg" /></a>
+      <a href="2paarden.jpg"><img src="thumbnails/2paarden.jpg" /></a>
+      <a href="3bergrood.jpg"><img src="thumbnails/3bergrood.jpg" /></a>
+      <a href="4hei.jpg"><img src="thumbnails/4hei.jpg" /></a>
+      <a href="5kasteel.jpg"><img src="thumbnails/5kasteel.jpg" /></a>
+      <a href="6bergavond.jpg"><img src="thumbnails/6bergavond.jpg" /></a>
+      <a href="6boog.jpg"><img src="thumbnails/6boog.jpg" /></a>
+      <a href="6fungizon.jpg"><img src="thumbnails/6fungizon.jpg" /></a>
+      <a href="6koud.jpg"><img src="thumbnails/6koud.jpg" /></a>
+      <a href="6schapen.jpg"><img src="thumbnails/6schapen.jpg" /></a>
+      <a href="7kwaterval.jpg"><img src="thumbnails/7kwaterval.jpg" /></a>
+      <a href="avond.jpg"><img src="thumbnails/avond.jpg" /></a>
+      <a href="beek.jpg"><img src="thumbnails/beek.jpg" /></a>
+      <a href="berg.jpg"><img src="thumbnails/berg.jpg" /></a>
+      <a href="bergmeer.jpg"><img src="thumbnails/bergmeer.jpg" /></a>
+      <a href="berguitzicht.jpg"><img src="thumbnails/berguitzicht.jpg" /></a>
+      <a href="bes.jpg"><img src="thumbnails/bes.jpg" /></a>
+      <a href="bevers.jpg"><img src="thumbnails/bevers.jpg" /></a>
+      <a href="bootjes.jpg"><img src="thumbnails/bootjes.jpg" /></a>
+      <a href="bos.jpg"><img src="thumbnails/bos.jpg" /></a>
+      <a href="bosmeer.jpg"><img src="thumbnails/bosmeer.jpg" /></a>
+      <a href="fungi.jpg"><img src="thumbnails/fungi.jpg" /></a>
+      <a href="fungi2.jpg"><img src="thumbnails/fungi2.jpg" /></a>
+      <a href="ggwaterval.jpg"><img src="thumbnails/ggwaterval.jpg" /></a>
+      <a href="groenwater.jpg"><img src="thumbnails/groenwater.jpg" /></a>
+      <a href="gwaterval.jpg"><img src="thumbnails/gwaterval.jpg" /></a>
+      <a href="hoog.jpg"><img src="thumbnails/hoog.jpg" /></a>
+      <a href="hotel.jpg"><img src="thumbnails/hotel.jpg" /></a>
+      <a href="kasteelgeul.jpg"><img src="thumbnails/kasteelgeul.jpg" /></a>
+      <a href="kat.jpg"><img src="thumbnails/kat.jpg" /></a>
+      <a href="kever.jpg"><img src="thumbnails/kever.jpg" /></a>
+      <a href="koe.jpg"><img src="thumbnails/koe.jpg" /></a>
+      <a href="koudgroen.jpg"><img src="thumbnails/koudgroen.jpg" /></a>
+      <a href="nierhoven.jpg"><img src="thumbnails/nierhoven.jpg" /></a>
+      <a href="pad.jpg"><img src="thumbnails/pad.jpg" /></a>
+      <a href="panorama.jpg"><img src="thumbnails/panorama.jpg" /></a>
+      <a href="parhelion.jpg"><img src="thumbnails/parhelion.jpg" /></a>
+      <a href="ree.jpg"><img src="thumbnails/ree.jpg" /></a>
+      <a href="sandiego.jpg"><img src="thumbnails/sandiego.jpg" /></a>
+      <a href="sneeuw.jpg"><img src="thumbnails/sneeuw.jpg" /></a>
+      <a href="stel.jpg"><img src="thumbnails/stel.jpg" /></a>
+      <a href="uitzicht.jpg"><img src="thumbnails/uitzicht.jpg" /></a>
+      <a href="uitzicht2.jpg"><img src="thumbnails/uitzicht2.jpg" /></a>
+      <a href="ver.jpg"><img src="thumbnails/ver.jpg" /></a>
+      <a href="vlieg.jpg"><img src="thumbnails/vlieg.jpg" /></a>
+    </div>
+  </body>
+  <script>
+    var imgs = document.getElementsByTagName("img");
+    console.log(imgs);
+    for(var i=0; i<imgs.length; i++){
+      var parent = imgs[i].parentElement;
+      parent.innerHtml = '<a href="test.html">' + imgs[i].innerHTML + '</a>';
+    }
+  </script>
+</html>
