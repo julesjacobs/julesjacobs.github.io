@@ -7,17 +7,17 @@ os.chdir("photos")
 imgs = sorted(glob.glob("*.jpg"))
 
 for imgfile in imgs:
-  print(imgfile)
   if not os.path.isfile('thumbnails/'+imgfile):
     img = ImageOps.exif_transpose(Image.open(imgfile))
+    target = 500
     (h,w) = img.size
     if h > w:
-      wr = 500
-      hr = round((h * 500)/w)
+      wr = target
+      hr = round((h * target)/w)
     else:
-      hr = 500
-      wr = round((w * 500)/h)
-    print((hr,wr))
+      hr = target
+      wr = round((w * target)/h)
+    print(imgfile, (hr,wr))
     thumb = img.resize((hr,wr), Image.LANCZOS)
     # img.thumbnail((400, 400))
     thumb.save('thumbnails/'+imgfile)
@@ -26,6 +26,10 @@ template = """
 <!DOCTYPE html>
 <html lang="en">
   <style>
+    body {
+      padding: 10px;
+      margin: 0;
+    }
     #photos {
       display: grid;
       grid-gap: 10px;
