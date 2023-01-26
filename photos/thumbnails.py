@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageOps
 import glob
 import os
 
@@ -9,9 +9,18 @@ imgs = sorted(glob.glob("*.jpg"))
 for imgfile in imgs:
   print(imgfile)
   if not os.path.isfile('thumbnails/'+imgfile):
-    img = Image.open(imgfile)
-    img.thumbnail((400, 400))
-    img.save('thumbnails/'+imgfile)
+    img = ImageOps.exif_transpose(Image.open(imgfile))
+    (h,w) = img.size
+    if h > w:
+      wr = 500
+      hr = round((h * 500)/w)
+    else:
+      hr = 500
+      wr = round((w * 500)/h)
+    print((hr,wr))
+    thumb = img.resize((hr,wr), Image.LANCZOS)
+    # img.thumbnail((400, 400))
+    thumb.save('thumbnails/'+imgfile)
 
 template = """
 <!DOCTYPE html>
