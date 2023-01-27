@@ -42,26 +42,27 @@ template = """
       width: 100%%;
       height: 100%%;
     }
+    #flag {
+      position: absolute;
+      top: 0;
+      right: 0;
+      cursor: pointer;
+    }
+    .dutch .other { display: none }
   </style>
   <body>
+    <div id="flag" onclick="document.body.classList.toggle('dutch')">🇳🇱</div>
     <div id="photos">
 %s
     </div>
   </body>
-  <script>
-    var imgs = document.getElementsByTagName("img");
-    console.log(imgs);
-    for(var i=0; i<imgs.length; i++){
-      var parent = imgs[i].parentElement;
-      parent.innerHtml = '<a href="test.html">' + imgs[i].innerHTML + '</a>';
-    }
-  </script>
 </html>
 """
 
 imghtmls = []
 for imgfile in imgs:
-  imghtmls.append("""      <a href="%s"><img src="thumbnails/%s" /></a>""" % (imgfile, imgfile))
+  cls = "NL" if "_NL" in imgfile else "other"
+  imghtmls.append("""      <a href="%s" class="%s"><img src="thumbnails/%s" /></a>""" % (imgfile, cls, imgfile))
 
 out = template % "\n".join(imghtmls)
 print(out)
