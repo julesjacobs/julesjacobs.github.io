@@ -4,7 +4,7 @@ import os
 
 os.chdir("photos")
 
-imgs = sorted(glob.glob("*.jpg"))
+imgs = sorted(glob.glob("*.jp*g"))
 
 for imgfile in imgs:
   if not os.path.isfile('thumbnails/'+imgfile):
