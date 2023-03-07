@@ -1,7 +1,7 @@
-\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
-\BOOKMARK [1][-]{section.2}{A simple binary search algorithm}{}% 2
-\BOOKMARK [1][-]{section.3}{Searching an array}{}% 3
-\BOOKMARK [1][-]{section.4}{Finding a particular element}{}% 4
-\BOOKMARK [1][-]{section.5}{Generalized binary search}{}% 5
-\BOOKMARK [2][-]{subsection.5.1}{Searching floats}{section.5}% 6
-\BOOKMARK [2][-]{subsection.5.2}{Searching lattices}{section.5}% 7
+\BOOKMARK [1][-]{section.1}{\376\377\000I\000n\000t\000r\000o\000d\000u\000c\000t\000i\000o\000n}{}% 1
+\BOOKMARK [1][-]{section.2}{\376\377\000A\000\040\000s\000i\000m\000p\000l\000e\000\040\000b\000i\000n\000a\000r\000y\000\040\000s\000e\000a\000r\000c\000h\000\040\000a\000l\000g\000o\000r\000i\000t\000h\000m}{}% 2
+\BOOKMARK [1][-]{section.3}{\376\377\000S\000e\000a\000r\000c\000h\000i\000n\000g\000\040\000a\000n\000\040\000a\000r\000r\000a\000y}{}% 3
+\BOOKMARK [1][-]{section.4}{\376\377\000F\000i\000n\000d\000i\000n\000g\000\040\000a\000\040\000p\000a\000r\000t\000i\000c\000u\000l\000a\000r\000\040\000e\000l\000e\000m\000e\000n\000t}{}% 4
+\BOOKMARK [1][-]{section.5}{\376\377\000G\000e\000n\000e\000r\000a\000l\000i\000z\000e\000d\000\040\000b\000i\000n\000a\000r\000y\000\040\000s\000e\000a\000r\000c\000h}{}% 5
+\BOOKMARK [2][-]{subsection.5.1}{\376\377\000S\000e\000a\000r\000c\000h\000i\000n\000g\000\040\000f\000l\000o\000a\000t\000s}{section.5}% 6
+\BOOKMARK [2][-]{subsection.5.2}{\376\377\000S\000e\000a\000r\000c\000h\000i\000n\000g\000\040\000l\000a\000t\000t\000i\000c\000e\000s}{section.5}% 7

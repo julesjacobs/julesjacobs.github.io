@@ -48,6 +48,7 @@
 
 \title{Binary Search a Little Simpler \& More Generic}
 \author{Jules Jacobs}
+\date{5 December 2020}
 \begin{document}
 \maketitle
 
@@ -102,6 +103,7 @@ Suppose we have some predicate $p : Int \to Bool$, and are given indices $L < R$
   \item Although the precondition mentions $p(L)$ and $p(R)$, the algorithm only calls $p$ on indices \emph{strictly} between the initial $L$ and $R$.
   \item We do not require that $p$ has only one point where it flips from $false$ to $true$. If there is more than one, then binary search algorithm will find one of those points.
   \item Whereas the previous algorithm returned \lstinline|Some(m)| or \lstinline|None| depending on whether it found $x$, this algorithm always returns a result.
+  \item A very similar formulation of binary search was given in \href{http://www.mathmeth.com/wf/files/wf2xx/wf214.pdf}{a 1995 \emph{handwritten} article} by Netty van Gasteren and Wim Feijen.\footnote{Thanks to Tom Verhoeff for pointing this out.}
 \end{itemize}
 
 \section{Searching an array}
