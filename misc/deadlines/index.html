@@ -133,7 +133,8 @@ for(var i=0; i<deadlines.length; i++){
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
   var dname = d.conf.replace(/R[0-9]/g, '').replace(/'/g, '').replace(/[0-9]/g, '').replace(/ /g, '');
-  elink.href = "https://www.google.com/search?q=" + dname + '+2023+conference';
+  var year = parseInt(d.conf.match(/\d+/)[0])+2000
+  elink.href = "https://www.google.com/search?q=" + dname + '+' + year + '+conference';
   if(d.conf == "ICFP"){ elink.href += '+-"family planning"'; }
 }
 
