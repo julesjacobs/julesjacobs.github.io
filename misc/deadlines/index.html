@@ -82,31 +82,31 @@
 
 <script>
 var deadlines = [
-  {conf:"LICS'23",          deadline: new Date("2023-01-18")},
-  {conf:"FSCD'23",          deadline: new Date("2023-01-30")},
-  {conf:"CAV'23",           deadline: new Date("2023-02-03")},
-  {conf:"ITP'23",           deadline: new Date("2023-02-13")},
-  {conf:"ECOOP'23 R2",      deadline: new Date("2023-03-01")},
-  {conf:"ICFP'23",          deadline: new Date("2023-03-01"),        main:1},
-  {conf:"ASPLOS'24 R1",     deadline: new Date("2023-04-13")},
-  {conf:"ASPLOS'24 R2",     deadline: new Date("2023-08-03")},
-  {conf:"ASPLOS'24 R3",     deadline: new Date("2023-11-23")},
-  {conf:"TYPES'23",         deadline: new Date("2023-03-13")},
-  {conf:"OOPSLA'23 R1",     deadline: new Date("2022-10-28"),        main:1},
-  {conf:"OOPSLA'23 R2",     deadline: new Date("2023-04-14"),        main:1},
-  {conf:"CONCUR'23",        deadline: new Date("2023-04-24")},
-  {conf:"SOSP'23",          deadline: new Date("2023-04-10")},
-  {conf:"APLAS'23",         deadline: new Date("2023-06-15")},
-  {conf:"POPL'24",          deadline: new Date("2023-07-12"),        main:1},
-  {conf:"CSL'23",           deadline: new Date("2022-07-09")},
-  {conf:"CGO'24 R1",        deadline: new Date("2023-05-19")},
-  {conf:"CGO'24 R2",        deadline: new Date("2023-09-01")},
-  {conf:"CPP'23",           deadline: new Date("2022-09-14")},
-  {conf:"FoSSaCS'23",       deadline: new Date("2022-10-13")},
-  {conf:"ESOP'23",          deadline: new Date("2022-10-13")},
-  {conf:"OSDI'23",          deadline: new Date("2022-12-07")},
-  {conf:"CC'23",            deadline: new Date("2022-11-11")},
-  {conf:"PLDI'23",          deadline: new Date("2022-11-10"),        main:1},
+  {conf:"LICS'23",          deadline: new Date("2023-01-18T23:59:59.999-12:00")},
+  {conf:"FSCD'23",          deadline: new Date("2023-01-30T23:59:59.999-12:00")},
+  {conf:"CAV'23",           deadline: new Date("2023-02-03T23:59:59.999-12:00")},
+  {conf:"ITP'23",           deadline: new Date("2023-02-13T23:59:59.999-12:00")},
+  {conf:"ECOOP'23 R2",      deadline: new Date("2023-03-01T23:59:59.999-12:00")},
+  {conf:"ICFP'23",          deadline: new Date("2023-03-01T23:59:59.999-12:00"),        main:1},
+  {conf:"ASPLOS'24 R1",     deadline: new Date("2023-04-13T23:59:59.999-12:00")},
+  {conf:"ASPLOS'24 R2",     deadline: new Date("2023-08-03T23:59:59.999-12:00")},
+  {conf:"ASPLOS'24 R3",     deadline: new Date("2023-11-23T23:59:59.999-12:00")},
+  {conf:"TYPES'23",         deadline: new Date("2023-03-13T23:59:59.999-12:00")},
+  {conf:"OOPSLA'23 R1",     deadline: new Date("2022-10-28T23:59:59.999-12:00"),        main:1},
+  {conf:"OOPSLA'23 R2",     deadline: new Date("2023-04-14T23:59:59.999-12:00"),        main:1},
+  {conf:"CONCUR'23",        deadline: new Date("2023-04-24T23:59:59.999-12:00")},
+  {conf:"SOSP'23",          deadline: new Date("2023-04-10T23:59:59.999-12:00")},
+  {conf:"APLAS'23",         deadline: new Date("2023-06-15T23:59:59.999-12:00")},
+  {conf:"POPL'24",          deadline: new Date("2023-07-12T23:59:59.999-12:00"),        main:1},
+  {conf:"CSL'23",           deadline: new Date("2022-07-09T23:59:59.999-12:00")},
+  {conf:"CGO'24 R1",        deadline: new Date("2023-05-19T23:59:59.999-12:00")},
+  {conf:"CGO'24 R2",        deadline: new Date("2023-09-01T23:59:59.999-12:00")},
+  {conf:"CPP'23",           deadline: new Date("2022-09-14T23:59:59.999-12:00")},
+  {conf:"FoSSaCS'23",       deadline: new Date("2022-10-13T23:59:59.999-12:00")},
+  {conf:"ESOP'23",          deadline: new Date("2022-10-13T23:59:59.999-12:00")},
+  {conf:"OSDI'23",          deadline: new Date("2022-12-07T23:59:59.999-12:00")},
+  {conf:"CC'23",            deadline: new Date("2022-11-11T23:59:59.999-12:00")},
+  {conf:"PLDI'23",          deadline: new Date("2022-11-10T23:59:59.999-12:00"),        main:1},
 ];
 
 function elem(parent, type){
@@ -131,9 +131,9 @@ deadlines.sort((d1,d2) => d2.deadlineN < d1.deadlineN ? -1 : 1);
 var move = 0;
 for(var i=0; i<deadlines.length; i++){
   var d = deadlines[i];
-  var is_past = d.deadline < new Date();
   var e = elemPos(d.deadlineN, 'conf');
   e.style.zIndex = deadlines.length - i;
+  var is_past = d.deadline < new Date();
   if(is_past) e.classList.add('past');
   move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+1 : 0;
   if(d.main){
