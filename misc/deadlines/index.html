@@ -135,12 +135,12 @@ for(var i=0; i<deadlines.length; i++){
   e.style.zIndex = deadlines.length - i;
   var is_past = d.deadline < new Date();
   if(is_past) e.classList.add('past');
-  move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+1 : 0;
+  move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+d.conf.length : 0;
   if(d.main){
     e.classList.add('main');
     // move = Math.max(move,1);
   }
-  e.style.width = 110+90*move + 'px'
+  e.style.width = 110+9*move + 'px'
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
   var dname = d.conf.replace(/R[0-9]/g, '').replace(/'/g, '').replace(/[0-9]/g, '').replace(/ /g, '');
