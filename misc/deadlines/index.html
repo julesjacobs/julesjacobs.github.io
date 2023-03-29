@@ -146,7 +146,7 @@ for(var i=0; i<deadlines.length; i++){
   var dname = d.conf.replace(/R[0-9]/g, '').replace(/'/g, '').replace(/[0-9]/g, '').replace(/ /g, '');
   var year = parseInt(d.conf.match(/\d+/)[0])+2000
   elink.href = "https://www.google.com/search?q=" + dname + '+' + year + '+conference';
-  if(d.conf == "ICFP"){ elink.href += '+-"family planning"'; }
+  if(d.conf.includes("ICFP")){ elink.href += '+-"family planning"'; }
 }
 
 for(var i=0; i<12; i++){
