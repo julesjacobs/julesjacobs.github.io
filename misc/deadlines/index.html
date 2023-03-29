@@ -45,14 +45,17 @@
     }
     .conf a {
       text-decoration: none;
-      color: #555;
+      color: #000;
     }
     .main {
       border-top: 1px solid #000;
     }
     .main a {
-      color: #000;
       font-weight: bold;
+    }
+
+    .past a {
+      color: #999;
     }
   </style>
 </head>
@@ -68,32 +71,31 @@
 
 <script>
 var deadlines = [
-  {conf:"POPL",          deadline: new Date("2022-07-07"),        main:1},
-  {conf:"CSL",           deadline: new Date("2022-07-09")},
-  {conf:"ASPLOS1",       deadline: new Date("2022-03-24")},
-  {conf:"ASPLOS2",       deadline: new Date("2022-06-30")},
-  {conf:"ASPLOS3",       deadline: new Date("2022-10-13")},
-  {conf:"CGO",           deadline: new Date("2022-09-02")},
-  {conf:"FSCD",          deadline: new Date("2022-02-03")},
-  {conf:"OSDI",          deadline: new Date("2022-12-07")},
-  {conf:"SOSP",          deadline: new Date("2022-04-30")},
-  {conf:"CPP",           deadline: new Date("2022-09-14")},
-  {conf:"FoSSaCS",       deadline: new Date("2022-10-13")},
-  {conf:"ESOP",          deadline: new Date("2022-10-13")},
-  {conf:"OOPSLA1",       deadline: new Date("2022-10-28"),        main:1},
-  {conf:"CC",            deadline: new Date("2022-11-11")},
-  {conf:"PLDI",          deadline: new Date("2022-11-10"),        main:1},
-  {conf:"ECOOP1",        deadline: new Date("2022-12-01")},
-  // {conf:"FLOPS",         deadline: new Date("2022-12-08")},
-  {conf:"ITP",           deadline: new Date("2022-02-13")},
-  {conf:"LICS",          deadline: new Date("2022-01-18")},
-  {conf:"ECOOP2",        deadline: new Date("2022-03-01")},
-  {conf:"ICFP",          deadline: new Date("2022-03-01"),        main:1},
-  {conf:"OOPSLA2",       deadline: new Date("2022-04-14"),        main:1},
-  {conf:"CONCUR",        deadline: new Date("2022-04-22")},
-  {conf:"APLAS",         deadline: new Date("2022-06-17")},
-  {conf:"CAV",           deadline: new Date("2022-02-03")},
-  {conf:"TYPES",         deadline: new Date("2022-04-09")},
+  {conf:"LICS'23",          deadline: new Date("2023-01-18")},
+  {conf:"FSCD'23",          deadline: new Date("2023-01-30")},
+  {conf:"CAV'23",           deadline: new Date("2023-02-03")},
+  {conf:"ITP'23",           deadline: new Date("2023-02-13")},
+  {conf:"ECOOP'23 R2",      deadline: new Date("2023-03-01")},
+  {conf:"ICFP'23",          deadline: new Date("2023-03-01"),        main:1},
+  {conf:"ASPLOS'23 R1",     deadline: new Date("2023-03-24")},
+  {conf:"ASPLOS'23 R2",     deadline: new Date("2023-06-30")},
+  {conf:"ASPLOS'23 R3",     deadline: new Date("2023-10-13")},
+  {conf:"TYPES'23",         deadline: new Date("2023-03-13")},
+  {conf:"OOPSLA'23 R1",     deadline: new Date("2023-10-28"),        main:1},
+  {conf:"OOPSLA'23 R2",     deadline: new Date("2023-04-14"),        main:1},
+  {conf:"CONCUR'23",        deadline: new Date("2023-04-24")},
+  {conf:"SOSP'23",          deadline: new Date("2023-04-10")},
+  {conf:"APLAS'23",         deadline: new Date("2023-06-15")},
+  {conf:"POPL'24",          deadline: new Date("2023-07-12"),        main:1},
+  {conf:"CSL'23",           deadline: new Date("2022-07-09")},
+  {conf:"CGO'24 R1",        deadline: new Date("2023-05-19")},
+  {conf:"CGO'24 R2",        deadline: new Date("2023-09-01")},
+  {conf:"CPP'23",           deadline: new Date("2023-09-14")},
+  {conf:"FoSSaCS'23",       deadline: new Date("2023-10-13")},
+  {conf:"ESOP'23",          deadline: new Date("2023-10-13")},
+  {conf:"OSDI'23",          deadline: new Date("2023-12-07")},
+  {conf:"CC'23",            deadline: new Date("2023-11-11")},
+  {conf:"PLDI'23",          deadline: new Date("2023-11-10"),        main:1},
 ];
 
 function elem(parent, type){
@@ -113,15 +115,18 @@ function elemPos(d, classname){
   return e;
 }
 
-deadlines.sort((d1,d2) => d2.deadline < d1.deadline ? -1 : 1);
+deadlines.map(d => {d.deadlineN = new Date(d.deadline); d.deadlineN.setFullYear(2022)});
+deadlines.sort((d1,d2) => d2.deadlineN < d1.deadlineN ? -1 : 1);
 var move = 0;
 for(var i=0; i<deadlines.length; i++){
   var d = deadlines[i];
-  var e = elemPos(d.deadline, 'conf');
+  var is_past = d.deadline < new Date();
+  var e = elemPos(d.deadlineN, 'conf');
   e.style.zIndex = deadlines.length - i;
-  move = i>0 && Math.abs(deadlines[i-1].deadline - d.deadline) < 6e8 ? move+1 : 0;
+  if(is_past) e.classList.add('past');
+  move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+1 : 0;
   if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
-  e.style.width = 90+70*move + 'px'
+  e.style.width = 100+80*move + 'px'
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
   elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+2023+conference';
