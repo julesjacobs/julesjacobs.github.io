@@ -77,11 +77,11 @@ var deadlines = [
   {conf:"ITP'23",           deadline: new Date("2023-02-13")},
   {conf:"ECOOP'23 R2",      deadline: new Date("2023-03-01")},
   {conf:"ICFP'23",          deadline: new Date("2023-03-01"),        main:1},
-  {conf:"ASPLOS'23 R1",     deadline: new Date("2023-03-24")},
-  {conf:"ASPLOS'23 R2",     deadline: new Date("2023-06-30")},
-  {conf:"ASPLOS'23 R3",     deadline: new Date("2023-10-13")},
+  {conf:"ASPLOS'24 R1",     deadline: new Date("2023-04-13")},
+  {conf:"ASPLOS'24 R2",     deadline: new Date("2023-08-03")},
+  {conf:"ASPLOS'24 R3",     deadline: new Date("2023-11-23")},
   {conf:"TYPES'23",         deadline: new Date("2023-03-13")},
-  {conf:"OOPSLA'23 R1",     deadline: new Date("2023-10-28"),        main:1},
+  {conf:"OOPSLA'23 R1",     deadline: new Date("2022-10-28"),        main:1},
   {conf:"OOPSLA'23 R2",     deadline: new Date("2023-04-14"),        main:1},
   {conf:"CONCUR'23",        deadline: new Date("2023-04-24")},
   {conf:"SOSP'23",          deadline: new Date("2023-04-10")},
@@ -90,12 +90,12 @@ var deadlines = [
   {conf:"CSL'23",           deadline: new Date("2022-07-09")},
   {conf:"CGO'24 R1",        deadline: new Date("2023-05-19")},
   {conf:"CGO'24 R2",        deadline: new Date("2023-09-01")},
-  {conf:"CPP'23",           deadline: new Date("2023-09-14")},
-  {conf:"FoSSaCS'23",       deadline: new Date("2023-10-13")},
-  {conf:"ESOP'23",          deadline: new Date("2023-10-13")},
-  {conf:"OSDI'23",          deadline: new Date("2023-12-07")},
-  {conf:"CC'23",            deadline: new Date("2023-11-11")},
-  {conf:"PLDI'23",          deadline: new Date("2023-11-10"),        main:1},
+  {conf:"CPP'23",           deadline: new Date("2022-09-14")},
+  {conf:"FoSSaCS'23",       deadline: new Date("2022-10-13")},
+  {conf:"ESOP'23",          deadline: new Date("2022-10-13")},
+  {conf:"OSDI'23",          deadline: new Date("2022-12-07")},
+  {conf:"CC'23",            deadline: new Date("2022-11-11")},
+  {conf:"PLDI'23",          deadline: new Date("2022-11-10"),        main:1},
 ];
 
 function elem(parent, type){
@@ -125,11 +125,15 @@ for(var i=0; i<deadlines.length; i++){
   e.style.zIndex = deadlines.length - i;
   if(is_past) e.classList.add('past');
   move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+1 : 0;
-  if(d.main){ e.classList.add('main'); move = Math.max(move,1); }
-  e.style.width = 100+80*move + 'px'
+  if(d.main){
+    e.classList.add('main');
+    // move = Math.max(move,1);
+  }
+  e.style.width = 110+90*move + 'px'
   var elink = elem(e, 'a');
   elink.innerText = d.conf;
-  elink.href = "https://www.google.com/search?q=" + d.conf.replace(/[0-9]/g, '') + '+2023+conference';
+  var dname = d.conf.replace(/R[0-9]/g, '').replace(/'/g, '').replace(/[0-9]/g, '').replace(/ /g, '');
+  elink.href = "https://www.google.com/search?q=" + dname + '+2023+conference';
   if(d.conf == "ICFP"){ elink.href += '+-"family planning"'; }
 }
 
