@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rena Mix Food Catering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%), url('images/header-background.png');
+            background-repeat: repeat-x;
+            background-size: auto 100%;
+            padding: 20px;
+        }
+
+        header * {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            /* Add a semi-transparent background behind the text */
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 0.2em 0.8em;
+            border-radius: 4px;
+            margin: 0.2em;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9em;
+            margin-left: 20px;
+        }
+
+        .contact-info p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .contact-info i {
+            margin-right: 5px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-images {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .header-image {
+            width: 20%;
+            height: auto;
+            opacity: 0.3;
+        }
+
+        .contact-info {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        nav ul {
+            padding: 0;
+            list-style-type: none;
+            background-color: #333;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        nav li {
+            float: left;
+        }
+
+        nav a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5em 1em;
+        }
+
+        nav a:hover {
+            background-color: #555;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 1em;
+            background-color: #fff;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1em;
+            background-color: #333;
+            color: #fff;
+        }
+
+        #menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-container {
+            margin: 20px;
+            min-width: 250px;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .menu-item {
+            flex-basis: calc(15.33% - 20px);
+        }
+
+        .menu-image {
+            height: 100px;
+            width: auto;
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Rena's Catering</h1>
+        <p>Verse, gezonde en smaakvolle gerechten uit het Midden-Oosten</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#services">Diensten</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <section class="container">
+        <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <p>
+                    Hebben jullie een feestje, verjaardag, bruiloft, communie, evenement of andere viering gepland? Zoek niet verder! Rena Mix Food zorgt met plezier voor de catering. Van verrassend lekkere hapjes tot een compleet menu, alles wordt vers en huisgemaakt bereid. Wij koken met liefde!
+                </p>
+                <p>Gelieve uw bestelling minimaal 5 dagen van tevoren te plaatsen. Bezorging en afhalen zijn mogelijk!</p>
+            </div>
+        </div>
+
+        <h2>Menu</h2>
+        <section id="menu">
+        
+            <div class="category-container">
+            <h3>Tapas ( vanaf 2 pers)</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Tapas ( vanaf 2 pers)/Humus - 4.50.jpg" alt="Humus">
+                    <div class="menu-item-info">
+                    <p>Humus - &euro;4.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Tapas ( vanaf 2 pers)/Tzatziki - 3.50.jpg" alt="Tzatziki">
+                    <div class="menu-item-info">
+                    <p>Tzatziki - &euro;3.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Tapas ( vanaf 2 pers)/Yoghurttapas - 3.99 (yoghurt,kaas,dille,knoflook,kruiden).jpg" alt="Yoghurttapas">
+                    <div class="menu-item-info">
+                    <p>Yoghurttapas - &euro;3.99 (yoghurt,kaas,dille,knoflook,kruiden)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Tapas ( vanaf 2 pers)/Rode bieten tapas - 3.99.jpg" alt="Rode bieten tapas">
+                    <div class="menu-item-info">
+                    <p>Rode bieten tapas - &euro;3.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Tapas ( vanaf 2 pers)/Wortel tapas - 3.99.jpg" alt="Wortel tapas">
+                    <div class="menu-item-info">
+                    <p>Wortel tapas - &euro;3.99</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>soepen (vanaf 5 pers)</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/Kufte(soep met erwten en gehaktbal)-4.50.jpg" alt="Kufte(soep met erwten en gehaktbal)">
+                    <div class="menu-item-info">
+                    <p>Kufte(soep met erwten en gehaktbal) - &euro;4.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/Yoghurtsoep - 2.99 p.p.jpg" alt="Yoghurtsoep">
+                    <div class="menu-item-info">
+                    <p>Yoghurtsoep - &euro;2.99 p.p</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/Tomatensoep met balletjes-3.90.jpg" alt="Tomatensoep met balletjes">
+                    <div class="menu-item-info">
+                    <p>Tomatensoep met balletjes - &euro;3.90</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/Kippensoep-3.99.jpg" alt="Kippensoep">
+                    <div class="menu-item-info">
+                    <p>Kippensoep - &euro;3.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/Linzensoep - 2.99 p.p.jpg" alt="Linzensoep">
+                    <div class="menu-item-info">
+                    <p>Linzensoep - &euro;2.99 p.p</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/soepen (vanaf 5 pers)/courgette soep-2.99.jpg" alt="courgette soep">
+                    <div class="menu-item-info">
+                    <p>courgette soep - &euro;2.99</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>Verse broodjes</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Verse broodjes/Broodje kaas - 3.80.jpg" alt="Broodje kaas">
+                    <div class="menu-item-info">
+                    <p>Broodje kaas - &euro;3.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Verse broodjes/Broodje kip of cervelaat - 3.99 (2).jpg" alt="Broodje kip of cervelaat">
+                    <div class="menu-item-info">
+                    <p>Broodje kip of cervelaat - &euro;3.99 (2)</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>salades (vanaf 3 pers)</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Pasta salade - 4.50.jpg" alt="Pasta salade">
+                    <div class="menu-item-info">
+                    <p>Pasta salade - &euro;4.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Ceasar salade - 6.99.jpg" alt="Ceasar salade">
+                    <div class="menu-item-info">
+                    <p>Ceasar salade - &euro;6.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Verse salade - 2,99.jpg" alt="Verse salade">
+                    <div class="menu-item-info">
+                    <p>Verse salade - &euro;2,99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Komkommer salade met verse dille en zilveruitjes - 3.80.jpg" alt="Komkommer salade met verse dille en zilveruitjes">
+                    <div class="menu-item-info">
+                    <p>Komkommer salade met verse dille en zilveruitjes - &euro;3.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Kipcocktail salade - 5.50.jpg" alt="Kipcocktail salade">
+                    <div class="menu-item-info">
+                    <p>Kipcocktail salade - &euro;5.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Aardappel salade - 3.99.jpg" alt="Aardappel salade">
+                    <div class="menu-item-info">
+                    <p>Aardappel salade - &euro;3.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Rucola salade - 3.90.jpg" alt="Rucola salade">
+                    <div class="menu-item-info">
+                    <p>Rucola salade - &euro;3.90</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Rena speciale salade (gekookte groenten,verse kruiden,met of zonder kip,mayo) - 4.99.jpg" alt="Rena speciale salade (gekookte groenten,verse kruiden,met of zonder kip,mayo)">
+                    <div class="menu-item-info">
+                    <p>Rena speciale salade (gekookte groenten,verse kruiden,met of zonder kip,mayo) - &euro;4.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Nicoise(tonijn) salade- 6.99.jpg" alt="Nicoise(tonijn) salade">
+                    <div class="menu-item-info">
+                    <p>Nicoise(tonijn) salade - &euro;6.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Rodekool salade - 3.80.jpg" alt="Rodekool salade">
+                    <div class="menu-item-info">
+                    <p>Rodekool salade - &euro;3.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Luxe salade - 4.80.jpg" alt="Luxe salade">
+                    <div class="menu-item-info">
+                    <p>Luxe salade - &euro;4.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Rena luxe salade (gekookte groenten,walnoten,granaatappel,mayo) - 5.50.jpg" alt="Rena luxe salade (gekookte groenten,walnoten,granaatappel,mayo)">
+                    <div class="menu-item-info">
+                    <p>Rena luxe salade (gekookte groenten,walnoten,granaatappel,mayo) - &euro;5.50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/salades (vanaf 3 pers)/Vinaigrette salade (gekookte groenten, verse kruiden, olijfolie) - 4.99.jpg" alt="Vinaigrette salade (gekookte groenten, verse kruiden, olijfolie)">
+                    <div class="menu-item-info">
+                    <p>Vinaigrette salade (gekookte groenten, verse kruiden, olijfolie) - &euro;4.99</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>Toetjes</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/slagroomtaart - 27.95 (voor 10 pers).jpg" alt="slagroomtaart">
+                    <div class="menu-item-info">
+                    <p>slagroomtaart - &euro;27.95 (voor 10 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Vla met stukjes fruit - 2.80.jpg" alt="Vla met stukjes fruit">
+                    <div class="menu-item-info">
+                    <p>Vla met stukjes fruit - &euro;2.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Chocoladetaart - 29.99 (voor 10 pers).jpg" alt="Chocoladetaart">
+                    <div class="menu-item-info">
+                    <p>Chocoladetaart - &euro;29.99 (voor 10 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Walnoottaart - 29.99 (voor 10 pers).jpg" alt="Walnoottaart">
+                    <div class="menu-item-info">
+                    <p>Walnoottaart - &euro;29.99 (voor 10 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Stukken cake - 3.00 p.st ( vanaf 8 st).jpg" alt="Stukken cake">
+                    <div class="menu-item-info">
+                    <p>Stukken cake - &euro;3.00 p.st ( vanaf 8 st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Tiramisu - 3.90.jpg" alt="Tiramisu">
+                    <div class="menu-item-info">
+                    <p>Tiramisu - &euro;3.90</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Honingtaart - 32.99 (voor 10 pers).jpg" alt="Honingtaart">
+                    <div class="menu-item-info">
+                    <p>Honingtaart - &euro;32.99 (voor 10 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Toetjes/Fruittaart - 29.99 (voor 10 pers).jpg" alt="Fruittaart">
+                    <div class="menu-item-info">
+                    <p>Fruittaart - &euro;29.99 (voor 10 pers)</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>Hapjes schotel (vanaf 3 pers)</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Schotel met diverse soorten kaas en vleeswaren - 9.99.png" alt="Schotel met diverse soorten kaas en vleeswaren">
+                    <div class="menu-item-info">
+                    <p>Schotel met diverse soorten kaas en vleeswaren - &euro;9.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Hapjes schotel 2 - 9.00 (aubergine rolletjes,sigara borek,gevulde tomaatjes, mini wraps,gevulde paprika,tzatziki).jpg" alt="Hapjes schotel 2">
+                    <div class="menu-item-info">
+                    <p>Hapjes schotel 2 - &euro;9.00 (aubergine rolletjes,sigara borek,gevulde tomaatjes, mini wraps,gevulde paprika,tzatziki)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Schotel met diverse soorten kaas-9.00.jpg" alt="Schotel met diverse soorten kaas">
+                    <div class="menu-item-info">
+                    <p>Schotel met diverse soorten kaas - &euro;9.00</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Schotel met diverse vleeswaren -9.00.jpg" alt="Schotel met diverse vleeswaren">
+                    <div class="menu-item-info">
+                    <p>Schotel met diverse vleeswaren - &euro;9.00</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Romano tomaat met mozzarella - 3.99.jpg" alt="Romano tomaat met mozzarella">
+                    <div class="menu-item-info">
+                    <p>Romano tomaat met mozzarella - &euro;3.99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes schotel (vanaf 3 pers)/Hapjes schotel 1 - 8.50 (mini wraps,gevulde eieren,mini sandwich,hapjes op brood,gevulde komkommer,olijven).jpg" alt="Hapjes schotel 1">
+                    <div class="menu-item-info">
+                    <p>Hapjes schotel 1 - &euro;8.50 (mini wraps,gevulde eieren,mini sandwich,hapjes op brood,gevulde komkommer,olijven)</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>Hapjes</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Fruit op spiesjes - 2.50 p.sp ( vanaf 5 sp).jpg" alt="Fruit op spiesjes">
+                    <div class="menu-item-info">
+                    <p>Fruit op spiesjes - &euro;2.50 p.sp ( vanaf 5 sp)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Hapjes op broodjes - 1.90 p.st (vanaf 5 st).jpg" alt="Hapjes op broodjes">
+                    <div class="menu-item-info">
+                    <p>Hapjes op broodjes - &euro;1.90 p.st (vanaf 5 st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Omelet rolletjes - 1.99 p.st (vanaf 5st).jpg" alt="Omelet rolletjes">
+                    <div class="menu-item-info">
+                    <p>Omelet rolletjes - &euro;1.99 p.st (vanaf 5st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Fruitcocktail - 2.59 p.p (vanaf 3 pers).jpg" alt="Fruitcocktail">
+                    <div class="menu-item-info">
+                    <p>Fruitcocktail - &euro;2.59 p.p (vanaf 3 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Aubergine rolletjes - 1.99 p.st (vanaf 5st).jpg" alt="Aubergine rolletjes">
+                    <div class="menu-item-info">
+                    <p>Aubergine rolletjes - &euro;1.99 p.st (vanaf 5st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Balletjes-1.40.jpg" alt="Balletjes">
+                    <div class="menu-item-info">
+                    <p>Balletjes - &euro;1.40</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Borek met kip of rund gehakt  - 1.99 p.st (vanaf 10st).jpg" alt="Borek met kip of rund gehakt">
+                    <div class="menu-item-info">
+                    <p>Borek met kip of rund gehakt - &euro;1.99 p.st (vanaf 10st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Gevulde komkommer - 1.10 p.st (vanaf 5st).jpg" alt="Gevulde komkommer">
+                    <div class="menu-item-info">
+                    <p>Gevulde komkommer - &euro;1.10 p.st (vanaf 5st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Sigara borek - 1.80 p.st(vanaf 5st).jpg" alt="Sigara borek">
+                    <div class="menu-item-info">
+                    <p>Sigara borek - &euro;1.80 p.st(vanaf 5st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Gevulde paprika - 1.10 p.st (vanaf 4st).jpg" alt="Gevulde paprika">
+                    <div class="menu-item-info">
+                    <p>Gevulde paprika - &euro;1.10 p.st (vanaf 4st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Gevulde tomaatjes - 1.10 p.st (vanaf 4st).jpg" alt="Gevulde tomaatjes">
+                    <div class="menu-item-info">
+                    <p>Gevulde tomaatjes - &euro;1.10 p.st (vanaf 4st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Borek met spinazie - 1.90 p.st ( vanaf 10st).jpg" alt="Borek met spinazie">
+                    <div class="menu-item-info">
+                    <p>Borek met spinazie - &euro;1.90 p.st ( vanaf 10st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Tomaat en mozzarella - 2,50.jpg" alt="Tomaat en mozzarella">
+                    <div class="menu-item-info">
+                    <p>Tomaat en mozzarella - &euro;2,50</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Mini wraps met kipfilet of kaas - 1.10 p.st (vanaf 5st).jpg" alt="Mini wraps met kipfilet of kaas">
+                    <div class="menu-item-info">
+                    <p>Mini wraps met kipfilet of kaas - &euro;1.10 p.st (vanaf 5st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Gevulde eieren - 1.10 p.st (vanaf 4 st).jpg" alt="Gevulde eieren">
+                    <div class="menu-item-info">
+                    <p>Gevulde eieren - &euro;1.10 p.st (vanaf 4 st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Hapjes op prikkers - 1.59 p.st (vanaf 5 st).jpg" alt="Hapjes op prikkers">
+                    <div class="menu-item-info">
+                    <p>Hapjes op prikkers - &euro;1.59 p.st (vanaf 5 st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hapjes/Blinschik (gevulde pancake met zoetekaas of gehakt) -2.50 p.st (vanaf 5st).jpg" alt="Blinschik (gevulde pancake met zoetekaas of gehakt)">
+                    <div class="menu-item-info">
+                    <p>Blinschik (gevulde pancake met zoetekaas of gehakt) - &euro;2.50 p.st (vanaf 5st)</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+            <div class="category-container">
+            <h3>Hoofdgerechten</h3>
+            <div class="menu-items">
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Rijst met rundvlees en gedroogde fruit - 10,99.jpg" alt="Rijst met rundvlees en gedroogde fruit">
+                    <div class="menu-item-info">
+                    <p>Rijst met rundvlees en gedroogde fruit - &euro;10,99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gegrilde kipfilet - 5.80.jpg" alt="Gegrilde kipfilet">
+                    <div class="menu-item-info">
+                    <p>Gegrilde kipfilet - &euro;5.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Sperziebonen roerbak - 5,99.jpg" alt="Sperziebonen roerbak">
+                    <div class="menu-item-info">
+                    <p>Sperziebonen roerbak - &euro;5,99</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Chicken wings - 1.50 p.st (vanaf 10st).jpg" alt="Chicken wings">
+                    <div class="menu-item-info">
+                    <p>Chicken wings - &euro;1.50 p.st (vanaf 10st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gevulde wijnbladeren met gehakt of vegetarisch - 1.99 p.st (vanaf 15st).jpg" alt="Gevulde wijnbladeren met gehakt of vegetarisch">
+                    <div class="menu-item-info">
+                    <p>Gevulde wijnbladeren met gehakt of vegetarisch - &euro;1.99 p.st (vanaf 15st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Lasagne originale of vegetarisch -6.99 (vanaf 4 pers).jpg" alt="Lasagne originale of vegetarisch">
+                    <div class="menu-item-info">
+                    <p>Lasagne originale of vegetarisch - &euro;6.99 (vanaf 4 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Lule kebab (spiezen van rund of kipgehakt) met aardappelpartjes of rijst - 14.99 (vanaf 3pers).jpg" alt="Lule kebab (spiezen van rund of kipgehakt) met aardappelpartjes of rijst">
+                    <div class="menu-item-info">
+                    <p>Lule kebab (spiezen van rund of kipgehakt) met aardappelpartjes of rijst - &euro;14.99 (vanaf 3pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gehaktkoteletten (rundgehakt of kipgehakt) - 3.50 p. st..jpg" alt="Gehaktkoteletten (rundgehakt of kipgehakt)">
+                    <div class="menu-item-info">
+                    <p>Gehaktkoteletten (rundgehakt of kipgehakt) - &euro;3.50 p. st.</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gevulde koolrolletjes met gehakt of vegetarisch - 1.99 p.st (vanaf 15st).jpg" alt="Gevulde koolrolletjes met gehakt of vegetarisch">
+                    <div class="menu-item-info">
+                    <p>Gevulde koolrolletjes met gehakt of vegetarisch - &euro;1.99 p.st (vanaf 15st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Lamskotelet met rijst of aardappelpartjes - 13.80 p.p (vanaf 3pers).jpg" alt="Lamskotelet met rijst of aardappelpartjes">
+                    <div class="menu-item-info">
+                    <p>Lamskotelet met rijst of aardappelpartjes - &euro;13.80 p.p (vanaf 3pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Balletjes in tomatensaus - 5.99 p.p (vanaf 3 pers).jpg" alt="Balletjes in tomatensaus">
+                    <div class="menu-item-info">
+                    <p>Balletjes in tomatensaus - &euro;5.99 p.p (vanaf 3 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gegrilde groenten (champignons,aubergine,courgette, paprika) - 6.50 (vanaf 3pers).jpg" alt="Gegrilde groenten (champignons,aubergine,courgette, paprika)">
+                    <div class="menu-item-info">
+                    <p>Gegrilde groenten (champignons,aubergine,courgette, paprika) - &euro;6.50 (vanaf 3pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Rijstschotel met gedroogde fruit - 6.50 p.p (vanaf 3 pers) (2).jpg" alt="Rijstschotel met gedroogde fruit">
+                    <div class="menu-item-info">
+                    <p>Rijstschotel met gedroogde fruit - &euro;6.50 p.p (vanaf 3 pers) (2)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Drumsticks - 1,99 p.st ( vanaf 8 st).jpg" alt="Drumsticks">
+                    <div class="menu-item-info">
+                    <p>Drumsticks - &euro;1,99 p.st ( vanaf 8 st)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Beyti kebab (gevuld bladerdeeg met gehakt) - 15.99 p.p (vanaf 3 pers).jpg" alt="Beyti kebab (gevuld bladerdeeg met gehakt)">
+                    <div class="menu-item-info">
+                    <p>Beyti kebab (gevuld bladerdeeg met gehakt) - &euro;15.99 p.p (vanaf 3 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Rijst - 2.90 p.p.jpg" alt="Rijst">
+                    <div class="menu-item-info">
+                    <p>Rijst - &euro;2.90 p.p</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Groenten met balletjes in tomatensaus - 9.50 (vanaf 3pers).jpg" alt="Groenten met balletjes in tomatensaus">
+                    <div class="menu-item-info">
+                    <p>Groenten met balletjes in tomatensaus - &euro;9.50 (vanaf 3pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Aardappelpartjes - 2.80.jpg" alt="Aardappelpartjes">
+                    <div class="menu-item-info">
+                    <p>Aardappelpartjes - &euro;2.80</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Gevulde hele kip met walnoten, ui en kruiden - 23.95.jpg" alt="Gevulde hele kip met walnoten, ui en kruiden">
+                    <div class="menu-item-info">
+                    <p>Gevulde hele kip met walnoten, ui en kruiden - &euro;23.95</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Rijst met kip - 10.95 p.p ( vanaf 3 pers).jpg" alt="Rijst met kip">
+                    <div class="menu-item-info">
+                    <p>Rijst met kip - &euro;10.95 p.p ( vanaf 3 pers)</p>
+                    </div>
+                </div>
+                
+                <div class="menu-item">
+                    <img class="menu-image" src="menu/Hoofdgerechten/Rijst met groenten - 6,50.jpg" alt="Rijst met groenten">
+                    <div class="menu-item-info">
+                    <p>Rijst met groenten - &euro;6,50</p>
+                    </div>
+                </div>
+                
+            </div>
+            </div>
+        
+        </section>
+
+
+        <h2 id="services">Diensten</h2>
+        <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <ul>
+                    <li>Feestjes</li>
+                    <li>Verjaardagen</li>
+                    <li>Bruiloften</li>
+                    <li>Communies</li>
+                    <li>Evenementen</li>
+                </ul>
+            </div>
+        </div>
+        <h2 id="contact">Contact</h2>
+        <section id="contact">
+            <p>
+              <i class="fa fa-phone"></i> Telefoon: <a href="tel:0612338163">0612338163</a><br>
+              <i class="fa fa-whatsapp"></i> Whatsapp: <a href="https://wa.me/31612534553">0612534553</a><br>
+              <i class="fa fa-envelope"></i> E-mail: <a href="mailto:renamixxfood@outlook.com">renamixxfood@outlook.com</a>
+            </p>
+            <p>
+              Volg ons op:<br>
+              <i class="fa fa-facebook"></i><a href="https://www.facebook.com/RenaMixFood" target="_blank"> Facebook: Rena Mix Food</a><br>
+              <i class="fa fa-instagram"></i><a href="https://www.instagram.com/renamixfood" target="_blank"> Instagram: renamixfood</a>
+            </p>
+        </section>
+    </section>
+    <footer>
+        <p>
+            KVK: 88542726<br>
+            BTW: NL004622142B21
+        </p>
+    </footer>
+</body>

@@ -2,5 +2,6 @@
   "FSharp.fsacRuntime": "netcore",
   "files.watcherExclude": {
     "**/target": true
-  }
+  },
+  "liveServer.settings.port": 5501
 }

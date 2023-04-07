@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rena Mix Food Catering</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%), url('images/header-background.png');
+            background-repeat: repeat-x;
+            background-size: auto 100%;
+            padding: 20px;
+        }
+
+        header * {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            color: #ffffff;
+            /* Add a semi-transparent background behind the text */
+            background-color: rgba(0, 0, 0, 0.4);
+            padding: 0.2em 0.8em;
+            border-radius: 4px;
+            margin: 0.2em;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.9em;
+            margin-left: 20px;
+        }
+
+        .contact-info p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .contact-info i {
+            margin-right: 5px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-images {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .header-image {
+            width: 20%;
+            height: auto;
+            opacity: 0.3;
+        }
+
+        .contact-info {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        nav ul {
+            padding: 0;
+            list-style-type: none;
+            background-color: #333;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        nav li {
+            float: left;
+        }
+
+        nav a {
+            display: block;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5em 1em;
+        }
+
+        nav a:hover {
+            background-color: #555;
+        }
+
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 1em;
+            background-color: #fff;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 1em;
+            background-color: #333;
+            color: #fff;
+        }
+
+        #menu {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .category-container {
+            margin: 20px;
+            min-width: 250px;
+        }
+
+        .menu-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .menu-item {
+            flex-basis: calc(15.33% - 20px);
+        }
+
+        .menu-image {
+            height: 100px;
+            width: auto;
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <header class="header">
+        <h1>Rena's Catering</h1>
+        <p>Verse, gezonde en smaakvolle gerechten uit het Midden-Oosten</p>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#menu">Menu</a></li>
+            <li><a href="#services">Diensten</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <section class="container">
+        <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <p>
+                    Hebben jullie een feestje, verjaardag, bruiloft, communie, evenement of andere viering gepland? Zoek niet verder! Rena Mix Food zorgt met plezier voor de catering. Van verrassend lekkere hapjes tot een compleet menu, alles wordt vers en huisgemaakt bereid. Wij koken met liefde!
+                </p>
+                <p>Gelieve uw bestelling minimaal 5 dagen van tevoren te plaatsen. Bezorging en afhalen zijn mogelijk!</p>
+            </div>
+        </div>
+
+        <h2>Menu</h2>
+        <section id="menu">
+        {% for category, dishes in dish_data.items() %}
+            <div class="category-container">
+            <h3>{{ category }}</h3>
+            <div class="menu-items">
+                {% for dish in dishes %}
+                <div class="menu-item">
+                    <img class="menu-image" src="{{ dish.image }}" alt="{{ dish.name }}">
+                    <div class="menu-item-info">
+                    <p>{{ dish.name }}{% if dish.price is not none %} - &euro;{{ dish.price }}{% endif %}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            </div>
+        {% endfor %}
+        </section>
+
+
+        <h2 id="services">Diensten</h2>
+        <div style="display: flex; flex-wrap: wrap;">
+            <div style="flex: 1;">
+                <ul>
+                    <li>Feestjes</li>
+                    <li>Verjaardagen</li>
+                    <li>Bruiloften</li>
+                    <li>Communies</li>
+                    <li>Evenementen</li>
+                </ul>
+            </div>
+        </div>
+        <h2 id="contact">Contact</h2>
+        <section id="contact">
+            <p>
+              <i class="fa fa-phone"></i> Telefoon: <a href="tel:0612338163">0612338163</a><br>
+              <i class="fa fa-whatsapp"></i> Whatsapp: <a href="https://wa.me/31612534553">0612534553</a><br>
+              <i class="fa fa-envelope"></i> E-mail: <a href="mailto:renamixxfood@outlook.com">renamixxfood@outlook.com</a>
+            </p>
+            <p>
+              Volg ons op:<br>
+              <i class="fa fa-facebook"></i><a href="https://www.facebook.com/RenaMixFood" target="_blank"> Facebook: Rena Mix Food</a><br>
+              <i class="fa fa-instagram"></i><a href="https://www.instagram.com/renamixfood" target="_blank"> Instagram: renamixfood</a>
+            </p>
+        </section>
+    </section>
+    <footer>
+        <p>
+            KVK: 88542726<br>
+            BTW: NL004622142B21
+        </p>
+    </footer>
+</body>
