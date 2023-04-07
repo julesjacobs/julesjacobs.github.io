@@ -186,7 +186,7 @@
             <div class="menu-items">
                 {% for dish in dishes %}
                 <div class="menu-item">
-                    <img class="menu-image" src="{{ dish.image }}" alt="{{ dish.name }}">
+                    <a href="{{ dish.image }}"><img class="menu-image" src="{{ dish.image }}" alt="{{ dish.name }}"></a>
                     <div class="menu-item-info">
                     <p>{{ dish.name }}{% if dish.price is not none %} - &euro;{{ dish.price }}{% endif %}</p>
                     </div>
