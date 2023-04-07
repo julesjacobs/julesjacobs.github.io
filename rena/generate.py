@@ -33,11 +33,25 @@ for category, files in dish_data_raw.items():
 
 print(dish_data)
 
-env = Environment(loader=FileSystemLoader('.'))
-template = env.get_template('template.html')
-output = template.render(dish_data=dish_data)
+import time
 
-with open('index.html', 'w') as f:
-    f.write(output)
+last_modified = 0
 
-print("index.html generated successfully")
+templatefile = 'template.html'
+
+while True:
+    current_modified = os.path.getmtime(templatefile)
+    print(current_modified, last_modified)
+    if current_modified == last_modified:
+        time.sleep(1)
+        continue
+
+    env = Environment(loader=FileSystemLoader('.'))
+    template = env.get_template(templatefile)
+    output = template.render(dish_data=dish_data)
+
+    with open('index.html', 'w') as f:
+        f.write(output)
+
+    last_modified = current_modified
+    print("index.html generated successfully")

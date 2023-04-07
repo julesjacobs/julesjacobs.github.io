@@ -106,9 +106,13 @@
         .container {
             width: 80%;
             margin: 0 auto;
-            padding: 1em;
+            padding: 0;
             background-color: #fff;
             box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .container p {
+            padding: 1em;
         }
 
         img {
@@ -124,14 +128,14 @@
         }
 
         #menu {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            /* display: flex; */
+            /* flex-wrap: wrap; */
+            /* justify-content: center; */
         }
 
         .category-container {
             margin: 20px;
-            min-width: 250px;
+            /* min-width: 250px; */
         }
 
         .menu-items {
@@ -150,6 +154,21 @@
             width: auto;
             display: block;
         }
+
+        h2, h3 {
+            background-color: #666;
+            width: 100%;
+            color: #fff;
+            text-align: center;
+            /* background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%), url('images/header-background.png'); */
+            /* background-repeat: repeat-x; */
+            /* background-size: auto 100%; */
+        }
+
+        h3 {
+            border-radius: 10px;
+            background-color: #888;
+        }
     </style>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -164,7 +183,6 @@
         <ul>
             <li><a href="#home">Home</a></li>
             <li><a href="#menu">Menu</a></li>
-            <li><a href="#services">Diensten</a></li>
             <li><a href="#contact">Contact</a></li>
         </ul>
     </nav>
@@ -197,19 +215,6 @@
         {% endfor %}
         </section>
 
-
-        <h2 id="services">Diensten</h2>
-        <div style="display: flex; flex-wrap: wrap;">
-            <div style="flex: 1;">
-                <ul>
-                    <li>Feestjes</li>
-                    <li>Verjaardagen</li>
-                    <li>Bruiloften</li>
-                    <li>Communies</li>
-                    <li>Evenementen</li>
-                </ul>
-            </div>
-        </div>
         <h2 id="contact">Contact</h2>
         <section id="contact">
             <p>
@@ -219,8 +224,8 @@
             </p>
             <p>
               Volg ons op:<br>
-              <i class="fa fa-facebook"></i><a href="https://www.facebook.com/RenaMixFood" target="_blank"> Facebook: Rena Mix Food</a><br>
-              <i class="fa fa-instagram"></i><a href="https://www.instagram.com/renamixfood" target="_blank"> Instagram: renamixfood</a>
+              <i class="fa fa-facebook"></i> Facebook: <a href="https://www.facebook.com/RenaMixFood" target="_blank">Rena Mix Food</a><br>
+              <i class="fa fa-instagram"></i> Instagram: <a href="https://www.instagram.com/renamixfood" target="_blank">renamixfood</a>
             </p>
         </section>
     </section>
