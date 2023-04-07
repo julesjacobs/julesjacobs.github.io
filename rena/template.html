@@ -147,12 +147,19 @@
 
         .menu-item {
             flex-basis: calc(15.33% - 20px);
+            text-align: center;
+        }
+
+        .menu-item p {
+            margin: 0;
+            padding: 2px;
         }
 
         .menu-image {
             height: 100px;
             width: auto;
             display: block;
+            margin: 0 auto;
         }
 
         h2, h3 {
@@ -196,8 +203,8 @@
             </div>
         </div>
 
-        <h2>Menu</h2>
         <section id="menu">
+        <h2>Menu</h2>
         {% for category, dishes in dish_data.items() %}
             <div class="category-container">
             <h3>{{ category }}</h3>
