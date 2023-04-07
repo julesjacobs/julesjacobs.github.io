@@ -9,7 +9,7 @@ def extract_dish_data(root_folder):
         if os.path.isdir(category_path):
             dish_data[category] = []
             for image_file in os.listdir(category_path):
-                if image_file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                if image_file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')) and not 'thumb' in image_file:
                     dish_data[category].append(image_file)
 
     return dish_data
@@ -19,17 +19,20 @@ dish_data_raw = extract_dish_data(root_folder)
 
 print(dish_data_raw)
 
-Dish = namedtuple('Dish', ['name', 'price', 'image'])
+Dish = namedtuple('Dish', ['name', 'price', 'image', 'thumb'])
 
 dish_data = {}
 
-for category, files in dish_data_raw.items():
+for category, files in sorted(dish_data_raw.items(), key=lambda x: x[0]):
     dish_data[category] = []
 
     for file in files:
         name, price = file.rsplit('-', 1)
+        price = price.replace('€', '')
         price = price.strip().rsplit('.', 1)[0]
-        dish_data[category].append(Dish(name.strip(), price, f'menu/{category}/{file}'))
+        image = f'menu/{category}/{file}'
+        thumb = os.path.splitext(image)[0] + "_thumb" + os.path.splitext(image)[1]
+        dish_data[category].append(Dish(name.strip(), price, image, thumb))
 
 print(dish_data)
 

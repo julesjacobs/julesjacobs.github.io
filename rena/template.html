@@ -19,7 +19,8 @@
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 100%), url('images/header-background.png');
+            background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 1.0) 100%), url('images/header-background-small.jpg');
+            /* background-image: url('images/header-background-small.jpg'); */
             background-repeat: repeat-x;
             background-size: auto 100%;
             padding: 20px;
@@ -29,7 +30,7 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
             color: #ffffff;
             /* Add a semi-transparent background behind the text */
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.8);
             padding: 0.2em 1.5em;
             border-radius: 15px;
             /* margin: 0.2em; */
@@ -83,7 +84,7 @@
         nav ul {
             padding: 0;
             list-style-type: none;
-            background-color: #333;
+            /* background-color: #333; */
             overflow: hidden;
             margin: 0;
         }
@@ -204,20 +205,21 @@
         <div class="darkerbg">
             <h1>Rena's Catering</h1>
             <p>Verse, gezonde en smaakvolle gerechten uit het Midden-Oosten</p>
+            <nav>
+                <ul>
+                    <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                    <li><a href="#menu">Menu</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li class="icon" id="lasticon"><a href="tel:0612338163"><i class="fa fa-phone"></i></a></li>
+                    <li class="icon"><a href="https://wa.me/31612534553"><i class="fa fa-whatsapp"></i></a></li>
+                    <li class="icon"><a href="mailto:renamixxfood@outlook.com"><i class="fa fa-envelope"></i></a></li>
+                    <li class="icon"><a href="https://www.facebook.com/RenaMixFood" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                    <li class="icon"><a href="https://www.instagram.com/renamixfood" target="_blank"><i class="fa fa-instagram"></i></a></li>
+                </ul>
+            </nav>
         </div>
     </header>
-    <nav>
-        <ul>
-            <li>&nbsp;&nbsp;&nbsp;&nbsp;</li>
-            <li><a href="#menu">Menu</a></li>
-            <li><a href="#contact">Contact</a></li>
-            <li class="icon" id="lasticon"><a href="tel:0612338163"><i class="fa fa-phone"></i></a></li>
-            <li class="icon"><a href="https://wa.me/31612534553"><i class="fa fa-whatsapp"></i></a></li>
-            <li class="icon"><a href="mailto:renamixxfood@outlook.com"><i class="fa fa-envelope"></i></a></li>
-            <li class="icon"><a href="https://www.facebook.com/RenaMixFood" target="_blank"><i class="fa fa-facebook"></i></a></li>
-            <li class="icon"><a href="https://www.instagram.com/renamixfood" target="_blank"><i class="fa fa-instagram"></i></a></li>
-        </ul>
-    </nav>
+
     <section class="container">
         <div style="display: flex; flex-wrap: wrap;" id="topmatter">
             <div style="flex: 1;">
@@ -230,11 +232,11 @@
         <h2>Menu</h2>
         {% for category, dishes in dish_data.items() %}
             <div class="category-container">
-            <h3>{{ category }}</h3>
+            <h3>{{ category.split('-', 1)[1] }}</h3>
             <div class="menu-items">
                 {% for dish in dishes %}
                 <div class="menu-item">
-                    <a href="{{ dish.image }}"><img class="menu-image" src="{{ dish.image }}" alt="{{ dish.name }}"></a>
+                    <a href="{{ dish.image }}"><img class="menu-image" src="{{ dish.thumb }}" alt="{{ dish.name }}"></a>
                     <div class="menu-item-info">
                     <p>{{ dish.name }}{% if dish.price is not none %} - &euro;{{ dish.price }}{% endif %}</p>
                     </div>
