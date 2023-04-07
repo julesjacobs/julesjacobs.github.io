@@ -106,7 +106,7 @@
 
         @media only screen and (max-width: 1000px) {
             .container {
-                width: 95%;
+                width: 100%;
             }
         }
 
@@ -140,12 +140,18 @@
         .menu-item {
             flex-basis: calc(15.33% - 20px);
             text-align: center;
+            flex-grow: 1;
         }
 
         .menu-item p {
             margin: 0;
-            padding: 2px;
             margin-top: 5px;
+            /* border: 1px solid blue; */
+            padding: 0;
+        }
+
+        .menu-item a {
+            padding: 10px 0px;
         }
 
         .menu-image {
