@@ -44,7 +44,7 @@ cleaned_data = {
         "Rena Luxe Salade (gekookte groenten, walnoten, granaatappel, mayo) - €5.50.jpg",
         "Vinaigrette Salade (gekookte groenten, verse kruiden, olijfolie) - €4.99.jpg"
     ],
-    "08-Toetjes": [
+    "08-Desserts": [
         "Slagroomtaart - €27.95 (voor 10 pers).jpg",
         "Vla met Stukjes Fruit - €2.80.jpg",
         "Chocoladetaart - €29.99 (voor 10 pers).jpg",
