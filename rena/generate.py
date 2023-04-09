@@ -1,6 +1,7 @@
 import os
 from jinja2 import Environment, FileSystemLoader
 from collections import namedtuple
+import re
 
 def extract_dish_data(root_folder):
     dish_data = {}
@@ -19,7 +20,7 @@ dish_data_raw = extract_dish_data(root_folder)
 
 print(dish_data_raw)
 
-Dish = namedtuple('Dish', ['name', 'price', 'image', 'thumb'])
+Dish = namedtuple('Dish', ['name', 'price', 'descr', 'image', 'thumb'])
 
 dish_data = {}
 
@@ -27,12 +28,19 @@ for category, files in sorted(dish_data_raw.items(), key=lambda x: x[0]):
     dish_data[category] = []
 
     for file in files:
-        name, price = file.rsplit('-', 1)
+        # extract the stuff between brackets from the filename using a regex
+        cleaned = file.replace(',', ', ').replace(',  ', ', ').replace('( ', '(').replace('(', ' (').replace('  (', ' (')
+        name, price = cleaned.rsplit('-', 1)
+        name = name.capitalize()
+        name,descr = (name.split('(') + [''])[0:2]
+        descr = descr.replace(')', '')
         price = price.replace('€', '')
         price = price.strip().rsplit('.', 1)[0]
+        # replace point with comma if preceded by a number
+        price = re.sub(r'(\d)\.(\d)', r'\1,\2', price)
         image = f'menu/{category}/{file}'
         thumb = os.path.splitext(image)[0] + "_thumb" + os.path.splitext(image)[1]
-        dish_data[category].append(Dish(name.strip(), price, image, thumb))
+        dish_data[category].append(Dish(name.strip(), price, descr, image, thumb))
 
 print(dish_data)
 

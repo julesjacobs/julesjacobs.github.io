@@ -136,9 +136,24 @@
 
         .menu-item p {
             margin: 0;
-            margin-top: 5px;
+            margin-top: 8px;
             /* border: 1px solid blue; */
             padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .menu-item .name {
+            font-weight: 600;
+        }
+
+        .menu-item .description {
+            font-size: 0.8em;
+            color: #555;
+            font-style: italic;
+        }
+
+        .menu-item .price {
+            font-family: 'Arial', sans-serif;
         }
 
         .menu-item a {
@@ -212,7 +227,13 @@
                 <div class="menu-item">
                     <a href="{{ dish.image }}"><img class="menu-image" src="{{ dish.thumb }}" alt="{{ dish.name }}"></a>
                     <div class="menu-item-info">
-                    <p>{{ dish.name }}{% if dish.price is not none %} - &euro;{{ dish.price }}{% endif %}</p>
+                    <p>
+                        <span class="name">{{ dish.name }}{% if dish.price is not none %}</span>
+                        {% if dish.descr != "" %}
+                            <br><span class="description">({{ dish.descr.strip() }})</span>
+                        {% endif %}
+                        <br><span class="price">&euro;{{ dish.price }}{% endif %}</span>
+                    </p>
                     </div>
                 </div>
                 {% endfor %}
