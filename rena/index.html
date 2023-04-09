@@ -18,12 +18,10 @@
 
         header {
             display: flex;
-            flex-wrap: wrap;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
             background-image: linear-gradient(180deg, rgba(0, 0, 0, 0.0) 0%, rgba(0, 0, 0, 0.85) 100%), url('images/coverphoto.jpg');
             background-position: center;
-            /* background-image: url('images/header-background-small.jpg'); */
             background-repeat: repeat-x;
             background-size: auto 100%;
             padding: 20px 10px;
@@ -44,8 +42,6 @@
             margin-bottom: 5px;
         }
 
-
-
         header .darkerbg {
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
             color: #ffffff;
@@ -53,37 +49,12 @@
             background-color: rgba(0, 0, 0, 0.8);
             padding: 0.2em 1.5em;
             border-radius: 15px;
-            /* margin: 0.2em; */
             text-align: center;
-        }
-
-        .header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
-
-        .header-images {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -1;
-        }
-
-        .header-image {
-            width: 20%;
-            height: auto;
-            opacity: 0.3;
         }
 
         nav ul {
             padding: 0;
             list-style-type: none;
-            /* background-color: #333; */
             overflow: hidden;
             margin: 0;
             border-top: 1px solid #555;
@@ -132,10 +103,6 @@
             padding: 1em;
             background-color: #333;
             color: #fff;
-        }
-
-        .category-container {
-            margin: 20px;
         }
 
         .menu-items {
@@ -193,7 +160,6 @@
             text-align: center;
             padding: 10px;
             text-shadow: 0px 0px 10px rgba(0, 0, 0);
-            /* background-size: auto 100%; */
         }
 
         .container h3 {
@@ -236,9 +202,8 @@
         </div>
 
         <section id="menu">
-        <h2>Menu</h2>
-        
-            <div class="category-container">
+            <h2>Menu</h2>
+            
             <h3>Salades (vanaf 3 pers)</h3>
             <div class="menu-items">
                 
@@ -394,9 +359,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Hapjes schotel (vanaf 3 pers)</h3>
             <div class="menu-items">
                 
@@ -471,9 +434,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Tapas (vanaf 2 pers)</h3>
             <div class="menu-items">
                 
@@ -546,9 +507,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Hapjes</h3>
             <div class="menu-items">
                 
@@ -742,9 +701,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Verse broodjes</h3>
             <div class="menu-items">
                 
@@ -771,9 +728,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Hoofdgerechten</h3>
             <div class="menu-items">
                 
@@ -1017,9 +972,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Desserts en taarten</h3>
             <div class="menu-items">
                 
@@ -1112,9 +1065,7 @@
                 </div>
                 
             </div>
-            </div>
-        
-            <div class="category-container">
+            
             <h3>Soepen (vanaf 5 pers)</h3>
             <div class="menu-items">
                 
@@ -1187,8 +1138,7 @@
                 </div>
                 
             </div>
-            </div>
-        
+            
         </section>
 
         <h2 id="contact">Contact</h2>
