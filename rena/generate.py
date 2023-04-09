@@ -33,6 +33,7 @@ for category, files in sorted(dish_data_raw.items(), key=lambda x: x[0]):
         name, price = cleaned.rsplit('-', 1)
         name = name.capitalize()
         name,descr = (name.split('(') + [''])[0:2]
+        name = name.replace("gedroogde fruit", "gedroogd fruit")
         descr = descr.replace(')', '')
         price = price.replace('€', '')
         price = price.strip().rsplit('.', 1)[0]

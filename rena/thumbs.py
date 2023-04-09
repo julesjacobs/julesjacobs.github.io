@@ -1,13 +1,33 @@
 import os
 from PIL import Image, ImageOps
 
-def create_thumbnail(image_path, thumbnail_height=200):
+def create_thumbnail(image_path, thumbnail_width=300, thumbnail_height=200, exact=True):
     img = Image.open(image_path)
     img = ImageOps.exif_transpose(img)
-    # img_ratio = float(img.width) / float(img.height)
-    # thumbnail_width = int(thumbnail_height * img_ratio)
-    # resize but keep original orientation
-    img.thumbnail((500, thumbnail_height))
+
+    if exact:
+        # Crop image to desired aspect ratio
+        aspect_ratio = thumbnail_width / thumbnail_height
+        img_width, img_height = img.size
+        img_aspect_ratio = img_width / img_height
+        if img_aspect_ratio <= aspect_ratio:
+            new_width = img_width
+            new_height = int(new_width / aspect_ratio)
+        else:
+            new_height = img_height
+            new_width = int(new_height * aspect_ratio)
+
+        left = (img_width - new_width) // 2
+        top = (img_height - new_height) // 2
+        right = left + new_width
+        bottom = top + new_height
+        img = img.crop((left, top, right, bottom))
+
+        # Resize the image to the desired thumbnail size
+        img.thumbnail((thumbnail_width, thumbnail_height))
+    else:
+        img.thumbnail((thumbnail_width, thumbnail_height))
+
     thumbnail_path = os.path.splitext(image_path)[0] + "_thumb" + os.path.splitext(image_path)[1]
     img.save(thumbnail_path)
 
