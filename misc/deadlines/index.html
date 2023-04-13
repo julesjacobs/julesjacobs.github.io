@@ -185,7 +185,8 @@ for(var i=0; i<deadlines.length; i++){
   // calculate how many days from now
   var days = (d.deadline - new Date())/8.64e7;
   days = Math.round(days*10)/10;
-  elem(timehover, 'span').innerHTML = "in " + days + " days";
+  var msg = days > 0 ? "in " + days + " days" : (-days) + " days ago";
+  elem(timehover, 'span').innerHTML = msg;
 }
 
 for(var i=0; i<12; i++){
