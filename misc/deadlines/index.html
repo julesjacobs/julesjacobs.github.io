@@ -65,6 +65,37 @@
     .past a {
       color: #999;
     }
+
+    .timehover {
+      display: none;
+    }
+
+    .conf:hover .timehover {
+      display: block;
+      position: relative;
+      left: 10px;
+      margin-right: 5px;
+      padding-top: 10px;
+      padding-right: 5px;
+      top: -45px;
+      /* background: #FFF; */
+      /* border-top: 1px solid #000; */
+      /* padding: 5px; */
+      font-size: 12px;
+      /* width: 150px; */
+      /* color:red; */
+    }
+
+    .conf:hover .timehover span {
+      background-color: #EEE;
+      padding: 3px;
+      border-radius: 5px;
+      border: 1px solid #AAA;
+    }
+
+    .conf:hover .timehover:hover {
+      display: none;
+    }
   </style>
 </head>
 
@@ -99,7 +130,7 @@ var deadlines = [
   {conf:"CONCUR'23",        deadline: new Date("2023-04-24T23:59:59.999-12:00")},
   {conf:"SOSP'23",          deadline: new Date("2023-04-10T23:59:59.999-12:00")},
   {conf:"APLAS'23",         deadline: new Date("2023-06-15T23:59:59.999-12:00")},
-  {conf:"POPL'24",          deadline: new Date("2023-07-12T23:59:59.999-12:00"),        main:1},
+  {conf:"POPL'24",          deadline: new Date("2023-07-11T23:59:59.999-12:00"),        main:1},
   {conf:"CSL'23",           deadline: new Date("2022-07-09T23:59:59.999-12:00")},
   {conf:"CGO'24 R1",        deadline: new Date("2023-05-19T23:59:59.999-12:00")},
   {conf:"CGO'24 R2",        deadline: new Date("2023-09-01T23:59:59.999-12:00")},
@@ -149,6 +180,12 @@ for(var i=0; i<deadlines.length; i++){
   var year = parseInt(d.conf.match(/\d+/)[0])+2000
   elink.href = "https://www.google.com/search?q=" + dname + '+' + year + '+conference';
   if(d.conf.includes("ICFP")){ elink.href += '+-"family planning"'; }
+  var timehover = elem(e, 'div');
+  timehover.classList.add('timehover');
+  // calculate how many days from now
+  var days = (d.deadline - new Date())/8.64e7;
+  days = Math.round(days*10)/10;
+  elem(timehover, 'span').innerHTML = "in " + days + " days";
 }
 
 for(var i=0; i<12; i++){
