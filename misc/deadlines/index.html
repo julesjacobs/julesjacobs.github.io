@@ -185,7 +185,9 @@ function createCalendarLinks(title0, date) {
   element.className = 'calendar-links';
 
   var title = title0 + " deadline";
-  var titleG = title0 + " conference";
+
+  // replace '23 with 2023
+  var titleG = title0.replace(/'(\d\d)/, " 20$1") + " conference";
 
   const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}/${(new Date(date.getTime() + 3600000)).toISOString().replace(/-|:|\.\d\d\d/g, '')}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
   const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}%0ADTEND:${(new Date(date.getTime() + 3600000)).toISOString().replace(/-|:|\.\d\d\d/g, '')}%0ASUMMARY:${encodeURIComponent(title)}%0AEND:VEVENT%0AEND:VCALENDAR`;
