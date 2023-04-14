@@ -124,7 +124,7 @@
 
 <body>
   <div id="container">
-  <h1>PL deadline calendar</h1>
+  <h1>PL deadline calendar <i class="fas fa-calendar-alt" aria-hidden="true"></i></h1>
   <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for conferences in the PL community.</p>
 
   <div id="timeline">
@@ -195,10 +195,23 @@ function createCalendarLinks(title0, date) {
   const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(date.toISOString())}&enddt=${encodeURIComponent((new Date(date.getTime() + 3600000)).toISOString())}`;
   const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
 
+  const endDate = new Date(date.getTime() + 3600000);
+  const icsFileContent = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}
+DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, '')}
+SUMMARY:${title}
+END:VEVENT
+END:VCALENDAR`;
+
+  const icsFileUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
+
   const icons = [
     { name: 'Google Calendar', url: googleCalendarUrl, icon: 'fab fa-google' },
     { name: 'Apple Calendar', url: appleCalendarUrl, icon: 'fab fa-apple' },
     { name: 'Outlook Calendar', url: outlookCalendarUrl, icon: 'fab fa-microsoft' },
+    { name: 'Add to calendar using (.ics)', url: icsFileUrl, icon: 'fas fa-file-download' },
     { name: 'Google Search', url: googleSearchUrl, icon: 'fas fa-external-link-alt search' }
   ];
 
