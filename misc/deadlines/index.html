@@ -53,6 +53,7 @@
       /* hand cursor */
       cursor: pointer;
     }
+
     .main {
       border-top: 2px solid #000;
     }
@@ -116,6 +117,10 @@
 
     .search {
       margin-left: 5px;
+    }
+
+    .icon:hover {
+      color: hsl(213, 85%, 45%);
     }
   </style>
 </head>
@@ -220,7 +225,7 @@ END:VCALENDAR`;
     link.href = url;
     link.target = '_blank';
     link.title = name === 'Google Search' ? `Search ${title0} on Google` : `Add to ${name}`;
-    link.innerHTML = `<i class="${icon}" aria-hidden="true"></i>`;
+    link.innerHTML = `<i class="${icon} icon" aria-hidden="true"></i>`;
     element.appendChild(link);
   });
 
@@ -252,6 +257,7 @@ for(var i=0; i<deadlines.length; i++){
     e.classList.toggle('active');
     // unfocus the link
     this.blur();
+    this.parentElement.blur();
     return false;
   }
   if(d.conf.includes("ICFP")){ elink.href += '+-"family planning"'; }
