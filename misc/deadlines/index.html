@@ -258,6 +258,7 @@ for(var i=0; i<deadlines.length; i++){
     // unfocus the link
     this.blur();
     this.parentElement.blur();
+    document.rootElement.focus();
     return false;
   }
   if(d.conf.includes("ICFP")){ elink.href += '+-"family planning"'; }
