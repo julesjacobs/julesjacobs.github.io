@@ -1,0 +1,179 @@
+<html><head><title>Dependent Session Protocols in Separation Logic from First Principles (Artifact)</title><link rel="stylesheet" href="styles.css"><script src="script.js"></script><link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet"></head><body><header><h1>Dependent Session Protocols in Separation Logic from First Principles (Artifact)</h1><h3>Jules Jacobs, Jonas Kastberg Hinrichsen, Robbert Krebbers</h3></header><div id="container"><div id="tree"><li><a href="README.v.html">README.md</a></li><li><a href="base.v.html">base.v</a></li><li><a href="imp.v.html">imp.v</a></li><li><a href="send_close.v.html">send_close.v</a></li><li><a href="session.v.html">session.v</a></li><li class="current"><a href="sub.v.html">sub.v</a></li><li><a href="sym_close.v.html">sym_close.v</a></li></div><div id="content"><div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"><a href="#line-1"> 1</a></span>
+<span class="normal"><a href="#line-2"> 2</a></span>
+<span class="normal"><a href="#line-3"> 3</a></span>
+<span class="normal"><a href="#line-4"> 4</a></span>
+<span class="normal"><a href="#line-5"> 5</a></span>
+<span class="normal"><a href="#line-6"> 6</a></span>
+<span class="normal"><a href="#line-7"> 7</a></span>
+<span class="normal"><a href="#line-8"> 8</a></span>
+<span class="normal"><a href="#line-9"> 9</a></span>
+<span class="normal"><a href="#line-10">10</a></span>
+<span class="normal"><a href="#line-11">11</a></span>
+<span class="normal"><a href="#line-12">12</a></span>
+<span class="normal"><a href="#line-13">13</a></span>
+<span class="normal"><a href="#line-14">14</a></span>
+<span class="normal"><a href="#line-15">15</a></span>
+<span class="normal"><a href="#line-16">16</a></span>
+<span class="normal"><a href="#line-17">17</a></span>
+<span class="normal"><a href="#line-18">18</a></span>
+<span class="normal"><a href="#line-19">19</a></span>
+<span class="normal"><a href="#line-20">20</a></span>
+<span class="normal"><a href="#line-21">21</a></span>
+<span class="normal"><a href="#line-22">22</a></span>
+<span class="normal"><a href="#line-23">23</a></span>
+<span class="normal"><a href="#line-24">24</a></span>
+<span class="normal"><a href="#line-25">25</a></span>
+<span class="normal"><a href="#line-26">26</a></span>
+<span class="normal"><a href="#line-27">27</a></span>
+<span class="normal"><a href="#line-28">28</a></span>
+<span class="normal"><a href="#line-29">29</a></span>
+<span class="normal"><a href="#line-30">30</a></span>
+<span class="normal"><a href="#line-31">31</a></span>
+<span class="normal"><a href="#line-32">32</a></span>
+<span class="normal"><a href="#line-33">33</a></span>
+<span class="normal"><a href="#line-34">34</a></span>
+<span class="normal"><a href="#line-35">35</a></span>
+<span class="normal"><a href="#line-36">36</a></span>
+<span class="normal"><a href="#line-37">37</a></span>
+<span class="normal"><a href="#line-38">38</a></span>
+<span class="normal"><a href="#line-39">39</a></span>
+<span class="normal"><a href="#line-40">40</a></span>
+<span class="normal"><a href="#line-41">41</a></span>
+<span class="normal"><a href="#line-42">42</a></span>
+<span class="normal"><a href="#line-43">43</a></span>
+<span class="normal"><a href="#line-44">44</a></span>
+<span class="normal"><a href="#line-45">45</a></span>
+<span class="normal"><a href="#line-46">46</a></span>
+<span class="normal"><a href="#line-47">47</a></span>
+<span class="normal"><a href="#line-48">48</a></span>
+<span class="normal"><a href="#line-49">49</a></span>
+<span class="normal"><a href="#line-50">50</a></span>
+<span class="normal"><a href="#line-51">51</a></span>
+<span class="normal"><a href="#line-52">52</a></span>
+<span class="normal"><a href="#line-53">53</a></span>
+<span class="normal"><a href="#line-54">54</a></span>
+<span class="normal"><a href="#line-55">55</a></span>
+<span class="normal"><a href="#line-56">56</a></span>
+<span class="normal"><a href="#line-57">57</a></span>
+<span class="normal"><a href="#line-58">58</a></span>
+<span class="normal"><a href="#line-59">59</a></span>
+<span class="normal"><a href="#line-60">60</a></span>
+<span class="normal"><a href="#line-61">61</a></span>
+<span class="normal"><a href="#line-62">62</a></span>
+<span class="normal"><a href="#line-63">63</a></span>
+<span class="normal"><a href="#line-64">64</a></span>
+<span class="normal"><a href="#line-65">65</a></span>
+<span class="normal"><a href="#line-66">66</a></span>
+<span class="normal"><a href="#line-67">67</a></span>
+<span class="normal"><a href="#line-68">68</a></span>
+<span class="normal"><a href="#line-69">69</a></span>
+<span class="normal"><a href="#line-70">70</a></span>
+<span class="normal"><a href="#line-71">71</a></span>
+<span class="normal"><a href="#line-72">72</a></span>
+<span class="normal"><a href="#line-73">73</a></span>
+<span class="normal"><a href="#line-74">74</a></span>
+<span class="normal"><a href="#line-75">75</a></span>
+<span class="normal"><a href="#line-76">76</a></span>
+<span class="normal"><a href="#line-77">77</a></span>
+<span class="normal"><a href="#line-78">78</a></span>
+<span class="normal"><a href="#line-79">79</a></span>
+<span class="normal"><a href="#line-80">80</a></span>
+<span class="normal"><a href="#line-81">81</a></span>
+<span class="normal"><a href="#line-82">82</a></span>
+<span class="normal"><a href="#line-83">83</a></span>
+<span class="normal"><a href="#line-84">84</a></span>
+<span class="normal"><a href="#line-85">85</a></span>
+<span class="normal"><a href="#line-86">86</a></span>
+<span class="normal"><a href="#line-87">87</a></span>
+<span class="normal"><a href="#line-88">88</a></span>
+<span class="normal"><a href="#line-89">89</a></span></pre></div></td><td class="code"><div><pre><span></span><span id="linespan-1"><a id="line-1" name="line-1"></a><span class="kn">From</span> <span class="n">miniactris</span> <span class="kn">Require</span> <span class="kn">Export</span> <span class="n">base</span><span class="o">.</span>
+</span><span id="linespan-2"><a id="line-2" name="line-2"></a>
+</span><span id="linespan-3"><a id="line-3" name="line-3"></a><span class="kn">Section</span> <span class="n">proof_sub</span><span class="o">.</span>
+</span><span id="linespan-4"><a id="line-4" name="line-4"></a>  <span class="kn">Context</span> <span class="o">`{!</span><span class="n">heapGS</span> <span class="n">Σ</span><span class="o">,</span> <span class="o">!</span><span class="n">chanG</span> <span class="n">Σ</span><span class="o">}.</span>
+</span><span id="linespan-5"><a id="line-5" name="line-5"></a>  <span class="kn">Notation</span> <span class="n">prot</span> <span class="o">:=</span> <span class="o">(</span><span class="n">prot</span> <span class="n">Σ</span><span class="o">).</span>
+</span><span id="linespan-6"><a id="line-6" name="line-6"></a>
+</span><span id="linespan-7"><a id="line-7" name="line-7"></a>  <span class="kn">Definition</span> <span class="n">subprot</span> <span class="o">(</span><span class="n">p1</span> <span class="n">p2</span> <span class="o">:</span> <span class="n">prot</span><span class="o">)</span> <span class="o">:</span> <span class="n">iProp</span> <span class="n">Σ</span> <span class="o">:=</span>                                 <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-7">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-7</a> *)</span>
+</span><span id="linespan-8"><a id="line-8" name="line-8"></a>    <span class="k">match</span> <span class="n">p1</span><span class="o">.</span><span class="mi">1</span><span class="o">,</span> <span class="n">p2</span><span class="o">.</span><span class="mi">1</span> <span class="k">with</span>
+</span><span id="linespan-9"><a id="line-9" name="line-9"></a>    <span class="o">|</span> <span class="bp">true</span><span class="o">,</span> <span class="bp">true</span> <span class="o">=&gt;</span> <span class="o">∀</span> <span class="n">v</span><span class="o">,</span> <span class="n">p2</span><span class="o">.</span><span class="mi">2</span> <span class="n">v</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">p1</span><span class="o">.</span><span class="mi">2</span> <span class="n">v</span>
+</span><span id="linespan-10"><a id="line-10" name="line-10"></a>    <span class="o">|</span> <span class="bp">false</span><span class="o">,</span> <span class="bp">false</span> <span class="o">=&gt;</span> <span class="o">∀</span> <span class="n">v</span><span class="o">,</span> <span class="n">p1</span><span class="o">.</span><span class="mi">2</span> <span class="n">v</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">p2</span><span class="o">.</span><span class="mi">2</span> <span class="n">v</span>
+</span><span id="linespan-11"><a id="line-11" name="line-11"></a>    <span class="o">|</span> <span class="o">_,</span> <span class="o">_</span> <span class="o">=&gt;</span> <span class="n">False</span>
+</span><span id="linespan-12"><a id="line-12" name="line-12"></a>    <span class="k">end</span><span class="o">.</span>
+</span><span id="linespan-13"><a id="line-13" name="line-13"></a>
+</span><span id="linespan-14"><a id="line-14" name="line-14"></a>  <span class="kn">Lemma</span> <span class="n">subprot_refl</span> <span class="n">p</span> <span class="o">:</span> <span class="bp">⊢</span> <span class="n">subprot</span> <span class="n">p</span> <span class="n">p</span><span class="o">.</span>
+</span><span id="linespan-15"><a id="line-15" name="line-15"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="k">destruct</span> <span class="n">p</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P</span><span class="o">];</span> <span class="k">rewrite</span> <span class="o">/</span><span class="n">subprot</span> <span class="o">/=;</span> <span class="k">eauto</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-16"><a id="line-16" name="line-16"></a>
+</span><span id="linespan-17"><a id="line-17" name="line-17"></a>  <span class="kn">Lemma</span> <span class="n">subprot_dual</span> <span class="n">p1</span> <span class="n">p2</span> <span class="o">:</span> <span class="n">subprot</span> <span class="o">(</span><span class="n">dual</span> <span class="n">p1</span><span class="o">)</span> <span class="o">(</span><span class="n">dual</span> <span class="n">p2</span><span class="o">)</span> <span class="bp">⊣⊢</span> <span class="n">subprot</span> <span class="n">p2</span> <span class="n">p1</span><span class="o">.</span>
+</span><span id="linespan-18"><a id="line-18" name="line-18"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="k">destruct</span> <span class="n">p1</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span><span class="o">];</span> <span class="k">destruct</span> <span class="n">p2</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span><span class="o">];</span> <span class="k">eauto</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-19"><a id="line-19" name="line-19"></a>
+</span><span id="linespan-20"><a id="line-20" name="line-20"></a>  <span class="kn">Lemma</span> <span class="n">subprot_trans</span> <span class="n">p1</span> <span class="n">p2</span> <span class="n">p3</span> <span class="o">:</span> <span class="n">subprot</span> <span class="n">p1</span> <span class="n">p2</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">subprot</span> <span class="n">p2</span> <span class="n">p3</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">subprot</span> <span class="n">p1</span> <span class="n">p3</span><span class="o">.</span>
+</span><span id="linespan-21"><a id="line-21" name="line-21"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-22"><a id="line-22" name="line-22"></a>    <span class="n">iIntros</span> <span class="s2">"Hsp1 Hsp2"</span><span class="o">.</span>
+</span><span id="linespan-23"><a id="line-23" name="line-23"></a>    <span class="k">destruct</span> <span class="n">p1</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P1</span><span class="o">],</span> <span class="n">p2</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P2</span><span class="o">],</span> <span class="n">p3</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P3</span><span class="o">];</span>
+</span><span id="linespan-24"><a id="line-24" name="line-24"></a>      <span class="k">rewrite</span> <span class="o">/</span><span class="n">subprot</span> <span class="o">//=;</span> <span class="n">iIntros</span> <span class="o">(</span><span class="n">v</span><span class="o">)</span> <span class="s2">"H //"</span><span class="o">;</span>
+</span><span id="linespan-25"><a id="line-25" name="line-25"></a>      <span class="kp">by</span> <span class="kr">do</span> <span class="mi">2</span> <span class="o">(</span><span class="n">iApply</span> <span class="s2">"Hsp1"</span> <span class="o">||</span> <span class="n">iApply</span> <span class="s2">"Hsp2"</span><span class="o">).</span>
+</span><span id="linespan-26"><a id="line-26" name="line-26"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-27"><a id="line-27" name="line-27"></a>
+</span><span id="linespan-28"><a id="line-28" name="line-28"></a>  <span class="kn">Lemma</span> <span class="n">subprot_send1</span> <span class="n">Φ</span> <span class="n">Ψ</span> <span class="o">:</span> <span class="o">(∀</span> <span class="n">v</span><span class="o">,</span> <span class="n">Ψ</span> <span class="n">v</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">Φ</span> <span class="n">v</span><span class="o">)</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">subprot</span> <span class="o">(</span><span class="bp">true</span><span class="o">,</span><span class="n">Φ</span><span class="o">)</span> <span class="o">(</span><span class="bp">true</span><span class="o">,</span><span class="n">Ψ</span><span class="o">).</span>
+</span><span id="linespan-29"><a id="line-29" name="line-29"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="kp">by</span> <span class="k">eauto</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-30"><a id="line-30" name="line-30"></a>
+</span><span id="linespan-31"><a id="line-31" name="line-31"></a>  <span class="kn">Lemma</span> <span class="n">subprot_recv1</span> <span class="n">Φ</span> <span class="n">Ψ</span> <span class="o">:</span> <span class="o">(∀</span> <span class="n">v</span><span class="o">,</span> <span class="n">Φ</span> <span class="n">v</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">Ψ</span> <span class="n">v</span><span class="o">)</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">subprot</span> <span class="o">(</span><span class="bp">false</span><span class="o">,</span><span class="n">Φ</span><span class="o">)</span> <span class="o">(</span><span class="bp">false</span><span class="o">,</span><span class="n">Ψ</span><span class="o">).</span>
+</span><span id="linespan-32"><a id="line-32" name="line-32"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="k">rewrite</span> <span class="o">-</span><span class="n">subprot_dual</span><span class="o">.</span> <span class="kp">by</span> <span class="k">apply</span> <span class="n">subprot_send1</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-33"><a id="line-33" name="line-33"></a>
+</span><span id="linespan-34"><a id="line-34" name="line-34"></a>  <span class="kn">Definition</span> <span class="n">is_chan</span> <span class="o">(</span><span class="n">ch</span> <span class="o">:</span> <span class="n">val</span><span class="o">)</span> <span class="o">(</span><span class="n">p</span> <span class="o">:</span> <span class="n">prot</span><span class="o">)</span> <span class="o">:</span> <span class="n">iProp</span> <span class="n">Σ</span> <span class="o">:=</span>                          <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-34">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-34</a> *)</span>
+</span><span id="linespan-35"><a id="line-35" name="line-35"></a>    <span class="o">∃</span> <span class="n">p'</span><span class="o">,</span> <span class="bp">▷</span> <span class="n">subprot</span> <span class="n">p'</span> <span class="n">p</span> <span class="bp">∗</span> <span class="n">is_chan0</span> <span class="n">ch</span> <span class="n">p'</span><span class="o">.</span>
+</span><span id="linespan-36"><a id="line-36" name="line-36"></a>
+</span><span id="linespan-37"><a id="line-37" name="line-37"></a>  <span class="kn">Lemma</span> <span class="n">is_chan0_is_chan</span> <span class="n">ch</span> <span class="n">p</span> <span class="o">:</span> <span class="n">is_chan0</span> <span class="n">ch</span> <span class="n">p</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="n">p</span><span class="o">.</span>                   <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-37">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-37</a> *)</span>
+</span><span id="linespan-38"><a id="line-38" name="line-38"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="n">iIntros</span> <span class="s2">"H"</span><span class="o">.</span> <span class="n">iExists</span> <span class="n">p</span><span class="o">.</span> <span class="n">iFrame</span><span class="o">.</span> <span class="n">iApply</span> <span class="n">subprot_refl</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-39"><a id="line-39" name="line-39"></a>
+</span><span id="linespan-40"><a id="line-40" name="line-40"></a>  <span class="kn">Lemma</span> <span class="n">subprot_is_chan</span> <span class="n">ch</span> <span class="n">p</span> <span class="n">p'</span> <span class="o">:</span>                                                <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-40">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-40</a> *)</span>
+</span><span id="linespan-41"><a id="line-41" name="line-41"></a>    <span class="bp">▷</span> <span class="n">subprot</span> <span class="n">p</span> <span class="n">p'</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="n">p</span> <span class="o">-</span><span class="bp">∗</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="n">p'</span><span class="o">.</span>
+</span><span id="linespan-42"><a id="line-42" name="line-42"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-43"><a id="line-43" name="line-43"></a>    <span class="n">iIntros</span> <span class="s2">"Hsp [%p'' [Hsp' Hch]]"</span><span class="o">.</span>
+</span><span id="linespan-44"><a id="line-44" name="line-44"></a>    <span class="n">iExists</span> <span class="o">_.</span> <span class="n">iFrame</span><span class="o">.</span> <span class="kp">by</span> <span class="n">iApply</span> <span class="o">(</span><span class="n">subprot_trans</span> <span class="k">with</span> <span class="s2">"Hsp'"</span><span class="o">).</span>
+</span><span id="linespan-45"><a id="line-45" name="line-45"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-46"><a id="line-46" name="line-46"></a>
+</span><span id="linespan-47"><a id="line-47" name="line-47"></a>  <span class="kn">Lemma</span> <span class="n">new1_spec</span> <span class="n">p</span> <span class="o">:</span>                                                            <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-47">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-47</a> *)</span>
+</span><span id="linespan-48"><a id="line-48" name="line-48"></a>    <span class="o">{{{</span> <span class="n">True</span> <span class="o">}}}</span> <span class="n">new1</span> <span class="o">#</span><span class="bp">()</span> <span class="o">{{{</span> <span class="n">ch</span><span class="o">,</span> <span class="n">RET</span> <span class="n">ch</span><span class="o">;</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="n">p</span> <span class="bp">∗</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="o">(</span><span class="n">dual</span> <span class="n">p</span><span class="o">)</span> <span class="o">}}}.</span>
+</span><span id="linespan-49"><a id="line-49" name="line-49"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-50"><a id="line-50" name="line-50"></a>    <span class="n">iIntros</span> <span class="o">(</span><span class="n">Ψ</span><span class="o">)</span> <span class="s2">"_ HΨ"</span><span class="o">.</span> <span class="n">wp_apply</span> <span class="n">new1_spec0</span><span class="o">;</span> <span class="kr">first</span> <span class="kp">done</span><span class="o">.</span>
+</span><span id="linespan-51"><a id="line-51" name="line-51"></a>    <span class="n">iIntros</span> <span class="o">(</span><span class="n">ch</span><span class="o">)</span> <span class="s2">"[H1 H2]"</span><span class="o">.</span> <span class="n">iApply</span> <span class="s2">"HΨ"</span><span class="o">.</span>
+</span><span id="linespan-52"><a id="line-52" name="line-52"></a>    <span class="n">iSplitL</span> <span class="s2">"H1"</span><span class="o">;</span> <span class="kp">by</span> <span class="n">iApply</span> <span class="n">is_chan0_is_chan</span><span class="o">.</span>
+</span><span id="linespan-53"><a id="line-53" name="line-53"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-54"><a id="line-54" name="line-54"></a>
+</span><span id="linespan-55"><a id="line-55" name="line-55"></a>  <span class="kn">Lemma</span> <span class="n">send1_spec</span> <span class="n">ch</span> <span class="n">P</span> <span class="n">v</span> <span class="o">:</span>                                                      <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-55">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-55</a> *)</span>
+</span><span id="linespan-56"><a id="line-56" name="line-56"></a>    <span class="o">{{{</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="o">(</span><span class="bp">true</span><span class="o">,</span><span class="n">P</span><span class="o">)</span> <span class="bp">∗</span> <span class="bp">▷</span> <span class="n">P</span> <span class="n">v</span> <span class="o">}}}</span> <span class="n">send1</span> <span class="n">ch</span> <span class="n">v</span> <span class="o">{{{</span> <span class="n">RET</span> <span class="o">#</span><span class="bp">()</span><span class="o">;</span> <span class="n">True</span> <span class="o">}}}.</span>
+</span><span id="linespan-57"><a id="line-57" name="line-57"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-58"><a id="line-58" name="line-58"></a>    <span class="n">iIntros</span> <span class="o">(</span><span class="n">φ</span><span class="o">)</span> <span class="s2">"[[%p' [Hsp Hch]] Hp] Hφ"</span><span class="o">.</span>
+</span><span id="linespan-59"><a id="line-59" name="line-59"></a>    <span class="k">destruct</span> <span class="n">p'</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P'</span><span class="o">];</span> <span class="k">rewrite</span> <span class="o">/</span><span class="n">subprot</span> <span class="o">/=;</span> <span class="kr">last</span> <span class="kp">by</span> <span class="n">iMod</span> <span class="s2">"Hsp"</span><span class="o">.</span>
+</span><span id="linespan-60"><a id="line-60" name="line-60"></a>    <span class="n">wp_apply</span> <span class="o">(</span><span class="n">send1_spec0</span> <span class="k">with</span> <span class="s2">"[$Hch Hp Hsp]"</span><span class="o">);</span> <span class="o">[</span><span class="kp">by</span> <span class="n">iApply</span> <span class="s2">"Hsp"</span><span class="o">|</span><span class="kp">done</span><span class="o">].</span>
+</span><span id="linespan-61"><a id="line-61" name="line-61"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-62"><a id="line-62" name="line-62"></a>
+</span><span id="linespan-63"><a id="line-63" name="line-63"></a>  <span class="kn">Lemma</span> <span class="n">recv1_spec</span> <span class="n">ch</span> <span class="n">P</span> <span class="o">:</span>                                                        <span class="c">(* <a href="https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-63">https://julesjacobs.com/papers/miniactris/artifact/paper.pdf#nameddest=sub.v-line-63</a> *)</span>
+</span><span id="linespan-64"><a id="line-64" name="line-64"></a>    <span class="o">{{{</span> <span class="n">is_chan</span> <span class="n">ch</span> <span class="o">(</span><span class="bp">false</span><span class="o">,</span><span class="n">P</span><span class="o">)</span> <span class="o">}}}</span> <span class="n">recv1</span> <span class="n">ch</span> <span class="o">{{{</span> <span class="n">v</span><span class="o">,</span> <span class="n">RET</span> <span class="n">v</span><span class="o">;</span> <span class="n">P</span> <span class="n">v</span> <span class="o">}}}.</span>
+</span><span id="linespan-65"><a id="line-65" name="line-65"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-66"><a id="line-66" name="line-66"></a>    <span class="n">iIntros</span> <span class="o">(</span><span class="n">φ</span><span class="o">)</span> <span class="s2">"[%p' [Hsp Hch]] Hφ"</span><span class="o">.</span>
+</span><span id="linespan-67"><a id="line-67" name="line-67"></a>    <span class="k">destruct</span> <span class="n">p'</span> <span class="k">as</span> <span class="o">[</span><span class="bp">[]</span> <span class="n">P'</span><span class="o">];</span> <span class="k">rewrite</span> <span class="o">/</span><span class="n">subprot</span> <span class="o">/=;</span> <span class="kr">first</span> <span class="kp">by</span> <span class="n">iMod</span> <span class="s2">"Hsp"</span><span class="o">.</span>
+</span><span id="linespan-68"><a id="line-68" name="line-68"></a>    <span class="n">wp_apply</span> <span class="o">(</span><span class="n">recv1_spec0</span> <span class="k">with</span> <span class="s2">"[$]"</span><span class="o">).</span> <span class="n">iIntros</span> <span class="o">(</span><span class="n">v</span><span class="o">)</span> <span class="s2">"Hv"</span><span class="o">.</span> <span class="n">iApply</span> <span class="s2">"Hφ"</span><span class="o">.</span> <span class="kp">by</span> <span class="n">iApply</span> <span class="s2">"Hsp"</span><span class="o">.</span>
+</span><span id="linespan-69"><a id="line-69" name="line-69"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-70"><a id="line-70" name="line-70"></a>
+</span><span id="linespan-71"><a id="line-71" name="line-71"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">subprot_ne</span> <span class="o">:</span> <span class="n">NonExpansive2</span> <span class="n">subprot</span><span class="o">.</span>
+</span><span id="linespan-72"><a id="line-72" name="line-72"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="k">intros</span> <span class="o">?</span> <span class="o">[??]</span> <span class="o">[??]</span> <span class="o">[??]</span> <span class="o">[??]</span> <span class="o">[??]</span> <span class="o">[??].</span> <span class="n">simplify_eq</span><span class="o">/=.</span> <span class="n">solve_proper</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-73"><a id="line-73" name="line-73"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">subprot_proper</span> <span class="o">:</span> <span class="n">Proper</span> <span class="o">((</span><span class="bp">≡</span><span class="o">)</span> <span class="o">==&gt;</span> <span class="o">(</span><span class="bp">≡</span><span class="o">)</span> <span class="o">==&gt;</span> <span class="o">(</span><span class="bp">≡</span><span class="o">))</span> <span class="n">subprot</span><span class="o">.</span>
+</span><span id="linespan-74"><a id="line-74" name="line-74"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="k">apply</span> <span class="n">ne_proper_2</span><span class="o">,</span> <span class="o">_.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-75"><a id="line-75" name="line-75"></a>
+</span><span id="linespan-76"><a id="line-76" name="line-76"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">is_chan_is_except_0</span> <span class="n">ch</span> <span class="n">p</span> <span class="o">:</span> <span class="n">IsExcept0</span> <span class="o">(</span><span class="n">is_chan</span> <span class="n">ch</span> <span class="n">p</span><span class="o">).</span>
+</span><span id="linespan-77"><a id="line-77" name="line-77"></a>  <span class="kn">Proof</span><span class="o">.</span>
+</span><span id="linespan-78"><a id="line-78" name="line-78"></a>    <span class="k">rewrite</span> <span class="o">/</span><span class="n">IsExcept0</span> <span class="o">/</span><span class="n">is_chan</span> <span class="n">bi.except_0_exist</span><span class="o">.</span> <span class="n">f_equiv</span><span class="o">=&gt;</span> <span class="n">p'</span><span class="o">.</span>
+</span><span id="linespan-79"><a id="line-79" name="line-79"></a>    <span class="kp">by</span> <span class="k">rewrite</span> <span class="n">bi.except_0_sep</span> <span class="n">bi.except_0_later</span> <span class="o">(</span><span class="n">is_except_0</span> <span class="o">(</span><span class="n">is_chan0</span> <span class="o">_</span> <span class="o">_)).</span>
+</span><span id="linespan-80"><a id="line-80" name="line-80"></a>  <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-81"><a id="line-81" name="line-81"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">is_chan_contractive</span> <span class="n">ch</span> <span class="o">:</span> <span class="n">Contractive</span> <span class="o">(</span><span class="n">is_chan</span> <span class="n">ch</span><span class="o">).</span>
+</span><span id="linespan-82"><a id="line-82" name="line-82"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="n">solve_contractive</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-83"><a id="line-83" name="line-83"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">is_chan_ne</span> <span class="n">ch</span> <span class="o">:</span> <span class="n">NonExpansive</span> <span class="o">(</span><span class="n">is_chan</span> <span class="n">ch</span><span class="o">).</span>
+</span><span id="linespan-84"><a id="line-84" name="line-84"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="n">solve_proper</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-85"><a id="line-85" name="line-85"></a>  <span class="kn">Global</span> <span class="kn">Instance</span> <span class="n">is_chan_proper</span> <span class="n">ch</span> <span class="o">:</span> <span class="n">Proper</span> <span class="o">((</span><span class="bp">≡</span><span class="o">)</span> <span class="o">==&gt;</span> <span class="o">(</span><span class="bp">≡</span><span class="o">))</span> <span class="o">(</span><span class="n">is_chan</span> <span class="n">ch</span><span class="o">).</span>
+</span><span id="linespan-86"><a id="line-86" name="line-86"></a>  <span class="kn">Proof</span><span class="o">.</span> <span class="n">solve_proper</span><span class="o">.</span> <span class="kn">Qed</span><span class="o">.</span>
+</span><span id="linespan-87"><a id="line-87" name="line-87"></a><span class="kn">End</span> <span class="n">proof_sub</span><span class="o">.</span>
+</span><span id="linespan-88"><a id="line-88" name="line-88"></a>
+</span><span id="linespan-89"><a id="line-89" name="line-89"></a><span class="kn">Global</span> <span class="n">Typeclasses</span> <span class="n">Opaque</span> <span class="n">subprot</span> <span class="n">is_chan</span><span class="o">.</span>
+</span></pre></div></td></tr></table></div>
+</div></div></body></html>
