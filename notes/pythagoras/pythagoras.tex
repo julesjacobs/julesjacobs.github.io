@@ -1,0 +1,208 @@
+\documentclass[a4paper, 11pt]{scrartcl}
+
+\input{ppreamble}
+
+\usetikzlibrary{calc,decorations.pathreplacing,patterns}
+
+\newcommand{\vect}[2]{\left(\begin{smallmatrix} #1 \\ #2 \end{smallmatrix}\right)}
+\newcommand{\vects}[1]{\vect{#1_x}{#1_y}}
+\newcommand{\ve}[1]{\vec{\mathbf{#1}}}
+
+\tikzset{vector/.style={-stealth, line width=1pt, shorten >=1pt}}
+\tikzset{axis/.style={->, thick, shorten >=2pt, color=black}}
+
+\definecolor{softred}{RGB}{225,85,77}
+\definecolor{softblue}{RGB}{77,153,225}
+\definecolor{softgreen}{RGB}{123,225,123}
+\definecolor{softyellow}{RGB}{225,225,123}
+\definecolor{softpurple}{RGB}{164,123,225}
+\definecolor{softorange}{RGB}{225,149,51}
+\newcommand{\colfill}{softgreen}
+\newcommand{\cola}{red}
+\newcommand{\colb}{blue}
+\newcommand{\colc}{gray}
+\newcommand{\mix}{!40}
+
+\title{On the Pythagorean Theorem}
+\author{Jules Jacobs}
+
+\begin{document}
+\maketitle
+
+\newcommand{\coordsplg}{
+
+  % Define coordinates
+  \coordinate (Origin) at (0,0);
+  \coordinate (Ux) at (5,0);
+  \coordinate (Uy) at (0,1);
+  \coordinate (Vx) at (2,0);
+  \coordinate (Vy) at (0,4);
+  \coordinate (U) at ($(Ux)+(Uy)$);
+  \coordinate (V) at ($(Vx)+(Vy)$);
+  \coordinate (Sum) at ($(U)+(V)$);  % sum of U and V
+
+  % Draw the grid
+  \draw[help lines, color=gray, dashed] (-0.9,-0.9) grid ($(Sum)+(0.9,0.9)$);
+}
+
+\newcommand{\axesxy}{
+  % Draw axes
+  \draw[axis] (-1,0) -- ($(Ux)+(Vx)+(1,0)$);
+  \draw[axis] (0,-1) -- ($(Uy)+(Vy)+(0,1)$);
+}
+
+\newcommand{\bracesonly}{
+  \draw[decorate,decoration={brace,amplitude=8pt}] (Uy) -- (U) node[midway,above=8pt] {\textcolor{\cola}{$u_x$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] (Vy) -- ($(Vy)+(Uy)$) node[midway,fill=white,left=8pt] {\textcolor{\cola}{$u_y$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] ($(Vy)+(Uy)$) -- ($(V)+(Uy)$) node[midway,fill=white,above=8pt] {\textcolor{\colb}{$v_x$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] (U) -- ($(U)+(Vy)$) node[midway,left=8pt] {\textcolor{\colb}{$v_y$}};
+}
+
+\newcommand{\parbg}{
+  \fill[\colfill\mix] (Origin) rectangle (Sum);
+  \fill[\colc\mix] (V) rectangle ($(Vy)+(Uy)$);
+  \fill[\colc\mix] (U) rectangle ($(Ux)+(Vx)$);
+}
+
+\newcommand{\bracesbg}{\parbg \bracesonly}
+
+\newcommand{\areaname}{A}
+
+\newcommand{\vectorsuv}{
+  % Draw vectors
+  \draw[vector, color=\cola, shorten >= 0pt] (Origin) -- (U) node[at end, below left, text=black] {$\textcolor{\cola}{\ve{u}}$};
+  \draw[vector, color=\colb, shorten >= 0pt] (Origin) -- (V) node[at end, below left, xshift=-2mm, text=black] {$\textcolor{\colb}{\ve{v}}$};
+}
+
+\centering
+
+\begin{tikzpicture}[scale=0.7]
+  \coordsplg
+  % \bracesonly
+
+  % Draw the parallelogram
+  \fill[\colfill\mix] (Origin) -- (U) -- (Sum) -- (V) -- cycle;
+
+  \vectorsuv
+
+  \draw[vector, color=\cola] (V) -- (Sum);
+  \draw[vector, color=\colb] (U) -- (Sum);
+
+  % \fill (U) circle (2pt);
+  % \fill (V) circle (2pt);
+  % \fill (Sum) circle (2pt);
+  % \fill (Origin) circle (2pt);
+
+  % Draw the labels
+  \node at ($0.5*(Sum)$) {$\areaname$};
+
+  \axesxy
+\end{tikzpicture}
+
+\bigskip
+
+\begin{minipage}{0.4\textwidth}
+\begin{tikzpicture}[scale=0.7]
+  \coordsplg
+  \parbg
+
+  % Draw the parallelogram
+  % \fill[\colfill\mix] (Origin) -- (U) -- (Sum) -- (V) -- cycle;
+  \fill[\cola\mix] (Origin) -- (U) -- (Ux) -- cycle;
+  \fill[\cola\mix] (V) -- ($(V)+(Uy)$) -- (Sum) -- cycle;
+  \fill[\colb\mix] (U) -- ($(U)+(Vx)$) -- (Sum) -- cycle;
+  \fill[\colb\mix] (Origin) -- (V) -- (Vy) -- cycle;
+
+  % Draw the labels
+  \node at ($0.5*(Sum)$) {$\areaname$};
+
+  \draw[decorate,decoration={brace,amplitude=8pt}] (Ux) -- (Origin) node[midway,below=8pt] {\textcolor{\cola}{$u_x$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] (Vy) -- ($(Vy)+(Uy)$) node[midway,fill=white,left=8pt] {\textcolor{\cola}{$u_y$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] ($(Vy)+(Uy)$) -- ($(V)+(Uy)$) node[midway,fill=white,above=8pt] {\textcolor{\colb}{$v_x$}};
+  \draw[decorate,decoration={brace,amplitude=8pt}] (Sum) -- ($(U)+(Vx)$) node[midway,right=8pt] {\textcolor{\colb}{$v_y$}};
+
+  \vectorsuv
+
+  \draw[vector, color=\cola] (V) -- (Sum);
+  \draw[vector, color=\colb] (U) -- (Sum);
+
+  \axesxy
+\end{tikzpicture}
+\end{minipage}
+\begin{minipage}{0.1\textwidth}
+  \centering
+  \quad\ \ $\to$
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+  \begin{tikzpicture}[scale=0.7]
+    \coordsplg
+    \parbg
+
+    \fill[\colb\mix] (U) rectangle (Sum);
+    \fill[\cola\mix] (Origin) rectangle (U);
+
+    % Draw vectors
+    \draw[vector, color=\cola, shorten >= 0pt] (Origin) -- (U) node[at end, below left, text=black] {$\textcolor{\cola}{\ve{u}}$};
+    \draw[vector, color=\colb, shorten >= 0pt] (U) -- (Sum) node[at end, below left, xshift=-2mm, text=black] {$\textcolor{\colb}{\ve{v}}$};
+
+    % Draw the labels
+    \node at ($0.63*(Vy)+0.5*(Ux)$) {$\areaname = \textcolor{\cola}{u_x} \textcolor{\colb}{v_y} - \textcolor{\cola}{u_y} \textcolor{\colb}{v_x}$};
+
+    % \draw[decorate,decoration={brace,amplitude=8pt}] (Uy) -- (U) node[midway,above=8pt] {\textcolor{\cola}{$u_x$}};
+    % \draw[decorate,decoration={brace,amplitude=8pt}] (Vy) -- ($(Vy)+(Uy)$) node[midway,fill=white,left=8pt] {\textcolor{\cola}{$u_y$}};
+    % \draw[decorate,decoration={brace,amplitude=8pt}] ($(Vy)+(Uy)$) -- ($(V)+(Uy)$) node[midway,fill=white,above=8pt] {\textcolor{\colb}{$v_x$}};
+    % \draw[decorate,decoration={brace,amplitude=8pt}] (U) -- ($(U)+(Vy)$) node[midway,left=8pt] {\textcolor{\colb}{$v_y$}};
+
+    \draw[decorate,decoration={brace,amplitude=8pt}] (Ux) -- (Origin) node[midway,below=8pt,fill=white] {\textcolor{\cola}{$u_x$}};
+    \draw[decorate,decoration={brace,amplitude=8pt}] (Vy) -- ($(Vy)+(Uy)$) node[midway,fill=white,left=8pt] {\textcolor{\cola}{$u_y$}};
+    \draw[decorate,decoration={brace,amplitude=8pt}] ($(Vy)+(Uy)$) -- ($(V)+(Uy)$) node[midway,fill=white,above=8pt] {\textcolor{\colb}{$v_x$}};
+    \draw[decorate,decoration={brace,amplitude=8pt}] (Sum) -- ($(U)+(Vx)$) node[midway,right=8pt,fill=white] {\textcolor{\colb}{$v_y$}};
+
+    \axesxy
+  \end{tikzpicture}
+\end{minipage}
+
+\bigskip
+$ \underbrace{\ \areaname_{\phantom{x}}}_{
+    % \tikz[baseline=(current bounding box.center)]{
+    %
+    % }
+    %  = \,\,
+    \tikz[baseline=(current bounding box.north)]{
+      \fill[\colfill!50] (0,0) rectangle (10mm, 8mm);
+      \fill[white] (0,6mm) rectangle (4mm, 8mm);
+      \node at (6mm,-3mm) {$=$};
+      \coordinate (D) at (-2mm,-14mm);
+      \fill[\colfill!50] ($(0,0)+(D)$) -- ($(4mm,8mm)+(D)$) -- ($(14mm,10mm)+(D)$) -- ($(10mm,2mm)+(D)$) -- cycle;
+    }
+    % \tikz{
+    %   \fill[\colfill!50] (0,0) rectangle (10mm, 8mm);
+    %   \fill[white] (0,6mm) rectangle (4mm, 8mm);
+    % }
+  } \ = \ \
+  \underbrace{\textcolor{\cola}{u_x} \textcolor{\colb}{v_y}}_{
+    \tikz[baseline=(current bounding box.north)]{
+      \fill[\colfill!50] (0,0) rectangle (10mm, 8mm);
+      \fill[\colc!50] (0,6mm) rectangle (4mm, 8mm);
+    }
+    % \textcolor{\colfill\mix}{\resizebox{10mm}{8mm}{$\blacksquare$}}
+  } \ - \ \
+  \underbrace{\textcolor{\cola}{u_y} \textcolor{\colb}{v_x}}_{
+    \tikz[baseline=(current bounding box.north)]{
+      \fill[white] (0,0) rectangle (10mm, 8mm);
+      \fill[\colc!50] (0,6mm) rectangle (4mm, 8mm);
+    }
+    % \textcolor{\colc\mix}{\resizebox{4mm}{2mm}{$\blacksquare$}}
+  }$
+
+
+\begin{itemize}
+  \item Coordinates
+  \item Area formula; application: shoelace formula
+  \item Length of a vector
+  \item Dot product
+  \item Orthogonality
+  \item Angles, sin, cos
+\end{itemize}
+
+\end{document}

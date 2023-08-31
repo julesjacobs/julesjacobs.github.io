@@ -31,3 +31,4 @@ notes/smartconstr/smartconstr.log
 notes/coq-cheatsheet/coq-cheatsheet.toc
 notes/multinomial-div/.lia.cache
 rena/venv
+*.cache
