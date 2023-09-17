@@ -1,0 +1,152 @@
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.84]{beramono}
+\usepackage[dottedtoc]{classicthesis}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+% \usepackage{mathpazo}
+% \usepackage{newpxmath}
+% \usepackage[smallerops]{newpxmath}
+% \usepackage{newpxtext} \useosf
+% \usepackage{newpxtext}
+% \usepackage[T1,small,euler-digits]{eulervm}
+\usepackage{ceulerpx}
+
+\newcommand{\sectionnumbercolor}{Maroon!60}
+\titleformat{\section}
+            {\large}
+            {\llap{\color{\sectionnumbercolor}\thesection\quad}}
+            {0pt}
+            {\spacedlowsmallcaps}
+
+\titleformat{\subsection}
+            {\normalsize}
+            {\llap{\color{\sectionnumbercolor}\thesubsection\quad}}
+            {0pt}
+            {\textit}
+
+\pagestyle{plain}
+
+\usepackage{parskip}
+
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    linktoc=section
+}
+% \urlstyle{same}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+
+\lstdefinelanguage{Python}{
+  keywords={from, import, def, for, in, if, return, lambda},
+  % keywordstyle=\bfseries\color{Maroon!65},
+  comment=[l]{\#},
+  morestring=[b]',
+  morestring=[b]",
+}
+
+\lstdefinelanguage{Scala}{
+  keywords={def, class, object, extends, case, for, if, else, var, val, match, enum},
+  keywordstyle=\color{Maroon!80},
+  morekeywords=[2]{Set,List,Re,Re2,Alt,Alt2,Seq,Seq2,Star,Star2,Chr,Chr2,Emp,Eps,Tm,Var,Lam,App,Sem,LamS,AppS,TmS,Char,String,Int,Db,Hs,Ty,Base,Arrow,Syn},
+  keywordstyle=[2]\color{violet!80},
+  comment=[l]{//},morecomment=[n]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  literate=
+    {cdot}{$\cdot$ }1
+}
+
+\lstdefinelanguage{Coq}{
+  keywords={From, Lemma, Require, Import, Proof, Qed, forall},
+  keywordstyle=\color{Maroon!80},
+  morekeywords=[2]{Set,List,Re,Re2,Alt,Alt2,Seq,Seq2,Star,Star2,Chr,Chr2,Emp,Eps,Tm,Var,Lam,App,Sem,LamS,AppS,TmS,Char,String,Int,Db,Hs,Ty,Base,Arrow,Syn},
+  keywordstyle=[2]\color{violet!80},
+  comment=[l]{//},morecomment=[n]{(*}{*)},
+  morestring=[b]',
+  morestring=[b]",
+  literate=
+    {cdot}{$\cdot$ }1
+}
+
+\lstset{
+   columns=fullflexible,
+   language=Coq,
+   keywordstyle=\color{Maroon!80},
+   commentstyle=\color{Green!80!black}\ttfamily,
+   identifierstyle=\color{RoyalBlue!70!black},
+   stringstyle=\color{red!50!black}\ttfamily,
+   showstringspaces=false,
+   extendedchars=true,
+   basicstyle=\small\ttfamily,
+   xleftmargin=1em,
+   % breaklines=true,
+}
+
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+\usepackage{amsmath}
+\let\openbox\relax
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+
+\usepackage{adjustbox}
+% \usepackage[notref,notcite]{showkeys}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+% =========== TIKZ ===========
+% \usepackage{graphicx}
+% \usepackage{tikz}
+% \usetikzlibrary{shapes.geometric, arrows}
+% \usetikzlibrary{fit}
+% \usetikzlibrary{svg.path}
+% % \usetikzlibrary{graphdrawing}
+% % \usetikzlibrary{graphdrawing.force}
+% % \usetikzlibrary{graphdrawing.layered}
+% \usetikzlibrary{decorations}
+% \usetikzlibrary{decorations.markings}
+% \usetikzlibrary{backgrounds}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+\newcommand{\ie}{\textit{i.e.,}\xspace}
+
+\makeatletter
+\renewcommand\maketitle
+  {
+  \begin{center}
+   {\color{black}\large\spacedallcaps{\@title}}\\\bigskip%
+   \large{\@author}\\\medskip%
+   \normalsize{\@date}\bigskip%
+  \end{center}%
+  }
+
+\newcommand{\equationnumbercolor}{black!60}
+\newtagform{brackets}{\color{\equationnumbercolor}(}{)}
+\usetagform{brackets}

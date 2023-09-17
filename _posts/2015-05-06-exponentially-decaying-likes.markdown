@@ -1,19 +1,19 @@
 ---
 layout: post
-title:  "Determining hot items with exponentially decaying likes"
-date:   2015-05-06 13:00:40
-categories: 
+title: "Determining hot items with exponentially decaying likes"
+date: 2015-05-06 13:00:40
+categories:
 redirect_from: "/2015/05/05/exponentially-decaying-likes.html"
 ---
 
 Many sites want to determine recently popular items, for example:
 
-* Posts on Facebook that have been liked a lot recently
-* Hashtags on Twitter that have been mentioned a lot recently
-* Producs on Amazon that have been bought a lot recently
-* Posts on reddit that have been commented on a lot recently
-* Posts on Hacker News that have been upvoted a lot recently
-* Articles on a newspaper site that have been read a lot recently
+- Posts on Facebook that have been liked a lot recently
+- Hashtags on Twitter that have been mentioned a lot recently
+- Producs on Amazon that have been bought a lot recently
+- Posts on reddit that have been commented on a lot recently
+- Posts on Hacker News that have been upvoted a lot recently
+- Articles on a newspaper site that have been read a lot recently
 
 The general trend is that we have a set of items (facebook posts, hashtags, products, etc.) and each item can receive generalized 'likes' (facebook likes, hashtag mentions, product purchases, etc.), and we want to determine those items that have recently received a lot of those likes. In this post I'm going to describe such a method with appealing theoretical and practical properties. Here's a demo that you can play with:
 
@@ -22,8 +22,8 @@ The general trend is that we have a set of items (facebook posts, hashtags, prod
 	border: 1px solid grey;
 	margin: 20px;
 }
-#decay { 
-	width: 500px; 
+#decay {
+	width: 500px;
 	margin: 10px;
 }
 #decay td { padding: 3px 5px 3px 5px; }
@@ -34,7 +34,7 @@ The general trend is that we have a set of items (facebook posts, hashtags, prod
 
 <div id="wraptable"><table id="decay"></table></div>
 
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 
 <script>
 
@@ -75,7 +75,7 @@ function render() {
 	var tr = d3.select("#decay")
 	  .selectAll("tr")
 	  	.data(data);
-	
+
 	var newtr = tr.enter().append("tr");
 	newtr.append("td");
 	newtr.append("td").append("button").text("like").on("click", function(e,i){ like(i); });
@@ -98,7 +98,7 @@ function init() {
 	if(t - lastInit > 30000){
 		lastInit = t;
 		names.forEach(function(n,j) {
-			for(var i=0; i < 10; i++) { 
+			for(var i=0; i < 10; i++) {
 				if(Math.random() < 0.5) {
 					like(j);
 				}
@@ -115,19 +115,19 @@ window.onfocus = init;
 
 The rest of this post is about why exponential decay is a good way to score hot items, and how to implement that very efficiently in just a couple of lines of code. If you are not interested in the math you can skip straight to the code section below.
 
-## Why not sort items by number of likes received in the last hour? ##
+## Why not sort items by number of likes received in the last hour?
 
 At first sight it seems like a good idea to pick a time window, say one hour, filter out all the likes that happened in that time window, and then sum up all those likes for each item to obtain a score. Then we sort all items by score and pick the top scoring items. This does work but it has a couple of disadvantages. What if item A got 100 likes the last hour, and 0 likes in the hour before that, but item B got 99 likes last hour, and 100 likes in the hour before that. It does not make much sense to rank A higher than B, but due to the sharp cut-off we value that 1 like higher than those 100. Similarly, what if item A got 100 likes spread around the last hour, but item B got 99 likes in the last 5 minutes? Surely item B is more 'hot' than A. We would like to gradually decrease the influence of likes that are further in the past.
 
 The second issue with this method is that it's inconvenient to implement efficiently. Doing a query for all likes in the last hour and summing them up could be very time consuming. The efficient way to implement it is to maintain a running score for each item. Every time it gets liked we increment the score, and every time a like gets older than an hour we decrement the score. This is inconvenient and does not fit well within the abilities of conventional databases.
 
-## Why not apply a penalty based on item age? ##
+## Why not apply a penalty based on item age?
 
 Some sites apply a penalty based on the age of an item (as opposed to the age of the like). Hacker news for example uses a formula like `score = votes / age^1.8`. This also has an ineffiency problem: we have to continually recompute the score of every item to determine the current ranking. This could be fixed by picking a score formula of the form `score = f(votes) + g(time)` where `g` is some function of the time that an item was created/posted. Instead of penalizing items based on age, we simply give a boost to newer items. Reddit uses this approach. It has a major advantage: we only need to update the score in response to new votes, and not continually over time. Furthermore, we can simply store the score as an indexed column or attribute in our database, and then we can efficiently retrieve the top N items by score.
 
 Unfortunately this method also has a disadvantage. If you think about it then the hotness of an item should only depend on when it was voted on, not on when it was created. A book on Amazon could suddenly become a popular purchase, even though it may have been written a long time ago. On Hacker News you are at a disadvantage if you post an item during the night when there are fewer people to vote compared to posting during the day (in California time). Do this thought experiment: suppose that Hacker News got zero visitors during the night, and suppose that post A was posted at the start of the night, and post B was posted at the beginning of the next morning. Neither post would get any votes during the night, so in the morning both are at zero votes. Then people start waking up and start voting, and suppose that both A and B get the same number of votes. Because A is older it gets a bigger penalty with `votes / age^1.8`: each of its votes counts for much less than B's votes. So a post that is posted during a quiet time has little chance to rank high simply because of the time at which it was posted. The solution is to determine the score by vote age, not by post age.
 
-## Desiderata ##
+## Desiderata
 
 Can we do better? Let's list a couple of properties that we would like to have:
 
@@ -141,11 +141,11 @@ Exponentially decaying like values satisfy these requirements. Exponential decay
 
 It turns out that not only does exponential decay satisfy those 3 properties, it is also the <i>only</i> solution that satisfies all 3 properties. Proving this is left as an excercise for the mathematically inclined reader ;-)
 
-## Efficient implementation ##
+## Efficient implementation
 
 As you can see in the demo this is not particularly efficient if we implement it directly. We need to continually update the like values of all likes. But there's hope: the relative ordering of items only changes in response to likes. So we could keep the scores constant, and only update all of them when a new like comes in. This is still inefficient however: the total number of items could be huge, and updating <i>all</i> of them each time <i>one</i> item gets liked is too much work.
 
-### Math to the rescue ###
+### Math to the rescue
 
 Recall that the value of a like is e<sup>-at</sup> where t is the age, i.e. t = t<sub>now</sub> - t<sub>like</sub>, where t<sub>like</sub> is the time when the item got liked. Plugging this in we get e<sup>-at</sup> = e<sup>-a(t<sub>now</sub> - t<sub>like</sub>)</sup> = e<sup>-at<sub>now</sub></sup> e<sup>at<sub>like</sub></sup>. Here is the first idea: divide all like values by e<sup>-at<sub>now</sub></sup>. Since we are didiving all values by the same amount it does not affect the relative ranking. After doing this the value of a like is simply e<sup>at<sub>like</sub></sup>, which is independent of time t<sub>now</sub>! Since the score is the sum of those values, we have a score that only needs to be updated in response to new likes to that particular item, and no longer needs to be updated continuously as time passes. Yet it will give us exactly the same ranking as exponentially decaying likes. Every time a new like comes in, increment the score s of the item that is being liked: s := s + e<sup>at<sub>like</sub></sup>, where t<sub>like</sub> is the time that the like happened. To produce a ranking we take the top N items by score. This is an operation that any database worth its salt can do very efficiently if the score column is indexed.
 
@@ -159,19 +159,19 @@ How many bits of precision do we need? The problematic case is when t<sub>like</
 
 You can see the math in action in the demo: the sort order of the static scores is always the same as the sort order of the decaying likes.
 
-### Intuitive interpretation of the z score ###
+### Intuitive interpretation of the z score
 
 There is a cute interpretation of these scores. When an item gets a single vote at time `t`, the score is `at`. When it gets a second vote shortly after that, its score will be incremented by a small amount: `at + ɛ`. At some future point in time a single vote would be worth `at + ɛ` on its own. So the z score of an item can be interpreted as the point in time when a single vote would give that much score. Multiple votes are like a single future vote, and the system keeps track of scores by combining votes into a single future vote.
 
-## The code ##
+## The code
 
 Here is the code in Javascript:
 
 {% highlight javascript %}
 function updatedScore(z,t) {
-    var u = Math.max(z,rate*t);
-    var v = Math.min(z,rate*t);
-    return u + Math.log1p(Math.exp(v-u))
+var u = Math.max(z,rate*t);
+var v = Math.min(z,rate*t);
+return u + Math.log1p(Math.exp(v-u))
 }
 {% endhighlight %}
 
@@ -186,7 +186,7 @@ post.score = updatedScore(post.score, new Date().getTime())
 
 The decay rate that you pick depends what your time window for hotness is. Do you want to find the hot items roughly in the last minute, hour, day, or even year? If your timespan is t, then you would pick a decay rate of 1/t. For example, if you wanted the hot items in the last hour, you would pick `rate = 1/3.6e6` since there are 3.6 million milliseconds in an hour. This would decay the values by a factor of 1/e every hour, which is approximately 0.37. If you prefer to work with factors of 1/2, you multiply your rate by log(2). So if you wanted a decay by half every hour, you would pick `rate = log(2) * 1/3.6e6`. If you wanted to be able to both find the hot items of the last hour and the hot items of the last week you would keep 2 separate score columns, each computed with a different decay rate.
 
-## Conclusion ##
+## Conclusion
 
 Although the analysis is a bit involved, the resulting code is very simple. What we have is a way to find hot items that:
 
