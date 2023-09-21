@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PL deadline calendar</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
   <style>
     body {
       font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
@@ -24,7 +24,7 @@
       position: absolute;
       left: 70px;
       width: 6px;
-      background: #AAA;
+      background: #aaa;
       height: 100%;
     }
     .now {
@@ -77,7 +77,7 @@
     .timehover {
       display: none;
       padding: 4px;
-      border: 1px solid rgba(0, 0, 0, 0.0);
+      border: 1px solid rgba(0, 0, 0, 0);
     }
 
     .timehover .calendar-links {
@@ -103,7 +103,8 @@
       background-color: hsl(213, 85%, 90%);
     }
 
-    .conf:hover .timehover, .active .timehover {
+    .conf:hover .timehover,
+    .active .timehover {
       white-space: nowrap;
       display: block;
       position: relative;
@@ -127,161 +128,174 @@
 
 <body>
   <div id="container">
-  <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
-  <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Click on a conference to add it to your calendar.</p>
+    <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
+    <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Click on a conference to add it to your calendar.</p>
 
-  <div id="timeline">
-    <div id="mid"></div>
-  </div>
-  <p></p>
-  <span style="color: #999">Lightly shaded</span> deadlines have passed, but most conference deadlines do not change much year to year.
-  <p></p>
-  Always double check the conference website. Please <a href="mailto:julesjacobs@gmail.com">email me</a> if you have corrections or more up to date information.
+    <div id="timeline">
+      <div id="mid"></div>
+    </div>
+    <p></p>
+    <span style="color: #999">Lightly shaded</span> deadlines have passed, but most conference deadlines do not change much year to year.
+    <p></p>
+    Always double check the conference website. Please <a href="mailto:julesjacobs@gmail.com">email me</a> if you have corrections or more up to date information.
   </div>
 </body>
 
 <script>
-var deadlines = [
-  {conf:"LICS'23",          deadline: new Date("2023-01-18T23:59:59.999-12:00")},
-  {conf:"FSCD'23",          deadline: new Date("2023-01-30T23:59:59.999-12:00")},
-  {conf:"CAV'23",           deadline: new Date("2023-02-03T23:59:59.999-12:00")},
-  {conf:"ITP'23",           deadline: new Date("2023-02-13T23:59:59.999-12:00")},
-  {conf:"ECOOP'23 R2",      deadline: new Date("2023-03-01T23:59:59.999-12:00")},
-  {conf:"ICFP'23",          deadline: new Date("2023-03-01T23:59:59.999-12:00"),        main:1},
-  {conf:"ASPLOS'24 R1",     deadline: new Date("2023-04-13T23:59:59.999-12:00")},
-  {conf:"ASPLOS'24 R2",     deadline: new Date("2023-08-03T23:59:59.999-12:00")},
-  {conf:"ASPLOS'24 R3",     deadline: new Date("2023-11-23T23:59:59.999-12:00")},
-  {conf:"TYPES'23",         deadline: new Date("2023-03-13T23:59:59.999-12:00")},
-  {conf:"OOPSLA'23 R1",     deadline: new Date("2022-10-28T23:59:59.999-12:00"),        main:1},
-  {conf:"OOPSLA'23 R2",     deadline: new Date("2023-04-14T23:59:59.999-12:00"),        main:1},
-  {conf:"CONCUR'23",        deadline: new Date("2023-04-24T23:59:59.999-12:00")},
-  {conf:"SOSP'23",          deadline: new Date("2023-04-10T23:59:59.999-12:00")},
-  {conf:"APLAS'23",         deadline: new Date("2023-06-15T23:59:59.999-12:00")},
-  {conf:"POPL'24",          deadline: new Date("2023-07-11T23:59:59.999-12:00"),        main:1},
-  {conf:"CSL'23",           deadline: new Date("2022-07-09T23:59:59.999-12:00")},
-  {conf:"CGO'24 R1",        deadline: new Date("2023-05-19T23:59:59.999-12:00")},
-  {conf:"CGO'24 R2",        deadline: new Date("2023-09-01T23:59:59.999-12:00")},
-  {conf:"CPP'23",           deadline: new Date("2022-09-14T23:59:59.999-12:00")},
-  {conf:"FoSSaCS'23",       deadline: new Date("2022-10-13T23:59:59.999-12:00")},
-  {conf:"ESOP'23",          deadline: new Date("2022-10-13T23:59:59.999-12:00")},
-  {conf:"OSDI'23",          deadline: new Date("2022-12-07T23:59:59.999-12:00")},
-  {conf:"CC'23",            deadline: new Date("2022-11-11T23:59:59.999-12:00")},
-  {conf:"PLDI'23",          deadline: new Date("2022-11-10T23:59:59.999-12:00"),        main:1},
-  {conf:"CSF'24 R1",        deadline: new Date("2023-03-15T23:59:59.999-12:00")},
-  {conf:"CSF'24 R2",        deadline: new Date("2023-09-30T23:59:59.999-12:00")},
-  {conf:"CSF'24 R3",        deadline: new Date("2024-02-03T23:59:59.999-12:00")},
-];
+  var deadlines = [
+    { deadline: "2024-01-21", conf: "LICS'24" },
+    { deadline: "2024-02-12", conf: "FSCD'24" },
+    { deadline: "2024-01-19", conf: "CAV'24" },
+    { deadline: "2023-02-13", conf: "ITP'23" },
+    { deadline: "2023-03-01", conf: "ECOOP'23 R2" },
+    { deadline: "2024-03-02", conf: "ICFP'24", main: 1 },
+    { deadline: "2023-04-13", conf: "ASPLOS'24 R1" },
+    { deadline: "2023-08-03", conf: "ASPLOS'24 R2" },
+    { deadline: "2023-11-23", conf: "ASPLOS'24 R3" },
+    { deadline: "2023-03-13", conf: "TYPES'23" },
+    { deadline: "2023-10-20", conf: "OOPSLA'24 R1", main: 1 },
+    { deadline: "2024-04-05", conf: "OOPSLA'24 R2", main: 1 },
+    { deadline: "2023-04-24", conf: "CONCUR'23" },
+    { deadline: "2023-04-10", conf: "SOSP'23" },
+    { deadline: "2023-06-15", conf: "APLAS'23" },
+    { deadline: "2023-07-11", conf: "POPL'24", main: 1 },
+    { deadline: "2022-07-09", conf: "CSL'23" },
+    { deadline: "2023-05-19", conf: "CGO'24 R1" },
+    { deadline: "2023-09-01", conf: "CGO'24 R2" },
+    { deadline: "2022-09-14", conf: "CPP'23" },
+    { deadline: "2023-10-12", conf: "FoSSaCS'24" },
+    { deadline: "2023-10-12", conf: "ESOP'24" },
+    { deadline: "2023-11-30", conf: "OSDI'24" },
+    { deadline: "2023-11-10", conf: "CC'24" },
+    { deadline: "2023-11-16", conf: "PLDI'24", main: 1 },
+    { deadline: "2023-03-15", conf: "CSF'24 R1" },
+    { deadline: "2023-09-30", conf: "CSF'24 R2" },
+    { deadline: "2024-02-03", conf: "CSF'24 R3" },
+  ];
 
-function elem(parent, type){
-  var e = document.createElement(type);
-  parent.appendChild(e)
-  return e
-}
+  for (var i = 0; i < deadlines.length; i++) {
+    deadlines[i].deadline = new Date(deadlines[i].deadline + "T23:59:59.999-12:00");
+  }
 
-var x = document.getElementById('timeline');
-function elemPos(d, classname){
-  var e = elem(x, 'div');
-  e.classList.add(classname);
-  e.style.position = "absolute";
-  var d1 = new Date('2022-01-01');
-  var d2 = new Date('2023-01-01');
-  e.style.top = 100*Math.abs(d - d1)/Math.abs(d2 - d1) + "%";
-  return e;
-}
+  function elem(parent, type) {
+    var e = document.createElement(type);
+    parent.appendChild(e);
+    return e;
+  }
 
-function createCalendarLinks(title0, date) {
-  const element = document.createElement('div');
-  element.className = 'calendar-links';
+  var x = document.getElementById("timeline");
+  function elemPos(d, classname) {
+    var e = elem(x, "div");
+    e.classList.add(classname);
+    e.style.position = "absolute";
+    var d1 = new Date("2022-01-01");
+    var d2 = new Date("2023-01-01");
+    e.style.top = (100 * Math.abs(d - d1)) / Math.abs(d2 - d1) + "%";
+    return e;
+  }
 
-  var title = title0 + " deadline";
+  function createCalendarLinks(title0, date) {
+    const element = document.createElement("div");
+    element.className = "calendar-links";
 
-  // replace '23 with 2023
-  var titleG = title0.replace(/'(\d\d)/, " 20$1") + " conference";
+    var title = title0 + " deadline";
 
-  const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}/${(new Date(date.getTime() + 3600000)).toISOString().replace(/-|:|\.\d\d\d/g, '')}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
-  const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}%0ADTEND:${(new Date(date.getTime() + 3600000)).toISOString().replace(/-|:|\.\d\d\d/g, '')}%0ASUMMARY:${encodeURIComponent(title)}%0AEND:VEVENT%0AEND:VCALENDAR`;
-  const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(date.toISOString())}&enddt=${encodeURIComponent((new Date(date.getTime() + 3600000)).toISOString())}`;
-  const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
+    // replace '23 with 2023
+    var titleG = title0.replace(/'(\d\d)/, " 20$1") + " conference";
 
-  const endDate = new Date(date.getTime() + 3600000);
-  const icsFileContent = `BEGIN:VCALENDAR
+    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
+    const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ADTEND:${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ASUMMARY:${encodeURIComponent(title)}%0AEND:VEVENT%0AEND:VCALENDAR`;
+    const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(date.toISOString())}&enddt=${encodeURIComponent(new Date(date.getTime() + 3600000).toISOString())}`;
+    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
+
+    const endDate = new Date(date.getTime() + 3600000);
+    const icsFileContent = `BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
-DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, '')}
-DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, '')}
+DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}
+DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")}
 SUMMARY:${title}
 END:VEVENT
 END:VCALENDAR`;
 
-  const icsFileUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
+    const icsFileUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
 
-  const icons = [
-    { name: 'Google Calendar', url: googleCalendarUrl, icon: 'fab fa-google' },
-    { name: 'Apple Calendar', url: appleCalendarUrl, icon: 'fab fa-apple' },
-    { name: 'Outlook Calendar', url: outlookCalendarUrl, icon: 'fab fa-microsoft' },
-    { name: 'calendar using (.ics)', url: icsFileUrl, icon: 'fas fa-file-download' },
-    { name: 'Google Search', url: googleSearchUrl, icon: 'fas fa-external-link-alt search' }
-  ];
+    const icons = [
+      { name: "Google Calendar", url: googleCalendarUrl, icon: "fab fa-google" },
+      { name: "Apple Calendar", url: appleCalendarUrl, icon: "fab fa-apple" },
+      { name: "Outlook Calendar", url: outlookCalendarUrl, icon: "fab fa-microsoft" },
+      { name: "calendar using (.ics)", url: icsFileUrl, icon: "fas fa-file-download" },
+      { name: "Google Search", url: googleSearchUrl, icon: "fas fa-external-link-alt search" },
+    ];
 
-  icons.forEach(({ name, url, icon }) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.target = '_blank';
-    link.title = name === 'Google Search' ? `Search ${title0} on Google` : `Add to ${name}`;
-    link.innerHTML = `<i class="${icon} icon" aria-hidden="true"></i>`;
-    element.appendChild(link);
+    icons.forEach(({ name, url, icon }) => {
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.title = name === "Google Search" ? `Search ${title0} on Google` : `Add to ${name}`;
+      link.innerHTML = `<i class="${icon} icon" aria-hidden="true"></i>`;
+      element.appendChild(link);
+    });
+
+    return element;
+  }
+
+  deadlines.map((d) => {
+    d.deadlineN = new Date(d.deadline);
+    d.deadlineN.setFullYear(2022);
   });
-
-  return element;
-}
-
-deadlines.map(d => {d.deadlineN = new Date(d.deadline); d.deadlineN.setFullYear(2022)});
-deadlines.sort((d1,d2) => d2.deadlineN < d1.deadlineN ? -1 : 1);
-var move = 0;
-for(var i=0; i<deadlines.length; i++){
-  var d = deadlines[i];
-  var e = elemPos(d.deadlineN, 'conf');
-  e.style.zIndex = deadlines.length - i;
-  var is_past = d.deadline < new Date();
-  if(is_past) e.classList.add('past');
-  move = i>0 && Math.abs(deadlines[i-1].deadlineN - d.deadlineN) < 6e8 ? move+d.conf.length : 0;
-  if(d.main){
-    e.classList.add('main');
-    // move = Math.max(move,1);
+  deadlines.sort((d1, d2) => (d2.deadlineN < d1.deadlineN ? -1 : 1));
+  var move = 0;
+  for (var i = 0; i < deadlines.length; i++) {
+    var d = deadlines[i];
+    var e = elemPos(d.deadlineN, "conf");
+    e.style.zIndex = deadlines.length - i;
+    var is_past = d.deadline < new Date();
+    if (is_past) e.classList.add("past");
+    move = i > 0 && Math.abs(deadlines[i - 1].deadlineN - d.deadlineN) < 6e8 ? move + d.conf.length : 0;
+    if (d.main) {
+      e.classList.add("main");
+      // move = Math.max(move,1);
+    }
+    e.style.width = 110 + 9 * move + "px";
+    var elink = elem(e, "a");
+    elink.innerText = d.conf;
+    var dname = d.conf
+      .replace(/R[0-9]/g, "")
+      .replace(/'/g, "")
+      .replace(/[0-9]/g, "")
+      .replace(/ /g, "");
+    var year = parseInt(d.conf.match(/\d+/)[0]) + 2000;
+    // toggle active css class when clicked
+    elink.onclick = function () {
+      var e = this.parentElement;
+      e.classList.toggle("active");
+      // unfocus the link
+      this.blur();
+      this.parentElement.blur();
+      document.rootElement.focus();
+      return false;
+    };
+    if (d.conf.includes("ICFP")) {
+      elink.href += '+-"family planning"';
+    }
+    var timehover = elem(e, "div");
+    timehover.classList.add("timehover");
+    // calculate how many days from now
+    var days = (d.deadline - new Date()) / 8.64e7;
+    // convert days to string with 1 decimal place
+    var msg = days > 0 ? "in " + days.toFixed(1) + " days" : (-days).toFixed(1) + " days ago";
+    var inner = elem(timehover, "span");
+    inner.innerText = msg;
+    inner.appendChild(createCalendarLinks(d.conf, d.deadline));
   }
-  e.style.width = 110+9*move + 'px'
-  var elink = elem(e, 'a');
-  elink.innerText = d.conf;
-  var dname = d.conf.replace(/R[0-9]/g, '').replace(/'/g, '').replace(/[0-9]/g, '').replace(/ /g, '');
-  var year = parseInt(d.conf.match(/\d+/)[0])+2000
-  // toggle active css class when clicked
-  elink.onclick = function(){
-    var e = this.parentElement;
-    e.classList.toggle('active');
-    // unfocus the link
-    this.blur();
-    this.parentElement.blur();
-    document.rootElement.focus();
-    return false;
+
+  for (var i = 0; i < 12; i++) {
+    var d = new Date(2022, i);
+    elemPos(d, "month").innerText = d.toLocaleString("default", { month: "long" });
   }
-  if(d.conf.includes("ICFP")){ elink.href += '+-"family planning"'; }
-  var timehover = elem(e, 'div');
-  timehover.classList.add('timehover');
-  // calculate how many days from now
-  var days = (d.deadline - new Date())/8.64e7;
-  // convert days to string with 1 decimal place
-  var msg = days > 0 ? "in " + days.toFixed(1) + " days" : (-days).toFixed(1) + " days ago";
-  var inner = elem(timehover, 'span');
-  inner.innerText = msg;
-  inner.appendChild(createCalendarLinks(d.conf, d.deadline));
-}
 
-for(var i=0; i<12; i++){
-  var d = new Date(2022, i);
-  elemPos(d, 'month').innerText = d.toLocaleString('default', { month: 'long' });
-}
-
-var now = new Date(Date.now());
-now.setYear(2022);
-var nowe = elemPos(now, 'now');
+  var now = new Date(Date.now());
+  now.setYear(2022);
+  var nowe = elemPos(now, "now");
 </script>
