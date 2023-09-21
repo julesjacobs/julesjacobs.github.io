@@ -59,19 +59,58 @@
     }
     .main a {
       font-weight: bold;
+      color: #000;
+    }
+
+    /* For formal methods */
+    .formal-methods {
+      border-top: 1px solid #8e44ad; /* Using a purple shade for formal methods */
+    }
+    .formal-methods a {
+      color: #8e44ad;
+    }
+
+    /* For programming languages */
+    .programming-languages {
+      border-top: 1px solid #0074d9; /* Using a blue shade for programming languages */
+    }
+    .programming-languages a {
+      color: #0074d9;
+    }
+
+    /* For systems */
+    .systems {
+      border-top: 1px solid #ff851b; /* Using an orange shade for systems */
+    }
+    .systems a {
+      color: #ff851b;
+    }
+
+    /* For software engineering */
+    .software-engineering {
+      border-top: 1px solid #2ecc40; /* Using a green shade for software engineering */
+    }
+    .software-engineering a {
+      color: #2ecc40;
+    }
+
+    .main {
+      border-width: 2px;
+      font-weight: bold;
     }
 
     .past {
       border-style: dashed;
-      border-color: #999;
+      opacity: 40%;
+      /* border-color: #999; */
       border-left: none;
       border-bottom: none;
       border-right: none;
-      color: #999;
+      /* color: #999; */
     }
 
     .past a {
-      color: #999;
+      /* color: #999; */
     }
 
     .timehover {
@@ -143,34 +182,34 @@
 
 <script>
   var deadlines = [
-    { deadline: "2024-01-21", conf: "LICS'24" },
-    { deadline: "2024-02-12", conf: "FSCD'24" },
-    { deadline: "2024-01-19", conf: "CAV'24" },
-    { deadline: "2023-02-13", conf: "ITP'23" },
-    { deadline: "2023-03-01", conf: "ECOOP'23 R2" },
-    { deadline: "2024-03-02", conf: "ICFP'24", main: 1 },
-    { deadline: "2023-04-13", conf: "ASPLOS'24 R1" },
-    { deadline: "2023-08-03", conf: "ASPLOS'24 R2" },
-    { deadline: "2023-11-23", conf: "ASPLOS'24 R3" },
-    { deadline: "2023-03-13", conf: "TYPES'23" },
-    { deadline: "2023-10-20", conf: "OOPSLA'24 R1", main: 1 },
-    { deadline: "2024-04-05", conf: "OOPSLA'24 R2", main: 1 },
-    { deadline: "2023-04-24", conf: "CONCUR'23" },
-    { deadline: "2023-04-10", conf: "SOSP'23" },
-    { deadline: "2023-06-15", conf: "APLAS'23" },
-    { deadline: "2023-07-11", conf: "POPL'24", main: 1 },
-    { deadline: "2022-07-09", conf: "CSL'23" },
-    { deadline: "2023-05-19", conf: "CGO'24 R1" },
-    { deadline: "2023-09-01", conf: "CGO'24 R2" },
-    { deadline: "2022-09-14", conf: "CPP'23" },
-    { deadline: "2023-10-12", conf: "FoSSaCS'24" },
-    { deadline: "2023-10-12", conf: "ESOP'24" },
-    { deadline: "2023-11-30", conf: "OSDI'24" },
-    { deadline: "2023-11-10", conf: "CC'24" },
-    { deadline: "2023-11-16", conf: "PLDI'24", main: 1 },
-    { deadline: "2023-03-15", conf: "CSF'24 R1" },
-    { deadline: "2023-09-30", conf: "CSF'24 R2" },
-    { deadline: "2024-02-03", conf: "CSF'24 R3" },
+    { deadline: "2024-01-21", conf: "LICS'24", category: "formal-methods" },
+    { deadline: "2024-02-12", conf: "FSCD'24", category: "formal-methods" },
+    { deadline: "2024-01-19", conf: "CAV'24", category: "formal-methods" },
+    { deadline: "2023-02-13", conf: "ITP'23", category: "formal-methods" },
+    { deadline: "2023-03-01", conf: "ECOOP'23 R2", category: "programming-languages" },
+    { deadline: "2024-03-02", conf: "ICFP'24", category: "programming-languages", main: 1 },
+    { deadline: "2023-04-13", conf: "ASPLOS'24 R1", category: "systems" },
+    { deadline: "2023-08-03", conf: "ASPLOS'24 R2", category: "systems" },
+    { deadline: "2023-11-23", conf: "ASPLOS'24 R3", category: "systems" },
+    { deadline: "2023-03-13", conf: "TYPES'23", category: "formal-methods" },
+    { deadline: "2023-10-20", conf: "OOPSLA'24 R1", category: "programming-languages", main: 1 },
+    { deadline: "2024-04-05", conf: "OOPSLA'24 R2", category: "programming-languages", main: 1 },
+    { deadline: "2023-04-24", conf: "CONCUR'23", category: "formal-methods" },
+    { deadline: "2023-04-10", conf: "SOSP'23", category: "systems" },
+    { deadline: "2023-06-15", conf: "APLAS'23", category: "programming-languages" },
+    { deadline: "2023-07-11", conf: "POPL'24", category: "programming-languages", main: 1 },
+    { deadline: "2022-07-09", conf: "CSL'23", category: "formal-methods" },
+    { deadline: "2023-05-19", conf: "CGO'24 R1", category: "systems" },
+    { deadline: "2023-09-01", conf: "CGO'24 R2", category: "systems" },
+    { deadline: "2022-09-14", conf: "CPP'23", category: "formal-methods" },
+    { deadline: "2023-10-12", conf: "FoSSaCS'24", category: "formal-methods" },
+    { deadline: "2023-10-12", conf: "ESOP'24", category: "programming-languages" },
+    { deadline: "2023-11-30", conf: "OSDI'24", category: "systems" },
+    { deadline: "2023-11-10", conf: "CC'24", category: "programming-languages" },
+    { deadline: "2023-11-16", conf: "PLDI'24", category: "programming-languages", main: 1 },
+    { deadline: "2023-03-15", conf: "CSF'24 R1", category: "formal-methods" },
+    { deadline: "2023-09-30", conf: "CSF'24 R2", category: "formal-methods" },
+    { deadline: "2024-02-03", conf: "CSF'24 R3", category: "formal-methods" },
   ];
 
   for (var i = 0; i < deadlines.length; i++) {
@@ -210,13 +249,13 @@
 
     const endDate = new Date(date.getTime() + 3600000);
     const icsFileContent = `BEGIN:VCALENDAR
-VERSION:2.0
-BEGIN:VEVENT
-DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}
-DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")}
-SUMMARY:${title}
-END:VEVENT
-END:VCALENDAR`;
+  VERSION:2.0
+  BEGIN:VEVENT
+  DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}
+  DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")}
+  SUMMARY:${title}
+  END:VEVENT
+  END:VCALENDAR`;
 
     const icsFileUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
 
@@ -249,6 +288,7 @@ END:VCALENDAR`;
   for (var i = 0; i < deadlines.length; i++) {
     var d = deadlines[i];
     var e = elemPos(d.deadlineN, "conf");
+    e.classList.add(d.category);
     e.style.zIndex = deadlines.length - i;
     var is_past = d.deadline < new Date();
     if (is_past) e.classList.add("past");
