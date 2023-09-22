@@ -19,10 +19,10 @@ Think of this function as generating all possible tuples by repeatedly selecting
 
 The itertools functions are then given as:
 
-- `permutations(xs, k)`: `tuples(xs, k, repeats=False, ordered=False)`
-- `product(xs, k)`: `tuples(xs, k, repeats=True, ordered=False)`
-- `combinations(xs, k)`: `tuples(xs, k, repeats=False, ordered=True)`
-- `combinations_with_replacement(xs, k)`: `tuples(xs, k, repeats=True, ordered=True)`
+- `permutations(xs, k) = tuples(xs, k, repeats=False, ordered=False)`
+- `product(xs, k) = tuples(xs, k, repeats=True, ordered=False)`
+- `combinations(xs, k) = tuples(xs, k, repeats=False, ordered=True)`
+- `combinations_with_replacement(xs, k) = tuples(xs, k, repeats=True, ordered=True)`
 
 ## The twelvefold way
 
