@@ -5,17 +5,16 @@ description: > # this means to ignore newlines until "baseurl:"
   Mostly programming related.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://julesjacobs.github.io" # the base hostname & protocol for your site
-github_username:  julesjacobs
+github_username: julesjacobs
 
 # Build settings
 markdown: kramdown
 
-gems:
+plugins:
   - jekyll-redirect-from
 
-defaults: 
-  -
-    scope:
+defaults:
+  - scope:
       path: ""
       type: posts
     values:
