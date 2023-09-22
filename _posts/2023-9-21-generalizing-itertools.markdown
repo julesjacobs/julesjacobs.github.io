@@ -39,7 +39,7 @@ Note that `repeats` and `missing` together control how often each source element
 - `repeats=False, missing=False`: Each element must be selected exactly once
 
 The `skip` parameter controls whether we can skip over elements of the input list while generating the output tuple.
-That is if `skip=False`, then every time we select a new element, we must either select an element we have previously picked, or the first element we have not yet picked.
+If `skip=False`, then every time we select a new element, we must either select the next element we haven't yet picked, or any of the elements we have previously picked.
 
 The `skip` and `inorder` parameters are intimately related: `inorder` determines whether we generate only tuples that are lexicographically minimal with respect to permutations of the output, and `skip` determines whether we generate only tuples that are lexicographically minimal with respect to permutations of the input. For instance, if the input is `xs=[0,1,2]` then the output `(0,2,2)` is not minimal with respect to permutations of the input, because we have skipped over element `1` (i.e, because `(0,1,1)` is lexicographically smaller). On the other hand, `(0,2,0)` is not minimal with respect to permutations of the output, because the tuple is not sorted (i.e., because `(0,0,2)` is lexicographically smaller).
 
