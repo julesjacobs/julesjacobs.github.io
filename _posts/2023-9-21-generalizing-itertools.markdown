@@ -13,7 +13,7 @@ I think it is clearer to combine these into one function: `generate(xs, length, 
 Think of this function as generating all possible tuples by repeatedly selecting elements from `xs`.
 
 - `length`: The length of the tuples to generate
-- `repeats`: Whether to allow selecting the same element of `xs` multiple times
+- `repeats`: Whether to allow selecting the same element of `xs` multiple times for an output tuple
 - `inorder`: Whether to select elements in `xs` from left-to-right or in any order
 
 The itertools functions are then given as:
@@ -27,8 +27,8 @@ The itertools functions are then given as:
 
 We can generalize this further to the [Twelvefold way](https://en.wikipedia.org/wiki/Twelvefold_way) by adding two more parameters:
 
-- `missing`: Whether elements from `xs` are allowed to be missing from the output tuple
-- `skip`: Whether we are allowed to skip over elements of the input list while generating the output tuple
+- `missing`: Whether elements from `xs` are allowed to be missing from an output tuple
+- `skip`: Whether we are allowed to skip over elements of the input list while generating an output tuple
 
 Note that `repeats` and `missing` together control how often each source element will be selected:
 
