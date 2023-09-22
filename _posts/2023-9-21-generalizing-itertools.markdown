@@ -9,7 +9,7 @@ Python's iterools module provides 4 useful combinatoric functions for generating
 - `combinations(xs, k)`: All possible `k`-length sorted sequences from `xs` without repeats
 - `combinations_with_replacement(xs, k)`: All possible `k`-length sorted sequences from `xs`
 
-I think it's also clearer to combine these into one function: `tuples(xs, length, repeats=False, inorder=False)`.
+I think it's also clearer to combine these into one function: `generate(xs, length, repeats=False, inorder=False)`.
 Think of this function as generating all possible tuples by repeatedly selecting elements from `xs`.
 
 - `xs`: Generate a tuple by repeatedly selecting elements from this collection
@@ -19,10 +19,10 @@ Think of this function as generating all possible tuples by repeatedly selecting
 
 The itertools functions are then given as:
 
-- `permutations(xs, k) = tuples(xs, k, repeats=False, ordered=False)`
-- `product(xs, k) = tuples(xs, k, repeats=True, ordered=False)`
-- `combinations(xs, k) = tuples(xs, k, repeats=False, ordered=True)`
-- `combinations_with_replacement(xs, k) = tuples(xs, k, repeats=True, ordered=True)`
+- `permutations(xs, k) = generate(xs, k, repeats=False, ordered=False)`
+- `product(xs, k) = generate(xs, k, repeats=True, ordered=False)`
+- `combinations(xs, k) = generate(xs, k, repeats=False, ordered=True)`
+- `combinations_with_replacement(xs, k) = generate(xs, k, repeats=True, ordered=True)`
 
 ## The twelvefold way
 
