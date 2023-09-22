@@ -49,11 +49,11 @@ Whether these generalizations are practically useful is debatable, but I think i
 
 ## Further generalization
 
-There are many more generalizations we could make. For instance, instead of specifying whether elements can be used at most once or a least once, we could specify a list of sets `counts` such that the set `counts[i]`specifies the allowed number of times that element `xs[i]` may be picked.
+There are many more generalizations we could make. For instance, instead of specifying whether elements can be used at most once or a least once, we could specify a list of sets `counts` such that the set `counts[i]` specifies the allowed number of times that element `xs[i]` may be picked.
 
 Similarly, we could generalize `inorder` and `skip` to other types of constraints on the movement of the pointer into `xs`.
 
-However, at this point it becomes clear that we are just generating all possible tuples that satisfy some arbitrary constraint. This is a very general problem. One way to generalize it is to just generate all tuples and filter out the ones that satisfy some criterion. Unfortunately, this can be extremely slow. For instance, if we generate permutations this way, then we first generate all $n^n$ tuples, and then we filter out the $n!$ permutations. This is a huge waste of time.
+However, at this point it becomes clear that we are just generating all possible tuples that satisfy some arbitrary constraint. This is a very general problem. One way to generalize it is to just generate all tuples and filter out the ones that satisfy some criterion. Unfortunately, this can be extremely slow. For instance, if we generate permutations this way, then we first generate all $$n^n$$ tuples, and then we filter out the $$n!$$ permutations. This is a huge waste of time.
 
 A better way to generalize this problem is to use a higher-order function. One option is the following:
 
