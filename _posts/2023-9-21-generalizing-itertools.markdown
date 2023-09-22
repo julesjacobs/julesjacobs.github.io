@@ -12,9 +12,8 @@ Python's iterools module provides 4 useful combinatoric functions for generating
 I think it is clearer to combine these into one function: `generate(xs, length, repeats=False, inorder=False)`.
 Think of this function as generating all possible tuples by repeatedly selecting elements from `xs`.
 
-- `xs`: Generate a tuple by repeatedly selecting elements from this collection
 - `length`: The length of the tuples to generate
-- `repeats`: Whether to allow selecting the same element multiple times
+- `repeats`: Whether to allow selecting the same element of `xs` multiple times
 - `inorder`: Whether to select elements in `xs` from left-to-right or in any order
 
 The itertools functions are then given as:
