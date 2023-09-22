@@ -64,7 +64,7 @@ This function takes a predicate `f(xs)` that takes a list of elements and return
 
 The generate function starts with the empty list `[]`. It calls `f` on the empty list to determine whether it should be included in the output, and to get a list of all possible extensions of the empty list. It then calls `f` on each of these extensions to determine whether they should be included in the output, and to get a list of all possible extensions of each of these extensions. It continues this process until it has generated all lists that satisfy the constraint.
 
-This is a very general way to generate all lists that satisfy some constraint. For instance, we can generate all `k`-permutations of a list `xs` by using the predicate `f(ys) = (len(xs) == k, [xs + [x] for x in xs if x not in xs])`.
+This is a very general way to generate all lists that satisfy some constraint. For instance, we can generate all `k`-permutations of a list `xs` by using the predicate `f(ys) = (len(ys) == k, set(xs) - set(ys))`.
 
 A way to further generalize is to allow `f` to use its own data type for its internal state, similar to `unfold` in Haskell:
 
