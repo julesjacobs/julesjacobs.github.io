@@ -45,16 +45,17 @@ $$\log(\text{probability of the training set}) = \sum_{i=1}^n \log f_\theta(x_i)
 
 This is totally standard and always done for maximum likelihood estimation.
 
-You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum to normalize it to $$1$$. In other words, if we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
+You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum to normalize it to $$1$$. If we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
 
 $$f_\theta(x)_\ell = \frac{e^{g_\theta(x)_\ell}}{\sum_{\ell'} e^{g_\theta(x)_{\ell'}}}$$
 
-This $$f$$ outputs a valid probability distribution regardless of what the function $$g$$ does.
-If we substitute this into the equation above, we get
+This $$f$$ outputs a valid probability distribution regardless of what the function $$g$$ does. This trick that is at least as old as logistic regression, which is the special case when $$g$$ is a linear function.
+
+If we substitute this $$f_\theta(x)_\ell$$ into the log probability equation above, we get
 
 $$ \log(\text{probability of the training set}) = \sum_{i=1}^n \left[ g_\theta(x_i)_{y_i} - \log \sum_\ell e^{g_\theta(x_i)_\ell} \right] $$
 
-This is, yet again, a standard trick that is at least as old as logistic regression. And of course, if you so desire, you can also put a minus sign in front of the whole thing and call it a _loss function_, and minimize instead of maximize:
+And of course, if you so desire, you can also put a minus sign in front of the whole thing and call it a _loss function_, and minimize instead of maximize:
 
 $$ \text{loss} = -\sum_{i=1}^n \left[ g_\theta(x_i)_{y_i} - \log \sum_\ell e^{g_\theta(x_i)_\ell} \right] $$
 
