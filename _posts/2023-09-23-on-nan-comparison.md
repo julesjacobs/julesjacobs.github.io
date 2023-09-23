@@ -110,6 +110,12 @@ This is that total order:
 
 No! They get a bad rap, but floats are actually very good. Much of the criticism they receive is based on misunderstandings or poor priorities. Many of the attempts to replace them are mostly nonsense (but small floats for ML are good!).
 
-It is important to remember that operations on floats generally return the *best possible result* given the constraints of the floating point format. For example, `1.0 / 3.0` returns the best possible approximation of `1/3` that can be represented as a float. This means that operations on integers represented as floats are exact when the integers are not too large, because floats can represent integers exactly.
+It is important to remember that operations on floats generally return the *best possible result* given the constraints of the floating point format. For example, `1.0 / 3.0` returns the best possible approximation of `1/3` that can be represented as a float.
 
-And sure, `3/10` can't be exactly represented as a float, just like `1/3` can't be exactly represented as a finite length decimal. That's just a conquence of floats being based on binary. If you want to represent fractional decimal numbers exactly, then you should use a decimal type, not a binary type. But in *almost all* cases, that's a bad decision. You should just use floats. We only use decimal because evolution happened to give us 10 fingers. There's nothing special about it.
+This means that operations on integers represented as floats are exact when the integers are not too large, because floats can represent integers exactly.
+
+And sure, `3/10` can't be exactly represented as a float, just like `1/3` can't be exactly represented as a finite length decimal. That's just a conquence of floats being based on binary.
+
+If you do need decimal precision up to 3 fractional digits, you can scale your floats by 1000, so that numbers up to 3 fractional digits become integers (12.345 → 12345). Then you retain the advantages of floats, but also get exact decimal precision up to 3 fractional digits.
+
+If you *really* want to represent many fractional *decimal* numbers exactly, then you should use a decimal type, not a binary type. But in *almost all* cases, that's a bad decision. You should just use floats of a given precision. We only use decimal because evolution happened to give us 10 fingers. There's nothing special about it.
