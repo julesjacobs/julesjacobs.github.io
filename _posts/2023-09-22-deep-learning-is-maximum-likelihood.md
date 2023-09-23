@@ -39,10 +39,13 @@ There are two slight complications here:
 
 There are standard ways to deal with both of these problems that are as old as statistics itself, and they're both very simple.
 
-You can get around the first problem by taking the log of the probabilities and adding them together instead: $$ \log(\text{probability of the training set}) = \sum_{i=1}^n \log f_\theta(x_i)_{y_i} $$
+You can get around the first problem by taking the log of the probabilities and adding them together instead:
+
+$$\log(\text{probability of the training set}) = \sum_{i=1}^n \log f_\theta(x_i)_{y_i} $$
+
 This is totally standard and always done for maximum likelihood estimation.
 
-You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum of the exponentials. In other words, if we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
+You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum to normalize it to $$1$$. In other words, if we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
 
 $$f_\theta(x)_\ell = \frac{e^{g_\theta(x)_\ell}}{\sum_{\ell'} e^{g_\theta(x)_{\ell'}}}$$
 
