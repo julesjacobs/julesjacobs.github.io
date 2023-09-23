@@ -2,7 +2,7 @@
 title: "Deep learning is maximum likelihood"
 ---
 
-The recent talk of deep learning, with complicated sounding terms such as "cross entropy", "Kullback-Leibler divergence", "Kolmogorov complexity" has me a bit puzzled. I think it's important to not get befuddled by fancy sounding terms, and remember that deep learning is just good old maximum likelihood estimation. In this post, I'll try to explain what that means.
+The talk of deep learning, with complicated sounding terms such as "cross entropy", "Kullback-Leibler divergence", "Kolmogorov complexity" has me a bit puzzled. I think it's important to not get befuddled by fancy sounding terms, and remember that deep learning is just good old maximum likelihood estimation. In this post, I'll try to explain what that means.
 
 ## The kind of deep learning I'm talking about
 
