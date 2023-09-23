@@ -108,7 +108,7 @@ This is that total order:
 
 ## Are floats bad?
 
-No! They get a bad rap, but floats are actually very good. Much of the criticism they receive is based on misunderstandings or poor priorities. Many of the attempts to replace them are mostly nonsense.
+No! They get a bad rap, but floats are actually very good. Much of the criticism they receive is based on misunderstandings or poor priorities. Many of the attempts to replace them are mostly nonsense (but small floats for ML are good!).
 
 It is important to remember that operations on floats generally return the *best possible result* given the constraints of the floating point format. For example, `1.0 / 3.0` returns the best possible approximation of `1/3` that can be represented as a float. This means that operations on integers represented as floats are exact when the integers are not too large.
 
