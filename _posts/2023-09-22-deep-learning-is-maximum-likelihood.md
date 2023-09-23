@@ -73,7 +73,7 @@ then the KL divergence is simply
 
 $$ D_{KL}(p||q) = -\log q_{y_i} $$
 
-In other words, **taking such a KL divergence is just a very roundabout way of taking the log probability of the true example**. But I don't see why you would want to do that. It seems like a lot of extra complication for no reason.
+In other words, **taking such a KL divergence with a distribution that puts all probability on the true example is just a very roundabout way of taking the log probability of the true example**. But I don't see why you would want to do that. It seems like a lot of extra complication for no reason.
 
 Similarly, the cross entropy $$H(p, q)$$ is just
 
