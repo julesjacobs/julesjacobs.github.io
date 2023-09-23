@@ -10,7 +10,7 @@ The kind of deep learning I'm talking about is _supervised classification_: Give
 
 ## Predict probabilities, not labels
 
-When we're talking about predicting, we're talking about _probability_. For instance, if we're trying to predict the next word in a sentence "The dog bit the", we don't just want to predict the most likely word, we want to predict the probability of each word. This is because we want to be able to say things like "I'm 90% sure that the next word is 'cat'". In other words, we want to predict a _probability distribution_ over the possible labels $$y$$ given the features $$x$$. We have a finite number of possible labels, so we can represent this probability distribution as a vector $$f(x)$$ of probabilities, where $$f(x)_i$$ is the probability of label $$i$$.
+When we're talking about predicting, we're talking about _probability_. For instance, if we're trying to predict the next word in a sentence "The dog bit the", we don't just want to predict the most likely word, we want to predict the probability of possible next word. This is because we want to be able to say things like "I'm 90% sure that the next word is 'cat'". In other words, we want to predict a _probability distribution_ over the possible labels $$y$$ given the features $$x$$. We have a finite number of possible labels, so we can represent this probability distribution as a vector $$f(x)$$ of probabilities, where $$f(x)_i$$ is the probability of label $$i$$.
 
 ## The setup
 
