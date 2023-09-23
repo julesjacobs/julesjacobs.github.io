@@ -116,6 +116,6 @@ This means that operations on integers represented as floats are exact when the 
 
 And sure, `3/10` can't be exactly represented as a float, just like `1/3` can't be exactly represented as a finite length decimal. That's just a conquence of floats being based on binary.
 
-If you do need decimal precision up to 3 fractional digits, you can scale your floats by 1000, so that numbers up to 3 fractional digits become integers (12.345 → 12345). Then you retain the advantages of floats, but also get exact decimal precision up to 3 fractional digits.
+If you do need decimal precision up to 3 fractional digits, you can scale your floats by 1000, so that numbers up to 3 fractional digits become integers (12.345 → 12345). Then you retain the advantages of floats, but also get exact decimal precision up to 3 fractional decimal digits.
 
 If you *really* want to represent many fractional *decimal* numbers exactly, then you should use a decimal type, not a binary type. But in *almost all* cases, that's a bad decision. You should just use floats of a given precision. We only use decimal because evolution happened to give us 10 fingers. There's nothing special about it.
