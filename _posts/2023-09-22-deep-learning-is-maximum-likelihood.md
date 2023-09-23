@@ -85,7 +85,7 @@ There's one exception to this, and that is if your training data is itself given
 
 ## Log probabilities and entropy
 
-There **is** a **good** reason to talk about entropy and log probabilities, and that is that they are additive rather than multiplicative. That is, if you have two independent probabilities $$p$$ and $$q$$, then the probability of both of them happening is $$p \cdot q$$, but the log probability of both of them happening is $$\log p + \log q$$. In other words, you can combine independent effects with addition.
+There **is** a **good** non-numerical reason to talk about entropy and log probabilities, and that is that they are additive rather than multiplicative. That is, if you have two independent probabilities $$p$$ and $$q$$, then the probability of both of them happening is $$p \cdot q$$, but the log probability of both of them happening is $$\log p + \log q$$. In other words, you can combine independent effects with addition.
 
 Logistic regression exploits this: we combine the effects of different features by taking a linear combination and interpreting that as a log probability.
 This rests on the assumption that the different features are independent signals. Note that we're *not* assuming that the features are statistically independent; only that they are independent *signals* for the output we're trying to predict.
