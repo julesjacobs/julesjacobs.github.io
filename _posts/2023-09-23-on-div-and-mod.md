@@ -28,12 +28,12 @@ The % operator in most programming language computes the remainder after integer
     </thead>
     <tbody>
         <!-- Group 1: Light Blue -->
-        <tr style="background-color: #b3e0ff;"><td>C</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
-        <tr style="background-color: #b3e0ff;"><td>Rust</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
-        <tr style="background-color: #b3e0ff;"><td>OCaml</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
-        <tr style="background-color: #b3e0ff;"><td>Java</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
-        <tr style="background-color: #b3e0ff;"><td>Pascal</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
-        <tr style="background-color: #b3e0ff;"><td>Julia</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>C</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>Rust</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>OCaml</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>Java</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>Pascal</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
+        <tr style="background-color: #ffb3d1;"><td>Julia</td><td>2</td><td>-2</td><td>2</td><td>-2</td></tr>
         <!-- Group 2: Light Green -->
         <tr style="background-color: #b3ffb3;"><td>Python</td><td>2</td><td>1</td><td>-1</td><td>-2</td></tr>
         <tr style="background-color: #b3ffb3;"><td>Ruby</td><td>2</td><td>1</td><td>-1</td><td>-2</td></tr>
@@ -42,7 +42,7 @@ The % operator in most programming language computes the remainder after integer
         <tr style="background-color: #b3ffb3;"><td>R</td><td>2</td><td>1</td><td>-1</td><td>-2</td></tr>
         <tr style="background-color: #b3ffb3;"><td>Haskell</td><td>2</td><td>1</td><td>-1</td><td>-2</td></tr>
         <!-- Group 3: Light Pink -->
-        <tr style="background-color: #ffb3d1;"><td>Koka</td><td>2</td><td>1</td><td>2</td><td>1</td></tr>
+        <tr style="background-color: #b3e0ff;"><td>Koka</td><td>2</td><td>1</td><td>2</td><td>1</td></tr>
     </tbody>
 </table>
 
