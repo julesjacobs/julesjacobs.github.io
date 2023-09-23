@@ -65,7 +65,7 @@ This means that if we define integer division, then we have no choice for the mo
 
 These languages define the div operator as *truncated* division, which means that the result is rounded toward zero:
 
-$$x//n \triangleq{} \mathsf{trunc}\left(\frac{x}{n}\right)$$
+$$x//n = \mathsf{trunc}\left(\frac{x}{n}\right)$$
 
 We then define the mod operator in terms of the div operator:
 
