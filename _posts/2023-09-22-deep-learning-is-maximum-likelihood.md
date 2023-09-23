@@ -102,6 +102,8 @@ It may be *psychologically* useful to think in terms of bits instead of probabil
 
 Similarly, if we're doing simple logistic regression for spam/genuine classification, we can say that the presence of the word "viagra" is worth 5 bits of evidence for spam. Equivalently, we can say that the presence of the word "viagra" multiplies the probability of genuine by $$2^{-5} = 0.03125$$.
 
+Compression and entropy are different ways of talking about probabilities, but may be useful tools of thought.
+
 ## Conclusion
 
-Deep learning is just maximum likelihood estimation. The fancy sounding terms are just that. Compression and entropy are just different ways of talking about probabilities, but may be useful tools of thought.
+Deep learning is just maximum likelihood estimation. This isn't a new insight; obviously the experts are well aware of this. But the fancy sounding terms keep popping up, hence this post.
