@@ -22,7 +22,7 @@ where $$\theta$$ is a vector of parameters that we want to learn. For instance, 
 
 Okay, so how do we learn the parameters $$\theta$$? Well, we have our training examples $$(x_1, y_1), \ldots, (x_n, y_n)$$. Maximum likelihood says:
 
-> Choose the parameters $$\theta$$ that maximize the predicted probability of the training examples.
+> Choose the parameters $$\theta$$ that maximize the predicted probability of the training answers.
 
 We can view $$f_\theta$$ as a generative model: given some features $$x$$, we generate a label $$y$$ according to the probability distribution $$f_\theta(x)$$. Like how ChatGPT generates the next word. Maximum likelihood says that we should choose the parameters $$\theta$$ that make the training examples most likely to be generated. Makes sense, right? Rather than choosing some $$\theta$$ that makes $f_\theta$$ generate some totally random output, we should choose $$\theta$$ that makes $$f_\theta$$ generate the training input-output examples.
 
