@@ -2,7 +2,7 @@
 title: "Deep learning is maximum likelihood"
 ---
 
-The talk of deep learning, with complicated sounding terms such as "cross entropy", "Kullback-Leibler divergence", "Kolmogorov complexity" has me a bit puzzled. I think it's important to not get befuddled by fancy sounding terms, and remember that deep learning is just good old maximum likelihood estimation, as described by Fisher 100 years ago. In this post, I'll try to explain what that means.
+The talk of deep learning, with complicated sounding terms such as "cross-entropy", "Kullback-Leibler divergence", "Kolmogorov complexity" has me a bit puzzled. I think it's important to not get befuddled by fancy sounding terms, and remember that deep learning is just good old maximum likelihood estimation, as described by Fisher 100 years ago. In this post, I'll try to explain what that means.
 
 ## The kind of deep learning I'm talking about
 
@@ -39,18 +39,19 @@ There are two slight complications here:
 
 There are standard ways to deal with both of these problems that are as old as statistics itself, and they're both very simple.
 
-You can get around the first problem by taking the log of the probabilities and adding them together instead:
+**Solution to problem 1.** Take the log of the probabilities and add them together instead:
 
 $$\log(\text{probability of the training set}) = \sum_{i=1}^n \log f_\theta(x_i)_{y_i} $$
 
-This is totally standard and always done for maximum likelihood estimation.
+This is mathematically equivalent but numerically more well-behaved. This is totally standard and always done for maximum likelihood estimation.
 
-You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum to normalize it to $$1$$. If we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
+**Solution to problem 2.** You can get around the second problem by using another standard trick to turn any old vector into a probability distribution: first make all elements non-negative by exponentiating them, and then divide by the sum to normalize it to $$1$$. If we have any old function $$g_\theta(x)$$, we can turn it into a probability distribution by defining
 
 $$f_\theta(x)_\ell = \frac{e^{g_\theta(x)_\ell}}{\sum_{\ell'} e^{g_\theta(x)_{\ell'}}}$$
 
 This $$f$$ outputs a valid probability distribution regardless of what the function $$g$$ does. This trick that is at least as old as logistic regression, which is the special case when $$g$$ is a linear function.
 
+**As a loss function.**
 If we substitute this $$f_\theta(x)_\ell$$ into the log probability equation above, we get
 
 $$ \log(\text{probability of the training set}) = \sum_{i=1}^n \left[ g_\theta(x_i)_{y_i} - \log \sum_\ell e^{g_\theta(x_i)_\ell} \right] $$
@@ -59,7 +60,7 @@ And of course, if you so desire, you can also put a minus sign in front of the w
 
 $$ \text{loss} = -\sum_{i=1}^n \left[ g_\theta(x_i)_{y_i} - \log \sum_\ell e^{g_\theta(x_i)_\ell} \right] $$
 
-If we have only two labels this turns into the more familiar binary cross entropy loss:
+If we have only two labels this turns into the more familiar binary cross-entropy loss:
 
 $$ \text{loss} = -\sum_{i=1}^n \left[ y_i \log f_\theta(x_i) + (1-y_i) \log (1 - f_\theta(x_i)) \right] $$
 
@@ -75,11 +76,11 @@ $$ D_{KL}(p,q) = -\log q_{y_i} $$
 
 In other words, **taking such a KL divergence with a distribution that puts all probability on the true example is just a very roundabout way of taking the log probability of the true example**. But I don't see why you would want to do that. It seems like a lot of extra complication for no reason.
 
-Similarly, the cross entropy $$H(p, q)$$ is just
+Similarly, the cross-entropy $$H(p, q)$$ is just
 
 $$ H(p,q) = H(p) + D_{KL}(p,q)$$
 
-where $$H(p)$$ is the entropy of $$p$$. But if $$p$$ assigns all probability mass to the true example, then the entropy $$H(p)$$ is just zero. So again, taking this cross entropy is just a very roundabout way of the log probability of the true example.
+where $$H(p)$$ is the entropy of $$p$$. But if $$p$$ assigns all probability mass to the true example, then the entropy $$H(p)$$ is just zero. So again, taking this cross-entropy is just a very roundabout way of the log probability of the true example.
 
 There's one exception to this, and that is if your training data is itself given as a probability distribution. That is, you have data set with images _labeled_ with "30% chance this is a cat, 70% chance this is a dog". If you have _that_, then sure, KL divergence is the natural way to go.
 
@@ -98,7 +99,7 @@ There's another good reason to talk about entropy and log probabilities, and tha
 
 It is sometimes said that LLMs are trying to compress the training set. That this is equivalent to maximum likelihood is easily seen from the preceding formula: if we maximize the probability $$p_\ell$$, then clearly we minimize the number of bits $$-\log_2 p_\ell$$ needed to encode $$\ell$$.
 
-I'm not sure how useful this is, though. It seems to me no different from saying that LLMs are trying to maximize the likelihood of the training set. It's just a different way of saying the same thing. In particular, upon reflection, *it has nothing to do with the KL divergence or cross entropy derivations of the loss function*, despite the fact that the KL divergence and cross entropy are also related to compression. You *can* derive the loss function from compression, but that's exactly the derivation I gave above, and it has nothing to do with the KL divergence or cross entropy derivations that you often see.
+I'm not sure how useful this is, though. It seems to me no different from saying that LLMs are trying to maximize the likelihood of the training set. It's just a different way of saying the same thing. In particular, upon reflection, *it has nothing to do with the KL divergence or cross-entropy derivations of the loss function*, despite the fact that the KL divergence and cross-entropy are also related to compression. You *can* derive the loss function from compression, but that's exactly the derivation I gave above, and it has nothing to do with the KL divergence or cross-entropy derivations that you often see.
 
 It may be *psychologically* useful to think in terms of bits instead of probabilities, in some cases. For instance, we can say that a LLM compressed a given test set to an average of 2 bits per word. Equivalently, we can say that on average, the LLM assigned a probability of $$2^{-2} = 0.25$$ to the correct next word.
 
