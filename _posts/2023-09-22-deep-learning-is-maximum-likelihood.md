@@ -24,7 +24,7 @@ Okay, so how do we learn the parameters $$\theta$$? Well, we have our training e
 
 > Choose the parameters $$\theta$$ that maximize the predicted probability of the training answers.
 
-We can view $$f_\theta$$ as a generative model: given some features $$x$$, we generate a label $$y$$ according to the probability distribution $$P(y) = f_\theta(x)_y$$. Like how ChatGPT generates the next word. Maximum likelihood says that we should choose the parameters $$\theta$$ that make the training examples most likely to be generated. Makes sense, right? Rather than choosing some $$\theta$$ that makes $$f_\theta$$ generate some totally random output, we should choose $$\theta$$ that makes $$f_\theta$$ generate the training input-output examples.
+We can view $$f_\theta$$ as a generative model: given some features $$x$$, we generate a label $$y$$ according to the probability distribution $$P(y) = f_\theta(x)_y$$. Like how ChatGPT generates the next word. Maximum likelihood says that we should choose the parameters $$\theta$$ that make the training examples most likely to be generated. Makes sense, right? Rather than choosing some $$\theta$$ that makes $$f_\theta$$ generate some totally random output, we should choose $$\theta$$ that makes $$f_\theta$$ generate the training input-output examples. But note that we're only generating output labels $$y$$, and the features $$x$$ are given to us.
 
 The math here is exceedingly simple. The probability of the training set is just the product of the probabilities of each training example:
 
