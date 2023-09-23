@@ -6,7 +6,7 @@ The talk of deep learning, with complicated sounding terms such as "cross entrop
 
 ## The kind of deep learning I'm talking about
 
-The kind of deep learning I'm talking about is _supervised classification_: Given a set of _training examples_ $$(x_1, y_1), \ldots, (x_n, y_n)$$ where $$x_i$$ is a vector of _features_ and $$y_i$$ is a _label_, we want to learn a _classifier_ $$f$$ that predicts the label $$y$$ for a new example $$x$$. Lots of the exciting kinds of deep learning fit into this framework. For instance, in image classification, the features $$x$$ are the pixels of the image, and the labels $$y$$ are the categories of the image (e.g., "cat", "dog", "car", etc.). In large language models for next-word prediction (such as the model at the base of ChatGPT), the input $$x$$ is a sequence of words, and the prediction $$y$$ is the next word that could follow the sequence.
+The kind of deep learning I'm talking about is _supervised classification_: Given a set of _training examples_ $$(x_1, y_1), \ldots, (x_n, y_n)$$ where $$x_i$$ is a vector of _features_ and $$y_i$$ is a _label_, we want to learn a classifier function $$f$$ that predicts the label $$y$$ for a new example $$x$$. Lots of the exciting kinds of deep learning fit into this framework. For instance, in image classification, the features $$x$$ are the pixels of the image, and the labels $$y$$ are the categories of the image (e.g., "cat", "dog", "car", etc.). In large language models for next-word prediction (such as the model at the base of ChatGPT), the input $$x$$ is a sequence of words, and the prediction $$y$$ is the next word that could follow the sequence.
 
 ## Predict probabilities, not labels
 
