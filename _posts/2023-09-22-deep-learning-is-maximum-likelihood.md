@@ -78,7 +78,7 @@ In other words, **taking such a KL divergence with a distribution that puts all 
 
 Similarly, the cross-entropy $$H(p, q)$$ is just
 
-$$ H(p,q) = H(p) + D_{KL}(p,q)$$
+$$H(p,q) = H(p) + D_{KL}(p,q)$$
 
 where $$H(p)$$ is the entropy of $$p$$. But if $$p$$ assigns all probability mass to the true example, then the entropy $$H(p)$$ is just zero. So again, taking this cross-entropy is just a very roundabout way of the log probability of the true example.
 
