@@ -5,10 +5,10 @@ set -e
 
 # Installation Script for Coq, CoqIDE, Iris (specific branch), and Evaluation of Coq Artifact on Ubuntu
 
-# 1. System Update:
-echo "Updating system..."
-sudo apt update
-sudo apt upgrade -y
+# 1. (Optional) System Update:
+# echo "Updating system..."
+# sudo apt update
+# sudo apt upgrade -y
 
 # 2. Install prerequisites:
 # Installing unzip and git
