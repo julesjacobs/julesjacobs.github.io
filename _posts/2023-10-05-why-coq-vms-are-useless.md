@@ -33,3 +33,7 @@ If you don't trust the authors, then you can't trust the VM. You can however tru
 The authors spend time setting up the VM. The reviewers then spend time installing the VM, and running `make`. What's the scientific value of this process?
 
 There *is* some value in making sure that the code is easy to build and install from scratch, because that's what people who want to build on your artifact would have to do. So let us do that instead.
+
+## Is Coq code actually getting reused?
+
+Yes, code code sometimes gets reused. For instance there is the [Iris project](https://iris-project.org/). However, people aren't downloading the VMs archived on Zenodo in order to use Iris. They just install the latest version with `opam`. In many other cases, the reuse is purely hypothetical, and even when it does happen, you wouldn't want to use the VM with an ancient version Coq and other software, anyway.
