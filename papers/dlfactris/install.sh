@@ -11,9 +11,9 @@ sudo apt update
 sudo apt upgrade -y
 
 # 2. Install prerequisites:
-# Installing unzip, wget, and git
+# Installing unzip and git
 echo "Installing prerequisites..."
-sudo apt install -y unzip wget git
+sudo apt install -y unzip git
 
 # 3. Install OPAM:
 echo "Installing OPAM..."
