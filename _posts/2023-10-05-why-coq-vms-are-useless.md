@@ -26,7 +26,7 @@ This is true, but not useful. If somebody down the line wants to build on your c
 
 Not really. If the authors of the paper are malicious, then they can just put a fake proof in the VM. Realistically, the reviewers aren't even going to read the makefile, so they could just put a fake script in the makefile that does `sleep 5` and prints the output without actually running the proof. However, if the reviewers are willing to spend actual effort to verify that the authors aren't malicious, how are they possibly going to do that from inside the VM? The VM is a black box prepared by the authors, so it could have a modified version of Coq or even the OS, that has a backdoor that allows the authors to prove false theorems.
 
-If you don't trust the authors, then you can't trust the VM. You can however trust your own installation of Coq, so you might as well just download the zip file and build it yourself.
+If you don't trust the authors, then you can't trust the VM. You can however trust your own installation of Coq, so you might as well just download the zip file and build it yourself. If you *do* trust the authors, then *none* of this is necessary, because then you can trust them that they have run `make` and did not lie about the output.
 
 ## What is actually happening in the artifact review process
 
