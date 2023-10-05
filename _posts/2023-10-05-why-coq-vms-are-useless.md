@@ -20,8 +20,7 @@ Having been an artifact reviewer myself, I strongly disagree. It's much easier t
 
 ## The VM is a self-contained artifact
 
-This is true, but not useful. If somebody down the line wants to build on your code, they are not going to do so inside a VM.
-If you want to build on somebody else's code, then you want to be able to build it from scratch. Therefore, effort of the authors and the reviewers is better spent on that. If the reviewers want to use their own VM, they are still free to do so.
+This is true, but not useful. If somebody down the line wants to build on your code, they are not going to do so inside a VM; they will want to build it on their actual computer. Therefore, effort of the authors and the reviewers is better spent on making that easy. If the reviewers want to use their own VM, they are still free to do so.
 
 ## The VM allows the reviewers to verify that the proofs are correct
 
