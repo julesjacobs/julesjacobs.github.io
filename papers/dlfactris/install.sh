@@ -5,9 +5,10 @@ set -e
 
 # Installation Script for Coq, CoqIDE, Iris (specific branch), and Evaluation of Coq Artifact on Ubuntu
 
-# 1. (Optional) System Update:
-# echo "Updating system..."
-# sudo apt update
+# 1. System Update:
+echo "Updating system package list..."
+sudo apt update
+# (Optional) Upgrade packages
 # sudo apt upgrade -y
 
 # 2. Install prerequisites:
@@ -17,8 +18,7 @@ sudo apt install -y unzip git
 
 # 3. Install OPAM:
 echo "Installing OPAM..."
-sudo apt install -y opam
-opam init --auto-setup --yes
+bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
 eval $(opam env)
 
 # To ensure OPAM environment is always set up, append it to the shell startup script.
