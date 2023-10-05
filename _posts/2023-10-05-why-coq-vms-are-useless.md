@@ -2,7 +2,7 @@
 title: "Why Coq VMs are useless"
 ---
 
-When you write an academic paper with associated proofs mechanized in the Coq proof assistant, these conferences often require or strongly encourage you to submit a virtual machine image containing your Coq development. In this post I'm going to explain why this is a bad idea. Take this with a grain of salt, because I've just spent 6 hours trying to get my Coq VM to work, and I'm still not done. Note that everything I say here only applies to **Coq artifacts**, not other types of artifacts.
+When you write an academic paper with associated code, conferences often require or strongly encourage you to submit a virtual machine image containing your development. This is a good idea for code in general, but in this post I'm going to explain why this is a bad idea for Coq proof developments. Take this with a grain of salt, because I've just spent 6 hours trying to get my Coq VM to work, and I'm still not done. Note that everything I say here only applies to **Coq artifacts**, not other types of artifacts.
 
 ## Why do conferences require VMs?
 
