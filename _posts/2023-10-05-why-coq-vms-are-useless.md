@@ -36,6 +36,8 @@ Yes, Coq code sometimes gets reused. For instance there is the [Iris project](ht
 
 The VM does have one advantage, and that is that several years down the line, people will still be able to modify and build the code inside the VM. Is this valuable? It is undeniably *an* advantage of the VM, but is the time invested in making and reviewing the VM really the best use of people's time, compared to other ways of making the code more reusable? I doubt it, for the reasons outlined above.
 
+It would be interesting to have statistics on how often people actually download and use the VMs. I suspect that the answer is "almost never".
+
 ## What is actually happening in the artifact review process
 
 The authors spend time setting up the VM. The reviewers then spend time installing the VM, and running `make`. What's the scientific value of this process?
