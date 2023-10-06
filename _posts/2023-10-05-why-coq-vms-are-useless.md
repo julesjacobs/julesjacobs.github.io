@@ -44,3 +44,4 @@ The authors spend time setting up the VM. The reviewers then spend time installi
 
 There *is* some value in making sure that the code is easy to build and install from scratch, because that's what people who want to build on your artifact would have to do. So let us do that instead.
 
+But there's a much more serious problem. I will not name names, but I have seen several papers where the theorem statements in the paper do not match the theorem statements in the Coq code. Wouldn't the time of the reviewers be better spent reading the theorem statements and checking if they match the theorem statements in the paper, to make sure that the Coq proofs actually prove what they're claimed to prove?
