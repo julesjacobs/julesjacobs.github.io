@@ -28,12 +28,17 @@ Not really. If the authors of the paper are malicious, then they can just put a 
 
 If you don't trust the authors, then you can't trust the VM. You can however trust your own installation of Coq, so you might as well just download the zip file and build it yourself. If you *do* trust the authors, then *none* of this is necessary, because then you can trust they have indeed run `make` and did not lie about the output.
 
+## Is Coq code actually getting reused?
+
+Yes, Coq code sometimes gets reused. For instance there is the [Iris project](https://iris-project.org/). However, people aren't downloading the VMs archived on Zenodo in order to use Iris. They just install the latest version with `opam`. In many other cases, the reuse is purely hypothetical, and even when it does happen, you wouldn't want to use the VM with an ancient version Coq and other software, anyway.
+
+## The advantage of a VM
+
+The VM does have one advantage, and that is that several years down the line, people will still be able to modify and build the code inside the VM. Is this valuable? It is undeniably *an* advantage of the VM, but is the time invested in making and reviewing the VM really the best use of people's time, compared to other ways of making the code more reusable? I doubt it, for the reasons outlined above.
+
 ## What is actually happening in the artifact review process
 
 The authors spend time setting up the VM. The reviewers then spend time installing the VM, and running `make`. What's the scientific value of this process?
 
 There *is* some value in making sure that the code is easy to build and install from scratch, because that's what people who want to build on your artifact would have to do. So let us do that instead.
 
-## Is Coq code actually getting reused?
-
-Yes, Coq code sometimes gets reused. For instance there is the [Iris project](https://iris-project.org/). However, people aren't downloading the VMs archived on Zenodo in order to use Iris. They just install the latest version with `opam`. In many other cases, the reuse is purely hypothetical, and even when it does happen, you wouldn't want to use the VM with an ancient version Coq and other software, anyway.
