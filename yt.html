@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Embedder</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f4;
+        padding: 0px 30px;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+
+      h2 {
+        text-align: center;
+        color: #333;
+      }
+
+      input[type="text"] {
+        display: block;
+        width: 800px;
+        margin: auto;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      #embedContainer {
+        width: 95%;
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+      }
+      iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 90%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <input type="text" id="youtubeURL" placeholder="Paste YouTube link here" oninput="tryEmbedVideo()" />
+
+    <div id="embedContainer">
+      <!-- Embedded video will appear here -->
+    </div>
+
+    <script>
+      function getVideoId(url) {
+        // Extract the video ID from the YouTube URL
+        let videoId = url.split("v=")[1];
+        if (videoId) {
+          const ampersandPosition = videoId.indexOf("&");
+          if (ampersandPosition != -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+          }
+          return videoId;
+        }
+        return null;
+      }
+
+      function tryEmbedVideo() {
+        const url = document.getElementById("youtubeURL").value;
+        const videoId = getVideoId(url);
+        if (videoId) {
+          const iframeMarkup = '<iframe src="https://www.youtube.com/embed/' + videoId + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+          document.getElementById("embedContainer").innerHTML = iframeMarkup;
+        }
+      }
+    </script>
+  </body>
+</html>
