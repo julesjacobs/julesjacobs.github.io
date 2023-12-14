@@ -16,7 +16,7 @@ Let's consider The Netherlands, where I am from. In the winter, the energy produ
 
 ### Calculations
 
-Convert the energy consumption in PJ is to kWh:
+Convert the energy consumption in PJ to kWh:
 
 $$
 \text{Annual Dutch Consumption} = 3500 \, \text{PJ} \times 10^{15} \, \text{J/PJ} \times \frac{1}{3.6 \times 10^6}\, \text{kWh/J} \approx 972 \cdot 10^9 \text{ kWh}
