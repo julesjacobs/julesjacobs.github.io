@@ -94,7 +94,7 @@ Why not?
 Well, their training data does not contain much mathematics, and they are not specifically trained to do mathematics in the same way that AlphaZero is trained to play chess.
 
 In order to do mathematics well, LLMs don't need to be very smart.
-They "just" need to provide an accurate enough heuristic to weigh the brute force search of mathematical proofs such that the effective branching factor is low enough to be tractable.
+They "just" need to provide an accurate enough heuristic to bias the brute force search of mathematical proofs such that the effective branching factor is low enough to be tractable.
 
 That is to say, pure LLMs are impressively good at natural language by "pure intuition", and thus likely in principle able to provide a reasonably good heuristic for the next Coq or Lean proof step by "pure intuition".
 
