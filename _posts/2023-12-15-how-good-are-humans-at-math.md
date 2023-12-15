@@ -59,7 +59,7 @@ That is to say, in terms of what the laws of physics clearly allow, humans are v
 
 ## Mathematics and evolution
 
-Clearly, selection pressure for mathematical ability has been very low in the past.
+Selection pressure for mathematical ability has been very low in the past.
 It is only because abilities that are useful for survival, such as pattern recognition, are also useful for mathematics, that we are able to do mathematics at all.
 
 If, on the other hand, we had evolved in a world where mathematics was useful for survival, we would be much better at it, even if we had the same brains.
