@@ -49,7 +49,7 @@ Well, maybe they are.
 If we artificially created whales with human brains, they clearly would not have developed technology, because humans as-is barely managed.
 Now imagine us without hands.
 
-That said, maybe whales aren't smarter than humans, because they lacked the required selection pressure.
+That said, maybe whales aren't smarter than humans, possibly because they lacked the required selection pressure.
 Nevertheless, it seems fairly reasonable to assume that a hypothetical variant of humans with whale-sized brains that *did* have the required selection pressure, would be smarter than humans.
 
 Furthermore, it seems reasonable to assume that even a whale-sized brain is very much suboptimal in terms of what the laws of physics allow.
