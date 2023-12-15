@@ -15,7 +15,7 @@ Thus, selection pressure for intelligence and cooperation has been high.
 
 Unbeknownst to evolution, this has increased the "civiligenesisability" of the species, i.e., the ability to create a technological civilization:
 
-![Civiligenesis](/images/civiligenesis/civiligenesis.png)
+![Civiligenesis](/images/civiligenesis/civiligenesisability.png)
 
 Clearly, grass is not very civiligenesisable, nor are worms, but ants cooperate in large groups.
 Unfortunately, ants are not very smart, so they are unable to develop technology.
