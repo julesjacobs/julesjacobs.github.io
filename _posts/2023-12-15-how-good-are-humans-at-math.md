@@ -87,6 +87,7 @@ They clearly surpass humans in this regard.
 They also have good intuition for a wide range of topics, and are also able to do domain-specific reasoning to some extent.
 LLMs do all this simply by outputting the next word by "pure intuition" given the previous words, influenced by the training data and fine-tuning.
 
+They are even quite good at computer programming.
 However, they are not able to do mathematics.
 
 Why not?
