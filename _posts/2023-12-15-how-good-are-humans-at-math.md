@@ -27,7 +27,7 @@ However, they probably would not have developed technology if we stopped their e
 Homo Erectus, on the other hand, made stone tools and fire.
 They would probably have developed technological civilization if given, say, ten million years to find just the right random circumstances to launch their development.
 
-Unfortunately, evolution nudged their cousins, Homo Sapiens, just a tad higher on the civiligenesability scale.
+Unfortunately, evolution nudged their cousins, Homo Sapiens, just a tad higher on the civiligenesisability scale.
 Nevertheless, Homo Sapiens did not pull off civilization immediately.
 It took Homo Sapiens hundreds of thousands of years in order to find just the right circumstances that would eventually allow it to take off.
 If we managed to turn mars into a lush biome, and placed a bunch of human 5 year olds there, they might not develop technological civilization for another couple of hundred thousand years.
@@ -37,7 +37,7 @@ Evolution is an incredibly slow process, and on an *evolutionary* timescale, civ
 Therefore, evolution simply doesn't have time to evolve much past the civiligenisability threshold, as once it gets more than a tiny bit past it, civilization indeed develops, and that civilization changes the game.
 Once that game gets going, they fly to the moon in the blink of an eye.
 
-We can conclude from this that humans are *barely* above the civiligenesability threshold.
+We can conclude from this that humans are *barely* above the civiligenesisability threshold.
 If we were way above it, we wouldn't have needed so much time to start it.
 In other words, humans are incredibly stupid, despite our ability to go to the moon.
 
@@ -102,7 +102,7 @@ That is to say, pure LLMs are impressively good at natural language by "pure int
 
 Given that:
 
-* Humans are barely above the civiligenesability threshold
+* Humans are barely above the civiligenesisability threshold
 * Humans are very badly designed in terms of what the laws of physics allow
 * Humans are not at all optimized for mathematics
 * Mathematics is a game that is very well suited for a computer to play
