@@ -53,7 +53,7 @@ That said, maybe whales aren't smarter than humans, possibly because they lacked
 Nevertheless, it seems fairly reasonable to assume that a hypothetical variant of humans with whale-sized brains that *did* have the required selection pressure, would be smarter than humans.
 
 Furthermore, it seems reasonable to assume that even a whale-sized brain is very much suboptimal in terms of what the laws of physics allow.
-It seems reasonable to assume that the laws of physics allow brains with neurons that fire a hundred times faster, given that transistors fire a billion times faster.
+The laws of physics certainly allow brains with neurons that fire a hundred times faster, given that transistors fire a billion times faster.
 
 That is to say, in terms of what the laws of physics clearly allow, humans are very badly designed.
 
