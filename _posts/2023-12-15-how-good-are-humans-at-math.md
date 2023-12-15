@@ -84,8 +84,8 @@ That is to say, mathematics is a game that is very well suited for a computer to
 
 LLM-based AIs such as GPT-4 are very good at natural language.
 They clearly surpass humans in this regard.
-They also have good intuition for a wide range of topics, and they are also able to reason to some extent.
-LLMs do all this simply by outputting the most likely next word by "pure intuition" given the previous words, influenced by the training data and fine-tuning.
+They also have good intuition for a wide range of topics, and are also able to do domain-specific reasoning to some extent.
+LLMs do all this simply by outputting the next word by "pure intuition" given the previous words, influenced by the training data and fine-tuning.
 
 However, they are not able to do mathematics.
 
