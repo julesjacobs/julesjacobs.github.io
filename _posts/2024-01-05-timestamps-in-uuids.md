@@ -11,10 +11,10 @@ Using [timestamps as part of UUIDs](https://www.ietf.org/archive/id/draft-peabod
 
 However, is there a collision cost?
 
-Consider these two UUID formats, where K > k:
+Consider these two UUID formats, where $$K > k$$:
 
-* Option 1: K random bits.
-* Option 2: Timestamp with second precision + k extra random bits
+* Option 1: $$K$$ random bits.
+* Option 2: Timestamp with second precision + $$k$$ extra random bits
 
 Assume that we get N events every second. With option 1, the collision risk increases linearly with time, because each new UUID can collide with any of the previous ones. With option 2, the collision risk is constant, because each new UUID can only collide with other UUIDs from the same second.
 
@@ -22,21 +22,21 @@ It might therefore seem that option 2 is better, but is it? Let's calculate.
 
 ## Option 1
 
-Collision rate after $M$ seconds:
-  - We have $NM$ previous events
-  - Probability that the next event collides with any of the previous ones is $NM/2^K$
-  - Collision rate $\approx N^2M/2^K$
+Collision rate after $$M$$ seconds:
+  - We have $$NM$$ previous events
+  - Probability that the next event collides with any of the previous ones is $$NM/2^K$$
+  - Collision rate $$\approx N^2M/2^K$$
 
 ## Option 2
 
 Collision rate is constant:
-  - Probability that two given events collide is $1/2^k$
-  - Collision rate $\approx N^2/2^{k+1}$
+  - Probability that two given events collide is $$1/2^k$$
+  - Collision rate $$\approx N^2/2^{k+1}$$
 
 ## Conclusion
 
 For which $M$ does Option 2 start to be better than Option 1?
-We solve N^2*M/2^K = N^2/2^(k+1), so
+We solve $$N^2M/2^K = N^2/2^{k+1}$$, so
 
 $$ M = 2^{K-k-1} $$
 
