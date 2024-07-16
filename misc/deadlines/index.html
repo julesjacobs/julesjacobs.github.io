@@ -179,34 +179,21 @@
 <script>
   var deadlines = [
     { deadline: "2024-01-21", conf: "LICS'24", category: "formal-methods" },
-    { deadline: "2024-02-12", conf: "FSCD'24", category: "formal-methods" },
     { deadline: "2024-01-19", conf: "CAV'24", category: "formal-methods" },
-    { deadline: "2023-02-13", conf: "ITP'23", category: "formal-methods" },
-    { deadline: "2024-01-17", conf: "ECOOP'23 R1", category: "programming-languages" },
-    { deadline: "2024-04-17", conf: "ECOOP'23 R2", category: "programming-languages" },
-    { deadline: "2024-02-28", conf: "ICFP'24", category: "programming-languages", main: 1 },
-    { deadline: "2023-04-13", conf: "ASPLOS'24 R1", category: "systems" },
-    { deadline: "2023-08-03", conf: "ASPLOS'24 R2", category: "systems" },
-    { deadline: "2023-11-23", conf: "ASPLOS'24 R3", category: "systems" },
-    { deadline: "2023-03-13", conf: "TYPES'23", category: "programming-languages" },
-    { deadline: "2023-10-20", conf: "OOPSLA'24 R1", category: "programming-languages", main: 1 },
-    { deadline: "2024-04-05", conf: "OOPSLA'24 R2", category: "programming-languages", main: 1 },
-    { deadline: "2023-04-24", conf: "CONCUR'23", category: "formal-methods" },
-    { deadline: "2023-04-10", conf: "SOSP'23", category: "systems" },
-    { deadline: "2023-06-15", conf: "APLAS'23", category: "programming-languages" },
-    { deadline: "2023-07-11", conf: "POPL'24", category: "programming-languages", main: 1 },
-    { deadline: "2022-07-09", conf: "CSL'23", category: "formal-methods" },
-    { deadline: "2023-05-19", conf: "CGO'24 R1", category: "programming-languages" },
-    { deadline: "2023-09-01", conf: "CGO'24 R2", category: "programming-languages" },
-    { deadline: "2022-09-14", conf: "CPP'23", category: "formal-methods" },
-    { deadline: "2023-10-12", conf: "FoSSaCS'24", category: "formal-methods" },
-    { deadline: "2023-10-12", conf: "ESOP'24", category: "programming-languages" },
-    { deadline: "2023-11-30", conf: "OSDI'24", category: "systems" },
-    { deadline: "2023-11-10", conf: "CC'24", category: "programming-languages" },
-    { deadline: "2023-11-16", conf: "PLDI'24", category: "programming-languages", main: 1 },
-    { deadline: "2023-03-15", conf: "CSF'24 R1", category: "formal-methods" },
-    { deadline: "2023-09-30", conf: "CSF'24 R2", category: "formal-methods" },
-    { deadline: "2024-02-03", conf: "CSF'24 R3", category: "formal-methods" },
+    { deadline: "2024-01-17", conf: "ECOOP'24 R1", category: "programming-languages", url: "https://2024.ecoop.org" },
+    { deadline: "2024-03-11", conf: "TYPES'24", category: "programming-languages", url: "https://types2024.itu.dk/Call_for_Contributions.html" },
+    { deadline: "2024-04-17", conf: "ECOOP'24 R2", category: "programming-languages", url: "https://2024.ecoop.org" },
+    { deadline: "2024-02-28", conf: "ICFP'24", category: "programming-languages", url: "https://icfp24.sigplan.org/", main: 1 },
+    { deadline: "2023-10-20", conf: "OOPSLA'24 R1", category: "programming-languages", url: "https://2024.splashcon.org/", main: 1 },
+    { deadline: "2024-04-05", conf: "OOPSLA'24 R2", category: "programming-languages", url: "https://2024.splashcon.org/", main: 1 },
+    { deadline: "2024-04-26", conf: "CONCUR'24", category: "formal-methods", url: "https://confest2024.github.io/CONCUR_call_for_papers.html" },
+    { deadline: "2024-07-11", conf: "POPL'25", category: "programming-languages", url: "https://popl25.sigplan.org/dates", main: 1 },
+    { deadline: "2024-09-10", conf: "CPP'25", category: "programming-languages", url: "https://popl25.sigplan.org/dates" },
+    { deadline: "2024-10-10", conf: "FOSSACS'25", category: "formal-methods", url: "https://www.etaps.org/2025/cfp/" },
+    { deadline: "2024-05-30", conf: "ESOP'25 R1", category: "programming-languages", url: "https://www.etaps.org/2025/cfp/" },
+    { deadline: "2024-10-10", conf: "ESOP'25 R2", category: "programming-languages", url: "https://www.etaps.org/2025/cfp/" },
+    { deadline: "2024-10-10", conf: "TACAS'25", category: "systems", url: "https://www.etaps.org/2025/cfp/" },
+    { deadline: "2023-11-16", conf: "PLDI'24", category: "programming-languages", url: "https://pldi24.sigplan.org/", main: 1 },
   ];
 
   for (var i = 0; i < deadlines.length; i++) {
@@ -230,7 +217,7 @@
     return e;
   }
 
-  function createCalendarLinks(title0, date) {
+  function createCalendarLinks(title0, url0, date) {
     const element = document.createElement("div");
     element.className = "calendar-links";
 
@@ -242,7 +229,7 @@
     const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
     const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ADTEND:${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ASUMMARY:${encodeURIComponent(title)}%0AEND:VEVENT%0AEND:VCALENDAR`;
     const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(date.toISOString())}&enddt=${encodeURIComponent(new Date(date.getTime() + 3600000).toISOString())}`;
-    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
+    const googleSearchUrl = url0 ? url0 : `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
 
     const endDate = new Date(date.getTime() + 3600000);
     const icsFileContent = `BEGIN:VCALENDAR
@@ -268,7 +255,7 @@
       const link = document.createElement("a");
       link.href = url;
       link.target = "_blank";
-      link.title = name === "Google Search" ? `Search ${title0} on Google` : `Add to ${name}`;
+      link.title = name === "Google Search" ? (url0 ? 'Go to website' : `Search ${title0} on Google`) : `Add to ${name}`;
       link.innerHTML = `<i class="${icon} icon" aria-hidden="true"></i>`;
       element.appendChild(link);
     });
@@ -313,9 +300,6 @@
       document.rootElement.focus();
       return false;
     };
-    if (d.conf.includes("ICFP")) {
-      elink.href += '+-"family planning"';
-    }
     var timehover = elem(e, "div");
     timehover.classList.add("timehover");
     // calculate how many days from now
@@ -324,7 +308,7 @@
     var msg = days > 0 ? "in " + days.toFixed(1) + " days" : (-days).toFixed(1) + " days ago";
     var inner = elem(timehover, "span");
     inner.innerText = msg;
-    inner.appendChild(createCalendarLinks(d.conf, d.deadline));
+    inner.appendChild(createCalendarLinks(d.conf, d.url, d.deadline));
   }
 
   for (var i = 0; i < 12; i++) {
