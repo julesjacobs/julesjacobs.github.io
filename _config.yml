@@ -1,8 +1,8 @@
 # Site settings
-title: Mostly Programming by Jules Jacobs
+title: Notes by Jules Jacobs
 email: julesjacobs@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
-  Mostly programming related.
+  Notes.
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://julesjacobs.github.io" # the base hostname & protocol for your site
 github_username: julesjacobs
