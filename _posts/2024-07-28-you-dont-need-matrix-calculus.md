@@ -6,7 +6,7 @@ title: "You Don't Need Matrix Calculus"
 
 **You do not need matrix calculus**. When physists started working with tensors almost a century ago, they figured out the easy way to do this: instead of trying to come up with a system for tensor differentiation $\partial A / \partial B$, just write out the formulas for $A_{ijk}$ and $B_{ijk}$ and use ordinary differentiation.
 
-The advantage is that this strategy always works, and reliably produces the right answer. Matrix calculus only works for formulas in very specific form, and you need to memorize a bunch of new rules to apply it. Even then, it doesn't actually save much time, if any. *Just write out the indices!*
+The advantage is that this strategy always works, you only need to know how to do ordinary differentiation, and it's usually quicker, too. Matrix calculus only works for formulas in very specific form, and you need to memorize a bunch of new rules to apply it. Even then, it doesn't actually save much time, if any. *Just write out the indices!*
 
 Consider the neuron activation function:
 
@@ -73,4 +73,4 @@ $$
   \end{cases}
 $$
 
-We got three for the price of one. Compare with the [matrix calculus derivation](https://explained.ai/matrix-calculus/) of *just* the derivative with respect to $x_i$.
+We got three for the price of one. Compare with the [matrix calculus derivation](https://explained.ai/matrix-calculus/).
