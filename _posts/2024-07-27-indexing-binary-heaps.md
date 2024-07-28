@@ -18,7 +18,7 @@ Our three questions of today are:
 2. How do we compute the index of the left child of node i?
 3. How do we compute the index of the right child of node i?
 
-[Wikipedia](https://en.wikipedia.org/wiki/Binary_heap) gives us the answer, but Wikipedia's derivation of the formulas is fairly complex and requires a bit of mathematical calculation.
+[Wikipedia](https://en.wikipedia.org/wiki/Binary_heap#Derivation_of_index_equations) gives us the answer, but Wikipedia's derivation of the formulas is fairly complex and requires a bit of mathematical calculation.
 
 **We will derive these formulas without any calculation. You will immediately understand why the formulas work:**
 
