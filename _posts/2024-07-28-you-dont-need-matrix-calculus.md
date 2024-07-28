@@ -50,7 +50,7 @@ Note that we haven't said with respect to what we're differentiating, we just us
 To do so, we simply set the corresponding primed variable to $1$ and the other primed variables to $0$. For instance to differentiate with respect to $A_{kl}$ we set $A_{kl}' = 1$ and all the other $A_{ij}' = 0$ and $x_i'= 0$ and $b_i' = 0$:
 
 $$
-  \frac{\partial \mathsf{activation}(x)_i'}{\partial A_{kl}} = \begin{cases}
+  \frac{\partial \mathsf{activation}(x)_i}{\partial A_{kl}} = \begin{cases}
   0 & \text{ if } (Ax)_i + b_i < 0\\
   x_l & \text{ otherwise}
   \end{cases}
@@ -59,14 +59,14 @@ $$
 That's it. For the others:
 
 $$
-  \frac{\partial \mathsf{activation}(x)_i'}{\partial x_{k}} = \begin{cases}
+  \frac{\partial \mathsf{activation}(x)_i}{\partial x_{k}} = \begin{cases}
   0 & \text{ if } (Ax)_i + b_i < 0\\
   A_{ik} & \text{ otherwise}
   \end{cases}
 $$
 
 $$
-  \frac{\partial \mathsf{activation}(x)_i'}{\partial b_{k}} = \begin{cases}
+  \frac{\partial \mathsf{activation}(x)_i}{\partial b_{k}} = \begin{cases}
   0 & \text{ if } (Ax)_i + b_i < 0 \\
   1 & \text{ if } i = k\\
   0 & \text{ otherwise}
