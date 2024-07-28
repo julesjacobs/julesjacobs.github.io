@@ -23,7 +23,7 @@ Our three questions of today are:
 **We will derive these formulas without any calculation. You will immediately understand why the formulas work:**
 
 
-Unusually, 1-based indexing is better in this particular situation. Let's write our heap indices in binary:
+Surprisingly, 1-based indexing is better in this particular situation. Let's write our heap indices in binary:
 
 ```
 heap:   [1,  10,11,   100,101,110,111,   1000,1001,1010,1011,1100,1101,1110,1111,   ...]
