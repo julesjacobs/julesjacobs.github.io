@@ -74,3 +74,5 @@ $$
 $$
 
 We got three for the price of one. Compare with the [matrix calculus derivation](https://explained.ai/matrix-calculus/). Can you decipher their final result for the derivative with respect to $w$? It's trickier than you think.
+
+*Just write out the indices!*
