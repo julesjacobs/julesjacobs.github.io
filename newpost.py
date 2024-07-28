@@ -25,7 +25,7 @@ title: "{title}"
     
     print(f"New post created: {filepath}")
 
-if __name__ == "__main__":
+if __name__ == "__main__":``
     if len(sys.argv) < 2:
         print("Usage: ./newpost.py 'Title of the Post'")
     else:
