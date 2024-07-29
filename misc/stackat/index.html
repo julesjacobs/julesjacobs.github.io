@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StacKAT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+    <script>
+        function replacer(key, value) {
+            if (value instanceof Map) {
+                return {
+                    dataType: 'Map',
+                    value: Array.from(value.entries())
+                };
+            } else {
+                return value;
+            }
+        }
+
+        function hash(obj) {
+            return JSON.stringify(obj, replacer);
+        }
+
+
+        let nodeCache = new Map();
+        function mk(type, ...args) {
+            let node = [type, ...args];
+            let key = hash(node);
+            if (!nodeCache.has(key)) {
+                nodeCache.set(key, node);
+            }
+            return nodeCache.get(key);
+        }
+
+        const zero = mk('zero');
+        const one = mk('one');
+        const push = (n) => mk('push', n);
+        const pop = (n) => mk('pop', n);
+        const test = (id, n) => mk('test', id, n);
+        const mut = (id, n) => mk('mut', id, n);
+        const alt = (a, b) => mk('alt', a, b);
+        const seq = (a, b) => mk('seq', a, b);
+        const star = (a) => mk('star', a);
+
+        const pair = (a, b) => mk('pair', a, b);
+
+
+        class ParseError extends Error {
+            constructor(message, index, input) {
+                super(message);
+                this.index = index;
+                this.input = input;
+            }
+        }
+
+        function parse(input) {
+            let current = 0;
+            function error(message) {
+                throw new ParseError(message, current, input);
+            }
+            function ws() {
+                while (current < input.length && (input[current] == ' ' || input[current] == '\n')) {
+                    current++;
+                }
+            }
+            function tok(str) {
+                let oldCurrent = current;
+                ws();
+                let i = 0;
+                while (true) {
+                    if (i < str.length) {
+                        if (current < input.length && str[i] == input[current]) {
+                            i++; current++;
+                        } else {
+                            current = oldCurrent;
+                            return false;
+                        }
+                    } else {
+                        return str;
+                    }
+                }
+            }
+            function expect(str) {
+                let token = tok(str);
+                if (token) {
+                    return token;
+                } else {
+                    error('Expecting <code>' + str + '</code>');
+                }
+            }
+            function num() {
+                let oldCurrent = current;
+                ws();
+                let str = '';
+                while (current < input.length && /[0-9]/.test(input[current])) {
+                    str += input[current];
+                    current++;
+                }
+                if (str == '') {
+                    current = oldCurrent;
+                    return false;
+                } else {
+                    return parseInt(str);
+                }
+            }
+            function expectNum() {
+                let n = num();
+                if (n !== false) {
+                    return n;
+                } else {
+                    error('Expecting a number')
+                }
+            }
+            function ident() {
+                let oldCurrent = current;
+                ws();
+                if (current < input.length && /[a-zA-Z]/.test(input[current])) {
+                    let str = input[current];
+                    current++;
+                    while (current < input.length && /[0-9a-zA-Z]/.test(input[current])) {
+                        str += input[current];
+                        current++;
+                    }
+                    return str;
+                } else {
+                    current = oldCurrent;
+                    return false;
+                }
+            }
+            function atom() {
+                if (tok('(')) {
+                    let e = expression(0);
+                    if (!e) {
+                        error('Expecting an expression')
+                    }
+                    if (!tok(')')) {
+                        error('Expecting <code>)</code> or another expression')
+                    }
+                    return e;
+                } else if (tok('0')) {
+                    return zero;
+                } else if (tok('1')) {
+                    return one
+                } else if (tok('push')) {
+                    expect('(')
+                    let n = expectNum();
+                    expect(')');
+                    return push(n)
+                } else if (tok('pop')) {
+                    expect('(')
+                    let n = expectNum();
+                    expect(')');
+                    return pop(n)
+                } else {
+                    let oldCurrent = current;
+                    let id = ident();
+                    if (!id) { return false; }
+                    if (tok('==')) {
+                        let n = expectNum();
+                        return test(id, n);
+                    } else if (tok(':=')) {
+                        let n = expectNum();
+                        return mut(id, n);
+                    } else {
+                        current = oldCurrent;
+                        return false;
+                    }
+                }
+            }
+            function expression(bp) {
+                let left = atom();
+                if (!left) { return false; }
+                while (true) {
+                    if (bp <= 0 && tok('+')) {
+                        ws();
+                        let right = expression(0);
+                        if (right) {
+                            left = alt(left, right);
+                        } else {
+                            error('Expecting an expression')
+                        }
+                    } else if (bp <= 20 && tok('*')) {
+                        left = star(left)
+                    } else if (bp <= 10) {
+                        let right = expression(10);
+                        if (right) {
+                            left = seq(left, right);
+                        } else {
+                            return left;
+                        }
+                    } else {
+                        return left;
+                    }
+                }
+            }
+            let e = expression(0);
+            ws();
+            if (current < input.length) {
+                error('Expecting an expression or end of input')
+            }
+            return e;
+        }
+
+        const parens = (bool, str) => bool ? `(${str})` : str;
+        function pretty(expr, bp = 0) {
+            switch (expr[0]) {
+                case 'zero': return '0';
+                case 'one': return '1';
+                case 'push': return `push(${expr[1]})`;
+                case 'pop': return `pop(${expr[1]})`;
+                case 'test': return parens(bp >= 20, `${expr[1]}==${expr[2]}`);
+                case 'mut': return parens(bp >= 20, `${expr[1]}:=${expr[2]}`);
+                case 'alt': return parens(bp > 0, `${pretty(expr[1], 0)} + ${pretty(expr[2], 0)}`);
+                case 'seq': return parens(bp > 10, `${pretty(expr[1], 10)} ${pretty(expr[2], 10)}`);
+                case 'star': return parens(bp > 20, `${pretty(expr[1], 20)}*`);
+                case 'pair':
+                    let left = expr[1] == one ? 'ε' : expr[1][1];
+                    let right = expr[2] == one ? 'ε' : expr[2][1];
+                    return `${left}/${right}`;
+                // if(expr[1] == one) return `□${pretty(expr[2])}`;
+                // if(expr[2] == one) return `${pretty(expr[1])}□`;
+                // return `${pretty(expr[1])}□${pretty(expr[2])}`;
+            }
+        }
+
+        function E(expr, pk) {
+            switch (expr[0]) {
+                case 'zero': return [];
+                case 'one': return [pk];
+                case 'push': return [];
+                case 'pop': return [];
+                case 'test': return pk.get(expr[1]) == expr[2] ? [pk] : [];
+                case 'mut':
+                    let newPk = new Map(pk);
+                    newPk.set(expr[1], expr[2]);
+                    return [newPk];
+                case 'alt': return E(expr[1], pk).concat(E(expr[2], pk));
+                case 'seq':
+                    return E(expr[1], pk).flatMap(pk1 => E(expr[2], pk1));
+                case 'star':
+                    let res = new Map();
+                    res.set(hash(pk), pk);
+                    let todo = [pk];
+                    while (todo.length > 0) {
+                        let pk1 = todo.pop();
+                        for (let pk2 of E(expr[1], pk1)) {
+                            let key = hash(pk2)
+                            if (!res.has(key)) {
+                                res.set(key, pk2);
+                                todo.push(pk2);
+                            }
+                        }
+                    }
+                    return Array.from(res.values());
+            }
+        }
+
+        function D(expr, pk) {
+            switch (expr[0]) {
+                case 'zero': return [];
+                case 'one': return [];
+                case 'push':
+                    return [[expr, [one, pk]]];
+                case 'pop':
+                    return [[expr, [one, pk]]];
+                case 'test': return [];
+                case 'mut': return [];
+                case 'alt': return D(expr[1], pk).concat(D(expr[2], pk));
+                case 'seq':
+                    let d1 = D(expr[1], pk).map(([trans, [expr1, pk1]]) => [trans, [seq(expr1, expr[2]), pk1]]);
+                    let e1 = E(expr[1], pk);
+                    let d2 = e1.flatMap(pk1 => D(expr[2], pk1));
+                    return d1.concat(d2);
+                case 'star':
+                    let e = E(expr, pk);
+                    return e.flatMap(pk1 => D(expr[1], pk1).map(([trans, [expr2, pk2]]) => [trans, [seq(expr2, expr), pk2]]));
+            }
+        }
+
+        function dom(expr) {
+            let res = new Map();
+            function iter(e) {
+                switch (e[0]) {
+                    case 'zero': return;
+                    case 'one': return;
+                    case 'push': return;
+                    case 'pop': return;
+                    case 'test':
+                        if (!res.has(e[1])) res.set(e[1], new Set());
+                        res.get(e[1]).add(e[2]);
+                    case 'mut':
+                        if (!res.has(e[1])) res.set(e[1], new Set());
+                        res.get(e[1]).add(e[2]);
+                    case 'alt': iter(e[1]); iter(e[2]); return;
+                    case 'seq': iter(e[1]); iter(e[2]); return;
+                    case 'star': iter(e[1]); return;
+                }
+            }
+            iter(expr);
+            return res;
+        }
+
+        function automaton(expr, inpk, outpk) {
+            // Computes an automaton from an expression, going from inpk to outpk
+            let aut = new Map();
+            let final = new Set();
+            let todo = [[expr, inpk]];
+            while (todo.length > 0) {
+                let [ee, pk] = todo.pop();
+                let key = hash([ee, pk]);
+                if (aut.has(key)) continue
+                let ds = D(ee, pk);
+                aut.set(key, ds.map(([trans, state]) => [trans, hash(state)]));
+                for (let [trans, state] of ds) {
+                    todo.push(state);
+                }
+                let es = E(ee, pk);
+                for (let pk1 of es) {
+                    // check if outpk is equal to pk2, but compare them as maps
+                    if (hash(pk1) == hash(outpk)) {
+                        final.add(key);
+                    }
+                }
+            }
+            return { start: hash([expr, inpk]), aut, final };
+        }
+
+        function pushpop(automaton) {
+            // computes the push-pop closure of an automaton
+            // first, copy the automaton, adding epsilon transitions
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            let aut = new Map();
+            for (const [key, ds] of aut0.entries()) {
+                aut.set(key, [[one, key], ...ds]);
+            }
+            let changed = true;
+            function addEpsilon(key1, key2) {
+                let ds = aut.get(key1);
+                for (let [trans, key3] of ds) {
+                    if (trans == one && key3 == key2) return;
+                }
+                ds.push([one, key2]);
+                changed = true;
+            }
+            let fuel = 100;
+            while (changed) {
+                fuel -= 1;
+                if (fuel <= 0) {
+                    console.log('Fuel exhausted in pushpop');
+                    break;
+                    // throw new Error('Fuel exhausted in pushpop');
+                }
+                changed = false;
+                for (let [key1, ds1] of aut.entries()) {
+                    // shortcut push-eps-pop
+                    for (let [trans1, key2] of ds1) {
+                        if (trans1[0] == 'push') {
+                            for (let [trans2, key3] of aut.get(key2)) {
+                                if (trans2 == one) {
+                                    for (let [trans3, key4] of aut.get(key3)) {
+                                        if (trans3[0] == 'pop' && trans3[1] == trans1[1]) {
+                                            addEpsilon(key1, key4);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // shortcut eps-eps
+                    for (let [trans1, key2] of ds1) {
+                        if (trans1 == one) {
+                            for (let [trans2, key3] of aut.get(key2)) {
+                                if (trans2 == one) {
+                                    addEpsilon(key1, key3);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return { start: start0, aut: aut, final: final0 };
+        }
+
+        function zip(automaton) {
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            // build reverse transitions into aut0rev
+            let aut0rev = new Map();
+            for (let [key, ds] of aut0.entries()) {
+                if (!aut0rev.has(key)) aut0rev.set(key, []);
+                for (let [trans, key1] of ds) {
+                    if (!aut0rev.has(key1)) aut0rev.set(key1, []);
+                    aut0rev.get(key1).push([trans, key]);
+                }
+            }
+            let aut = new Map();
+            aut.set('start', []);
+            let todo = []
+            function addState([key1, key2]) {
+                let key = hash([key1, key2]);
+                if (aut.has(key)) return;
+                aut.set(key, []);
+                todo.push([key1, key2]);
+            }
+            function addTransition([key1, key2], [key3, key4], trans) {
+                addState([key3, key4]);
+                aut.get(hash([key1, key2])).push([trans, hash([key3, key4])]);
+            }
+            for (let key of aut0.keys()) {
+                addState([key, key])
+                aut.get('start').push([one, hash([key, key])]);
+            }
+            while (todo.length > 0) {
+                let [key1, key2] = todo.pop();
+                // if key1 is the start state, add a transition to ['done', key2]
+                if (key1 == start0) {
+                    addTransition([key1, key2], ['done', key2], one);
+                }
+                // if key2 is a final state, add a transition to [key1, 'done']
+                if (final0.has(key2)) {
+                    addTransition([key1, key2], [key1, 'done'], one);
+                }
+                if (key1 == 'done' && key2 != 'done') {
+                    let ds2 = aut0.get(key2);
+                    for (let [trans2, key3] of ds2) {
+                        if (trans2[0] == 'push') {
+                            addTransition(['done', key2], ['done', key3], pair(one, trans2));
+                        } else if (trans2 == one) {
+                            addTransition(['done', key2], ['done', key3], one);
+                        }
+                    }
+                }
+                if (key1 != 'done' && key2 == 'done') {
+                    let ds1 = aut0rev.get(key1);
+                    for (let [trans1, key3] of ds1) {
+                        if (trans1[0] == 'pop') {
+                            addTransition([key1, 'done'], [key3, 'done'], pair(trans1, one));
+                        } else if (trans1 == one) {
+                            addTransition([key1, 'done'], [key3, 'done'], one);
+                        }
+                    }
+                }
+                if (key1 != 'done' && key2 != 'done') {
+                    let ds1 = aut0rev.get(key1);
+                    for (let [trans1, key3] of ds1) {
+                        if (trans1 == one) {
+                            addTransition([key1, key2], [key3, key2], one);
+                        }
+                    }
+                    let ds2 = aut0.get(key2);
+                    for (let [trans2, key] of ds2) {
+                        if (trans2 == one) {
+                            addTransition([key1, key2], [key1, key], one);
+                        }
+                    }
+                    for (let [trans1, key3] of ds1) {
+                        for (let [trans2, key4] of ds2) {
+                            // if trans1 is pop and trans2 is push, add a transition
+                            if (trans1[0] == 'pop' && trans2[0] == 'push') {
+                                addTransition([key1, key2], [key3, key4], pair(trans1, trans2));
+                            }
+                        }
+                    }
+                }
+            }
+            return { start: 'start', aut, final: new Set([hash(['done', 'done'])]) };
+        }
+
+        function addStartLoopsMut(automaton, values) {
+            let { start, aut, final } = automaton;
+            // add (pop(i), push(i)) transitions for all i in values from start to start
+            for (let i of values) {
+                aut.get(start).push([pair(pop(i), push(i)), start]);
+            }
+        }
+
+        function removeEps(automaton) {
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            let aut = new Map();
+            let final = new Set();
+            let todo = [[start0, start0]]
+            let seen = new Set();
+            while (todo.length > 0) {
+                let [orig, key] = todo.pop();
+                if (!aut.has(orig)) aut.set(orig, []);
+                let hashKey = hash([orig, key]);
+                if (seen.has(hashKey)) continue;
+                seen.add(hashKey);
+                let ds = aut0.get(key);
+                for (let [trans, key1] of ds) {
+                    if (trans == one) {
+                        todo.push([orig, key1]);
+                    } else {
+                        // add transition if not already present
+                        if (aut.get(orig).every(([trans2, key2]) => hash(trans2) != hash(trans) || key2 != key1)) {
+                            aut.get(orig).push([trans, key1]);
+                        }
+                        todo.push([key1, key1]);
+                    }
+                }
+                if (final0.has(key)) {
+                    final.add(orig);
+                }
+            }
+            return { start: start0, aut, final };
+        }
+
+        function removeDead(automaton) {
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            // build reverse transitions into aut0rev
+            let aut0rev = new Map();
+            for (let [key, ds] of aut0.entries()) {
+                if (!aut0rev.has(key)) aut0rev.set(key, []);
+                for (let [trans, key1] of ds) {
+                    if (!aut0rev.has(key1)) aut0rev.set(key1, []);
+                    aut0rev.get(key1).push([trans, key]);
+                }
+            }
+            // flood fill from final states
+            let todo = Array.from(final0);
+            let seen = new Set([]);
+            while (todo.length > 0) {
+                let key = todo.pop();
+                if (seen.has(key)) continue;
+                seen.add(key);
+                for (let [trans, key1] of aut0rev.get(key)) {
+                    todo.push(key1);
+                }
+            }
+            // remove unreachable states
+            let aut = new Map();
+            for (let [key, ds] of aut0.entries()) {
+                if (seen.has(key)) {
+                    aut.set(key, ds.filter(([trans, key1]) => seen.has(key1)));
+                }
+            }
+            if (!seen.has(start0)) {
+                aut.set(start0, []);
+            }
+            return { start: start0, aut, final: final0 };
+        }
+
+        function sortUniq(arr) {
+            return Array.from(new Set(arr)).sort();
+        }
+
+        function determinize(automaton) {
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            let aut = new Map();
+            let final = new Set();
+            let todo = [[start0]];
+            let seen = new Set();
+            while (todo.length > 0) {
+                let keys = todo.pop();
+                // make keys final if any of the keys is final
+                if (keys.some(key => final0.has(key))) {
+                    final.add(keys.join(','));
+                }
+                let key = keys.join(',');
+                if (seen.has(key)) continue;
+                seen.add(key);
+                let ds = new Map();
+                for (let key1 of keys) {
+                    for (let [trans, key2] of aut0.get(key1)) {
+                        // if already present, continue
+                        if (ds.has(hash(trans))) continue;
+                        // add the transition on trans
+                        // we have to do trans on all the states in keys
+                        let newKeys = [];
+                        for (let key3 of keys) {
+                            for (let [trans1, key4] of aut0.get(key3)) {
+                                if (hash(trans1) == hash(trans)) {
+                                    newKeys.push(key4);
+                                }
+                            }
+                        }
+                        newKeys = sortUniq(newKeys);
+                        ds.set(hash(trans), [trans, newKeys.join(",")]);
+                        todo.push(newKeys);
+                    }
+                }
+                aut.set(key, Array.from(ds.values()));
+            }
+            return { start: start0, aut, final };
+        }
+
+        function automatonToCytoscape(aut) {
+            let nodes = [];
+            let edges = [];
+            for (let [key, ds] of aut.aut.entries()) {
+                let classes = [];
+                if (aut.final.has(key)) classes.push('accept');
+                if (key == aut.start) classes.push('start');
+                nodes.push({ data: { id: key, label: '' }, classes: classes.join(' ') });
+            }
+            let i = 0;
+            for (let [key, ds] of aut.aut.entries()) {
+                for (let [trans, state] of ds) {
+                    i += 1;
+                    edges.push({ data: { id: i, source: key, target: state, label: pretty(trans) } });
+                }
+            }
+            return { nodes, edges };
+        }
+
+        function renameStates(aut) {
+            let aut1 = new Map();
+            let key2num = new Map();
+            let num2key = new Map();
+            let i = 0;
+            for (let key of aut.aut.keys()) {
+                key2num.set(key, i);
+                num2key.set(i, key);
+                i += 1;
+            }
+            for (let [key, ds] of aut.aut.entries()) {
+                console.log("ds", ds)
+                let i = key2num.get(key);
+                aut1.set(i, ds.map(([trans, key1]) => [trans, key2num.get(key1)]));
+            }
+            return { start: key2num.get(aut.start), aut: aut1, final: new Set(Array.from(aut.final).map(key => key2num.get(key))) };
+        }
+
+        function toGraphviz(aut0) {
+            let aut = renameStates(aut0);
+            let res = 'digraph {\n';
+            res += '  rankdir=LR;\n';
+            // final states
+            res += '  node [shape=doublecircle];';
+            for (let key of aut.final) {
+                res += ' ' + key
+            }
+            res += ';\n';
+            // add initial state incoming edge
+            res += '  node [shape=point]; start;\n';
+            // other states
+            res += '  node [shape=circle];\n';
+            res += '  start -> ' + aut.start + ';\n';
+            // transitions
+            for (let [key, ds] of aut.aut.entries()) {
+                for (let [trans, key1] of ds) {
+                    res += '  ' + key + ' -> ' + key1 + ' [label="' + pretty(trans) + '"];\n';
+                }
+            }
+            res += '}\n';
+            return res;
+        }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding-left: 100px;
+            /* display: flex; */
+            /* flex-direction: column; */
+            /* align-items: center; */
+        }
+
+        #cy {
+            width: 800px;
+            height: 400px;
+            border: 1px solid #ccc;
+        }
+
+        #editor {
+            position: relative;
+            height: 200px;
+            width: 500px;
+            overflow: visible;
+            margin-bottom: 40px;
+            background: #f8f8f8;
+            border-radius: 10px;
+        }
+
+        #rest {
+            overflow: visible
+        }
+
+        #editor textarea {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: transparent;
+            caret-color: black;
+            z-index: 2;
+            resize: none;
+            font-family: monospace;
+            border: 0;
+            margin: 0;
+            font-size: 14px;
+            /* Match the font size */
+            line-height: 1.5;
+            /* Match the line height */
+            padding: 10px 15px;
+            /* Match the padding */
+            outline: none;
+        }
+
+        #editor #result {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: transparent;
+            white-space: pre-wrap;
+            pointer-events: none;
+            font-family: monospace;
+            z-index: 1;
+            font-size: 14px;
+            /* Match the font size */
+            line-height: 1.5;
+            /* Match the line height */
+            padding: 10px 15px;
+            /* Match the padding */
+            overflow: visible;
+        }
+
+        #correct {
+            color: green
+        }
+
+        #incorrect {
+            color: red
+        }
+
+        #rest {
+            position: relative
+        }
+
+        #message {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 4px;
+            z-index: 100;
+            top: 25px;
+            transform: translateX(-10px);
+            white-space: nowrap;
+        }
+
+        #message::after {
+            content: '';
+            position: absolute;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent;
+            top: -9px;
+            left: 20px;
+            transform: translateX(-100%);
+        }
+
+        #result.correct #message {
+            display: none;
+        }
+
+        #message code {
+            background-color: #f8f8f8;
+            color: green;
+            padding: 2px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>StacKAT</h1>
+
+    <div id="editor">
+        <div id="result"><span id="correct"></span><span id="rest"><span id="message"></span><span
+                    id="incorrect"></span></span>s</div>
+        <!-- <textarea id="expr">(push(1) push(2) + push(3) push(4)* push(5))*</textarea> -->
+        <!-- <textarea id="expr">(push(1) + pop(1)) (push(1) + pop(2))</textarea> -->
+        <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
+        <textarea id="expr">(push(1) + pop(1))*</textarea>
+    </div>
+
+    <div id="viz"></div>
+
+    <script>
+        const expr = document.getElementById('expr');
+        expr.addEventListener('input', () => {
+            let input = expr.value;
+            try {
+                let result = parse(input);
+                // console.log(result);
+                document.getElementById('correct').innerText = input; //pretty(result);
+                document.getElementById('incorrect').innerText = '';
+                document.getElementById('message').innerText = '';
+                // toggle "correct" class on #result
+                document.getElementById('result').classList.toggle('correct', true);
+                // document.getElementById('viz').innerText = JSON.stringify(result);
+                // document.getElementById('viz').innerText += JSON.stringify(E(result, new Map("f", 0)));
+                let aut = automaton(result, new Map(), new Map())
+                // console.log("raw", aut);
+                aut = pushpop(aut);
+                console.log("pushpop", aut);
+                aut = zip(aut);
+                console.log("zip", aut);
+                addStartLoopsMut(aut, [0, 1, 2, 3]);
+                console.log("addStartLoopsMut", aut);
+                aut = removeEps(aut);
+                console.log("removeEps", aut);
+                aut = removeDead(aut);
+                console.log("removeDead", aut);
+                aut = determinize(aut);
+                console.log("determinize", aut);
+                // add graphviz output
+                document.getElementById('gv').innerText = toGraphviz(aut);
+                // add cytoscape output
+                let cyElems = automatonToCytoscape(aut);
+                console.log("cy", cyElems);
+                cy.json({ elements: cyElems });
+                cy.layout({
+                    name: 'cose',
+                    // componentSpacing: 100,
+                    nodeRepulsion: function (node) { return 20480000; },
+                    idealEdgeLength: function (edge) { return 32; },
+                }).run();
+            } catch (e) {
+                if (!(e instanceof ParseError)) throw e;
+                let index = e.index;
+                let correct = e.input.slice(0, index);
+                let incorrect = e.input.slice(index);
+                document.getElementById('correct').innerText = correct;
+                document.getElementById('incorrect').innerText = incorrect;
+                document.getElementById('message').innerHTML = e.message;
+                // toggle "correct" class on #result
+                document.getElementById('result').classList.toggle('correct', false);
+                document.getElementById('viz').innerText = '';
+                // console.error(e);
+            }
+        });
+    </script>
+
+    <div id="cy"></div>
+
+    <pre id="gv"></pre>
+
+    <script>
+        const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: {
+                nodes: [
+                    { data: { id: 'q0', label: 'q0' } },
+                    { data: { id: 'q1', label: 'q1' } },
+                    { data: { id: 'q2', label: 'q2' } }
+                ],
+                edges: [
+                    { data: { source: 'q0', target: 'q0', label: 'push(0)' } },
+                    { data: { source: 'q0', target: 'q1', label: 'push(1)' } },
+                    { data: { source: 'q1', target: 'q0', label: 'push(0)' } },
+                    { data: { source: 'q1', target: 'q1', label: 'push(1)' } },
+                    { data: { source: 'q1', target: 'q2', label: 'push(0)' } },
+                    { data: { source: 'q2', target: 'q0', label: 'push(0)' } },
+                    { data: { source: 'q2', target: 'q1', label: 'push(1)' } }
+                ]
+            },
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        'label': 'data(label)',
+                        'text-valign': 'center',
+                        'text-halign': 'center',
+                        'width': '10px',
+                        'height': '10px',
+                        'font-size': '20px',
+                        'border-width': '2px',
+                        'border-color': '#fff',
+                    },
+                },
+                {
+                    selector: '.accept',
+                    style: {
+                        'background-color': '#fff',
+                        'border-color': '#000'
+                        // 'background-color': '#6c3',
+                        // 'border-width': '3px',
+                        // 'border-color': '#c33'
+                    }
+                },
+                {
+                    selector: '.start',
+                    style: {
+                        'background-color': '#3c6',
+                        // 'border-color': '#3c6'
+                        // 'background-color': '#3c6',
+                        // 'border-width': '3px',
+                        // 'border-color': '#6c3'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'width': 3,
+                        'line-color': '#ccc',
+                        'target-arrow-color': '#ccc',
+                        'target-arrow-shape': 'triangle',
+                        'curve-style': 'bezier',
+                        'control-point-step-size': 40,
+                        'label': 'data(label)',
+                        'text-rotation': 'autorotate',
+                        'font-size': '15px',
+                        // add glow around text
+                        'text-outline-width': 2,
+                        'text-outline-color': '#fff',
+                    }
+                },
+                {
+                    selector: '#q2',
+                    style: {
+                        'background-color': '#6c3',
+                        'border-width': '3px',
+                        'border-color': '#c33'
+                    }
+                }
+            ],
+            layout: {
+                name: 'cose',
+            }
+        });
+        expr.dispatchEvent(new Event('input'));
+    </script>
+</body>
+
+</html>
