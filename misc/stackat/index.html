@@ -301,6 +301,28 @@
             return res;
         }
 
+        function getValues(expr){
+            // returns all the values used in push/pop in expr and v
+            let res = new Set();
+            function iter(e) {
+                switch (e[0]) {
+                    case 'zero': return;
+                    case 'one': return;
+                    case 'push': res.add(e[1]); return;
+                    case 'pop': res.add(e[1]); return;
+                    case 'test': return;
+                    case 'mut': return;
+                    case 'alt': iter(e[1]); iter(e[2]); return;
+                    case 'seq': iter(e[1]); iter(e[2]); return;
+                    case 'star': iter(e[1]); return;
+                }
+            }
+            iter(expr);
+            res.add('v');
+            // convert to array
+            return Array.from(res);
+        }
+
         function automaton(expr, inpk, outpk) {
             // Computes an automaton from an expression, going from inpk to outpk
             let aut = new Map();
@@ -584,6 +606,28 @@
             return { start: start0, aut, final };
         }
 
+        function mergeRedundantEdges(automaton) {
+            // merges edges such as 5,5 into v,v
+            let { start, aut: aut0, final } = automaton;
+            let aut = new Map();
+            for (let [key, ds] of aut0.entries()) {
+                let vvTargets = new Set();
+                for(let [trans, key1] of ds) {
+                    if(trans == pair(pop("v"), push("v"))) {
+                        vvTargets.add(key1);
+                    }
+                }
+                let newDs = [];
+                for(let [trans, key1] of ds){
+                    if(trans[1][1] != trans[2][1] || !vvTargets.has(key1) || trans[1][1] == "v"){
+                        newDs.push([trans, key1]);
+                    }
+                }
+                aut.set(key, newDs);
+            }
+            return { start, aut, final };
+        }
+
         function minimize(automaton) {
             let { start: start0, aut: aut0, final: final0 } = automaton;
             let eclass = new Map();
@@ -848,7 +892,7 @@
                 console.log("pushpop", aut);
                 aut = zip(aut);
                 console.log("zip", aut);
-                addStartLoopsMut(aut, [0, 1, 2, 3]);
+                addStartLoopsMut(aut, getValues(result));
                 console.log("addStartLoopsMut", aut);
                 aut = removeEps(aut);
                 console.log("removeEps", aut);
@@ -856,6 +900,8 @@
                 console.log("removeDead", aut);
                 aut = determinize(aut);
                 console.log("determinize", aut);
+                // aut = mergeRedundantEdges(aut);
+                // console.log("mergeRedundantEdges", aut);
                 aut = minimize(aut);
                 console.log("minimize", aut);
                 // add graphviz output
