@@ -584,6 +584,60 @@
             return { start: start0, aut, final };
         }
 
+        function minimize(automaton) {
+            let { start: start0, aut: aut0, final: final0 } = automaton;
+            let eclass = new Map();
+            for(let key of aut0.keys()) {
+                eclass.set(key, 0);
+            }
+            function sig(key) {
+                let sig = aut0.get(key).map(([trans, key1]) => hash([trans, eclass.get(key1)]));
+                sig.sort();
+                let sigstr = sig.join(',');
+                let finalstr = final0.has(key) ? '|1' : '|0';
+                sigstr += finalstr;
+                return sigstr;
+            }
+            let fuel = 100;
+            while(true) {
+                fuel -= 1;
+                let i = 0;
+                let sigmap = new Map();
+                for(let key of aut0.keys()) {
+                    // build the signature of key
+                    let sigstr = sig(key);
+                    if(!sigmap.has(sigstr)) {
+                        sigmap.set(sigstr, i);
+                        i += 1;
+                    }
+                }
+                let neweclass = new Map();
+                for(let key of aut0.keys()) {
+                    let sigstr = sig(key);
+                    neweclass.set(key, sigmap.get(sigstr));
+                }
+                if(hash(eclass) == hash(neweclass)) {
+                    break;
+                } else {
+                    eclass = neweclass;
+                }
+                if(fuel < 0) {
+                    console.log('Fuel exhausted in minimize');
+                    return;
+                }
+            }
+            function name(key) {
+                return `s${eclass.get(key).toString()}`;
+            }
+            let aut = new Map();
+            for(let [key, ds] of aut0.entries()) {
+                aut.set(name(key), aut0.get(key).map(([trans, key2]) => [trans, name(key2)]))
+            }
+            let final = new Set(Array.from(final0).map(key => name(key)));
+            let start = name(start0);
+            return { start, aut, final };
+        }
+
         function automatonToCytoscape(aut) {
             let nodes = [];
             let edges = [];
@@ -670,50 +724,43 @@
             margin-bottom: 40px;
             background: #f8f8f8;
             border-radius: 10px;
+            border: 1px solid #ccc;
         }
 
         #rest {
             overflow: visible
         }
 
-        #editor textarea {
+        #editor textarea, #editor #result {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            line-height: 1.5;
+            font-family: monospace;
+            font-size: 14px;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            padding: 0;
+            margin: 0;
+            border: 0;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            overflow: visible;
+        }
+
+        #editor textarea {
             background: transparent;
             color: transparent;
             caret-color: black;
             z-index: 2;
             resize: none;
-            font-family: monospace;
-            border: 0;
-            margin: 0;
-            font-size: 14px;
-            /* Match the font size */
-            line-height: 1.5;
-            /* Match the line height */
-            padding: 10px 15px;
-            /* Match the padding */
             outline: none;
         }
 
         #editor #result {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
             color: transparent;
-            white-space: pre-wrap;
             pointer-events: none;
-            font-family: monospace;
             z-index: 1;
-            font-size: 14px;
-            /* Match the font size */
-            line-height: 1.5;
-            /* Match the line height */
-            padding: 10px 15px;
-            /* Match the padding */
             overflow: visible;
         }
 
@@ -770,12 +817,13 @@
     <h1>StacKAT</h1>
 
     <div id="editor">
-        <div id="result"><span id="correct"></span><span id="rest"><span id="message"></span><span
-                    id="incorrect"></span></span>s</div>
+        <pre id="result"><span id="correct"></span><span id="rest"><span id="message"></span><span id="incorrect"></span></span></pre>
         <!-- <textarea id="expr">(push(1) push(2) + push(3) push(4)* push(5))*</textarea> -->
-        <!-- <textarea id="expr">(push(1) + pop(1)) (push(1) + pop(2))</textarea> -->
+        <!-- <textarea id="expr">(push(1) + pop(1) + push(2) + pop(2))*</textarea> -->
         <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
-        <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea>
+        <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+        <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+         <textarea id="expr">pop(1) push(1)</textarea>
     </div>
 
     <div id="viz"></div>
@@ -808,6 +856,8 @@
                 console.log("removeDead", aut);
                 aut = determinize(aut);
                 console.log("determinize", aut);
+                aut = minimize(aut);
+                console.log("minimize", aut);
                 // add graphviz output
                 document.getElementById('gv').innerText = toGraphviz(aut);
                 // add cytoscape output
@@ -896,10 +946,12 @@
                 {
                     selector: 'edge',
                     style: {
-                        'width': 3,
+                        'width': 2,
                         'line-color': '#ccc',
-                        'target-arrow-color': '#ccc',
+                        'target-arrow-color': '#666',
                         'target-arrow-shape': 'triangle',
+                        'arrow-scale': 0.5,
+                        'target-distance-from-node': 1,
                         'curve-style': 'bezier',
                         'control-point-step-size': 40,
                         'label': 'data(label)',
