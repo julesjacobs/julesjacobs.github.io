@@ -301,7 +301,7 @@
             return res;
         }
 
-        function getValues(expr){
+        function getValues(expr) {
             // returns all the values used in push/pop in expr and v
             let res = new Set();
             function iter(e) {
@@ -612,14 +612,14 @@
             let aut = new Map();
             for (let [key, ds] of aut0.entries()) {
                 let vvTargets = new Set();
-                for(let [trans, key1] of ds) {
-                    if(trans == pair(pop("v"), push("v"))) {
+                for (let [trans, key1] of ds) {
+                    if (trans == pair(pop("v"), push("v"))) {
                         vvTargets.add(key1);
                     }
                 }
                 let newDs = [];
-                for(let [trans, key1] of ds){
-                    if(trans[1][1] != trans[2][1] || !vvTargets.has(key1) || trans[1][1] == "v"){
+                for (let [trans, key1] of ds) {
+                    if (trans[1][1] != trans[2][1] || !vvTargets.has(key1) || trans[1][1] == "v") {
                         newDs.push([trans, key1]);
                     }
                 }
@@ -631,7 +631,7 @@
         function minimize(automaton) {
             let { start: start0, aut: aut0, final: final0 } = automaton;
             let eclass = new Map();
-            for(let key of aut0.keys()) {
+            for (let key of aut0.keys()) {
                 eclass.set(key, 0);
             }
             function sig(key) {
@@ -643,29 +643,29 @@
                 return sigstr;
             }
             let fuel = 100;
-            while(true) {
+            while (true) {
                 fuel -= 1;
                 let i = 0;
                 let sigmap = new Map();
-                for(let key of aut0.keys()) {
+                for (let key of aut0.keys()) {
                     // build the signature of key
                     let sigstr = sig(key);
-                    if(!sigmap.has(sigstr)) {
+                    if (!sigmap.has(sigstr)) {
                         sigmap.set(sigstr, i);
                         i += 1;
                     }
                 }
                 let neweclass = new Map();
-                for(let key of aut0.keys()) {
+                for (let key of aut0.keys()) {
                     let sigstr = sig(key);
                     neweclass.set(key, sigmap.get(sigstr));
                 }
-                if(hash(eclass) == hash(neweclass)) {
+                if (hash(eclass) == hash(neweclass)) {
                     break;
                 } else {
                     eclass = neweclass;
                 }
-                if(fuel < 0) {
+                if (fuel < 0) {
                     console.log('Fuel exhausted in minimize');
                     return;
                 }
@@ -674,12 +674,45 @@
                 return `s${eclass.get(key).toString()}`;
             }
             let aut = new Map();
-            for(let [key, ds] of aut0.entries()) {
+            for (let [key, ds] of aut0.entries()) {
                 aut.set(name(key), aut0.get(key).map(([trans, key2]) => [trans, name(key2)]))
             }
             let final = new Set(Array.from(final0).map(key => name(key)));
             let start = name(start0);
             return { start, aut, final };
+        }
+
+        function shortestDifferingPath(automaton1, automaton2) {
+            // returns the shortest string that is accepted by automaton1 but not by automaton2
+            // if no such string exists, returns false
+            // automaton1 and automaton2 must be deterministic automata
+            let { start: start1, aut: aut1, final: final1 } = automaton1;
+            let { start: start2, aut: aut2, final: final2 } = automaton2;
+            let todo = [[start1, start2, []]];
+            let seen = new Set();
+            while (todo.length > 0) {
+                let [key1, key2, path] = todo.pop();
+                // console.log("comparison", key1, key2, path)
+                let key = hash([key1, key2]);
+                if (seen.has(key)) continue;
+                seen.add(key);
+                if (final1.has(key1) && !final2.has(key2)) {
+                    return path;
+                }
+                for (let [trans1, key3] of aut1.get(key1)) {
+                    let found = false;
+                    for (let [trans2, key4] of aut2.get(key2)) {
+                        if (hash(trans1) == hash(trans2)) {
+                            todo.push([key3, key4, path.concat([trans1])]);
+                            found = true;
+                        }
+                    }
+                    if (!found) {
+                        return path.concat([trans1]);
+                    }
+                }
+            }
+            return false;
         }
 
         function automatonToCytoscape(aut) {
@@ -712,7 +745,7 @@
                 i += 1;
             }
             for (let [key, ds] of aut.aut.entries()) {
-                console.log("ds", ds)
+                // console.log("ds", ds)
                 let i = key2num.get(key);
                 aut1.set(i, ds.map(([trans, key1]) => [trans, key2num.get(key1)]));
             }
@@ -760,10 +793,10 @@
             border: 1px solid #ccc;
         }
 
-        #editor {
+        .editor {
             position: relative;
-            height: 200px;
-            width: 500px;
+            height: 100px;
+            width: 400px;
             overflow: visible;
             margin-bottom: 40px;
             background: #f8f8f8;
@@ -771,11 +804,12 @@
             border: 1px solid #ccc;
         }
 
-        #rest {
+        .rest {
             overflow: visible
         }
 
-        #editor textarea, #editor #result {
+        .editor textarea,
+        .editor .result {
             position: absolute;
             line-height: 1.5;
             font-family: monospace;
@@ -792,7 +826,7 @@
             overflow: visible;
         }
 
-        #editor textarea {
+        .editor textarea {
             background: transparent;
             color: transparent;
             caret-color: black;
@@ -801,26 +835,26 @@
             outline: none;
         }
 
-        #editor #result {
+        .editor .result {
             color: transparent;
             pointer-events: none;
             z-index: 1;
             overflow: visible;
         }
 
-        #correct {
+        .correct {
             color: green
         }
 
-        #incorrect {
+        .incorrect {
             color: red
         }
 
-        #rest {
+        .rest {
             position: relative
         }
 
-        #message {
+        .message {
             position: absolute;
             background-color: #333;
             color: #fff;
@@ -833,7 +867,7 @@
             white-space: nowrap;
         }
 
-        #message::after {
+        .message::after {
             content: '';
             position: absolute;
             border-width: 5px;
@@ -844,15 +878,44 @@
             transform: translateX(-100%);
         }
 
-        #result.correct #message {
+        .result.correctstate .message {
             display: none;
         }
 
-        #message code {
+        .message code {
             background-color: #f8f8f8;
             color: green;
             padding: 2px;
             border-radius: 2px;
+        }
+
+        #inputs {
+            display: flex;
+        }
+
+        #comparison {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+            /* font-weight: bold; */
+            font-size: 30px;
+            width: 50px;
+        }
+
+        .counterexample {
+            width: 850px;
+            margin-bottom: 20px;
+            font-size: 20px;
+            /* border: 1px solid red; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+        }
+
+        #cy {
+            display: none;
         }
     </style>
 </head>
@@ -860,76 +923,167 @@
 <body>
     <h1>StacKAT</h1>
 
-    <div id="editor">
-        <pre id="result"><span id="correct"></span><span id="rest"><span id="message"></span><span id="incorrect"></span></span></pre>
-        <!-- <textarea id="expr">(push(1) push(2) + push(3) push(4)* push(5))*</textarea> -->
-        <!-- <textarea id="expr">(push(1) + pop(1) + push(2) + pop(2))*</textarea> -->
-        <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
-        <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
-        <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
-         <textarea id="expr">pop(1) push(1)</textarea>
+    <div id="inputs">
+        <div class="editor" id="editor1">
+            <pre
+                class="result"><span class="correct"></span><span class="rest"><span class="message"></span><span class="incorrect"></span></span></pre>
+            <!-- <textarea id="expr">(push(1) push(2) + push(3) push(4)* push(5))*</textarea> -->
+            <!-- <textarea id="expr">(push(1) + pop(1) + push(2) + pop(2))*</textarea> -->
+            <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
+            <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+            <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+            <textarea class="expr">pop(1) push(1)</textarea>
+        </div>
+
+        <div id="comparison">= ⊂ ⊃ ≠</div>
+
+        <div class="editor" id="editor2">
+            <pre
+                class="result"><span class="correct"></span><span class="rest"><span class="message"></span><span class="incorrect"></span></span></pre>
+            <!-- <textarea id="expr">(push(1) push(2) + push(3) push(4)* push(5))*</textarea> -->
+            <!-- <textarea id="expr">(push(1) + pop(1) + push(2) + pop(2))*</textarea> -->
+            <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
+            <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+            <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
+            <textarea class="expr">pop(1) push(1) push(2)</textarea>
+        </div>
     </div>
 
-    <div id="viz"></div>
+    <div id="counterexampleA" class="counterexample"></div>
+    <div id="counterexampleB" class="counterexample"></div>
 
     <script>
-        const expr = document.getElementById('expr');
-        expr.addEventListener('input', () => {
-            let input = expr.value;
-            try {
-                let result = parse(input);
-                // console.log(result);
-                document.getElementById('correct').innerText = input; //pretty(result);
-                document.getElementById('incorrect').innerText = '';
-                document.getElementById('message').innerText = '';
-                // toggle "correct" class on #result
-                document.getElementById('result').classList.toggle('correct', true);
-                // document.getElementById('viz').innerText = JSON.stringify(result);
-                // document.getElementById('viz').innerText += JSON.stringify(E(result, new Map("f", 0)));
-                let aut = automaton(result, new Map(), new Map())
-                // console.log("raw", aut);
-                aut = pushpop(aut);
-                console.log("pushpop", aut);
-                aut = zip(aut);
-                console.log("zip", aut);
-                addStartLoopsMut(aut, getValues(result));
-                console.log("addStartLoopsMut", aut);
-                aut = removeEps(aut);
-                console.log("removeEps", aut);
-                aut = removeDead(aut);
-                console.log("removeDead", aut);
-                aut = determinize(aut);
-                console.log("determinize", aut);
-                // aut = mergeRedundantEdges(aut);
-                // console.log("mergeRedundantEdges", aut);
-                aut = minimize(aut);
-                console.log("minimize", aut);
-                // add graphviz output
-                document.getElementById('gv').innerText = toGraphviz(aut);
-                // add cytoscape output
-                let cyElems = automatonToCytoscape(aut);
-                console.log("cy", cyElems);
-                cy.json({ elements: cyElems });
-                cy.layout({
-                    name: 'cose',
-                    // componentSpacing: 100,
-                    nodeRepulsion: function (node) { return 20480000; },
-                    idealEdgeLength: function (edge) { return 32; },
-                }).run();
-            } catch (e) {
-                if (!(e instanceof ParseError)) throw e;
-                let index = e.index;
-                let correct = e.input.slice(0, index);
-                let incorrect = e.input.slice(index);
-                document.getElementById('correct').innerText = correct;
-                document.getElementById('incorrect').innerText = incorrect;
-                document.getElementById('message').innerHTML = e.message;
-                // toggle "correct" class on #result
-                document.getElementById('result').classList.toggle('correct', false);
-                document.getElementById('viz').innerText = '';
-                // console.error(e);
+        function mkEditor(selector, callback) {
+            const editor = document.querySelector(selector);
+            const expr = editor.querySelector('.expr');
+            expr.addEventListener('input', () => {
+                let input = expr.value;
+                try {
+                    let result = parse(input);
+                    editor.querySelector('.correct').innerText = input;
+                    editor.querySelector('.incorrect').innerText = '';
+                    editor.querySelector('.message').innerText = '';
+                    editor.querySelector('.result').classList.toggle('correctstate', true);
+                    callback(result);
+                } catch (e) {
+                    if (!(e instanceof ParseError)) throw e;
+                    let index = e.index;
+                    let correct = e.input.slice(0, index);
+                    let incorrect = e.input.slice(index);
+                    editor.querySelector('.correct').innerText = correct;
+                    editor.querySelector('.incorrect').innerText = incorrect;
+                    editor.querySelector('.message').innerHTML = e.message;
+                    editor.querySelector('.result').classList.toggle('correctstate', false);
+                    document.getElementById('viz').innerText = '';
+                }
+            });
+            setTimeout(() => expr.dispatchEvent(new Event('input')), 0);
+        }
+        var result1 = null;
+        var result2 = null;
+        function minaut(result, values) {
+            let aut = automaton(result, new Map(), new Map())
+            aut = pushpop(aut);
+            aut = zip(aut);
+            addStartLoopsMut(aut, values);
+            aut = removeEps(aut);
+            aut = removeDead(aut);
+            aut = determinize(aut);
+            aut = minimize(aut);
+            return aut;
+        }
+        function pathToStackPair(path) {
+            if (path === false) return false;
+            let input = []
+            let output = [];
+            for (let elem of path) {
+                let left = elem[1];
+                let right = elem[2];
+                if (left[0] == 'pop') {
+                    input.push(left[1]);
+                }
+                if (right[0] == 'push') {
+                    output.push(right[1]);
+                }
             }
-        });
+            return [input, output];
+        }
+        function recompute() {
+            if (!result1 || !result2) return;
+            let values = Array.from(new Set(getValues(result1).concat(getValues(result2))));
+            // remove duplicates from values
+            // console.log("values", values);
+            let automaton1 = minaut(result1, values);
+            // console.log("aut1", automaton1);
+            let automaton2 = minaut(result2, values);
+            // console.log("aut2", automaton2);
+            let path1 = shortestDifferingPath(automaton1, automaton2);
+            console.log("path1", pathToStackPair(path1))
+            let path2 = shortestDifferingPath(automaton2, automaton1);
+            console.log("path2", pathToStackPair(path2))
+            if (path1 === false && path2 === false) {
+                document.getElementById('comparison').innerText = '=';
+            } else if (path1 === false) {
+                document.getElementById('comparison').innerText = '⊂';
+            } else if (path2 === false) {
+                document.getElementById('comparison').innerText = '⊃';
+            } else {
+                document.getElementById('comparison').innerText = '≠';
+            }
+            if (path1 === false) {
+                document.getElementById('counterexampleA').innerHTML = '';
+            } else {
+                let [input, output] = pathToStackPair(path1);
+                document.getElementById('counterexampleA').innerHTML =
+                    `Input [${input.join(", ")}] outputs [${output.join(", ")}] on the left but not on the right.`;
+            }
+            if (path2 === false) {
+                document.getElementById('counterexampleB').innerHTML = '';
+            } else {
+                let [input, output] = pathToStackPair(path2);
+                document.getElementById('counterexampleB').innerHTML =
+                    `Input [${input.join(", ")}] outputs [${output.join(", ")}] on the right but not on the left.`;
+            }
+
+            // let aut = automaton(result1, new Map(), new Map())
+            // // console.log("raw", aut);
+            // aut = pushpop(aut);
+            // // console.log("pushpop", aut);
+            // aut = zip(aut);
+            // // console.log("zip", aut);
+            // addStartLoopsMut(aut, getValues(result1));
+            // // console.log("addStartLoopsMut", aut);
+            // aut = removeEps(aut);
+            // // console.log("removeEps", aut);
+            // aut = removeDead(aut);
+            // // console.log("removeDead", aut);
+            // aut = determinize(aut);
+            // // console.log("determinize", aut);
+            // // aut = mergeRedundantEdges(aut);
+            // // console.log("mergeRedundantEdges", aut);
+            // aut = minimize(aut);
+            // // console.log("minimize", aut);
+            // // add graphviz output
+            // document.getElementById('gv').innerText = toGraphviz(aut);
+            // // add cytoscape output
+            // let cyElems = automatonToCytoscape(aut);
+            // // console.log("cy", cyElems);
+            // cy.json({ elements: cyElems });
+            // cy.layout({
+            //     name: 'cose',
+            //     // componentSpacing: 100,
+            //     nodeRepulsion: function (node) { return 20480000; },
+            //     idealEdgeLength: function (edge) { return 32; },
+            // }).run();
+        }
+        mkEditor('#editor1', function (result) {
+            result1 = result;
+            recompute();
+        })
+        mkEditor('#editor2', function (result) {
+            result2 = result;
+            recompute();
+        })
     </script>
 
     <div id="cy"></div>
@@ -937,91 +1091,91 @@
     <pre id="gv"></pre>
 
     <script>
-        const cy = cytoscape({
-            container: document.getElementById('cy'),
-            elements: {
-                nodes: [
-                    { data: { id: 'q0', label: 'q0' } },
-                    { data: { id: 'q1', label: 'q1' } },
-                    { data: { id: 'q2', label: 'q2' } }
-                ],
-                edges: [
-                    { data: { source: 'q0', target: 'q0', label: 'push(0)' } },
-                    { data: { source: 'q0', target: 'q1', label: 'push(1)' } },
-                    { data: { source: 'q1', target: 'q0', label: 'push(0)' } },
-                    { data: { source: 'q1', target: 'q1', label: 'push(1)' } },
-                    { data: { source: 'q1', target: 'q2', label: 'push(0)' } },
-                    { data: { source: 'q2', target: 'q0', label: 'push(0)' } },
-                    { data: { source: 'q2', target: 'q1', label: 'push(1)' } }
-                ]
-            },
-            style: [
-                {
-                    selector: 'node',
-                    style: {
-                        'label': 'data(label)',
-                        'text-valign': 'center',
-                        'text-halign': 'center',
-                        'width': '10px',
-                        'height': '10px',
-                        'font-size': '20px',
-                        'border-width': '2px',
-                        'border-color': '#fff',
-                    },
-                },
-                {
-                    selector: '.accept',
-                    style: {
-                        'background-color': '#fff',
-                        'border-color': '#000'
-                        // 'background-color': '#6c3',
-                        // 'border-width': '3px',
-                        // 'border-color': '#c33'
-                    }
-                },
-                {
-                    selector: '.start',
-                    style: {
-                        'background-color': '#3c6',
-                        // 'border-color': '#3c6'
-                        // 'background-color': '#3c6',
-                        // 'border-width': '3px',
-                        // 'border-color': '#6c3'
-                    }
-                },
-                {
-                    selector: 'edge',
-                    style: {
-                        'width': 2,
-                        'line-color': '#ccc',
-                        'target-arrow-color': '#666',
-                        'target-arrow-shape': 'triangle',
-                        'arrow-scale': 0.5,
-                        'target-distance-from-node': 1,
-                        'curve-style': 'bezier',
-                        'control-point-step-size': 40,
-                        'label': 'data(label)',
-                        'text-rotation': 'autorotate',
-                        'font-size': '15px',
-                        // add glow around text
-                        'text-outline-width': 2,
-                        'text-outline-color': '#fff',
-                    }
-                },
-                {
-                    selector: '#q2',
-                    style: {
-                        'background-color': '#6c3',
-                        'border-width': '3px',
-                        'border-color': '#c33'
-                    }
-                }
-            ],
-            layout: {
-                name: 'cose',
-            }
-        });
-        expr.dispatchEvent(new Event('input'));
+        // const cy = cytoscape({
+        //     container: document.getElementById('cy'),
+        //     elements: {
+        //         nodes: [
+        //             { data: { id: 'q0', label: 'q0' } },
+        //             { data: { id: 'q1', label: 'q1' } },
+        //             { data: { id: 'q2', label: 'q2' } }
+        //         ],
+        //         edges: [
+        //             { data: { source: 'q0', target: 'q0', label: 'push(0)' } },
+        //             { data: { source: 'q0', target: 'q1', label: 'push(1)' } },
+        //             { data: { source: 'q1', target: 'q0', label: 'push(0)' } },
+        //             { data: { source: 'q1', target: 'q1', label: 'push(1)' } },
+        //             { data: { source: 'q1', target: 'q2', label: 'push(0)' } },
+        //             { data: { source: 'q2', target: 'q0', label: 'push(0)' } },
+        //             { data: { source: 'q2', target: 'q1', label: 'push(1)' } }
+        //         ]
+        //     },
+        //     style: [
+        //         {
+        //             selector: 'node',
+        //             style: {
+        //                 'label': 'data(label)',
+        //                 'text-valign': 'center',
+        //                 'text-halign': 'center',
+        //                 'width': '10px',
+        //                 'height': '10px',
+        //                 'font-size': '20px',
+        //                 'border-width': '2px',
+        //                 'border-color': '#fff',
+        //             },
+        //         },
+        //         {
+        //             selector: '.accept',
+        //             style: {
+        //                 'background-color': '#fff',
+        //                 'border-color': '#000'
+        //                 // 'background-color': '#6c3',
+        //                 // 'border-width': '3px',
+        //                 // 'border-color': '#c33'
+        //             }
+        //         },
+        //         {
+        //             selector: '.start',
+        //             style: {
+        //                 'background-color': '#3c6',
+        //                 // 'border-color': '#3c6'
+        //                 // 'background-color': '#3c6',
+        //                 // 'border-width': '3px',
+        //                 // 'border-color': '#6c3'
+        //             }
+        //         },
+        //         {
+        //             selector: 'edge',
+        //             style: {
+        //                 'width': 2,
+        //                 'line-color': '#ccc',
+        //                 'target-arrow-color': '#666',
+        //                 'target-arrow-shape': 'triangle',
+        //                 'arrow-scale': 0.5,
+        //                 'target-distance-from-node': 1,
+        //                 'curve-style': 'bezier',
+        //                 'control-point-step-size': 40,
+        //                 'label': 'data(label)',
+        //                 'text-rotation': 'autorotate',
+        //                 'font-size': '15px',
+        //                 // add glow around text
+        //                 'text-outline-width': 4,
+        //                 'text-outline-color': '#fff',
+        //             }
+        //         },
+        //         {
+        //             selector: '#q2',
+        //             style: {
+        //                 'background-color': '#6c3',
+        //                 'border-width': '3px',
+        //                 'border-color': '#c33'
+        //             }
+        //         }
+        //     ],
+        //     layout: {
+        //         name: 'cose',
+        //     }
+        // });
+        expr1.dispatchEvent(new Event('input'));
     </script>
 </body>
 
