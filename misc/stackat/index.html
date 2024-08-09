@@ -691,8 +691,8 @@
             let todo = [[start1, start2, []]];
             let seen = new Set();
             while (todo.length > 0) {
-                let [key1, key2, path] = todo.pop();
-                // console.log("comparison", key1, key2, path)
+                let [key1, key2, path] = todo.shift();
+                console.log("comparison", key1, key2, path)
                 let key = hash([key1, key2]);
                 if (seen.has(key)) continue;
                 seen.add(key);
@@ -700,6 +700,10 @@
                     return path;
                 }
                 for (let [trans1, key3] of aut1.get(key1)) {
+                    if (!aut2.has(key2)) {
+                        todo.push([key3, "dead", path.concat([trans1])]);
+                        continue;
+                    }
                     let found = false;
                     for (let [trans2, key4] of aut2.get(key2)) {
                         if (hash(trans1) == hash(trans2)) {
@@ -708,7 +712,7 @@
                         }
                     }
                     if (!found) {
-                        return path.concat([trans1]);
+                        todo.push([key3, "dead", path.concat([trans1])]);
                     }
                 }
             }
@@ -787,8 +791,13 @@
             /* align-items: center; */
         }
 
-        #cy {
-            width: 800px;
+        #cys {
+            display: flex;
+        }
+
+        #cy1,
+        #cy2 {
+            width: 400px;
             height: 400px;
             border: 1px solid #ccc;
         }
@@ -914,8 +923,8 @@
             font-family: monospace;
         }
 
-        #cy {
-            display: none;
+        .mid {
+            width: 50px;
         }
     </style>
 </head>
@@ -932,7 +941,7 @@
             <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
             <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
             <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
-            <textarea class="expr">pop(1) push(1)</textarea>
+            <textarea class="expr">pop(1)* push(1)</textarea>
         </div>
 
         <div id="comparison">= ⊂ ⊃ ≠</div>
@@ -945,7 +954,8 @@
             <!-- <textarea id="expr">push(1) pop(1)</textarea> -->
             <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
             <!-- <textarea id="expr">pop(1) (push(1)* + pop(1)*) push(1)</textarea> -->
-            <textarea class="expr">pop(1) push(1) push(2)</textarea>
+            <!-- <textarea class="expr">pop(1) push(1) push(2)</textarea> -->
+            <textarea class="expr">push(1)* pop(1)</textarea>
         </div>
     </div>
 
@@ -974,7 +984,6 @@
                     editor.querySelector('.incorrect').innerText = incorrect;
                     editor.querySelector('.message').innerHTML = e.message;
                     editor.querySelector('.result').classList.toggle('correctstate', false);
-                    document.getElementById('viz').innerText = '';
                 }
             });
             setTimeout(() => expr.dispatchEvent(new Event('input')), 0);
@@ -1006,7 +1015,20 @@
                     output.push(right[1]);
                 }
             }
+            // reverse them both
+            input = input.reverse();
+            output = output.reverse();
             return [input, output];
+        }
+        function displayCy(cy, aut) {
+            let cyElems = automatonToCytoscape(aut);
+            cy.json({ elements: cyElems });
+            cy.layout({
+                name: 'cose',
+                // componentSpacing: 100,
+                nodeRepulsion: function (node) { return 20480000; },
+                idealEdgeLength: function (edge) { return 32; },
+            }).run();
         }
         function recompute() {
             if (!result1 || !result2) return;
@@ -1018,9 +1040,9 @@
             let automaton2 = minaut(result2, values);
             // console.log("aut2", automaton2);
             let path1 = shortestDifferingPath(automaton1, automaton2);
-            console.log("path1", pathToStackPair(path1))
+            console.log("path1", path1)
             let path2 = shortestDifferingPath(automaton2, automaton1);
-            console.log("path2", pathToStackPair(path2))
+            console.log("path2", path2)
             if (path1 === false && path2 === false) {
                 document.getElementById('comparison').innerText = '=';
             } else if (path1 === false) {
@@ -1066,15 +1088,8 @@
             // // add graphviz output
             // document.getElementById('gv').innerText = toGraphviz(aut);
             // // add cytoscape output
-            // let cyElems = automatonToCytoscape(aut);
-            // // console.log("cy", cyElems);
-            // cy.json({ elements: cyElems });
-            // cy.layout({
-            //     name: 'cose',
-            //     // componentSpacing: 100,
-            //     nodeRepulsion: function (node) { return 20480000; },
-            //     idealEdgeLength: function (edge) { return 32; },
-            // }).run();
+            displayCy(cy1, automaton1)
+            displayCy(cy2, automaton2)
         }
         mkEditor('#editor1', function (result) {
             result1 = result;
@@ -1086,96 +1101,108 @@
         })
     </script>
 
-    <div id="cy"></div>
+    <div id="cys">
+        <div id="cy1"></div>
+        <div class="mid"></div>
+        <div id="cy2"></div>
+    </div>
 
-    <pre id="gv"></pre>
+    <div id="gvs">
+        <pre id="gv1"></pre>
+        <pre id="gv2"></pre>
+    </div>
 
     <script>
-        // const cy = cytoscape({
-        //     container: document.getElementById('cy'),
-        //     elements: {
-        //         nodes: [
-        //             { data: { id: 'q0', label: 'q0' } },
-        //             { data: { id: 'q1', label: 'q1' } },
-        //             { data: { id: 'q2', label: 'q2' } }
-        //         ],
-        //         edges: [
-        //             { data: { source: 'q0', target: 'q0', label: 'push(0)' } },
-        //             { data: { source: 'q0', target: 'q1', label: 'push(1)' } },
-        //             { data: { source: 'q1', target: 'q0', label: 'push(0)' } },
-        //             { data: { source: 'q1', target: 'q1', label: 'push(1)' } },
-        //             { data: { source: 'q1', target: 'q2', label: 'push(0)' } },
-        //             { data: { source: 'q2', target: 'q0', label: 'push(0)' } },
-        //             { data: { source: 'q2', target: 'q1', label: 'push(1)' } }
-        //         ]
-        //     },
-        //     style: [
-        //         {
-        //             selector: 'node',
-        //             style: {
-        //                 'label': 'data(label)',
-        //                 'text-valign': 'center',
-        //                 'text-halign': 'center',
-        //                 'width': '10px',
-        //                 'height': '10px',
-        //                 'font-size': '20px',
-        //                 'border-width': '2px',
-        //                 'border-color': '#fff',
-        //             },
-        //         },
-        //         {
-        //             selector: '.accept',
-        //             style: {
-        //                 'background-color': '#fff',
-        //                 'border-color': '#000'
-        //                 // 'background-color': '#6c3',
-        //                 // 'border-width': '3px',
-        //                 // 'border-color': '#c33'
-        //             }
-        //         },
-        //         {
-        //             selector: '.start',
-        //             style: {
-        //                 'background-color': '#3c6',
-        //                 // 'border-color': '#3c6'
-        //                 // 'background-color': '#3c6',
-        //                 // 'border-width': '3px',
-        //                 // 'border-color': '#6c3'
-        //             }
-        //         },
-        //         {
-        //             selector: 'edge',
-        //             style: {
-        //                 'width': 2,
-        //                 'line-color': '#ccc',
-        //                 'target-arrow-color': '#666',
-        //                 'target-arrow-shape': 'triangle',
-        //                 'arrow-scale': 0.5,
-        //                 'target-distance-from-node': 1,
-        //                 'curve-style': 'bezier',
-        //                 'control-point-step-size': 40,
-        //                 'label': 'data(label)',
-        //                 'text-rotation': 'autorotate',
-        //                 'font-size': '15px',
-        //                 // add glow around text
-        //                 'text-outline-width': 4,
-        //                 'text-outline-color': '#fff',
-        //             }
-        //         },
-        //         {
-        //             selector: '#q2',
-        //             style: {
-        //                 'background-color': '#6c3',
-        //                 'border-width': '3px',
-        //                 'border-color': '#c33'
-        //             }
-        //         }
-        //     ],
-        //     layout: {
-        //         name: 'cose',
-        //     }
-        // });
-        expr1.dispatchEvent(new Event('input'));
+        function initCy(id) {
+            const cy = cytoscape({
+                container: document.getElementById(id),
+                elements: {
+                    nodes: [
+                        { data: { id: 'q0', label: 'q0' } },
+                        { data: { id: 'q1', label: 'q1' } },
+                        { data: { id: 'q2', label: 'q2' } }
+                    ],
+                    edges: [
+                        { data: { source: 'q0', target: 'q0', label: 'push(0)' } },
+                        { data: { source: 'q0', target: 'q1', label: 'push(1)' } },
+                        { data: { source: 'q1', target: 'q0', label: 'push(0)' } },
+                        { data: { source: 'q1', target: 'q1', label: 'push(1)' } },
+                        { data: { source: 'q1', target: 'q2', label: 'push(0)' } },
+                        { data: { source: 'q2', target: 'q0', label: 'push(0)' } },
+                        { data: { source: 'q2', target: 'q1', label: 'push(1)' } }
+                    ]
+                },
+                style: [
+                    {
+                        selector: 'node',
+                        style: {
+                            'label': 'data(label)',
+                            'text-valign': 'center',
+                            'text-halign': 'center',
+                            'width': '10px',
+                            'height': '10px',
+                            'font-size': '20px',
+                            'border-width': '2px',
+                            'border-color': '#fff',
+                        },
+                    },
+                    {
+                        selector: '.accept',
+                        style: {
+                            'background-color': '#fff',
+                            'border-color': '#000'
+                            // 'background-color': '#6c3',
+                            // 'border-width': '3px',
+                            // 'border-color': '#c33'
+                        }
+                    },
+                    {
+                        selector: '.start',
+                        style: {
+                            'background-color': '#3c6',
+                            // 'border-color': '#3c6'
+                            // 'background-color': '#3c6',
+                            // 'border-width': '3px',
+                            // 'border-color': '#6c3'
+                        }
+                    },
+                    {
+                        selector: 'edge',
+                        style: {
+                            'width': 2,
+                            'line-color': '#ccc',
+                            'target-arrow-color': '#666',
+                            'target-arrow-shape': 'triangle',
+                            'arrow-scale': 0.5,
+                            'target-distance-from-node': 1,
+                            'curve-style': 'bezier',
+                            'control-point-step-size': 40,
+                            'label': 'data(label)',
+                            'text-rotation': 'autorotate',
+                            'font-size': '15px',
+                            // add glow around text
+                            'text-outline-width': 4,
+                            'text-outline-color': '#fff',
+                        }
+                    },
+                    {
+                        selector: '#q2',
+                        style: {
+                            'background-color': '#6c3',
+                            'border-width': '3px',
+                            'border-color': '#c33'
+                        }
+                    }
+                ],
+                layout: {
+                    name: 'cose',
+                }
+            });
+            return cy;
+        }
+        var cy1 = initCy('cy1');
+        var cy2 = initCy('cy2');
+        // expr1.dispatchEvent(new Event('input'));s
     </script>
 </body>
 
