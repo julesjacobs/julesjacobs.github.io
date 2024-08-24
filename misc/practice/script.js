@@ -746,30 +746,111 @@ function resetProgress() {
     updateProgress();
 }
 
-$('next-example').addEventListener('click', nextExample);
-$('prev-example').addEventListener('click', prevExample);
+// Add these variables at the beginning of the file, after the existing variables
+let touchStartX = 0;
+let touchEndX = 0;
 
-$('difficulty').addEventListener('change', (e) => {
-    if (e.target.value === 'reset') {
-        if (confirm('Are you sure you want to reset all progress?')) {
-            resetProgress();
-        }
-        e.target.value = currentDifficulty; // Reset the select to the previous value
-    } else {
-        currentDifficulty = e.target.value;
-        currentExampleIndex = -1;
-        nextExample();
+// Add this function to handle touch events
+function handleTouchEvents() {
+    const app = $('app');
+
+    app.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    app.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    }, { passive: true });
+}
+
+// Add this function to determine the swipe direction and navigate accordingly
+function handleSwipe() {
+    const swipeThreshold = 50; // Minimum distance (in pixels) to trigger a swipe
+    const swipeDistance = touchEndX - touchStartX;
+
+    if (swipeDistance > swipeThreshold) {
+        prevExample(); // Swipe right
+    } else if (swipeDistance < -swipeThreshold) {
+        nextExample(); // Swipe left
     }
-});
+}
 
-$('toggle-quiz-mode').addEventListener('click', () => {
-    quizMode = !quizMode;
-    $('toggle-quiz-mode').classList.toggle('quiz-mode');
+// Modify the existing event listeners section to include touch events
+document.addEventListener('DOMContentLoaded', () => {
+    $('next-example').addEventListener('click', nextExample);
+    $('prev-example').addEventListener('click', prevExample);
+
+    $('difficulty').addEventListener('change', (e) => {
+        if (e.target.value === 'reset') {
+            if (confirm('Are you sure you want to reset all progress?')) {
+                resetProgress();
+            }
+            e.target.value = currentDifficulty; // Reset the select to the previous value
+        } else {
+            currentDifficulty = e.target.value;
+            currentExampleIndex = -1;
+            nextExample();
+        }
+    });
+
+    $('toggle-quiz-mode').addEventListener('click', () => {
+        quizMode = !quizMode;
+        $('toggle-quiz-mode').classList.toggle('quiz-mode');
+        displayExample(currentExampleIndex);
+        $('quiz-feedback').textContent = '';
+        $('quiz-input').classList.remove('correct', 'incorrect');
+        // If quiz mode is turned on, trigger the quiz-input input event
+        $('quiz-input').dispatchEvent(new Event('input'));
+    });
+
+    $('quiz-input').addEventListener('input', (e) => {
+        if (!quizMode) return;
+
+        const userAnswer = e.target.value.trim().toLowerCase();
+        const correctAnswer = examples[currentExampleIndex].tactic.toLowerCase();
+        const quizInput = $('quiz-input');
+        const quizFeedback = $('quiz-feedback');
+        
+        if (userAnswer === "") {
+            quizFeedback.textContent = "Enter the tactic.";
+            quizFeedback.style.color = "black";
+            quizInput.classList.remove('correct', 'incorrect');
+        } else if (userAnswer === correctAnswer) {
+            quizFeedback.textContent = "Correct!";
+            quizFeedback.style.color = "green";
+            quizInput.classList.add('correct');
+            quizInput.classList.remove('incorrect');
+            progress.completedExamples[examples[currentExampleIndex].id] = true;
+            updateProgress();
+            setTimeout(() => {
+                nextExample();
+                quizInput.value = ''; // Clear the input field
+                quizInput.classList.remove('correct', 'incorrect');
+                quizFeedback.textContent = '';
+            }, 1000); // 1 second delay before moving to the next question
+        } else if (correctAnswer.startsWith(userAnswer)) {
+            quizFeedback.textContent = "Keep going...";
+            quizFeedback.style.color = "blue";
+            quizInput.classList.remove('correct', 'incorrect');
+        } else {
+            quizFeedback.textContent = "Incorrect. Try again!";
+            quizFeedback.style.color = "red";
+            quizInput.classList.add('incorrect');
+            quizInput.classList.remove('correct');
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') nextExample();
+        if (e.key === 'ArrowLeft') prevExample();
+    });
+
+    // Add touch event handling
+    handleTouchEvents();
+
     displayExample(currentExampleIndex);
-    $('quiz-feedback').textContent = '';
-    $('quiz-input').classList.remove('correct', 'incorrect');
-    // If quiz mode is turned on, trigger the quiz-input input event
-    $('quiz-input').dispatchEvent(new Event('input'));
+    updateProgress();
 });
 
 $('quiz-input').addEventListener('input', (e) => {
