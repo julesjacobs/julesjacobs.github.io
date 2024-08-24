@@ -1,3 +1,7 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Roboto', sans-serif;
     background-color: #f0f4f8;
@@ -276,21 +280,85 @@ select {
 }
 
 @media (max-width: 768px) {
-    #goals-container {
-        grid-template-columns: 1fr;
-    }
-    
-    #controls {
-        flex-direction: column;
-        align-items: center;
+    body {
+        padding: 5px;
+        margin: 0px;
     }
 
-    body {
-        padding: 20px;
+    #controls {
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+
+    #prev-next-container {
+    }
+
+    #toggle-quiz-mode {
+    }
+
+    #difficulty {
+    }
+
+    button, select {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+
+    select {
+        width: auto;
+    }
+
+    #prev-example, #next-example {
+        width: 20px;
+        padding: 5px 5px;
+    }
+
+    #app {
+        padding: 10px;
+    }
+
+    #goals-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin: 0;
+    }
+
+    .goal {
+        padding: 10px;
+        font-size: 12px;
+        margin: 0;
+    }
+
+    #resulting-goals {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #tactic, #quiz-input {
+        font-size: 16px;
+        height: 40px;
+        margin: 0;
+    }
+
+    #quiz-feedback {
+        margin-bottom: 0;
+    }
+
+    #explanation, #context {
+        font-size: 12px;
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    #progress-bar {
+        height: 5px;
+        margin-bottom: 10px;
+        width: 90%;
     }
 }
 
-/* Add this to your existing CSS */
 #difficulty option.reset-option {
     background-color: #dc3545;
     color: white;
