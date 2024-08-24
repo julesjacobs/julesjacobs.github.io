@@ -768,6 +768,8 @@ $('toggle-quiz-mode').addEventListener('click', () => {
     displayExample(currentExampleIndex);
     $('quiz-feedback').textContent = '';
     $('quiz-input').classList.remove('correct', 'incorrect');
+    // If quiz mode is turned on, trigger the quiz-input input event
+    $('quiz-input').dispatchEvent(new Event('input'));
 });
 
 $('quiz-input').addEventListener('input', (e) => {
@@ -778,7 +780,11 @@ $('quiz-input').addEventListener('input', (e) => {
     const quizInput = $('quiz-input');
     const quizFeedback = $('quiz-feedback');
     
-    if (userAnswer === correctAnswer) {
+    if (userAnswer === "") {
+        quizFeedback.textContent = "Enter the tactic.";
+        quizFeedback.style.color = "black";
+        quizInput.classList.remove('correct', 'incorrect');
+    } else if (userAnswer === correctAnswer) {
         quizFeedback.textContent = "Correct!";
         quizFeedback.style.color = "green";
         quizInput.classList.add('correct');
