@@ -259,6 +259,7 @@ select:hover {
 select {
     background-color: #ffffff;
     color: #333;
+    width: 200px;
 }
 
 #context {
