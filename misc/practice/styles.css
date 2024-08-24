@@ -357,6 +357,10 @@ select {
         margin-bottom: 10px;
         width: 90%;
     }
+
+    #app::after {
+        border-width: 0 20px 20px 0;
+    }
 }
 
 #difficulty option.reset-option {
