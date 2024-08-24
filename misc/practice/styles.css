@@ -84,7 +84,7 @@ body {
 
 #goals-container {
     display: grid;
-    grid-template-columns: 2fr 1fr 2fr;
+    grid-template-columns: 3fr 2fr 3fr;
     gap: 20px;
     align-items: start;
     margin-top: 20px;
@@ -106,13 +106,41 @@ body {
 
 #tactic {
     font-weight: bold;
-    margin-bottom: 15px;
     font-size: 18px;
-    color: #007bff;
+    color: #fff;
     text-align: center;
     min-height: 27px;
+    margin-top: 10px;
     width: 100%;
-    margin: 10px 0;
+
+    --arrow-width: 300px;
+    --arrow-height: 50px;
+    --arrowhead-width: 20px;
+    --tail-width: 15px;
+    
+    height: var(--arrow-height);
+    position: relative;
+    background-color: #007bffDD;
+    clip-path: polygon(
+        0 0%,
+        var(--tail-width) 50%,
+        0 100%,
+        calc(100% - var(--arrowhead-width)) 100%,
+        100% 50%,
+        calc(100% - var(--arrowhead-width)) 0%
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#tactic span {
+    color: white;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    z-index: 1;
+    margin-left: calc(var(--tail-width) + 10px);
+    margin-right: var(--arrowhead-width);
 }
 
 #quiz-input {
@@ -125,7 +153,7 @@ body {
     padding: 10px 15px;
     border: 2px solid #007bff;
     border-radius: 5px;
-    margin: 10px 0;
+    margin: 10px 0 5px 0;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -134,6 +162,24 @@ body {
     outline: none;
     border-color: #0056b3;
     box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
+}
+
+#quiz-input.correct {
+    border-color: #28a745;
+    background-color: #d4edda;
+}
+
+#quiz-input.incorrect {
+    border-color: #dc3545;
+    background-color: #f8d7da;
+}
+
+#quiz-feedback {
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    margin: 5px 0 10px 0;
+    min-height: 20px;
 }
 
 #arrow {
@@ -177,6 +223,35 @@ button:hover {
     background-color: #0056b3;
 }
 
+/* Make the prev and next buttons sit next to each other without rounded corners in between */
+button#prev-example {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-right: 10px;
+    padding-left: 10px;
+    margin-right: 2px;
+    width: 40px;
+}
+
+button#next-example {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    padding-right: 10px;
+    padding-left: 10px;
+    width: 40px;
+}
+
+button.quiz-mode {
+    /* highlight the button using shadow */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    background-color: #0056b3;
+}
+
+button#reset-progress:hover {
+    background-color: #dc3545;
+}
+
+
 select:hover {
     background-color: #ffffff; /* Keep the background white on hover */
 }
@@ -184,13 +259,6 @@ select:hover {
 select {
     background-color: #ffffff;
     color: #333;
-}
-
-#feedback {
-    font-weight: bold;
-    text-align: center;
-    margin-top: 15px;
-    font-size: 18px;
 }
 
 #context {
@@ -218,4 +286,14 @@ select {
     body {
         padding: 20px;
     }
+}
+
+/* Add this to your existing CSS */
+#difficulty option.reset-option {
+    background-color: #dc3545;
+    color: white;
+}
+
+#difficulty {
+    color: inherit; /* This ensures the select element itself doesn't turn red */
 }

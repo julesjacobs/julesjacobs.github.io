@@ -624,15 +624,20 @@ function displayExample(index) {
     
     const tacticElement = $('tactic');
     const quizInput = $('quiz-input');
+    const quizFeedback = $('quiz-feedback');
     if (quizMode) {
         tacticElement.style.display = 'none';
         quizInput.style.display = 'block';
+        quizFeedback.style.display = 'block';
         quizInput.value = '';
+        quizFeedback.textContent = '';
         quizInput.focus();
+        quizInput.classList.remove('correct', 'incorrect');
     } else {
-        tacticElement.style.display = 'block';
+        tacticElement.style.display = 'flex';
         quizInput.style.display = 'none';
-        tacticElement.textContent = example.tactic;
+        quizFeedback.style.display = 'none';
+        tacticElement.innerHTML = `<span>${example.tactic}</span>`;
     }
     
     const resultingGoalsContainer = $('resulting-goals');
@@ -651,11 +656,6 @@ function displayExample(index) {
         contextElement.style.display = 'block';
     } else {
         contextElement.style.display = 'none';
-    }
-
-    if (quizMode) {
-        $('quiz-input').value = '';
-        $('feedback').textContent = '';
     }
 
     // Add completion indicator
@@ -697,7 +697,7 @@ function updateProgress() {
     for (let i = 0; i < difficultySelect.options.length; i++) {
         const option = difficultySelect.options[i];
         const difficulty = option.value;
-        if (difficulty !== 'all') {
+        if (difficulty !== 'all' && difficulty !== 'reset') {
             const difficultyTotal = examples.filter(ex => ex.difficulty === difficulty).length;
             const difficultyProgress = examples.filter(ex => 
                 ex.difficulty === difficulty && progress.completedExamples[ex.id]
@@ -750,15 +750,24 @@ $('next-example').addEventListener('click', nextExample);
 $('prev-example').addEventListener('click', prevExample);
 
 $('difficulty').addEventListener('change', (e) => {
-    currentDifficulty = e.target.value;
-    currentExampleIndex = -1;
-    nextExample();
+    if (e.target.value === 'reset') {
+        if (confirm('Are you sure you want to reset all progress?')) {
+            resetProgress();
+        }
+        e.target.value = currentDifficulty; // Reset the select to the previous value
+    } else {
+        currentDifficulty = e.target.value;
+        currentExampleIndex = -1;
+        nextExample();
+    }
 });
 
 $('toggle-quiz-mode').addEventListener('click', () => {
     quizMode = !quizMode;
+    $('toggle-quiz-mode').classList.toggle('quiz-mode');
     displayExample(currentExampleIndex);
-    $('feedback').textContent = '';
+    $('quiz-feedback').textContent = '';
+    $('quiz-input').classList.remove('correct', 'incorrect');
 });
 
 $('quiz-input').addEventListener('input', (e) => {
@@ -766,30 +775,31 @@ $('quiz-input').addEventListener('input', (e) => {
 
     const userAnswer = e.target.value.trim().toLowerCase();
     const correctAnswer = examples[currentExampleIndex].tactic.toLowerCase();
-    const feedback = $('feedback');
+    const quizInput = $('quiz-input');
+    const quizFeedback = $('quiz-feedback');
     
     if (userAnswer === correctAnswer) {
-        feedback.textContent = "Correct!";
-        feedback.style.color = "green";
+        quizFeedback.textContent = "Correct!";
+        quizFeedback.style.color = "green";
+        quizInput.classList.add('correct');
+        quizInput.classList.remove('incorrect');
         progress.completedExamples[examples[currentExampleIndex].id] = true;
         updateProgress();
         setTimeout(() => {
             nextExample();
-            feedback.textContent = '';
-            e.target.value = ''; // Clear the input field
-        }, 500); // 0.5 second delay before moving to the next question
+            quizInput.value = ''; // Clear the input field
+            quizInput.classList.remove('correct', 'incorrect');
+            quizFeedback.textContent = '';
+        }, 1000); // 1 second delay before moving to the next question
     } else if (correctAnswer.startsWith(userAnswer)) {
-        feedback.textContent = "Keep going...";
-        feedback.style.color = "blue";
+        quizFeedback.textContent = "Keep going...";
+        quizFeedback.style.color = "blue";
+        quizInput.classList.remove('correct', 'incorrect');
     } else {
-        feedback.textContent = "Incorrect. Try again!";
-        feedback.style.color = "red";
-    }
-});
-
-$('reset-progress').addEventListener('click', () => {
-    if (confirm('Are you sure you want to reset all progress?')) {
-        resetProgress();
+        quizFeedback.textContent = "Incorrect. Try again!";
+        quizFeedback.style.color = "red";
+        quizInput.classList.add('incorrect');
+        quizInput.classList.remove('correct');
     }
 });
 
