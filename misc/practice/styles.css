@@ -22,13 +22,13 @@ body {
 }
 
 #progress-bar {
-    width: 100%;
     max-width: 1200px;
     height: 10px;
     background-color: #e0e0e0;
     margin-bottom: 20px;
     border-radius: 5px;
     overflow: hidden;
+    width: 97%;
 }
 
 #progress {
@@ -152,7 +152,7 @@ body {
     font-weight: bold;
     color: #333;
     text-align: center;
-    width: 80%;
+    width: 90%;
     max-width: 300px;
     padding: 10px 15px;
     border: 2px solid #007bff;
@@ -160,7 +160,7 @@ body {
     margin: 10px 0 5px 0;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    height: 25px;
+    height: 45px;
 }
 
 #quiz-input:focus {
