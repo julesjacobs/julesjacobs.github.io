@@ -752,7 +752,7 @@ let touchEndX = 0;
 
 // Add this function to handle touch events
 function handleTouchEvents() {
-    const app = $('app');
+    const app = document.querySelector('html');
 
     app.addEventListener('touchstart', (e) => {
         touchStartX = e.changedTouches[0].screenX;
@@ -766,7 +766,7 @@ function handleTouchEvents() {
 
 // Add this function to determine the swipe direction and navigate accordingly
 function handleSwipe() {
-    const swipeThreshold = 50; // Minimum distance (in pixels) to trigger a swipe
+    const swipeThreshold = 25; // Minimum distance (in pixels) to trigger a swipe
     const swipeDistance = touchEndX - touchStartX;
 
     if (swipeDistance > swipeThreshold) {
