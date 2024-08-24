@@ -281,65 +281,36 @@ select {
 
 @media (max-width: 768px) {
     body {
-        padding: 5px 5px 100px; /* Increased bottom padding for controls and progress bar */
-        margin: 0;
-        background-color: #fff;
-    }
-
-    #app {
-        padding: 10px;
-        box-shadow: none;
-        border-radius: 0;
+        padding: 5px;
+        margin: 0px;
     }
 
     #controls {
-        position: fixed;
-        bottom: 25px; /* Leave space for progress bar */
-        left: 0;
-        right: 0;
-        background-color: #f0f4f8;
-        padding: 10px;
-        box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        flex-wrap: wrap;
-        justify-content: space-between;
         gap: 5px;
-        margin-bottom: 0;
-    }
-
-    #controls > * {
-        flex: 1 1 auto;
-        margin: 2px;
-    }
-
-    #difficulty {
-        order: 1;
-    }
-
-    #toggle-quiz-mode {
-        order: 2;
+        margin-bottom: 10px;
     }
 
     #prev-next-container {
-        order: 3;
-        display: flex;
-        justify-content: flex-end;
+    }
+
+    #toggle-quiz-mode {
+    }
+
+    #difficulty {
     }
 
     button, select {
         font-size: 14px;
-        padding: 8px 5px;
-        width: auto;
+        padding: 5px 10px;
     }
 
     select {
-        width: 150;
-        max-width: 160px;
+        width: auto;
     }
 
     #prev-example, #next-example {
-        width: 40px;
-        padding: 8px 5px;
+        width: 20px;
+        padding: 5px 5px;
     }
 
     #app {
@@ -382,19 +353,13 @@ select {
     }
 
     #progress-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 15px;
-        margin-bottom: 0;
-        width: 100%;
-        border-radius: 0;
-        z-index: 1001;
+        height: 5px;
+        margin-bottom: 10px;
+        width: 90%;
     }
 
     #app::after {
-        display: none; /* Remove the completion indicator on mobile */
+        border-width: 0 20px 20px 0;
     }
 }
 
