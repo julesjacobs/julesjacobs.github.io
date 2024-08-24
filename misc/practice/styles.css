@@ -281,22 +281,20 @@ select {
 
 @media (max-width: 768px) {
     body {
-        padding: 5px 5px 100px;
+        padding: 5px 5px 100px; /* Increased bottom padding for controls and progress bar */
         margin: 0;
         background-color: #fff;
-        min-height: 100vh;
-        min-height: 100dvh;
     }
 
     #app {
-        padding: 10px 10px 120px;
+        padding: 10px;
         box-shadow: none;
         border-radius: 0;
     }
 
     #controls {
         position: fixed;
-        bottom: 15px;
+        bottom: 25px; /* Leave space for progress bar */
         left: 0;
         right: 0;
         background-color: #f0f4f8;
@@ -344,20 +342,8 @@ select {
         padding: 8px 5px;
     }
 
-    #progress-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 15px;
-        margin-bottom: 0;
-        width: 100%;
-        border-radius: 0;
-        z-index: 1001;
-    }
-
-    #app::after {
-        display: none;
+    #app {
+        padding: 10px;
     }
 
     #goals-container {
@@ -394,6 +380,22 @@ select {
         padding: 10px;
         margin: 10px 0;
     }
+
+    #progress-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 15px;
+        margin-bottom: 0;
+        width: 100%;
+        border-radius: 0;
+        z-index: 1001;
+    }
+
+    #app::after {
+        display: none; /* Remove the completion indicator on mobile */
+    }
 }
 
 #difficulty option.reset-option {
@@ -402,5 +404,5 @@ select {
 }
 
 #difficulty {
-    color: inherit;
+    color: inherit; /* This ensures the select element itself doesn't turn red */
 }
