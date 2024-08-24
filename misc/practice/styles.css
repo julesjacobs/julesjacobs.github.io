@@ -10,6 +10,13 @@ body {
     align-items: center;
     padding: 40px;
     color: #333;
+    margin: 0;
+}
+
+/* Layout */
+#controls, #app {
+    width: 100%;
+    max-width: 1200px;
 }
 
 #controls {
@@ -17,10 +24,21 @@ body {
     justify-content: center;
     gap: 15px;
     margin-bottom: 30px;
-    width: 100%;
-    max-width: 1200px;
 }
 
+#app {
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Progress bar */
 #progress-bar {
     max-width: 1170px;
     height: 10px;
@@ -37,69 +55,35 @@ body {
     transition: width 0.3s ease;
 }
 
-#progress.quiz-mode {
-    background-color: #4CAF50; /* Green for quiz mode */
-}
+#progress.quiz-mode { background-color: #4CAF50; }
+#progress.progress-mode { background-color: #3498db; }
 
-#progress.progress-mode {
-    background-color: #3498db; /* Blue for overall progress */
-}
-
-#app {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    position: relative;
-    overflow: hidden;
-}
-
+/* Completion indicator */
 #app::after {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 40px 40px 0;
-    border-color: transparent transparent transparent transparent;
-    transition: border-color 0.3s ease;
+    border: 40px solid transparent;
+    border-top: 0;
+    transition: border-right-color 0.3s ease;
 }
 
-#app.completed::after {
-    border-color: transparent #4CAF50 transparent transparent;
-}
+#app.completed::after { border-right-color: #4CAF50; }
 
-#explanation {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 15px;
-    background-color: #e9ecef;
-    border-radius: 5px;
-    font-style: italic;
-    text-align: center;
-}
-
+/* Goals container */
 #goals-container {
     display: grid;
-    grid-template-columns: 3fr 2fr 3fr;
-    gap: 20px;
+    grid-template-columns: 3fr 3fr 3fr;
+    gap: 15px;
     align-items: start;
     margin-top: 20px;
+    width: 100%;
 }
 
-.goal-container {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
+.goal-container { display: flex; flex-direction: column; gap: 20px; }
 
+/* Tactic and quiz input */
 #tactic-container {
     display: flex;
     flex-direction: column;
@@ -108,34 +92,23 @@ body {
     width: 100%;
 }
 
-#tactic {
+#tactic, #quiz-input {
     font-weight: bold;
     font-size: 18px;
-    color: #fff;
     text-align: center;
-    min-height: 27px;
-    margin-top: 10px;
-    width: 100%;
+    width: 90%;
+    max-width: 300px;
+    margin: 10px 0 5px 0;
+}
 
-    --arrow-width: 300px;
-    --arrow-height: 50px;
-    --arrowhead-width: 20px;
-    --tail-width: 15px;
-    
-    height: var(--arrow-height);
-    position: relative;
+#tactic {
+    color: #fff;
     background-color: #007bffDD;
-    clip-path: polygon(
-        0 0%,
-        var(--tail-width) 50%,
-        0 100%,
-        calc(100% - var(--arrowhead-width)) 100%,
-        100% 50%,
-        calc(100% - var(--arrowhead-width)) 0%
-    );
+    height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
+    clip-path: polygon(0 0, 15px 50%, 0 100%, calc(100% - 20px) 100%, 100% 50%, calc(100% - 20px) 0);
 }
 
 #tactic span {
@@ -143,21 +116,15 @@ body {
     font-family: Arial, sans-serif;
     font-size: 18px;
     z-index: 1;
-    margin-left: calc(var(--tail-width) + 10px);
-    margin-right: var(--arrowhead-width);
+    margin-left: 18px;
+    margin-right: 10px;
 }
 
 #quiz-input {
-    font-size: 18px;
-    font-weight: bold;
     color: #333;
-    text-align: center;
-    width: 90%;
-    max-width: 300px;
     padding: 10px 15px;
     border: 2px solid #007bff;
     border-radius: 5px;
-    margin: 10px 0 5px 0;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     height: 45px;
@@ -169,15 +136,8 @@ body {
     box-shadow: 0 2px 10px rgba(0, 123, 255, 0.3);
 }
 
-#quiz-input.correct {
-    border-color: #28a745;
-    background-color: #d4edda;
-}
-
-#quiz-input.incorrect {
-    border-color: #dc3545;
-    background-color: #f8d7da;
-}
+#quiz-input.correct { border-color: #28a745; background-color: #d4edda; }
+#quiz-input.incorrect { border-color: #dc3545; background-color: #f8d7da; }
 
 #quiz-feedback {
     font-size: 14px;
@@ -187,12 +147,7 @@ body {
     min-height: 20px;
 }
 
-#arrow {
-    font-size: 32px;
-    color: #6c757d;
-    margin-top: -10px;
-}
-
+/* Goals */
 .goal {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -205,61 +160,28 @@ body {
     flex-direction: column;
 }
 
-.goal-content {
-    white-space: pre-wrap;
-}
+.goal-content { white-space: pre-wrap; }
 
 .horizontal-bar {
     border-top: 1px solid #6c757d;
     margin: 10px 0;
 }
 
+/* Buttons and select */
 button, select {
     font-size: 16px;
     padding: 10px 20px;
-    background-color: #007bff;
-    color: #ffffff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
-button:hover {
-    background-color: #0056b3;
+button {
+    background-color: #007bff;
+    color: #ffffff;
 }
 
-/* Make the prev and next buttons sit next to each other without rounded corners in between */
-button#prev-example {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    padding-right: 10px;
-    padding-left: 10px;
-    margin-right: 2px;
-    width: 40px;
-}
-
-button#next-example {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    padding-right: 10px;
-    padding-left: 10px;
-    width: 40px;
-}
-
-button.quiz-mode {
-    /* highlight the button using shadow */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    background-color: #0056b3;
-}
-
-button#reset-progress:hover {
-    background-color: #dc3545;
-}
-
-
-select:hover {
-    background-color: #ffffff; /* Keep the background white on hover */
-}
+button:hover { background-color: #0056b3; }
 
 select {
     background-color: #ffffff;
@@ -267,107 +189,67 @@ select {
     width: 200px;
 }
 
-#context {
+/* Specific button styles */
+#prev-example, #next-example {
+    width: 40px;
+    padding: 10px;
+}
+
+#prev-example {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    margin-right: 2px;
+}
+
+#next-example {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+button.quiz-mode { box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); background-color: #0056b3; }
+
+#reset-progress:hover { background-color: #dc3545; }
+
+/* Context and explanation */
+#explanation {
+    background-color: #e9ecef;
+    padding: 15px 20px;
+    margin: 20px auto;
+    font-size: 18px;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.6;
+    border-radius: 999px;
+    max-width: 700px;
+}
+
+#context { 
+    border-left: 4px solid #007bff; 
+    display: none;
     background-color: #f8f9fa;
-    border-left: 4px solid #007bff;
     padding: 10px 15px;
     margin: 20px 0;
     font-family: 'Fira Code', monospace;
     font-size: 14px;
     line-height: 1.6;
-    display: none;  /* It will be shown via JavaScript when needed */
     white-space: pre-wrap;
 }
 
+/* Responsive styles */
 @media (max-width: 768px) {
-    body {
-        padding: 5px;
-        margin: 0px;
-    }
-
-    #controls {
-        gap: 5px;
-        margin-bottom: 10px;
-    }
-
-    #prev-next-container {
-    }
-
-    #toggle-quiz-mode {
-    }
-
-    #difficulty {
-    }
-
-    button, select {
-        font-size: 14px;
-        padding: 5px 10px;
-    }
-
-    select {
-        width: auto;
-    }
-
-    #prev-example, #next-example {
-        width: 20px;
-        padding: 5px 5px;
-    }
-
-    #app {
-        padding: 10px;
-    }
-
-    #goals-container {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        margin: 0;
-    }
-
-    .goal {
-        padding: 10px;
-        font-size: 12px;
-        margin: 0;
-    }
-
-    #resulting-goals {
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    #tactic, #quiz-input {
-        font-size: 16px;
-        height: 40px;
-        margin: 0;
-    }
-
-    #quiz-feedback {
-        margin-bottom: 0;
-    }
-
-    #explanation, #context {
-        font-size: 12px;
-        padding: 10px;
-        margin: 10px 0;
-    }
-
-    #progress-bar {
-        height: 5px;
-        margin-bottom: 10px;
-        width: 90%;
-    }
-
-    #app::after {
-        border-width: 0 20px 20px 0;
-    }
+    body { padding: 5px; }
+    #controls { gap: 5px; margin-bottom: 10px; }
+    button, select { font-size: 14px; padding: 5px 10px; }
+    select { width: auto; }
+    #prev-example, #next-example { width: 30px; padding: 5px; }
+    #app { padding: 10px; }
+    #goals-container { grid-template-columns: 1fr; gap: 10px; margin: 0; }
+    .goal { padding: 10px; font-size: 12px; margin: 0; }
+    #tactic, #quiz-input { font-size: 16px; height: 40px; margin: 0; }
+    #explanation, #context { font-size: 12px; padding: 10px; margin: 10px 0; }
+    #progress-bar { height: 5px; margin-bottom: 10px; width: 90%; }
+    #app::after { border-width: 0 20px 20px 0; }
 }
 
-#difficulty option.reset-option {
-    background-color: #dc3545;
-    color: white;
-}
-
-#difficulty {
-    color: inherit; /* This ensures the select element itself doesn't turn red */
-}
+/* Reset option in difficulty select */
+#difficulty option.reset-option { background-color: #dc3545; color: white; }

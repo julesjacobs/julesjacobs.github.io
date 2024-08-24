@@ -1,11 +1,19 @@
-// Add this function at the beginning of your script, before any other code
-function $(id) {
+const $ = (id) => {
     const element = document.getElementById(id);
     if (!element) {
         throw new Error(`Element with id '${id}' not found`);
     }
     return element;
-}
+};
+
+const progress = JSON.parse(localStorage.getItem('coqTacticProgress')) || {
+    completedExamples: {}
+};
+let currentExampleIndex = 0;
+let quizMode = false;
+let currentDifficulty = "all";
+let touchStartX = 0;
+let touchEndX = 0;
 
 const examples = [
     {
@@ -610,13 +618,6 @@ const examples = [
     }
 ];
 
-let currentExampleIndex = 0;
-let quizMode = false;
-let currentDifficulty = "all";
-let progress = JSON.parse(localStorage.getItem('coqTacticProgress')) || {
-    completedExamples: {}
-};
-
 function displayExample(index) {
     const example = examples[index];
     
@@ -625,6 +626,7 @@ function displayExample(index) {
     const tacticElement = $('tactic');
     const quizInput = $('quiz-input');
     const quizFeedback = $('quiz-feedback');
+    
     if (quizMode) {
         tacticElement.style.display = 'none';
         quizInput.style.display = 'block';
@@ -649,7 +651,6 @@ function displayExample(index) {
     explanationElement.textContent = example.explanation;
     explanationElement.style.display = quizMode ? 'none' : 'block';
 
-    // Display context if present, after the explanation
     const contextElement = $('context');
     if (example.context) {
         contextElement.innerHTML = Prism.highlight(example.context, Prism.languages.coq, 'coq');
@@ -658,13 +659,8 @@ function displayExample(index) {
         contextElement.style.display = 'none';
     }
 
-    // Add completion indicator
     const appContainer = $('app');
-    if (progress.completedExamples[example.id]) {
-        appContainer.classList.add('completed');
-    } else {
-        appContainer.classList.remove('completed');
-    }
+    appContainer.classList.toggle('completed', progress.completedExamples[example.id]);
 
     updateProgress();
 }
@@ -684,7 +680,6 @@ function updateProgress() {
         progressElement.classList.add('quiz-mode');
         progressElement.classList.remove('progress-mode');
     } else {
-        // Find the index of the current example within the relevant examples
         const currentExampleIndexInRelevant = relevantExamples.findIndex(ex => ex.id === examples[currentExampleIndex].id);
         const progressPercentage = ((currentExampleIndexInRelevant + 1) / totalExamples) * 100;
         progressElement.style.width = `${progressPercentage}%`;
@@ -692,10 +687,14 @@ function updateProgress() {
         progressElement.classList.remove('quiz-mode');
     }
     
-    // Update difficulty select options
+    updateDifficultySelectOptions();
+    
+    localStorage.setItem('coqTacticProgress', JSON.stringify(progress));
+}
+
+function updateDifficultySelectOptions() {
     const difficultySelect = $('difficulty');
-    for (let i = 0; i < difficultySelect.options.length; i++) {
-        const option = difficultySelect.options[i];
+    Array.from(difficultySelect.options).forEach(option => {
         const difficulty = option.value;
         if (difficulty !== 'all' && difficulty !== 'reset') {
             const difficultyTotal = examples.filter(ex => ex.difficulty === difficulty).length;
@@ -705,9 +704,7 @@ function updateProgress() {
             const percentage = Math.round((difficultyProgress / difficultyTotal) * 100);
             option.textContent = `${difficulty.charAt(0).toUpperCase() + difficulty.slice(1)} (${percentage}%)`;
         }
-    }
-
-    localStorage.setItem('coqTacticProgress', JSON.stringify(progress));
+    });
 }
 
 function createGoalHTML(goalObject) {
@@ -725,7 +722,6 @@ function nextExample() {
         currentExampleIndex = (currentExampleIndex + 1) % examples.length;
     } while (currentDifficulty !== "all" && examples[currentExampleIndex].difficulty !== currentDifficulty);
     displayExample(currentExampleIndex);
-    updateProgress();
 }
 
 function prevExample() {
@@ -733,24 +729,15 @@ function prevExample() {
         currentExampleIndex = (currentExampleIndex - 1 + examples.length) % examples.length;
     } while (currentDifficulty !== "all" && examples[currentExampleIndex].difficulty !== currentDifficulty);
     displayExample(currentExampleIndex);
-    updateProgress();
 }
 
 function resetProgress() {
-    progress = {
-        completedExamples: {}
-    };
+    Object.keys(progress.completedExamples).forEach(key => delete progress.completedExamples[key]);
     localStorage.setItem('coqTacticProgress', JSON.stringify(progress));
-    currentExampleIndex = 0; // Reset to the first example
+    currentExampleIndex = 0;
     displayExample(currentExampleIndex);
-    updateProgress();
 }
 
-// Add these variables at the beginning of the file, after the existing variables
-let touchStartX = 0;
-let touchEndX = 0;
-
-// Add this function to handle touch events
 function handleTouchEvents() {
     const app = document.querySelector('html');
 
@@ -764,96 +751,16 @@ function handleTouchEvents() {
     }, { passive: true });
 }
 
-// Add this function to determine the swipe direction and navigate accordingly
 function handleSwipe() {
-    const swipeThreshold = 25; // Minimum distance (in pixels) to trigger a swipe
+    const swipeThreshold = 25;
     const swipeDistance = touchEndX - touchStartX;
 
-    if (swipeDistance > swipeThreshold) {
-        prevExample(); // Swipe right
-    } else if (swipeDistance < -swipeThreshold) {
-        nextExample(); // Swipe left
+    if (Math.abs(swipeDistance) > swipeThreshold) {
+        swipeDistance > 0 ? prevExample() : nextExample();
     }
 }
 
-// Modify the existing event listeners section to include touch events
-document.addEventListener('DOMContentLoaded', () => {
-    $('next-example').addEventListener('click', nextExample);
-    $('prev-example').addEventListener('click', prevExample);
-
-    $('difficulty').addEventListener('change', (e) => {
-        if (e.target.value === 'reset') {
-            if (confirm('Are you sure you want to reset all progress?')) {
-                resetProgress();
-            }
-            e.target.value = currentDifficulty; // Reset the select to the previous value
-        } else {
-            currentDifficulty = e.target.value;
-            currentExampleIndex = -1;
-            nextExample();
-        }
-    });
-
-    $('toggle-quiz-mode').addEventListener('click', () => {
-        quizMode = !quizMode;
-        $('toggle-quiz-mode').classList.toggle('quiz-mode');
-        displayExample(currentExampleIndex);
-        $('quiz-feedback').textContent = '';
-        $('quiz-input').classList.remove('correct', 'incorrect');
-        // If quiz mode is turned on, trigger the quiz-input input event
-        $('quiz-input').dispatchEvent(new Event('input'));
-    });
-
-    $('quiz-input').addEventListener('input', (e) => {
-        if (!quizMode) return;
-
-        const userAnswer = e.target.value.trim().toLowerCase();
-        const correctAnswer = examples[currentExampleIndex].tactic.toLowerCase();
-        const quizInput = $('quiz-input');
-        const quizFeedback = $('quiz-feedback');
-        
-        if (userAnswer === "") {
-            quizFeedback.textContent = "Enter the tactic.";
-            quizFeedback.style.color = "black";
-            quizInput.classList.remove('correct', 'incorrect');
-        } else if (userAnswer === correctAnswer) {
-            quizFeedback.textContent = "Correct!";
-            quizFeedback.style.color = "green";
-            quizInput.classList.add('correct');
-            quizInput.classList.remove('incorrect');
-            progress.completedExamples[examples[currentExampleIndex].id] = true;
-            updateProgress();
-            setTimeout(() => {
-                nextExample();
-                quizInput.value = ''; // Clear the input field
-                quizInput.classList.remove('correct', 'incorrect');
-                quizFeedback.textContent = '';
-            }, 1000); // 1 second delay before moving to the next question
-        } else if (correctAnswer.startsWith(userAnswer)) {
-            quizFeedback.textContent = "Keep going...";
-            quizFeedback.style.color = "blue";
-            quizInput.classList.remove('correct', 'incorrect');
-        } else {
-            quizFeedback.textContent = "Incorrect. Try again!";
-            quizFeedback.style.color = "red";
-            quizInput.classList.add('incorrect');
-            quizInput.classList.remove('correct');
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight') nextExample();
-        if (e.key === 'ArrowLeft') prevExample();
-    });
-
-    // Add touch event handling
-    handleTouchEvents();
-
-    displayExample(currentExampleIndex);
-    updateProgress();
-});
-
-$('quiz-input').addEventListener('input', (e) => {
+function handleQuizInput(e) {
     if (!quizMode) return;
 
     const userAnswer = e.target.value.trim().toLowerCase();
@@ -862,38 +769,124 @@ $('quiz-input').addEventListener('input', (e) => {
     const quizFeedback = $('quiz-feedback');
     
     if (userAnswer === "") {
-        quizFeedback.textContent = "Enter the tactic.";
-        quizFeedback.style.color = "black";
-        quizInput.classList.remove('correct', 'incorrect');
+        updateQuizFeedback("Enter the tactic.", "black", quizInput);
     } else if (userAnswer === correctAnswer) {
-        quizFeedback.textContent = "Correct!";
-        quizFeedback.style.color = "green";
-        quizInput.classList.add('correct');
-        quizInput.classList.remove('incorrect');
-        progress.completedExamples[examples[currentExampleIndex].id] = true;
-        updateProgress();
-        setTimeout(() => {
-            nextExample();
-            quizInput.value = ''; // Clear the input field
-            quizInput.classList.remove('correct', 'incorrect');
-            quizFeedback.textContent = '';
-        }, 1000); // 1 second delay before moving to the next question
+        handleCorrectAnswer(quizInput, quizFeedback);
     } else if (correctAnswer.startsWith(userAnswer)) {
-        quizFeedback.textContent = "Keep going...";
-        quizFeedback.style.color = "blue";
-        quizInput.classList.remove('correct', 'incorrect');
+        updateQuizFeedback("Keep going...", "blue", quizInput);
     } else {
-        quizFeedback.textContent = "Incorrect. Try again!";
-        quizFeedback.style.color = "red";
-        quizInput.classList.add('incorrect');
-        quizInput.classList.remove('correct');
+        updateQuizFeedback("Incorrect. Try again!", "red", quizInput, 'incorrect');
     }
+}
+
+function updateQuizFeedback(message, color, inputElement, className = '') {
+    const quizFeedback = $('quiz-feedback');
+    quizFeedback.textContent = message;
+    quizFeedback.style.color = color;
+    inputElement.classList.remove('correct', 'incorrect');
+    if (className) inputElement.classList.add(className);
+}
+
+function handleCorrectAnswer(quizInput, quizFeedback) {
+    updateQuizFeedback("Correct!", "green", quizInput, 'correct');
+    progress.completedExamples[examples[currentExampleIndex].id] = true;
+    updateProgress();
+    setTimeout(() => {
+        nextExample();
+        quizInput.value = '';
+        quizInput.classList.remove('correct', 'incorrect');
+        quizFeedback.textContent = '';
+    }, 1000);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    $('next-example').addEventListener('click', nextExample);
+    $('prev-example').addEventListener('click', prevExample);
+
+    $('difficulty').addEventListener('change', handleDifficultyChange);
+
+    $('toggle-quiz-mode').addEventListener('click', toggleQuizMode);
+
+    $('quiz-input').addEventListener('input', handleQuizInput);
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    handleTouchEvents();
+
+    displayExample(currentExampleIndex);
 });
 
-document.addEventListener('keydown', (e) => {
+function handleDifficultyChange(e) {
+    if (e.target.value === 'reset') {
+        if (confirm('Are you sure you want to reset all progress?')) {
+            resetProgress();
+        }
+        e.target.value = currentDifficulty;
+    } else {
+        currentDifficulty = e.target.value;
+        currentExampleIndex = -1;
+        nextExample();
+    }
+}
+
+function toggleQuizMode() {
+    quizMode = !quizMode;
+    $('toggle-quiz-mode').classList.toggle('quiz-mode');
+    displayExample(currentExampleIndex);
+    $('quiz-feedback').textContent = '';
+    $('quiz-input').classList.remove('correct', 'incorrect');
+    $('quiz-input').dispatchEvent(new Event('input'));
+}
+
+function handleKeyDown(e) {
     if (e.key === 'ArrowRight') nextExample();
     if (e.key === 'ArrowLeft') prevExample();
+}
+
+// Modify the existing event listeners section to include touch events
+document.addEventListener('DOMContentLoaded', () => {
+    $('next-example').addEventListener('click', nextExample);
+    $('prev-example').addEventListener('click', prevExample);
+
+    $('difficulty').addEventListener('change', handleDifficultyChange);
+
+    $('toggle-quiz-mode').addEventListener('click', toggleQuizMode);
+
+    $('quiz-input').addEventListener('input', handleQuizInput);
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    handleTouchEvents();
+
+    displayExample(currentExampleIndex);
 });
+
+function handleDifficultyChange(e) {
+    if (e.target.value === 'reset') {
+        if (confirm('Are you sure you want to reset all progress?')) {
+            resetProgress();
+        }
+        e.target.value = currentDifficulty;
+    } else {
+        currentDifficulty = e.target.value;
+        currentExampleIndex = -1;
+        nextExample();
+    }
+}
+
+function toggleQuizMode() {
+    quizMode = !quizMode;
+    $('toggle-quiz-mode').classList.toggle('quiz-mode');
+    displayExample(currentExampleIndex);
+    $('quiz-feedback').textContent = '';
+    $('quiz-input').classList.remove('correct', 'incorrect');
+    $('quiz-input').dispatchEvent(new Event('input'));
+}
+
+function handleKeyDown(e) {
+    if (e.key === 'ArrowRight') nextExample();
+    if (e.key === 'ArrowLeft') prevExample();
+}
 
 displayExample(currentExampleIndex);
 updateProgress();
