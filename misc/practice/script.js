@@ -15,608 +15,263 @@ let currentDifficulty = "all";
 let touchStartX = 0;
 let touchEndX = 0;
 
-const examples = [
-    {
-        id: "ex1",
+let exampleIdCounter = 0;
+const examples = [];
+
+function addExample(tactic, originalGoal, resultingGoals, explanation, context = null) {
+    const id = generateId(tactic, explanation);
+    const example = {
+        id,
+        tactic,
         originalGoal: {
-            hypotheses: [],
-            goal: "forall (n m : nat), n + m = m + n"
+            hypotheses: originalGoal.slice(0, -1),
+            goal: originalGoal[originalGoal.length - 1]
         },
-        tactic: "intros",
-        resultingGoals: [
-            {
-                hypotheses: ["n, m : nat"],
-                goal: "n + m = m + n"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'intros' tactic moves hypotheses from the goal to the context."
-    },
-    {
-        id: "ex2",
-        originalGoal: {
-            hypotheses: ["n, m : nat"],
-            goal: "n + m = m + n"
-        },
-        tactic: "revert m",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat"],
-                goal: "forall m : nat, n + m = m + n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'revert' tactic moves a hypothesis from the context back into the goal."
-    },
-    {
-        id: "ex3",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (n m : nat), n + m = m + n"
-        },
-        tactic: "intros n m",
-        resultingGoals: [
-            {
-                hypotheses: ["n, m : nat"],
-                goal: "n + m = m + n"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'intros' tactic moves universally quantified variables from the goal to the context."
-    },
-    {
-        id: "ex3b",
-        originalGoal: {
-            hypotheses: ["n, m : nat"],
-            goal: "n + m = m + n"
-        },
-        tactic: "apply plus_comm",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'apply' tactic uses the commutativity of addition to prove the goal."
-    },
-    {
-        id: "ex4",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (b : bool), if b then true else false = b"
-        },
-        tactic: "destruct b",
-        resultingGoals: [
-            {
-                hypotheses: [],
-                goal: "if true then true else false = true"
-            },
-            {
-                hypotheses: [],
-                goal: "if false then true else false = false"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'destruct' tactic breaks down a hypothesis into its constituent parts, creating separate subgoals for each case."
-    },
-    {
-        id: "ex5",
-        originalGoal: {
-            hypotheses: ["n m : nat"],
-            goal: "n + m = m + n"
-        },
-        tactic: "rewrite plus_comm",
-        resultingGoals: [
-            {
-                hypotheses: ["n m : nat"],
-                goal: "m + n = m + n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'rewrite' tactic rewrites the goal using the commutativity of addition."
-    },
-    {
-        id: "ex6",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (A B : Prop), A /\\ B -> B /\\ A"
-        },
-        tactic: "intros A B H",
-        resultingGoals: [
-            {
-                hypotheses: ["A, B : Prop", "H : A /\\ B"],
-                goal: "B /\\ A"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'intros' tactic moves hypotheses from the goal to the context."
-    },
-    {
-        id: "ex7",
-        originalGoal: {
-            hypotheses: ["A, B : Prop", "H : A /\\ B"],
-            goal: "B /\\ A"
-        },
-        tactic: "destruct H as [HA HB]",
-        resultingGoals: [
-            {
-                hypotheses: ["A, B : Prop", "HA : A", "HB : B"],
-                goal: "B /\\ A"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'destruct' tactic breaks down a hypothesis into its constituent parts."
-    },
-    {
-        id: "ex8",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (P Q : nat -> Prop), (forall n, P n -> Q n) -> (forall n, P n) -> (forall n, Q n)"
-        },
-        tactic: "intros P Q H1 H2 n",
-        resultingGoals: [
-            {
-                hypotheses: ["P, Q : nat -> Prop", "H1 : forall n, P n -> Q n", "H2 : forall n, P n", "n : nat"],
-                goal: "Q n"
-            }
-        ],
-        difficulty: "advanced",
-        explanation: "The 'intros' tactic moves hypotheses from the goal to the context."
-    },
-    {
-        id: "ex9",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (A B C : Prop), (A -> B) -> (B -> C) -> A -> C"
-        },
-        tactic: "intros A B C HAB HBC HA",
-        resultingGoals: [
-            {
-                hypotheses: ["A, B, C : Prop", "HAB : A -> B", "HBC : B -> C", "HA : A"],
-                goal: "C"
-            }
-        ],
-        difficulty: "advanced",
-        explanation: "The 'intros' tactic moves hypotheses from the goal to the context."
-    },
-    {
-        id: "ex10",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "n = n"
-        },
-        tactic: "reflexivity",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'reflexivity' tactic proves a goal of the form 'x = x' for any term x."
-    },
-    {
-        id: "ex11",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (n : nat), n <= n"
-        },
-        tactic: "intros n",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat"],
-                goal: "n <= n"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'intros' tactic moves the universally quantified variable from the goal to the context."
-    },
-    {
-        id: "ex12",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "n <= n"
-        },
-        tactic: "apply le_n",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'apply' tactic uses the lemma 'le_n' to prove that any natural number is less than or equal to itself.",
-        context: "Lemma le_n : forall n : nat, n <= n"
-    },
-    {
-        id: "ex13",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "S n <> 0"
-        },
-        tactic: "discriminate",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'discriminate' tactic proves that two constructors of an inductive type are not equal."
-    },
-    {
-        id: "ex14",
-        originalGoal: {
-            hypotheses: ["n : nat", "H : S n = 0"],
-            goal: "False"
-        },
-        tactic: "inversion H",
-        resultingGoals: [],
-        difficulty: "intermediate",
-        explanation: "The 'inversion' tactic derives contradictions from impossible equalities between constructors."
-    },
-    {
-        id: "ex15",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "n + 0 = n"
-        },
-        tactic: "induction n",
-        resultingGoals: [
-            {
-                hypotheses: [],
-                goal: "0 + 0 = 0"
-            },
-            {
-                hypotheses: ["n : nat", "IHn : n + 0 = n"],
-                goal: "S n + 0 = S n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'induction' tactic starts a proof by induction on a given variable, generating base and inductive cases."
-    },
-    {
-        id: "ex16",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "H : A /\\ B"],
-            goal: "A"
-        },
-        tactic: "destruct H",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "H1 : A", "H2 : B"],
-                goal: "A"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'destruct' tactic breaks down a conjunction into its components."
-    },
-    {
-        id: "ex17",
-        originalGoal: {
-            hypotheses: ["A B : Prop"],
-            goal: "A \\/ B -> B \\/ A"
-        },
-        tactic: "intros H",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "H : A \\/ B"],
-                goal: "B \\/ A"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'intros' tactic moves a hypothesis from the goal to the context."
-    },
-    {
-        id: "ex18",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "H : A \\/ B"],
-            goal: "B \\/ A"
-        },
-        tactic: "destruct H",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "H : A"],
-                goal: "B \\/ A"
-            },
-            {
-                hypotheses: ["A B : Prop", "H : B"],
-                goal: "B \\/ A"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'destruct' tactic breaks down a disjunction into separate cases."
-    },
-    {
-        id: "ex19",
-        originalGoal: {
-            hypotheses: ["P Q : Prop", "H : P <-> Q"],
-            goal: "Q -> P"
-        },
-        tactic: "destruct H",
-        resultingGoals: [
-            {
-                hypotheses: ["P Q : Prop", "H1 : P -> Q", "H2 : Q -> P"],
-                goal: "Q -> P"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'destruct' tactic breaks down a bi-implication into its two implications."
-    },
-    {
-        id: "ex20",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "exists m : nat, n = m"
-        },
-        tactic: "exists n",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat"],
-                goal: "n = n"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'exists' tactic provides a witness for an existential statement."
-    },
-    {
-        id: "ex21",
-        originalGoal: {
-            hypotheses: [],
-            goal: "forall (A B C : Prop), A -> B -> C -> A /\\ B /\\ C"
-        },
-        tactic: "intros A B C HA HB HC",
-        resultingGoals: [
-            {
-                hypotheses: ["A B C : Prop", "HA : A", "HB : B", "HC : C"],
-                goal: "A /\\ B /\\ C"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'intros' tactic moves multiple hypotheses from the goal to the context."
-    },
-    {
-        id: "ex22",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "H : A /\\ B"],
-            goal: "B /\\ A"
-        },
-        tactic: "destruct H as [HA HB]",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "HA : A", "HB : B"],
-                goal: "B /\\ A"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'destruct' tactic breaks down a conjunction hypothesis into its components."
-    },
-    {
-        id: "ex23",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "HA : A", "HB : B"],
-            goal: "A /\\ B"
-        },
-        tactic: "split",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "HA : A", "HB : B"],
-                goal: "A"
-            },
-            {
-                hypotheses: ["A B : Prop", "HA : A", "HB : B"],
-                goal: "B"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'split' tactic breaks down a conjunction goal into separate subgoals."
-    },
-    {
-        id: "ex24",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "HA : A"],
-            goal: "A \\/ B"
-        },
-        tactic: "left",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "HA : A"],
-                goal: "A"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'left' tactic chooses the left side of a disjunction goal."
-    },
-    {
-        id: "ex25",
-        originalGoal: {
-            hypotheses: ["A B : Prop", "HB : B"],
-            goal: "A \\/ B"
-        },
-        tactic: "right",
-        resultingGoals: [
-            {
-                hypotheses: ["A B : Prop", "HB : B"],
-                goal: "B"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'right' tactic chooses the right side of a disjunction goal."
-    },
-    {
-        id: "ex26",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "n + 0 = n"
-        },
-        tactic: "induction n",
-        resultingGoals: [
-            {
-                hypotheses: [],
-                goal: "0 + 0 = 0"
-            },
-            {
-                hypotheses: ["n : nat", "IHn : n + 0 = n"],
-                goal: "S n + 0 = S n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'induction' tactic starts a proof by induction on a natural number."
-    },
-    {
-        id: "ex27",
-        originalGoal: {
-            hypotheses: ["n m : nat"],
-            goal: "S (n + m) = S n + m"
-        },
-        tactic: "reflexivity",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'reflexivity' tactic proves the goal because both sides are already equal by definition of addition."
-    },
-    {
-        id: "ex28",
-        originalGoal: {
-            hypotheses: ["n m : nat", "H : n = m"],
-            goal: "S n = S m"
-        },
-        tactic: "rewrite H",
-        resultingGoals: [
-            {
-                hypotheses: ["n m : nat", "H : n = m"],
-                goal: "S m = S m"
-            }
-        ],
-        difficulty: "beginner",
-        explanation: "The 'rewrite' tactic replaces occurrences of the left-hand side of an equality with its right-hand side."
-    },
-    {
-        id: "ex29",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "S n <> 0"
-        },
-        tactic: "discriminate",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'discriminate' tactic proves that two constructors of an inductive type are not equal."
-    },
-    {
-        id: "ex30",
-        originalGoal: {
-            hypotheses: ["n m : nat", "H : S n = S m"],
-            goal: "n = m"
-        },
-        tactic: "injection H",
-        resultingGoals: [
-            {
-                hypotheses: ["n m : nat", "H : S n = S m", "H0 : n = m"],
-                goal: "n = m"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'injection' tactic derives an equality of arguments from an equality of constructed terms, adding it as a new hypothesis."
-    },
-    {
-        id: "ex31",
-        originalGoal: {
-            hypotheses: ["n m : nat", "H1 : S n = m", "H2 : m = S n"],
-            goal: "n = n"
-        },
-        tactic: "congruence",
-        resultingGoals: [],
-        difficulty: "intermediate",
-        explanation: "The 'congruence' tactic proves goals involving equalities and inequalities using congruence closure."
-    },
-    {
-        id: "ex32",
-        originalGoal: {
-            hypotheses: ["n m : nat", "H1 : n <= m", "H2 : m <= n"],
-            goal: "n = m"
-        },
-        tactic: "lia",
-        resultingGoals: [],
-        difficulty: "intermediate",
-        explanation: "The 'lia' tactic solves goals involving linear integer arithmetic."
-    },
-    {
-        id: "ex33",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "even n \\/ odd n"
-        },
-        tactic: "induction n",
-        resultingGoals: [
-            {
-                hypotheses: [],
-                goal: "even 0 \\/ odd 0"
-            },
-            {
-                hypotheses: ["n : nat", "IHn : even n \\/ odd n"],
-                goal: "even (S n) \\/ odd (S n)"
-            }
-        ],
-        difficulty: "advanced",
-        explanation: "The 'induction' tactic can be used on inductive propositions like 'even' and 'odd'.",
-        context: "Inductive even : nat -> Prop :=\n  | even_O : even 0\n  | even_SS : forall n, even n -> even (S (S n)).\n\nInductive odd : nat -> Prop :=\n  | odd_S : odd 1\n  | odd_SS : forall n, odd n -> odd (S (S n))."
-    },
-    {
-        id: "ex34",
-        originalGoal: {
-            hypotheses: ["n : nat", "H : even (S n)"],
-            goal: "odd n"
-        },
-        tactic: "inversion H",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat", "H : even (S n)", "n0 : nat", "H0 : n = S n0", "H1 : odd n0"],
-                goal: "odd n"
-            }
-        ],
-        difficulty: "advanced",
-        explanation: "The 'inversion' tactic analyzes the structure of an inductive hypothesis, generating all possible cases."
-    },
-    {
-        id: "ex35",
-        originalGoal: {
-            hypotheses: ["f g : nat -> nat", "H : forall x, f x = g x"],
-            goal: "f 3 = g 3"
-        },
-        tactic: "apply H",
-        resultingGoals: [],
-        difficulty: "intermediate",
-        explanation: "The 'apply' tactic uses a hypothesis to prove the goal, instantiating universal quantifiers as needed."
-    },
-    {
-        id: "ex36",
-        originalGoal: {
-            hypotheses: ["H1 : A -> B", "H2 : B -> C", "H3 : A"],
-            goal: "C"
-        },
-        tactic: "auto",
-        resultingGoals: [],
-        difficulty: "beginner",
-        explanation: "The 'auto' tactic attempts to solve the goal automatically using the available hypotheses and simple proof strategies."
-    },
-    {
-        id: "ex37",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "double n = n + n"
-        },
-        tactic: "unfold double",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat"],
-                goal: "2 * n = n + n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'unfold' tactic expands the definition of a function or constant in the goal.",
-        context: "Definition double (n : nat) := 2 * n."
-    },
-    {
-        id: "ex38",
-        originalGoal: {
-            hypotheses: ["n : nat"],
-            goal: "n + 1 > n"
-        },
-        tactic: "assert (H: n + 1 = S n)",
-        resultingGoals: [
-            {
-                hypotheses: ["n : nat"],
-                goal: "n + 1 = S n"
-            },
-            {
-                hypotheses: ["n : nat", "H : n + 1 = S n"],
-                goal: "n + 1 > n"
-            }
-        ],
-        difficulty: "intermediate",
-        explanation: "The 'assert' tactic introduces a new subgoal and adds it as a hypothesis once proved, which can be useful for breaking down complex proofs."
+        resultingGoals: resultingGoals.map(goal => ({
+            hypotheses: goal.slice(0, -1),
+            goal: goal[goal.length - 1]
+        })),
+        difficulty: currentDifficulty,
+        explanation,
+        context
+    };
+    examples.push(example);
+}
+
+function generateId(tactic, explanation) {
+    const hash = stringToHash(tactic + explanation);
+    return `ex${hash}`;
+}
+
+function stringToHash(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // Convert to 32-bit integer
     }
-];
+    return Math.abs(hash);
+}
+
+currentDifficulty = "basics";
+
+addExample(
+    "intros x",
+    ["forall n : nat, n + 0 = n"],
+    [["x : nat", "x + 0 = x"]],
+    "Introduces a variable x for the first forall quantifier."
+);
+
+addExample(
+    "intros n m",
+    ["forall n m : nat, n + m = m + n"],
+    [["n, m : nat", "n + m = m + n"]],
+    "Introduces variables n and m for the first two forall quantifiers."
+);
+
+addExample(
+    "intros H",
+    ["n : nat", "n < 2 -> n < 3"],
+    [["n : nat", "H : n < 2", "n < 3"]],
+    "Introduces a hypothesis H for an implication."
+);
+
+addExample(
+    "revert m",
+    ["n, m : nat", "n + m = m + n"],
+    [["n : nat", "forall m : nat, n + m = m + n"]],
+    "Moves variable m from the context back into the goal."
+);
+
+addExample(
+    "revert n m",
+    ["n, m : nat", "n + m = m + n"],
+    [["forall n m : nat, n + m = m + n"]],
+    "Moves variables n and m from the context back into the goal."
+);
+
+addExample(
+    "induction n",
+    ["n : nat", "n + 0 = n"],
+    [
+        ["0 + 0 = 0"],
+        ["n : nat", "IHn : n + 0 = n", "(S n) + 0 = S n"]
+    ],
+    "Performs induction on the natural number n, generating base and inductive cases."
+);
+
+addExample(
+    "destruct n",
+    ["n : nat", "n = 0 \\/ exists m : nat, n = S m"],
+    [
+        ["0 = 0 \\/ exists m : nat, 0 = S m"],
+        ["n' : nat", "S n' = 0 \\/ exists m : nat, S n' = S m"]
+    ],
+    "Performs case analysis on the natural number n, considering cases for 0 and S n'."
+);
+
+addExample(
+    "simpl",
+    ["n : nat", "2 + n = n + 2"],
+    [["n : nat", "S (S n) = n + 2"]],
+    "Simplifies the goal by reducing computations and applying definitions."
+);
+
+addExample(
+    "simpl in H",
+    ["n : nat", "H : 2 + n = n + 3", "False"],
+    [["n : nat", "H : S (S n) = n + 3", "False"]],
+    "Simplifies the hypothesis H by reducing computations and applying definitions."
+);
+
+addExample(
+    "reflexivity",
+    ["n : nat", "n = n"],
+    [],
+    "Proves a goal of the form x = x for any term x."
+);
+
+addExample(
+    "rewrite plus_comm",
+    ["n, m, a, b: nat", "n + m = a + b"],
+    [["n, m, a, b: nat", "m + n = a + b"]],
+    "Rewrites the first match in the goal using a lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "rewrite (plus_comm a b)",
+    ["n, m, a, b: nat", "n + m = a + b"],
+    [["n, m, a, b: nat", "n + m = b + a"]],
+    "Rewrites the first match in the goal using an instantiated lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "rewrite IHn",
+    ["n : nat", "IHn : n + 0 = n", "S (n + 0) = S n"],
+    [["n : nat", "IHn : n + 0 = n", "S n = S n"]],
+    "Rewrites the goal using the hypothesis IHn."
+);
+
+addExample(
+    "rewrite plus_comm in H",
+    ["n, m : nat", "H : n + 0 = m", "n = m"],
+    [["n, m : nat", "H : 0 + n = m", "n = m"]],
+    "Rewrites in the hypothesis H using a lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "constructor",
+    ["True"],
+    [],
+    "Proves a goal of type True by applying its constructor.",
+    "Inductive True : Prop := I : True."
+);
+
+addExample(
+    "destruct H",
+    ["H : False", "P"],
+    [],
+    "Eliminates a hypothesis of type False, proving any goal P.",
+    "Inductive False : Prop := ."
+);
+
+addExample(
+    "discriminate",
+    ["n : nat", "H : S n = 0", "P"],
+    [],
+    "Proves any goal P by contradiction from an equality between distinct constructors."
+);
+
+addExample(
+    "injection H as H",
+    ["n, m : nat", "H : S n = S m", "n = m"],
+    [["n, m : nat", "H : n = m", "n = m"]],
+    "Derives an equality between the arguments of matching constructors."
+);
+
+addExample(
+    "apply plus_comm",
+    ["n, m : nat", "n + m = m + n"],
+    [],
+    "Applies the lemma to prove the goal.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "apply H",
+    ["H : forall n : nat, n + 0 = n", "m : nat", "m + 0 = m"],
+    [],
+    "Applies the hypothesis H to prove the goal."
+);
+
+addExample(
+    "apply H in H'",
+    ["H : forall n : nat, n < 2 -> n < 3", "m : nat", "H' : m < 2", "m < 3"],
+    [["H : forall n : nat, n < 2 -> n < 3", "m : nat", "H' : m < 3", "m < 3"]],
+    "Applies the hypothesis H to the hypothesis H'."
+);
+
+addExample(
+    "apply (H 3)",
+    ["H : forall a, n <= a -> a <= m -> n <= m", "n, m : nat", "H1 : n <= 3", "H2 : 3 <= m", "n <= m"],
+    [
+        ["H : forall a, n <= a -> a <= m -> n <= m", "n, m : nat", "H1 : n <= 3", "H2 : 3 <= m", "n <= 3"],
+        ["H : forall a, n <= a -> a <= m -> n <= m", "n, m : nat", "H1 : n <= 3", "H2 : 3 <= m", "3 <= m"],
+    ],
+    "Instantiate a hypothesis and apply it."
+)
+
+addExample(
+    "split",
+    ["P /\\ Q"],
+    [["P"], ["Q"]],
+    "Splits a conjunctive goal into two subgoals."
+);
+
+addExample(
+    "destruct H",
+    ["H : P /\\ Q", "Q"],
+    [["H1 : P", "H2 : Q", "Q"]],
+    "Destructs a conjunctive hypothesis into its components."
+);
+
+addExample(
+    "destruct H",
+    ["H : P \\/ Q", "R"],
+    [["H : P", "R"], ["H : Q", "R"]],
+    "Performs case analysis on a disjunctive hypothesis."
+);
+
+addExample(
+    "left",
+    ["P \\/ Q"],
+    [["P"]],
+    "Proves a disjunctive goal by proving its left component."
+);
+
+addExample(
+    "right",
+    ["P \\/ Q"],
+    [["Q"]],
+    "Proves a disjunctive goal by proving its right component."
+);
+
+addExample(
+    "exists 2",
+    ["exists n, n + 2 = 4"],
+    [["2 + 2 = 4"]],
+    "Instantiates an existential quantifier with a specific value."
+);
+
+addExample(
+    "destruct H",
+    ["a, b : nat", "H : exists n, a + n = b", "a <= b"], 
+    [["a, b, n: nat", "H : a + n = b", "a <= b"]],
+    "Destructs an existential hypothesis into its components."
+);
 
 function displayExample(index) {
     const example = examples[index];
@@ -737,7 +392,10 @@ function prevExample() {
 }
 
 function resetProgress() {
-    moveExample(1);
+    progress.completedExamples = {};
+    localStorage.removeItem('coqTacticProgress');
+    updateProgress();
+    displayExample(currentExampleIndex);
 }
 
 function handleTouchEvents() {
@@ -818,33 +476,6 @@ document.addEventListener('DOMContentLoaded', () => {
     displayExample(currentExampleIndex);
     updateProgress();
 });
-
-function handleDifficultyChange(e) {
-    if (e.target.value === 'reset') {
-        if (confirm('Are you sure you want to reset all progress?')) {
-            resetProgress();
-        }
-        e.target.value = currentDifficulty;
-    } else {
-        currentDifficulty = e.target.value;
-        currentExampleIndex = -1;
-        nextExample();
-    }
-}
-
-function toggleQuizMode() {
-    quizMode = !quizMode;
-    $('toggle-quiz-mode').classList.toggle('quiz-mode');
-    displayExample(currentExampleIndex);
-    $('quiz-feedback').textContent = '';
-    $('quiz-input').classList.remove('correct', 'incorrect');
-    $('quiz-input').dispatchEvent(new Event('input'));
-}
-
-function handleKeyDown(e) {
-    if (e.key === 'ArrowRight') nextExample();
-    if (e.key === 'ArrowLeft') prevExample();
-}
 
 function handleDifficultyChange(e) {
     if (e.target.value === 'reset') {
