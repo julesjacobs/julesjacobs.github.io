@@ -247,6 +247,7 @@ button.quiz-mode { box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); background-color: #0
     .goal { padding: 10px; font-size: 12px; margin: 0; }
     #tactic, #quiz-input { font-size: 16px; height: 40px; margin: 0; }
     #explanation, #context { font-size: 12px; padding: 10px; margin: 10px 0; }
+    #explanation { border-radius: 20px; }
     #progress-bar { height: 5px; margin-bottom: 10px; width: 90%; }
     #app::after { border-width: 0 20px 20px 0; }
 }

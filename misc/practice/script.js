@@ -660,7 +660,8 @@ function displayExample(index) {
     }
 
     const appContainer = $('app');
-    appContainer.classList.toggle('completed', progress.completedExamples[example.id]);
+    let is_completed = progress.completedExamples[example.id] ? true : false;
+    appContainer.classList.toggle('completed', is_completed);
 
     updateProgress();
 }
@@ -724,18 +725,19 @@ function nextExample() {
     displayExample(currentExampleIndex);
 }
 
-function prevExample() {
+function moveExample(delta) {
     do {
-        currentExampleIndex = (currentExampleIndex - 1 + examples.length) % examples.length;
+        currentExampleIndex = (currentExampleIndex + delta + examples.length) % examples.length;
     } while (currentDifficulty !== "all" && examples[currentExampleIndex].difficulty !== currentDifficulty);
     displayExample(currentExampleIndex);
 }
 
+function prevExample() {
+    moveExample(-1);
+}
+
 function resetProgress() {
-    Object.keys(progress.completedExamples).forEach(key => delete progress.completedExamples[key]);
-    localStorage.setItem('coqTacticProgress', JSON.stringify(progress));
-    currentExampleIndex = 0;
-    displayExample(currentExampleIndex);
+    moveExample(1);
 }
 
 function handleTouchEvents() {
@@ -814,6 +816,7 @@ document.addEventListener('DOMContentLoaded', () => {
     handleTouchEvents();
 
     displayExample(currentExampleIndex);
+    updateProgress();
 });
 
 function handleDifficultyChange(e) {
@@ -843,24 +846,6 @@ function handleKeyDown(e) {
     if (e.key === 'ArrowLeft') prevExample();
 }
 
-// Modify the existing event listeners section to include touch events
-document.addEventListener('DOMContentLoaded', () => {
-    $('next-example').addEventListener('click', nextExample);
-    $('prev-example').addEventListener('click', prevExample);
-
-    $('difficulty').addEventListener('change', handleDifficultyChange);
-
-    $('toggle-quiz-mode').addEventListener('click', toggleQuizMode);
-
-    $('quiz-input').addEventListener('input', handleQuizInput);
-
-    document.addEventListener('keydown', handleKeyDown);
-
-    handleTouchEvents();
-
-    displayExample(currentExampleIndex);
-});
-
 function handleDifficultyChange(e) {
     if (e.target.value === 'reset') {
         if (confirm('Are you sure you want to reset all progress?')) {
@@ -887,6 +872,3 @@ function handleKeyDown(e) {
     if (e.key === 'ArrowRight') nextExample();
     if (e.key === 'ArrowLeft') prevExample();
 }
-
-displayExample(currentExampleIndex);
-updateProgress();
