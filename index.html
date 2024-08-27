@@ -1,263 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/ico/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/images/ico/favicon-16x16.png" />
-    <link rel="manifest" href="/images/ico/manifest.json" />
+<head>
+  <meta name="viewport" content="width=device-width" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/ico/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/ico/favicon-16x16.png" />
+  <link rel="manifest" href="/images/ico/manifest.json" />
+  <title>Jules Jacobs</title>
+  <style>
+    body {
+      font-family: Helvetica;
+      font-size: 16px;
+      text-align: justify;
+      line-height: 1.3;
+      color: #333;
+      max-width: 900px;
+      padding: 3px;
+      margin: auto;
+    }
 
-    <title>Jules Jacobs</title>
-    <style>
-      body {
-        font-family: Helvetica;
-        font-size: 16px;
-        text-align: justify;
-        line-height: 1.3;
-        color: #333;
-        max-width: 900px;
-        padding: 3px;
-        margin: auto;
-      }
+    header {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap-reverse;
+    }
 
-      header {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap-reverse;
-      }
+    header #panel {
+      flex: 1;
+      padding: 0px 10px;
+      min-width: 400px;
+    }
 
-      header #panel {
-        flex: 1;
-        padding: 0px 10px;
-        min-width: 400px;
-      }
+    header #links {
+      text-align: left;
+      padding: 4px 10px 2px 5px;
+      line-height: 170%;
+    }
 
-      header #links {
-        text-align: left;
-        padding: 4px 10px 2px 5px;
-        line-height: 170%;
-      }
+    header #desc {
+      background-color: #eee;
+      color: #444;
+      line-height: 150%;
+      padding: 10px 15px;
+      margin: 5px 0px 15px 0px;
+      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+      border-radius: 10px;
+    }
 
-      header #desc {
-        background-color: #eee;
-        color: #444;
-        line-height: 150%;
-        padding: 10px 15px;
-        margin: 5px 0px 15px 0px;
-        box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-        border-radius: 10px;
-      }
+    header #desc p {
+      margin: 0px 0px 5px 0px;
+    }
 
-      header #desc p {
-        margin: 0px 0px 5px 0px;
-      }
+    header #pic {
+      margin: auto;
+      padding: 10px 20px;
+    }
 
-      header #pic {
-        margin: auto;
-        padding: 10px 20px;
-      }
+    h2 {
+      font-size: 14pt;
+      margin: 15px 10px;
+    }
 
-      h2 {
-        font-size: 14pt;
-        margin: 15px 10px;
-      }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
 
-      table {
-        border-collapse: collapse;
-        width: 100%;
-      }
+    #main p {
+      margin-left: 10px;
+    }
 
-      #main p {
-        margin-left: 10px;
-      }
+    a {
+      color: hsl(213, 50%, 40%);
+      text-decoration: none;
+      border-radius: 4px;
+      padding: 1px;
+    }
 
-      a {
-        color: hsl(213, 50%, 40%);
-        text-decoration: none;
-        border-radius: 4px;
-        padding: 1px;
-      }
+    a:hover {
+      background: #ccc;
+    }
 
-      a:hover {
-        background: #ccc;
-      }
+    .pub td {
+      padding-bottom: 20px;
+    }
 
-      .pub td {
-        padding-bottom: 20px;
-      }
+    .pub tr td:first-child {
+      width: 6.5em;
+      white-space: normal;
+      text-align: right;
+      padding-bottom: 0px;
+    }
 
-      .pub tr td:first-child {
-        width: 6.5em;
-        white-space: normal;
-        text-align: right;
-        padding-bottom: 0px;
-      }
+    .pub tr td:first-child {
+      padding-right: 0.5em;
+      padding-top: 2px;
+      color: gray;
+      font-size: 14px;
+      text-align: right;
+      vertical-align: top;
+    }
 
-      .pub tr td:first-child {
-        padding-right: 0.5em;
-        padding-top: 2px;
-        color: gray;
-        font-size: 14px;
-        text-align: right;
-        vertical-align: top;
-      }
+    #publications tr td:first-child {
+      width: 1em;
+      white-space: normal;
+    }
 
-      #publications tr td:first-child {
-        width: 1em;
-        white-space: normal;
-      }
+    #publications .info {
+      line-height: 200%;
+      text-align: left;
+    }
 
-      #publications .info {
-        line-height: 200%;
-        text-align: left;
-      }
+    .bibtex {
+      display: none;
+      width: 80%;
+      margin: 10px 0px;
+      padding: 10px 10px 0 10px;
+      background-color: #eee;
+      border-radius: 10px;
+      outline: none;
+      border: none;
+      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+      color: #555;
+    }
 
-      .bibtex {
-        display: none;
-        width: 80%;
-        margin: 10px 0px;
-        padding: 10px 10px 0 10px;
-        background-color: #eee;
-        border-radius: 10px;
-        outline: none;
-        border: none;
-        box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-        color: #555;
-      }
+    .title {
+      padding: 0px 0px;
+      display: inline-block;
+      font-weight: bold;
+      color: hsl(213, 50%, 40%);
+    }
 
-      .title {
-        padding: 0px 0px;
-        display: inline-block;
-        font-weight: bold;
-        color: hsl(213, 50%, 40%);
-      }
+    .authors {
+      color: #444;
+      line-height: 150%;
+    }
 
-      .authors {
-        color: #444;
-        line-height: 150%;
-      }
+    .authors a {
+      color: #444;
+    }
 
-      .authors a {
-        color: #444;
-      }
+    .button,
+    .distinguished {
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+      padding: 3px 4px;
+      font-size: 0.875rem;
+      color: #777;
+      background-color: #eee;
+      white-space: nowrap;
+      position: relative;
+    }
 
-      .button,
-      .distinguished {
-        border: 1px solid #bbb;
-        border-radius: 4px;
-        box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-        padding: 3px 4px;
-        font-size: 0.875rem;
-        color: #777;
-        background-color: #eee;
-        white-space: nowrap;
-        position: relative;
-      }
+    #links .button {
+      color: #555;
+    }
 
-      #links .button {
-        color: #555;
-      }
+    .button:hover,
+    #links .button:hover {
+      color: white;
+      border-color: #888;
+      background-color: #888;
+      cursor: pointer;
+    }
 
-      .button:hover,
-      #links .button:hover {
-        color: white;
-        border-color: #888;
-        background-color: #888;
-        cursor: pointer;
-      }
+    .distinguished,
+    .distinguished:hover {
+      color: hsl(213, 85%, 45%);
+      border-color: hsl(213, 85%, 50%);
+      background-color: hsl(213, 85%, 90%);
+    }
 
-      .distinguished,
-      .distinguished:hover {
-        color: hsl(213, 85%, 45%);
-        border-color: hsl(213, 85%, 50%);
-        background-color: hsl(213, 85%, 90%);
-      }
-
-      #notes .button {
-        margin-left: 5px;
-      }
-    </style>
-    <script>
-      function toggle(elem) {
-        var e = document.getElementById(elem);
-        e.style.display = e.style.display == "block" ? "none" : "block";
-        e.style.height = "";
-        e.style.height = e.scrollHeight + "px";
-        e.select();
-      }
-    </script>
-  </head>
-
-  <body>
-    <header>
-      <div id="panel">
-        <div id="links">
-          <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
-          <a class="button" href="https://github.com/julesjacobs">github</a>
-          <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a>
-          <!-- <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a> -->
-          <a class="button" href="misc/deadlines/">deadlines</a>
-          <a class="button" href="photos/">photos</a>
-          <a class="button" href="blog.html">blog</a>
-        </div>
-        <div id="desc">
-            I'm Jules Jacobs, a postdoc at Cornell University with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://www.cs.cornell.edu/~jnfoster/">Nate Foster</a>. 
-            <!-- Previously, I was in the PhD program at Radboud University, working on formal verification and programming languages under <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p> -->
-          <p>
-            Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>,
-            <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
-            <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
-            <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
-            <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
-          </p>
-        </div>
+    #notes .button {
+      margin-left: 5px;
+    }
+  </style>
+  <script>
+    function toggle(elem) {
+      var e = document.getElementById(elem);
+      e.style.display = e.style.display == "block" ? "none" : "block";
+      e.style.height = "";
+      e.style.height = e.scrollHeight + "px";
+      e.select();
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div id="panel">
+      <div id="links">
+        <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
+        <a class="button" href="https://github.com/julesjacobs">github</a>
+        <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a>
+        <!-- <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a> -->
+        <a class="button" href="misc/deadlines/">deadlines</a>
+        <a class="button" href="photos/">photos</a>
+        <a class="button" href="blog.html">blog</a>
       </div>
-      <img id="pic" src="images/jules_small.webp" width="150" height="150" alt="Jules" />
-    </header>
-
-    <div id="main">
-      <h2>Publications</h2>
-      <table class="pub" id="publications">
-        <tr id="katch">
-          <td>PLDI'24</td>
-          <td>
-            <a class="title" href="pdf/katch.pdf">KATch: A Fast Symbolic Verifier for NetKAT</a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                Mark Moeller + <span class="me">Jules Jacobs</span>, Olivier Savary Belanger, David Darais, Cole Schlesinger, Steffen Smolka, Nate Foster, Alexandra Silva
-              </div>
-              <a class="button" href="pdf/katch.pdf">.pdf</a>
-              <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
-              <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
-              <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
-
-            <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
-  author = {Jacobs, Jules and Balzer, Stephanie},
-  title = {Higher-Order Leak and Deadlock Free Locks},
-  year = {2023},
-  volume = {7},
-  number = {POPL},
-  doi = {10.1145/3571229},
-  journal = {Proc. ACM Program. Lang.},
-  articleno = {36},
-}</textarea> -->
-            </div>
-          </td>
-        </tr>
-        <tr id="thesis">
-          <td>PhD Thesis</td>
-          <td>
-            <a class="title" href="pdf/thesis.pdf">Guarantees by Construction</a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>
-              </div>
-              <a class="button" href="pdf/thesis.pdf">.pdf</a>
-              <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
-              <a class="button" href="https://apndx.org/pub/thesis/">code</a>
-              <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
+      <div id="desc"> I'm Jules Jacobs, a postdoc at Cornell University with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://www.cs.cornell.edu/~jnfoster/">Nate Foster</a>. <!-- Previously, I was in the PhD program at Radboud University, working on formal verification and programming languages under <a href="https://robbertkrebbers.nl">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p> -->
+        <p> Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
+          <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
+          <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
+          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+        </p>
+      </div>
+    </div>
+    <img id="pic" src="images/jules_small.webp" width="150" height="150" alt="Jules" />
+  </header>
+  <div id="main">
+    <h2>Publications</h2>
+    <table class="pub" id="publications">
+      <tr id="mpactris">
+        <td>OOPSLA'24</td>
+        <td>
+          <a class="title" href="pdf/mpactris.pdf">Multris: Functional Verification of Multiparty Message Passing in Separation Logic</a>
+          <br />
+          <div class="info">
+            <div class="authors"><a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <span class="me">Jules Jacobs</span>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a></div>
+            <a class="button" href="pdf/mpactris.pdf">.pdf</a>
+            <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
+            <a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a>
+            <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
 
             <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
   author = {Jacobs, Jules and Balzer, Stephanie},
@@ -269,23 +233,20 @@
   journal = {Proc. ACM Program. Lang.},
   articleno = {36},
 }</textarea> -->
-            </div>
-          </td>
-        </tr>
-        <tr id="dlfactris">
-          <td>POPL'24</td>
-          <td>
-            <a class="title" href="https://apndx.org/pub/icnp/dlfactris.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>,
-                <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
-              </div>
-              <a class="button" href="https://apndx.org/pub/icnp/dlfactris.pdf">.pdf</a>
-              <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
-              <a class="button" href="https://apndx.org/pub/icnp/">code</a>
-              <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
+          </div>
+        </td>
+      </tr>
+      <tr id="katch">
+        <td>PLDI'24</td>
+        <td>
+          <a class="title" href="pdf/katch.pdf">KATch: A Fast Symbolic Verifier for NetKAT</a>
+          <br />
+          <div class="info">
+            <div class="authors"> Mark Moeller + <span class="me">Jules Jacobs</span>, Olivier Savary Belanger, David Darais, Cole Schlesinger, Steffen Smolka, Nate Foster, Alexandra Silva </div>
+            <a class="button" href="pdf/katch.pdf">.pdf</a>
+            <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
+            <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
+            <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
 
             <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
   author = {Jacobs, Jules and Balzer, Stephanie},
@@ -297,23 +258,22 @@
   journal = {Proc. ACM Program. Lang.},
   articleno = {36},
 }</textarea> -->
+          </div>
+        </td>
+      </tr>
+      <tr id="thesis">
+        <td>PhD Thesis</td>
+        <td>
+          <a class="title" href="pdf/thesis.pdf">Guarantees by Construction</a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>
             </div>
-          </td>
-        </tr>
-        <tr id="miniactris">
-          <td>ICFP'23</td>
-          <td>
-            <a class="title" href="https://apndx.org/pub/mpy9/miniactris.pdf"> Dependent Session Protocols in Separation Logic from First Principles </a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>,
-                <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
-              </div>
-              <a class="button" href="https://apndx.org/pub/mpy9/miniactris.pdf">.pdf</a>
-              <a class="button" href="slides/miniactris_iris.pdf">slides</a>
-              <a class="button" href="https://apndx.org/pub/mpy9/">code</a>
-              <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
+            <a class="button" href="pdf/thesis.pdf">.pdf</a>
+            <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
+            <a class="button" href="https://apndx.org/pub/thesis/">code</a>
+            <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
 
             <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
   author = {Jacobs, Jules and Balzer, Stephanie},
@@ -325,27 +285,78 @@
   journal = {Proc. ACM Program. Lang.},
   articleno = {36},
 }</textarea> -->
+          </div>
+        </td>
+      </tr>
+      <tr id="dlfactris">
+        <td>POPL'24</td>
+        <td>
+          <a class="title" href="https://apndx.org/pub/icnp/dlfactris.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
-          </td>
-        </tr>
+            <a class="button" href="https://apndx.org/pub/icnp/dlfactris.pdf">.pdf</a>
+            <!-- <a class="button" href="slides/miniactris_iris.pdf">slides</a> -->
+            <a class="button" href="https://apndx.org/pub/icnp/">code</a>
+            <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
 
-        <tr id="locks">
-          <td>POPL'23</td>
-          <td>
-            <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571229"> Higher-Order Leak and Deadlock Free Locks </a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>,
-                <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>
-              </div>
-              <a class="button" href="pdf/locks.pdf">.pdf</a>
-              <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
-              <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-              <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
-              <a class="distinguished">distinguished paper</a>
+            <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
+  author = {Jacobs, Jules and Balzer, Stephanie},
+  title = {Higher-Order Leak and Deadlock Free Locks},
+  year = {2023},
+  volume = {7},
+  number = {POPL},
+  doi = {10.1145/3571229},
+  journal = {Proc. ACM Program. Lang.},
+  articleno = {36},
+}</textarea> -->
+          </div>
+        </td>
+      </tr>
+      <tr id="miniactris">
+        <td>ICFP'23</td>
+        <td>
+          <a class="title" href="https://apndx.org/pub/mpy9/miniactris.pdf"> Dependent Session Protocols in Separation Logic from First Principles </a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
+            </div>
+            <a class="button" href="https://apndx.org/pub/mpy9/miniactris.pdf">.pdf</a>
+            <a class="button" href="slides/miniactris_iris.pdf">slides</a>
+            <a class="button" href="https://apndx.org/pub/mpy9/">code</a>
+            <!-- <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
 
-              <textarea class="bibtex" id="locks-bibtex">
+            <textarea class="bibtex" id="locks-bibtex">@article{jacobs_locks_2023,
+  author = {Jacobs, Jules and Balzer, Stephanie},
+  title = {Higher-Order Leak and Deadlock Free Locks},
+  year = {2023},
+  volume = {7},
+  number = {POPL},
+  doi = {10.1145/3571229},
+  journal = {Proc. ACM Program. Lang.},
+  articleno = {36},
+}</textarea> -->
+          </div>
+        </td>
+      </tr>
+      <tr id="locks">
+        <td>POPL'23</td>
+        <td>
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571229"> Higher-Order Leak and Deadlock Free Locks </a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>
+            </div>
+            <a class="button" href="pdf/locks.pdf">.pdf</a>
+            <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
+            <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+            <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
+            <a class="distinguished">distinguished paper</a>
+            <textarea class="bibtex" id="locks-bibtex">
 @article{jacobs_locks_2023,
   author = {Jacobs, Jules and Balzer, Stephanie},
   title = {Higher-Order Leak and Deadlock Free Locks},
@@ -355,28 +366,24 @@
   doi = {10.1145/3571229},
   journal = {Proc. ACM Program. Lang.},
   articleno = {36},
-}</textarea
-              >
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="boa">
+        <td>POPL'23</td>
+        <td>
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571245"> Fast Coalgebraic Bisimilarity Minimization </a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>
             </div>
-          </td>
-        </tr>
-
-        <tr id="boa">
-          <td>POPL'23</td>
-          <td>
-            <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3571245"> Fast Coalgebraic Bisimilarity Minimization </a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>,
-                <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>
-              </div>
-              <a class="button" href="pdf/boa.pdf">.pdf</a>
-              <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
-              <a class="button" href="https://github.com/julesjacobs/boa">code</a>
-              <a class="button" onclick="toggle('boa-bibtex')">bibtex</a>
-
-              <textarea class="bibtex" id="boa-bibtex">
+            <a class="button" href="pdf/boa.pdf">.pdf</a>
+            <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
+            <a class="button" href="https://github.com/julesjacobs/boa">code</a>
+            <a class="button" onclick="toggle('boa-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="boa-bibtex">
 @article{jacobs_bismin_2023,
   author = {Jacobs, Jules and Wi\ss{}mann, Thorsten},
   title = {Fast Coalgebraic Bisimilarity Minimization},
@@ -386,29 +393,25 @@
   doi = {10.1145/3571245},
   journal = {Proc. ACM Program. Lang.},
   articleno = {52},
-}</textarea
-              >
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="mpgv">
+        <td>ICFP'22</td>
+        <td>
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3547638"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
+          <br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
-          </td>
-        </tr>
-
-        <tr id="mpgv">
-          <td>ICFP'22</td>
-          <td>
-            <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3547638"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
-            <br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>,
-                <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
-              </div>
-              <a class="button" href="pdf/multiparty.pdf">.pdf</a>
-              <a class="button" href="slides/icfp22-slides.pdf">slides</a>
-              <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-              <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a>
-              <a class="button" onclick="toggle('mpgv-bibtex')">bibtex</a>
-
-              <textarea class="bibtex" id="mpgv-bibtex">
+            <a class="button" href="pdf/multiparty.pdf">.pdf</a>
+            <a class="button" href="slides/icfp22-slides.pdf">slides</a>
+            <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+            <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a>
+            <a class="button" onclick="toggle('mpgv-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="mpgv-bibtex">
 @article{jacobs_mpgv_2022,
   author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},
   title = {Multiparty GV: Functional Multiparty Session Types with Certified Deadlock Freedom},
@@ -419,24 +422,21 @@
   doi = {10.1145/3547638},
   journal = {Proc. ACM Program. Lang.},
   month = {aug},
-}</textarea
-              >
-            </div>
-          </td>
-        </tr>
-
-        <tr id="lambdabar">
-          <td>ECOOP'22</td>
-          <td>
-            <a class="title" href="https://drops.dagstuhl.de/opus/volltexte/2022/16251/">A Self-Dual Distillation of Session Types</a><br />
-            <div class="info">
-              <div class="authors"><span class="me">Jules Jacobs</span></div>
-              <a class="button" href="pdf/lambdabar.pdf">.pdf</a>
-              <a class="button" href="slides/lambdabar_types22.pdf">slides</a>
-              <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-
-              <a class="button" onclick="toggle('lambdabar-bibtex')">bibtex</a>
-              <textarea class="bibtex" id="lambdabar-bibtex">
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="lambdabar">
+        <td>ECOOP'22</td>
+        <td>
+          <a class="title" href="https://drops.dagstuhl.de/opus/volltexte/2022/16251/">A Self-Dual Distillation of Session Types</a><br />
+          <div class="info">
+            <div class="authors"><span class="me">Jules Jacobs</span></div>
+            <a class="button" href="pdf/lambdabar.pdf">.pdf</a>
+            <a class="button" href="slides/lambdabar_types22.pdf">slides</a>
+            <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+            <a class="button" onclick="toggle('lambdabar-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="lambdabar-bibtex">
 @inproceedings{jacobs_distillation_2022,
   author = {Jacobs, Jules},
   title = {{A Self-Dual Distillation of Session Types}},
@@ -450,27 +450,23 @@
   URL = {https://drops.dagstuhl.de/opus/volltexte/2022/16251},
   URN = {urn:nbn:de:0030-drops-162518},
   doi = {10.4230/LIPIcs.ECOOP.2022.23},
-}</textarea
-              >
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="cgraphs">
+        <td>POPL'22</td>
+        <td>
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3498662">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a><br />
+          <div class="info">
+            <div class="authors">
+              <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
-          </td>
-        </tr>
-
-        <tr id="cgraphs">
-          <td>POPL'22</td>
-          <td>
-            <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3498662">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a><br />
-            <div class="info">
-              <div class="authors">
-                <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>,
-                <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
-              </div>
-              <a class="button" href="pdf/deadlocks.pdf">.pdf</a>
-              <a class="button" href="slides/cgraphs_popl22.pdf">slides</a>
-              <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-              <a class="button" onclick="toggle('cgraphs-bibtex')">bibtex</a>
-
-              <textarea class="bibtex" id="cgraphs-bibtex">
+            <a class="button" href="pdf/deadlocks.pdf">.pdf</a>
+            <a class="button" href="slides/cgraphs_popl22.pdf">slides</a>
+            <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+            <a class="button" onclick="toggle('cgraphs-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="cgraphs-bibtex">
 @article{jacobs_cgraphs_2022,
   author = {Jules Jacobs and Stephanie Balzer and Robbert Krebbers},
   title = {Connectivity graphs: a method for proving deadlock freedom based on separation logic},
@@ -481,21 +477,18 @@
   year = {2022},
   url = {https://doi.org/10.1145/3498662},
   doi = {10.1145/3498662},
-}</textarea
-              >
-            </div>
-          </td>
-        </tr>
-
-        <tr id="ovarian">
-          <td>Neuro-biology of Aging</td>
-          <td>
-            <a class="title" href="https://www.sciencedirect.com/science/article/abs/pii/S019745802100066X?via%3Dihub">Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease</a>
-            <div class="info">
-              <div class="authors">Firat Kara, Michael E. Belloy, Rick Voncken, Zahra Sarwari, Yadav Garima, Cynthia Anckaerts, An Langbeen, Valerie Leysen, Disha Shah, <span class="me">Jules Jacobs</span>, Julie Hamaide, Peter Bols, Johan Van Audekerke, Jasmijn Daans, Caroline Guglielmetti, Kejal Kantarci, Vincent Prevot, Steffen Roßner, Peter Ponsaerts, Annemie Van der Linden, Marleen Verhoye</div>
-              <a class="button" onclick="toggle('ovarian-bibtex')">bibtex</a>
-
-              <textarea class="bibtex" id="ovarian-bibtex">
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="ovarian">
+        <td>Neuro-biology of Aging</td>
+        <td>
+          <a class="title" href="https://www.sciencedirect.com/science/article/abs/pii/S019745802100066X?via%3Dihub">Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease</a>
+          <div class="info">
+            <div class="authors">Firat Kara, Michael E. Belloy, Rick Voncken, Zahra Sarwari, Yadav Garima, Cynthia Anckaerts, An Langbeen, Valerie Leysen, Disha Shah, <span class="me">Jules Jacobs</span>, Julie Hamaide, Peter Bols, Johan Van Audekerke, Jasmijn Daans, Caroline Guglielmetti, Kejal Kantarci, Vincent Prevot, Steffen Roßner, Peter Ponsaerts, Annemie Van der Linden, Marleen Verhoye</div>
+            <a class="button" onclick="toggle('ovarian-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="ovarian-bibtex">
 @article{KARA2021,
   title = {Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease},
   journal = {Neurobiology of Aging},
@@ -504,29 +497,26 @@
   doi = {https://doi.org/10.1016/j.neurobiolaging.2021.02.011},
   url = {https://www.sciencedirect.com/science/article/pii/S019745802100066X},
   author = {Firat Kara and Michael E. Belloy and Rick Voncken and Zahra Sarwari and Yadav Garima and Cynthia Anckaerts and An Langbeen and Valerie Leysen and Disha Shah and Jules Jacobs and Julie Hamaide and Peter Bols and Johan {Van Audekerke} and Jasmijn Daans and Caroline Guglielmetti and Kejal Kantarci and Vincent Prevot and Steffen Roßner and Peter Ponsaerts and Annemie {Van der Linden} and Marleen Verhoye},
-}</textarea
-              >
-            </div>
-          </td>
-        </tr>
-        <tr id="paradoxes">
-          <td>POPL'21</td>
-          <td>
-            <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3434339">
-              Paradoxes of Probabilistic Programming<br />
-              <small>
-                <i style="font-weight: normal"> And How to Condition on Events of Measure Zero with Infinitesimal Probabilities </i>
-              </small>
-            </a>
-            <div class="info">
-              <div class="authors"><span class="me">Jules Jacobs</span></div>
-              <a class="button" href="pdf/measurezero.pdf">.pdf</a>
-              <a class="button" href="https://zenodo.org/record/4075076">code</a>
-              <a class="button" href="slides/measurezero_pldi.pdf">slides</a>
-              <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
-              <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a>
-
-              <textarea class="bibtex" id="paradoxes-bibtex">
+}</textarea>
+          </div>
+        </td>
+      </tr>
+      <tr id="paradoxes">
+        <td>POPL'21</td>
+        <td>
+          <a class="title" href="https://dl.acm.org/doi/abs/10.1145/3434339"> Paradoxes of Probabilistic Programming<br />
+            <small>
+              <i style="font-weight: normal"> And How to Condition on Events of Measure Zero with Infinitesimal Probabilities </i>
+            </small>
+          </a>
+          <div class="info">
+            <div class="authors"><span class="me">Jules Jacobs</span></div>
+            <a class="button" href="pdf/measurezero.pdf">.pdf</a>
+            <a class="button" href="https://zenodo.org/record/4075076">code</a>
+            <a class="button" href="slides/measurezero_pldi.pdf">slides</a>
+            <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
+            <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a>
+            <textarea class="bibtex" id="paradoxes-bibtex">
 @article{jacobs_paradoxes_2021,
   title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},
   volume = {5},
@@ -537,504 +527,492 @@
   author = {Jacobs, Jules},
   year = {2021},
   pages = {58:1--58:26},
-}</textarea
-              >
-            </div>
-          </td>
-        </tr>
-      </table>
-
-      <h2>Notes</h2>
-      <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:julesjacobs@gmail.com">email</a> :)</p>
-      <table class="pub" id="notes">
-        <tr>
-          <td>Oct. 2022</td>
-          <td>
-            <a class="title" href="notes/gcdlcm/gcdlcm.pdf"> The product of gcd and lcm </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Aug. 2022</td>
-          <td>
-            <a class="title" href="notes/jacobisformula/jacobisformula.pdf"> A multilinear proof of Jacobi's formula </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Mar. 2022</td>
-          <td>
-            <a class="title" href="notes/minimumparadox/minimumparadox.pdf"> A paradoxical local minimum </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Feb. 2022</td>
-          <td>
-            <a class="title" href="notes/multinomial-div/multinomial-div.pdf"> Divisibility of multinomial coefficients </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2021</td>
-          <td>
-            <a class="title" href="notes/coq-cheatsheet/coq-cheatsheet.pdf"> Coq cheatsheet </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2021</td>
-          <td>
-            <a class="title" href="notes/cartandieudonne/cartandieudonne.pdf"> The Cartan-Dieudonné theorem </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2021</td>
-          <td>
-            <a class="title" href="https://github.com/julesjacobs/nbe"> Various cute implementations of primitive type and proof checkers in HOAS+LCF style (STLC, bidirectional, System F, FOL, dependent type theory). </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Sep. 2021</td>
-          <td>
-            <a class="title" href="notes/smartconstr/smartconstr.pdf"> Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Sep. 2021</td>
-          <td>
-            <a class="title" href="notes/quantum/quantum.pdf"> A quick introduction to quantum programming </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Aug. 2021</td>
-          <td>
-            <a class="title" href="notes/permutationsign/permutationsign.pdf"> The sign of a permutation is multiplicative </a>
-          </td>
-        </tr>
-        <tr>
-          <td>May 2021</td>
-          <td>
-            <a class="title" href="notes/infresampling/infresampling.pdf"> Resampling with infinitesimal probabilities </a>
-          </td>
-        </tr>
-        <tr>
-          <td>May 2021</td>
-          <td>
-            <a class="title" href="notes/satpre/bce.pdf"> Bounded clause elimination </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Apr. 2021</td>
-          <td>
-            <a class="title" href="notes/nfa/nfa.pdf"> From regex to NFA and back </a>
-            <a class="button" href="notes/nfa/nfa.sc">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Apr. 2021</td>
-          <td>
-            <a class="title" href="notes/patternmatching/patternmatching.pdf"> How to compile pattern matching </a>
-            <a class="button" href="notes/patternmatching/pmatch.sc">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Apr. 2021</td>
-          <td>
-            <a class="title" href="notes/churchnatarith/churchnatarith.pdf"> Arithmetic on Church numerals using a notational trick </a>
-            <a class="button" href="notes/churchnatarith/churchnatarith.v">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Apr. 2021</td>
-          <td>
-            <a class="title" href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf"> Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ </a>
-            <a class="button" href="notes/classicalvsintuitionistic/test.v">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Apr. 2021</td>
-          <td>
-            <a class="title" href="notes/inductiononderivations/inductiononderivations.pdf"> Induction on Derivations is Recursion </a>
-            <a class="button" href="notes/inductiononderivations/iod.v">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Mar. 2021</td>
-          <td>
-            <a class="title" href="notes/tait/tait.pdf"> How to prove normalisation of STLC </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2020</td>
-          <td>
-            <a class="title" href="notes/kirchoff/kirchoff.pdf"> A simple proof of the matrix-tree theorem, upward routes, and a matrix-tree-cycle theorem </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2020</td>
-          <td>
-            <a class="title" href="notes/functionalctxs/functionalctxs.pdf">
-              Functional Evaluation Contexts<br />
-              <small><i style="font-weight: normal">An alternative way to handle evaluation contexts in proof assistants like Coq</i></small>
-            </a>
-            <a class="button" href="notes/functionalctxs/functionalctxs.v">code</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2020</td>
-          <td>
-            <a class="title" href="notes/sortingreals/sortingreals.pdf"> Sorting Real Numbers, Constructively </a>
-          </td>
-        </tr>
-        <tr>
-          <td>Dec. 2020</td>
-          <td>
-            <a class="title" href="notes/binarysearch/binarysearch.pdf"> Binary Search a Little Simpler &amp; More Generic </a>
-          </td>
-        </tr>
-        <tr id="sympoly">
-          <td>Sep. 2020</td>
-          <td>
-            <a class="title" href="pdf/sympoly.pdf"> A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues </a>
-            <a class="button" href="code/sympoly.jl">code</a>
-          </td>
-        </tr>
-      </table>
-      You can find some more on my <a href="/blog.html">blog</a>.
-
-      <h2>Talks</h2>
-      <table class="pub" id="talks">
-        <tr>
-          <td>6 Feb. 2024</td>
-          <td>
-            <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing
-            </a>
-            <div class="info">EPFL</div>
-          </td>
-        </tr>
-        <tr>
-          <td>18 Jan. 2024</td>
-          <td>
-            <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing
-            </a>
-            <div class="info">POPL'24</div>
-          </td>
-        </tr>
-        <tr>
-          <td>16 Jan. 2024</td>
-          <td>
-            <a class="title" href="slides/probpreview_popl24.pdf">Probabilistic Programming Session Preview</a>
-            <div class="info">POPL'24 (session preview)</div>
-          </td>
-        </tr>
-        <tr>
-          <td>15 Jan. 2024</td>
-          <td>
-            <a class="title" href="slides/actristutorial_popl24.pdf">Verified Message-Passing Concurrency in Iris: Separation Logic Meets Session Types</a>
-            <div class="info">POPL'24 (tutorial, with Jonas Kastberg Hinrichsen and Robbert Krebbers)</div>
-          </td>
-        </tr>
-        <tr>
-          <td>11 Dec. 2023</td>
-          <td>
-            <a class="title" href="slides/iris-masterplan.pdf"> The Iris Masterplan </a>
-            <div class="info">PL Retreat, Cornell University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>20 Sept. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-            <div class="info">Cornell University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>14 June 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-            <div class="info">Carnegie Mellon University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>7 June 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-            <div class="info">Cornell University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>22 May. 2023</td>
-          <td>
-            <a class="title" href="slides/miniactris_iris.pdf"> Dependent Session Protocols in Separation Logic From First Principles </a>
-            <div class="info">Iris Workshop 2023</div>
-          </td>
-        </tr>
-        <tr>
-          <td>30 Mar. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-            <div class="info">LIP ENS Lyon</div>
-          </td>
-        </tr>
-        <tr>
-          <td>3 Mar. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-            <div class="info">POPV seminar Boston</div>
-          </td>
-        </tr>
-        <tr>
-          <td>17 Feb. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-            <div class="info">LFCS seminar Edinburgh</div>
-          </td>
-        </tr>
-        <tr>
-          <td>20 Jan. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-            <div class="info">POPL'23</div>
-          </td>
-        </tr>
-        <tr>
-          <td>18 Jan. 2023</td>
-          <td>
-            <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-            <div class="info">POPL'23</div>
-          </td>
-        </tr>
-        <tr>
-          <td>25 Oct. 2022</td>
-          <td>
-            <a class="title" href="slides/boa_sws.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-            <div class="info">SWS Seminar, Radboud University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>22 June 2022</td>
-          <td>
-            <a class="title" href="slides/icfp22-slides.pdf"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
-            <div class="info">ICFP'22</div>
-          </td>
-        </tr>
-        <tr>
-          <td>22 June 2022</td>
-          <td>
-            <a class="title" href="slides/lambdabar_types22.pdf"> A Simple Concurrent Lambda Calculusu For Encoding Session Types </a>
-            <div class="info">TYPES'22</div>
-          </td>
-        </tr>
-        <tr>
-          <td>9 June 2022</td>
-          <td>
-            <a class="title" href="slides/measurezero_pldi.pdf"> Paradoxes of Probabilistic Programming </a>
-            <div class="info">PLDI'22 Sigplan Track</div>
-          </td>
-        </tr>
-        <tr>
-          <td>9 June 2022</td>
-          <td>
-            <a class="title" href="slides/ecoop22-slides.pdf"> A Self-Dual Distillation of Session Types </a>
-            <div class="info">ECOOP'22</div>
-          </td>
-        </tr>
-        <tr>
-          <td>2 May 2022</td>
-          <td>
-            <a class="title" href="slides/iris-workshop-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-            <div class="info">Iris workshop</div>
-          </td>
-        </tr>
-        <tr>
-          <td>28 Apr. 2022</td>
-          <td>
-            <a class="title" href="slides/imperial-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-            <div class="info">CMU plunch</div>
-          </td>
-        </tr>
-        <tr>
-          <td>25 Mar. 2022</td>
-          <td>
-            <a class="title" href="slides/plunch-slides-popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-            <div class="info">Imperial College London</div>
-          </td>
-        </tr>
-        <tr>
-          <td>19 Jan. 2022</td>
-          <td>
-            <a class="title" href="slides/cgraphs_popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-            <div class="info">POPL'22</div>
-          </td>
-        </tr>
-        <tr>
-          <td>12 Oct. 2021</td>
-          <td>
-            <a class="title" href="slides/deadlocks_gr.pdf"> Mechanized Deadlock Freedom for Session Types </a>
-            <div class="info">FCG, University of Groningen</div>
-          </td>
-        </tr>
-        <tr>
-          <td>19 July 2021</td>
-          <td>
-            <a class="title" href="slides/veriprop2021.pdf">
-              Pardoxes of Probabilistic Programming
-              <small><i>(and deleted scenes)</i></small>
-            </a>
-            <div class="info">VeriProP'21</div>
-          </td>
-        </tr>
-        <tr>
-          <td>12 July 2021</td>
-          <td>
-            <a class="title" href="slides/vest2021.pdf"> Mechanized Deadlock Fredom for Session Types </a>
-            <div class="info">VEST'21</div>
-          </td>
-        </tr>
-        <tr>
-          <td>3 Feb. 2021</td>
-          <td>
-            <a class="title" href="slides/deadlocks_ru.pdf"> Deadlock Freedom for Session Types Using Separation Logic </a>
-            <div class="info">SWS Seminar, Radboud University</div>
-          </td>
-        </tr>
-        <tr>
-          <td>22 Jan. 2021</td>
-          <td>
-            <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
-            <div class="info">POPL'21</div>
-          </td>
-        </tr>
-        <tr>
-          <td>25 Nov. 2020</td>
-          <td>
-            <a class="title paradoxes" href="slides/measurezero_delft.pdf"> Paradoxes of Probabilistic Programming </a>
-            <div class="info">PL Seminar, TU Delft</div>
-          </td>
-        </tr>
-        <tr>
-          <td>23 Nov. 2020</td>
-          <td>
-            <a class="title paradoxes" href="slides/measurezero_ucl.pdf"> Paradoxes of Probabilistic Programming </a>
-            <div class="info">PPLV, University College London</div>
-          </td>
-        </tr>
-        <tr>
-          <td>28 Oct. 2020</td>
-          <td>
-            <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
-            <div class="info">SWS Seminar, Radboud University</div>
-          </td>
-        </tr>
-      </table>
-
-      <h2>Teaching</h2>
-      <table class="pub">
-        <tr>
-          <td>2023</td>
-          <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Assisting Robbert with the supervision of Menzo van Kessel's bachelor thesis project about implementing a type checker and interpreter for MPGV.</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
-        </tr>
-        <tr>
-          <td>2021</td>
-          <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-        </tr>
-        <tr>
-          <td>2021</td>
-          <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
-        </tr>
-        <tr>
-          <td>2020</td>
-          <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-        </tr>
-        <tr>
-          <td>2020</td>
-          <td>Assisting Robbert with the master thesis project of Edoardo Putti about mechanizing incorrectness separation logic in Coq.</td>
-        </tr>
-        <tr>
-          <td>2020</td>
-          <td>Assisting Robbert with the Software Verification course at TU Delft.</td>
-        </tr>
-      </table>
-
-      <h2>Academic Service</h2>
-      <table class="pub">
-        <tr>
-          <td>2024</td>
-          <td>Website co-chair for ICFP'24</td>
-        </tr>
-        <tr>
-          <td>2024 - ongoing</td>
-          <td>PLMW social media chair</td>
-        </tr>
-        <tr>
-          <td>2024</td>
-          <td>Reviewing for ECOOP'24</td>
-        </tr>
-        <tr>
-          <td>2023</td>
-          <td>Reviewing for PLDI'23</td>
-        </tr>
-        <tr>
-          <td>2023</td>
-          <td>Reviewing for ITP'23</td>
-        </tr>
-        <tr>
-          <td>2023</td>
-          <td>Reviewing for LICS'23</td>
-        </tr>
-        <tr>
-          <td>2023</td>
-          <td>ESOP'23 AEC</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Reviewing for POPL'23</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Reviewing for CSL</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Reviewing LMCS</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>Reviewing OOPSLA</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>PLDI'22 AEC</td>
-        </tr>
-        <tr>
-          <td>2022</td>
-          <td>ESOP'22 AEC</td>
-        </tr>
-        <tr>
-          <td>2021</td>
-          <td>VCA for Behavioural Types: Bridging Theory and Practice</td>
-        </tr>
-        <tr>
-          <td>2020</td>
-          <td>Reviewing for ESOP'21.</td>
-        </tr>
-        <tr>
-          <td>2020</td>
-          <td>Reviewing for ICFP'20.</td>
-        </tr>
-      </table>
-    </div>
-  </body>
+}</textarea>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <h2>Notes</h2>
+    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:julesjacobs@gmail.com">email</a> :)</p>
+    <table class="pub" id="notes">
+      <tr>
+        <td>Oct. 2022</td>
+        <td>
+          <a class="title" href="notes/gcdlcm/gcdlcm.pdf"> The product of gcd and lcm </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Aug. 2022</td>
+        <td>
+          <a class="title" href="notes/jacobisformula/jacobisformula.pdf"> A multilinear proof of Jacobi's formula </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Mar. 2022</td>
+        <td>
+          <a class="title" href="notes/minimumparadox/minimumparadox.pdf"> A paradoxical local minimum </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Feb. 2022</td>
+        <td>
+          <a class="title" href="notes/multinomial-div/multinomial-div.pdf"> Divisibility of multinomial coefficients </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2021</td>
+        <td>
+          <a class="title" href="notes/coq-cheatsheet/coq-cheatsheet.pdf"> Coq cheatsheet </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2021</td>
+        <td>
+          <a class="title" href="notes/cartandieudonne/cartandieudonne.pdf"> The Cartan-Dieudonné theorem </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2021</td>
+        <td>
+          <a class="title" href="https://github.com/julesjacobs/nbe"> Various cute implementations of primitive type and proof checkers in HOAS+LCF style (STLC, bidirectional, System F, FOL, dependent type theory). </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Sep. 2021</td>
+        <td>
+          <a class="title" href="notes/smartconstr/smartconstr.pdf"> Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Sep. 2021</td>
+        <td>
+          <a class="title" href="notes/quantum/quantum.pdf"> A quick introduction to quantum programming </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Aug. 2021</td>
+        <td>
+          <a class="title" href="notes/permutationsign/permutationsign.pdf"> The sign of a permutation is multiplicative </a>
+        </td>
+      </tr>
+      <tr>
+        <td>May 2021</td>
+        <td>
+          <a class="title" href="notes/infresampling/infresampling.pdf"> Resampling with infinitesimal probabilities </a>
+        </td>
+      </tr>
+      <tr>
+        <td>May 2021</td>
+        <td>
+          <a class="title" href="notes/satpre/bce.pdf"> Bounded clause elimination </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Apr. 2021</td>
+        <td>
+          <a class="title" href="notes/nfa/nfa.pdf"> From regex to NFA and back </a>
+          <a class="button" href="notes/nfa/nfa.sc">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Apr. 2021</td>
+        <td>
+          <a class="title" href="notes/patternmatching/patternmatching.pdf"> How to compile pattern matching </a>
+          <a class="button" href="notes/patternmatching/pmatch.sc">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Apr. 2021</td>
+        <td>
+          <a class="title" href="notes/churchnatarith/churchnatarith.pdf"> Arithmetic on Church numerals using a notational trick </a>
+          <a class="button" href="notes/churchnatarith/churchnatarith.v">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Apr. 2021</td>
+        <td>
+          <a class="title" href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf"> Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ </a>
+          <a class="button" href="notes/classicalvsintuitionistic/test.v">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Apr. 2021</td>
+        <td>
+          <a class="title" href="notes/inductiononderivations/inductiononderivations.pdf"> Induction on Derivations is Recursion </a>
+          <a class="button" href="notes/inductiononderivations/iod.v">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Mar. 2021</td>
+        <td>
+          <a class="title" href="notes/tait/tait.pdf"> How to prove normalisation of STLC </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2020</td>
+        <td>
+          <a class="title" href="notes/kirchoff/kirchoff.pdf"> A simple proof of the matrix-tree theorem, upward routes, and a matrix-tree-cycle theorem </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2020</td>
+        <td>
+          <a class="title" href="notes/functionalctxs/functionalctxs.pdf"> Functional Evaluation Contexts<br />
+            <small><i style="font-weight: normal">An alternative way to handle evaluation contexts in proof assistants like Coq</i></small>
+          </a>
+          <a class="button" href="notes/functionalctxs/functionalctxs.v">code</a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2020</td>
+        <td>
+          <a class="title" href="notes/sortingreals/sortingreals.pdf"> Sorting Real Numbers, Constructively </a>
+        </td>
+      </tr>
+      <tr>
+        <td>Dec. 2020</td>
+        <td>
+          <a class="title" href="notes/binarysearch/binarysearch.pdf"> Binary Search a Little Simpler &amp; More Generic </a>
+        </td>
+      </tr>
+      <tr id="sympoly">
+        <td>Sep. 2020</td>
+        <td>
+          <a class="title" href="pdf/sympoly.pdf"> A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues </a>
+          <a class="button" href="code/sympoly.jl">code</a>
+        </td>
+      </tr>
+    </table> You can find some more on my <a href="/blog.html">blog</a>. <h2>Talks</h2>
+    <table class="pub" id="talks">
+      <tr>
+        <td>6 Feb. 2024</td>
+        <td>
+          <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing </a>
+          <div class="info">EPFL</div>
+        </td>
+      </tr>
+      <tr>
+        <td>18 Jan. 2024</td>
+        <td>
+          <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing </a>
+          <div class="info">POPL'24</div>
+        </td>
+      </tr>
+      <tr>
+        <td>16 Jan. 2024</td>
+        <td>
+          <a class="title" href="slides/probpreview_popl24.pdf">Probabilistic Programming Session Preview</a>
+          <div class="info">POPL'24 (session preview)</div>
+        </td>
+      </tr>
+      <tr>
+        <td>15 Jan. 2024</td>
+        <td>
+          <a class="title" href="slides/actristutorial_popl24.pdf">Verified Message-Passing Concurrency in Iris: Separation Logic Meets Session Types</a>
+          <div class="info">POPL'24 (tutorial, with Jonas Kastberg Hinrichsen and Robbert Krebbers)</div>
+        </td>
+      </tr>
+      <tr>
+        <td>11 Dec. 2023</td>
+        <td>
+          <a class="title" href="slides/iris-masterplan.pdf"> The Iris Masterplan </a>
+          <div class="info">PL Retreat, Cornell University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>20 Sept. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
+          <div class="info">Cornell University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>14 June 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
+          <div class="info">Carnegie Mellon University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>7 June 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
+          <div class="info">Cornell University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>22 May. 2023</td>
+        <td>
+          <a class="title" href="slides/miniactris_iris.pdf"> Dependent Session Protocols in Separation Logic From First Principles </a>
+          <div class="info">Iris Workshop 2023</div>
+        </td>
+      </tr>
+      <tr>
+        <td>30 Mar. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
+          <div class="info">LIP ENS Lyon</div>
+        </td>
+      </tr>
+      <tr>
+        <td>3 Mar. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
+          <div class="info">POPV seminar Boston</div>
+        </td>
+      </tr>
+      <tr>
+        <td>17 Feb. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
+          <div class="info">LFCS seminar Edinburgh</div>
+        </td>
+      </tr>
+      <tr>
+        <td>20 Jan. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
+          <div class="info">POPL'23</div>
+        </td>
+      </tr>
+      <tr>
+        <td>18 Jan. 2023</td>
+        <td>
+          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
+          <div class="info">POPL'23</div>
+        </td>
+      </tr>
+      <tr>
+        <td>25 Oct. 2022</td>
+        <td>
+          <a class="title" href="slides/boa_sws.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
+          <div class="info">SWS Seminar, Radboud University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>22 June 2022</td>
+        <td>
+          <a class="title" href="slides/icfp22-slides.pdf"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
+          <div class="info">ICFP'22</div>
+        </td>
+      </tr>
+      <tr>
+        <td>22 June 2022</td>
+        <td>
+          <a class="title" href="slides/lambdabar_types22.pdf"> A Simple Concurrent Lambda Calculusu For Encoding Session Types </a>
+          <div class="info">TYPES'22</div>
+        </td>
+      </tr>
+      <tr>
+        <td>9 June 2022</td>
+        <td>
+          <a class="title" href="slides/measurezero_pldi.pdf"> Paradoxes of Probabilistic Programming </a>
+          <div class="info">PLDI'22 Sigplan Track</div>
+        </td>
+      </tr>
+      <tr>
+        <td>9 June 2022</td>
+        <td>
+          <a class="title" href="slides/ecoop22-slides.pdf"> A Self-Dual Distillation of Session Types </a>
+          <div class="info">ECOOP'22</div>
+        </td>
+      </tr>
+      <tr>
+        <td>2 May 2022</td>
+        <td>
+          <a class="title" href="slides/iris-workshop-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <div class="info">Iris workshop</div>
+        </td>
+      </tr>
+      <tr>
+        <td>28 Apr. 2022</td>
+        <td>
+          <a class="title" href="slides/imperial-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <div class="info">CMU plunch</div>
+        </td>
+      </tr>
+      <tr>
+        <td>25 Mar. 2022</td>
+        <td>
+          <a class="title" href="slides/plunch-slides-popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <div class="info">Imperial College London</div>
+        </td>
+      </tr>
+      <tr>
+        <td>19 Jan. 2022</td>
+        <td>
+          <a class="title" href="slides/cgraphs_popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <div class="info">POPL'22</div>
+        </td>
+      </tr>
+      <tr>
+        <td>12 Oct. 2021</td>
+        <td>
+          <a class="title" href="slides/deadlocks_gr.pdf"> Mechanized Deadlock Freedom for Session Types </a>
+          <div class="info">FCG, University of Groningen</div>
+        </td>
+      </tr>
+      <tr>
+        <td>19 July 2021</td>
+        <td>
+          <a class="title" href="slides/veriprop2021.pdf"> Pardoxes of Probabilistic Programming <small><i>(and deleted scenes)</i></small>
+          </a>
+          <div class="info">VeriProP'21</div>
+        </td>
+      </tr>
+      <tr>
+        <td>12 July 2021</td>
+        <td>
+          <a class="title" href="slides/vest2021.pdf"> Mechanized Deadlock Fredom for Session Types </a>
+          <div class="info">VEST'21</div>
+        </td>
+      </tr>
+      <tr>
+        <td>3 Feb. 2021</td>
+        <td>
+          <a class="title" href="slides/deadlocks_ru.pdf"> Deadlock Freedom for Session Types Using Separation Logic </a>
+          <div class="info">SWS Seminar, Radboud University</div>
+        </td>
+      </tr>
+      <tr>
+        <td>22 Jan. 2021</td>
+        <td>
+          <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
+          <div class="info">POPL'21</div>
+        </td>
+      </tr>
+      <tr>
+        <td>25 Nov. 2020</td>
+        <td>
+          <a class="title paradoxes" href="slides/measurezero_delft.pdf"> Paradoxes of Probabilistic Programming </a>
+          <div class="info">PL Seminar, TU Delft</div>
+        </td>
+      </tr>
+      <tr>
+        <td>23 Nov. 2020</td>
+        <td>
+          <a class="title paradoxes" href="slides/measurezero_ucl.pdf"> Paradoxes of Probabilistic Programming </a>
+          <div class="info">PPLV, University College London</div>
+        </td>
+      </tr>
+      <tr>
+        <td>28 Oct. 2020</td>
+        <td>
+          <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
+          <div class="info">SWS Seminar, Radboud University</div>
+        </td>
+      </tr>
+    </table>
+    <h2>Teaching</h2>
+    <table class="pub">
+      <tr>
+        <td>2023</td>
+        <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Assisting Robbert with the supervision of Menzo van Kessel's bachelor thesis project about implementing a type checker and interpreter for MPGV.</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
+      </tr>
+      <tr>
+        <td>2021</td>
+        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
+      </tr>
+      <tr>
+        <td>2021</td>
+        <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td>Assisting Robbert with the master thesis project of Edoardo Putti about mechanizing incorrectness separation logic in Coq.</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td>Assisting Robbert with the Software Verification course at TU Delft.</td>
+      </tr>
+    </table>
+    <h2>Academic Service</h2>
+    <table class="pub">
+      <tr>
+        <td>2024</td>
+        <td>Website co-chair for ICFP'24</td>
+      </tr>
+      <tr>
+        <td>2024 - ongoing</td>
+        <td>PLMW social media chair</td>
+      </tr>
+      <tr>
+        <td>2024</td>
+        <td>Reviewing for ECOOP'24</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td>Reviewing for PLDI'23</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td>Reviewing for ITP'23</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td>Reviewing for LICS'23</td>
+      </tr>
+      <tr>
+        <td>2023</td>
+        <td>ESOP'23 AEC</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Reviewing for POPL'23</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Reviewing for CSL</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Reviewing LMCS</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>Reviewing OOPSLA</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>PLDI'22 AEC</td>
+      </tr>
+      <tr>
+        <td>2022</td>
+        <td>ESOP'22 AEC</td>
+      </tr>
+      <tr>
+        <td>2021</td>
+        <td>VCA for Behavioural Types: Bridging Theory and Practice</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td>Reviewing for ESOP'21.</td>
+      </tr>
+      <tr>
+        <td>2020</td>
+        <td>Reviewing for ICFP'20.</td>
+      </tr>
+    </table>
+  </div>
+</body>
 </html>
