@@ -53,7 +53,7 @@ function stringToHash(str) {
     return Math.abs(hash);
 }
 
-currentDifficulty = "basics";
+currentDifficulty = "connectives";
 
 addExample(
     "intros x",
@@ -91,78 +91,6 @@ addExample(
 );
 
 addExample(
-    "induction n",
-    ["n : nat", "n + 0 = n"],
-    [
-        ["0 + 0 = 0"],
-        ["n : nat", "IHn : n + 0 = n", "(S n) + 0 = S n"]
-    ],
-    "Performs induction on the natural number n, generating base and inductive cases."
-);
-
-addExample(
-    "destruct n",
-    ["n : nat", "n = 0 \\/ exists m : nat, n = S m"],
-    [
-        ["0 = 0 \\/ exists m : nat, 0 = S m"],
-        ["n' : nat", "S n' = 0 \\/ exists m : nat, S n' = S m"]
-    ],
-    "Performs case analysis on the natural number n, considering cases for 0 and S n'."
-);
-
-addExample(
-    "simpl",
-    ["n : nat", "2 + n = n + 2"],
-    [["n : nat", "S (S n) = n + 2"]],
-    "Simplifies the goal by reducing computations and applying definitions."
-);
-
-addExample(
-    "simpl in H",
-    ["n : nat", "H : 2 + n = n + 3", "False"],
-    [["n : nat", "H : S (S n) = n + 3", "False"]],
-    "Simplifies the hypothesis H by reducing computations and applying definitions."
-);
-
-addExample(
-    "reflexivity",
-    ["n : nat", "n = n"],
-    [],
-    "Proves a goal of the form x = x for any term x."
-);
-
-addExample(
-    "rewrite plus_comm",
-    ["n, m, a, b: nat", "n + m = a + b"],
-    [["n, m, a, b: nat", "m + n = a + b"]],
-    "Rewrites the first match in the goal using a lemma.",
-    "Lemma plus_comm : forall n m : nat, n + m = m + n."
-);
-
-addExample(
-    "rewrite (plus_comm a b)",
-    ["n, m, a, b: nat", "n + m = a + b"],
-    [["n, m, a, b: nat", "n + m = b + a"]],
-    "Rewrites the first match in the goal using an instantiated lemma.",
-    "Lemma plus_comm : forall n m : nat, n + m = m + n."
-);
-
-addExample(
-    "rewrite IHn",
-    ["n : nat", "IHn : n + 0 = n", "S (n + 0) = S n"],
-    [["n : nat", "IHn : n + 0 = n", "S n = S n"]],
-    "Rewrites the goal using the hypothesis IHn."
-);
-
-addExample(
-    "rewrite plus_comm in H",
-    ["n, m : nat", "H : n + 0 = m", "n = m"],
-    [["n, m : nat", "H : 0 + n = m", "n = m"]],
-    "Rewrites in the hypothesis H using a lemma.",
-    "Lemma plus_comm : forall n m : nat, n + m = m + n."
-);
-
-addExample(
     "constructor",
     ["True"],
     [],
@@ -176,20 +104,6 @@ addExample(
     [],
     "Eliminates a hypothesis of type False, proving any goal P.",
     "Inductive False : Prop := ."
-);
-
-addExample(
-    "discriminate",
-    ["n : nat", "H : S n = 0", "P"],
-    [],
-    "Proves any goal P by contradiction from an equality between distinct constructors."
-);
-
-addExample(
-    "injection H as H",
-    ["n, m : nat", "H : S n = S m", "n = m"],
-    [["n, m : nat", "H : n = m", "n = m"]],
-    "Derives an equality between the arguments of matching constructors."
 );
 
 addExample(
@@ -272,6 +186,121 @@ addExample(
     [["a, b, n: nat", "H : a + n = b", "a <= b"]],
     "Destructs an existential hypothesis into its components."
 );
+
+currentDifficulty = "data types";
+
+addExample(
+    "induction n",
+    ["n : nat", "n + 0 = n"],
+    [
+        ["0 + 0 = 0"],
+        ["n : nat", "IHn : n + 0 = n", "(S n) + 0 = S n"]
+    ],
+    "Performs induction on the natural number n, generating base and inductive cases."
+);
+
+addExample(
+    "destruct n",
+    ["n : nat", "n = 0 \\/ exists m : nat, n = S m"],
+    [
+        ["0 = 0 \\/ exists m : nat, 0 = S m"],
+        ["n' : nat", "S n' = 0 \\/ exists m : nat, S n' = S m"]
+    ],
+    "Performs case analysis on the natural number n, considering cases for 0 and S n'."
+);
+
+addExample(
+    "discriminate",
+    ["n : nat", "H : S n = 0", "P"],
+    [],
+    "Proves any goal P by contradiction from an equality between distinct constructors."
+);
+
+addExample(
+    "injection H as H",
+    ["n, m : nat", "H : S n = S m", "n = m"],
+    [["n, m : nat", "H : n = m", "n = m"]],
+    "Derives an equality between the arguments of matching constructors."
+);
+
+currentDifficulty = "equality";
+
+addExample(
+    "simpl",
+    ["n : nat", "2 + n = n + 2"],
+    [["n : nat", "S (S n) = n + 2"]],
+    "Simplifies the goal by reducing computations and applying definitions."
+);
+
+addExample(
+    "simpl in H",
+    ["n : nat", "H : 2 + n = n + 3", "False"],
+    [["n : nat", "H : S (S n) = n + 3", "False"]],
+    "Simplifies the hypothesis H by reducing computations and applying definitions."
+);
+
+addExample(
+    "reflexivity",
+    ["n : nat", "n = n"],
+    [],
+    "Proves a goal of the form x = x for any term x."
+);
+
+addExample(
+    "rewrite plus_comm",
+    ["n, m, a, b: nat", "n + m = a + b"],
+    [["n, m, a, b: nat", "m + n = a + b"]],
+    "Rewrites the first match in the goal using a lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "rewrite (plus_comm a b)",
+    ["n, m, a, b: nat", "n + m = a + b"],
+    [["n, m, a, b: nat", "n + m = b + a"]],
+    "Rewrites the first match in the goal using an instantiated lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "rewrite IHn",
+    ["n : nat", "IHn : n + 0 = n", "S (n + 0) = S n"],
+    [["n : nat", "IHn : n + 0 = n", "S n = S n"]],
+    "Rewrites the goal using the hypothesis IHn."
+);
+
+addExample(
+    "rewrite plus_comm in H",
+    ["n, m : nat", "H : n + 0 = m", "n = m"],
+    [["n, m : nat", "H : 0 + n = m", "n = m"]],
+    "Rewrites in the hypothesis H using a lemma.",
+    "Lemma plus_comm : forall n m : nat, n + m = m + n."
+);
+
+addExample(
+    "rewrite <-add_0_r",
+    ["n : nat", "n = n"],
+    [["n : nat", "n + 0 = n"]],
+    "Rewrites the goal in reverse.",
+    "Lemma add_0_r n : n + 0 = n."
+);
+
+addExample(
+    "rewrite !add_0_r",
+    ["n : nat", "(n + 0) + 0 = n"],
+    [["n : nat", "n = n"]],
+    "Rewrites the goal repeatedly.",
+    "Lemma add_0_r n : n + 0 = n."
+);
+
+currentDifficulty = "automation";
+
+addExample(
+    "lia",
+    ["n, m, k : nat", "n + m = 1", "k < 3", "k + n <= 3 \\/ k + m <= 3"],
+    [],
+    "Uses a linear integer arithmetic solver to solve the goal."
+)
 
 function displayExample(index) {
     const example = examples[index];
