@@ -202,16 +202,18 @@ select {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #ccc;
+    background-color: #007bff; /* or any color you prefer */
+    border: none;
     cursor: pointer;
-    font-size: 18px;
-    line-height: 1;
 }
 
 #prev-example svg, #next-example svg {
-    width: 20px;
-    height: 20px;
-    fill: white;
+    width: 24px;
+    height: 24px;
+}
+
+#prev-example:hover, #next-example:hover {
+    background-color: #0056b3; /* darker shade for hover effect */
 }
 
 #prev-example {
@@ -260,7 +262,14 @@ button.quiz-mode { box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); background-color: #0
     #controls { gap: 5px; margin-bottom: 10px; }
     button, select { font-size: 14px; padding: 5px 10px; }
     select { width: auto; }
-    #prev-example, #next-example { width: 30px; height: 30px; padding: 5px; }
+    #prev-example, #next-example { 
+        width: 30px; 
+        height: 30px;
+    }
+    #prev-example svg, #next-example svg {
+        width: 18px;
+        height: 18px;
+    }
     #app { padding: 10px; }
     #goals-container { grid-template-columns: 1fr; gap: 10px; margin: 0; }
     .goal { padding: 10px; font-size: 12px; margin: 0; }
