@@ -192,6 +192,7 @@ select {
 /* Specific button styles */
 #prev-example, #next-example {
     width: 40px;
+    height: 40px;
     padding: 10px;
 }
 
@@ -241,7 +242,7 @@ button.quiz-mode { box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); background-color: #0
     #controls { gap: 5px; margin-bottom: 10px; }
     button, select { font-size: 14px; padding: 5px 10px; }
     select { width: auto; }
-    #prev-example, #next-example { width: 30px; padding: 5px; }
+    #prev-example, #next-example { width: 30px; height: 30px; padding: 5px; }
     #app { padding: 10px; }
     #goals-container { grid-template-columns: 1fr; gap: 10px; margin: 0; }
     .goal { padding: 10px; font-size: 12px; margin: 0; }

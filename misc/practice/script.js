@@ -302,6 +302,8 @@ addExample(
     "Uses a linear integer arithmetic solver to solve the goal."
 )
 
+currentDifficulty = "all";
+
 function displayExample(index) {
     const example = examples[index];
     
