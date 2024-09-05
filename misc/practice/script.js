@@ -53,6 +53,279 @@ function stringToHash(str) {
     return Math.abs(hash);
 }
 
+currentDifficulty = "reference";
+
+
+// split conjunction
+addExample(
+    "split",
+    ["...", "P /\\ Q"],
+    [["...", "P"], ["...", "Q"]],
+    "Splits a conjunctive goal into two subgoals."
+);
+
+// destruct conjunction
+addExample(
+    "destruct H as [H1 H2]",
+    ["H : P /\\ Q", "..."],
+    [["H1 : P", "H2 : Q", "..."]],
+    "Destructs a conjunctive hypothesis into its components."
+);
+
+// introduce or left
+addExample(
+    "left",
+    ["...", "P \\/ Q"],
+    [["...", "P"]],
+    "Proves a disjunctive goal by proving its left component."
+);
+
+// introduce or right
+addExample(
+    "right",
+    ["...", "P \\/ Q"],
+    [["...", "Q"]],
+    "Proves a disjunctive goal by proving its right component."
+);
+
+// or case analysis
+addExample(
+    "destruct H",
+    ["H : P \\/ Q", "..."],
+    [["H : P", "..."], ["H : Q", "..."]],
+    "Performs case analysis on a disjunctive hypothesis."
+);
+
+// prove True with constructor
+addExample(
+    "constructor",
+    ["...", "True"],
+    [],
+    "Proves a goal of type True by applying its constructor."
+);
+
+// destruct False hypothesis
+addExample(
+    "destruct H",
+    ["H : False", "..."],
+    [],
+    "Proves any goal by contradiction from a hypothesis of type False."
+);
+
+// introduce implication
+addExample(
+    "intros H",
+    ["...", "P -> Q"],
+    [["...", "H : P", "Q"]],
+    "Introduces a hypothesis H for an implication."
+);
+
+// revert implication
+addExample(
+    "revert H",
+    ["...", "H : P", "Q"],
+    [["...", "P -> Q"]],
+    "Moves the hypothesis H to an implication in the goal (the opposite of intros H)."
+);
+
+// apply hypothesis
+addExample(
+    "apply H",
+    ["...", "H : P", "P"],
+    [],
+    "Applies the hypothesis H to the goal."
+);
+
+// apply implication
+addExample(
+    "apply H",
+    ["...", "H : P -> Q", "Q"],
+    [["...", "H : P -> Q", "P"]],
+    "Applies the hypothesis H to the goal, creating a new subgoal."
+);
+
+// apply double implication
+addExample(
+    "apply H",
+    ["...", "H : P -> Q -> R", "R"],
+    [["...", "H : P -> Q -> R", "P"], ["...", "H : P -> Q -> R", "Q"]],
+    "Applies the hypothesis H to the goal, creating two new subgoals."
+);
+
+// introduce a forall quantifier
+addExample(
+    "intros x",
+    ["...", "forall x : A, P x"],
+    [["...", "x : A", "P x"]],
+    "Introduces a variable x for the forall quantifier."
+);
+
+// revert a forall quantifier
+addExample(
+    "revert x",
+    ["...", "x : A", "P x"],
+    [["...", "forall x : A, P x"]],
+    "Moves the variable x from the context back into the goal (the opposite of intros x)."
+);
+
+// introduce several variables and hypotheses
+addExample(
+    "intros x H1 y H2",
+    ["...", "forall x : A, \n P x -> \n  forall y : B, \n   Q x y -> R x y"],
+    [["...", "x : A", "H1 : P x", "y : B", "H2 : Q x y", "R x y"]],
+    "Introduces variables x, y and hypotheses H1, H2 for forall and implication quantifiers."
+);
+
+// revert several variables and hypotheses
+addExample(
+    "revert x H1 y H2",
+    ["...", "x : A", "H1 : P x", "y : B", "H2 : Q x y", "R x y"],
+    [["...", "forall x : A, \n P x -> \n  forall y : B, \n   Q x y -> R x y"]],
+    "Moves variables x, y and hypotheses H1, H2 from the context back into the goal (the opposite of intros x H1 y H2)."
+);
+
+// apply forall
+addExample(
+    "apply (H a)",
+    ["...", "H : forall x : A, P x", "P a"],
+    [],
+    "Applies the hypothesis H to the goal, instantiating the forall quantifier."
+);
+
+// apply forall
+addExample(
+    "apply H",
+    ["...", "H : forall x : A, P x", "P a"],
+    [],
+    "Applies the hypothesis H to the goal, letting Coq instantiate the forall quantifier."
+);
+
+// apply forall and implication
+addExample(
+    "apply H",
+    ["...", "H : forall x : A, P x -> Q x", "Q a"],
+    [["...", "H : forall x : A, P x -> Q x", "P a"]],
+    "Applies the hypothesis H to the goal, creating a new subgoal."
+);
+
+// reflexivity
+addExample(
+    "reflexivity",
+    ["x : A", "x = x"],
+    [],
+    "Proves a goal of the form x = x for any term x."
+);
+
+// rewrite
+addExample(
+    "rewrite H",
+    ["x, y : A", "H : x = y", "P x"],
+    [["x, y : A", "H : x = y", "P y"]],
+    "Rewrites the goal using the hypothesis H : x = y."
+);
+
+// rewrite <-
+addExample(
+    "rewrite <-H",
+    ["x, y : A", "H : x = y", "P y"],
+    [["x, y : A", "H : x = y", "P x"]],
+    "Rewrites the goal backwards using the hypothesis H : x = y."
+);
+
+// rewrite in H'
+addExample(
+    "rewrite H in H'",
+    ["x, y : A", "H : x = y", "H' : P x", "..."],
+    [["x, y : A", "H : x = y", "H' : P y", "..."]],
+    "Rewrites the hypothesis H' using the hypothesis H : x = y."
+);
+
+// destruct natural number
+addExample(
+    "destruct n as [ | n']",
+    ["n : nat", "H : P n", "Q n"],
+    [["H : P 0", "Q 0"], ["n' : nat", "H : P (S n')", "Q (S n')"]],
+    "Performs case analysis on the natural number n, considering cases for 0 and S n'.",
+    "Inductive nat := \n | O : nat \n | S : nat -> nat."
+);
+
+// induction on natural number
+addExample(
+    "induction n as [ | n' IH]",
+    ["n : nat", "H : P n", "Q n"],
+    [["H : P 0", "Q 0"], ["n' : nat", "H : P (S n')", "IH : P n' -> Q n'", "Q (S n')"]],
+    "Performs induction on the natural number n, generating base and inductive cases.",
+    "Inductive nat := \n | O : nat \n | S : nat -> nat."
+);
+
+// discriminate natural number
+addExample(
+    "discriminate H",
+    ["n : nat", "H : S n = O", "..."],
+    [],
+    "Proves any goal by contradiction from an equality between distinct constructors of an inductive type.",
+    "Inductive nat := \n | O : nat \n | S : nat -> nat."
+)
+
+// injection natural number
+addExample(
+    "injection H as H'",
+    ["n, m : nat", "H : S n = S m", "..."],
+    [["n, m : nat", "H : S n = S m","H' : n = m", "..."]],
+    "Derives equalities between the arguments of matching constructors.",
+    "Inductive nat := \n | O : nat \n | S : nat -> nat."
+)
+
+// unfold definition
+addExample(
+    "unfold f",
+    ["n : nat", "P (f n)"],
+    [["n : nat", "P (n + 1)"]],
+    "Unfolds the definition of f in the goal.",
+    "Definition f x := x + 1."
+);
+
+// unfold definition in H
+addExample(
+    "unfold f in H",
+    ["n : nat", "H : P (f n)", "..."],
+    [["n : nat", "H : P (n + 1)", "..."]],
+    "Unfolds the definition of f in the hypothesis H.",
+    "Definition f x := x + 1."
+);
+
+// simpl
+addExample(
+    "simpl",
+    ["...", "match S n with \n| O => P \n| S n' => Q n' \nend"],
+    [["...", "Q n"]],
+    "Simplifies the goal by reducing pattern matching on constructors (unfolding definitions if needed)."
+);
+
+// simpl in H
+addExample(
+    "simpl in H",
+    ["...", "H : match S n with \n    | O => P \n    | S n' => Q n' \n    end", "..."],
+    [["...", "H : Q n", "..."]],
+    "Simplifies the hypothesis H by reducing pattern matching on constructors (unfolding definitions if needed)."
+);
+
+// clear H
+addExample(
+    "clear H",
+    ["...", "H : P", "..."],
+    [["...", "..."]],
+    "Clears the hypothesis H from the context."
+);
+
+// admit
+addExample(
+    "admit",
+    ["...", "..."],
+    [],
+    "Admits any goal, skipping the proof for now."
+);
+
 currentDifficulty = "connectives";
 
 addExample(
