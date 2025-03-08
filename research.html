@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Directions - Jules Jacobs</title>
+    <style>
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+            background-color: #fdfdfd;
+        }
+        header {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            color: #222;
+            margin: 0;
+        }
+        h2 {
+            color: #333;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        h3 {
+            color: #555;
+        }
+        .toc {
+            background-color: #f8f8f8;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            border: 1px solid #eee;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding-left: 10px;
+        }
+        .toc li {
+            margin-bottom: 8px;
+        }
+        .toc a {
+            text-decoration: none;
+            color: hsl(213, 50%, 40%);
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        section {
+            margin-bottom: 40px;
+        }
+        .top-link {
+            display: block;
+            text-align: right;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        .home-link {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: #eee;
+            border: 1px solid #bbb;
+            border-radius: 3px;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9em;
+        }
+        .home-link:hover {
+            background-color: #ccc;
+        }
+        .premise {
+            font-weight: bold;
+            color: #555;
+        }
+        .goal {
+            font-weight: bold;
+            color: hsl(213, 50%, 40%);
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #777;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .icon {
+            min-width: 50px;
+            height: 50px;
+            fill: hsl(213, 50%, 40%);
+        }
+        .section-content {
+            margin-left: 65px;
+        }
+        @media (max-width: 600px) {
+            .section-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <h1>Research Directions</h1>
+        <p>
+            <a href="/">Jules Jacobs</a>
+        </p>
+    </div>
+</header>
+
+<div class="toc">
+    <h2 id="toc-heading" style="margin-top: 0; border-top: none;">Table of Contents</h2>
+    <ul>
+        <li><a href="#network-verification">Network Verification</a></li>
+        <li><a href="#reasonable-programming-languages">Reasonable Programming Languages</a></li>
+        <li><a href="#live-languages">Live Languages and Program Logic</a></li>
+    </ul>
+</div>
+
+<main>
+    <section id="network-verification">
+        <div class="section-header">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+                <!-- Network icon -->
+                <path d="M640 264v-16c0-8.84-7.16-16-16-16H344v-40h72c17.67 0 32-14.33 32-32V32c0-17.67-14.33-32-32-32H224c-17.67 0-32 14.33-32 32v128c0 17.67 14.33 32 32 32h72v40H16c-8.84 0-16 7.16-16 16v16c0 8.84 7.16 16 16 16h104v40H64c-17.67 0-32 14.33-32 32v128c0 17.67 14.33 32 32 32h160c17.67 0 32-14.33 32-32V352c0-17.67-14.33-32-32-32h-56v-40h304v40h-56c-17.67 0-32 14.33-32 32v128c0 17.67 14.33 32 32 32h160c17.67 0 32-14.33 32-32V352c0-17.67-14.33-32-32-32h-56v-40h104c8.84 0 16-7.16 16-16zM256 128V64h128v64H256zm-64 320H96v-64h96v64zm352 0h-96v-64h96v64z"/>
+            </svg>
+            <h2>Network Verification</h2>
+        </div>
+        <div class="section-content">
+            <p><span class="premise">Premise:</span> Networking is an attractive domain for formal methods because infrastructure is critical, and problems are often decidable because behavior is constrained by latency and throughput requirements.</p>
+            <p><span class="goal">Goal:</span> Develop network modeling and query languages powered by modular, scalable solver suites for practical decision problems in networking.</p>
+            <ul>
+                <li><b>Expressive Modeling:</b> Handle unbounded packet and switch states.</li>
+                <li><b>Expressive Queries:</b> Support transducers, trace properties, quantitative analyses (failures, latency, throughput, queuing).</li>
+                <li><b>Synthesis:</b> Automated generation of verified network configurations.</li>
+            </ul>
+            <p><b>Helpful skills:</b> Strong mathematical background, interest in the development of theoretical decision procedures, algorithmic and engineering of practically fast solvers, knowledge of networking domain.</p>
+            <p><b>Related:</b> NetKAT, HSA, Veriflow, Minesweeper, Batfish, APV, Delta-net, Plankton, ...</p>
+        </div>
+    </section>
+
+    <section id="reasonable-programming-languages">
+        <div class="section-header">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512">
+                <!-- Code icon -->
+                <path d="M278.9 511.5l-61-17.7c-6.4-1.8-10-8.5-8.2-14.9L346.2 8.7c1.8-6.4 8.5-10 14.9-8.2l61 17.7c6.4 1.8 10 8.5 8.2 14.9L293.8 503.3c-1.9 6.4-8.5 10.1-14.9 8.2zm-114-112.2l43.5-46.4c4.6-4.9 4.3-12.7-.8-17.2L117 256l90.6-79.7c5.1-4.5 5.5-12.3.8-17.2l-43.5-46.4c-4.5-4.8-12.1-5.1-17-.5L3.8 247.2c-5.1 4.7-5.1 12.8 0 17.5l144.1 135.1c4.9 4.6 12.5 4.4 17-.5zm327.2.6l144.1-135.1c5.1-4.7 5.1-12.8 0-17.5L492.1 112.1c-4.8-4.5-12.4-4.3-17 .5L431.6 159c-4.6 4.9-4.3 12.7.8 17.2L523 256l-90.6 79.7c-5.1 4.5-5.5 12.3-.8 17.2l43.5 46.4c4.5 4.9 12.1 5.1 17 .6z"/>
+            </svg>
+            <h2>Reasonable Programming Languages</h2>
+        </div>
+        <div class="section-content">
+            <p><span class="premise">Premise 1:</span> Rust is hard learn to use due to its complex type system. We need high-level counterpart for non-systems software: "What is to Rust as Python is to C?".</p>
+            <p><span class="premise">Premise 2:</span> Formal verification of code is hard due to aliasing. Formal verification by "programming in mathematics" a la CompCert works well, but programming with pure mathematical functions is difficult for programmers and leads to slow code.</p>
+            <p><span class="goal">Goal:</span> Develop languages that are easy to use, performant, and a basis for formal verification, without a complex type system.</p>
+            <ul>
+                <li>Create practical, "Pythonic" programming language that simultaneously serves as a foundation for formal proof.</li>
+                <li><i>Copy-on-alias</i> semantics to solve mathematical inconsistency with imperative constructs.</li>
+                <li>Enable efficient data representations, compiler optimizations.</li>
+                <li>Safe and seamless Rust interoperability (conventional high level languages don't uphold critical Rust "aliasing xor mutability" invariant).</li>
+                <li>Borrow checker becomes a compiler optimization and linter.</li>
+            </ul>
+            <p><b>Helpful skills:</b> Strong mathematical background, interest in type theory or logic, language design taste, compiler development, proof automation with classical methods and AI.</p>
+            <p><b>Related:</b> Rust, Swift, Hylo, Aeneas, Creusot, Lean, F*, Coq, ...</p>
+        </div>
+    </section>
+
+    <section id="live-languages">
+        <div class="section-header">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                <!-- Clock/Time icon for liveness -->
+                <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm61.8-104.4l-84.9-61.7c-3.1-2.3-4.9-5.9-4.9-9.7V116c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v141.7l66.8 48.6c5.4 3.9 6.5 11.4 2.6 16.8L334.6 349c-3.9 5.3-11.4 6.5-16.8 2.6z"/>
+            </svg>
+            <h2>Live Languages and Program Logic</h2>
+        </div>
+        <div class="section-content">
+            <p><span class="premise">Premise:</span> Current languages and program logics guarantee memory safety and partial correctness, not stronger properties like liveness and total correctness.</p>
+            <p><span class="goal">Goal:</span> Develop type systems and program logics that establish strong properties for concurrent programs.</p>
+            <ul>
+                <li>Develop advanced type systems and logics for termination, liveness, and concurrency.</li>
+                <li>Support practical concurrency constructs (message passing, locks, condition variables, CAS).</li>
+            </ul>
+            <p><b>Helpful skills:</b> Strong mathematical background, interest in linear types and separation logic, concurrent programming.</p>
+            <p><b>Related:</b> Separation logic, Iris, session types, LTL, dynamic logic, LiLi, TaDa, ...</p>
+        </div>
+    </section>
+</main>
+
+</body>
+</html>

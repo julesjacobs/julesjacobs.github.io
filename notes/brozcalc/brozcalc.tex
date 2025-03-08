@@ -1,0 +1,161 @@
+\documentclass[a4paper, 11pt]{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.84]{beramono}
+\usepackage[dottedtoc]{classicthesis}
+\usepackage[a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{ceulerpx}
+
+\newcommand{\sectionnumbercolor}{Maroon!60}
+\titleformat{\section}
+            {\large}
+            {\llap{\color{\sectionnumbercolor}\thesection\quad}}
+            {0pt}
+            {\spacedlowsmallcaps}
+
+\titleformat{\subsection}
+            {\normalsize}
+            {\llap{\color{\sectionnumbercolor}\thesubsection\quad}}
+            {0pt}
+            {\textit}
+
+\pagestyle{plain}
+
+\usepackage{parskip}
+\usepackage{mathtools}
+\usepackage{hyperref}
+\usepackage[all]{hypcap}
+\hypersetup{
+    linktoc=section
+}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{float}
+\usepackage{listings}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+
+\usepackage{amsmath}
+\let\openbox\relax
+\usepackage{amsthm}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+
+\usepackage[shortlabels]{enumitem}
+\setitemize{noitemsep, topsep=1pt, leftmargin=*}
+\setenumerate{noitemsep, topsep=1pt, leftmargin=*}
+\setdescription{itemsep=.5pt, topsep=0pt, leftmargin=8pt}
+\usepackage{mathpartir}
+
+\usepackage{adjustbox}
+\usepackage{todonotes}
+\usepackage{multicol}
+
+
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
+
+\makeatletter
+\renewcommand\maketitle
+  {
+  \begin{center}
+   {\color{black}\large\spacedallcaps{\@title}}\\\bigskip%
+   \large{\@author}\\\medskip%
+   \normalsize{\@date}\bigskip%
+  \end{center}%
+  }
+
+\newcommand{\equationnumbercolor}{black!60}
+\newtagform{brackets}{\color{\equationnumbercolor}(}{)}
+\usetagform{brackets}
+
+\newtheorem*{nlemma}{Lemma}
+
+\title{Brzozowski and Calculus Derivatives}
+\author{Jules Jacobs}
+\date{}
+
+\begin{document}
+\maketitle
+
+Consider regular expressions over the alphabet \(\Sigma = \{x,y\}\):
+\begin{align*}
+  e ::= 0 \mid 1 \mid x \mid y \mid e_1 + e_2 \mid e_1 e_2 \mid e^*
+\end{align*}
+
+The Brzozowski derivative of a regular expression $e$ with respect to a symbol $x$ is defined as:
+\begin{minipage}{0.5\textwidth}
+\begin{align*}
+  \delta_x(0)         &= 0 \\
+  \delta_x(1)         &= 0 \\
+  \delta_x(x)         &= 1 \\
+  \delta_x(y)         &= 0 \text{ if } x \neq y \\
+  \delta_x(e_1 + e_2) &= \delta_x(e_1) + \delta_x(e_2) \\
+  \delta_x(e_1 e_2)   &= \delta_x(e_1) e_2 + \epsilon(e_1) \delta_x(e_2) \\
+  \delta_x(e^*)       &= \delta_x(e) e^*
+\end{align*}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\begin{align*}
+  \epsilon(0) &= 0 \\
+  \epsilon(1) &= 0 \\
+  \epsilon(x) &= 0 \\
+  \epsilon(y) &= 0 \\
+  \epsilon(e_1 + e_2) &= \epsilon(e_1) + \epsilon(e_2) \\
+  \epsilon(e_1 e_2) &= \epsilon(e_1) \epsilon(e_2) \\
+  \epsilon(e^*) &= \epsilon(e)^*
+\end{align*}
+\end{minipage}
+
+When we expand $e^*$ we get:
+\begin{align*}
+  e^* = 1 + e + e^2 + e^3 + \cdots
+\end{align*}
+As a power series in calculus, we have:
+\begin{align*}
+  \frac{1}{1 - e} = 1 + e + e^2 + e^3 + \cdots
+\end{align*}
+Therefore, $e^*$ is analogous to $\frac{1}{1 - e}$. Let us therefore define $e^*$ as $\frac{1}{1 - e}$ on the calculus side.
+Note that the derivative of $\frac{1}{1 - e}$ is $\frac{e'}{(1 - e)^2}$.
+We therefore get the following calculus rules:
+\begin{align*}
+  \delta_x(0)         &= 0 \\
+  \delta_x(1)         &= 0 \\
+  \delta_x(x)         &= 1 \\
+  \delta_x(y)         &= 0 \text{ if } x \neq y \\
+  \delta_x(e_1 + e_2) &= \delta_x(e_1) + \delta_x(e_2) \\
+  \delta_x(e_1 e_2)   &= \delta_x(e_1) e_2 + e_1 \delta_x(e_2) \\
+  \delta_x(e^*)       &= \delta_x(e) (e^*)^2
+\end{align*}
+
+Note the difference in the rules:\\[10pt]
+
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+   Brozowski:
+   \begin{align*}
+     \delta_x(e_1 e_2) &= \delta_x(e_1) e_2 + \epsilon(e_1) \delta_x(e_2) \\
+     \delta_x(e^*) &= \delta_x(e) e^*
+   \end{align*}
+  \end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+  \begin{center}
+   Calculus:
+   \begin{align*}
+     \delta_x(e_1 e_2) &= \delta_x(e_1) e_2 + e_1 \delta_x(e_2) \\
+     \delta_x(e^*) &= \delta_x(e) (e^*)^2
+   \end{align*}
+  \end{center}
+\end{minipage}
+
+\bigskip
+Therefore, although we call both derivatives, they are quite different.
+
+\end{document}
