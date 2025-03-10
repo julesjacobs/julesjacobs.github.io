@@ -11,11 +11,7 @@
             --primary-dark: hsl(213, 50%, 25%);
             --text-color: #333;
             --text-light: #555;
-            --text-lighter: #777;
-            --bg-color: #fdfdfd;
-            --bg-light: #f8f8f8;
             --border-color: #e5e5e5;
-            --border-light: #eee;
             --shadow-color: rgba(0, 0, 0, 0.05);
             --header-spacing: 2.5rem;
             --section-spacing: 3rem;
@@ -29,7 +25,7 @@
             margin: 0 auto;
             padding: 20px;
             color: var(--text-color);
-            background-color: var(--bg-color);
+            background-color: #fdfdfd;
         }
 
         /* Typography enhancements */
@@ -79,6 +75,23 @@
 
         .header-author a:hover {
             color: var(--primary-dark);
+        }
+        
+        .email-link {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        .email-icon {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-light);
+        }
+        
+        .email-link:hover .email-icon {
+            fill: var(--primary-dark);
         }
         /* Headers and Sections */
         header {
@@ -188,7 +201,6 @@
 
         li {
             margin-bottom: 0.8rem;
-            position: relative;
         }
 
         li b {
@@ -230,11 +242,18 @@
 
 <header>
     <h1>Research Directions</h1>
-    <div class="header-author"><a href="/">Jules Jacobs</a></div>
+    <div class="header-author">
+        <a href="/">Jules Jacobs</a>
+        <a href="mailto:julesjacobs@gmail.com" class="email-link" title="Email me">
+            <svg class="email-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
+                <path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"/>
+            </svg>
+        </a>
+    </div>
 </header>
 
 <div class="toc">
-    <h2 id="toc-heading" style="margin-top: 0; border-top: none;">Table of Contents</h2>
+    <h2 id="toc-heading">Table of Contents</h2>
     <ul>
         <li>
             <svg class="toc-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true">
