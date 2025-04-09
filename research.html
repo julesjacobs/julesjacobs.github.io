@@ -341,6 +341,38 @@
             <p><b>Helpful skills:</b> Strong mathematical background, interest in the development of theoretical decision procedures, algorithmic and engineering of practically fast solvers, knowledge of networking domain.</p>
             <p><b>Related:</b> NetKAT,  KATch, HSA, Veriflow, Minesweeper, Batfish, APV, Delta-net, Plankton, ...</p>
         </div>
+        <h3>Subprojects</h3>
+
+        <h4>KATch</h4>
+        KATch is a fast network verifier for network configurations specified in NetKAT. KATch supports a verification query language in which you can state your desired properties. KATch then builds an automaton model of the NetKAT model and the query, and determines if the query is satisfied, producing a counterexample if not.
+
+        <h4>StacKAT</h4>
+        StacKAT extends NetKAT with a stack. This can be used to model infinite state protocols and features such as:
+        <ul>
+            <li>Source routing</li>
+            <li>MPLS</li>
+            <li>Telemetry</li>
+            <li>Parsing and serialization</li>
+        </ul>
+        
+        <h5>Fast StacKAT verification</h5>
+        We are currently working on making a fast verifier for StacKAT:
+        <table cellspacing="10" style="text-align:center; background: #EEE">
+            <tr>
+                <td>NetKAT:</td>
+                <td>KATch</td>
+            </tr>
+            <tr>
+                <td>StacKAT:</td>
+                <td>???</td>
+            </tr>
+        </table>
+
+        <h4>NetKAT-LTL</h4>
+        This project aims to extend NetKAT with LTL queries.
+        
+        <h4>Ser</h4>
+        In this project we develop a decision procedure to check serializability of network systems with stateful routers and hosts. We are able to decide serializability of network systems even with an unbounded number of packets in-flight, provided the switch and host state is finite.
     </section>
 </main>
 
