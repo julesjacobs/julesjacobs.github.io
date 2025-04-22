@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>POPL 2026 Submission Countdown</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     :root {
       --bg-gradient: linear-gradient(135deg, #3b82f6 0%, #9333ea 100%);
@@ -34,6 +35,18 @@
     .day-block {width:12px;height:5px;border-radius:2px;background:var(--remaining);} /* default: remaining */
 
     footer {margin-top:2rem;font-size:0.8rem;font-weight:400;opacity:0.8;}
+    .calendar-links { margin-top: 1rem; display: flex; justify-content: center; gap: 0.8rem; /* Adjusted gap */ }
+    .calendar-links a { 
+      opacity: 0.7; 
+      transition: opacity 0.2s ease; 
+      color: #fff; 
+      text-decoration: none; 
+      padding: 0.3rem; /* Add padding to increase clickable area */
+      display: inline-flex; /* Ensure padding behaves correctly */
+      align-items: center; /* Center icon vertically */
+    }
+    .calendar-links a:hover { opacity: 1; }
+    .calendar-links i { font-size: 14px; /* Adjust size as needed */ }
 
     @media(max-width:500px){.card{padding:2rem;}.value{font-size:2.2rem;}}
   </style>
@@ -51,12 +64,20 @@
     <!-- Year progress bar -->
     <div class="year-bar" id="yearBar"></div>
 
-    <footer>Counting down to 10 July 2025 23:59 AoE</footer>
+    <footer>
+      Counting down to 10 July 2025 23:59 AoE
+      <div id="calendar-links" class="calendar-links">
+        <a id="google-link" href="#" target="_blank" title="Add to Google Calendar"><i class="fa-brands fa-google" aria-hidden="true"></i></a>
+        <a id="apple-link" href="#" target="_blank" title="Add to Apple Calendar"><i class="fa-brands fa-apple" aria-hidden="true"></i></a>
+        <a id="outlook-link" href="#" target="_blank" title="Add to Outlook Calendar"><i class="fa-brands fa-microsoft" aria-hidden="true"></i></a>
+      </div>
+    </footer>
   </div>
 
   <script>
     (function () {
       const deadline = new Date('2025-07-10T23:59:00-12:00');
+      const title = 'POPL 2026 Submission Deadline'; // Define title here
       const yearDays = 365;
       const startDate = new Date(deadline);
       startDate.setDate(startDate.getDate() - (yearDays - 1));
@@ -132,6 +153,23 @@
 
       update();
       const timer = setInterval(update, 1000);
+
+      // Calculate calendar URLs and set hrefs
+      const startTime = deadline;
+      const endTime = new Date(startTime.getTime() + 3600000); // Add 1 hour
+      const formatISODate = (d) => d.toISOString().replace(/-|:|\\.\\d\\d\\d/g, "");
+
+      const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${formatISODate(startTime)}/${formatISODate(endTime)}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
+
+      const icsFileContent = `BEGIN:VCALENDAR\\nVERSION:2.0\\nBEGIN:VEVENT\\nDTSTART:${formatISODate(startTime)}\\nDTEND:${formatISODate(endTime)}\\nSUMMARY:${encodeURIComponent(title)}\\nEND:VEVENT\\nEND:VCALENDAR`;
+      const appleCalendarUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
+
+      const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${startTime.toISOString()}&enddt=${endTime.toISOString()}`;
+
+      document.getElementById('google-link').href = googleCalendarUrl;
+      document.getElementById('apple-link').href = appleCalendarUrl;
+      document.getElementById('outlook-link').href = outlookCalendarUrl;
+
     })();
   </script>
 </body>
