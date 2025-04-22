@@ -11,140 +11,101 @@
       --card-bg: rgba(255, 255, 255, 0.1);
       --blur: 20px;
       --border: rgba(255, 255, 255, 0.3);
+      /* Color mapping swapped: elapsed = muted, remaining = bright */
+      --elapsed: rgba(255, 255, 255, 0.25);
+      --remaining: #ffffff;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      color: #fff;
-    }
+    * {margin: 0;padding: 0;box-sizing: border-box;font-family: 'Inter', sans-serif;color: #fff;}
+    html,body {height: 100%;width: 100%;}
 
-    html, body {
-      height: 100%;
-      width: 100%;
-    }
+    body {background: var(--bg-gradient);display: flex;align-items: center;justify-content: center;}
 
-    body {
-      background: var(--bg-gradient);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    .card {backdrop-filter: blur(var(--blur));background: var(--card-bg);border: 1px solid var(--border);padding: 3rem 4rem;border-radius: 2rem;text-align: center;box-shadow: 0 10px 25px rgba(0,0,0,0.25);max-width: 38rem;}
 
-    .card {
-      backdrop-filter: blur(var(--blur));
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      padding: 3rem 4rem;
-      border-radius: 2rem;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-    }
+    h1 {font-size: 2rem;font-weight: 800;margin-bottom: 1rem;line-height: 1.3;}
 
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      margin-bottom: 1rem;
-      line-height: 1.3;
-    }
+    .timer {display:flex;gap:1.5rem;justify-content:center;margin-top:1rem;}
+    .unit {display:flex;flex-direction:column;align-items:center;min-width:4.5rem;}
+    .value {font-size:3rem;font-weight:800;letter-spacing:0.05em;}
+    .label {font-size:0.85rem;font-weight:600;text-transform:uppercase;margin-top:0.25rem;letter-spacing:0.05em;}
 
-    .timer {
-      display: flex;
-      gap: 1.5rem;
-      justify-content: center;
-      margin-top: 1rem;
-    }
+    .year-bar {display:flex;flex-wrap:wrap;gap:2px;margin-top:2rem;justify-content:center;}
+    .day-block {width:4px;height:4px;border-radius:2px;background:var(--remaining);} /* default: remaining */
 
-    .unit {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-width: 4.5rem;
-    }
+    footer {margin-top:2rem;font-size:0.8rem;font-weight:400;opacity:0.8;}
 
-    .value {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-    }
-
-    .label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      margin-top: 0.25rem;
-      letter-spacing: 0.05em;
-    }
-
-    footer {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      font-weight: 400;
-      opacity: 0.8;
-    }
-
-    @media (max-width: 500px) {
-      .card {
-        padding: 2rem;
-      }
-      .value {
-        font-size: 2.2rem;
-      }
-    }
+    @media(max-width:500px){.card{padding:2rem;}.value{font-size:2.2rem;}}
   </style>
 </head>
 <body>
   <div class="card">
     <h1>POPL 2026<br>Submission Deadline</h1>
     <div class="timer" id="timer">
-      <div class="unit">
-        <span class="value" id="days">0</span>
-        <span class="label">Days</span>
-      </div>
-      <div class="unit">
-        <span class="value" id="hours">0</span>
-        <span class="label">Hours</span>
-      </div>
-      <div class="unit">
-        <span class="value" id="minutes">0</span>
-        <span class="label">Minutes</span>
-      </div>
-      <div class="unit">
-        <span class="value" id="seconds">0</span>
-        <span class="label">Seconds</span>
-      </div>
+      <div class="unit"><span class="value" id="days">0</span><span class="label">Days</span></div>
+      <div class="unit"><span class="value" id="hours">0</span><span class="label">Hours</span></div>
+      <div class="unit"><span class="value" id="minutes">0</span><span class="label">Minutes</span></div>
+      <div class="unit"><span class="value" id="seconds">0</span><span class="label">Seconds</span></div>
     </div>
-    <footer>
-      Counting down to 10 July 2025 23:59 AoE
-    </footer>
+
+    <!-- Year progress bar -->
+    <div class="year-bar" id="yearBar"></div>
+
+    <footer>Counting down to 10 July 2025 23:59 AoE</footer>
   </div>
 
   <script>
     (function () {
-      // 10 July 2025 23:59 AoE = 2025‑07‑10T23:59:00‑12:00
-      const target = new Date('2025-07-10T23:59:00-12:00').getTime();
+      const deadline = new Date('2025-07-10T23:59:00-12:00');
+      const yearDays = 365;
+      const startDate = new Date(deadline);
+      startDate.setDate(startDate.getDate() - (yearDays - 1));
+
       const els = {
         days: document.getElementById('days'),
         hours: document.getElementById('hours'),
         minutes: document.getElementById('minutes'),
-        seconds: document.getElementById('seconds')
+        seconds: document.getElementById('seconds'),
+        bar: document.getElementById('yearBar')
       };
 
-      function pad(n) {
-        return ('0' + n).slice(-2);
+      // Build bar
+      const blocks = [];
+      for (let d = new Date(startDate); d <= deadline; d.setDate(d.getDate() + 1)) {
+        const div = document.createElement('div');
+        div.className = 'day-block';
+        blocks.push({ date: new Date(d), el: div });
+        els.bar.appendChild(div);
       }
 
+      function pad(n) { return ('0' + n).slice(-2); }
+
       function update() {
-        const now = Date.now();
-        const diff = Math.max(0, target - now);
+        const now = new Date();
+        const diff = Math.max(0, deadline - now);
         const s = Math.floor(diff / 1000);
-        els.days.textContent = Math.floor(s / 86400);
-        els.hours.textContent = pad(Math.floor((s % 86400) / 3600));
+        els.days.textContent    = Math.floor(s / 86400);
+        els.hours.textContent   = pad(Math.floor((s % 86400) / 3600));
         els.minutes.textContent = pad(Math.floor((s % 3600) / 60));
         els.seconds.textContent = pad(s % 60);
+
+        updateBar(now);
         if (diff <= 0) clearInterval(timer);
+      }
+
+      function updateBar(now) {
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        blocks.forEach(({ date, el }) => {
+          el.style.background = 'var(--remaining)'; // reset (future)
+          if (date < todayStart) {
+            el.style.background = 'var(--elapsed)'; // past days muted
+          } else if (date.getTime() === todayStart.getTime()) {
+            const fraction = (now - todayStart) / 86400000;
+            const pct = (fraction * 100).toFixed(2) + '%';
+            // left side = elapsed (muted), right side = remaining (bright)
+            el.style.background = `linear-gradient(to right, var(--elapsed) ${pct}, var(--remaining) ${pct})`;
+          }
+        });
       }
 
       update();
