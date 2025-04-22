@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>POPL 2026 Submission Countdown</title>
+  <title>POPL 2026 Submission Countdown</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -40,7 +40,7 @@
 </head>
 <body>
   <div class="card">
-    <h1>POPL 2026<br>Submission Deadline</h1>
+    <h1>POPL 2026<br>Submission Deadline</h1>
     <div class="timer" id="timer">
       <div class="unit"><span class="value" id="days">0</span><span class="label">Days</span></div>
       <div class="unit"><span class="value" id="hours">0</span><span class="label">Hours</span></div>
@@ -51,7 +51,7 @@
     <!-- Year progress bar -->
     <div class="year-bar" id="yearBar"></div>
 
-    <footer>Counting down to 10 July 2025 23:59 AoE</footer>
+    <footer>Counting down to 10 July 2025 23:59 AoE</footer>
   </div>
 
   <script>
@@ -94,16 +94,38 @@
       }
 
       function updateBar(now) {
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        blocks.forEach(({ date, el }) => {
-          el.style.background = 'var(--remaining)'; // reset (future)
-          if (date < todayStart) {
-            el.style.background = 'var(--elapsed)'; // past days muted
-          } else if (date.getTime() === todayStart.getTime()) {
-            const fraction = (now - todayStart) / 86400000;
-            const pct = (fraction * 100).toFixed(2) + '%';
-            // left side = elapsed (muted), right side = remaining (bright)
-            el.style.background = `linear-gradient(to right, var(--elapsed) ${pct}, var(--remaining) ${pct})`;
+        const totalDurationMs = deadline - startDate;
+        const elapsedMs = now - startDate;
+        const remainingMs = Math.max(0, deadline - now);
+
+        // Ensure valid calculations even if start/deadline is in the past/future relative to now
+        const clampedElapsedMs = Math.max(0, Math.min(elapsedMs, totalDurationMs));
+
+        // Calculate the overall progress fraction
+        const overallProgressFraction = totalDurationMs > 0 ? clampedElapsedMs / totalDurationMs : (now >= deadline ? 1 : 0);
+
+        // Calculate how many blocks should be fully elapsed based on overall progress
+        const totalBlocks = blocks.length;
+        const fullyElapsedBlocks = Math.floor(overallProgressFraction * totalBlocks);
+
+        // Calculate the remaining fraction *within the current day* for the transition block
+        const remainingTodayMs = remainingMs % 86400000;
+        const remainingTodayFraction = remainingTodayMs / 86400000;
+        // Percentage of the transition block that should be 'remaining' color
+        const remainingPct = (remainingTodayFraction * 100).toFixed(2);
+        // Percentage of the transition block that should be 'elapsed' color
+        const elapsedPct = (100 - parseFloat(remainingPct)).toFixed(2);
+
+
+        blocks.forEach(({ date, el }, index) => {
+          if (index < fullyElapsedBlocks) {
+            el.style.background = 'var(--elapsed)';
+          } else if (index === fullyElapsedBlocks && now < deadline) {
+            // This is the transition block
+            el.style.background = `linear-gradient(90deg, var(--elapsed) ${elapsedPct}%, var(--remaining) ${elapsedPct}%)`;
+          } else {
+            // Blocks after the transition block (or all blocks if deadline passed)
+            el.style.background = now >= deadline ? 'var(--elapsed)' : 'var(--remaining)';
           }
         });
       }
