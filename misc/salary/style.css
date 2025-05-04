@@ -129,6 +129,7 @@ input[type="number"] {
     align-items: center;
     gap: 10px; /* Use gap for spacing */
     margin-bottom: 6px;
+    margin-left: 35px; /* Add fixed left margin */
 }
 
 /* Remove generic input styles specific to spend section */
