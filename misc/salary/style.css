@@ -116,7 +116,7 @@ input[type="number"] {
 }
 
 .spend-section {
-    padding-top: 15px;
+    padding-top: 40px;
     margin-bottom: 0;
 }
 
@@ -127,7 +127,7 @@ input[type="number"] {
 .spend-input-group {
     display: flex;
     align-items: center;
-    gap: 0; /* Remove gap, rely on margin/padding */
+    gap: 10px; /* Use gap for spacing */
     margin-bottom: 6px;
 }
 
@@ -136,8 +136,7 @@ input[type="number"] {
 
 /* New styles for spend input to match editable rates */
 .spend-input {
-    flex-grow: 1;
-    min-width: 70px; /* Match editable-rate */
+    width: 80px; /* Set a fixed width */
     padding: 3px 6px;
     border: 1px solid transparent;
     border-radius: 4px;
@@ -170,8 +169,6 @@ input[type="number"] {
 .spend-section button {
     flex-shrink: 0;
     padding: 4px 12px; /* Slightly reduced padding to match input height */
-    margin-left: 10px; /* Add space between input and button */
-    margin-right: 10px;
     background-color: #198754;
     color: white;
     border: none;
@@ -184,9 +181,8 @@ input[type="number"] {
 }
 
 .time-to-earn-label {
-    min-width: 200px;
-    max-width: 200px;
-    flex: 0 0 200px;
+    flex: 0 0 200px; /* Keep flex-basis */
+    text-align: left; /* Ensure text aligns left */
 }
 
 .spend-section button:hover {
