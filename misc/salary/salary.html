@@ -7,17 +7,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <h1>Earnings Rate</h1>
     <div class="container">
         <div class="info-pane">
             <ul class="rate-list">
-                <li class="rate-item-year">Per Year: $<span id="rate-year" class="editable-rate" contenteditable="true">50000.00</span></li>
+                <li class="rate-item-year">
+                    <span class="rate-label">Per Year:</span> $<span id="rate-year" class="editable-rate" contenteditable="true">50000.00</span>
+                </li>
                 <div class="rate-grid">
-                    <li class="rate-item">Per Month: $<span id="rate-month" class="editable-rate" contenteditable="true">0.00</span></li>
-                    <li class="rate-item">Per Week: $<span id="rate-week" class="editable-rate" contenteditable="true">0.00</span></li>
-                    <li class="rate-item">Per Day: $<span id="rate-day" class="editable-rate" contenteditable="true">0.00</span></li>
-                    <li class="rate-item">Per Hour: $<span id="rate-hour" class="editable-rate" contenteditable="true">0.00</span></li>
-                    <li class="rate-item">Per Minute: $<span id="rate-minute" class="editable-rate" contenteditable="true">0.00</span></li>
-                    <li class="rate-item">Per Second: $<span id="rate-second" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Month:</span> $<span id="rate-month" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Week:</span> $<span id="rate-week" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Day:</span> $<span id="rate-day" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Hour:</span> $<span id="rate-hour" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Minute:</span> $<span id="rate-minute" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
+                    <li class="rate-item">
+                        <span class="rate-label">Per Second:</span> $<span id="rate-second" class="editable-rate" contenteditable="true">0.00</span>
+                    </li>
                 </div>
             </ul>
         </div>
@@ -33,8 +48,8 @@
                 <span class="currency-symbol">$</span>
                 <input type="number" id="spend-amount" class="spend-input" placeholder="0" value="10">
                 <button id="spend-button">Spend</button>
+                <p id="time-to-earn-label">Time to earn: <br><span id="time-to-earn">---</span></p>
             </div>
-            <p>Time to earn: <span id="time-to-earn">---</span></p>
         </div>
     </div>
 
