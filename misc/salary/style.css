@@ -2,7 +2,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     display: flex;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     min-height: 100vh;
     background-color: #f8f9fa;
     margin: 0;
@@ -11,76 +11,71 @@ body {
 
 .container {
     background: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
+    padding: 25px;
+    border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.07);
-    max-width: 550px;
+    max-width: 500px;
     width: 100%;
-}
-
-h1 {
-    text-align: center;
-    color: #343a40;
-    margin-bottom: 30px;
-    font-size: 1.9rem;
-    font-weight: 600;
 }
 
 .input-section,
 .ticker-section,
 .info-pane,
 .spend-section {
-    margin-bottom: 25px;
-    padding: 15px 20px;
-    border: 1px solid #e9ecef;
-    border-radius: 8px;
-    background-color: #fff;
+    margin-bottom: 15px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    border-top: 1px solid #f1f3f5;
+    padding-top: 15px;
+}
+
+.info-pane {
+    border-top: none;
+    padding-top: 0;
+    margin-bottom: 20px;
 }
 
 .ticker-section h2,
 .info-pane h2,
 .spend-section h2 {
     margin-top: 0;
-    color: #495057;
-    border-bottom: 1px solid #f1f3f5;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
-    font-size: 1.0rem;
-    font-weight: 600;
+    color: #6c757d;
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #495057;
     font-weight: 500;
     font-size: 0.9rem;
 }
 
 input[type="number"] {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 10px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    margin-bottom: 10px;
+    /* Remove styles that will be handled by .spend-input */
+    /* Default browser styles or basic resets might apply */
 }
 
 .ticker-value-wrapper {
     display: flex;
     align-items: baseline;
     justify-content: center;
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .currency-symbol {
-    font-size: 1.5rem;
+    font-size: 1.1rem; /* Adjust size for consistency */
     color: #6c757d;
-    margin-right: 5px;
+    margin-right: 4px;
     align-self: center;
+    line-height: 1; /* Prevent extra height */
 }
 
 #ticker {
@@ -99,7 +94,7 @@ input[type="number"] {
 }
 
 .info-pane li {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     color: #343a40;
     display: flex;
     align-items: center;
@@ -114,53 +109,85 @@ input[type="number"] {
 }
 
 .spend-section {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto;
-    gap: 8px 10px;
-    align-items: center;
+    padding-top: 15px;
+    margin-bottom: 0;
 }
 
 .spend-section label {
-    grid-column: 1 / -1;
+   /* This rule is now unused */
 }
 
-.spend-section input[type="number"] {
-    grid-column: 1 / -1;
-}
-
-.spend-info {
+.spend-input-group {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 5px;
+    gap: 0; /* Remove gap, rely on margin/padding */
+    margin-bottom: 6px;
+}
+
+/* Remove generic input styles specific to spend section */
+/* .spend-section input[type="number"] { ... } */
+
+/* New styles for spend input to match editable rates */
+.spend-input {
+    flex-grow: 1;
+    min-width: 70px; /* Match editable-rate */
+    padding: 3px 6px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9rem; /* Match editable-rate */
+    line-height: 1.6; /* Match editable-rate */
+    /* Remove browser default spinner arrows */
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+.spend-input::-webkit-outer-spin-button,
+.spend-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.spend-input:hover {
+     background-color: #e9ecef;
+}
+
+.spend-input:focus {
+    border: 1px solid #86b7fe;
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.spend-section button {
+    flex-shrink: 0;
+    padding: 4px 12px; /* Slightly reduced padding to match input height */
+    margin-left: 10px; /* Add space between input and button */
+    background-color: #198754;
+    color: white;
+    border: none;
+    border-radius: 4px; /* Match input radius */
+    cursor: pointer;
+    font-size: 0.9rem; /* Match input font size */
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    line-height: 1.6; /* Match input line height */
+}
+
+.spend-section button:hover {
+    background-color: #157347;
 }
 
 .spend-section p {
     margin: 0;
-    color: #495057;
-    font-size: 0.9rem;
+    color: #6c757d;
+    font-size: 0.85rem;
 }
 
 #time-to-earn {
     font-weight: 600;
     color: #343a40;
-}
-
-button {
-    padding: 8px 16px;
-    background-color: #198754;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-button:hover {
-    background-color: #157347;
 }
 
 .editable-rate {
@@ -184,4 +211,32 @@ button:hover {
     background-color: #fff;
     outline: none;
     box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.rate-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.rate-item-year {
+    margin-bottom: 12px;
+    color: #343a40;
+    display: flex;
+    align-items: center;
+    line-height: 1.6;
+    font-size: 0.9rem;
+}
+
+.rate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px 15px;
+}
+
+.info-pane li span.editable-rate {
+    font-weight: 500;
+    color: #212529;
+    text-align: left;
+    margin-left: 4px;
 } 

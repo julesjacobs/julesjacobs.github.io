@@ -21,19 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let tickerInterval = null;
     let isEditing = false; // Flag to prevent recursive updates
 
-    // Keep constants
-    const WEEKS_PER_YEAR = 52;
-    const HOURS_PER_WEEK = 40;
-    const DAYS_PER_WEEK = 5;
-    const HOURS_PER_DAY = 8;
+    // Constants based on actual time
+    const DAYS_PER_WEEK_ACTUAL = 7;
+    const HOURS_PER_DAY_ACTUAL = 24;
     const MINUTES_PER_HOUR = 60;
     const SECONDS_PER_MINUTE = 60;
     const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
-    const SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
-    const SECONDS_PER_WEEK = SECONDS_PER_DAY * DAYS_PER_WEEK;
-    const SECONDS_PER_YEAR_WORKING = SECONDS_PER_WEEK * WEEKS_PER_YEAR;
+    const SECONDS_PER_DAY_ACTUAL = SECONDS_PER_HOUR * HOURS_PER_DAY_ACTUAL;
+    const SECONDS_PER_WEEK_ACTUAL = SECONDS_PER_DAY_ACTUAL * DAYS_PER_WEEK_ACTUAL;
+    const DAYS_PER_YEAR_AVG = 365.2425; // Average days per year (for month/year calc)
+    const SECONDS_PER_YEAR_AVG = SECONDS_PER_DAY_ACTUAL * DAYS_PER_YEAR_AVG;
     const MONTHS_PER_YEAR = 12;
-    const APPROX_SECONDS_PER_MONTH = SECONDS_PER_YEAR_WORKING / MONTHS_PER_YEAR;
+    const APPROX_SECONDS_PER_MONTH = SECONDS_PER_YEAR_AVG / MONTHS_PER_YEAR;
 
     // --- Rate Update Logic ---
 
@@ -43,8 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let newAnnualSalary = 0;
         const value = parseFloat(sourceValue);
         if (isNaN(value) || value < 0) {
-            // Handle invalid input - maybe reset to 0 or previous value?
-            // For now, let's calculate based on 0
+            // Handle invalid input
         } else {
             // Calculate annual salary based on which field was edited
             switch (sourceElementId) {
@@ -52,22 +50,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     newAnnualSalary = value;
                     break;
                 case 'rate-month':
+                    // Use average seconds per month for consistency
                     newAnnualSalary = value * MONTHS_PER_YEAR;
                     break;
                 case 'rate-week':
-                    newAnnualSalary = value * WEEKS_PER_YEAR;
+                    newAnnualSalary = value * (SECONDS_PER_YEAR_AVG / SECONDS_PER_WEEK_ACTUAL);
                     break;
                 case 'rate-day':
-                    newAnnualSalary = value * DAYS_PER_WEEK * WEEKS_PER_YEAR;
+                    newAnnualSalary = value * DAYS_PER_YEAR_AVG;
                     break;
                 case 'rate-hour':
-                    newAnnualSalary = value * HOURS_PER_WEEK * WEEKS_PER_YEAR;
+                    newAnnualSalary = value * HOURS_PER_DAY_ACTUAL * DAYS_PER_YEAR_AVG;
                     break;
                 case 'rate-minute':
-                    newAnnualSalary = value * MINUTES_PER_HOUR * HOURS_PER_WEEK * WEEKS_PER_YEAR;
+                    newAnnualSalary = value * MINUTES_PER_HOUR * HOURS_PER_DAY_ACTUAL * DAYS_PER_YEAR_AVG;
                     break;
                 case 'rate-second':
-                    newAnnualSalary = value * SECONDS_PER_HOUR * HOURS_PER_WEEK * WEEKS_PER_YEAR;
+                    newAnnualSalary = value * SECONDS_PER_DAY_ACTUAL * DAYS_PER_YEAR_AVG;
                     break;
                 default:
                     console.error('Unknown rate element ID:', sourceElementId);
@@ -78,13 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
         annualSalary = newAnnualSalary;
 
         // Calculate all rates based on the new annual salary
-        if (annualSalary > 0 && SECONDS_PER_YEAR_WORKING > 0) {
-            earningsPerSecond = annualSalary / SECONDS_PER_YEAR_WORKING;
+        if (annualSalary > 0 && SECONDS_PER_YEAR_AVG > 0) {
+            earningsPerSecond = annualSalary / SECONDS_PER_YEAR_AVG;
             const earningsPerMinute = earningsPerSecond * SECONDS_PER_MINUTE;
             const earningsPerHour = earningsPerMinute * MINUTES_PER_HOUR;
-            const earningsPerDay = earningsPerHour * HOURS_PER_DAY;
-            const earningsPerWeek = earningsPerDay * DAYS_PER_WEEK;
-            const earningsPerMonth = annualSalary / MONTHS_PER_YEAR;
+            const earningsPerDay = earningsPerHour * HOURS_PER_DAY_ACTUAL;
+            const earningsPerWeek = earningsPerDay * DAYS_PER_WEEK_ACTUAL;
+            const earningsPerMonth = annualSalary / MONTHS_PER_YEAR; // Keep simple division for month
 
             // Update display values, avoiding the source element
             isEditing = true; // Set flag
@@ -143,22 +142,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Time to Earn Logic (mostly unchanged) ---
+    // --- Time to Earn Logic (mostly unchanged, but uses new constants implicitly via earningsPerSecond) ---
     function formatDuration(totalSeconds) {
         if (totalSeconds <= 0 || !isFinite(totalSeconds)) {
             return '---';
         }
-        const WEEKS_PER_YEAR = 52;
-        const HOURS_PER_WEEK = 40;
-        const DAYS_PER_WEEK = 5;
-        const HOURS_PER_DAY = 8;
-        const MINUTES_PER_HOUR = 60;
-        const SECONDS_PER_MINUTE = 60;
-        const SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
-        const SECONDS_PER_DAY = SECONDS_PER_HOUR * HOURS_PER_DAY;
-
-        const days = Math.floor(totalSeconds / SECONDS_PER_DAY);
-        let remainingSeconds = totalSeconds % SECONDS_PER_DAY;
+        // Use ACTUAL time constants for duration formatting
+        const days = Math.floor(totalSeconds / SECONDS_PER_DAY_ACTUAL);
+        let remainingSeconds = totalSeconds % SECONDS_PER_DAY_ACTUAL;
 
         const hours = Math.floor(remainingSeconds / SECONDS_PER_HOUR);
         remainingSeconds %= SECONDS_PER_HOUR;
@@ -166,14 +157,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const minutes = Math.floor(remainingSeconds / SECONDS_PER_MINUTE);
         remainingSeconds %= SECONDS_PER_MINUTE;
 
-        const seconds = Math.floor(remainingSeconds);
+        const seconds = remainingSeconds; // Keep remaining seconds with decimals
 
         let durationString = '';
         if (days > 0) durationString += `${days}d `;
         if (hours > 0) durationString += `${hours}h `;
         if (minutes > 0) durationString += `${minutes}m `;
-        if (seconds >= 0 && totalSeconds < SECONDS_PER_MINUTE ) durationString += `${totalSeconds.toFixed(1)}s`; // Show decimals for small values
-        else if (seconds > 0 || durationString === '') durationString += `${seconds}s`;
+        // Show seconds with one decimal place if it's the smallest unit shown or total is < 1 min
+        if (seconds > 0 || durationString === '' || totalSeconds < SECONDS_PER_MINUTE) {
+             durationString += `${seconds.toFixed(1)}s`;
+        }
 
         return durationString.trim();
     }

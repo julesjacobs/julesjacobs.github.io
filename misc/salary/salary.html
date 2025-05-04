@@ -8,36 +8,33 @@
 </head>
 <body>
     <div class="container">
-        <h1>Salary Visualizer</h1>
-
         <div class="info-pane">
-            <h2>Earnings Rate (Editable):</h2>
-            <ul>
-                <li>Per Year: $<span id="rate-year" class="editable-rate" contenteditable="true">50000.00</span></li>
-                <li>Per Month (approx): $<span id="rate-month" class="editable-rate" contenteditable="true">0.00</span></li>
-                <li>Per Week (40h): $<span id="rate-week" class="editable-rate" contenteditable="true">0.00</span></li>
-                <li>Per Day (8h): $<span id="rate-day" class="editable-rate" contenteditable="true">0.00</span></li>
-                <li>Per Hour: $<span id="rate-hour" class="editable-rate" contenteditable="true">0.00</span></li>
-                <li>Per Minute: $<span id="rate-minute" class="editable-rate" contenteditable="true">0.00</span></li>
-                <li>Per Second: $<span id="rate-second" class="editable-rate" contenteditable="true">0.00</span></li>
+            <ul class="rate-list">
+                <li class="rate-item-year">Per Year: $<span id="rate-year" class="editable-rate" contenteditable="true">50000.00</span></li>
+                <div class="rate-grid">
+                    <li class="rate-item">Per Month: $<span id="rate-month" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">Per Week: $<span id="rate-week" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">Per Day: $<span id="rate-day" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">Per Hour: $<span id="rate-hour" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">Per Minute: $<span id="rate-minute" class="editable-rate" contenteditable="true">0.00</span></li>
+                    <li class="rate-item">Per Second: $<span id="rate-second" class="editable-rate" contenteditable="true">0.00</span></li>
+                </div>
             </ul>
         </div>
 
         <div class="ticker-section">
-            <h2>Earnings Ticker:</h2>
             <div class="ticker-value-wrapper">
                 <span class="currency-symbol">$</span><span id="ticker">0.0000</span>
             </div>
         </div>
 
         <div class="spend-section">
-            <h2>Simulate Spending:</h2>
-            <label for="spend-amount">Spend Amount ($):</label>
-            <input type="number" id="spend-amount" placeholder="e.g., 50" value="10">
-            <div class="spend-info">
-                 <p>Time to earn: <span id="time-to-earn">---</span></p>
-                 <button id="spend-button">Spend</button>
+            <div class="spend-input-group">
+                <span class="currency-symbol">$</span>
+                <input type="number" id="spend-amount" class="spend-input" placeholder="0" value="10">
+                <button id="spend-button">Spend</button>
             </div>
+            <p>Time to earn: <span id="time-to-earn">---</span></p>
         </div>
     </div>
 
