@@ -47,9 +47,10 @@
             color: #2c3e50;
             font-size: 1.6em;
             font-weight: 600;
-            margin-top: 20px;
+            margin-top: 40px;
             margin-bottom: 10px;
             /* border-bottom: 2px solid #e8f4f8; */
+            text-align: center;
         }
         
         h3 {
@@ -227,6 +228,8 @@
             </div>
         </div>
         
+        <p style="font-style: italic; color: #666; margin: 10px 0;">Try this example in the interactive editor below:</p>
+        
         <netkat example="A test that checks if the third bit (x2) is 1. Try changing the input packet to see how different packets are filtered.">x2 == 1</netkat>
 
         <p>You can also test for equality to 0, like <code>x3 == 0</code>.</p>
@@ -267,6 +270,8 @@
             </div>
         </div>
         
+        <p style="font-style: italic; color: #666; margin: 10px 0;">Experiment with this assignment in the editor below:</p>
+        
         <netkat example="Sets x2 to 1, regardless of its original value. Watch how only the targeted bit changes in the trace.">x2 := 1</netkat>
 
         <netkat exercise="Set x2 to 0">x2 := 0</netkat>
@@ -298,6 +303,8 @@
                 </div>
             </div>
         </div>
+        
+        <p style="font-style: italic; color: #666; margin: 10px 0;">See this sequential flow in action in the editor below:</p>
         
         <netkat example="First tests if x2 is 1, then assigns x1 to 0. Both the test and assignment must succeed for the packet to reach the output." num-traces="1">x2 == 1; x1 := 0</netkat>
 
@@ -345,6 +352,8 @@
             </div>
         </div>
         
+        <p style="font-style: italic; color: #666; margin: 10px 0;">Watch the nondeterministic branching in the editor below:</p>
+        
         <netkat example="Either sets x0 to 1 OR sets x1 to 1. The analyzer explores both possibilities, showing multiple traces.">x0 := 1 + x1 := 1</netkat>
 
         <netkat exercise="Write a policy that either tests x0 == 1 or assigns x1 := 0">x0 == 1 + x1 := 0</netkat>
@@ -389,6 +398,8 @@
             </div>
         </div>
         
+        <p style="font-style: italic; color: #666; margin: 10px 0;">Test this conditional logic in the editor below:</p>
+        
         <netkat example="If-then-else: if x0 is 1, set x1 to 1; otherwise set x1 to 0. Try packets with different x0 values.">(x0 == 1; x1 := 1) + (x0 == 0; x1 := 0)</netkat>
 
         <netkat exercise="If x1 == 0 then set x0 := 1, else set x0 := 0">(x1 == 0; x0 := 1) + (x1 == 1; x0 := 0)</netkat>
@@ -396,9 +407,46 @@
         <h2>Dup (Logging)</h2>
         <p>The <code>dup</code> keyword is a special NetKAT operator that records the current packet state to the trace output without modifying it. This is extremely useful for observing the packet state at various points in your NetKAT expression.</p>
         
-        <netkat example="Sets x0 to 1, then logs the packet state with dup. Notice the dup entry appears in the trace output.">x0 := 1; dup</netkat>
+        <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 20px; margin: 15px 0; font-family: monospace;">
+            <div style="margin-bottom: 12px; font-weight: bold; color: #495057; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Dup Logging: x1 := 1; dup; x2 := 1</div>
+            <div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px;">
+                <div style="text-align: center;">
+                    <div style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; margin-bottom: 4px;">Input</div>
+                    <div style="background: white; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px;">000</div>
+                </div>
+                <span style="font-size: 18px; color: #666;">→</span>
+                <div style="text-align: center;">
+                    <div style="background: #f3e5f5; padding: 8px 12px; border-radius: 4px; margin-bottom: 4px;">Assign x1 := 1</div>
+                    <div style="background: white; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px;">010</div>
+                </div>
+                <span style="font-size: 18px; color: #666;">→</span>
+                <div style="text-align: center;">
+                    <div style="background: #fff3e0; padding: 8px 12px; border-radius: 4px; margin-bottom: 4px;">dup (log)</div>
+                    <div style="background: #fffacd; padding: 4px 8px; border: 1px solid #ddd; border-radius: 3px; font-style: italic;">010 logged</div>
+                </div>
+                <span style="font-size: 18px; color: #666;">→</span>
+                <div style="text-align: center;">
+                    <div style="background: #f3e5f5; padding: 8px 12px; border-radius: 4px; margin-bottom: 4px;">Assign x2 := 1</div>
+                    <div style="background: white; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px;">011</div>
+                </div>
+                <span style="font-size: 18px; color: #666;">→</span>
+                <div style="text-align: center;">
+                    <div style="background: #e8f5e8; padding: 8px 12px; border-radius: 4px; margin-bottom: 4px;">Output</div>
+                    <div style="background: white; padding: 4px 8px; border: 1px solid #ccc; border-radius: 3px;">011</div>
+                </div>
+            </div>
+            <div style="margin-top: 15px; padding: 10px; background: #f0f8ff; border-radius: 4px; border-left: 4px solid #4a90e2;">
+                <div style="font-weight: bold; margin-bottom: 5px; color: #4a90e2;">Trace Result:</div>
+                <div style="font-family: monospace; color: #333;">000 → 010 → 011</div>
+                <div style="font-size: 11px; color: #666; margin-top: 3px;">Three entries: input → logged state → final output</div>
+            </div>
+        </div>
+        
+        <p style="font-style: italic; color: #666; margin: 10px 0;">See how dup creates intermediate trace entries in the editor below:</p>
+        
+        <netkat example="Sets x1 to 1, logs the intermediate state with dup, then sets x2 to 1. Notice how the trace shows all three states.">x1 := 1; dup; x2 := 1</netkat>
 
-        <netkat exercise="Set x1 to 1, log with dup, then set x2 to 0">x1 := 1; dup; x2 := 0</netkat>
+        <netkat exercise="Set x0 to 1, log with dup, then set x1 to 1, log again with dup">x0 := 1; dup; x1 := 1; dup</netkat>
 
         <h2>Iteration (Kleene Star)</h2>
         <p>Iteration, denoted by an asterisk <code>*</code> (Kleene star) after an expression <code>e</code> (i.e., <code>e*</code>), allows an expression to be executed zero or more times.</p>
@@ -443,7 +491,9 @@
             </div>
         </div>
         
-        <netkat example="Progressive bit setting: sets x0, then x1, then x2 in sequence. Starting from 000, watch how it builds up to 111 through multiple iterations.">(x0:=1 + (x0==1;x1:=1) + (x1==1; x2:=1))*</netkat>
+        <p style="font-style: italic; color: #666; margin: 10px 0;">Explore the multiple iteration paths in the editor below:</p>
+        
+        <netkat example="Progressive bit setting: sets x0, then x1, then x2 in sequence. Starting from 000, watch how it builds up to 111 through multiple iterations.">((x0:=1 + (x0==1;x1:=1) + (x1==1; x2:=1)); dup)*</netkat>
         
         <p>This shows multiple paths in the trace, corresponding to 0, 1, 2, etc., iterations, up to a limit defined by the analyzer to prevent infinite loops in the visualization.</p>
 
