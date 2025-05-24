@@ -14,17 +14,49 @@ class KATch2Editor {
 
     // Get the base URL for this script to resolve relative paths
     getBaseUrl() {
+        // First try document.currentScript (works for non-module scripts)
         const currentScript = document.currentScript;
         if (currentScript && currentScript.src) {
             return currentScript.src.substring(0, currentScript.src.lastIndexOf('/') + 1);
         }
+        
+        // For module scripts, document.currentScript is null, so use import.meta.url if available
+        try {
+            if (typeof document !== 'undefined' && window.location) {
+                // Use a different approach for module scripts
+                const errorStack = new Error().stack;
+                if (errorStack) {
+                    const matches = errorStack.match(/https?:\/\/[^)\s]+katch2-editor\.js/);
+                    if (matches && matches[0]) {
+                        return matches[0].substring(0, matches[0].lastIndexOf('/') + 1);
+                    }
+                }
+            }
+        } catch (e) {
+            // Ignore errors in stack trace parsing
+        }
+        
         // Fallback: try to find this script in the DOM
         const scripts = document.querySelectorAll('script[src*="katch2-editor.js"]');
         if (scripts.length > 0) {
             const src = scripts[scripts.length - 1].src;
             return src.substring(0, src.lastIndexOf('/') + 1);
         }
-        // Final fallback
+        
+        // More robust fallback: look for any script containing katch2
+        const katch2Scripts = document.querySelectorAll('script[src*="katch2"]');
+        if (katch2Scripts.length > 0) {
+            const src = katch2Scripts[katch2Scripts.length - 1].src;
+            const basePath = src.substring(0, src.lastIndexOf('/') + 1);
+            // If the script is in a katch2ui directory, use that as base
+            if (basePath.includes('katch2ui/')) {
+                return basePath;
+            }
+            // Otherwise, assume katch2ui is relative to the script location
+            return basePath + 'katch2ui/';
+        }
+        
+        // Final fallback - relative to current page
         return './katch2ui/';
     }
 
@@ -95,6 +127,8 @@ class KATch2Editor {
 
     async loadWASM(wasmPath) {
         try {
+            console.log(`KATch2: Attempting to load WASM module from: ${wasmPath}`);
+            
             // Dynamic import of the WASM module
             const wasmModule = await import(wasmPath);
             await wasmModule.default(); // Initialize WASM
@@ -102,8 +136,39 @@ class KATch2Editor {
             
             this.wasmModule = wasmModule;
             this.analyzeFunction = wasmModule.analyze_expression;
+            
+            console.log('KATch2: WASM module loaded successfully');
         } catch (error) {
-            throw new Error(`Failed to load WASM module from ${wasmPath}: ${error.message}`);
+            console.error(`KATch2: Failed to load WASM module from ${wasmPath}:`, error);
+            
+            // Try alternative paths
+            const alternatives = [
+                wasmPath.replace('/pkg/katch2.js', '/katch2.js'),
+                './pkg/katch2.js',
+                '../pkg/katch2.js',
+                './katch2.js'
+            ];
+            
+            for (const altPath of alternatives) {
+                if (altPath !== wasmPath) {
+                    try {
+                        console.log(`KATch2: Trying alternative path: ${altPath}`);
+                        const wasmModule = await import(altPath);
+                        await wasmModule.default();
+                        wasmModule.init_panic_hook();
+                        
+                        this.wasmModule = wasmModule;
+                        this.analyzeFunction = wasmModule.analyze_expression;
+                        
+                        console.log(`KATch2: WASM module loaded successfully from alternative path: ${altPath}`);
+                        return;
+                    } catch (altError) {
+                        console.log(`KATch2: Alternative path ${altPath} also failed:`, altError.message);
+                    }
+                }
+            }
+            
+            throw new Error(`Failed to load WASM module from ${wasmPath} and all alternative paths: ${error.message}`);
         }
     }
 
@@ -263,6 +328,32 @@ class KATch2Editor {
             display: none;
         `;
         exerciseFeedbackArea.style.display = 'none'; // Initially hidden, will show when there's feedback
+
+        const showSolutionButton = document.createElement('button');
+        showSolutionButton.className = 'katch2-show-solution';
+        showSolutionButton.innerHTML = 'Show Solution';
+        showSolutionButton.style.cssText = `
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            display: none;
+        `;
+        showSolutionButton.style.display = isExercise ? 'inline-block' : 'none';
+
+        // Add hover effects for show solution button
+        showSolutionButton.addEventListener('mouseenter', () => {
+            showSolutionButton.style.backgroundColor = '#5a6268';
+        });
+        showSolutionButton.addEventListener('mouseleave', () => {
+            showSolutionButton.style.backgroundColor = '#6c757d';
+        });
         
         if (isExercise) resultArea.style.display = 'none';
         else resultArea.style.display = 'block';
@@ -271,9 +362,10 @@ class KATch2Editor {
         wrapper.appendChild(container);
         wrapper.appendChild(resultArea);
         wrapper.appendChild(exerciseFeedbackArea);
+        wrapper.appendChild(showSolutionButton);
         element.parentNode.replaceChild(wrapper, element);
         
-        this.createEditor(wrapper, container, resultArea, exerciseDescriptionElement, exerciseFeedbackArea, editorInitialCode, showLineNumbers, false, id, isExercise, targetSolution, exerciseDescriptionText);
+        this.createEditor(wrapper, container, resultArea, exerciseDescriptionElement, exerciseFeedbackArea, editorInitialCode, showLineNumbers, false, id, isExercise, targetSolution, exerciseDescriptionText, showSolutionButton);
     }
 
     replaceWithExampleEditor(element, initialCode, lines = 1, showLineNumbers = false, targetId) {
@@ -353,7 +445,7 @@ class KATch2Editor {
         element.parentNode.replaceChild(wrapper, element);
         
         // Create the read-only editor
-        const editor = this.createEditor(wrapper, container, null, null, null, initialCode, showLineNumbers, true, null, false, null, null);
+        const editor = this.createEditor(wrapper, container, null, null, null, initialCode, showLineNumbers, true, null, false, null, null, null);
         
         // Add click handler to load content into target
         const loadIntoTarget = () => {
@@ -387,7 +479,7 @@ class KATch2Editor {
         analyzeButton.addEventListener('click', loadIntoTarget);
     }
 
-    createEditor(customElementDOM, container, resultArea, exerciseDescriptionElement, exerciseFeedbackArea, initialCode, showLineNumbers = false, readOnly = false, id = null, isExercise = false, targetSolution = null, exerciseDescriptionText = null) {
+    createEditor(customElementDOM, container, resultArea, exerciseDescriptionElement, exerciseFeedbackArea, initialCode, showLineNumbers = false, readOnly = false, id = null, isExercise = false, targetSolution = null, exerciseDescriptionText = null, showSolutionButton = null) {
         const monaco = this.monacoInstance;
         if (!id && customElementDOM && customElementDOM.id) id = customElementDOM.id; // Ensure ID if customElementDOM has one
         else if (!id) id = this.generateUniqueId('keditor-'); // Generate if still no ID
@@ -429,6 +521,28 @@ class KATch2Editor {
             hover: { enabled: false }
         });
 
+        // Setup show solution button functionality for exercises
+        if (isExercise && showSolutionButton && targetSolution) {
+            showSolutionButton.addEventListener('click', () => {
+                editor.setValue(targetSolution);
+                editor.focus();
+                // Position cursor at the end of the content
+                const model = editor.getModel();
+                const lineCount = model.getLineCount();
+                const lineLength = model.getLineMaxColumn(lineCount);
+                editor.setPosition({ lineNumber: lineCount, column: lineLength });
+                
+                // Visual feedback
+                const originalText = showSolutionButton.innerHTML;
+                showSolutionButton.innerHTML = 'Solution Loaded ✓';
+                showSolutionButton.style.backgroundColor = '#28a745';
+                setTimeout(() => {
+                    showSolutionButton.innerHTML = originalText;
+                    showSolutionButton.style.backgroundColor = '#6c757d';
+                }, 2000);
+            });
+        }
+
         // Setup analysis logic only for non-readonly editors with result areas
         if (!readOnly && resultArea) {
             // Pass exercise info to setupAnalysis
@@ -438,7 +552,7 @@ class KATch2Editor {
         this.editorInstances.push({ 
             editor, resultArea, id, 
             isExercise, targetSolution, exerciseDescriptionText, 
-            exerciseDescriptionElement, exerciseFeedbackArea, 
+            exerciseDescriptionElement, exerciseFeedbackArea, showSolutionButton,
             customElementDOM // This is the key: the wrapper div or <netkat-editor> tag
         });
         return editor;
@@ -561,7 +675,7 @@ class KATch2Editor {
                             }
 
                             if (overallEquivalent && !diff1_result.expr1_errors && !diff1_result.expr2_errors && !diff2_result.expr1_errors) {
-                                currentExerciseFeedbackArea.innerHTML = '<strong>✅ Equivalent!</strong>';
+                                currentExerciseFeedbackArea.innerHTML = '<strong>✅ Correct!</strong>';
                                 currentExerciseFeedbackArea.style.display = 'block';
                                 this.setResultStyle(currentExerciseFeedbackArea, 'success'); 
                             } else if (!overallEquivalent || (diff1_result.expr2_errors || diff2_result.expr1_errors)) { // If not equivalent OR there were user errors
@@ -700,7 +814,7 @@ class KATch2Editor {
         const loaderDiv = document.createElement('div');
         loaderDiv.className = 'katch2-exercise-loader';
         loaderDiv.style.cssText = `
-            padding: 15px;
+            padding: 10px 15px;
             border: 1px solid #007bff;
             border-radius: 5px;
             margin-bottom: 15px;
@@ -709,7 +823,7 @@ class KATch2Editor {
 
         const descriptionP = document.createElement('p');
         descriptionP.innerHTML = `<strong>Exercise:</strong> ${this.htmlEscape(description)}`;
-        descriptionP.style.marginBottom = '10px';
+        descriptionP.style.cssText = 'margin: 0 0 10px 0;';
 
         const loadButton = document.createElement('button');
         loadButton.textContent = 'Try this Exercise →';
@@ -777,6 +891,42 @@ class KATch2Editor {
 
         if (instance.resultArea) {
             instance.resultArea.style.display = 'none'; // Hide standard analysis area
+        }
+
+        // Setup show solution button for loaded exercises
+        if (instance.showSolutionButton) {
+            instance.showSolutionButton.style.display = 'inline-block';
+            // Remove any existing event listeners and add new one with updated solution
+            const newButton = instance.showSolutionButton.cloneNode(true);
+            instance.showSolutionButton.parentNode.replaceChild(newButton, instance.showSolutionButton);
+            instance.showSolutionButton = newButton;
+            
+            newButton.addEventListener('click', () => {
+                instance.editor.setValue(solution);
+                instance.editor.focus();
+                // Position cursor at the end of the content
+                const model = instance.editor.getModel();
+                const lineCount = model.getLineCount();
+                const lineLength = model.getLineMaxColumn(lineCount);
+                instance.editor.setPosition({ lineNumber: lineCount, column: lineLength });
+                
+                // Visual feedback
+                const originalText = newButton.innerHTML;
+                newButton.innerHTML = 'Solution Loaded ✓';
+                newButton.style.backgroundColor = '#28a745';
+                setTimeout(() => {
+                    newButton.innerHTML = originalText;
+                    newButton.style.backgroundColor = '#6c757d';
+                }, 2000);
+            });
+
+            // Re-add hover effects
+            newButton.addEventListener('mouseenter', () => {
+                newButton.style.backgroundColor = '#5a6268';
+            });
+            newButton.addEventListener('mouseleave', () => {
+                newButton.style.backgroundColor = '#6c757d';
+            });
         }
 
         const startingCode = '// Type your solution here\n';
