@@ -41,9 +41,11 @@ katch2ui/
 <netkat 
   lines="10" 
   show-line-numbers
-  example="Description of this example"
+  num-traces="8"
+  max-trace-length="10"
+  example="Description of this example" -- or --
   exercise="Exercise instructions"
-  target="other-editor-id"
+  target="other-editor-id" -- or --
   id="my-editor">
 // Your NetKAT code here
 x0 == 1; x1 := 0
@@ -57,10 +59,10 @@ x0 == 1; x1 := 0
 | `show-line-numbers` | Show line numbers | `false` |
 | `num-traces` | How many traces to show | `5` |
 | `max-trace-length` | Maximum length of each trace | `5` |
-| `example` | Clickable example with description | - |
-| `exercise` | Clickable exercise with instructions | - |
-| `target` | ID of editor to load into when clicked | - |
-| `id` | Unique identifier for this editor | - |
+| `example` | Example with description | - |
+| `exercise` | Auto-graded exercise with instructions | - |
+| `target` | Clickable editor with target="ID of editor to load into when clicked" | - |
+| `id` | ID for this editor that other editors can target | - |
 
 ### Interactive Examples
 ```html

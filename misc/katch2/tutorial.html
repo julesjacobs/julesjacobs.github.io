@@ -614,35 +614,36 @@ x2 == 1
                 <div class="diagram-box">
                     <svg width="120" height="80" viewBox="0 0 120 80">
                         <defs>
-                            <mask id="equalityMaskA2">
+                            <mask id="xorMaskA">
                                 <rect width="120" height="80" fill="white"/>
-                                <circle cx="62" cy="40" r="25" fill="black"/>
+                                <circle cx="80" cy="40" r="25" fill="black"/>
                             </mask>
-                            <mask id="equalityMaskB2">
+                            <mask id="xorMaskB">
                                 <rect width="120" height="80" fill="white"/>
-                                <circle cx="58" cy="40" r="25" fill="black"/>
+                                <circle cx="40" cy="40" r="25" fill="black"/>
                             </mask>
                         </defs>
                         <!-- Draw base white fills first -->
-                        <circle cx="58" cy="40" r="25" fill="white"/>
-                        <circle cx="62" cy="40" r="25" fill="white"/>
-                        <!-- Draw tiny XOR areas (almost empty) -->
-                        <circle cx="58" cy="40" r="25" fill="#ce93d8" mask="url(#equalityMaskA2)"/>
-                        <circle cx="62" cy="40" r="25" fill="#ce93d8" mask="url(#equalityMaskB2)"/>
+                        <circle cx="40" cy="40" r="25" fill="white"/>
+                        <circle cx="80" cy="40" r="25" fill="white"/>
+                        <!-- Draw XOR areas (parts that don't overlap) -->
+                        <circle cx="40" cy="40" r="25" fill="#ce93d8" mask="url(#xorMaskA)"/>
+                        <circle cx="80" cy="40" r="25" fill="#ce93d8" mask="url(#xorMaskB)"/>
                         <!-- Draw borders on top of everything -->
-                        <circle cx="58" cy="40" r="25" fill="none" stroke="#333" stroke-width="2"/>
-                        <circle cx="62" cy="40" r="25" fill="none" stroke="#333" stroke-width="2"/>
-                        <text x="20" y="45" font-size="12" fill="black" font-weight="bold">A</text>
-                        <text x="92" y="45" font-size="12" fill="black" font-weight="bold">B</text>
+                        <circle cx="40" cy="40" r="25" fill="none" stroke="#333" stroke-width="2"/>
+                        <circle cx="80" cy="40" r="25" fill="none" stroke="#333" stroke-width="2"/>
+                        <text x="30" y="45" font-size="12" fill="black" font-weight="bold">A</text>
+                        <text x="86" y="45" font-size="12" fill="black" font-weight="bold">B</text>
                     </svg>
                     <div>
-                        <strong>A = B when A ^ B is empty</strong>
+                        <strong>A ^ B (XOR)</strong><br>
+                        <span style="font-size: 14px; color: #666;">Traces in A or B, but not both</span>
                     </div>
                 </div>
             </div>
             
             <div class="editor-container">
-                <netkat example="Equality verification: do these expressions generate the same trace set?">(x0 == 1; x1 == 1) ^ (x0 == 1 ; x1 := 1)</netkat>
+                <netkat example="XOR/Symmetric difference: traces that are in one set but not both.">(x0 == 1) ^ (x1 == 1)</netkat>
             </div>
         </div>
         
