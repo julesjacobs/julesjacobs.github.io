@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Aider Leaderboard Pareto Frontier – Accuracy vs Cost</title>
+
+<!-- Plotly JS (v2) CDN -->
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+
+<style>
+  body {font-family: system-ui, sans-serif; margin: 0; padding: 1rem;}
+  h1  {margin-top: 0;}
+  #controls {margin-bottom: 0.5rem;}
+  #plot   {width: 100%; height: 80vh; min-height: 500px;}
+  small a {color: #777;}
+</style>
+</head>
+<body>
+
+<h1><a href="https://aider.chat/docs/leaderboards/" target="_blank">Aider Leaderboard</a> Pareto Frontier – Accuracy vs Cost</h1>
+<div id="plot"></div>
+
+<script>
+/* --------- Raw data --------- */
+const rows = [
+ {model:"o3 (high)+gpt-4.1",  acc:82.7, cost:69.29, company:"OpenAI"},
+ {model:"o3 (high)",          acc:79.6, cost:111.03, company:"OpenAI"},
+ {model:"Gemini 2.5 Pro 05-06",acc:76.9, cost:37.41, company:"Google"},
+ {model:"Gemini 2.5 Pro 03-25",acc:72.9, cost:null,  company:"Google"},
+ {model:"claude-opus-4 (think)",acc:72.0, cost:65.75, company:"Anthropic"},
+ {model:"o4-mini (high)",      acc:72.0, cost:19.64, company:"OpenAI"},
+ {model:"claude-opus-4",       acc:70.7, cost:68.63, company:"Anthropic"},
+ {model:"claude-sonnet (32k)",  acc:64.9, cost:36.83, company:"Anthropic"},
+ {model:"DeepSeek R1+sonnet",  acc:64.0, cost:13.29, company:"DeepSeek"},
+ {model:"o1 (high)",           acc:61.7, cost:186.5, company:"OpenAI"},
+ {model:"claude-sonnet-4 (32k)",acc:61.3, cost:26.58, company:"Anthropic"},
+ {model:"claude-sonnet",       acc:60.4, cost:17.72, company:"Anthropic"},
+ {model:"o3-mini (high)",      acc:60.4, cost:18.16, company:"OpenAI"},
+ {model:"Qwen3 235B",          acc:59.6, cost:null,  company:"Alibaba"},
+ {model:"DeepSeek R1",         acc:56.9, cost:5.42,  company:"DeepSeek"},
+ {model:"claude-sonnet-4",     acc:56.4, cost:15.82, company:"Anthropic"},
+ {model:"gemini-flash 05-20",  acc:55.1, cost:8.56,  company:"Google"},
+ {model:"DeepSeek V3 (0324)",  acc:55.1, cost:1.12,  company:"DeepSeek"},
+ {model:"Quasar Alpha",        acc:54.7, cost:null,  company:"OpenRouter"},
+ {model:"o3-mini (medium)",    acc:53.8, cost:8.86,  company:"OpenAI"},
+ {model:"Grok 3 Beta",         acc:53.3, cost:11.03, company:"xAI"},
+ {model:"Optimus Alpha",       acc:52.9, cost:null,  company:"OpenRouter"},
+ {model:"gpt-4.1",             acc:52.4, cost:9.86,  company:"OpenAI"},
+ {model:"claude-3-5 sonnet",   acc:51.6, cost:14.41, company:"Anthropic"},
+ {model:"Grok 3 Mini (high)",  acc:49.3, cost:0.73,  company:"xAI"},
+ {model:"DeepSeek Chat V3",    acc:48.4, cost:0.34,  company:"DeepSeek"},
+ {model:"gemini-flash 04-17",  acc:47.1, cost:1.85,  company:"Google"},
+ {model:"chatgpt-4o (03-29)",  acc:45.3, cost:19.74, company:"OpenAI"},
+ {model:"gpt-4.5 preview",     acc:44.9, cost:183.18,company:"OpenAI"},
+ {model:"gemini-flash 05-20 nt",acc:44.0, cost:1.14, company:"Google"},
+ {model:"Qwen3 32B",           acc:40.0, cost:0.76,  company:"Alibaba"},
+ {model:"gemini-exp-1206",     acc:38.2, cost:null,  company:"Google"},
+ {model:"Gemini 2.0 Pro 02-05",acc:35.6, cost:null,  company:"Google"},
+ {model:"Grok 3 Mini (low)",   acc:34.7, cost:0.79,  company:"xAI"},
+ {model:"o1-mini",             acc:32.9, cost:18.58, company:"OpenAI"},
+ {model:"gpt-4.1 mini",        acc:32.4, cost:1.99,  company:"OpenAI"},
+ {model:"claude-haiku",        acc:28.0, cost:6.06,  company:"Anthropic"},
+ {model:"chatgpt-4o (02-15)",  acc:27.1, cost:14.37, company:"OpenAI"},
+ {model:"QwQ-32B+Qwen 2.5",    acc:26.2, cost:null,  company:"Alibaba"},
+ {model:"gpt-4o 2024-08-06",   acc:23.1, cost:7.03,  company:"OpenAI"},
+ {model:"gemini-flash exp",    acc:22.2, cost:null,  company:"Google"},
+ {model:"qwen-max-2025",       acc:21.8, cost:null,  company:"Alibaba"},
+ {model:"QwQ-32B",             acc:20.9, cost:null,  company:"Alibaba"},
+ {model:"gemini-flash thinking",acc:18.2,cost:null,  company:"Google"},
+ {model:"gpt-4o 2024-11-20",   acc:18.2, cost:6.74,  company:"OpenAI"},
+ {model:"DeepSeek Chat V2.5",  acc:17.8, cost:0.51,  company:"DeepSeek"},
+ {model:"Qwen Coder 32B",      acc:16.4, cost:null,  company:"Alibaba"},
+ {model:"Llama-4 Maverick",    acc:15.6, cost:null,  company:"Other"},
+ {model:"yi-lightning",        acc:12.9, cost:null,  company:"01.AI"},
+ {model:"command-a 03-25",     acc:12.0, cost:null,  company:"Other"},
+ {model:"Codestral 25.01",     acc:11.1, cost:1.98,  company:"Mistral"},
+ {model:"OpenHands 32B",       acc:10.2, cost:null,  company:"AllHands"},
+ {model:"gpt-4.1 nano",        acc:8.9,  cost:0.43,  company:"OpenAI"},
+ {model:"Qwen2.5 Coder 32B",   acc:8.0,  cost:null,  company:"Alibaba"},
+ {model:"gemma-3-27b-it",      acc:4.9,  cost:null,  company:"Google"},
+ {model:"gpt-4o mini 07-18",   acc:3.6,  cost:0.32,  company:"OpenAI"}
+];
+
+/* --------- helper: compute Pareto frontier --------- */
+function pareto(data) {
+  // Keep only rows with cost
+  const valid = data.filter(r => r.cost !== null)
+                    .sort((a,b) => a.cost - b.cost);
+  const frontier = [];
+  let bestAcc = -Infinity;
+  for (const r of valid) {
+    if (r.acc > bestAcc) { frontier.push(r); bestAcc = r.acc; }
+  }
+  // Build step-wise path
+  const pathX = [frontier[0].cost], pathY = [frontier[0].acc];
+  for (let i=1;i<frontier.length;i++){
+    pathX.push(frontier[i].cost); pathY.push(frontier[i-1].acc);
+    pathX.push(frontier[i].cost); pathY.push(frontier[i].acc);
+  }
+  return {frontier, pathX, pathY};
+}
+
+/* --------- helper: compute company-specific Pareto frontier --------- */
+function companyPareto(data, company) {
+  const companyData = data.filter(r => r.company === company);
+  return pareto(companyData);
+}
+
+/* --------- colors by company --------- */
+const palette = {
+  "OpenAI":"#1f77b4", "Google":"#9467bd", "Anthropic":"#d62728",
+  "DeepSeek":"#2ca02c", "xAI":"#17becf", "Alibaba":"#ff7f0e",
+  "Mistral":"#e377c2", "01.AI":"#8c564b", "OpenRouter":"#bcbd22",
+  "AllHands":"#7f7f7f", "Other":"#aaaaaa"
+};
+const companies = [...new Set(rows.map(r=>r.company))];
+
+/* --------- prepare Plotly traces --------- */
+const scatterTraces = companies.map(comp => {
+  const pts = rows.filter(r=>r.company===comp);
+  return {
+    type:"scatter", mode:"markers",
+    x: pts.map(p=>p.cost||500),   // put null-cost at 500 instead of 1000
+    y: pts.map(p=>p.acc),
+    text: pts.map(p=>`${p.model}<br>Cost: ${p.cost ?? "—"}<br>Acc: ${p.acc}%`),
+    hovertemplate:"%{text}<extra></extra>",
+    name: comp,
+    marker:{
+      color:palette[comp]||"#999", 
+      size:9, 
+      opacity: pts.map(p => p.cost ? 0.8 : 0.4) // Half opacity for unknown cost points
+    },
+    visible: true
+  };
+});
+
+const {pathX, pathY, frontier} = pareto(rows);
+const frontierTrace = {
+  type:"scatter",
+  mode:"lines",
+  x:pathX, y:pathY,
+  name:"Pareto frontier",
+  line:{width:2, dash:"dash", color:"#555"},
+  hoverinfo:"skip"
+};
+
+// Create vertical dotted lines from each Pareto frontier point to the top
+const verticalLines = frontier.map(point => ({
+  type:"scatter",
+  mode:"lines",
+  x:[point.cost, point.cost],
+  y:[point.acc, point.acc + 10], // Go from the point to just below the label
+  line:{width:1, dash:"dot", color:"#999"},
+  showlegend:false,
+  hoverinfo:"skip"
+}));
+
+// Create text annotations at the top for each Pareto frontier point
+const annotations = frontier.map((point, i) => ({
+  x: Math.log10(point.cost),
+  y: point.acc + 10, // Fixed offset of 10 points above each frontier point
+  text: `${point.model}<br>$${point.cost} | ${point.acc}%`,
+  showarrow: false,
+  font: {size: 11, color: palette[point.company] || "#333"},
+  bgcolor: "rgba(255,255,255,0.9)",
+  bordercolor: palette[point.company] || "#999",
+  borderwidth: 1,
+  xanchor: "center",
+  yanchor: "bottom",
+  xref: "x",
+  yref: "y",
+  textangle: 0 // Remove alternating angles since we won't have overlap
+}));
+
+const layout = {
+  xaxis:{title:"Cost (USD, log scale)", type:"log"},
+  yaxis:{title:"Accuracy (%)", range:[0,100]},
+  legend:{orientation:"v"},
+  margin:{l:60,r:20,t:60,b:60}, // Increased top margin for labels
+  hovermode:"closest",
+  annotations: annotations
+};
+
+// Create company-specific frontier trace (initially hidden)
+const companyFrontierTrace = {
+  type:"scatter",
+  mode:"lines",
+  x:[], y:[],
+  name:"Company frontier",
+  line:{width:3, dash:"solid", color:"red"},
+  hoverinfo:"skip",
+  visible:false,
+  showlegend:false
+};
+
+// Create company-specific vertical lines (initially hidden)
+const companyVerticalLines = [];
+for (let i = 0; i < 10; i++) { // Create enough traces for potential frontier points
+  companyVerticalLines.push({
+    type:"scatter",
+    mode:"lines",
+    x:[], y:[],
+    line:{width:1, dash:"dot", color:"#999"},
+    showlegend:false,
+    hoverinfo:"skip",
+    visible:false
+  });
+}
+
+// Create the plot
+Plotly.newPlot("plot", [...scatterTraces, frontierTrace, ...verticalLines, companyFrontierTrace, ...companyVerticalLines], layout);
+
+// Add hover event listeners
+const plotDiv = document.getElementById('plot');
+
+plotDiv.on('plotly_hover', function(data) {
+  const point = data.points[0];
+  if (point.data.name && point.data.name !== "Pareto frontier") {
+    const company = point.data.name;
+    const {pathX, pathY, frontier: companyFrontier} = companyPareto(rows, company);
+    
+    // Show company frontier line
+    Plotly.restyle('plot', {
+      x: [pathX],
+      y: [pathY],
+      visible: [true],
+      'line.color': [palette[company] || "#999"]
+    }, [scatterTraces.length + verticalLines.length + 1]);
+    
+    // Hide global vertical lines and show company vertical lines
+    const globalVerticalIndices = [];
+    for (let i = 0; i < verticalLines.length; i++) {
+      globalVerticalIndices.push(scatterTraces.length + 1 + i);
+    }
+    Plotly.restyle('plot', {visible: false}, globalVerticalIndices);
+    
+    // Show company vertical lines
+    const companyVerticalUpdates = companyFrontier.map((point, i) => ({
+      x: [[point.cost, point.cost]],
+      y: [[point.acc, point.acc + 10]],
+      visible: [true]
+    }));
+    
+    companyVerticalUpdates.forEach((update, i) => {
+      if (i < companyVerticalLines.length) {
+        Plotly.restyle('plot', update, [scatterTraces.length + verticalLines.length + 2 + i]);
+      }
+    });
+    
+    // Hide unused company vertical lines
+    for (let i = companyFrontier.length; i < companyVerticalLines.length; i++) {
+      Plotly.restyle('plot', {visible: [false]}, [scatterTraces.length + verticalLines.length + 2 + i]);
+    }
+    
+    // Hide global frontier annotations and show company frontier annotations
+    const companyAnnotations = companyFrontier.map((point, i) => ({
+      x: Math.log10(point.cost),
+      y: point.acc + 10,
+      text: `${point.model}<br>$${point.cost} | ${point.acc}%`,
+      showarrow: false,
+      font: {size: 11, color: palette[point.company] || "#333"},
+      bgcolor: "rgba(255,255,255,0.9)",
+      bordercolor: palette[point.company] || "#999",
+      borderwidth: 1,
+      xanchor: "center",
+      yanchor: "bottom",
+      xref: "x",
+      yref: "y",
+      textangle: 0
+    }));
+    
+    Plotly.relayout('plot', {
+      annotations: companyAnnotations
+    });
+  }
+});
+
+plotDiv.on('plotly_unhover', function(data) {
+  // Hide company frontier line
+  Plotly.restyle('plot', {
+    visible: [false]
+  }, [scatterTraces.length + verticalLines.length + 1]);
+  
+  // Show global vertical lines
+  const globalVerticalIndices = [];
+  for (let i = 0; i < verticalLines.length; i++) {
+    globalVerticalIndices.push(scatterTraces.length + 1 + i);
+  }
+  Plotly.restyle('plot', {visible: true}, globalVerticalIndices);
+  
+  // Hide all company vertical lines
+  for (let i = 0; i < companyVerticalLines.length; i++) {
+    Plotly.restyle('plot', {visible: [false]}, [scatterTraces.length + verticalLines.length + 2 + i]);
+  }
+  
+  // Restore global frontier annotations
+  Plotly.relayout('plot', {
+    annotations: annotations
+  });
+});
+</script>
+</body>
+</html>
