@@ -249,6 +249,45 @@
             text-decoration: underline;
         }
 
+        .software-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .software-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            border-left: 4px solid #28a745;
+        }
+
+        .software-item h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .software-item h4 a {
+            color: #495057;
+            text-decoration: none;
+        }
+
+        .software-item h4 a:hover {
+            color: #28a745;
+            text-decoration: underline;
+        }
+
+        .software-item .authors {
+            color: #6c757d;
+            margin: 0;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
         .papers-section {
             margin-top: 30px;
         }
@@ -438,6 +477,47 @@
 
     <div class="section">
         <div class="container">
+            <div class="subsection">
+                <h3>Software</h3>
+                
+                <div class="software-grid">
+                    <div class="software-item">
+                        <h4><a href="https://github.com/julesjacobs/KATch2" target="_blank">KATch2</a></h4>
+                        <p class="authors">Jules Jacobs, Mark Moeller</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/julesjacobs/KATch" target="_blank">KATch</a></h4>
+                        <p class="authors">Mark Moeller, Jules Jacobs, Olivier Savary-Belanger, David Darais, Cole Schlesinger, Steffen Smolka, Nate Foster, Alexandra Silva</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/google/netkat" target="_blank">Google NetKAT</a></h4>
+                        <p class="authors">Google Open Source Networking Team</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/frenetic-lang/frenetic" target="_blank">Frenetic</a></h4>
+                        <p class="authors">Nate Foster, Arjun Guha, Joshua Reich, Mark Reitblatt, Rob Harrison, Cole Schlesinger</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/frenetic-lang/netkat-automata" target="_blank">NetKAT Automata</a></h4>
+                        <p class="authors">Steffen Smolka, Spiridon Eliopoulos, Nate Foster, Arjun Guha</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/rabeckett/Temporal-NetKAT" target="_blank">Temporal NetKAT</a></h4>
+                        <p class="authors">Ryan Beckett, Michael Greenberg, David Walker</p>
+                    </div>
+                    
+                    <div class="software-item">
+                        <h4><a href="https://github.com/frenetic-lang/netkat" target="_blank">NetKAT Coq</a></h4>
+                        <p class="authors">Frenetic Team</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="subsection">
                 <h3 id="papers">Papers</h3>
                 

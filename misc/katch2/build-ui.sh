@@ -6,8 +6,8 @@
 # Multiple deployment directories with their target subdirectories
 # Format: "repo_path:subdir" (use "." for top level)
 DEPLOY_TARGETS=(
-    "/Users/jules/git/netkat-www/:."
-    "/Users/jules/git/julesjacobs.github.io/:misc/katch2"
+    "/Users/jules/git/netkat-www:."
+    "/Users/jules/git/julesjacobs.github.io:misc/katch2"
 )
 
 # Parse command line arguments
@@ -145,7 +145,11 @@ if [ $? -eq 0 ]; then
         echo "🚀 Ready to deploy! Run with --deploy to copy to multiple GitHub Pages directories:"
         for DEPLOY_TARGET in "${DEPLOY_TARGETS[@]}"; do
             IFS=':' read -r DEPLOY_DIR DEPLOY_SUBDIR <<< "$DEPLOY_TARGET"
-            echo "   - $DEPLOY_DIR"
+            if [ "$DEPLOY_SUBDIR" = "." ]; then
+                echo "   - $DEPLOY_DIR (top level)"
+            else
+                echo "   - $DEPLOY_DIR/$DEPLOY_SUBDIR"
+            fi
         done
         echo "   Or manually copy the ui/ directory."
     fi
