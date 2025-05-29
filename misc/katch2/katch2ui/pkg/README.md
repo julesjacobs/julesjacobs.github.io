@@ -63,7 +63,12 @@ e ::=
     | e1 & e2     -- intersection
     | e1 ^ e2     -- xor
     | e1 - e2     -- difference
-    | !e1         -- complement, negation
+    | ~e1         -- complement, negation
+    | !e1         -- test negation (only for test fragment)
+    | if e1 then e2 else e3  -- conditional (e1 must be test fragment)
+    | let x = e1 in e2       -- let binding
+    | x[start..end] := value -- bit range assignment
+    | x[start..end] == value -- bit range test
     | e1; e2      -- sequence
     | e*          -- star, iteration
     | dup         -- log current packet to trace
@@ -71,10 +76,30 @@ e ::=
     | e1 U e2     -- LTL until (maybe change this into LDL)
 
 field ::= x0 | x1 | x2 | ... | xk  -- packet forms a bitfield
-value ::= 0 | 1
+value ::= 0 | 1 | number | 0b... | 0x... | ip -- for bit ranges, supports multiple formats
 ```
 
-Note: The parser takes `k` as an argument to determine the number of available fields.
+Notes:
+- The parser takes `k` as an argument to determine the number of available fields.
+- Test negation `!e` is only valid for expressions in the test fragment, which consists of:
+  - Constants: 0, 1
+  - Field tests: x == value
+  - Logical operators: +, &, ^, -, ;
+  - Test negation itself: !
+  - Expressions built from the above
+- The `!` operator is eliminated during desugaring using De Morgan's laws.
+- The `if-then-else` expression is desugared to `(cond ; then) + (!cond ; else)`.
+- The `let x = e1 in e2` expression is desugared by substituting all occurrences of `x` in `e2` with `e1`.
+- Variables can be any identifier except reserved keywords. Let bindings can be nested and support shadowing.
+- Bit range operations `x[start..end] := value` and `x[start..end] == value` operate on multiple bits at once:
+  - `x[0..8] := 255` assigns bits 0-7 to the binary representation of 255
+  - `x[0..4] == 5` tests if bits 0-3 equal the binary representation of 5
+  - `x[0..8] := 0xFF` uses hexadecimal notation (equivalent to 255)
+  - `x[0..4] := 0b1010` uses binary notation (equivalent to 10)
+  - `x[0..32] := 192.168.1.1` uses IP address notation (converted to 32-bit integer)
+  - These are desugared into sequences of individual bit operations
+  - The range `[start..end)` is half-open (excludes end)
+  - All literal formats are converted to little-endian bit vectors
 
 ## Web UI
 
