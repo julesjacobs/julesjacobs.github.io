@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Syntax Highlighting</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>NetKAT Syntax Highlighting Test</h1>
+    
+    <h2>Test 1: Binary Literals</h2>
+    <netkat lines="2">
+x0 := 0b1010 ;
+x1 == 0b11111111
+    </netkat>
+
+    <h2>Test 2: Hexadecimal Literals</h2>
+    <netkat lines="2">
+x0 := 0xFF ;
+x1 == 0xDEADBEEF
+    </netkat>
+
+    <h2>Test 3: IP Addresses</h2>
+    <netkat lines="3">
+x0 := 192.168.1.1 ;
+x1 == 10.0.0.1 ;
+x2 := 255.255.255.0
+    </netkat>
+
+    <h2>Test 4: Bit Ranges</h2>
+    <netkat lines="3">
+let ip = &x[0..32] in
+  ip := 192.168.1.1 ;
+  ip == 10.0.0.1
+    </netkat>
+
+    <h2>Test 5: Mixed Example</h2>
+    <netkat lines="6">
+// Configure network addresses
+let src_ip = &x[0..32] in
+let dst_ip = &x[32..64] in
+  src_ip := 0xC0A80101 ;  // 192.168.1.1 in hex
+  dst_ip := 10.0.0.1 ;
+  x64 == 0b1010
+    </netkat>
+
+    <script src="katch2ui/katch2-editor.js" type="module"></script>
+</body>
+</html>
