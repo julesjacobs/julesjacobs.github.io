@@ -33,6 +33,7 @@
     <h2>Example 4: Custom Height</h2>
     <netkat lines="6">
 // Try editing this - 6 lines tall
+// Test star highlighting: (1*) + (1*)* + (1**) + 1*
 x0 := 0; x1 := 0;
 ((x0 == 0; x0 := 1 + x0 == 1; x1 := 1); dup)*;
 x0 == 0; x1 == 1
@@ -58,6 +59,12 @@ x0 == 0; x1 == 1
         <li>CIDR notation: <nk>x[0..32] ~ 10.0.0.0/8</nk></li>
         <li>Hex and binary: <nk>x[0..8] == 0xFF + x[8..16] == 0b11110000</nk></li>
         <li>Pattern matching: <nk>x[0..32] ~ 10.0.0.1-10.0.0.10</nk></li>
+        <li>Star operator test: <nk>(1*) + (1*)* + (1**) + 1*</nk></li>
+        <li>Debug star cases: <nk>1*</nk> vs <nk>(1*)</nk> vs <nk>)*</nk> vs <nk>1)*</nk></li>
+        <li>More star tests: <nk>a*</nk> vs <nk>(a*)</nk> vs <nk>(a)*</nk> vs <nk>(ab)*</nk> vs <nk>(a+b)*</nk></li>
+        <li>Repeated stars: <nk>a**</nk> vs <nk>a***</nk> vs <nk>(a*)*</nk> vs <nk>((a*)*)*</nk></li>
+        <li>Star after operators: <nk>a+*</nk> vs <nk>a;*</nk> vs <nk>a&*</nk></li>
+        <li>Spacing test: <nk>a*+b</nk> vs <nk>a* + b</nk> vs <nk>a* +b</nk> vs <nk>a*+ b</nk></li>
     </ul>
     
     <h3>Block Example with Line Numbers</h3>

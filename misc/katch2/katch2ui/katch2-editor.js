@@ -182,7 +182,7 @@ class KATch2Editor {
         monaco.languages.setMonarchTokensProvider('netkat', {
             keywords: ['dup', 'T', 'X', 'U', 'F', 'G', 'R', 'if', 'then', 'else', 'let', 'in'],
             operators: [':=', '==', '+', '&', '^', '-', '~', '!', ';', '*', '·', '..'],
-            symbols: /[=><!~?:&|+\-*\/\^%;()]+/,
+            symbols: /[=><!~?:&|+\-*\/\^%;()]/,
 
             tokenizer: {
                 root: [
@@ -206,8 +206,6 @@ class KATch2Editor {
                             '@default': 'identifier' 
                         }
                     }],
-                    // Simple 0/1 bits
-                    [/[01]/, 'number'],
                     [/[()]/, '@brackets'],
                     [/@symbols/, {
                         cases: { 
