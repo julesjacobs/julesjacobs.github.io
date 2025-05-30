@@ -79,8 +79,15 @@ x[2..5] := 0</netkat>
     </div>
 
     <div class="test-section">
-        <h2>Test 7: Nate's Test</h2>
-        <netkat>
+        <h2>Test 7: Example with Single Bit Fields</h2>
+        <netkat>// Testing x0 ~ 0 and x0 ~ 1 syntax
+(x0 ~ 0; x1 ~ 1) + (x0 ~ 1; x1 ~ 0);
+x2 := 1</netkat>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 8: Nate's Test</h2>
+        <netkat lines="15">
 let sw = &x[0..4] in
 let pt = &x[4..8] in
 let src = &x[8..40] in
@@ -105,7 +112,6 @@ let edge =
 let net =
   edge; (switch; topo)*; switch; edge in
   sw ~ 0x1 & pt ~ 0x1 & dst ~ 10.0.3.3; net
-
         </netkat>
     </div>
 
