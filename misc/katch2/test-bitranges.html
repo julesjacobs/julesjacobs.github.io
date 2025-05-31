@@ -39,7 +39,7 @@ x0 := 1; x1 := 1; x6 := 1</netkat>
         <h2>Test 2: Multiple Non-Overlapping Ranges</h2>
         <p>Expression with x[0..2] and x[4..6] - two different color regions</p>
         <netkat lines="3">// Test multiple non-overlapping ranges
-x[0..2] == 1; x[4..6] := 0;
+x[0..2] ~ 1; x[4..6] := 0;
 x3 := 1</netkat>
     </div>
 
@@ -47,7 +47,7 @@ x3 := 1</netkat>
         <h2>Test 3: Overlapping Ranges</h2>
         <p>Expression with x[0..4] and x[2..6] - overlapping at bits 2-4</p>
         <netkat lines="3">// Test overlapping ranges
-x[0..4] == 1; x[2..6] := 0;
+x[0..4] ~ 1; x[2..6] := 0;
 x7 := 1</netkat>
     </div>
 
@@ -55,10 +55,10 @@ x7 := 1</netkat>
         <h2>Test 4: Complex Expression with Multiple Ranges</h2>
         <p>Complex expression with many bit ranges</p>
         <netkat lines="5">// Complex bit range example
-(x[0..3] == 1; x[4..7] := 0) + 
-(x[2..5] == 0; x[6..9] := 1);
+(x[0..3] ~ 1; x[4..7] := 0) + 
+(x[2..5] ~ 0; x[6..9] := 1);
 x[1..2] := 1;
-x[8..10] == 0</netkat>
+x[8..10] ~ 0</netkat>
     </div>
 
     <div class="test-section">
@@ -74,7 +74,7 @@ x[4..5] := 1</netkat>
         <h2>Test 6: Nested and Overlapping</h2>
         <p>Testing nested ranges: x[0..7] contains x[2..5]</p>
         <netkat lines="3">// Nested ranges
-x[0..7] == 1;
+x[0..7] ~ 1;
 x[2..5] := 0</netkat>
     </div>
 
