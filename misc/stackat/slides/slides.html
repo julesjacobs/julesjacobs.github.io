@@ -975,12 +975,23 @@
             <section data-transition="fade">
                 <h2>A Surprising Equivalence</h2>
                 
-                <div style="margin-top: 80px;">
-                    <div style="text-align: center; font-family: monospace; font-size: 0.9em; margin-bottom: 60px;">
+                <div style="margin-top: 40px;">
+                    <div style="text-align: center; font-family: monospace; font-size: 0.9em; margin-bottom: 30px;">
                         push(a)* · pop(a)* &nbsp;≡&nbsp; push(a)* + pop(a)*
                     </div>
                     
-                    <div style="margin-top: 40px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 25px;">
+                    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;">
+                        <div style="text-align: center;">
+                            <h4 style="font-size: 0.85em; margin-bottom: 10px;">Left side: Sequential</h4>
+                            <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 200px; height: auto;">
+                        </div>
+                        <div style="text-align: center;">
+                            <h4 style="font-size: 0.85em; margin-bottom: 10px;">After closure</h4>
+                            <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 200px; height: auto;">
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 30px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
                         <p style="font-size: 0.8em; color: #856404; margin: 0; text-align: center;">
                             <strong>Why?</strong> After push-pop cancellation, the net effect is either:<br>
                             • Only pushes remain (if more pushes than pops)<br>
@@ -1077,7 +1088,7 @@
                         <!-- Initial Automaton (top right) -->
                         <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 40%;">
                             <h4 style="margin: 0 0 10px 0; font-size: 1em;">Automaton</h4>
-                            <div style="color: #666; font-style: italic; font-size: 0.9em;">[Initial automaton]</div>
+                            <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 100%; height: 40px;" alt="Initial automaton">
                         </div>
                     </div>
 
@@ -1109,17 +1120,17 @@
                         <div style="width: 45%;">
                             <!-- After push-pop closure -->
                             <div style="background-color: #f8e8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
-                                <div style="color: #666; font-style: italic; font-size: 0.9em;">[After push-pop closure]</div>
+                                <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 100%; height: 40px;" alt="After push-pop closure">
                             </div>
 
                             <!-- After pop-push filtering -->
                             <div style="background-color: #e8f8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
-                                <div style="color: #666; font-style: italic; font-size: 0.9em;">[After pop-push filtering]</div>
+                                <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 100%; height: 40px;" alt="After pop-push filtering">
                             </div>
 
                             <!-- After zipping -->
                             <div style="background-color: #f0f8f0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 60px;">
-                                <div style="color: #666; font-style: italic; font-size: 0.9em;">[Normalized automaton]</div>
+                                <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 100%; height: 40px;" alt="Normalized automaton">
                             </div>
                         </div>
                     </div>
@@ -1133,31 +1144,82 @@
 
             <section data-transition="fade">
                 <h2>Step 1: Creating the Automaton</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Convert StacKAT programs to finite automata:</p>
                 
+                <div style="text-align: center; margin: 30px 0;">
+                    <img src="tikz-svg/pop-push-star-automaton.svg" style="max-width: 60%; height: auto;">
+                </div>
+                
+                <div style="font-size: 0.85em; color: #666;">
+                    <p>Example: Automaton for pop₃*·push₃*</p>
+                    <p style="margin-top: 10px;">(Small-step rules generate finite automata)</p>
+                </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 2: Push-Pop Closure</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Add epsilon transitions when push-pop patterns are found:</p>
                 
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="tikz-svg/push-pop-closure-rules.svg" style="max-width: 90%; height: auto;">
+                </div>
                 
+                <div style="margin-top: 20px; font-size: 0.85em; color: #666;">
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Push-ε-Pop → Add ε shortcut</li>
+                        <li>ε-ε chains → Collapse to single ε</li>
+                        <li>Self-loops preserved</li>
+                    </ul>
+                </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 3: Pop-Push Filtering</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Intersect automaton with pop* push* language:</p>
                 
+                <div style="text-align: center; margin: 30px 0;">
+                    <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 60%; height: auto;">
+                </div>
                 
+                <div style="font-size: 0.85em; color: #666; text-align: center;">
+                    Result: Separate states for push and pop operations
+                </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 4: Zipping the Automaton</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Form the product automaton where actions combine:</p>
                 
+                <div style="display: flex; justify-content: center; gap: 40px; align-items: center; margin: 20px 0;">
+                    <div style="text-align: center;">
+                        <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 250px; height: auto;">
+                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">With (pop,push) transitions</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="tikz-svg/zipped-automaton-2.svg" style="max-width: 250px; height: auto;">
+                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">Simplified version</p>
+                    </div>
+                </div>
                 
+                <div style="font-size: 0.85em; color: #666; text-align: center; margin-top: 20px;">
+                    Pairs like (pop₃,push₃) and (done,push₃) represent synchronized actions
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Aside: Visibly Pushdown Languages</h2>
+                Is this the same as visibly pushdown languages?<br>
+                No! <br>
+                Visibly pushdown languages: restricted stack behavior, separate input tape.<br>
+                StacKAT: no restrictions on stack behavior, no separate input tape.<br>
+                Input = initial stack (input packet)<br>
+                Adding an input tape to StacKAT would make equivalence *undecidable*.
             </section>
 
             <section data-transition="fade">
                 <h2>Step 0: Handling Header Fields</h2>
-                
-                
+                Explain that we can run separate checks for every input-output packet pair.
+                Inefficient, but it works. Symbolic method is future work.
             </section>
 
             <section data-transition="fade">
@@ -1187,7 +1249,8 @@
             <section data-transition="fade">
                 <h2>Complete Axiomatization</h2>
                 
-                
+                We want some figure here that explains what a complete axiomatization is.
+                And we want the ideal axioms and the actual axioms we have, with a note that completeness for the ideal axioms is an open problem.
             </section>
 
             <section data-transition="fade">
@@ -1196,6 +1259,7 @@
                 <div style="margin-top: 40px;">
                     <!-- Content to be added -->
                     <h3>Future Work: SPEED</h3>
+                    <h3>Future Work: Ideal Axiomatization</h3>
                 </div>
             </section>
 
