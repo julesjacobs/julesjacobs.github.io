@@ -975,23 +975,12 @@
             <section data-transition="fade">
                 <h2>A Surprising Equivalence</h2>
                 
-                <div style="margin-top: 40px;">
+                <div style="margin-top: 100px;">
                     <div style="text-align: center; font-family: monospace; font-size: 0.9em; margin-bottom: 30px;">
                         push(a)* · pop(a)* &nbsp;≡&nbsp; push(a)* + pop(a)*
                     </div>
                     
-                    <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 30px;">
-                        <div style="text-align: center;">
-                            <h4 style="font-size: 0.85em; margin-bottom: 10px;">Left side: Sequential</h4>
-                            <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 200px; height: auto;">
-                        </div>
-                        <div style="text-align: center;">
-                            <h4 style="font-size: 0.85em; margin-bottom: 10px;">After closure</h4>
-                            <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 200px; height: auto;">
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 30px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
+                    <div style="margin-top: 100px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
                         <p style="font-size: 0.8em; color: #856404; margin: 0; text-align: center;">
                             <strong>Why?</strong> After push-pop cancellation, the net effect is either:<br>
                             • Only pushes remain (if more pushes than pops)<br>
