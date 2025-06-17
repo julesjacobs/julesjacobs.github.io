@@ -394,11 +394,11 @@
                 <div style="margin-top: 30px;">
                     <!-- Grammar display -->
                     <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px 25px; margin-bottom: 30px;">
-                        <div style="font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 0.7em; line-height: 1.6; text-align: center; font-weight: 600;">
+                        <div style="font-family: monospace; font-size: 0.7em; line-height: 1.6; text-align: center; font-weight: 600;">
                             <span style="color: #2c3e50; font-weight: 700;">e</span> ::= 
                             <span style="color: #2c3e50; font-weight: 600;">e₁ + e₂</span> | 
                             <span style="color: #2c3e50; font-weight: 600;">e₁ · e₂</span> | 
-                            <span style="color: #2c3e50; font-weight: 600;">e*</span> | 
+                            <span style="color: #2c3e50; font-weight: 600;">e<sup>*</sup></span> | 
                             <span style="color: #2c3e50; font-weight: 600;">f := n</span> | 
                             <span style="color: #2c3e50; font-weight: 600;">f == n</span> | 
                             <br><span style="color: #27ae60; font-weight: 700;">push(n)</span> | 
@@ -429,7 +429,7 @@
                                     <td style="padding: 4px 8px;">Sequential composition</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">e*</td>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">e<sup>*</sup></td>
                                     <td style="padding: 4px 8px;">Kleene star (iteration)</td>
                                 </tr>
                                 <tr>
@@ -628,7 +628,7 @@
                                     <h3 style="font-size: 1.1em; margin: 0;">while f==0 do p</h3>
                                 </div>
                                 <div style="padding: 20px; font-family: monospace; text-align: center; font-size: 0.8em;">
-                                    (f==0·p)*·f==1
+                                    (f==0·p)<sup>*</sup>·f==1
                                 </div>
                             </td>
                         </tr>
@@ -765,7 +765,7 @@
                             </tr>
                             <tr style="vertical-align: top;">
                                 <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Kleene star:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e*⟧ = ⟦e⟧*</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e<sup>*</sup>⟧ = ⟦e⟧<sup>*</sup></td>
                                 <td style="padding: 8px 0; color: #666;">Reflexive transitive closure</td>
                             </tr>
                             <tr style="vertical-align: top;">
@@ -875,7 +875,7 @@
                 
                 <div style="margin-top: 100px;">
                     <div style="text-align: center; font-family: monospace; font-size: 0.9em; margin-bottom: 30px;">
-                        push(a)* · pop(a)* &nbsp;≡&nbsp; push(a)* + pop(a)*
+                        push(a)<sup>*</sup> · pop(a)<sup>*</sup> &nbsp;≡&nbsp; push(a)<sup>*</sup> + pop(a)<sup>*</sup>
                     </div>
                     
                     <div style="margin-top: 100px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
@@ -898,38 +898,38 @@
                         <!-- Left column -->
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                pop(v)* · push(v)*
+                                pop(v)<sup>*</sup> · push(v)<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                (push(v) + pop(v))*
+                                (push(v) + pop(v))<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                push(v)* · (pop(v) · pop(v))*
+                                push(v)<sup>*</sup> · (pop(v) · pop(v))<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                (pop(v) · pop(v))* · push(v)*
+                                (pop(v) · pop(v))<sup>*</sup> · push(v)<sup>*</sup>
                             </div>
                         </div>
                         
                         <!-- Right column -->
                         <div style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                pop(v)* · (push(v) · push(v))*
+                                pop(v)<sup>*</sup> · (push(v) · push(v))<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                (push(v)* · pop(v))*
+                                (push(v)<sup>*</sup> · pop(v))<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                push(v)* + pop(v)*
+                                push(v)<sup>*</sup> + pop(v)<sup>*</sup>
                             </div>
                             
                             <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
-                                (push(v) · pop(v))*
+                                (push(v) · pop(v))<sup>*</sup>
                             </div>
                         </div>
                     </div>
@@ -970,7 +970,7 @@
                             <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
                                 <div style="background-color: #f0f0f0; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                                     <h4 style="margin: 0 0 5px 0; font-size: 0.6em;">StacKAT Program</h4>
-                                    <div style="font-family: monospace; font-size: 0.5em; line-height: 2.2; color: white; background-color: #2c3e50; padding: 0px 0px; border-radius: 4px;">push(3)* · pop(3)*</div>
+                                    <div style="font-family: monospace; font-size: 0.5em; line-height: 2.2; color: white; background-color: #2c3e50; padding: 0px 0px; border-radius: 4px;">push(3)<sup>*</sup> · pop(3)<sup>*</sup></div>
                                 </div>
                             </td>
                             <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
@@ -1007,7 +1007,7 @@
                             </td>
                             <td style="vertical-align: middle; text-align: center; padding: 8px;">
                                 <div style="font-size: 0.7em; color: #666; font-weight: bold;">Pop-push filtering</div>
-                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Intersect with pop*push*</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Intersect with pop<sup>*</sup>push<sup>*</sup></div>
                             </td>
                             <td style="vertical-align: middle; padding: 8px;">
                                 <div style="background-color: #e8f8e8; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
@@ -1082,7 +1082,7 @@
 
             <section data-transition="fade">
                 <h2>Step 2: Pop-Push Filtering</h2>
-                <p style="font-size: 0.9em; margin-bottom: 50px; margin-top: 50px; text-align: center;">Intersect automaton with <b>pop*push*</b> language:</p>
+                <p style="font-size: 0.9em; margin-bottom: 50px; margin-top: 50px; text-align: center;">Intersect automaton with <b>pop<sup>*</sup>push<sup>*</sup></b> language:</p>
                 
                 <table style="text-align: center;">
                     <tr>
