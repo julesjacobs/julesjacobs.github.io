@@ -9,195 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css" id="theme">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/monokai.min.css">
     
-    <style>
-        .reveal h1, .reveal h2, .reveal h3 {
-            color: #2c3e50;
-            text-transform: none;
-            font-variant: normal;
-        }
-        
-        .reveal .title-slide h1 {
-            font-size: 2.5em;
-            margin-bottom: 0.3em;
-        }
-        
-        .reveal h2 {
-            font-size: 1.3em;
-            margin-bottom: 0.3em;
-        }
-        
-        .reveal .authors {
-            font-size: 0.9em;
-            line-height: 1.5;
-        }
-        
-        
-        .reveal .highlight-red {
-            color: #e74c3c;
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-        
-        .reveal ul {
-            display: block;
-            margin-left: 1em;
-        }
-        
-        .reveal section {
-            text-align: left;
-        }
-        
-        .reveal h2, .reveal h3 {
-            text-align: center;
-        }
-        
-        .reveal .title-slide {
-            text-align: center;
-        }
-        
-        /* Packet animation styles */
-        .packet-animation {
-            position: relative;
-            width: 100%;
-            height: 500px;
-            margin: 20px 0;
-        }
-        
-        #network-viz {
-            position: relative;
-            width: 850px;
-            height: 350px;
-            margin: 0 auto;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        
-        .network-switch {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-        
-        .network-host {
-            position: absolute;
-            width: 70px;
-            height: 70px;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-        }
-        
-        .device-label {
-            position: absolute;
-            bottom: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-weight: bold;
-            font-size: 14px;
-            color: #2c3e50;
-            white-space: nowrap;
-        }
-        
-        .link {
-            stroke: #95a5a6;
-            stroke-width: 2;
-            fill: none;
-        }
-        
-        .mini-packet {
-            position: absolute;
-            width: 60px;
-            height: 20px;
-            border: 1px solid #2c3e50;
-            border-radius: 3px;
-            background: white;
-            transform: translate(-50%, -50%);
-            z-index: 20;
-            display: flex;
-            gap: 2px;
-            padding: 2px;
-            opacity: 0;
-            transition: opacity 500ms ease-in-out;
-        }
-        
-        .mini-packet-field {
-            flex: 1;
-            height: 100%;
-            border-radius: 2px;
-            transition: all 200ms ease-in-out;
-        }
-        
-        .mini-packet-field.highlight {
-            box-shadow: 0 0 0 2px #f39c12;
-            transform: scale(1.05);
-        }
-        
-        .mini-packet-field.src { background: #3498db; }
-        .mini-packet-field.dst { background: #e74c3c; }
-        .mini-packet-field.port { background: #f39c12; }
-        .mini-packet-field.vlan { background: #27ae60; }
-        .mini-packet-field.ttl { background: #9b59b6; }
-        .mini-packet-field.switch { background: #34495e; }
-        
-        .large-packet {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 750px;
-            background: white;
-            border: 2px solid #2c3e50;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            opacity: 0;
-            transition: opacity 500ms ease-in-out;
-        }
-        
-        .packet-fields {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-        }
-        
-        .field {
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-            transition: all 200ms ease-in-out;
-        }
-        
-        .field.highlight {
-            box-shadow: 0 0 0 3px #f39c12, 0 0 15px rgba(243, 156, 18, 0.5);
-            transform: scale(1.05);
-        }
-        
-        .field-name {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-bottom: 5px;
-        }
-        
-        .field-value {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        
-        .field.src { background: #3498db; color: white; }
-        .field.dst { background: #e74c3c; color: white; }
-        .field.port { background: #f39c12; color: white; }
-        .field.vlan { background: #27ae60; color: white; }
-        .field.ttl { background: #9b59b6; color: white; }
-        .field.switch { background: #34495e; color: white; }
-        
-        .field .field-name { color: rgba(255, 255, 255, 0.8); }
-        .field .field-value { color: white; }
-        
-    </style>
-</head>
+    <link rel="stylesheet" href="slides.css"></head>
 <body>
     <div class="reveal">
         <div class="slides">
@@ -392,7 +204,7 @@
                     
                     <!-- Right column: Key ideas -->
                     <div style="flex: 1; padding-top: 40px;">
-                        <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
                             <h3 style="font-size: 0.9em; margin: 0 0 8px 0; color: #2c3e50;">Key Insight</h3>
                             <p style="font-size: 0.6em; margin: 0; font-weight: bold;">Network behavior = Program execution</p>
                         </div>
@@ -453,7 +265,7 @@
 
             <!-- Slide 5: Introducing StacKAT -->
             <section data-transition="fade">
-                <h2>StacKAT: Infinite State Verification</h2>
+                <h2>StacKAT: Infinite State Modeling</h2>
                 <div style="height: 10px;"></div>
                 
                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
@@ -506,30 +318,73 @@
                     <!-- Introduction blurb -->
                     <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 25px; max-width: 700px;">
                         <p style="font-size: 0.9em; text-align: center; margin: 0; color: #186a3b;">
-                            <strong>StacKAT</strong> extends NetKAT with a <strong>stack</strong> to handle variable-length payload data
+                            <strong>StacKAT</strong> extends NetKAT with a <strong>stack</strong> to model variable-length payload data
                         </p>
                     </div>
 
                     <div style="height: 10px;"></div>
-                    
-                    <!-- Capabilities list -->
-                    <div style="font-size: 0.7em; line-height: 1.6; display: flex; justify-content: space-between; width: 800px; margin: 0 auto;">
-                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
-                            <li style="margin-bottom: 10px;">✅ Variable-length data</li>
-                            <li style="margin-bottom: 10px;">✅ Models packet parsing</li>
-                            <li style="margin-bottom: 10px;">✅ Handles tunneling</li>
-                        </ul>
-                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
-                            <li style="margin-bottom: 10px;">✅ Handles SR / MPLS stacks</li>
-                            <li style="margin-bottom: 10px;">✅ Models unbounded state</li>
-                            <li style="margin-bottom: 10px;">✅ Infinite-state verification</li>
-                        </ul>
+
+                    <div style="margin-top: 25px; font-style: italic; color: #000; font-size: 0.85em;">
+                        Known from NetKAT: <strong>verification = program equivalence</strong>
                     </div>
                     
                     <div style="margin-top: 25px; font-style: italic; color: #000; font-size: 0.85em;">
-                        Main challenge: <strong>decidable infinite state verification</strong>
+                        Main challenge: <strong>decidable infinite state equivalence</strong>
                     </div>
                 </div>
+            </section>
+
+            <!-- Slide 5b: StacKAT Packet Processing Animation -->
+            <section data-transition="fade">
+                <h2>StacKAT: Packet Processing with Payload</h2>
+                
+                <div class="packet-animation-stackat">
+                    <div id="network-viz-stackat">
+                        <svg id="network-svg-stackat" width="850" height="350"></svg>
+                        <div id="mini-packet-stackat" class="mini-packet-stackat">
+                            <div class="mini-packet-field switch"></div>
+                            <div class="mini-packet-field src"></div>
+                            <div class="mini-packet-field dst"></div>
+                            <div class="mini-packet-field port"></div>
+                            <div class="mini-packet-field vlan"></div>
+                            <div class="mini-packet-field ttl"></div>
+                            <div class="mini-packet-field payload"></div>
+                        </div>
+                    </div>
+                    <div id="large-packet-stackat" class="large-packet-stackat">
+                        <div class="packet-fields-stackat">
+                            <div class="field switch" data-field="switch">
+                                <div class="field-name">SWITCH</div>
+                                <div class="field-value" id="field-switch-stackat">-</div>
+                            </div>
+                            <div class="field src" data-field="src">
+                                <div class="field-name">SRC</div>
+                                <div class="field-value" id="field-src-stackat">-</div>
+                            </div>
+                            <div class="field dst" data-field="dst">
+                                <div class="field-name">DST</div>
+                                <div class="field-value" id="field-dst-stackat">-</div>
+                            </div>
+                            <div class="field port" data-field="port">
+                                <div class="field-name">PORT</div>
+                                <div class="field-value" id="field-port-stackat">-</div>
+                            </div>
+                            <div class="field vlan" data-field="vlan">
+                                <div class="field-name">VLAN</div>
+                                <div class="field-value" id="field-vlan-stackat">-</div>
+                            </div>
+                            <div class="field ttl" data-field="ttl">
+                                <div class="field-name">TTL</div>
+                                <div class="field-value" id="field-ttl-stackat">-</div>
+                            </div>
+                            <div class="field payload" data-field="payload">
+                                <div class="field-name">PAYLOAD</div>
+                                <div class="field-value" id="field-payload-stackat" style="font-family: monospace; font-size: 14px; text-align: right;">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
             </section>
 
             <!-- Slide 6: StacKAT Language -->
@@ -1058,120 +913,151 @@
             <!-- Slide 20: Verification Algorithm -->
             <section data-transition="fade">
                 <h2>Verification Algorithm</h2>
+                
+                <!-- Goal statement at top -->
+                <div style="text-align: center; margin-top: 5px; margin-bottom: 20px; font-size: 0.8em; color: #333;">
+                    Goal: Check language equivalence <strong>L(A₁) = L(A₂)</strong> after normalization
+                </div>
 
-                <div style="margin-top: 20px; position: relative; height: 550px;">
-                    <!-- Top row: Program and Initial Automaton -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                        <!-- StacKAT Program (top left) -->
-                        <div style="background-color: #f0f0f0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 40%;">
-                            <h4 style="margin: 0 0 10px 0; font-size: 1em;">StacKAT Program</h4>
-                            <pre style="margin: 0; font-size: 0.8em;"><code>push(a); b; pop(a)</code></pre>
-                        </div>
-
-                        <!-- Arrow -->
-                        <div style="flex: 1; text-align: center;">
-                            <div style="font-size: 1.5em; color: #666;">→</div>
-                            <div style="font-size: 0.8em; color: #666; margin-top: -5px;">Convert to automaton</div>
-                        </div>
-
-                        <!-- Initial Automaton (top right) -->
-                        <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 40%;">
-                            <h4 style="margin: 0 0 10px 0; font-size: 1em;">Automaton</h4>
-                            <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 100%; height: 40px;" alt="Initial automaton">
-                        </div>
-                    </div>
-
-                    <!-- Vertical transformations on the right side -->
-                    <div style="display: flex;">
-                        <!-- Left column for labels -->
-                        <div style="width: 55%; padding-right: 20px;">
-                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
-                                <div style="text-align: right;">
-                                    <div style="font-size: 1.2em; color: #666;">↓</div>
-                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Push-pop closure</div>
+                <div style="margin-top: 10px;">
+                    <!-- Table layout: 3 columns, 4 rows -->
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                        <!-- Row 1: Initial state -->
+                        <tr>
+                            <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="background-color: #f0f0f0; padding: 10px 15px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <h4 style="margin: 0 0 5px 0; font-size: 0.6em;">StacKAT Program</h4>
+                                    <div style="font-family: monospace; font-size: 0.5em; line-height: 2.2; color: white; background-color: #2c3e50; padding: 0px 0px; border-radius: 4px;">push(3)* · pop(3)*</div>
                                 </div>
-                            </div>
-                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
-                                <div style="text-align: right;">
-                                    <div style="font-size: 1.2em; color: #666;">↓</div>
-                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Pop-push filtering</div>
+                            </td>
+                            <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 1.2em; color: #666;">→</div>
+                                <div style="font-size: 0.6em; color: #666; margin-top: -8px;">Convert</div>
+                            </td>
+                            <td style="width: 25%; vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #e8f4f8; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 100%; height: 100%;" alt="Initial automaton">
                                 </div>
-                            </div>
-                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
-                                <div style="text-align: right;">
-                                    <div style="font-size: 1.2em; color: #666;">↓</div>
-                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Zipping</div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 2: Push-pop closure -->
+                        <tr>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Step 1</div>
+                            </td>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">Push-pop closure</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Add ε-transitions</div>
+                            </td>
+                            <td style="vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #f8e8e8; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 100%; height: 100%;" alt="After push-pop closure">
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Right column for automata -->
-                        <div style="width: 45%;">
-                            <!-- After push-pop closure -->
-                            <div style="background-color: #f8e8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
-                                <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 100%; height: 40px;" alt="After push-pop closure">
-                            </div>
-
-                            <!-- After pop-push filtering -->
-                            <div style="background-color: #e8f8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
-                                <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 100%; height: 40px;" alt="After pop-push filtering">
-                            </div>
-
-                            <!-- After zipping -->
-                            <div style="background-color: #f0f8f0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 60px;">
-                                <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 100%; height: 40px;" alt="Normalized automaton">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bottom text -->
-                    <div style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #333;">
-                        After normalization, check language equivalence: <strong>L(A₁) = L(A₂)</strong>
-                    </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 3: Pop-push filtering -->
+                        <tr>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Step 2</div>
+                            </td>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">Pop-push filtering</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Intersect with pop*push*</div>
+                            </td>
+                            <td style="vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #e8f8e8; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 100%; height: 100%;" alt="After pop-push filtering">
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 4: Zipping -->
+                        <tr>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Step 3</div>
+                            </td>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">Zipping</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Normalized automaton</div>
+                            </td>
+                            <td style="vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #f0f8f0; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 100%; height: 100%;" alt="Normalized automaton">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 1: Creating the Automaton</h2>
-                <p style="font-size: 0.9em; margin-bottom: 20px;">Convert StacKAT programs to finite automata:</p>
+                <p style="font-size: 0.9em; margin-top: 20px; margin-bottom: -20px; text-align: center;">Idea: use small-step rules to generate finite automata</p>
                 
-                <div style="text-align: center; margin: 30px 0;">
-                    <img src="tikz-svg/pop-push-star-automaton.svg" style="max-width: 60%; height: auto;">
+                <div style="text-align: center; margin: 0px 0;">
+                    <img src="opsem.png" style="max-width: 100%; height: auto;">
                 </div>
                 
-                <div style="font-size: 0.85em; color: #666;">
-                    <p>Example: Automaton for pop₃*·push₃*</p>
-                    <p style="margin-top: 10px;">(Small-step rules generate finite automata)</p>
+                <div style="font-size: 0.85em; color: #666; text-align: center; margin-top: -20px;">
+                    <p>State is <b>⟨header fields, expression⟩</b> &nbsp;→&nbsp; finite state!</p>
+                    <p style="margin-top: 10px;">Stack handled via <b>labeled transitions</b></p>
                 </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 2: Push-Pop Closure</h2>
-                <p style="font-size: 0.9em; margin-bottom: 20px;">Add epsilon transitions when push-pop patterns are found:</p>
                 
-                <div style="text-align: center; margin: 20px 0;">
-                    <img src="tikz-svg/push-pop-closure-rules.svg" style="max-width: 90%; height: auto;">
-                </div>
-                
-                <div style="margin-top: 20px; font-size: 0.85em; color: #666;">
-                    <ul style="text-align: left; display: inline-block;">
-                        <li>Push-ε-Pop → Add ε shortcut</li>
-                        <li>ε-ε chains → Collapse to single ε</li>
-                        <li>Self-loops preserved</li>
-                    </ul>
+                <div style="margin-top: 30px;">
+                    <!-- Main push-pop rule on top -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <div style="padding: 10px;">
+                            <img src="tikz-svg/closure-rule-push-pop.svg" style="width: 50%; height: auto;" alt="Push-ε-Pop rule">
+                        </div>
+                        <div style="margin-top: -20px; margin-bottom: 75px;">
+                            <p style="font-size: 0.75em; color: #666; margin: 0;"><b>Rule 1:</b> Add epsilon shortcut when push(v) followed by pop(v)</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Two smaller rules below -->
+                    <div style="text-align: center;">
+                        <div style="display: flex; justify-content: center; gap: 40px;">
+                            <div style="text-align: center;">
+                                <img src="tikz-svg/closure-rule-epsilon-chain.svg" alt="ε-ε chain rule" style="transform: scale(1.5);">
+                            </div>
+                            <div style="text-align: center;">
+                                <img src="tikz-svg/closure-rule-self-loop.svg" alt="Self-loop rule" style="transform: scale(1.5);">
+                            </div>
+                        </div>
+                        <div style="margin-top: 0px;">
+                            <p style="font-size: 0.75em; color: #666; margin: 0;"><b>Rule 2:</b> Maintain transitive reflexive closure of <span style="text-transform: none; font-variant: normal;">ε</span> edges</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Step 3: Pop-Push Filtering</h2>
-                <p style="font-size: 0.9em; margin-bottom: 20px;">Intersect automaton with pop* push* language:</p>
+                <p style="font-size: 0.9em; margin-bottom: 50px; margin-top: 50px; text-align: center;">Intersect automaton with <b>pop*push*</b> language:</p>
                 
-                <div style="text-align: center; margin: 30px 0;">
-                    <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 60%; height: auto;">
-                </div>
-                
-                <div style="font-size: 0.85em; color: #666; text-align: center;">
-                    Result: Separate states for push and pop operations
+                <table style="text-align: center;">
+                    <tr>
+                        <td style="width: 33%;">
+                            <img src="tikz-svg/push-pop-star-closure.svg" style="transform: scale(2.5);" alt="After push-pop closure">
+                        </td>
+                        <td style="width: 33%; text-align: left">
+                            <span style="font-size: 1em; color: #666; padding-left: 50px;">→</span>
+                        </td>
+                        <td style="width: 33%;">
+                            <img src="tikz-svg/push-pop-star-intersection.svg" style="transform: scale(2.5);">
+                        </td>
+                    </tr>
+                </table>
+   
+                <div style="font-size: 0.85em; color: #666; text-align: center; margin-top: 50px;">
+                    Removes inconsistent <b>push(v) pop(w)</b> transitions<br>
+                    Cancels out matching <b>push(v) pop(v)</b> transitions<br>
                 </div>
             </section>
 
@@ -1179,36 +1065,94 @@
                 <h2>Step 4: Zipping the Automaton</h2>
                 <p style="font-size: 0.9em; margin-bottom: 20px;">Form the product automaton where actions combine:</p>
                 
-                <div style="display: flex; justify-content: center; gap: 40px; align-items: center; margin: 20px 0;">
-                    <div style="text-align: center;">
-                        <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 250px; height: auto;">
-                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">With (pop,push) transitions</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <img src="tikz-svg/zipped-automaton-2.svg" style="max-width: 250px; height: auto;">
-                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">Simplified version</p>
-                    </div>
+                <div style="margin-top: 10px;">
+                    <!-- Table layout: 3 columns, 3 rows -->
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                        <!-- Row 1: Initial automaton -->
+                        <tr>
+                            <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Initial</div>
+                            </td>
+                            <td style="width: 25%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">After pop-push filtering</div>
+                            </td>
+                            <td style="width: 25%; vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #e8f8e8; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 100%; height: 100%;" alt="After pop-push filtering">
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 2: Step 1 -->
+                        <tr>
+                            <td style="width: 20%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Step 1</div>
+                            </td>
+                            <td style="width: 50%; vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">Zip automaton</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Pairs represent synchronized inside-out actions</div>
+                            </td>
+                            <td style="width: 30%; vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #f0f8f0; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/zipped-automaton-2.svg" style="max-width: 100%; height: 100%;" alt="After combining">
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Row 3: Step 2 -->
+                        <tr>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #999;">Step 2</div>
+                            </td>
+                            <td style="vertical-align: middle; text-align: center; padding: 8px;">
+                                <div style="font-size: 0.7em; color: #666; font-weight: bold;">Add initial-stack self-loops</div>
+                                <div style="font-size: 0.55em; color: #999; margin-top: 2px;">Final normalized automaton</div>
+                            </td>
+                            <td style="vertical-align: middle; padding: 8px;">
+                                <div style="background-color: #fff3cd; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center;">
+                                    <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 100%; height: 100%;" alt="Final zipped automaton">
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
                 
-                <div style="font-size: 0.85em; color: #666; text-align: center; margin-top: 20px;">
-                    Pairs like (pop₃,push₃) and (done,push₃) represent synchronized actions
+                <div style="background-color: #f0f8ff; padding: 0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 98px; display: flex; align-items: center; justify-content: center; font-size: 0.85em; color: #666; text-align: center; margin-top: 20px;">
+                    Theorem. L(A₁) = L(A₂) ⟺ ⟦e₁⟧ = ⟦e₂⟧
                 </div>
             </section>
 
             <section data-transition="fade">
                 <h2>Aside: Visibly Pushdown Languages</h2>
-                Is this the same as visibly pushdown languages?<br>
-                No! <br>
-                Visibly pushdown languages: restricted stack behavior, separate input tape.<br>
-                StacKAT: no restrictions on stack behavior, no separate input tape.<br>
-                Input = initial stack (input packet)<br>
-                Adding an input tape to StacKAT would make equivalence *undecidable*.
-            </section>
+                
+                <div style="margin-top: 40px; text-align: center;">
+                    <div style="font-size: 1em; margin-bottom: 30px;">
+                        Is this the same as visibly pushdown languages?
+                        <span style="font-weight: bold; color: #e74c3c; margin-left: 10px;">No!</span>
+                    </div>
 
-            <section data-transition="fade">
-                <h2>Step 0: Handling Header Fields</h2>
-                Explain that we can run separate checks for every input-output packet pair.
-                Inefficient, but it works. Symbolic method is future work.
+                    <div style="display: flex; justify-content: space-around; margin: 40px 0; font-size: 0.6em;">
+                        <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; width: 45%; box-shadow: 0 2px 15px rgba(0,0,0,0.1); margin: 20px;">
+                            <h3 style="color: #2c3e50; margin-bottom: 15px;">VPLs</h3>
+                            <ul style="text-align: left; list-style-type: none;">
+                                <li>✓ Restricted stack behavior</li>
+                                <li>✓ Separate input tape</li>
+                            </ul>
+                        </div>
+
+                        <div style="background: #e8f4f8; padding: 25px; border-radius: 10px; width: 45%; box-shadow: 0 2px 15px rgba(0,0,0,0.1); margin: 20px;">
+                            <h3 style="color: #2c3e50; margin-bottom: 15px;">StacKAT</h3>
+                            <ul style="text-align: left; list-style-type: none;">
+                                <li>✓ Unrestricted stack behavior</li>
+                                <li>✓ Input = initial stack (packet)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                        <span style="font-weight: bold;">Key Insight:</span> Adding an input tape to StacKAT would make equivalence <span style="color: #dc3545;">undecidable</span>
+                    </div>
+                </div>
             </section>
 
             <section data-transition="fade">
@@ -1236,20 +1180,50 @@
             </section>
 
             <section data-transition="fade">
+                <h2>Performance</h2>
+
+                <img src="graph.png" style="max-width: 100%; height: auto;">
+                
+                <p style="text-align: center; margin-top: 40px;">Naive enumeration of all header states</p>
+                <p style="text-align: center; margin-top: 40px;">Future work: symbolic algorithm</p>
+            </section>
+
+            <section data-transition="fade">
                 <h2>Complete Axiomatization</h2>
                 
-                We want some figure here that explains what a complete axiomatization is.
-                And we want the ideal axioms and the actual axioms we have, with a note that completeness for the ideal axioms is an open problem.
+                <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                    <span style="font-weight: bold;">Definition:</span> An axiomatization is complete if every valid equation can be derived from the axioms
+                </div>
+
+                <div style="font-size: 0.7em; display: flex; justify-content: space-around; align-items: center; margin-top: 40px;">
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 10px; width: 45%; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">Ideal Axioms</h3>
+                        <ul style="text-align: left; list-style-type: none;">
+                            <li><pre style="border: none; background: none; box-shadow: none;">    push(v)⋅pop(v) = 1</pre></li>
+                            <li><pre style="border: none; background: none; box-shadow: none;">    push(v)⋅pop(w) = 0 if v ≠ w</pre></li>
+                            <li><pre style="border: none; background: none; box-shadow: none;">pop(v)⋅push(v) + 1 = 1</pre></li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #e8f4f8; padding: 10px; border-radius: 10px; width: 45%; box-shadow: 0 2px 15px rgba(0,0,0,0.1);">
+                        <h3 style="color: #2c3e50; margin-bottom: 15px;">Current Axioms</h3>
+                        <ul style="text-align: left; list-style-type: none;">
+                        <li><pre style="border: none; background: none; box-shadow: none;">    push(v)⋅pop(v) = 1</pre></li>
+                        <li><pre style="border: none; background: none; box-shadow: none;">    push(v)⋅pop(w) = 0 if v ≠ w</pre></li>
+                        <li><pre style="border: none; background: none; box-shadow: none; color:red">   (ugly third axiom hidden)</pre></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <p style="text-align: center; margin-top: 40px;">Future work: are the ideal axioms complete?</p>
+
             </section>
 
             <section data-transition="fade">
                 <h2>Conclusion</h2>
                 
-                <div style="margin-top: 40px;">
-                    <!-- Content to be added -->
-                    <h3>Future Work: SPEED</h3>
-                    <h3>Future Work: Ideal Axiomatization</h3>
-                </div>
+                <p style="text-align: center; margin-top: 40px; font-weight: bold">StacKAT is a new model for unbounded packet processing with decidable equivalence</p>
+                <p style="text-align: center; margin-top: 40px;">Future work: surface syntax, symbolic algorithm, ideal axiomatization</p>
             </section>
 
         </div>
@@ -1261,434 +1235,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/notes/notes.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/search/search.min.js"></script>
-    
-    <script>
-        // Initialize Reveal.js
-        Reveal.initialize({
-            hash: true,
-            controls: true,
-            progress: true,
-            center: false,
-            keyboard: true,
-            overview: true,
-            transition: 'slide',
-            transitionSpeed: 'default',
-            
-            math: {
-                mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js',
-                config: 'TeX-AMS_CHTML',
-                tex: {
-                    inlineMath: [['$', '$'], ['\\(', '\\)']],
-                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
-                    processEscapes: true,
-                    processEnvironments: true
-                }
-            },
-            
-            plugins: [ RevealMath, RevealHighlight, RevealNotes, RevealSearch ]
-        });
-        
-        // Lazy load iframe
-        Reveal.on('slidechanged', event => {
-            const iframe = event.currentSlide.querySelector('iframe[data-src]');
-            if (iframe && !iframe.src) {
-                iframe.src = iframe.getAttribute('data-src');
-            }
-        });
-        
-        // Packet Animation
-        class PacketAnimation {
-            constructor() {
-                this.switches = [
-                    // Left edge switches (sources) - green rectangles
-                    { id: 'H1', x: 125, y: 70, color: '#27ae60', hosts: ['10.0.0.1', '10.0.0.2'], edge: 'left' },
-                    { id: 'H2', x: 125, y: 175, color: '#27ae60', hosts: ['10.0.0.3', '10.0.0.4'], edge: 'left' },
-                    { id: 'H3', x: 125, y: 280, color: '#27ae60', hosts: ['10.0.0.5'], edge: 'left' },
-                    
-                    // Core switches - blue circles
-                    { id: 'S1', x: 275, y: 100, color: '#3498db', hosts: [] },
-                    { id: 'S2', x: 275, y: 250, color: '#3498db', hosts: [] },
-                    { id: 'S3', x: 425, y: 70, color: '#3498db', hosts: [] },
-                    { id: 'S4', x: 425, y: 175, color: '#3498db', hosts: [] },
-                    { id: 'S5', x: 425, y: 280, color: '#3498db', hosts: [] },
-                    { id: 'S6', x: 575, y: 100, color: '#3498db', hosts: [] },
-                    { id: 'S7', x: 575, y: 250, color: '#3498db', hosts: [] },
-                    
-                    // Right edge switches (destinations) - green rectangles
-                    { id: 'H4', x: 725, y: 70, color: '#27ae60', hosts: ['10.0.0.101', '10.0.0.102'], edge: 'right' },
-                    { id: 'H5', x: 725, y: 175, color: '#27ae60', hosts: ['10.0.0.103', '10.0.0.104'], edge: 'right' },
-                    { id: 'H6', x: 725, y: 280, color: '#27ae60', hosts: ['10.0.0.105'], edge: 'right' }
-                ];
-                
-                this.links = [
-                    // Left edge to first core layer
-                    ['H1', 'S1'], ['H2', 'S1'], ['H2', 'S2'], ['H3', 'S2'],
-                    
-                    // First core to middle core
-                    ['S1', 'S3'], ['S1', 'S4'], ['S2', 'S4'], ['S2', 'S5'],
-                    
-                    // Middle core interconnects
-                    ['S3', 'S4'], ['S4', 'S5'],
-                    
-                    // Middle core to last core
-                    ['S3', 'S6'], ['S4', 'S6'], ['S4', 'S7'], ['S5', 'S7'],
-                    
-                    // Last core to right edge
-                    ['S6', 'H4'], ['S6', 'H5'], ['S7', 'H5'], ['S7', 'H6']
-                ];
-                
-                this.currentPacket = null;
-                this.animationState = 'idle';
-                this.animationStartTime = 0;
-                this.currentHopIndex = 0;
-                this.path = [];
-                
-                this.miniPacket = null;
-                this.largePacket = null;
-                this.svg = null;
-                
-                this.initialized = false;
-                
-                // Animation state flags
-                this.highlightApplied = false;
-                this.valuesUpdated = false;
-                this.highlightRemoved = false;
-                this.vlanWillChange = false;
-            }
-            
-            init() {
-                if (this.initialized) return;
-                this.initialized = true;
-                
-                this.svg = document.getElementById('network-svg');
-                this.miniPacket = document.getElementById('mini-packet');
-                this.largePacket = document.getElementById('large-packet');
-                
-                if (!this.svg || !this.miniPacket || !this.largePacket) {
-                    console.warn('Packet animation elements not found');
-                    return;
-                }
-                
-                this.drawNetwork();
-                this.startAnimation();
-            }
-            
-            drawNetwork() {
-                // Clear SVG and network-viz children (except svg and packets)
-                this.svg.innerHTML = '';
-                const networkViz = document.getElementById('network-viz');
-                const elementsToRemove = networkViz.querySelectorAll('.network-switch, .network-host');
-                elementsToRemove.forEach(el => el.remove());
-                
-                // Draw links
-                this.links.forEach(link => {
-                    const source = this.switches.find(s => s.id === link[0]);
-                    const target = this.switches.find(s => s.id === link[1]);
-                    
-                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                    path.setAttribute('d', `M ${source.x} ${source.y} L ${target.x} ${target.y}`);
-                    path.setAttribute('class', 'link');
-                    this.svg.appendChild(path);
-                });
-                
-                // Draw switches and hosts
-                this.switches.forEach(sw => {
-                    const container = document.createElement('div');
-                    container.className = sw.edge ? 'network-host' : 'network-switch';
-                    container.style.left = sw.x + 'px';
-                    container.style.top = sw.y + 'px';
-                    
-                    // Create SVG element
-                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                    svg.setAttribute('width', '70');
-                    svg.setAttribute('height', '70');
-                    svg.setAttribute('viewBox', '0 0 70 70');
-                    
-                    if (sw.edge) {
-                        // Draw host (computer) icon
-                        // Monitor screen
-                        const monitor = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        monitor.setAttribute('x', '10');
-                        monitor.setAttribute('y', '15');
-                        monitor.setAttribute('width', '50');
-                        monitor.setAttribute('height', '35');
-                        monitor.setAttribute('rx', '2');
-                        monitor.setAttribute('fill', '#27ae60');
-                        monitor.setAttribute('stroke', '#229954');
-                        monitor.setAttribute('stroke-width', '2');
-                        
-                        // Monitor screen inner
-                        const screen = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        screen.setAttribute('x', '15');
-                        screen.setAttribute('y', '20');
-                        screen.setAttribute('width', '40');
-                        screen.setAttribute('height', '25');
-                        screen.setAttribute('fill', '#229954');
-                        
-                        // Monitor stand
-                        const stand = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                        stand.setAttribute('d', 'M 30 50 L 40 50 L 38 55 L 32 55 Z');
-                        stand.setAttribute('fill', '#27ae60');
-                        stand.setAttribute('stroke', '#229954');
-                        stand.setAttribute('stroke-width', '1');
-                        
-                        // Monitor base
-                        const base = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                        base.setAttribute('x', '25');
-                        base.setAttribute('y', '55');
-                        base.setAttribute('width', '20');
-                        base.setAttribute('height', '3');
-                        base.setAttribute('rx', '1');
-                        base.setAttribute('fill', '#229954');
-                        
-                        svg.appendChild(monitor);
-                        svg.appendChild(screen);
-                        svg.appendChild(stand);
-                        svg.appendChild(base);
-                        
-                        // Add host name as text on screen
-                        const hostText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        hostText.setAttribute('x', '35');
-                        hostText.setAttribute('y', '35');
-                        hostText.setAttribute('text-anchor', 'middle');
-                        hostText.setAttribute('font-size', '12');
-                        hostText.setAttribute('font-family', 'monospace');
-                        hostText.setAttribute('font-weight', 'bold');
-                        hostText.setAttribute('fill', '#ffffff');
-                        hostText.textContent = sw.id;
-                        svg.appendChild(hostText);
-                    } else {
-                        // Draw switch as simple blue circle
-                        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                        bgCircle.setAttribute('cx', '35');
-                        bgCircle.setAttribute('cy', '35');
-                        bgCircle.setAttribute('r', '22');
-                        bgCircle.setAttribute('fill', '#3498db');
-                        bgCircle.setAttribute('stroke', '#2980b9');
-                        bgCircle.setAttribute('stroke-width', '2');
-                        svg.appendChild(bgCircle);
-                        
-                        // Switch name
-                        const switchText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                        switchText.setAttribute('x', '35');
-                        switchText.setAttribute('y', '40');
-                        switchText.setAttribute('text-anchor', 'middle');
-                        switchText.setAttribute('font-size', '14');
-                        switchText.setAttribute('font-family', 'Arial, sans-serif');
-                        switchText.setAttribute('font-weight', 'bold');
-                        switchText.setAttribute('fill', '#ffffff');
-                        switchText.textContent = sw.id;
-                        svg.appendChild(switchText);
-                    }
-                    
-                    container.appendChild(svg);
-                    
-                    networkViz.appendChild(container);
-                });
-            }
-            
-            generatePacket() {
-                const leftHosts = this.switches.filter(s => s.edge === 'left').flatMap(s => s.hosts);
-                const rightHosts = this.switches.filter(s => s.edge === 'right').flatMap(s => s.hosts);
-                
-                const src = leftHosts[Math.floor(Math.random() * leftHosts.length)];
-                const dst = rightHosts[Math.floor(Math.random() * rightHosts.length)];
-                
-                const srcSwitch = this.switches.find(s => s.hosts.includes(src));
-                const dstSwitch = this.switches.find(s => s.hosts.includes(dst));
-                
-                this.currentPacket = {
-                    src: src,
-                    dst: dst,
-                    port: Math.floor(Math.random() * 65536),
-                    vlan: Math.floor(Math.random() * 4096),
-                    ttl: 64,
-                    switch: srcSwitch.id
-                };
-                
-                // Calculate path (simplified - in real implementation would use Dijkstra)
-                this.path = this.calculatePath(srcSwitch.id, dstSwitch.id);
-                this.currentHopIndex = 0;
-            }
-            
-            calculatePath(srcId, dstId) {
-                // Simplified path calculation
-                // In a real implementation, this would use a proper pathfinding algorithm
-                const paths = {
-                    'H1-H4': ['H1', 'S1', 'S3', 'S6', 'H4'],
-                    'H1-H5': ['H1', 'S1', 'S4', 'S6', 'H5'],
-                    'H1-H6': ['H1', 'S1', 'S4', 'S7', 'H6'],
-                    'H2-H4': ['H2', 'S1', 'S3', 'S6', 'H4'],
-                    'H2-H5': ['H2', 'S2', 'S4', 'S7', 'H5'],
-                    'H2-H6': ['H2', 'S2', 'S5', 'S7', 'H6'],
-                    'H3-H4': ['H3', 'S2', 'S4', 'S6', 'H4'],
-                    'H3-H5': ['H3', 'S2', 'S4', 'S6', 'H5'],
-                    'H3-H6': ['H3', 'S2', 'S5', 'S7', 'H6']
-                };
-                
-                const key = `${srcId}-${dstId}`;
-                return paths[key] || [srcId, 'S1', 'S3', 'S6', dstId];
-            }
-            
-            updatePacketDisplay() {
-                document.getElementById('field-src').textContent = this.currentPacket.src;
-                document.getElementById('field-dst').textContent = this.currentPacket.dst;
-                document.getElementById('field-port').textContent = this.currentPacket.port;
-                document.getElementById('field-vlan').textContent = this.currentPacket.vlan;
-                document.getElementById('field-ttl').textContent = this.currentPacket.ttl;
-                document.getElementById('field-switch').textContent = this.currentPacket.switch;
-            }
-            
-            
-            highlightFields(fields) {
-                fields.forEach(fieldName => {
-                    // Highlight large packet field
-                    const field = document.querySelector(`.field[data-field="${fieldName}"]`);
-                    if (field) field.classList.add('highlight');
-                    
-                    // Highlight mini packet field
-                    const miniField = document.querySelector(`.mini-packet-field.${fieldName}`);
-                    if (miniField) miniField.classList.add('highlight');
-                });
-            }
-            
-            unhighlightFields() {
-                document.querySelectorAll('.field.highlight').forEach(field => {
-                    field.classList.remove('highlight');
-                });
-                document.querySelectorAll('.mini-packet-field.highlight').forEach(field => {
-                    field.classList.remove('highlight');
-                });
-            }
-            
-            animate(timestamp) {
-                if (!this.initialized) return;
-                
-                const elapsed = timestamp - this.animationStartTime;
-                
-                switch (this.animationState) {
-                    case 'idle':
-                        this.generatePacket();
-                        this.animationState = 'arrival';
-                        this.animationStartTime = timestamp;
-                        break;
-                        
-                    case 'arrival':
-                        if (elapsed < 500) {
-                            const opacity = elapsed / 500;
-                            this.miniPacket.style.opacity = opacity;
-                            this.largePacket.style.opacity = opacity;
-                            
-                            if (elapsed <= 16) { // First frame
-                                const startSwitch = this.switches.find(s => s.id === this.path[0]);
-                                this.miniPacket.style.left = startSwitch.x + 'px';
-                                this.miniPacket.style.top = startSwitch.y + 'px';
-                                this.updatePacketDisplay();
-                            }
-                        } else {
-                            this.miniPacket.style.opacity = 1;
-                            this.largePacket.style.opacity = 1;
-                            this.animationState = 'movement';
-                            this.animationStartTime = timestamp;
-                        }
-                        break;
-                        
-                    case 'movement':
-                        if (this.currentHopIndex < this.path.length - 1) {
-                            if (elapsed < 1500) {
-                                const progress = elapsed / 1500;
-                                const currentSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex]);
-                                const nextSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex + 1]);
-                                
-                                const x = currentSwitch.x + (nextSwitch.x - currentSwitch.x) * progress;
-                                const y = currentSwitch.y + (nextSwitch.y - currentSwitch.y) * progress;
-                                
-                                this.miniPacket.style.left = x + 'px';
-                                this.miniPacket.style.top = y + 'px';
-                            } else {
-                                this.currentHopIndex++;
-                                this.animationState = 'pause';
-                                this.animationStartTime = timestamp;
-                            }
-                        } else {
-                            this.animationState = 'departure';
-                            this.animationStartTime = timestamp;
-                        }
-                        break;
-                        
-                    case 'pause':
-                        if (elapsed < 200) {
-                            // Just wait
-                        } else if (elapsed < 400) {
-                            // Highlight fields that will change
-                            if (elapsed >= 200 && !this.highlightApplied) {
-                                const fieldsToHighlight = ['switch', 'ttl'];
-                                this.vlanWillChange = Math.random() < 0.3;
-                                if (this.vlanWillChange) fieldsToHighlight.push('vlan');
-                                this.highlightFields(fieldsToHighlight);
-                                this.highlightApplied = true;
-                            }
-                        } else if (elapsed >= 400 && !this.valuesUpdated) {
-                            // Update values
-                            this.currentPacket.switch = this.path[this.currentHopIndex];
-                            this.currentPacket.ttl--;
-                            if (this.vlanWillChange) {
-                                this.currentPacket.vlan = Math.floor(Math.random() * 4096);
-                            }
-                            this.updatePacketDisplay();
-                            this.valuesUpdated = true;
-                        } else if (elapsed < 600) {
-                            // Keep highlights
-                        } else if (elapsed >= 600 && !this.highlightRemoved) {
-                            // Remove highlights
-                            this.unhighlightFields();
-                            this.highlightRemoved = true;
-                        } else if (elapsed >= 800) {
-                            // Reset flags and move to next state
-                            this.highlightApplied = false;
-                            this.valuesUpdated = false;
-                            this.highlightRemoved = false;
-                            this.animationState = 'movement';
-                            this.animationStartTime = timestamp;
-                        }
-                        break;
-                        
-                    case 'departure':
-                        if (elapsed < 500) {
-                            const opacity = 1 - (elapsed / 500);
-                            this.miniPacket.style.opacity = opacity;
-                            this.largePacket.style.opacity = opacity;
-                        } else {
-                            this.miniPacket.style.opacity = 0;
-                            this.largePacket.style.opacity = 0;
-                            this.animationState = 'idle';
-                            this.animationStartTime = timestamp;
-                        }
-                        break;
-                }
-                
-                requestAnimationFrame(this.animate.bind(this));
-            }
-            
-            startAnimation() {
-                requestAnimationFrame(this.animate.bind(this));
-            }
-        }
-        
-        // Initialize packet animation when slide is shown
-        const packetAnimation = new PacketAnimation();
-        
-        Reveal.on('slidechanged', event => {
-            if (event.currentSlide.querySelector('.packet-animation')) {
-                packetAnimation.init();
-            }
-        });
-        
-        // Also initialize if we start on the animation slide
-        if (document.querySelector('.present .packet-animation')) {
-            packetAnimation.init();
-        }
-        
-    </script>
+    <script src="slides.js"></script>    
 </body>
 </html>
