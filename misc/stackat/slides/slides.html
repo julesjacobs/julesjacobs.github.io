@@ -1224,11 +1224,21 @@
 
             <section data-transition="fade">
                 <h2>Performance</h2>
-
-                <img src="graph.png" style="max-width: 100%; height: auto;">
+                <img src="graph.png" style="width: 100%; height: auto;">
                 
-                <p style="text-align: center; margin-top: 40px;">Naive enumeration of all header states</p>
-                <p style="text-align: center; margin-top: 40px;">Future work: symbolic algorithm</p>
+                <div style="margin: 10px auto; max-width: 800px; font-size: 0.8em;">
+                    <div style="margin-top: 10px; text-align: center;">
+                        <div style="background: #fff3cd; padding: 10px 20px; border-radius: 4px; display: inline-block; margin-bottom: 10px;">
+                            <span style="color: #856404; font-weight: bold;">Challenge:</span>
+                            <span style="color: #856404;">Scaling to large header space enumeration</span>
+                        </div>
+                        
+                        <div style="background: #e8f4f8; padding: 10px 20px; border-radius: 4px; display: inline-block;">
+                            <span style="color: #0c5460; font-weight: bold;">Future Direction:</span>
+                            <span style="color: #0c5460;">Development of symbolic algorithm</span>
+                        </div>
+                    </div>
+                </div>
             </section>
 
             <section data-transition="fade">
@@ -1265,8 +1275,28 @@
             <section data-transition="fade">
                 <h2>Conclusion</h2>
                 
-                <p style="text-align: center; margin-top: 40px; font-weight: bold">StacKAT is a new model for unbounded packet processing with decidable equivalence</p>
-                <p style="text-align: center; margin-top: 40px;">Future work: surface syntax, symbolic algorithm, ideal axiomatization</p>
+                <!-- Main result -->
+                <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 30px; margin: 40px auto; max-width: 800px; text-align: center;">
+                    <p style="font-size: 1.1em; margin: 0; color: #186a3b; font-weight: bold;">
+                        StacKAT is a new model for unbounded packet processing with decidable equivalence
+                    </p>
+                </div>
+
+                <!-- Future work -->
+                <div style="margin-top: 40px;text-align: center;">
+                    <h3 style="font-size: 0.9em; color: #666;">Future Work</h3>
+                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 20px;">
+                        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px 25px;">
+                            <span style="color: #2c3e50;">Surface Syntax</span>
+                        </div>
+                        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px 25px;">
+                            <span style="color: #2c3e50;">Symbolic Algorithm</span>
+                        </div>
+                        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px 25px;">
+                            <span style="color: #2c3e50;">Ideal Axiomatization</span>
+                        </div>
+                    </div>
+                </div>
             </section>
 
         </div>
