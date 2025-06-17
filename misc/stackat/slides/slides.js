@@ -4,6 +4,7 @@ Reveal.initialize({
     controls: true,
     progress: true,
     center: false,
+    slideNumber: true,
     keyboard: true,
     overview: true,
     transition: 'slide',
