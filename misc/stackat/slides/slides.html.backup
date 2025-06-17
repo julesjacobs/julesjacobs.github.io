@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StacKAT: Infinite-State Network Verification - PLDI 2025</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/theme/white.min.css" id="theme">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/monokai.min.css">
+    
+    <link rel="stylesheet" href="slides.css"></head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+            <!-- Slide 1: Title slide introducing StacKAT -->
+            <section class="title-slide" data-transition="fade">
+                <h1 style="font-size: 2.2em; margin-bottom: 0.2em;">StacKAT: Infinite-State Network Verification</h1>
+                <h4 style="font-size: 1em; margin-bottom: 0.3em;">PLDI 2025</h4>
+                <!-- <h4 style="font-size: 0.8em; margin-bottom: 0.4em;"><a href="https://doi.org/10.1145/3729257">https://doi.org/10.1145/3729257</a></h4> -->
+                <p class="authors" style="font-size: 0.8em; line-height: 1.4; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <span>
+                        Jules Jacobs (Cornell)<br>
+                        Nate Foster (Cornell)<br>
+                        Tobias Kappé (Leiden)<br>
+                        Dexter Kozen (Cornell)
+                    </span>
+                    <span>
+                        Lily Saada (Cornell)<br>
+                        Alexandra Silva (Cornell)<br>
+                        Jana Wagemaker (Radboud)
+                    </span>
+                </p>
+            </section>
+
+            <!-- Slide 2: Packet processing animation showing how packets traverse networks and get modified -->
+            <section data-transition="fade">
+                <h2>Packet Processing</h2>
+                
+                <div class="packet-animation">
+                    <div id="network-viz">
+                        <svg id="network-svg" width="850" height="350"></svg>
+                        <div id="mini-packet" class="mini-packet">
+                            <div class="mini-packet-field switch"></div>
+                            <div class="mini-packet-field src"></div>
+                            <div class="mini-packet-field dst"></div>
+                            <div class="mini-packet-field port"></div>
+                            <div class="mini-packet-field vlan"></div>
+                            <div class="mini-packet-field ttl"></div>
+                        </div>
+                    </div>
+                    <div id="large-packet" class="large-packet">
+                        <div class="packet-fields">
+                            <div class="field switch" data-field="switch">
+                                <div class="field-name">SWITCH</div>
+                                <div class="field-value" id="field-switch">-</div>
+                            </div>
+                            <div class="field src" data-field="src">
+                                <div class="field-name">SRC</div>
+                                <div class="field-value" id="field-src">-</div>
+                            </div>
+                            <div class="field dst" data-field="dst">
+                                <div class="field-name">DST</div>
+                                <div class="field-value" id="field-dst">-</div>
+                            </div>
+                            <div class="field port" data-field="port">
+                                <div class="field-name">PORT</div>
+                                <div class="field-value" id="field-port">-</div>
+                            </div>
+                            <div class="field vlan" data-field="vlan">
+                                <div class="field-name">VLAN</div>
+                                <div class="field-value" id="field-vlan">-</div>
+                            </div>
+                            <div class="field ttl" data-field="ttl">
+                                <div class="field-name">TTL</div>
+                                <div class="field-value" id="field-ttl">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+  
+            </section>
+<!-- 
+            <div class="fragment">
+                <h3>NetKAT Network Verification</h3>
+                Idea: model packet processing as imperative program
+                Packet field = local variable
+                Match rule = if statement
+                Action = update local variable
+                Multi-hop = loops
+                [illustrate with a big packet, program that updates it, and the subsequent big packet]
+            </div>
+            
+            <div class="fragment">
+                <h3>NetKAT Limitation</h3>
+                <p class="highlight-red">Fixed number of fields with fixed number of bits</p>
+            </div> -->
+
+            <!-- Slide 3: NetKAT Network Verification -->
+            <section data-transition="fade">
+                <h2>NetKAT: Network Verification</h2>
+                
+                <div style="display: flex; gap: 40px; margin-top: 20px; align-items: flex-start;">
+                    <!-- Left column: Pipeline -->
+                    <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                        <!-- Input packet at top -->
+                        <div style="width: 450px; margin-bottom: 8px;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 3px;">Input Packet:</div>
+                            <div style="transform: scale(0.55); transform-origin: left top; width: 750px; height: 44px;">
+                                <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <div class="packet-fields" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                                        <div class="field switch" style="background: #34495e; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">SWITCH</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">S1</div>
+                                        </div>
+                                        <div class="field src" style="background: #3498db; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">SRC</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">10.0.0.1</div>
+                                        </div>
+                                        <div class="field dst" style="background: #e74c3c; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">DST</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">10.0.0.101</div>
+                                        </div>
+                                        <div class="field port" style="background: #f39c12; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">PORT</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">80</div>
+                                        </div>
+                                        <div class="field vlan" style="background: #27ae60; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">VLAN</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">100</div>
+                                        </div>
+                                        <div class="field ttl" style="background: #9b59b6; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">TTL</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">64</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow down -->
+                        <div style="margin: 2px 0;">
+                            <svg width="30" height="24" viewBox="0 0 40 40">
+                                <path d="M20 5 L20 25 M12 17 L20 25 L28 17" stroke="#2c3e50" stroke-width="5" fill="none"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Program in middle -->
+                        <div style="width: 450px; margin-bottom: 8px;">
+                            <div style="font-size: 0.7em; margin-bottom: 3px; font-weight: bold;">Processing Program:</div>
+                            <pre style="margin: 0;"><code class="language-javascript" style="font-size: 0.6em; line-height: 1.3; padding: 8px; border-radius: 6px; width: 400px;">while(ttl > 0) {
+  if (dst == 10.0.0.101) {
+    vlan = 200
+    ttl = ttl - 1
+    switch = S4
+  }
+  ...
+}</code></pre>
+                        </div>
+                        
+                        <!-- Arrow down -->
+                        <div style="margin: 2px 0;">
+                            <svg width="30" height="24" viewBox="0 0 40 40">
+                                <path d="M20 5 L20 25 M12 17 L20 25 L28 17" stroke="#2c3e50" stroke-width="5" fill="none"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Output packet at bottom -->
+                        <div style="width: 450px;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 3px;">Output Packet:</div>
+                            <div style="transform: scale(0.55); transform-origin: left top; width: 750px; height: 44px;">
+                                <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                    <div class="packet-fields" style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                                        <div class="field switch" style="background: #34495e; color: white; padding: 8px; border-radius: 4px; text-align: center; box-shadow: 0 0 0 3px #f39c12;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">SWITCH</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">S4</div>
+                                        </div>
+                                        <div class="field src" style="background: #3498db; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">SRC</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">10.0.0.1</div>
+                                        </div>
+                                        <div class="field dst" style="background: #e74c3c; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">DST</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">10.0.0.101</div>
+                                        </div>
+                                        <div class="field port" style="background: #f39c12; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">PORT</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">80</div>
+                                        </div>
+                                        <div class="field vlan" style="background: #27ae60; color: white; padding: 8px; border-radius: 4px; text-align: center; box-shadow: 0 0 0 3px #f39c12;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">VLAN</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">200</div>
+                                        </div>
+                                        <div class="field ttl" style="background: #9b59b6; color: white; padding: 8px; border-radius: 4px; text-align: center; box-shadow: 0 0 0 3px #f39c12;">
+                                            <div class="field-name" style="font-size: 11px; color: rgba(255, 255, 255, 0.8); margin-bottom: 3px;">TTL</div>
+                                            <div class="field-value" style="font-size: 14px; font-weight: bold; color: white;">63</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right column: Key ideas -->
+                    <div style="flex: 1; padding-top: 40px;">
+                        <div style="background: #ecf0f1; padding: 15px; border-radius: 8px; margin-bottom: 15px; text-align: center;">
+                            <h3 style="font-size: 0.9em; margin: 0 0 8px 0; color: #2c3e50;">Key Insight</h3>
+                            <p style="font-size: 0.6em; margin: 0; font-weight: bold;">Network behavior = Program execution</p>
+                        </div>
+                        
+                        <div style="font-size: 0.7em; line-height: 1.5;">
+                            <ul style="margin: 0; padding-left: 18px;">
+                                <li style="margin-bottom: 8px;">Packet field = <strong>local variable</strong></li>
+                                <li style="margin-bottom: 8px;">Match rule = <strong>if statement</strong></li>
+                                <li style="margin-bottom: 8px;">Action = <strong>variable update</strong></li>
+                                <li style="margin-bottom: 8px;">Multi-hop = <strong>loops</strong></li>
+                                <li style="margin-bottom: 8px;">Verification = <strong>program equivalence</strong></li>
+                            </ul>
+                        </div>
+                        
+                        <div style="margin-top: 25px; padding: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px;">
+                            <p style="font-size: 0.65em; margin: 0; color: #856404;">
+                                <strong>NetKAT:</strong> Kleene algebra with tests for network verification
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 4: NetKAT Limitation -->
+            <section data-transition="fade">
+                <h2>NetKAT Limitations</h2>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; margin-top: 30px;">
+                    <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 30px; margin-bottom: 30px; max-width: 700px;">
+                        <p style="font-size: 1.3em; color: #e74c3c; font-weight: bold; text-align: center; margin: 0;">
+                            Fixed number of fields with fixed number of bits
+                        </p>
+                    </div>
+                    
+                    <div style="font-size: 0.7em; line-height: 1.6; display: flex; justify-content: space-between; min-width: fit-content; white-space: nowrap; width: 800px; margin: 0 auto;">
+                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
+                            <li style="margin-bottom: 12px;">❌ No variable-length data</li>
+                            <li style="margin-bottom: 12px;">❌ Doesn't model packet parsing&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                            <li style="margin-bottom: 12px;">❌ Cannot handle tunneling</li>
+                        </ul>
+                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
+                            <li style="margin-bottom: 12px;">❌ Cannot handle SR / MPLS </li>
+                            <li style="margin-bottom: 12px;">❌ Cannot model unbounded state</li>
+                            <li style="margin-bottom: 12px;">❌ Limited to finite-state verification</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 35px; font-style: italic; color: #7f8c8d; font-size: 0.95em;">
+                        We need to model infinite state.
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- The next slide will introduce StacKAT.
+             It will have a blurb and a packet where the payload is also included (at the end of the packet, and clearly labeled "payload" and 0111010110010...) 
+             Also add the negation of the previous limitations, showing that StacKAT can handle all of them -->
+
+            <!-- Slide 5: Introducing StacKAT -->
+            <section data-transition="fade">
+                <h2>StacKAT: Infinite State Verification</h2>
+                <div style="height: 10px;"></div>
+                
+                <div style="display: flex; flex-direction: column; align-items: center; margin-top: 20px;">
+                    <!-- Extended packet visualization -->
+                    <div style="width: 900px; margin-bottom: 25px;">
+                        <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 3px;">Packet with Variable-Length Payload:</div>
+                        <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <!-- Fixed header fields -->
+                                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; flex-shrink: 0;">
+                                    <div class="field switch" style="background: #34495e; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">SWITCH</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">S1</div>
+                                    </div>
+                                    <div class="field src" style="background: #3498db; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">SRC</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">10.0.0.1</div>
+                                    </div>
+                                    <div class="field dst" style="background: #e74c3c; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">DST</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">10.0.0.101</div>
+                                    </div>
+                                    <div class="field port" style="background: #f39c12; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">PORT</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">80</div>
+                                    </div>
+                                    <div class="field vlan" style="background: #27ae60; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">VLAN</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">100</div>
+                                    </div>
+                                    <div class="field ttl" style="background: #9b59b6; color: white; padding: 8px; border-radius: 4px; text-align: center;">
+                                        <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">TTL</div>
+                                        <div class="field-value" style="font-size: 12px; font-weight: bold; color: white;">64</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Variable-length payload -->
+                                <div style="flex: 1; background: #95a5a6; color: white; padding: 8px 15px; border-radius: 4px; text-align: center; position: relative;">
+                                    <div class="field-name" style="font-size: 9px; color: rgba(255, 255, 255, 0.8); margin-bottom: 2px;">PAYLOAD</div>
+                                    <div style="font-size: 11px; font-family: monospace; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis;">
+                                        0111010110010110101001...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="height: 10px;"></div>
+                    
+                    <!-- Introduction blurb -->
+                    <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 25px; max-width: 700px;">
+                        <p style="font-size: 0.9em; text-align: center; margin: 0; color: #186a3b;">
+                            <strong>StacKAT</strong> extends NetKAT with a <strong>stack</strong> to handle variable-length payload data
+                        </p>
+                    </div>
+
+                    <div style="height: 10px;"></div>
+                    
+                    <!-- Capabilities list -->
+                    <div style="font-size: 0.7em; line-height: 1.6; display: flex; justify-content: space-between; width: 800px; margin: 0 auto;">
+                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
+                            <li style="margin-bottom: 10px;">✅ Variable-length data</li>
+                            <li style="margin-bottom: 10px;">✅ Models packet parsing</li>
+                            <li style="margin-bottom: 10px;">✅ Handles tunneling</li>
+                        </ul>
+                        <ul style="list-style-type: none; padding: 0; margin: 0; flex: 1;">
+                            <li style="margin-bottom: 10px;">✅ Handles SR / MPLS stacks</li>
+                            <li style="margin-bottom: 10px;">✅ Models unbounded state</li>
+                            <li style="margin-bottom: 10px;">✅ Infinite-state verification</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-top: 25px; font-style: italic; color: #000; font-size: 0.85em;">
+                        Main challenge: <strong>decidable infinite state verification</strong>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 5b: StacKAT Packet Processing Animation -->
+            <section data-transition="fade">
+                <h2>StacKAT: Packet Processing with Payload</h2>
+                
+                <div class="packet-animation-stackat">
+                    <div id="network-viz-stackat">
+                        <svg id="network-svg-stackat" width="850" height="350"></svg>
+                        <div id="mini-packet-stackat" class="mini-packet-stackat">
+                            <div class="mini-packet-field switch"></div>
+                            <div class="mini-packet-field src"></div>
+                            <div class="mini-packet-field dst"></div>
+                            <div class="mini-packet-field port"></div>
+                            <div class="mini-packet-field vlan"></div>
+                            <div class="mini-packet-field ttl"></div>
+                            <div class="mini-packet-field payload"></div>
+                        </div>
+                    </div>
+                    <div id="large-packet-stackat" class="large-packet-stackat">
+                        <div class="packet-fields-stackat">
+                            <div class="field switch" data-field="switch">
+                                <div class="field-name">SWITCH</div>
+                                <div class="field-value" id="field-switch-stackat">-</div>
+                            </div>
+                            <div class="field src" data-field="src">
+                                <div class="field-name">SRC</div>
+                                <div class="field-value" id="field-src-stackat">-</div>
+                            </div>
+                            <div class="field dst" data-field="dst">
+                                <div class="field-name">DST</div>
+                                <div class="field-value" id="field-dst-stackat">-</div>
+                            </div>
+                            <div class="field port" data-field="port">
+                                <div class="field-name">PORT</div>
+                                <div class="field-value" id="field-port-stackat">-</div>
+                            </div>
+                            <div class="field vlan" data-field="vlan">
+                                <div class="field-name">VLAN</div>
+                                <div class="field-value" id="field-vlan-stackat">-</div>
+                            </div>
+                            <div class="field ttl" data-field="ttl">
+                                <div class="field-name">TTL</div>
+                                <div class="field-value" id="field-ttl-stackat">-</div>
+                            </div>
+                            <div class="field payload" data-field="payload">
+                                <div class="field-name">PAYLOAD</div>
+                                <div class="field-value" id="field-payload-stackat" style="font-family: monospace; font-size: 14px; text-align: right;">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </section>
+
+            <!-- Slide 6: StacKAT Language -->
+            <section data-transition="fade">
+                <h2>The StacKAT Language</h2>
+                
+                <div style="margin-top: 30px;">
+                    <!-- Grammar display -->
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px 25px; margin-bottom: 30px;">
+                        <div style="font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 0.7em; line-height: 1.6; text-align: center; font-weight: 600;">
+                            <span style="color: #2c3e50; font-weight: 700;">e</span> ::= 
+                            <span style="color: #2c3e50; font-weight: 600;">e₁ + e₂</span> | 
+                            <span style="color: #2c3e50; font-weight: 600;">e₁ · e₂</span> | 
+                            <span style="color: #2c3e50; font-weight: 600;">e*</span> | 
+                            <span style="color: #2c3e50; font-weight: 600;">f := n</span> | 
+                            <span style="color: #2c3e50; font-weight: 600;">f == n</span> | 
+                            <br><span style="color: #27ae60; font-weight: 700;">push(n)</span> | 
+                            <span style="color: #27ae60; font-weight: 700;">pop(n)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Operation descriptions -->
+                    <div style="display: flex; gap: 30px; margin-top: 20px;">
+                        <!-- NetKAT operations -->
+                        <div style="flex: 1.2;">
+                            <h3 style="font-size: 0.9em; color: #2c3e50; margin-bottom: 15px; text-align: left;">NetKAT Operations</h3>
+                            <table style="font-size: 0.6em; line-height: 1.4; width: 100%;">
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; width: 25%; white-space: nowrap;">0</td>
+                                    <td style="padding: 4px 8px;">Drop packet (fail)</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">1</td>
+                                    <td style="padding: 4px 8px;">Forward packet (skip)</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">e₁ + e₂</td>
+                                    <td style="padding: 4px 8px;">Non-deterministic choice</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">e₁ · e₂</td>
+                                    <td style="padding: 4px 8px;">Sequential composition</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">e*</td>
+                                    <td style="padding: 4px 8px;">Kleene star (iteration)</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">f := n</td>
+                                    <td style="padding: 4px 8px;">Set field f to constant n</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #2c3e50; white-space: nowrap;">f == n</td>
+                                    <td style="padding: 4px 8px;">Test field f equals n</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <!-- StacKAT additions -->
+                        <div style="flex: 1.3;">
+                            <h3 style="font-size: 0.9em; color: #27ae60; margin-bottom: 15px; text-align: left;">StacKAT Extensions</h3>
+                            <table style="font-size: 0.6em; line-height: 1.4; width: 100%; border-collapse: collapse;">
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #27ae60; font-weight: bold; width: 30%; white-space: nowrap; border: none;">push(n)</td>
+                                    <td style="padding: 4px 8px; border: none;">Push constant n onto stack</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 4px 8px; font-family: monospace; color: #27ae60; font-weight: bold; white-space: nowrap; border: none;">pop(n)</td>
+                                    <td style="padding: 4px 8px; border: none;">Pop from stack, test if equals n</td>
+                                </tr>
+                            </table>
+                            
+                            <div style="margin-top: 20px; padding: 15px; background: #e8f8f5; border: 1px solid #27ae60; border-radius: 6px;">
+                                <p style="font-size: 0.7em; margin: 0; color: #186a3b;">
+                                    <strong>Key insight:</strong> Stack operations enable modeling of variable-length data and unbounded state
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 7: StacKAT Semantics -->
+            <section data-transition="fade">
+                <h2>StacKAT Semantics</h2>
+                
+                <div style="margin-top: 30px;">
+                    <!-- Main concept -->
+                    <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                        <p style="font-size: 0.7em; text-align: center; margin: 0; color: #186a3b;">
+                            A StacKAT program defines a <strong>relation</strong> between input and output packets
+                        </p>
+                    </div>
+                    
+                    <!-- Packet structure visualization -->
+                    <div style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 30px;">
+                        <!-- Input packet -->
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Input Packet</div>
+                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
+                                        <div style="display: flex; gap: 4px;">
+                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src</div>
+                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst</div>
+                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port</div>
+                                        </div>
+                                    </div>
+                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
+                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
+                                            [v₁, ..., vₙ]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div style="padding-top: 0.7em;">
+                            <svg width="60" height="40" viewBox="0 -10 60 50">
+                                <path d="M 0 25 L 55 25 M 42 12 L 55 25 L 42 38" stroke="#2c3e50" stroke-width="5" fill="none"/>
+                                <text x="25" y="10" text-anchor="middle" font-size="26" fill="#2c3e50" font-weight="bold">[e]</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Output packet -->
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Output Packet</div>
+                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
+                                        <div style="display: flex; gap: 4px;">
+                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src'</div>
+                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst'</div>
+                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port'</div>
+                                        </div>
+                                    </div>
+                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
+                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
+                                            [w₁, ..., wₘ]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prominent note about relation mapping -->
+                    <div style="text-align: center; margin: 35px auto;">
+                        <p style="font-size: 0.85em; margin: 0 0 15px 0; color: #2c3e50;">
+                            Each input packet is mapped to <span style="color: #e74c3c; font-weight: bold; font-size: 1.1em;">zero or more</span> output packets
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 40px; font-size: 0.7em; color: #666;">
+                            <div>
+                                <span style="font-weight: bold; color: #e74c3c;">0</span> outputs<br>
+                                <span style="font-size: 0.9em;">packet dropped</span>
+                            </div>
+                            <div>
+                                <span style="font-weight: bold; color: #f39c12;">1</span> output<br>
+                                <span style="font-size: 0.9em;">deterministic</span>
+                            </div>
+                            <div>
+                                <span style="font-weight: bold; color: #27ae60;">2+</span> outputs<br>
+                                <span style="font-size: 0.9em;">non-deterministic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Compositional Semantics -->
+            <section data-transition="fade">
+                <h2>Compositional Semantics</h2>
+                
+                <div style="margin-top: 40px;">
+                    <div style="font-size: 0.6em; line-height: 1.8;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Sequencing:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ · e₂⟧ = ⟦e₁⟧ ∘ ⟦e₂⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Relation composition</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Choice:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ + e₂⟧ = ⟦e₁⟧ ∪ ⟦e₂⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Relation union</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Kleene star:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e*⟧ = ⟦e⟧*</td>
+                                <td style="padding: 8px 0; color: #666;">Reflexive transitive closure</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field test:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f == n⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Filter packets where field f equals n</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field update:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f := n⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Set field f to value n</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Push:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦push(n)⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Push constant n onto stack</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Pop:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦pop(n)⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Pop and test equals n</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 9: Stack Operations -->
+            <section data-transition="fade">
+                <h2>Stack Operations</h2>
+                
+                <div style="margin-top: 40px;">
+                    
+                    <!-- Visual examples -->
+                    <div style="display: flex; gap: 40px; justify-content: center;">
+                        <!-- Push example -->
+                        <div style="text-align: center;">
+                            <h3 style="font-size: 0.85em; margin-bottom: 15px; color: #27ae60;">push(3)</h3>
+                            <div style="display: flex; align-items: stretch; gap: 20px; justify-content: center;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">Before</div>
+                                    <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                        <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                            [1, 2]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <div style="font-size: 0.6em; color: transparent; margin-bottom: 5px;">.</div>
+                                    <div style="flex: 1; display: flex; align-items: center;">
+                                        <svg width="40" height="40" viewBox="0 0 40 40" style="margin: 0 -5px;">
+                                            <path d="M 5 20 L 35 20 M 25 10 L 35 20 L 25 30" stroke="#27ae60" stroke-width="4" fill="none"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">After</div>
+                                    <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                        <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                            [3, 1, 2]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pop example -->
+                        <div style="text-align: center;">
+                            <h3 style="font-size: 0.85em; margin-bottom: 15px; color: #27ae60;">pop(3)</h3>
+                            <div style="display: flex; align-items: stretch; gap: 20px; justify-content: center;">
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">Before</div>
+                                    <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                        <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                            [3, 1, 2]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column;">
+                                    <div style="font-size: 0.6em; color: transparent; margin-bottom: 5px;">.</div>
+                                    <div style="flex: 1; display: flex; align-items: center;">
+                                        <svg width="40" height="40" viewBox="0 0 40 40" style="margin: 0 -5px;">
+                                            <path d="M 5 20 L 35 20 M 25 10 L 35 20 L 25 30" stroke="#27ae60" stroke-width="4" fill="none"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">After</div>
+                                    <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                        <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                            [1, 2]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.6em; color: #27ae60; margin-top: 8px;">✓ Test passed</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Failed pop examples -->
+                    <div style="margin-top: 30px;">
+                        <div style="display: flex; gap: 40px; justify-content: center;">
+                            <!-- pop(5) with non-empty stack -->
+                            <div style="text-align: center;">
+                                <h3 style="font-size: 0.85em; margin-bottom: 15px; color: #e74c3c;">pop(5) - Test fails</h3>
+                                <div style="display: flex; align-items: stretch; gap: 20px; justify-content: center;">
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">Before</div>
+                                        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                            <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                                [3, 1, 2]
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="font-size: 0.6em; color: transparent; margin-bottom: 5px;">.</div>
+                                        <div style="flex: 1; display: flex; align-items: center;">
+                                            <svg width="40" height="40" viewBox="0 0 40 40" style="margin: 0 -5px;">
+                                                <path d="M 5 20 L 35 20 M 25 10 L 35 20 L 25 30" stroke="#e74c3c" stroke-width="4" fill="none"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">After</div>
+                                        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                            <div style="padding: 8px 12px; font-size: 0.7em; color: #e74c3c; text-align: center;">
+                                                ∅
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.6em; color: #e74c3c; margin-top: 8px;">✗ Top was 3, not 5 → packet dropped</div>
+                            </div>
+                            
+                            <!-- pop(3) with empty stack -->
+                            <div style="text-align: center;">
+                                <h3 style="font-size: 0.85em; margin-bottom: 15px; color: #e74c3c;">pop(3) - Empty stack</h3>
+                                <div style="display: flex; align-items: stretch; gap: 20px; justify-content: center;">
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">Before</div>
+                                        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                            <div style="background: #95a5a6; color: white; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 0.7em; text-align: center;">
+                                                [ ]
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column;">
+                                        <div style="font-size: 0.6em; color: transparent; margin-bottom: 5px;">.</div>
+                                        <div style="flex: 1; display: flex; align-items: center;">
+                                            <svg width="40" height="40" viewBox="0 0 40 40" style="margin: 0 -5px;">
+                                                <path d="M 5 20 L 35 20 M 25 10 L 35 20 L 25 30" stroke="#e74c3c" stroke-width="4" fill="none"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <div style="display: flex; flex-direction: column; align-items: center;">
+                                        <div style="font-size: 0.6em; color: #666; margin-bottom: 5px;">After</div>
+                                        <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 6px; padding: 10px;">
+                                            <div style="padding: 8px 12px; font-size: 0.7em; color: #e74c3c; text-align: center;">
+                                                ∅
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 0.6em; color: #e74c3c; margin-top: 8px;">✗ Stack was empty → packet dropped</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+
+            <!-- Slide 10: Key Verification Question -->
+            <section data-transition="fade">
+                <h2>The Key Verification Question</h2>
+                
+                <div style="margin-top: 40px;">
+                    <!-- Main question -->
+                    <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 30px; margin-bottom: 40px; text-align: center;">
+                        <p style="font-size: 1.1em; margin: 0; color: #186a3b;">
+                            Is ⟦e₁⟧ = ⟦e₂⟧ ?
+                        </p>
+                        <p style="font-size: 0.8em; margin: 10px 0 0 0; color: #186a3b;">
+                            Do two programs have the same semantics?
+                        </p>
+                    </div>
+                    
+                    <!-- Comparison -->
+                    <div style="display: flex; gap: 40px; margin-top: 30px;">
+                        <!-- NetKAT -->
+                        <div style="flex: 1; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px;">
+                            <h3 style="font-size: 0.9em; color: #2c3e50; margin-bottom: 15px; text-align: center;">NetKAT</h3>
+                            <ul style="font-size: 0.6em; line-height: 1.6; margin: 0; padding-left: 20px;">
+                                <li style="margin-bottom: 8px;">Finite number of possible packets</li>
+                                <li style="margin-bottom: 8px;">Finite-state automata</li>
+                                <li style="margin-bottom: 8px; color: #27ae60; font-weight: bold;">✓ Decidable (PSPACE-complete)</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- StacKAT -->
+                        <div style="flex: 1; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
+                            <h3 style="font-size: 0.9em; color: #856404; margin-bottom: 15px; text-align: center;">StacKAT</h3>
+                            <ul style="font-size: 0.6em; line-height: 1.6; margin: 0; padding-left: 20px;">
+                                <li style="margin-bottom: 8px;">Unbounded stack size</li>
+                                <li style="margin-bottom: 8px;">Infinite number of possible packets</li>
+                                <li style="margin-bottom: 8px; color: #e74c3c; font-weight: bold;">Decidable or undecidable?</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Surprising result -->
+                    <div style="margin-top: 40px; text-align: center;">
+                        <div style="display: inline-block; background: #e74c3c; color: white; padding: 20px 30px; border-radius: 8px; font-size: 0.9em; font-weight: bold;">
+                            Surprising: It's decidable! (EXPSPACE-complete)
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 11: Examples of StacKAT Equivalences -->
+            <section data-transition="fade">
+                <h2>Basic StacKAT Equivalences</h2>
+                
+                <div style="margin-top: 60px;">
+                    <!-- Basic push-pop cancellation -->
+                    <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 30px;">
+                        <div style="font-family: monospace; font-size: 0.65em; line-height: 2.2;">
+                            <div style="margin-bottom: 20px;">
+                                push(v) · pop(v) ≡ 1 
+                                <span style="color: #666; font-family: sans-serif; font-size: 0.85em; margin-left: 30px;">// push then pop cancels out</span>
+                            </div>
+                            <div style="margin-bottom: 20px;">
+                                push(v) · pop(w) ≡ 0 
+                                <span style="color: #666; font-family: sans-serif; font-size: 0.85em; margin-left: 30px;">// mismatched values drop packet (v ≠ w)</span>
+                            </div>
+                            <div>
+                                pop(v) · push(v) + 1 ≡ 1
+                                <span style="color: #666; font-family: sans-serif; font-size: 0.85em; margin-left: 30px;">// pop-push has no effect when it succeeds</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 40px; text-align: center; font-size: 0.8em; color: #666;">
+                        These rules capture the basic interactions between push and pop operations
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 12: Surprising Equivalence -->
+            <section data-transition="fade">
+                <h2>A Surprising Equivalence</h2>
+                
+                <div style="margin-top: 100px;">
+                    <div style="text-align: center; font-family: monospace; font-size: 0.9em; margin-bottom: 30px;">
+                        push(a)* · pop(a)* &nbsp;≡&nbsp; push(a)* + pop(a)*
+                    </div>
+                    
+                    <div style="margin-top: 100px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px;">
+                        <p style="font-size: 0.8em; color: #856404; margin: 0; text-align: center;">
+                            <strong>Why?</strong> After push-pop cancellation, the net effect is either:<br>
+                            • Only pushes remain (if more pushes than pops)<br>
+                            • Only pops remain (if more pops than pushes)<br>
+                            • Nothing remains (if equal pushes and pops)
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 13: Exercise -->
+            <section data-transition="fade">
+                <h2>Which Programs are Equivalent?</h2>
+                
+                <div style="margin-top: 50px;">
+                    <div style="display: flex; gap: 40px; font-family: monospace; font-size: 0.5em;">
+                        <!-- Left column -->
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                pop(v)* · push(v)*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                (push(v) + pop(v))*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                push(v)* · (pop(v) · pop(v))*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                (pop(v) · pop(v))* · push(v)*
+                            </div>
+                        </div>
+                        
+                        <!-- Right column -->
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 30px;">
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                pop(v)* · (push(v) · push(v))*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                (push(v)* · pop(v))*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                push(v)* + pop(v)*
+                            </div>
+                            
+                            <div style="background: #f8f9fa; border: 2px solid #dee2e6; border-radius: 8px; padding: 20px; text-align: center;">
+                                (push(v) · pop(v))*
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- Slide 14: Demo -->
+            <section data-transition="fade">
+                <h2>Interactive Demo</h2>
+                
+                <div style="margin-top: 20px; height: calc(100vh - 200px);">
+                    <iframe src="stackatv1.html" 
+                            style="width: 100%; height: 100%; border: none; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                            title="StacKAT Interactive Demo">
+                    </iframe>
+                </div>
+                
+                <div style="margin-top: 15px; text-align: center; font-size: 0.7em; color: #666;">
+                    Try entering StacKAT programs to see their automata and test equivalence
+                </div>
+            </section>
+
+            <!-- Slide 20: Verification Algorithm -->
+            <section data-transition="fade">
+                <h2>Verification Algorithm</h2>
+
+                <div style="margin-top: 20px; position: relative; height: 550px;">
+                    <!-- Top row: Program and Initial Automaton -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <!-- StacKAT Program (top left) -->
+                        <div style="background-color: #f0f0f0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 40%;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 1em;">StacKAT Program</h4>
+                            <pre style="margin: 0; font-size: 0.8em;"><code>push(a); b; pop(a)</code></pre>
+                        </div>
+
+                        <!-- Arrow -->
+                        <div style="flex: 1; text-align: center;">
+                            <div style="font-size: 1.5em; color: #666;">→</div>
+                            <div style="font-size: 0.8em; color: #666; margin-top: -5px;">Convert to automaton</div>
+                        </div>
+
+                        <!-- Initial Automaton (top right) -->
+                        <div style="background-color: #e8f4f8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 40%;">
+                            <h4 style="margin: 0 0 10px 0; font-size: 1em;">Automaton</h4>
+                            <img src="tikz-svg/push-pop-star-original.svg" style="max-width: 100%; height: 40px;" alt="Initial automaton">
+                        </div>
+                    </div>
+
+                    <!-- Vertical transformations on the right side -->
+                    <div style="display: flex;">
+                        <!-- Left column for labels -->
+                        <div style="width: 55%; padding-right: 20px;">
+                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2em; color: #666;">↓</div>
+                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Push-pop closure</div>
+                                </div>
+                            </div>
+                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2em; color: #666;">↓</div>
+                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Pop-push filtering</div>
+                                </div>
+                            </div>
+                            <div style="height: 90px; display: flex; align-items: center; justify-content: flex-end;">
+                                <div style="text-align: right;">
+                                    <div style="font-size: 1.2em; color: #666;">↓</div>
+                                    <div style="font-size: 0.85em; color: #666; font-weight: bold;">Zipping</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right column for automata -->
+                        <div style="width: 45%;">
+                            <!-- After push-pop closure -->
+                            <div style="background-color: #f8e8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
+                                <img src="tikz-svg/push-pop-star-closure.svg" style="max-width: 100%; height: 40px;" alt="After push-pop closure">
+                            </div>
+
+                            <!-- After pop-push filtering -->
+                            <div style="background-color: #e8f8e8; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 15px; height: 60px;">
+                                <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 100%; height: 40px;" alt="After pop-push filtering">
+                            </div>
+
+                            <!-- After zipping -->
+                            <div style="background-color: #f0f8f0; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); height: 60px;">
+                                <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 100%; height: 40px;" alt="Normalized automaton">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom text -->
+                    <div style="text-align: center; margin-top: 20px; font-size: 0.9em; color: #333;">
+                        After normalization, check language equivalence: <strong>L(A₁) = L(A₂)</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Step 1: Creating the Automaton</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Convert StacKAT programs to finite automata:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <img src="tikz-svg/pop-push-star-automaton.svg" style="max-width: 60%; height: auto;">
+                </div>
+                
+                <div style="font-size: 0.85em; color: #666;">
+                    <p>Example: Automaton for pop₃*·push₃*</p>
+                    <p style="margin-top: 10px;">(Small-step rules generate finite automata)</p>
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Step 2: Push-Pop Closure</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Add epsilon transitions when push-pop patterns are found:</p>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <img src="tikz-svg/push-pop-closure-rules.svg" style="max-width: 90%; height: auto;">
+                </div>
+                
+                <div style="margin-top: 20px; font-size: 0.85em; color: #666;">
+                    <ul style="text-align: left; display: inline-block;">
+                        <li>Push-ε-Pop → Add ε shortcut</li>
+                        <li>ε-ε chains → Collapse to single ε</li>
+                        <li>Self-loops preserved</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Step 3: Pop-Push Filtering</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Intersect automaton with pop* push* language:</p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <img src="tikz-svg/push-pop-star-intersection.svg" style="max-width: 60%; height: auto;">
+                </div>
+                
+                <div style="font-size: 0.85em; color: #666; text-align: center;">
+                    Result: Separate states for push and pop operations
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Step 4: Zipping the Automaton</h2>
+                <p style="font-size: 0.9em; margin-bottom: 20px;">Form the product automaton where actions combine:</p>
+                
+                <div style="display: flex; justify-content: center; gap: 40px; align-items: center; margin: 20px 0;">
+                    <div style="text-align: center;">
+                        <img src="tikz-svg/zipped-automaton-1.svg" style="max-width: 250px; height: auto;">
+                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">With (pop,push) transitions</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <img src="tikz-svg/zipped-automaton-2.svg" style="max-width: 250px; height: auto;">
+                        <p style="font-size: 0.8em; color: #666; margin-top: 10px;">Simplified version</p>
+                    </div>
+                </div>
+                
+                <div style="font-size: 0.85em; color: #666; text-align: center; margin-top: 20px;">
+                    Pairs like (pop₃,push₃) and (done,push₃) represent synchronized actions
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Aside: Visibly Pushdown Languages</h2>
+                Is this the same as visibly pushdown languages?<br>
+                No! <br>
+                Visibly pushdown languages: restricted stack behavior, separate input tape.<br>
+                StacKAT: no restrictions on stack behavior, no separate input tape.<br>
+                Input = initial stack (input packet)<br>
+                Adding an input tape to StacKAT would make equivalence *undecidable*.
+            </section>
+
+            <section data-transition="fade">
+                <h2>Step 0: Handling Header Fields</h2>
+                Explain that we can run separate checks for every input-output packet pair.
+                Inefficient, but it works. Symbolic method is future work.
+            </section>
+
+            <section data-transition="fade">
+                <h2>Time Complexity</h2>
+                
+                <div style="display: flex; justify-content: center; gap: 100px; margin-top: 60px;">
+                    <!-- Pure Stack Fragment -->
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 400px;">
+                        <div style="font-size: 1em; font-weight: bold; margin-bottom: 15px; color: black; text-align: center;">Pure Stack Fragment</div>
+                        <div style="background: #667eea; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); color: white; text-align: center; width: 100%;">
+                            <div style="font-size: 1.7em; font-weight: 300; letter-spacing: 2px;">PSPACE</div>
+                            <div style="font-size: 1.1em; margin-top: 10px; opacity: 0.9;">complete</div>
+                        </div>
+                    </div>
+                    
+                    <!-- With Header Fields -->
+                    <div style="display: flex; flex-direction: column; align-items: center; width: 400px;">
+                        <div style="font-size: 1em; font-weight: bold; margin-bottom: 15px; color: black; text-align: center;">With Header Fields</div>
+                        <div style="background: #f5576c; padding: 40px 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); color: white; text-align: center; width: 100%;">
+                            <div style="font-size: 1.7em; font-weight: 300; letter-spacing: 2px;">EXPSPACE</div>
+                            <div style="font-size: 1.1em; margin-top: 10px; opacity: 0.9;">complete</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Complete Axiomatization</h2>
+                
+                We want some figure here that explains what a complete axiomatization is.
+                And we want the ideal axioms and the actual axioms we have, with a note that completeness for the ideal axioms is an open problem.
+            </section>
+
+            <section data-transition="fade">
+                <h2>Conclusion</h2>
+                
+                <div style="margin-top: 40px;">
+                    <!-- Content to be added -->
+                    <h3>Future Work: SPEED</h3>
+                    <h3>Future Work: Ideal Axiomatization</h3>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/math/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/highlight/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/notes/notes.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.0.4/plugin/search/search.min.js"></script>
+    <script src="slides.js"></script>    
+    <script>
+        // Initialize Reveal.js
+        Reveal.initialize({
+            hash: true,
+            controls: true,
+            progress: true,
+            center: false,
+            keyboard: true,
+            overview: true,
+            transition: 'slide',
+            transitionSpeed: 'default',
+            
+            math: {
+                mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js',
+                config: 'TeX-AMS_CHTML',
+                tex: {
+                    inlineMath: [['$', '$'], ['\\(', '\\)']],
+                    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                    processEscapes: true,
+                    processEnvironments: true
+                }
+            },
+            
+            plugins: [ RevealMath, RevealHighlight, RevealNotes, RevealSearch ]
+        });
+        
+        // Lazy load iframe
+        Reveal.on('slidechanged', event => {
+            const iframe = event.currentSlide.querySelector('iframe[data-src]');
+            if (iframe && !iframe.src) {
+                iframe.src = iframe.getAttribute('data-src');
+            }
+        });
+        
+        // Packet Animation
+        class PacketAnimation {
+            constructor() {
+                this.switches = [
+                    // Left edge switches (sources) - green rectangles
+                    { id: 'H1', x: 125, y: 70, color: '#27ae60', hosts: ['10.0.0.1', '10.0.0.2'], edge: 'left' },
+                    { id: 'H2', x: 125, y: 175, color: '#27ae60', hosts: ['10.0.0.3', '10.0.0.4'], edge: 'left' },
+                    { id: 'H3', x: 125, y: 280, color: '#27ae60', hosts: ['10.0.0.5'], edge: 'left' },
+                    
+                    // Core switches - blue circles
+                    { id: 'S1', x: 275, y: 100, color: '#3498db', hosts: [] },
+                    { id: 'S2', x: 275, y: 250, color: '#3498db', hosts: [] },
+                    { id: 'S3', x: 425, y: 70, color: '#3498db', hosts: [] },
+                    { id: 'S4', x: 425, y: 175, color: '#3498db', hosts: [] },
+                    { id: 'S5', x: 425, y: 280, color: '#3498db', hosts: [] },
+                    { id: 'S6', x: 575, y: 100, color: '#3498db', hosts: [] },
+                    { id: 'S7', x: 575, y: 250, color: '#3498db', hosts: [] },
+                    
+                    // Right edge switches (destinations) - green rectangles
+                    { id: 'H4', x: 725, y: 70, color: '#27ae60', hosts: ['10.0.0.101', '10.0.0.102'], edge: 'right' },
+                    { id: 'H5', x: 725, y: 175, color: '#27ae60', hosts: ['10.0.0.103', '10.0.0.104'], edge: 'right' },
+                    { id: 'H6', x: 725, y: 280, color: '#27ae60', hosts: ['10.0.0.105'], edge: 'right' }
+                ];
+                
+                this.links = [
+                    // Left edge to first core layer
+                    ['H1', 'S1'], ['H2', 'S1'], ['H2', 'S2'], ['H3', 'S2'],
+                    
+                    // First core to middle core
+                    ['S1', 'S3'], ['S1', 'S4'], ['S2', 'S4'], ['S2', 'S5'],
+                    
+                    // Middle core interconnects
+                    ['S3', 'S4'], ['S4', 'S5'],
+                    
+                    // Middle core to last core
+                    ['S3', 'S6'], ['S4', 'S6'], ['S4', 'S7'], ['S5', 'S7'],
+                    
+                    // Last core to right edge
+                    ['S6', 'H4'], ['S6', 'H5'], ['S7', 'H5'], ['S7', 'H6']
+                ];
+                
+                this.currentPacket = null;
+                this.animationState = 'idle';
+                this.animationStartTime = 0;
+                this.currentHopIndex = 0;
+                this.path = [];
+                
+                this.miniPacket = null;
+                this.largePacket = null;
+                this.svg = null;
+                
+                this.initialized = false;
+                
+                // Animation state flags
+                this.highlightApplied = false;
+                this.valuesUpdated = false;
+                this.highlightRemoved = false;
+                this.vlanWillChange = false;
+            }
+            
+            init() {
+                if (this.initialized) return;
+                this.initialized = true;
+                
+                this.svg = document.getElementById('network-svg');
+                this.miniPacket = document.getElementById('mini-packet');
+                this.largePacket = document.getElementById('large-packet');
+                
+                if (!this.svg || !this.miniPacket || !this.largePacket) {
+                    console.warn('Packet animation elements not found');
+                    return;
+                }
+                
+                this.drawNetwork();
+                this.startAnimation();
+            }
+            
+            drawNetwork() {
+                // Clear SVG and network-viz children (except svg and packets)
+                this.svg.innerHTML = '';
+                const networkViz = document.getElementById('network-viz');
+                const elementsToRemove = networkViz.querySelectorAll('.network-switch, .network-host');
+                elementsToRemove.forEach(el => el.remove());
+                
+                // Draw links
+                this.links.forEach(link => {
+                    const source = this.switches.find(s => s.id === link[0]);
+                    const target = this.switches.find(s => s.id === link[1]);
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${source.x} ${source.y} L ${target.x} ${target.y}`);
+                    path.setAttribute('class', 'link');
+                    this.svg.appendChild(path);
+                });
+                
+                // Draw switches and hosts
+                this.switches.forEach(sw => {
+                    const container = document.createElement('div');
+                    container.className = sw.edge ? 'network-host' : 'network-switch';
+                    container.style.left = sw.x + 'px';
+                    container.style.top = sw.y + 'px';
+                    
+                    // Create SVG element
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '70');
+                    svg.setAttribute('height', '70');
+                    svg.setAttribute('viewBox', '0 0 70 70');
+                    
+                    if (sw.edge) {
+                        // Draw host (computer) icon
+                        // Monitor screen
+                        const monitor = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        monitor.setAttribute('x', '10');
+                        monitor.setAttribute('y', '15');
+                        monitor.setAttribute('width', '50');
+                        monitor.setAttribute('height', '35');
+                        monitor.setAttribute('rx', '2');
+                        monitor.setAttribute('fill', '#27ae60');
+                        monitor.setAttribute('stroke', '#229954');
+                        monitor.setAttribute('stroke-width', '2');
+                        
+                        // Monitor screen inner
+                        const screen = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        screen.setAttribute('x', '15');
+                        screen.setAttribute('y', '20');
+                        screen.setAttribute('width', '40');
+                        screen.setAttribute('height', '25');
+                        screen.setAttribute('fill', '#229954');
+                        
+                        // Monitor stand
+                        const stand = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        stand.setAttribute('d', 'M 30 50 L 40 50 L 38 55 L 32 55 Z');
+                        stand.setAttribute('fill', '#27ae60');
+                        stand.setAttribute('stroke', '#229954');
+                        stand.setAttribute('stroke-width', '1');
+                        
+                        // Monitor base
+                        const base = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        base.setAttribute('x', '25');
+                        base.setAttribute('y', '55');
+                        base.setAttribute('width', '20');
+                        base.setAttribute('height', '3');
+                        base.setAttribute('rx', '1');
+                        base.setAttribute('fill', '#229954');
+                        
+                        svg.appendChild(monitor);
+                        svg.appendChild(screen);
+                        svg.appendChild(stand);
+                        svg.appendChild(base);
+                        
+                        // Add host name as text on screen
+                        const hostText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        hostText.setAttribute('x', '35');
+                        hostText.setAttribute('y', '35');
+                        hostText.setAttribute('text-anchor', 'middle');
+                        hostText.setAttribute('font-size', '12');
+                        hostText.setAttribute('font-family', 'monospace');
+                        hostText.setAttribute('font-weight', 'bold');
+                        hostText.setAttribute('fill', '#ffffff');
+                        hostText.textContent = sw.id;
+                        svg.appendChild(hostText);
+                    } else {
+                        // Draw switch as simple blue circle
+                        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        bgCircle.setAttribute('cx', '35');
+                        bgCircle.setAttribute('cy', '35');
+                        bgCircle.setAttribute('r', '22');
+                        bgCircle.setAttribute('fill', '#3498db');
+                        bgCircle.setAttribute('stroke', '#2980b9');
+                        bgCircle.setAttribute('stroke-width', '2');
+                        svg.appendChild(bgCircle);
+                        
+                        // Switch name
+                        const switchText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        switchText.setAttribute('x', '35');
+                        switchText.setAttribute('y', '40');
+                        switchText.setAttribute('text-anchor', 'middle');
+                        switchText.setAttribute('font-size', '14');
+                        switchText.setAttribute('font-family', 'Arial, sans-serif');
+                        switchText.setAttribute('font-weight', 'bold');
+                        switchText.setAttribute('fill', '#ffffff');
+                        switchText.textContent = sw.id;
+                        svg.appendChild(switchText);
+                    }
+                    
+                    container.appendChild(svg);
+                    
+                    networkViz.appendChild(container);
+                });
+            }
+            
+            generatePacket() {
+                const leftHosts = this.switches.filter(s => s.edge === 'left').flatMap(s => s.hosts);
+                const rightHosts = this.switches.filter(s => s.edge === 'right').flatMap(s => s.hosts);
+                
+                const src = leftHosts[Math.floor(Math.random() * leftHosts.length)];
+                const dst = rightHosts[Math.floor(Math.random() * rightHosts.length)];
+                
+                const srcSwitch = this.switches.find(s => s.hosts.includes(src));
+                const dstSwitch = this.switches.find(s => s.hosts.includes(dst));
+                
+                this.currentPacket = {
+                    src: src,
+                    dst: dst,
+                    port: Math.floor(Math.random() * 65536),
+                    vlan: Math.floor(Math.random() * 4096),
+                    ttl: 64,
+                    switch: srcSwitch.id
+                };
+                
+                // Calculate path (simplified - in real implementation would use Dijkstra)
+                this.path = this.calculatePath(srcSwitch.id, dstSwitch.id);
+                this.currentHopIndex = 0;
+            }
+            
+            calculatePath(srcId, dstId) {
+                // Simplified path calculation
+                // In a real implementation, this would use a proper pathfinding algorithm
+                const paths = {
+                    'H1-H4': ['H1', 'S1', 'S3', 'S6', 'H4'],
+                    'H1-H5': ['H1', 'S1', 'S4', 'S6', 'H5'],
+                    'H1-H6': ['H1', 'S1', 'S4', 'S7', 'H6'],
+                    'H2-H4': ['H2', 'S1', 'S3', 'S6', 'H4'],
+                    'H2-H5': ['H2', 'S2', 'S4', 'S7', 'H5'],
+                    'H2-H6': ['H2', 'S2', 'S5', 'S7', 'H6'],
+                    'H3-H4': ['H3', 'S2', 'S4', 'S6', 'H4'],
+                    'H3-H5': ['H3', 'S2', 'S4', 'S6', 'H5'],
+                    'H3-H6': ['H3', 'S2', 'S5', 'S7', 'H6']
+                };
+                
+                const key = `${srcId}-${dstId}`;
+                return paths[key] || [srcId, 'S1', 'S3', 'S6', dstId];
+            }
+            
+            updatePacketDisplay() {
+                document.getElementById('field-src').textContent = this.currentPacket.src;
+                document.getElementById('field-dst').textContent = this.currentPacket.dst;
+                document.getElementById('field-port').textContent = this.currentPacket.port;
+                document.getElementById('field-vlan').textContent = this.currentPacket.vlan;
+                document.getElementById('field-ttl').textContent = this.currentPacket.ttl;
+                document.getElementById('field-switch').textContent = this.currentPacket.switch;
+            }
+            
+            
+            highlightFields(fields) {
+                fields.forEach(fieldName => {
+                    // Highlight large packet field
+                    const field = document.querySelector(`.field[data-field="${fieldName}"]`);
+                    if (field) field.classList.add('highlight');
+                    
+                    // Highlight mini packet field
+                    const miniField = document.querySelector(`.mini-packet-field.${fieldName}`);
+                    if (miniField) miniField.classList.add('highlight');
+                });
+            }
+            
+            unhighlightFields() {
+                document.querySelectorAll('.field.highlight').forEach(field => {
+                    field.classList.remove('highlight');
+                });
+                document.querySelectorAll('.mini-packet-field.highlight').forEach(field => {
+                    field.classList.remove('highlight');
+                });
+            }
+            
+            animate(timestamp) {
+                if (!this.initialized) return;
+                
+                const elapsed = timestamp - this.animationStartTime;
+                
+                switch (this.animationState) {
+                    case 'idle':
+                        this.generatePacket();
+                        this.animationState = 'arrival';
+                        this.animationStartTime = timestamp;
+                        break;
+                        
+                    case 'arrival':
+                        if (elapsed < 500) {
+                            const opacity = elapsed / 500;
+                            this.miniPacket.style.opacity = opacity;
+                            this.largePacket.style.opacity = opacity;
+                            
+                            if (elapsed <= 16) { // First frame
+                                const startSwitch = this.switches.find(s => s.id === this.path[0]);
+                                this.miniPacket.style.left = startSwitch.x + 'px';
+                                this.miniPacket.style.top = startSwitch.y + 'px';
+                                this.updatePacketDisplay();
+                            }
+                        } else {
+                            this.miniPacket.style.opacity = 1;
+                            this.largePacket.style.opacity = 1;
+                            this.animationState = 'movement';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'movement':
+                        if (this.currentHopIndex < this.path.length - 1) {
+                            if (elapsed < 1500) {
+                                const progress = elapsed / 1500;
+                                const currentSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex]);
+                                const nextSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex + 1]);
+                                
+                                const x = currentSwitch.x + (nextSwitch.x - currentSwitch.x) * progress;
+                                const y = currentSwitch.y + (nextSwitch.y - currentSwitch.y) * progress;
+                                
+                                this.miniPacket.style.left = x + 'px';
+                                this.miniPacket.style.top = y + 'px';
+                            } else {
+                                this.currentHopIndex++;
+                                this.animationState = 'pause';
+                                this.animationStartTime = timestamp;
+                            }
+                        } else {
+                            this.animationState = 'departure';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'pause':
+                        if (elapsed < 200) {
+                            // Just wait
+                        } else if (elapsed < 400) {
+                            // Highlight fields that will change
+                            if (elapsed >= 200 && !this.highlightApplied) {
+                                const fieldsToHighlight = ['switch', 'ttl'];
+                                this.vlanWillChange = Math.random() < 0.3;
+                                if (this.vlanWillChange) fieldsToHighlight.push('vlan');
+                                this.highlightFields(fieldsToHighlight);
+                                this.highlightApplied = true;
+                            }
+                        } else if (elapsed >= 400 && !this.valuesUpdated) {
+                            // Update values
+                            this.currentPacket.switch = this.path[this.currentHopIndex];
+                            this.currentPacket.ttl--;
+                            if (this.vlanWillChange) {
+                                this.currentPacket.vlan = Math.floor(Math.random() * 4096);
+                            }
+                            this.updatePacketDisplay();
+                            this.valuesUpdated = true;
+                        } else if (elapsed < 600) {
+                            // Keep highlights
+                        } else if (elapsed >= 600 && !this.highlightRemoved) {
+                            // Remove highlights
+                            this.unhighlightFields();
+                            this.highlightRemoved = true;
+                        } else if (elapsed >= 800) {
+                            // Reset flags and move to next state
+                            this.highlightApplied = false;
+                            this.valuesUpdated = false;
+                            this.highlightRemoved = false;
+                            this.animationState = 'movement';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'departure':
+                        if (elapsed < 500) {
+                            const opacity = 1 - (elapsed / 500);
+                            this.miniPacket.style.opacity = opacity;
+                            this.largePacket.style.opacity = opacity;
+                        } else {
+                            this.miniPacket.style.opacity = 0;
+                            this.largePacket.style.opacity = 0;
+                            this.animationState = 'idle';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                }
+                
+                requestAnimationFrame(this.animate.bind(this));
+            }
+            
+            startAnimation() {
+                requestAnimationFrame(this.animate.bind(this));
+            }
+        }
+        
+        // Initialize packet animation when slide is shown
+        const packetAnimation = new PacketAnimation();
+        
+        Reveal.on('slidechanged', event => {
+            if (event.currentSlide.querySelector('.packet-animation')) {
+                packetAnimation.init();
+            }
+        });
+        
+        // Also initialize if we start on the animation slide
+        if (document.querySelector('.present .packet-animation')) {
+            packetAnimation.init();
+        }
+        
+        // StacKAT Packet Animation with Payload
+        class StackATPacketAnimation {
+            constructor() {
+                this.switches = [
+                    // Left edge switches (sources) - green rectangles
+                    { id: 'H1', x: 125, y: 70, color: '#27ae60', hosts: ['10.0.0.1', '10.0.0.2'], edge: 'left' },
+                    { id: 'H2', x: 125, y: 175, color: '#27ae60', hosts: ['10.0.0.3', '10.0.0.4'], edge: 'left' },
+                    { id: 'H3', x: 125, y: 280, color: '#27ae60', hosts: ['10.0.0.5'], edge: 'left' },
+                    
+                    // Core switches - blue circles
+                    { id: 'S1', x: 275, y: 100, color: '#3498db', hosts: [] },
+                    { id: 'S2', x: 275, y: 250, color: '#3498db', hosts: [] },
+                    { id: 'S3', x: 425, y: 70, color: '#3498db', hosts: [] },
+                    { id: 'S4', x: 425, y: 175, color: '#3498db', hosts: [] },
+                    { id: 'S5', x: 425, y: 280, color: '#3498db', hosts: [] },
+                    { id: 'S6', x: 575, y: 100, color: '#3498db', hosts: [] },
+                    { id: 'S7', x: 575, y: 250, color: '#3498db', hosts: [] },
+                    
+                    // Right edge switches (destinations) - green rectangles
+                    { id: 'H4', x: 725, y: 70, color: '#27ae60', hosts: ['10.0.0.101', '10.0.0.102'], edge: 'right' },
+                    { id: 'H5', x: 725, y: 175, color: '#27ae60', hosts: ['10.0.0.103', '10.0.0.104'], edge: 'right' },
+                    { id: 'H6', x: 725, y: 280, color: '#27ae60', hosts: ['10.0.0.105'], edge: 'right' }
+                ];
+                
+                this.links = [
+                    // Left edge to first core layer
+                    ['H1', 'S1'], ['H2', 'S1'], ['H2', 'S2'], ['H3', 'S2'],
+                    
+                    // First core to middle core
+                    ['S1', 'S3'], ['S1', 'S4'], ['S2', 'S4'], ['S2', 'S5'],
+                    
+                    // Middle core interconnects
+                    ['S3', 'S4'], ['S4', 'S5'],
+                    
+                    // Middle core to last core
+                    ['S3', 'S6'], ['S4', 'S6'], ['S4', 'S7'], ['S5', 'S7'],
+                    
+                    // Last core to right edge
+                    ['S6', 'H4'], ['S6', 'H5'], ['S7', 'H5'], ['S7', 'H6']
+                ];
+                
+                this.currentPacket = null;
+                this.animationState = 'idle';
+                this.animationStartTime = 0;
+                this.currentHopIndex = 0;
+                this.path = [];
+                
+                this.miniPacket = null;
+                this.largePacket = null;
+                this.svg = null;
+                
+                this.initialized = false;
+                
+                // Animation state flags
+                this.highlightApplied = false;
+                this.valuesUpdated = false;
+                this.highlightRemoved = false;
+                this.vlanWillChange = false;
+                this.payloadWillChange = false;
+                
+                // Initial payload pattern
+                this.basePayload = '101010';
+            }
+            
+            // Push bits to the front of the payload
+            pushBits(payload, bits) {
+                return bits + payload;
+            }
+            
+            // Pop bits from the front of the payload
+            popBits(payload, count) {
+                return payload.substring(count);
+            }
+            
+            // Transform payload at each hop
+            transformPayload(payload) {
+                // Randomly decide to push or pop bits
+                const operation = Math.random() < 0.5 ? 'push' : 'pop';
+                
+                if (operation === 'push') {
+                    // Push 1-3 random bits to the front
+                    const bitCount = Math.floor(Math.random() * 3) + 1;
+                    const newBits = Array.from({length: bitCount}, () => Math.random() < 0.5 ? '1' : '0').join('');
+                    return this.pushBits(payload, newBits);
+                } else {
+                    // Pop 1-3 bits from the front (but keep at least 4 bits)
+                    const maxPop = Math.min(3, payload.length - 4);
+                    if (maxPop > 0) {
+                        const popCount = Math.floor(Math.random() * maxPop) + 1;
+                        return this.popBits(payload, popCount);
+                    }
+                    // If payload is too short, push instead
+                    const newBit = Math.random() < 0.5 ? '1' : '0';
+                    return this.pushBits(payload, newBit);
+                }
+            }
+            
+            init() {
+                if (this.initialized) return;
+                this.initialized = true;
+                
+                this.svg = document.getElementById('network-svg-stackat');
+                this.miniPacket = document.getElementById('mini-packet-stackat');
+                this.largePacket = document.getElementById('large-packet-stackat');
+                
+                if (!this.svg || !this.miniPacket || !this.largePacket) {
+                    console.warn('StacKAT packet animation elements not found');
+                    return;
+                }
+                
+                this.drawNetwork();
+                this.startAnimation();
+            }
+            
+            drawNetwork() {
+                // Clear SVG and network-viz children (except svg and packets)
+                this.svg.innerHTML = '';
+                const networkViz = document.getElementById('network-viz-stackat');
+                const elementsToRemove = networkViz.querySelectorAll('.network-switch, .network-host');
+                elementsToRemove.forEach(el => el.remove());
+                
+                // Draw links
+                this.links.forEach(link => {
+                    const source = this.switches.find(s => s.id === link[0]);
+                    const target = this.switches.find(s => s.id === link[1]);
+                    
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', `M ${source.x} ${source.y} L ${target.x} ${target.y}`);
+                    path.setAttribute('class', 'link');
+                    this.svg.appendChild(path);
+                });
+                
+                // Draw switches and hosts
+                this.switches.forEach(sw => {
+                    const container = document.createElement('div');
+                    container.className = sw.edge ? 'network-host' : 'network-switch';
+                    container.style.left = sw.x + 'px';
+                    container.style.top = sw.y + 'px';
+                    
+                    // Create SVG element
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('width', '70');
+                    svg.setAttribute('height', '70');
+                    svg.setAttribute('viewBox', '0 0 70 70');
+                    
+                    if (sw.edge) {
+                        // Draw host (computer) icon
+                        // Monitor screen
+                        const monitor = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        monitor.setAttribute('x', '10');
+                        monitor.setAttribute('y', '15');
+                        monitor.setAttribute('width', '50');
+                        monitor.setAttribute('height', '35');
+                        monitor.setAttribute('rx', '2');
+                        monitor.setAttribute('fill', '#27ae60');
+                        monitor.setAttribute('stroke', '#229954');
+                        monitor.setAttribute('stroke-width', '2');
+                        
+                        // Monitor screen inner
+                        const screen = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        screen.setAttribute('x', '15');
+                        screen.setAttribute('y', '20');
+                        screen.setAttribute('width', '40');
+                        screen.setAttribute('height', '25');
+                        screen.setAttribute('fill', '#229954');
+                        
+                        // Monitor stand
+                        const stand = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        stand.setAttribute('d', 'M 30 50 L 40 50 L 38 55 L 32 55 Z');
+                        stand.setAttribute('fill', '#27ae60');
+                        stand.setAttribute('stroke', '#229954');
+                        stand.setAttribute('stroke-width', '1');
+                        
+                        // Monitor base
+                        const base = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        base.setAttribute('x', '25');
+                        base.setAttribute('y', '55');
+                        base.setAttribute('width', '20');
+                        base.setAttribute('height', '3');
+                        base.setAttribute('rx', '1');
+                        base.setAttribute('fill', '#229954');
+                        
+                        svg.appendChild(monitor);
+                        svg.appendChild(screen);
+                        svg.appendChild(stand);
+                        svg.appendChild(base);
+                        
+                        // Add host name as text on screen
+                        const hostText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        hostText.setAttribute('x', '35');
+                        hostText.setAttribute('y', '35');
+                        hostText.setAttribute('text-anchor', 'middle');
+                        hostText.setAttribute('font-size', '12');
+                        hostText.setAttribute('font-family', 'monospace');
+                        hostText.setAttribute('font-weight', 'bold');
+                        hostText.setAttribute('fill', '#ffffff');
+                        hostText.textContent = sw.id;
+                        svg.appendChild(hostText);
+                    } else {
+                        // Draw switch as simple blue circle
+                        const bgCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        bgCircle.setAttribute('cx', '35');
+                        bgCircle.setAttribute('cy', '35');
+                        bgCircle.setAttribute('r', '22');
+                        bgCircle.setAttribute('fill', '#3498db');
+                        bgCircle.setAttribute('stroke', '#2980b9');
+                        bgCircle.setAttribute('stroke-width', '2');
+                        svg.appendChild(bgCircle);
+                        
+                        // Switch name
+                        const switchText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                        switchText.setAttribute('x', '35');
+                        switchText.setAttribute('y', '40');
+                        switchText.setAttribute('text-anchor', 'middle');
+                        switchText.setAttribute('font-size', '14');
+                        switchText.setAttribute('font-family', 'Arial, sans-serif');
+                        switchText.setAttribute('font-weight', 'bold');
+                        switchText.setAttribute('fill', '#ffffff');
+                        switchText.textContent = sw.id;
+                        svg.appendChild(switchText);
+                    }
+                    
+                    container.appendChild(svg);
+                    
+                    networkViz.appendChild(container);
+                });
+            }
+            
+            generatePacket() {
+                const leftHosts = this.switches.filter(s => s.edge === 'left').flatMap(s => s.hosts);
+                const rightHosts = this.switches.filter(s => s.edge === 'right').flatMap(s => s.hosts);
+                
+                const src = leftHosts[Math.floor(Math.random() * leftHosts.length)];
+                const dst = rightHosts[Math.floor(Math.random() * rightHosts.length)];
+                
+                const srcSwitch = this.switches.find(s => s.hosts.includes(src));
+                const dstSwitch = this.switches.find(s => s.hosts.includes(dst));
+                
+                // Generate initial payload with some random bits added
+                const randomBits = Array.from({length: 4}, () => Math.random() < 0.5 ? '1' : '0').join('');
+                const initialPayload = this.basePayload + randomBits;
+                
+                this.currentPacket = {
+                    src: src,
+                    dst: dst,
+                    port: Math.floor(Math.random() * 65536),
+                    vlan: Math.floor(Math.random() * 4096),
+                    ttl: 64,
+                    switch: srcSwitch.id,
+                    payload: initialPayload
+                };
+                
+                // Calculate path (simplified - in real implementation would use Dijkstra)
+                this.path = this.calculatePath(srcSwitch.id, dstSwitch.id);
+                this.currentHopIndex = 0;
+            }
+            
+            calculatePath(srcId, dstId) {
+                // Simplified path calculation
+                // In a real implementation, this would use a proper pathfinding algorithm
+                const paths = {
+                    'H1-H4': ['H1', 'S1', 'S3', 'S6', 'H4'],
+                    'H1-H5': ['H1', 'S1', 'S4', 'S6', 'H5'],
+                    'H1-H6': ['H1', 'S1', 'S4', 'S7', 'H6'],
+                    'H2-H4': ['H2', 'S1', 'S3', 'S6', 'H4'],
+                    'H2-H5': ['H2', 'S2', 'S4', 'S7', 'H5'],
+                    'H2-H6': ['H2', 'S2', 'S5', 'S7', 'H6'],
+                    'H3-H4': ['H3', 'S2', 'S4', 'S6', 'H4'],
+                    'H3-H5': ['H3', 'S2', 'S4', 'S6', 'H5'],
+                    'H3-H6': ['H3', 'S2', 'S5', 'S7', 'H6']
+                };
+                
+                const key = `${srcId}-${dstId}`;
+                return paths[key] || [srcId, 'S1', 'S3', 'S6', dstId];
+            }
+            
+            updatePacketDisplay() {
+                document.getElementById('field-src-stackat').textContent = this.currentPacket.src;
+                document.getElementById('field-dst-stackat').textContent = this.currentPacket.dst;
+                document.getElementById('field-port-stackat').textContent = this.currentPacket.port;
+                document.getElementById('field-vlan-stackat').textContent = this.currentPacket.vlan;
+                document.getElementById('field-ttl-stackat').textContent = this.currentPacket.ttl;
+                document.getElementById('field-switch-stackat').textContent = this.currentPacket.switch;
+                document.getElementById('field-payload-stackat').textContent = this.currentPacket.payload;
+            }
+            
+            highlightFields(fields) {
+                fields.forEach(fieldName => {
+                    // Highlight large packet field - scope to stackat container
+                    const field = document.querySelector(`.packet-fields-stackat .field[data-field="${fieldName}"]`);
+                    if (field) field.classList.add('highlight');
+                    
+                    // Highlight mini packet field - scope to stackat mini packet
+                    const miniField = document.querySelector(`#mini-packet-stackat .mini-packet-field.${fieldName}`);
+                    if (miniField) miniField.classList.add('highlight');
+                });
+            }
+            
+            unhighlightFields() {
+                document.querySelectorAll('.packet-fields-stackat .field.highlight').forEach(field => {
+                    field.classList.remove('highlight');
+                });
+                document.querySelectorAll('#mini-packet-stackat .mini-packet-field.highlight').forEach(field => {
+                    field.classList.remove('highlight');
+                });
+            }
+            
+            animate(timestamp) {
+                if (!this.initialized) return;
+                
+                const elapsed = timestamp - this.animationStartTime;
+                
+                switch (this.animationState) {
+                    case 'idle':
+                        this.generatePacket();
+                        this.animationState = 'arrival';
+                        this.animationStartTime = timestamp;
+                        break;
+                        
+                    case 'arrival':
+                        if (elapsed < 500) {
+                            const opacity = elapsed / 500;
+                            this.miniPacket.style.opacity = opacity;
+                            this.largePacket.style.opacity = opacity;
+                            
+                            if (elapsed <= 16) { // First frame
+                                const startSwitch = this.switches.find(s => s.id === this.path[0]);
+                                this.miniPacket.style.left = startSwitch.x + 'px';
+                                this.miniPacket.style.top = startSwitch.y + 'px';
+                                this.updatePacketDisplay();
+                            }
+                        } else {
+                            this.miniPacket.style.opacity = 1;
+                            this.largePacket.style.opacity = 1;
+                            this.animationState = 'movement';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'movement':
+                        if (this.currentHopIndex < this.path.length - 1) {
+                            if (elapsed < 1500) {
+                                const progress = elapsed / 1500;
+                                const currentSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex]);
+                                const nextSwitch = this.switches.find(s => s.id === this.path[this.currentHopIndex + 1]);
+                                
+                                const x = currentSwitch.x + (nextSwitch.x - currentSwitch.x) * progress;
+                                const y = currentSwitch.y + (nextSwitch.y - currentSwitch.y) * progress;
+                                
+                                this.miniPacket.style.left = x + 'px';
+                                this.miniPacket.style.top = y + 'px';
+                            } else {
+                                this.currentHopIndex++;
+                                this.animationState = 'pause';
+                                this.animationStartTime = timestamp;
+                            }
+                        } else {
+                            this.animationState = 'departure';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'pause':
+                        if (elapsed < 200) {
+                            // Just wait
+                        } else if (elapsed < 400) {
+                            // Highlight fields that will change
+                            if (elapsed >= 200 && !this.highlightApplied) {
+                                this.vlanWillChange = Math.random() < 0.3;
+                                this.payloadWillChange = true; // Always change payload
+                                
+                                const fieldsToHighlight = ['switch', 'ttl'];
+                                if (this.vlanWillChange) fieldsToHighlight.push('vlan');
+                                if (this.payloadWillChange) fieldsToHighlight.push('payload');
+                                this.highlightFields(fieldsToHighlight);
+                                this.highlightApplied = true;
+                            }
+                        } else if (elapsed >= 400 && !this.valuesUpdated) {
+                            // Update values
+                            this.currentPacket.switch = this.path[this.currentHopIndex];
+                            this.currentPacket.ttl--;
+                            if (this.vlanWillChange) {
+                                this.currentPacket.vlan = Math.floor(Math.random() * 4096);
+                            }
+                            if (this.payloadWillChange) {
+                                this.currentPacket.payload = this.transformPayload(this.currentPacket.payload);
+                            }
+                            this.updatePacketDisplay();
+                            this.valuesUpdated = true;
+                        } else if (elapsed < 600) {
+                            // Keep highlights
+                        } else if (elapsed >= 600 && !this.highlightRemoved) {
+                            // Remove highlights
+                            this.unhighlightFields();
+                            this.highlightRemoved = true;
+                        } else if (elapsed >= 800) {
+                            // Reset flags and move to next state
+                            this.highlightApplied = false;
+                            this.valuesUpdated = false;
+                            this.highlightRemoved = false;
+                            this.animationState = 'movement';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                        
+                    case 'departure':
+                        if (elapsed < 500) {
+                            const opacity = 1 - (elapsed / 500);
+                            this.miniPacket.style.opacity = opacity;
+                            this.largePacket.style.opacity = opacity;
+                        } else {
+                            this.miniPacket.style.opacity = 0;
+                            this.largePacket.style.opacity = 0;
+                            this.animationState = 'idle';
+                            this.animationStartTime = timestamp;
+                        }
+                        break;
+                }
+                
+                requestAnimationFrame(this.animate.bind(this));
+            }
+            
+            startAnimation() {
+                requestAnimationFrame(this.animate.bind(this));
+            }
+        }
+        
+        // Initialize StacKAT packet animation when slide is shown
+        const stackatPacketAnimation = new StackATPacketAnimation();
+        
+        Reveal.on('slidechanged', event => {
+            if (event.currentSlide.querySelector('.packet-animation-stackat')) {
+                stackatPacketAnimation.init();
+            }
+        });
+        
+        // Also initialize if we start on the StacKAT animation slide
+        if (document.querySelector('.present .packet-animation-stackat')) {
+            stackatPacketAnimation.init();
+        }
+        
+    </script>
+</body>
+</html>

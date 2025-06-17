@@ -1,0 +1,258 @@
+/* General Reveal.js customizations */
+.reveal h1, .reveal h2, .reveal h3 {
+    color: #2c3e50;
+    text-transform: none;
+    font-variant: normal;
+}
+
+.reveal .title-slide h1 {
+    font-size: 2.5em;
+    margin-bottom: 0.3em;
+}
+
+.reveal h2 {
+    font-size: 1.3em;
+    margin-bottom: 0.3em;
+}
+
+.reveal .authors {
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+
+.reveal .highlight-red {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.reveal ul {
+    display: block;
+    margin-left: 1em;
+}
+
+.reveal section {
+    text-align: left;
+}
+
+.reveal h2, .reveal h3 {
+    text-align: center;
+}
+
+.reveal .title-slide {
+    text-align: center;
+}
+
+/* Packet animation styles */
+.packet-animation {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    margin: 20px 0;
+}
+
+#network-viz {
+    position: relative;
+    width: 850px;
+    height: 350px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.network-switch {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.network-host {
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.device-label {
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    font-size: 14px;
+    color: #2c3e50;
+    white-space: nowrap;
+}
+
+.link {
+    stroke: #95a5a6;
+    stroke-width: 2;
+    fill: none;
+}
+
+.mini-packet {
+    position: absolute;
+    width: 60px;
+    height: 20px;
+    border: 1px solid #2c3e50;
+    border-radius: 3px;
+    background: white;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    opacity: 0;
+    transition: opacity 500ms ease-in-out;
+}
+
+.mini-packet-field {
+    flex: 1;
+    height: 100%;
+    border-radius: 2px;
+    transition: all 200ms ease-in-out;
+}
+
+.mini-packet-field.highlight {
+    box-shadow: 0 0 0 2px #f39c12;
+    transform: scale(1.05);
+}
+
+.mini-packet-field.src { background: #3498db; }
+.mini-packet-field.dst { background: #e74c3c; }
+.mini-packet-field.port { background: #f39c12; }
+.mini-packet-field.vlan { background: #27ae60; }
+.mini-packet-field.ttl { background: #9b59b6; }
+.mini-packet-field.switch { background: #34495e; }
+
+.large-packet {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 750px;
+    background: white;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 500ms ease-in-out;
+}
+
+.packet-fields {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+}
+
+.field {
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    transition: all 200ms ease-in-out;
+}
+
+.field.highlight {
+    box-shadow: 0 0 0 3px #f39c12, 0 0 15px rgba(243, 156, 18, 0.5);
+    transform: scale(1.05);
+}
+
+.field-name {
+    font-size: 12px;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.field-value {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.field.src { background: #3498db; color: white; }
+.field.dst { background: #e74c3c; color: white; }
+.field.port { background: #f39c12; color: white; }
+.field.vlan { background: #27ae60; color: white; }
+.field.ttl { background: #9b59b6; color: white; }
+.field.switch { background: #34495e; color: white; }
+
+.field .field-name { color: rgba(255, 255, 255, 0.8); }
+.field .field-value { color: white; }
+
+/* StacKAT animation styles */
+.packet-animation-stackat {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    margin: 20px 0;
+}
+
+#network-viz-stackat {
+    position: relative;
+    width: 850px;
+    height: 350px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.mini-packet-stackat {
+    position: absolute;
+    width: 90px;
+    height: 20px;
+    border: 1px solid #2c3e50;
+    border-radius: 3px;
+    background: white;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    display: flex;
+    gap: 2px;
+    padding: 2px;
+    opacity: 0;
+    transition: opacity 500ms ease-in-out;
+}
+
+.mini-packet-stackat .mini-packet-field {
+    flex: 1;
+    height: 100%;
+    border-radius: 2px;
+    transition: all 200ms ease-in-out;
+}
+
+.mini-packet-stackat .mini-packet-field.payload {
+    background: #95a5a6;
+    flex: 1.5;
+}
+
+.large-packet-stackat {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 850px;
+    background: white;
+    border: 2px solid #2c3e50;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 500ms ease-in-out;
+}
+
+.packet-fields-stackat {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr) 2fr;
+    gap: 10px;
+}
+
+.packet-fields-stackat .field.payload {
+    background: #95a5a6;
+    color: white;
+}

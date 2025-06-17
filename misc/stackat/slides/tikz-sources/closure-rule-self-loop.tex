@@ -1,0 +1,22 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{automata,backgrounds,shapes,arrows,positioning,calc,fit}
+\usetikzlibrary{decorations,decorations.pathreplacing,decorations.pathmorphing,arrows.meta}
+
+% Custom commands
+\newcommand{\push}[1][]{\mathsf{push}_{#1}}
+\newcommand{\pop}[1][]{\mathsf{pop}_{#1}}
+
+\begin{document}
+\begin{tikzpicture}[shorten >=1pt, node distance=2cm, on grid, auto]
+
+  % Self-loop diagram
+  \node[state] (s1) at (0,0) {$q_1$};
+
+  % Arrow for the self-loop
+  \path[->]
+    (s1) edge[loop below, in=225, out=315, looseness=8, dashed] node {$\epsilon$} (s1);
+
+\end{tikzpicture}
+\end{document}

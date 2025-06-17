@@ -1,0 +1,26 @@
+\documentclass[tikz,border=10pt]{standalone}
+\usepackage{tikz}
+\usepackage{amsmath,amssymb}
+\usetikzlibrary{automata,backgrounds,shapes,arrows,positioning,calc,fit}
+
+% Custom commands
+\newcommand{\push}[1][]{\mathsf{push}_{#1}}
+\newcommand{\pop}[1][]{\mathsf{pop}_{#1}}
+
+\begin{document}
+\begin{tikzpicture}[state/.style={draw,ellipse}, shorten >=1pt, node distance=2cm, on grid, auto,every node/.style={font=\footnotesize},inner sep=.05cm]
+  % States for the \pop{3}^*;\push{3}^*
+  \node[state] (q1) at (1,0) {$e$};
+  \node[state] (q2) [right=of q1] {$e_0$};
+  \node[state] (q3) at (2,-1.5){$e_1$};
+  \phantom{ \node[state] (q4) at (2,-1.3) {$e_2$}; }
+
+  % Arrows for the \pop{3}^*;\push{3}^*
+  \path[->]
+    (q1) edge node {$\pop{3}$} (q2)
+    (q1) edge node [near start, swap] {$\push{3}$} (q3)
+    (q2) edge node[near start]  {$\push{3}$} (q3)
+    (q2) edge[loop  right] node[above=4pt] {$\pop{3}$} ()
+    (q3) edge[loop  right] node {$\push{3}$} ();
+\end{tikzpicture}
+\end{document}
