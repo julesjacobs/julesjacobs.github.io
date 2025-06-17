@@ -467,146 +467,6 @@
                 </div>
             </section>
 
-            <!-- Slide 7: StacKAT Semantics -->
-            <section data-transition="fade">
-                <h2>StacKAT Semantics</h2>
-                
-                <div style="margin-top: 30px;">
-                    <!-- Main concept -->
-                    <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
-                        <p style="font-size: 0.7em; text-align: center; margin: 0; color: #186a3b;">
-                            A StacKAT program defines a <strong>relation</strong> between input and output packets
-                        </p>
-                    </div>
-                    
-                    <!-- Packet structure visualization -->
-                    <div style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 30px;">
-                        <!-- Input packet -->
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Input Packet</div>
-                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <div>
-                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
-                                        <div style="display: flex; gap: 4px;">
-                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src</div>
-                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst</div>
-                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port</div>
-                                        </div>
-                                    </div>
-                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
-                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
-                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
-                                            [v₁, ..., vₙ]
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Arrow -->
-                        <div style="padding-top: 0.7em;">
-                            <svg width="60" height="40" viewBox="0 -10 60 50">
-                                <path d="M 0 25 L 55 25 M 42 12 L 55 25 L 42 38" stroke="#2c3e50" stroke-width="5" fill="none"/>
-                                <text x="25" y="10" text-anchor="middle" font-size="26" fill="#2c3e50" font-weight="bold">[e]</text>
-                            </svg>
-                        </div>
-                        
-                        <!-- Output packet -->
-                        <div style="text-align: center;">
-                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Output Packet</div>
-                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <div>
-                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
-                                        <div style="display: flex; gap: 4px;">
-                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src'</div>
-                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst'</div>
-                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port'</div>
-                                        </div>
-                                    </div>
-                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
-                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
-                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
-                                            [w₁, ..., wₘ]
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Prominent note about relation mapping -->
-                    <div style="text-align: center; margin: 35px auto;">
-                        <p style="font-size: 0.85em; margin: 0 0 15px 0; color: #2c3e50;">
-                            Each input packet is mapped to <span style="color: #e74c3c; font-weight: bold; font-size: 1.1em;">zero or more</span> output packets
-                        </p>
-                        <div style="display: flex; justify-content: center; gap: 40px; font-size: 0.7em; color: #666;">
-                            <div>
-                                <span style="font-weight: bold; color: #e74c3c;">0</span> outputs<br>
-                                <span style="font-size: 0.9em;">packet dropped</span>
-                            </div>
-                            <div>
-                                <span style="font-weight: bold; color: #f39c12;">1</span> output<br>
-                                <span style="font-size: 0.9em;">deterministic</span>
-                            </div>
-                            <div>
-                                <span style="font-weight: bold; color: #27ae60;">2+</span> outputs<br>
-                                <span style="font-size: 0.9em;">non-deterministic</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Slide 8: Compositional Semantics -->
-            <section data-transition="fade">
-                <h2>Compositional Semantics</h2>
-                
-                <div style="margin-top: 40px;">
-                    <div style="font-size: 0.6em; line-height: 1.8;">
-                        <table style="width: 100%; border-collapse: collapse;">
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Sequencing:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ · e₂⟧ = ⟦e₁⟧ ∘ ⟦e₂⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Relation composition</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Choice:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ + e₂⟧ = ⟦e₁⟧ ∪ ⟦e₂⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Relation union</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Kleene star:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e*⟧ = ⟦e⟧*</td>
-                                <td style="padding: 8px 0; color: #666;">Reflexive transitive closure</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field test:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f == n⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Filter packets where field f equals n</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field update:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f := n⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Set field f to value n</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Push:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦push(n)⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Push constant n onto stack</td>
-                            </tr>
-                            <tr style="vertical-align: top;">
-                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Pop:</td>
-                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦pop(n)⟧</td>
-                                <td style="padding: 8px 0; color: #666;">Pop and test equals n</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Slide 9: Stack Operations -->
             <section data-transition="fade">
                 <h2>Stack Operations</h2>
                 
@@ -747,6 +607,189 @@
                         </div>
                     </div>
                     
+                </div>
+            </section>
+
+            <section data-transition="fade">
+                <h2>Common Programming Patterns</h2>
+                <div style="margin-top: 40px;">
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 10px 10px;">
+                        <tr>
+                            <td style="width: 50%; padding: 0; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                <div style="background: #7fb3e3; color: white; padding: 15px; text-align: center;">
+                                    <h3 style="font-size: 1.1em; margin: 0;">if f==0 then p else q</h3>
+                                </div>
+                                <div style="padding: 20px; font-family: monospace; text-align: center; font-size: 0.8em;">
+                                    f==0·p + f==1·q
+                                </div>
+                            </td>
+                            <td style="width: 50%; padding: 0; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                <div style="background: #f1a7a7; color: white; padding: 15px; text-align: center;">
+                                    <h3 style="font-size: 1.1em; margin: 0;">while f==0 do p</h3>
+                                </div>
+                                <div style="padding: 20px; font-family: monospace; text-align: center; font-size: 0.8em;">
+                                    (f==0·p)*·f==1
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%; padding: 0; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                <div style="background: #98d8bf; color: white; padding: 15px; text-align: center;">
+                                    <h3 style="font-size: 1.1em; margin: 0;">push(f)</h3>
+                                </div>
+                                <div style="padding: 20px; font-family: monospace; text-align: center; font-size: 0.8em;">
+                                    f=0·push(0) +<br>f=1·push(1)<span style="color: transparent;"> +</span>
+                                </div>
+                            </td>
+                            <td style="width: 50%; padding: 0; background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                <div style="background: #d4b3e3; color: white; padding: 15px; text-align: center;">
+                                    <h3 style="font-size: 1.1em; margin: 0;">f := pop()</h3>
+                                </div>
+                                <div style="padding: 20px; font-family: monospace; text-align: center; font-size: 0.8em;">
+                                    pop(0)·f:=0 +<br>pop(1)·f:=1<span style="color: transparent;"> +</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Slide 7: StacKAT Semantics -->
+            <section data-transition="fade">
+                <h2>StacKAT Semantics</h2>
+                
+                <div style="margin-top: 30px;">
+                    <!-- Main concept -->
+                    <div style="background: #e8f8f5; border: 2px solid #27ae60; border-radius: 8px; padding: 20px; margin-bottom: 30px;">
+                        <p style="font-size: 0.7em; text-align: center; margin: 0; color: #186a3b;">
+                            A StacKAT program defines a <strong>relation</strong> between input and output packets
+                        </p>
+                    </div>
+                    
+                    <!-- Packet structure visualization -->
+                    <div style="display: flex; gap: 10px; align-items: center; justify-content: center; margin-bottom: 30px;">
+                        <!-- Input packet -->
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Input Packet</div>
+                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
+                                        <div style="display: flex; gap: 4px;">
+                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src</div>
+                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst</div>
+                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port</div>
+                                        </div>
+                                    </div>
+                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
+                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
+                                            [v₁, ..., vₙ]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow -->
+                        <div style="padding-top: 0.7em;">
+                            <svg width="60" height="40" viewBox="0 -10 60 50">
+                                <path d="M 0 25 L 55 25 M 42 12 L 55 25 L 42 38" stroke="#2c3e50" stroke-width="5" fill="none"/>
+                                <text x="25" y="10" text-anchor="middle" font-size="26" fill="#2c3e50" font-weight="bold">[e]</text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Output packet -->
+                        <div style="text-align: center;">
+                            <div style="font-size: 0.7em; color: #7f8c8d; margin-bottom: 8px;">Output Packet</div>
+                            <div style="background: white; border: 2px solid #2c3e50; border-radius: 8px; padding: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div>
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Header Fields</div>
+                                        <div style="display: flex; gap: 4px;">
+                                            <div style="background: #3498db; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">src'</div>
+                                            <div style="background: #e74c3c; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">dst'</div>
+                                            <div style="background: #f39c12; color: white; padding: 6px 8px; border-radius: 4px; font-size: 0.55em;">port'</div>
+                                        </div>
+                                    </div>
+                                    <div style="border-left: 1px solid #ddd; padding-left: 10px;">
+                                        <div style="font-size: 0.55em; color: #7f8c8d; margin-bottom: 4px;">Payload (Stack)</div>
+                                        <div style="background: #95a5a6; color: white; padding: 6px 10px; border-radius: 4px; font-size: 0.55em; font-family: monospace;">
+                                            [w₁, ..., wₘ]
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Prominent note about relation mapping -->
+                    <div style="text-align: center; margin: 35px auto;">
+                        <p style="font-size: 0.85em; margin: 0 0 15px 0; color: #2c3e50;">
+                            Each input packet is mapped to <span style="color: #e74c3c; font-weight: bold; font-size: 1.1em;">zero or more</span> output packets
+                        </p>
+                        <div style="display: flex; justify-content: center; gap: 40px; font-size: 0.7em; color: #666;">
+                            <div>
+                                <span style="font-weight: bold; color: #e74c3c;">0</span> outputs<br>
+                                <span style="font-size: 0.9em;">packet dropped</span>
+                            </div>
+                            <div>
+                                <span style="font-weight: bold; color: #f39c12;">1</span> output<br>
+                                <span style="font-size: 0.9em;">deterministic</span>
+                            </div>
+                            <div>
+                                <span style="font-weight: bold; color: #27ae60;">2+</span> outputs<br>
+                                <span style="font-size: 0.9em;">non-deterministic</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Slide 8: Compositional Semantics -->
+            <section data-transition="fade">
+                <h2>Compositional Semantics</h2>
+                
+                <div style="margin-top: 40px;">
+                    <div style="font-size: 0.6em; line-height: 1.8;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Sequencing:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ · e₂⟧ = ⟦e₁⟧ ∘ ⟦e₂⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Relation composition</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Choice:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e₁ + e₂⟧ = ⟦e₁⟧ ∪ ⟦e₂⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Relation union</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Kleene star:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦e*⟧ = ⟦e⟧*</td>
+                                <td style="padding: 8px 0; color: #666;">Reflexive transitive closure</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field test:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f == n⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Filter packets where field f equals n</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Field update:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦f := n⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Set field f to value n</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Push:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦push(n)⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Push constant n onto stack</td>
+                            </tr>
+                            <tr style="vertical-align: top;">
+                                <td style="padding: 8px 15px 8px 0; font-weight: bold; white-space: nowrap;">Pop:</td>
+                                <td style="padding: 8px 15px 8px 0; font-family: monospace; font-size: 1.1em;">⟦pop(n)⟧</td>
+                                <td style="padding: 8px 0; color: #666;">Pop and test equals n</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </section>
 
