@@ -178,7 +178,7 @@ const annotations = frontier.map((point, i) => ({
 }));
 
 const layout = {
-  xaxis:{title:"Cost (USD, log scale)", type:"log"},
+  xaxis:{title:"Cost (USD, log scale)", type:"log", tickmode:"array", tickvals:[0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2,5,10,20,50,100,200,500], ticktext:["0.01","0.02","0.05","0.1","0.2","0.5","1","2","5","10","20","50","100","200","500"]},
   yaxis:{title:"Accuracy (%)", range:[0,100]},
   legend:{orientation:"v"},
   margin:{l:60,r:20,t:60,b:60}, // Increased top margin for labels
