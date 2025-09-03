@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tree Generator with Alpha Decay</title>
+  <style>
+    :root {
+      --bg: #0f1116;
+      --fg: #e6e6e6;
+      --muted: #a0a4ad;
+      --accent: #8ab4f8;
+      --edge: #7fbf7f;
+      --node: #e8eaed;
+      --cut: #f28b82;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .wrap {
+      max-width: 1200px;
+      margin: 24px auto 48px;
+      padding: 0 16px;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 12px 0;
+    }
+    p.desc {
+      color: var(--muted);
+      margin-top: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 12px 20px;
+      align-items: start;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .controls .col {
+      display: grid;
+      grid-auto-rows: min-content;
+      gap: 12px;
+    }
+    .presets button { width: 100%; }
+    .control {
+      display: grid;
+      grid-template-columns: 120px 1fr 64px;
+      gap: 8px;
+      align-items: center;
+      font-size: 14px;
+    }
+    .control label {
+      color: var(--muted);
+    }
+    .control input[type="range"] {
+      width: 100%;
+    }
+    .control .val {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      grid-column: 1 / -1;
+    }
+    button {
+      background: var(--accent);
+      color: #0b1022;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+    button.secondary {
+      background: rgba(255,255,255,0.08);
+      color: var(--fg);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .cell {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      position: relative;
+    }
+    svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .legend {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+  </style>
+  <script>
+    // Utility: choose index by weights (non-negative numbers). Returns index or -1 if all weights are 0.
+    function sampleWeighted(weights, rng=Math.random) {
+      let total = 0;
+      for (const w of weights) total += Math.max(0, w);
+      if (total <= 0) return -1;
+      let r = rng() * total;
+      for (let i = 0; i < weights.length; i++) {
+        r -= Math.max(0, weights[i]);
+        if (r <= 0) return i;
+      }
+      return weights.length - 1;
+    }
+
+    // Generate a rooted ordered tree with up to 3 children per node.
+    function genTree(params, alpha, depth=0, guards={maxDepth: 14, maxNodes: 256}) {
+      const {t0, t1, t2, t3, decay} = params;
+      // Guard: avoid runaway growth
+      if (depth >= guards.maxDepth) return { children: [], depth, truncated: true };
+
+      const weights = [
+        t0 * Math.pow(alpha, 0),
+        t1 * Math.pow(alpha, 1),
+        t2 * Math.pow(alpha, 2),
+        t3 * Math.pow(alpha, 3)
+      ];
+
+      let k = sampleWeighted(weights);
+      if (k < 0) k = 0; // fallback to leaf if all zero
+
+      const node = { children: [], depth };
+      const nextAlpha = alpha * decay;
+
+      // Guard against exceeding node budget by tracking count during creation
+      function addChildren(n, remainingBudget) {
+        let added = 0;
+        for (let i = 0; i < n && remainingBudget.count > 0; i++) {
+          remainingBudget.count--;
+          const child = genTree(params, nextAlpha, depth + 1, guards);
+          node.children.push(child);
+          added++;
+        }
+        if (added < n) node.truncated = true; // budget prevented full expansion
+      }
+
+      if (!guards.__budget) guards.__budget = { count: guards.maxNodes };
+      addChildren(k, guards.__budget);
+      return node;
+    }
+
+    // Compute layout using a simple tidy-like algorithm: leaves spaced by 1 unit, parents centered.
+    function layoutTree(root) {
+      const levels = [];
+      let maxDepth = 0;
+
+      function firstPass(node) {
+        maxDepth = Math.max(maxDepth, node.depth);
+        if (!node.children || node.children.length === 0) {
+          node.__leafSpan = 1;
+          return 1;
+        }
+        let span = 0;
+        for (const c of node.children) span += firstPass(c);
+        node.__leafSpan = Math.max(1, span);
+        return node.__leafSpan;
+      }
+
+      function secondPass(node, xOffset) {
+        if (!levels[node.depth]) levels[node.depth] = [];
+        const y = node.depth;
+        let x;
+        if (!node.children || node.children.length === 0) {
+          x = xOffset + 0.5; // center of one unit span
+        } else {
+          let childStart = xOffset;
+          const childCenters = [];
+          for (const c of node.children) {
+            const cSpan = c.__leafSpan;
+            const cx = secondPass(c, childStart);
+            childCenters.push(cx);
+            childStart += cSpan;
+          }
+          // Parent centered at average of child centers
+          x = childCenters.reduce((a,b)=>a+b,0) / childCenters.length;
+        }
+        node.__x = x; // in leaf-span units
+        node.__y = y;
+        levels[y].push(node);
+        return x;
+      }
+
+      const totalLeaves = firstPass(root);
+      secondPass(root, 0);
+      return { levels, totalLeaves, maxDepth };
+    }
+
+    function renderTreeToSVG(root, size=200, padding=8) {
+      const { totalLeaves, maxDepth } = layoutTree(root);
+      const width = size, height = size;
+      const innerW = width - 2*padding;
+      const innerH = height - 2*padding;
+      const xScale = totalLeaves > 0 ? innerW / totalLeaves : 1;
+      const yScale = (maxDepth > 0) ? innerH / maxDepth : innerH; // leaves at top/bottom if 0 depth
+
+      function pt(node) {
+        const x = padding + (node.__x) * xScale;
+        const y = padding + (node.__y) * yScale;
+        return [x, y];
+      }
+
+      let edges = '';
+      function drawEdges(node) {
+        const [x1, y1] = pt(node);
+        if (node.children) {
+          for (const c of node.children) {
+            const [x2, y2] = pt(c);
+            edges += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--edge)" stroke-width="1.4" stroke-linecap="round" />`;
+            drawEdges(c);
+          }
+        }
+      }
+      drawEdges(root);
+
+      let nodes = '';
+      function drawNodes(node) {
+        const [x, y] = pt(node);
+        if (node.truncated) {
+          // Draw a ring with a cross to indicate cutoff
+          nodes += `<circle cx="${x}" cy="${y}" r="3.2" fill="none" stroke="var(--cut)" stroke-width="1.6" />`;
+          nodes += `<line x1="${x-2}" y1="${y-2}" x2="${x+2}" y2="${y+2}" stroke="var(--cut)" stroke-width="1.2" stroke-linecap="round" />`;
+          nodes += `<line x1="${x-2}" y1="${y+2}" x2="${x+2}" y2="${y-2}" stroke="var(--cut)" stroke-width="1.2" stroke-linecap="round" />`;
+        } else {
+          nodes += `<circle cx="${x}" cy="${y}" r="2.8" fill="var(--node)" />`;
+        }
+        if (node.children) for (const c of node.children) drawNodes(c);
+      }
+      drawNodes(root);
+
+      return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${edges}${nodes}</svg>`;
+    }
+
+    function getParamsFromUI() {
+      const g = id => document.getElementById(id);
+      return {
+        t0: parseFloat(g('t0').value),
+        t1: parseFloat(g('t1').value),
+        t2: parseFloat(g('t2').value),
+        t3: parseFloat(g('t3').value),
+        alpha0: parseFloat(g('alpha0').value),
+        decay: parseFloat(g('decay').value),
+        maxDepth: parseInt(g('maxDepth').value, 10),
+        maxNodes: parseInt(g('maxNodes').value, 10)
+      };
+    }
+
+    function updateLabels() {
+      const p = getParamsFromUI();
+      const set = (id, v) => { document.getElementById(id).textContent = v.toFixed(2); };
+      set('t0v', p.t0); set('t1v', p.t1); set('t2v', p.t2); set('t3v', p.t3);
+      document.getElementById('alpha0v').textContent = p.alpha0.toFixed(2);
+      document.getElementById('decayv').textContent = p.decay.toFixed(3);
+      document.getElementById('maxDepthv').textContent = String(p.maxDepth);
+      document.getElementById('maxNodesv').textContent = String(p.maxNodes);
+    }
+
+    function generateSample() {
+      const p = getParamsFromUI();
+      updateLabels();
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const params = { t0: p.t0, t1: p.t1, t2: p.t2, t3: p.t3, decay: p.decay };
+      for (let i = 0; i < 15; i++) {
+        const guards = { maxDepth: p.maxDepth, maxNodes: p.maxNodes, __budget: { count: p.maxNodes } };
+        const tree = genTree(params, p.alpha0, 0, guards);
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.innerHTML = renderTreeToSVG(tree, 200, 8);
+        grid.appendChild(cell);
+      }
+    }
+
+    function setup() {
+      for (const id of ['alpha0','decay','maxDepth','maxNodes','t0','t1','t2','t3']) {
+        document.getElementById(id).addEventListener('input', generateSample);
+      }
+      const setVals = (alpha, decay) => {
+        document.getElementById('alpha0').value = String(alpha.toFixed(2));
+        document.getElementById('decay').value = decay.toFixed(3);
+        generateSample();
+      };
+      const fullBtn = document.getElementById('presetFull');
+      const stdBtn = document.getElementById('presetStandard');
+      if (fullBtn) fullBtn.addEventListener('click', () => setVals(5.0, 0.5));
+      if (stdBtn) stdBtn.addEventListener('click', () => setVals(1.0, 1.0));
+      generateSample();
+    }
+
+    window.addEventListener('DOMContentLoaded', setup);
+  </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Alpha-Decay Tree Generator</h1>
+      <p class="desc">
+        Branching factor k is sampled with weight t<sub>k</sub> · α<sup>k</sup>. On recursion α ← decay · α. Adjust t0–t3, initial α, and decay to see shape changes.
+      </p>
+      <div class="controls">
+        <div class="col left">
+          <div class="control">
+            <label for="alpha0">initial α:</label>
+            <input id="alpha0" type="range" min="0" max="100" step="0.01" value="1.10" />
+            <div class="val" id="alpha0v">1.10</div>
+          </div>
+          <div class="control">
+            <label for="decay">decay:</label>
+            <input id="decay" type="range" min="0" max="1.0" step="0.001" value="0.950" />
+            <div class="val" id="decayv">0.950</div>
+          </div>
+          <div class="control">
+            <label for="maxDepth">max depth:</label>
+            <input id="maxDepth" type="range" min="1" max="30" step="1" value="14" />
+            <div class="val" id="maxDepthv">14</div>
+          </div>
+          <div class="control">
+            <label for="maxNodes">node budget:</label>
+            <input id="maxNodes" type="range" min="1" max="2000" step="1" value="256" />
+            <div class="val" id="maxNodesv">256</div>
+          </div>
+        </div>
+        <div class="col right">
+          <div class="control">
+            <label for="t0">t0 (0 children):</label>
+            <input id="t0" type="range" min="0" max="3" step="0.01" value="1.00" />
+            <div class="val" id="t0v">1.00</div>
+          </div>
+          <div class="control">
+            <label for="t1">t1 (1 child):</label>
+            <input id="t1" type="range" min="0" max="3" step="0.01" value="1.00" />
+            <div class="val" id="t1v">1.00</div>
+          </div>
+          <div class="control">
+            <label for="t2">t2 (2 children):</label>
+            <input id="t2" type="range" min="0" max="3" step="0.01" value="1.00" />
+            <div class="val" id="t2v">1.00</div>
+          </div>
+          <div class="control">
+            <label for="t3">t3 (3 children):</label>
+            <input id="t3" type="range" min="0" max="3" step="0.01" value="1.00" />
+            <div class="val" id="t3v">1.00</div>
+          </div>
+        </div>
+        <div class="col presets">
+          <div style="height: 4px"></div>
+          <button id="presetFull" title="Decay 0.5, α 5">full</button>
+          <button id="presetStandard" class="secondary" title="Decay 1.0, α 1.0">standard</button>
+        </div>
+      </div>
+
+      <div id="grid" class="grid"></div>
+    </div>
+  </body>
+</html>
