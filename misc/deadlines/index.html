@@ -177,24 +177,37 @@
 </body>
 
 <script>
-  var deadlines = [
-    { deadline: "2024-01-21", conf: "LICS'24", category: "formal-methods" },
-    { deadline: "2024-01-19", conf: "CAV'24", category: "formal-methods" },
-    { deadline: "2024-01-17", conf: "ECOOP'24 R1", category: "programming-languages", url: "https://2024.ecoop.org" },
-    { deadline: "2024-03-11", conf: "TYPES'24", category: "programming-languages", url: "https://types2024.itu.dk/Call_for_Contributions.html" },
-    { deadline: "2024-04-17", conf: "ECOOP'24 R2", category: "programming-languages", url: "https://2024.ecoop.org" },
-    { deadline: "2024-02-28", conf: "ICFP'24", category: "programming-languages", url: "https://icfp24.sigplan.org/", main: 1 },
-    { deadline: "2024-10-15", conf: "OOPSLA'25 R1", category: "programming-languages", url: "https://2024.splashcon.org/", main: 1 },
-    { deadline: "2025-03-25", conf: "OOPSLA'25 R2", category: "programming-languages", url: "https://2024.splashcon.org/", main: 1 },
-    { deadline: "2024-04-26", conf: "CONCUR'24", category: "formal-methods", url: "https://confest2024.github.io/CONCUR_call_for_papers.html" },
-    { deadline: "2024-07-11", conf: "POPL'25", category: "programming-languages", url: "https://popl25.sigplan.org/dates", main: 1 },
-    { deadline: "2024-09-10", conf: "CPP'25", category: "programming-languages", url: "https://popl25.sigplan.org/dates" },
-    { deadline: "2024-10-10", conf: "FOSSACS'25", category: "formal-methods", url: "https://www.etaps.org/2025/cfp/" },
-    { deadline: "2024-05-30", conf: "ESOP'25 R1", category: "programming-languages", url: "https://www.etaps.org/2025/cfp/" },
-    { deadline: "2024-10-10", conf: "ESOP'25 R2", category: "programming-languages", url: "https://www.etaps.org/2025/cfp/" },
-    { deadline: "2024-10-10", conf: "TACAS'25", category: "systems", url: "https://www.etaps.org/2025/cfp/" },
-    { deadline: "2024-11-14", conf: "PLDI'25", category: "programming-languages", url: "https://pldi25.sigplan.org/", main: 1 },
-  ];
+var deadlines = [
+  { deadline: "2025-01-23", conf: "LICS'25",       category: "formal-methods",        url: "https://lics.siglog.org/lics25/" },
+
+  { deadline: "2025-01-31", conf: "CAV'25",        category: "formal-methods",        url: "https://cav2025.hotcrp.com/deadlines" },
+
+  { deadline: "2025-03-10", conf: "TYPES'25",      category: "programming-languages", url: "https://msp.cis.strath.ac.uk/types2025/" },
+
+  { deadline: "2025-02-27", conf: "ICFP'25",       category: "programming-languages", url: "https://icfp25.sigplan.org/track/icfp-2025-papers", main: 1 },
+
+  { deadline: "2025-04-09", conf: "CONCUR'25",     category: "formal-methods",        url: "https://conferences.au.dk/confest2025/concur" },
+
+  { deadline: "2025-07-10", conf: "POPL'26",       category: "programming-languages", url: "https://conf.researchr.org/track/POPL-2026/POPL-2026-popl-research-papers", main: 1 },
+
+  { deadline: "2025-09-12", conf: "CPP'26",        category: "programming-languages", url: "https://popl26.sigplan.org/home/CPP-2026" },
+
+  { deadline: "2025-10-10", conf: "OOPSLA'26 R1",  category: "programming-languages", url: "https://conf.researchr.org/track/splash-2026/splash-2026-research-papers", main: 1 },
+  { deadline: "2026-03-17", conf: "OOPSLA'26 R2",  category: "programming-languages", url: "https://conf.researchr.org/track/splash-2026/splash-2026-research-papers", main: 1 },
+
+  { deadline: "2025-11-27", conf: "ECOOP'26 R1",   category: "programming-languages", url: "https://2026.ecoop.org/" },
+  { deadline: "2026-02-12", conf: "ECOOP'26 R2",   category: "programming-languages", url: "https://2026.ecoop.org/" },
+
+  { deadline: "2025-06-03", conf: "ESOP'26 R1",    category: "programming-languages", url: "https://etaps.org/2026/conferences/esop/" },
+  { deadline: "2025-10-16", conf: "ESOP'26 R2",    category: "programming-languages", url: "https://etaps.org/2026/conferences/esop/" },
+
+  { deadline: "2025-10-16", conf: "FoSSaCS'26",    category: "formal-methods",        url: "https://etaps.org/2026/cfp/" },
+
+  { deadline: "2025-10-16", conf: "TACAS'26",      category: "systems",               url: "https://etaps.org/2026/cfp/" },
+
+  { deadline: "2025-11-13", conf: "PLDI'26",       category: "programming-languages", url: "https://pldi26.sigplan.org/dates", main: 1 }
+];
+
 
   for (var i = 0; i < deadlines.length; i++) {
     deadlines[i].deadline = new Date(deadlines[i].deadline + "T23:59:59.999-12:00");
