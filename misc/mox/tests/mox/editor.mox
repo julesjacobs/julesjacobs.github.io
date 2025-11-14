@@ -1,21 +1,33 @@
-(* Representative expressions showcased in the playground editor. *)
-unit
+(* Borrowing a stack-allocated pair: tests/mox/borrowing.mox *)
+let fst = (fun p => let (x,y) = p in x) in
+let p = (unit, unit) in
+borrow a = $(unit, p) for b = fst a in let! (q,r) = a in (b, q)
+> (unit *[u=u1 a=a1] unit)
+> mode vars
+>   a1 ∈ {borrowed, global, local, regional}
+>   u1 ∈ {aliased, unique}
+
+(* Aliased data flowing through pattern matches: tests/mox/env_alias.mox *)
+let shared = ((unit, unit) : (unit *[unique local] unit)) in
+match left(shared) with left(x) => x | right(y) => shared
+> (unit *[u=aliased a=a1] unit)
+> mode vars
+>   a1 ∈ {borrowed, local}
+
+(* Stack-allocated unique sum destructed with match!: tests/mox/stack_alloc.mox *)
+let unique_sum = ((left(unit)) : (unit +[unique local] unit)) in
+match! unique_sum with left(x) => x | right(y) => y
 > unit
 
-let double = fun x => x + x in double 21
-> int
+(* Portable closures escaping: tests/mox/contention.mox *)
+let f = fun x => x in
+let g = f : unit ->[portable] unit in
+(f, g)
+> ((unit ->[a=global l=many p=portable] unit) *[u=u1 a=a1] (unit ->[a=global l=many p=portable] unit))
+> mode vars
+>   a1 ∈ {global, local, regional}
+>   u1 ∈ {aliased, unique}
 
-match [unit] with [] => unit | x :: xs => x
-> unit
-
-let pair = (unit, unit) in let (x, y) = pair in x
-> unit
-
-match (left(unit) : (unit + empty)) with left(x) => x | right(y) => absurd y
-> unit
-
-let r = ref unit in !r
-> unit
-
-let rec_id = rec f x => x in rec_id unit
-> unit
+(* Forking through a reference stresses contention: tests/mox/contention.mox *)
+let r = ref unit in fork (let x = !r in unit)
+> error: relation became empty

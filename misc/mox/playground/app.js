@@ -275,7 +275,7 @@ async function boot() {
     if (shortcutHintEl) {
       shortcutHintEl.textContent = `Process buffer (${platformHint})`;
     }
-    setStatus(`Loaded ${exampleBundle.source}. Press ${platformHint} to sync > results.`, 'ready');
+    setStatus(`Ready. Press ${platformHint} to sync > results.`, 'ready');
   } catch (err) {
     setStatus(err.message || 'Failed to initialise playground.', 'error');
   }
