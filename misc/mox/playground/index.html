@@ -59,6 +59,20 @@
         transform: translateY(1px);
       }
 
+      .github-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-weight: 600;
+        text-decoration: none;
+        color: #cfd8f3;
+        transition: color 0.2s ease;
+      }
+
+      .github-link:hover {
+        color: #ffffff;
+      }
+
       #status {
         flex: 1;
         min-width: 200px;
@@ -140,6 +154,14 @@
     <header>
       <h1>Mox Playground</h1>
       <button id="process"><span id="shortcut-hint">Process buffer (⌘/Ctrl + Enter)</span></button>
+      <a
+        class="github-link"
+        href="https://github.com/julesjacobs/mox"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        GitHub
+      </a>
       <div id="status">Waiting for WebAssembly build…</div>
     </header>
     <section id="editor-container">
