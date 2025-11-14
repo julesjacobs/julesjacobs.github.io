@@ -1,33 +1,48 @@
-(* Borrowing a stack-allocated pair: tests/mox/borrowing.mox *)
-let fst = (fun p => let (x,y) = p in x) in
-let p = (unit, unit) in
-borrow a = $(unit, p) for b = fst a in let! (q,r) = a in (b, q)
-> (unit *[u=u1 a=a1] unit)
+(* Stack allocated pair cannot escape from region *)
+region $(1,2)
+> error: relation became empty
+
+(* Normal pairs can *)
+region (1,2)
+> (int *[u=u1 a=global] int)
+> mode vars
+>   u1 ∈ {aliased, unique}
+
+(* Automatic modalities: can store global data in stack allocated data *)
+region
+  let x = (1,2) in
+  let y = $(x,x) in
+  let (a,b) = y in a
+> (int *[u=aliased a=global] int)
+
+(* The reverse is not allowed *)
+region
+  let x = $(1,2) in
+  let y = (x,x) in
+  let (a,b) = y in a
+> error: relation became empty
+
+(* Destructive pair matching is only allowed on unique pairs *)
+let x = (1,2) in 
+let! (a,b) = x in a
+> int
+
+(* Not allowed on aliased pairs *)
+let x = (1,2) in
+let y = (x,x) in
+let! (a,b) = x in a
+> error: relation became empty
+
+(* We can store aliased data in unique data *)
+let x = (1,2) in
+let y = (x,x) in
+let! (a,b) = y in a
+> (int *[u=aliased a=a1] int)
 > mode vars
 >   a1 ∈ {borrowed, global, local, regional}
->   u1 ∈ {aliased, unique}
 
-(* Aliased data flowing through pattern matches: tests/mox/env_alias.mox *)
-let shared = ((unit, unit) : (unit *[unique local] unit)) in
-match left(shared) with left(x) => x | right(y) => shared
-> (unit *[u=aliased a=a1] unit)
-> mode vars
->   a1 ∈ {borrowed, local}
-
-(* Stack-allocated unique sum destructed with match!: tests/mox/stack_alloc.mox *)
-let unique_sum = ((left(unit)) : (unit +[unique local] unit)) in
-match! unique_sum with left(x) => x | right(y) => y
-> unit
-
-(* Portable closures escaping: tests/mox/contention.mox *)
-let f = fun x => x in
-let g = f : unit ->[portable] unit in
-(f, g)
-> ((unit ->[a=global l=many p=portable] unit) *[u=u1 a=a1] (unit ->[a=global l=many p=portable] unit))
-> mode vars
->   a1 ∈ {global, local, regional}
->   u1 ∈ {aliased, unique}
-
-(* Forking through a reference stresses contention: tests/mox/contention.mox *)
-let r = ref unit in fork (let x = !r in unit)
-> error: relation became empty
+(* Concurrency: catching data races *)
+let r = ref 3 in
+let g = fun x => r := !r + x in
+let _ = fork (g 1) in g 2
+> error: assert_lock: not equivalent
