@@ -6,10 +6,15 @@ let id = fun x -> x
 id unit
 > unit`;
 const EXAMPLE_PATH = '../tests/mox/editor.mox';
+const KEY_HINTS = {
+  mac: '⌘ + Enter',
+  default: 'Ctrl + Enter'
+};
 
 const statusEl = document.getElementById('status');
 const runButton = document.getElementById('process');
 const editorContainer = document.getElementById('editor');
+const shortcutHintEl = document.getElementById('shortcut-hint');
 let statusFadeHandle = null;
 let processingFlashHandle = null;
 let shortcutHoldActive = false;
@@ -28,6 +33,12 @@ function scheduleStatusFade(delay = 2500) {
   statusFadeHandle = window.setTimeout(() => {
     statusEl.classList.add('dimmed');
   }, delay);
+}
+
+function detectPlatformHint() {
+  const platform = navigator?.platform || navigator?.userAgent || '';
+  const isMac = /mac/i.test(platform);
+  return isMac ? KEY_HINTS.mac : KEY_HINTS.default;
 }
 
 function setStatus(message, tone = 'info', { autoFade = false } = {}) {
@@ -216,6 +227,20 @@ function wireShortcuts(editor, monaco, playground) {
   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
     processBuffer(editor, playground);
   });
+  window.addEventListener('keydown', (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      shortcutHoldActive = true;
+      setEditorProcessingState(true);
+    }
+  });
+  window.addEventListener('keyup', (event) => {
+    if (event.key === 'Enter') {
+      shortcutHoldActive = false;
+      if (!processingFlashHandle) {
+        setEditorProcessingState(false);
+      }
+    }
+  });
 }
 
 async function loadEditorExamples() {
@@ -246,7 +271,11 @@ async function boot() {
     ]);
     const editor = createEditor(monaco, exampleBundle.text);
     wireShortcuts(editor, monaco, playground);
-    setStatus(`Loaded ${exampleBundle.source}. Press ⌘/Ctrl + Enter to sync > results.`, 'ready');
+    const platformHint = detectPlatformHint();
+    if (shortcutHintEl) {
+      shortcutHintEl.textContent = `Process buffer (${platformHint})`;
+    }
+    setStatus(`Loaded ${exampleBundle.source}. Press ${platformHint} to sync > results.`, 'ready');
   } catch (err) {
     setStatus(err.message || 'Failed to initialise playground.', 'error');
   }
