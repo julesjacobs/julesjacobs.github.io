@@ -1,0 +1,218 @@
+:root {
+  color-scheme: dark;
+  font-family: "Space Mono", "Fira Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: clamp(16px, 0.55vw + 15px, 22px);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3vh 2vw;
+  background: radial-gradient(circle at 20% -20%, rgba(41, 83, 123, 0.25), transparent 55%),
+    radial-gradient(circle at 80% 0%, rgba(35, 53, 92, 0.25), transparent 60%),
+    #040b16;
+  color: #dce8f5;
+}
+
+.board {
+  width: min(1120px, 100%);
+  background: #0a1626;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+  padding: clamp(1.4rem, 3vw, 2.4rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.7rem;
+}
+
+.board__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.25rem;
+  color: #c2d7f0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.8rem;
+  display: none;
+}
+
+.board__title {
+  font-size: clamp(1.2rem, 3.2vw, 1.9rem);
+  font-weight: 700;
+}
+
+.clock {
+  font-size: clamp(0.95rem, 2.5vw, 1.3rem);
+  color: #8fa7c6;
+  letter-spacing: 0.2rem;
+}
+
+.board__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: clamp(1.2rem, 2.2vw, 2rem);
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.column__header {
+  text-transform: uppercase;
+  letter-spacing: 0.22rem;
+  color: #9eb8d8;
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  gap: 0.15rem;
+}
+
+.column__header h2 {
+  margin: 0 0 0.2rem;
+  font-size: 1rem;
+  color: #e2f0ff;
+}
+
+.column__header span {
+  font-size: 0.72rem;
+  color: #6f809a;
+  letter-spacing: 0.2rem;
+}
+
+.departures {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.departure-row {
+  background: #0b1522;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 0.9rem 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+}
+
+.departure-row.departing-soon {
+  border-color: #7cb9ff;
+  box-shadow: 0 0 20px rgba(124, 185, 255, 0.2);
+}
+
+.route-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.badge-pair {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.badge-arrow {
+  font-size: 1rem;
+  color: #9fb3c9;
+  margin: 0 0.1rem;
+}
+
+.badge {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #0b0f16;
+}
+
+.badge--origin {
+  background: #b5f0de;
+}
+
+.badge--dest {
+  background: #f0c2e5;
+}
+
+.destinations {
+  display: flex;
+  /* border: 1px solid red; */
+  margin-left: 60px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.25rem;
+}
+
+.destinations .label {
+  font-size: 1.35rem;
+  color: #f4fcff;
+  letter-spacing: 0.05rem;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.destinations .sub {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  /* letter-spacing: 0.3rem; */
+  color: #6c849f;
+}
+
+.departures__empty {
+  text-align: center;
+  padding: 1.3rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: #8194ac;
+  letter-spacing: 0.25rem;
+  text-transform: uppercase;
+}
+
+.board__footer {
+  text-align: center;
+  font-size: 0.75rem;
+  letter-spacing: 0.35rem;
+  text-transform: uppercase;
+  color: #58708b;
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .board__header {
+    letter-spacing: 0.18rem;
+  }
+
+.column__header,
+  .destinations .sub,
+  .board__footer {
+    letter-spacing: 0.2rem;
+  }
+
+  .departure-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

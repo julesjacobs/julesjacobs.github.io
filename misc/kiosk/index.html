@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Paulus Hook Ferry Board</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="kiosk.css">
+  </head>
+  <body>
+    <main class="board" role="main">
+      <header class="board__header">
+        <div class="board__title">
+          <span class="origin">Paulus Hook</span>
+          <span class="arrow" aria-hidden="true">&harr;</span>
+          <span class="destination">Brookfield Place</span>
+        </div>
+        <div class="clock" id="clock">--:--</div>
+      </header>
+      <section class="board__columns">
+        <div class="column">
+          <header class="column__header">
+            <h2>Departing Paulus Hook</h2>
+            <span>to Brookfield Place</span>
+          </header>
+          <div class="departures" id="departures-ph-bpt" aria-live="polite"></div>
+        </div>
+        <div class="column">
+          <header class="column__header">
+            <h2>Departing Brookfield Place</h2>
+            <span>to Paulus Hook</span>
+          </header>
+          <div class="departures" id="departures-bpt-ph" aria-live="polite"></div>
+        </div>
+      </section>
+      <footer class="board__footer">
+        <p>Source: NY Waterway published timetables.</p>
+      </footer>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js" defer crossorigin="anonymous"></script>
+    <script src="kiosk.js" defer></script>
+  </body>
+</html>
