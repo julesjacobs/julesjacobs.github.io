@@ -6,7 +6,7 @@
 
   const { DateTime } = luxon;
   const TIMEZONE = "America/New_York";
-  const ROW_COUNT = 5;
+  const ROW_COUNT = 4;
 
   // Static timetable pulled from https://www.nywaterway.com/PaulusHook-WTCRoute.aspx
   const TIMETABLES = {
