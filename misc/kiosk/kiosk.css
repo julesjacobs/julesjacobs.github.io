@@ -155,14 +155,22 @@ body {
   background: #f0c2e5;
 }
 
+.route-info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  width: 100%;
+}
+
 .destinations {
   display: flex;
-  /* border: 1px solid red; */
-  margin-left: 60px;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.25rem;
+  width: 100%;
 }
 
 .destinations .label {
@@ -177,7 +185,8 @@ body {
 .destinations .sub {
   font-size: 0.75rem;
   text-transform: uppercase;
-  /* letter-spacing: 0.3rem; */
+  letter-spacing: 0.15rem;
+  font-variant-numeric: tabular-nums;
   color: #6c849f;
 }
 
