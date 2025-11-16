@@ -85,6 +85,60 @@ async function waitForPlayground(timeoutMs = 20000) {
   throw new Error('Timed out waiting for the WebAssembly bundle to load.');
 }
 
+let playgroundLoaderPromise = null;
+let playgroundScriptElement = null;
+
+function injectScript(src) {
+  return new Promise((resolve, reject) => {
+    const targetHref = new URL(src, document.baseURI).href;
+    if (playgroundScriptElement && playgroundScriptElement.src === targetHref) {
+      playgroundScriptElement.remove();
+      playgroundScriptElement = null;
+    }
+    const script = document.createElement('script');
+    script.defer = true;
+    script.src = targetHref;
+    script.onload = () => resolve(targetHref);
+    script.onerror = () => reject(new Error(`Failed to load ${targetHref}`));
+    playgroundScriptElement = script;
+    document.head.appendChild(script);
+  });
+}
+
+async function tryLoadBundle(src) {
+  await injectScript(src);
+  return waitForPlayground(5000);
+}
+
+async function ensurePlaygroundLoader() {
+  if (window.MoxPlayground?.process) {
+    return window.MoxPlayground;
+  }
+  if (playgroundLoaderPromise) {
+    return playgroundLoaderPromise;
+  }
+  const base = new URL(document.baseURI);
+  const candidates = [
+    new URL('./mox_playground.bc.wasm.js', base),
+    new URL('../mox_playground.bc.wasm.js', base),
+    new URL('./_build/default/playground/mox_playground.bc.wasm.js', base),
+    new URL('/_build/default/playground/mox_playground.bc.wasm.js', base),
+    new URL('../_build/default/playground/mox_playground.bc.wasm.js', base)
+  ];
+  playgroundLoaderPromise = (async () => {
+    let lastError = null;
+    for (const url of candidates) {
+      try {
+        return await tryLoadBundle(url.href);
+      } catch (err) {
+        lastError = err;
+      }
+    }
+    throw lastError || new Error('Unable to load WebAssembly bundle.');
+  })();
+  return playgroundLoaderPromise;
+}
+
 function registerLanguage(monaco) {
   monaco.languages.register({ id: 'mox' });
 
@@ -296,8 +350,10 @@ async function loadEditorExamples() {
 
 async function boot() {
   try {
+    const monacoReady = loadMonaco();
+    await ensurePlaygroundLoader();
     const [monaco, playground, exampleBundle] = await Promise.all([
-      loadMonaco(),
+      monacoReady,
       waitForPlayground(),
       loadEditorExamples()
     ]);
