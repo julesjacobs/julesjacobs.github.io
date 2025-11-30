@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ber Playground</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-2: #0b1222;
+      --accent: #5eead4;
+      --accent-2: #22c55e;
+      --error: #f87171;
+      --warn: #fbbf24;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 10%, #172554, #0f172a 35%), radial-gradient(circle at 80% 0%, #0ea5e9, transparent 35%), linear-gradient(145deg, #0b1222, #0f172a);
+      color: var(--text);
+      font-family: "JetBrains Mono", "Fira Code", "SFMono-Regular", Consolas, "Liberation Mono", "Courier New", monospace;
+      padding: 32px;
+    }
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.02em;
+      font-weight: 800;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 860px;
+      line-height: 1.5;
+    }
+    .pane-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 960px) {
+      body { padding: 18px; }
+      .pane-grid { grid-template-columns: 1fr; }
+    }
+    .pane {
+      background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+      overflow: hidden;
+      backdrop-filter: blur(4px);
+    }
+    .pane-header {
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pane-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .status {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--muted);
+      padding: 4px 8px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .status[data-state="ok"] { color: var(--accent-2); border-color: rgba(34, 197, 94, 0.4); }
+    .status[data-state="error"] { color: var(--error); border-color: rgba(248, 113, 113, 0.5); }
+    .status[data-state="pending"] { color: var(--warn); border-color: rgba(251, 191, 36, 0.5); }
+    #editor {
+      flex: 1;
+      min-height: 300px;
+    }
+    .cm-editor {
+      height: 100%;
+      background: transparent;
+    }
+    .cm-gutters {
+      background: rgba(255, 255, 255, 0.04);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pane-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-left: auto;
+    }
+    button {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0b1020;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      box-shadow: 0 12px 25px rgba(94, 234, 212, 0.3);
+      transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 28px rgba(34, 197, 94, 0.4);
+    }
+    button:active { transform: translateY(0); }
+    .output {
+      flex: 1;
+      margin: 0;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.25);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      white-space: pre-wrap;
+      line-height: 1.5;
+      overflow: auto;
+      font-size: 14px;
+    }
+    .output[data-state="ok"] { border-left: 3px solid var(--accent-2); }
+    .output[data-state="error"] { border-left: 3px solid var(--error); }
+    .output[data-state="pending"] { border-left: 3px solid var(--warn); }
+    .ber-twiddle {
+      text-decoration: underline wavy;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--warn);
+    }
+    .ber-twiddle-got { text-decoration-color: var(--error); }
+    .ber-twiddle-expected { text-decoration-color: var(--accent); }
+    .ber-twiddle-generic { text-decoration-color: var(--warn); }
+    .type-heading {
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .type-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 4px 0;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+    }
+    .type-label {
+      min-width: 90px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+    }
+    .type-text {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .type-text.got { border-color: rgba(248, 113, 113, 0.4); }
+    .type-text.expected { border-color: rgba(34, 197, 94, 0.4); }
+    .type-mark {
+      text-decoration: underline wavy;
+      text-decoration-thickness: 2px;
+    }
+    .type-mark-got { text-decoration-color: var(--error); }
+    .type-mark-expected { text-decoration-color: var(--accent); }
+    .occurs-box {
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      background: rgba(251, 191, 36, 0.08);
+      color: var(--text);
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <h1>Ber: Better Errors</h1>
+        <p>Experiment with type inference and see precise, inline error highlights as you type. Cmd/Ctrl+Enter to run a fresh check anytime; results appear instantly with got/expected breakdowns.</p>
+      </div>
+    </header>
+    <div class="pane-grid">
+      <section class="pane">
+        <div class="pane-header">
+          <div class="pane-title">Editor</div>
+        </div>
+        <div id="editor"></div>
+      </section>
+      <section class="pane">
+        <div class="pane-header">
+          <div class="pane-title">Typecheck Output</div>
+          <div id="status" class="status" data-state="pending">Waiting…</div>
+        </div>
+        <pre id="output" class="output" data-state="pending"></pre>
+      </section>
+    </div>
+  </div>
+  <script src="./ber_wasm.bc.wasm.js"></script>
+  <script type="module" src="./bundle.js"></script>
+</body>
+</html>
