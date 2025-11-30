@@ -700,7 +700,7 @@
             caml_js_html_entities: caml_js_html_entities};
    }
    (globalThis))
-({"link":[["runtime-c8715436",0],["prelude-d7e4b000",0],["stdlib-9d9d840a",[]],["ber-9564d022",[2]],["jsoo_runtime-1e55b178",[2]],["js_of_ocaml-f9e86417",[2,4]],["ocamlcommon-6ec88150",[2]],["astlib-6a2a045c",[2,6]],["ppxlib_ast-6672a571",[2,7]],["ocaml_shadow-0ebf7fe4",[]],["ppxlib_print_diff-2dcabf73",[2]],["ppx_derivers-a78b6a53",[2]],["ppxlib_traverse_builtins-76a3459c",[2]],["sexplib0-026ed491",[2]],["stdppx-1a164a6d",[2,13]],["ppxlib-92cd80e8",[2,7,8,9,10,11,12,13,14]],["ppx_js-19c879e1",[2,6,8,15]],["ppx_js_rewriter-c5d03a14",[16]],["dune__exe__Ber_wasm-2f705596",[2,3,5]],["std_exit-73ee5fad",[2]],["start-fdb66ab7",0]],"generated":(a=>{var
+({"link":[["runtime-c8715436",0],["prelude-d7e4b000",0],["stdlib-9d9d840a",[]],["ber-a92070b5",[2]],["jsoo_runtime-1e55b178",[2]],["js_of_ocaml-f9e86417",[2,4]],["ocamlcommon-6ec88150",[2]],["astlib-6a2a045c",[2,6]],["ppxlib_ast-6672a571",[2,7]],["ocaml_shadow-0ebf7fe4",[]],["ppxlib_print_diff-2dcabf73",[2]],["ppx_derivers-a78b6a53",[2]],["ppxlib_traverse_builtins-76a3459c",[2]],["sexplib0-026ed491",[2]],["stdppx-1a164a6d",[2,13]],["ppxlib-92cd80e8",[2,7,8,9,10,11,12,13,14]],["ppx_js-19c879e1",[2,6,8,15]],["ppx_js_rewriter-c5d03a14",[16]],["dune__exe__Ber_wasm-2f705596",[2,3,5]],["std_exit-73ee5fad",[2]],["start-fdb66ab7",0]],"generated":(a=>{var
 c=a,b=a?.module?.export||a;return{"env":{"caml_ba_kind_of_typed_array":()=>{throw new
 Error("caml_ba_kind_of_typed_array not implemented")},"caml_dynlink_add_primitive":()=>{throw new
 Error("caml_dynlink_add_primitive not implemented")},"caml_dynlink_close_lib":()=>{throw new
