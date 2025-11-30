@@ -186,6 +186,21 @@
     }
     .type-mark-got { text-decoration-color: var(--error); }
     .type-mark-expected { text-decoration-color: var(--accent); }
+    .type-mark-solid {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-decoration-color: var(--accent);
+    }
+    .type-mark-bg {
+      background: linear-gradient(to bottom, transparent 60%, rgba(34, 197, 94, 0.25) 60%);
+    }
+    .type-mark-box {
+      box-shadow: inset 0 -6px 0 rgba(34, 197, 94, 0.25);
+    }
+    .type-mark-outline {
+      border-bottom: 2px dashed var(--accent);
+      padding-bottom: 1px;
+    }
     .occurs-box {
       padding: 12px 14px;
       border-radius: 12px;
@@ -218,6 +233,39 @@
           <div id="status" class="status" data-state="pending">Waiting…</div>
         </div>
         <pre id="output" class="output" data-state="pending"></pre>
+        <div class="pane-header" style="margin-top: 24px;">
+          <div class="pane-title">Underline Styles Demo</div>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Wavy (current)</span>
+          <span class="type-text expected">
+            normal <span class="type-mark type-mark-expected">expected</span> text
+          </span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Solid</span>
+          <span class="type-text expected">
+            normal <span class="type-mark-solid">expected</span> text
+          </span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Background</span>
+          <span class="type-text expected">
+            normal <span class="type-mark-bg">expected</span> text
+          </span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Inset Box</span>
+          <span class="type-text expected">
+            normal <span class="type-mark-box">expected</span> text
+          </span>
+        </div>
+        <div class="type-row">
+          <span class="type-label">Dashed</span>
+          <span class="type-text expected">
+            normal <span class="type-mark-outline">expected</span> text
+          </span>
+        </div>
       </section>
     </div>
   </div>
