@@ -5,6 +5,11 @@
     "file": "function_argument.ml"
   },
   {
+    "id": "function_argument_partial",
+    "name": "Function argument partial",
+    "file": "function_argument_partial.ml"
+  },
+  {
     "id": "function_argument_indirect",
     "name": "Function argument indirect",
     "file": "function_argument_indirect.ml"
@@ -33,6 +38,11 @@
     "id": "match_branches",
     "name": "Match branches mismatch",
     "file": "match_branches.ml"
+  },
+  {
+    "id": "match_branches_partial",
+    "name": "Match branches partial",
+    "file": "match_branches_partial.ml"
   },
   {
     "id": "simple_list",
