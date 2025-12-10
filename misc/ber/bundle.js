@@ -23348,6 +23348,25 @@ let bad_fs =
       if (!detail || detail.kind !== "type_mismatch") return;
       const gotId = detail.mismatchGotIds?.[0];
       const expectedId = detail.mismatchExpectedIds?.[0];
+      const displayTyName = (name2) => name2 === "->" ? "function" : name2;
+      const findTypeName = (view2, id) => {
+        if (!view2 || id == null) return null;
+        let found = null;
+        const walk = (node) => {
+          if (found) return;
+          if (node.id === id && node.kind === "con") {
+            found = displayTyName(node.name);
+            return;
+          }
+          const children = node.args ?? [];
+          for (const child of children) walk(child);
+        };
+        walk(view2.tree);
+        return found;
+      };
+      const fallbackName = (view2) => view2 && view2.tree.kind === "con" ? displayTyName(view2.tree.name) : null;
+      const gotName = findTypeName(detail.got, gotId) ?? fallbackName(detail.got);
+      const expectedName = findTypeName(detail.expected, expectedId) ?? fallbackName(detail.expected);
       if (gotId == null || expectedId == null) return;
       requestAnimationFrame(() => {
         const gotContainer = output.querySelector('.type-text[data-type-side="got"]');
@@ -23369,6 +23388,8 @@ let bad_fs =
         const endY = endTargetY - endOffset;
         const midY = (startY + endY) / 2;
         const slantsRight = endX >= startX;
+        const gotLabelX = startX + (slantsRight ? 15 : 10);
+        const gotLabelY = startY + (slantsRight ? 5 : 10);
         const labelX = endX + (slantsRight ? 10 : 15);
         const labelY = endY - (slantsRight ? 10 : 5);
         const svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -23385,14 +23406,28 @@ let bad_fs =
         );
         path.setAttribute("class", "type-arrow-path");
         svg2.append(path);
+        const startDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        startDot.setAttribute("cx", `${startX}`);
+        startDot.setAttribute("cy", `${startY}`);
+        startDot.setAttribute("r", "4");
+        startDot.setAttribute("class", "type-arrow-dot");
+        svg2.append(startDot);
         const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         dot.setAttribute("cx", `${endX}`);
         dot.setAttribute("cy", `${endY}`);
         dot.setAttribute("r", "4");
         dot.setAttribute("class", "type-arrow-dot");
         svg2.append(dot);
+        const gotLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        gotLabel.textContent = gotName ? `got ${gotName}` : "got";
+        gotLabel.setAttribute("x", `${gotLabelX}`);
+        gotLabel.setAttribute("y", `${gotLabelY}`);
+        gotLabel.setAttribute("dominant-baseline", "middle");
+        gotLabel.setAttribute("text-anchor", "start");
+        gotLabel.setAttribute("class", "type-arrow-label");
+        svg2.append(gotLabel);
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.textContent = "expected";
+        label.textContent = expectedName ? `expected ${expectedName}` : "expected";
         label.setAttribute("x", `${labelX}`);
         label.setAttribute("y", `${labelY}`);
         label.setAttribute("dominant-baseline", "middle");
