@@ -23128,8 +23128,11 @@ var require_main = __commonJS({
     var editorMount = document.getElementById("editor");
     var output = document.getElementById("output");
     var status = document.getElementById("status");
+    var debugToggle = document.getElementById("debug-toggle");
+    var debugPanel = document.getElementById("debug-panel");
+    var exampleSelect = document.getElementById("example-select");
     var runBtn = document.getElementById("run-btn");
-    if (!editorMount || !output || !status) {
+    if (!editorMount || !output || !status || !debugPanel || !debugToggle || !exampleSelect) {
       throw new Error("Missing editor/output containers in the DOM");
     }
     var initialDoc = `type 'a list = Nil | Cons of 'a * 'a list
@@ -23138,12 +23141,14 @@ let bool_not b =
   match b with
   | true -> false
   | false -> true
-  
 
 let bad_fs =
   Cons ((fun x -> Cons(x, Nil)), Cons (bool_not, Nil))`;
     var view;
+    var lastResult = null;
     var errorMarks = StateEffect.define();
+    var hoverMarks = StateEffect.define();
+    var examples = [];
     var errorField = StateField.define({
       create: () => Decoration.none,
       update(value, tr) {
@@ -23155,11 +23160,39 @@ let bad_fs =
       },
       provide: (f) => EditorView.decorations.from(f)
     });
+    var hoverField = StateField.define({
+      create: () => Decoration.none,
+      update(value, tr) {
+        const updated = value.map(tr.changes);
+        for (const e of tr.effects) {
+          if (e.is(hoverMarks)) return e.value;
+        }
+        return updated;
+      },
+      provide: (f) => EditorView.decorations.from(f)
+    });
     var setStatus = (text, mode) => {
       status.textContent = text;
       status.dataset.state = mode;
     };
     var escapeHtml = (str) => str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    var parseHeading = (raw) => {
+      if (!raw) return { display: "", focusSpan: null, rangeText: null, fileLabel: null };
+      const match = raw.match(/^(.*?):(\d+):(\d+)-(\d+):(\d+)$/);
+      if (!match) return { display: raw, focusSpan: null, rangeText: null, fileLabel: null };
+      const [, file, startLine, startCol, endLine, endCol] = match;
+      const rangeText = `${startLine}:${startCol}-${endLine}:${endCol}`;
+      const focusSpan = {
+        startLine: Number(startLine),
+        startCol: Number(startCol),
+        endLine: Number(endLine),
+        endCol: Number(endCol),
+        label: "focus"
+      };
+      const fileLabel = file === "repl" ? null : file;
+      const display = fileLabel ? `${fileLabel}:${rangeText}` : rangeText;
+      return { display, focusSpan, rangeText, fileLabel };
+    };
     var renderMarkedText = (text, marks2, cls) => {
       if (!marks2.length) return escapeHtml(text);
       const sorted = [...marks2].sort((a, b) => a.start - b.start);
@@ -23177,50 +23210,295 @@ let bad_fs =
       if (cursor2 < text.length) html += escapeHtml(text.slice(cursor2));
       return html;
     };
-    var renderOutput = (result) => {
+    var currentSpans = [];
+    var currentHoverSpans = [];
+    var renderTypeView = (view2, hoverLocs, highlightIds, side) => {
+      if (!view2 || !view2.tree) return `<span class="type-text unknown">unknown</span>`;
+      const buildSpan = (content2, node, loc) => {
+        const classes = ["type-frag"];
+        if (side) classes.push(`type-frag-${side}`);
+        if (highlightIds.has(node.id)) {
+          classes.push("type-frag-mismatch");
+          if (side) classes.push(`type-frag-mismatch-${side}`);
+        }
+        const idx = loc ? hoverLocs.push(loc) - 1 : -1;
+        const attrs2 = [`class="${classes.join(" ")}"`, `data-type-id="${node.id}"`];
+        if (side) attrs2.push(`data-type-side="${side}"`);
+        if (idx >= 0) attrs2.push(`data-loc-idx="${idx}"`);
+        return `<span ${attrs2.join(" ")}">${escapeHtml(content2)}</span>`;
+      };
+      const render = (node, prec2) => {
+        if (node.kind === "var") {
+          const name3 = node.name;
+          const loc2 = node.loc ?? null;
+          const html = buildSpan(name3, node, loc2);
+          return { text: name3, html };
+        }
+        const name2 = node.name;
+        const loc = node.loc ?? null;
+        const wrapSelf = (content2) => buildSpan(content2, node, loc);
+        const args = node.args ?? [];
+        if (name2 === "->" && args.length === 2) {
+          const left = render(args[0], 1);
+          const right = render(args[1], 0);
+          const op = wrapSelf("->");
+          const text = `${left.text} -> ${right.text}`;
+          const html = `${left.html} ${op} ${right.html}`;
+          const needParen2 = prec2 > 0;
+          return { text: needParen2 ? `(${text})` : text, html: needParen2 ? `(${html})` : html };
+        }
+        if (name2 === "*" && args.length === 0) {
+          const content2 = wrapSelf("unit");
+          return { text: "unit", html: content2 };
+        }
+        if (name2 === "*" && args.length > 0) {
+          const rendered3 = args.map((a) => render(a, 0));
+          const textParts = [];
+          const htmlParts = [];
+          rendered3.forEach((r, idx) => {
+            if (idx > 0) {
+              textParts.push("*");
+              htmlParts.push(wrapSelf("*"));
+            }
+            textParts.push(r.text);
+            htmlParts.push(r.html);
+          });
+          const text = textParts.join(" ");
+          const html = htmlParts.join(" ");
+          const needParen2 = prec2 > 1;
+          return { text: needParen2 ? `(${text})` : text, html: needParen2 ? `(${html})` : html };
+        }
+        if (args.length === 0) {
+          const content2 = wrapSelf(name2);
+          return { text: name2, html: content2 };
+        }
+        if (args.length === 1) {
+          const a = render(args[0], 2);
+          const text = `${a.text} ${name2}`;
+          const html = `${a.html} ${wrapSelf(name2)}`;
+          const needParen2 = prec2 > 1;
+          return { text: needParen2 ? `(${text})` : text, html: needParen2 ? `(${html})` : html };
+        }
+        const rendered2 = args.map((a) => render(a, 0));
+        const argsText = rendered2.map((r) => r.text).join(", ");
+        const argsHtml = rendered2.map((r) => r.html).join(", ");
+        const baseText = `(${argsText}) ${name2}`;
+        const baseHtml = `(${argsHtml}) ${wrapSelf(name2)}`;
+        const needParen = prec2 > 1;
+        return { text: needParen ? `(${baseText})` : baseText, html: needParen ? `(${baseHtml})` : baseHtml };
+      };
+      const rendered = render(view2.tree, 0);
+      const rootClasses = ["type-text"];
+      if (side) rootClasses.push(side);
+      const attrs = [`class="${rootClasses.join(" ")}"`];
+      if (side) attrs.push(`data-type-side="${side}"`);
+      return `<span ${attrs.join(" ")}">${rendered.html}</span>`;
+    };
+    var attachHoverHandlers = (container, hoverLocs) => {
+      const nodes = container.querySelectorAll("[data-loc-idx]");
+      nodes.forEach((el) => {
+        const idx = Number(el.dataset.locIdx ?? "-1");
+        if (!Number.isFinite(idx) || idx < 0 || idx >= hoverLocs.length) return;
+        const loc = hoverLocs[idx];
+        el.addEventListener("mouseenter", () => {
+          el.classList.add("type-frag-hovered");
+          const hoverSpan = { ...loc, label: "hover" };
+          applyHoverHighlights([hoverSpan]);
+        });
+        el.addEventListener("mouseleave", () => {
+          el.classList.remove("type-frag-hovered");
+          applyHoverHighlights([]);
+        });
+      });
+    };
+    var attachExprHoverHandlers = (container, spans) => {
+      const byLabel = (label) => spans.filter((s) => s.label === label);
+      const bindHover = (selector, label) => {
+        const el = container.querySelector(selector);
+        if (!el) return;
+        const hoverSpans = byLabel(label).map((s) => ({ ...s }));
+        if (!hoverSpans.length) return;
+        el.addEventListener("mouseenter", () => applyHoverHighlights(hoverSpans));
+        el.addEventListener("mouseleave", () => applyHoverHighlights([]));
+      };
+      bindHover(".expr-snippet.got", "got");
+      bindHover(".expr-snippet.expected", "expected");
+    };
+    var clearMismatchArrow = () => {
+      const existing = output.querySelector(".type-arrow-layer");
+      if (existing) existing.remove();
+    };
+    var alignTypeMismatchColumns = () => {
+      requestAnimationFrame(() => {
+        const rowsContainer = output.querySelector(".type-rows");
+        if (!rowsContainer) return;
+        const exprs = Array.from(rowsContainer.querySelectorAll(".expr-snippet"));
+        if (!exprs.length) return;
+        let maxWidth = 0;
+        exprs.forEach((el) => {
+          const { width } = el.getBoundingClientRect();
+          if (width > maxWidth) maxWidth = width;
+        });
+        if (!Number.isFinite(maxWidth) || maxWidth <= 0) return;
+        rowsContainer.style.setProperty("--expr-col-width", `${Math.ceil(maxWidth)}px`);
+      });
+    };
+    var renderMismatchArrow = (detail) => {
+      clearMismatchArrow();
+      if (!detail || detail.kind !== "type_mismatch") return;
+      const gotId = detail.mismatchGotIds?.[0];
+      const expectedId = detail.mismatchExpectedIds?.[0];
+      if (gotId == null || expectedId == null) return;
+      requestAnimationFrame(() => {
+        const gotContainer = output.querySelector('.type-text[data-type-side="got"]');
+        const expectedContainer = output.querySelector('.type-text[data-type-side="expected"]');
+        if (!gotContainer || !expectedContainer) return;
+        const gotFrag = gotContainer.querySelector(`.type-frag[data-type-id="${gotId}"]`) || gotContainer.querySelector(".type-frag-mismatch");
+        const expectedFrag = expectedContainer.querySelector(`.type-frag[data-type-id="${expectedId}"]`) || expectedContainer.querySelector(".type-frag-mismatch");
+        if (!gotFrag || !expectedFrag) return;
+        const containerRect = output.getBoundingClientRect();
+        if (!containerRect.width || !containerRect.height) return;
+        const startRect = gotFrag.getBoundingClientRect();
+        const endRect = expectedFrag.getBoundingClientRect();
+        const startOffset = 10;
+        const endOffset = 8;
+        const startX = startRect.left + startRect.width / 2 - containerRect.left;
+        const startY = startRect.bottom - containerRect.top + startOffset;
+        const endX = endRect.left + endRect.width / 2 - containerRect.left;
+        const endTargetY = endRect.top - containerRect.top;
+        const endY = endTargetY - endOffset;
+        const midY = (startY + endY) / 2;
+        const slantsRight = endX >= startX;
+        const labelX = endX + (slantsRight ? 10 : 15);
+        const labelY = endY - (slantsRight ? 10 : 5);
+        const svg2 = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg2.classList.add("type-arrow-layer");
+        svg2.setAttribute("viewBox", `0 0 ${containerRect.width} ${containerRect.height}`);
+        svg2.setAttribute("width", "100%");
+        svg2.setAttribute("height", "100%");
+        svg2.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svg2.setAttribute("aria-hidden", "true");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute(
+          "d",
+          `M ${startX} ${startY} C ${startX} ${midY} ${endX} ${midY} ${endX} ${endY}`
+        );
+        path.setAttribute("class", "type-arrow-path");
+        svg2.append(path);
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("cx", `${endX}`);
+        dot.setAttribute("cy", `${endY}`);
+        dot.setAttribute("r", "4");
+        dot.setAttribute("class", "type-arrow-dot");
+        svg2.append(dot);
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.textContent = "expected";
+        label.setAttribute("x", `${labelX}`);
+        label.setAttribute("y", `${labelY}`);
+        label.setAttribute("dominant-baseline", "middle");
+        label.setAttribute("text-anchor", "start");
+        label.setAttribute("class", "type-arrow-label");
+        svg2.append(label);
+        output.append(svg2);
+      });
+    };
+    var renderDebug = () => {
+      if (!debugPanel || !debugToggle) return;
+      if (!debugToggle.checked) {
+        debugPanel.classList.add("hidden");
+        return;
+      }
+      debugPanel.classList.remove("hidden");
+      if (!lastResult) {
+        debugPanel.textContent = "No result yet.";
+        return;
+      }
+      const safe = (key, value) => {
+        if (value instanceof Map) return Object.fromEntries(value);
+        return value;
+      };
+      debugPanel.textContent = JSON.stringify(lastResult, safe, 2);
+    };
+    var renderOutput = (result, headingInfo) => {
       const ok = result.ok;
       output.dataset.state = ok ? "ok" : "error";
       setStatus(ok ? "Typecheck succeeded" : "Typecheck failed", ok ? "ok" : "error");
       const detail = result.detail;
       if (!ok || detail) {
         if (detail && detail.kind === "type_mismatch") {
-          const got = renderMarkedText(
-            detail.got || "",
-            detail.marksGot || [],
-            "type-mark type-mark-got"
+          const parsedHeading = headingInfo ?? parseHeading(detail.heading);
+          const reasonText = escapeHtml(detail.reason || "Type mismatch");
+          const headingLabel = parsedHeading.rangeText !== null ? `${parsedHeading.fileLabel ? `${escapeHtml(parsedHeading.fileLabel)}:` : ""}<span class="type-location">${escapeHtml(parsedHeading.rangeText)}</span>` : escapeHtml(detail.heading || "");
+          const headingHtml = headingLabel || detail.heading ? `${reasonText} at ${headingLabel || escapeHtml(detail.heading || "unknown location")}` : reasonText;
+          const hoverLocs = [];
+          const mismatchGotIds = new Set(detail.mismatchGotIds || []);
+          const mismatchExpectedIds = new Set(detail.mismatchExpectedIds || []);
+          const typeLeft = renderTypeView(detail.got, hoverLocs, mismatchGotIds, "got");
+          const typeRight = renderTypeView(detail.expected, hoverLocs, mismatchExpectedIds, "expected");
+          const exprLeft = renderMarkedText(
+            detail.exprLeft?.expr ?? "<unknown>",
+            detail.marksGot ?? [],
+            "expr-mark expr-mark-got"
           );
-          const expected = renderMarkedText(
-            detail.expected || "",
-            detail.marksExpected || [],
-            "type-mark type-mark-expected"
+          const exprRight = renderMarkedText(
+            detail.exprRight?.expr ?? "<unknown>",
+            detail.marksExpected ?? [],
+            "expr-mark expr-mark-expected"
           );
-          const heading2 = escapeHtml(detail.heading || "");
           output.innerHTML = `
-        <div class="type-heading">Type mismatch at ${heading2}</div>
-        <div class="type-row">
-          <span class="type-label">Got:</span>
-          <span class="type-text got">${got}</span>
-        </div>
-        <div class="type-row">
-          <span class="type-label">Expected:</span>
-          <span class="type-text expected">${expected}</span>
+        <div class="type-heading">${headingHtml}</div>
+        <div class="type-rows">
+          <div class="type-row compact">
+            <code class="expr-snippet got">${exprLeft}</code>
+            <span class="type-sep">:</span>
+            ${typeLeft}
+          </div>
+          <div class="type-row compact">
+            <code class="expr-snippet expected">${exprRight}</code>
+            <span class="type-sep">:</span>
+            ${typeRight}
+          </div>
         </div>
       `;
+          alignTypeMismatchColumns();
+          attachHoverHandlers(output, hoverLocs);
+          attachExprHoverHandlers(output, result.spans ?? []);
+          renderMismatchArrow(detail);
+          lastResult = result;
+          renderDebug();
           return;
         }
         if (detail && detail.kind === "occurs") {
+          const parsedHeading = headingInfo ?? parseHeading(detail.heading);
           const msg = escapeHtml(detail.occursTy ?? "");
-          const heading2 = escapeHtml(detail.heading ? `at ${detail.heading}` : "");
+          const heading2 = parsedHeading.rangeText !== null ? `at ${parsedHeading.fileLabel ? `${escapeHtml(parsedHeading.fileLabel)}:` : ""}<span class="type-location">${escapeHtml(parsedHeading.rangeText)}</span>` : detail.heading ? `at ${escapeHtml(detail.heading)}` : "";
           output.innerHTML = `
         <div class="type-heading">Would require self-referential type ${heading2}</div>
         <div class="occurs-box">\u221E = ${msg}</div>
       `;
+          clearMismatchArrow();
+          lastResult = result;
+          renderDebug();
           return;
         }
         output.textContent = result.output;
+        clearMismatchArrow();
+        lastResult = result;
+        renderDebug();
         return;
       }
       output.textContent = result.output;
+      clearMismatchArrow();
+      lastResult = result;
+      renderDebug();
+    };
+    var redrawMismatchArrow = () => {
+      alignTypeMismatchColumns();
+      if (lastResult?.detail?.kind === "type_mismatch") {
+        renderMismatchArrow(lastResult.detail);
+      } else {
+        clearMismatchArrow();
+      }
     };
     var sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     var waitForBer = async (timeoutMs = 1e4) => {
@@ -23235,6 +23513,44 @@ let bad_fs =
     var pending = false;
     var nextRunId = 0;
     var appliedRunId = 0;
+    var loadExample = async (id) => {
+      if (!examples.length) return;
+      const ex = examples.find((e) => e.id === id) || examples[0];
+      if (!ex) return;
+      try {
+        const res = await fetch(`./examples/${ex.file}`);
+        if (!res.ok) throw new Error(`Failed to load example ${ex.file}`);
+        const text = await res.text();
+        view.dispatch({
+          changes: { from: 0, to: view.state.doc.length, insert: text }
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    var populateExamples = async () => {
+      if (!exampleSelect) return;
+      try {
+        const res = await fetch("./examples/index.json");
+        if (!res.ok) throw new Error(`Failed to load examples index (${res.status})`);
+        examples = await res.json();
+      } catch (err) {
+        console.error(err);
+        examples = [];
+      }
+      if (!examples.length) {
+        exampleSelect.disabled = true;
+        exampleSelect.innerHTML = `<option>Examples unavailable</option>`;
+        return;
+      }
+      exampleSelect.disabled = false;
+      exampleSelect.innerHTML = examples.map((ex) => `<option value="${ex.id}">${ex.name}</option>`).join("");
+      exampleSelect.addEventListener("change", (ev) => {
+        const target = ev.target;
+        void loadExample(target.value);
+      });
+      void loadExample(examples[0].id);
+    };
     var runTypecheck = async () => {
       if (running) {
         pending = true;
@@ -23248,8 +23564,9 @@ let bad_fs =
         const result = api.typecheck(view.state.doc.toString());
         if (runId < appliedRunId) return;
         appliedRunId = runId;
-        renderOutput(result);
-        updateHighlights(result.spans ?? []);
+        const headingInfo = result.detail ? parseHeading(result.detail.heading) : void 0;
+        renderOutput(result, headingInfo);
+        updateHighlights(result.spans ?? [], headingInfo?.focusSpan ?? null);
       } catch (err) {
         if (runId < appliedRunId) return;
         appliedRunId = runId;
@@ -23264,6 +23581,9 @@ let bad_fs =
         }
       }
     };
+    debugToggle.addEventListener("change", () => {
+      renderDebug();
+    });
     var triggerTypecheck = () => {
       void runTypecheck();
       return true;
@@ -23302,19 +23622,36 @@ let bad_fs =
       );
       return { from: Math.min(start, end), to: Math.max(start, end) };
     };
-    var decorateSpans = (spans) => {
+    var decorateSpans = (spans, mode = "base") => {
+      if (!spans.length) return Decoration.none;
       const marks2 = [];
       for (const span of spans) {
         const { from, to } = spanToRange(span);
         if (from === to) continue;
-        const cls = span.label === "got" ? "ber-twiddle ber-twiddle-got" : span.label === "expected" ? "ber-twiddle ber-twiddle-expected" : "ber-twiddle ber-twiddle-generic";
-        marks2.push(Decoration.mark({ class: cls }).range(from, to));
+        const cls = mode === "hover" ? "ber-hover-mark" : span.label === "focus" ? "ber-focus-mark" : span.label === "got" ? "ber-twiddle ber-twiddle-got" : span.label === "expected" ? "ber-twiddle ber-twiddle-expected" : "ber-twiddle ber-twiddle-generic";
+        const parts = [];
+        if (span.label && span.label !== "focus") parts.push(String(span.label));
+        if (span.ty) parts.push(String(span.ty));
+        const attributes = parts.length ? { title: parts.join(": ") } : void 0;
+        const spec = attributes ? { class: cls, attributes } : { class: cls };
+        marks2.push(Decoration.mark(spec).range(from, to));
       }
-      return Decoration.set(marks2, true);
+      return marks2.length ? Decoration.set(marks2, true) : Decoration.none;
     };
-    var updateHighlights = (spans) => {
-      const deco = spans.length ? decorateSpans(spans) : Decoration.none;
+    var applyBaseHighlights = (spans) => {
+      currentSpans = spans;
+      const deco = decorateSpans(spans, "base");
       view.dispatch({ effects: errorMarks.of(deco) });
+    };
+    var applyHoverHighlights = (spans) => {
+      currentHoverSpans = spans;
+      const deco = decorateSpans(spans, "hover");
+      view.dispatch({ effects: hoverMarks.of(deco) });
+    };
+    var updateHighlights = (spans, focusSpan) => {
+      applyHoverHighlights([]);
+      const combined = focusSpan ? [...spans, focusSpan] : spans;
+      applyBaseHighlights(combined);
     };
     var queueTypecheck = () => {
       setStatus("Typechecking\u2026", "pending");
@@ -23326,6 +23663,7 @@ let bad_fs =
         doc: initialDoc,
         extensions: [
           errorField,
+          hoverField,
           typecheckKeymap,
           typecheckDomHandlers,
           EditorView.updateListener.of((update) => {
@@ -23340,7 +23678,9 @@ let bad_fs =
         ]
       })
     });
+    window.addEventListener("resize", () => redrawMismatchArrow());
     runTypecheck();
+    void populateExamples();
   }
 });
 export default require_main();

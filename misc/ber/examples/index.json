@@ -1,0 +1,67 @@
+[
+  {
+    "id": "function_argument",
+    "name": "Function argument mismatch",
+    "file": "function_argument.ml"
+  },
+  {
+    "id": "function_argument_indirect",
+    "name": "Function argument indirect",
+    "file": "function_argument_indirect.ml"
+  },
+  {
+    "id": "too_many_arguments",
+    "name": "Too many arguments",
+    "file": "too_many_arguments.ml"
+  },
+  {
+    "id": "calling_non_function",
+    "name": "Calling non-function",
+    "file": "calling_non_function.ml"
+  },
+  {
+    "id": "match_patterns",
+    "name": "Match pattern mismatch",
+    "file": "match_patterns.ml"
+  },
+  {
+    "id": "match_scrutinee_pattern",
+    "name": "Match scrutinee pattern mismatch",
+    "file": "match_scrutinee_pattern.ml"
+  },
+  {
+    "id": "match_branches",
+    "name": "Match branches mismatch",
+    "file": "match_branches.ml"
+  },
+  {
+    "id": "simple_list",
+    "name": "List element mismatch",
+    "file": "simple_list.ml"
+  },
+  {
+    "id": "bool_not_list",
+    "name": "Complex element mismatch",
+    "file": "bool_not_list.ml"
+  },
+  {
+    "id": "fold_arg_swap",
+    "name": "Fold argument swap",
+    "file": "fold_arg_swap.ml"
+  },
+  {
+    "id": "fold_acc_swap",
+    "name": "Fold accumulator swap",
+    "file": "fold_acc_swap.ml"
+  },
+  {
+    "id": "Function composition mismatch",
+    "name": "Function composition mismatch",
+    "file": "function_composition.ml"
+  },
+  {
+    "id": "function_composition_call",
+    "name": "Function composition call mismatch",
+    "file": "function_composition_call.ml"
+  }
+]

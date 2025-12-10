@@ -112,6 +112,21 @@
       gap: 12px;
       margin-left: auto;
     }
+    .example-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .example-select {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+    }
     button {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
       color: #0b1020;
@@ -140,6 +155,7 @@
       line-height: 1.5;
       overflow: auto;
       font-size: 14px;
+      position: relative;
     }
     .output[data-state="ok"] { border-left: 3px solid var(--accent-2); }
     .output[data-state="error"] { border-left: 3px solid var(--error); }
@@ -152,19 +168,46 @@
     }
     .ber-twiddle-got { text-decoration-color: var(--error); }
     .ber-twiddle-expected { text-decoration-color: var(--accent); }
+    .ber-twiddle-hover { text-decoration-color: var(--accent-2); }
     .ber-twiddle-generic { text-decoration-color: var(--warn); }
+    .ber-hover-mark {
+      outline: 2px dashed var(--accent-2);
+      outline-offset: 2px;
+      border-radius: 4px;
+      background: rgba(34, 197, 94, 0.12);
+    }
+    .ber-focus-mark {
+      background: rgba(251, 191, 36, 0.13);
+      border-radius: 10px;
+      box-shadow:
+        0px 0px 11px 4px rgba(251, 191, 36, 0.13);
+    }
     .type-heading {
       color: var(--muted);
       margin-bottom: 8px;
       font-weight: 600;
     }
+    .type-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+    .type-location {
+      color: var(--text);
+      padding: 2px 6px;
+      background: rgba(251, 191, 36, 0.2);
+      border-radius: 10px;
+      box-shadow:
+        0px 0px 11px 4px rgba(251, 191, 36, 0.2);
+    }
     .type-row {
       display: flex;
       align-items: baseline;
       gap: 10px;
-      margin: 4px 0;
+      margin: 0;
       font-family: "JetBrains Mono", "Fira Code", monospace;
     }
+    .type-row.compact { margin: 0; }
     .type-label {
       min-width: 90px;
       color: var(--muted);
@@ -172,22 +215,108 @@
       letter-spacing: 0.08em;
       font-size: 12px;
     }
+    .expr-snippet {
+      display: inline-block;
+      width: var(--expr-col-width, auto);
+      text-align: right;
+      white-space: pre;
+      color: var(--text);
+    }
+    .expr-snippet.got { 
+      color: var(--error); 
+      text-decoration: underline dashed;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+      text-decoration-color: var(--error);  
+    }
+    .expr-snippet.expected { 
+      color: var(--accent); 
+      text-decoration: underline dashed;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+      text-decoration-color: var(--accent);  
+    }
+    .expr-mark {
+      text-decoration: underline dashed;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+      padding: 0 1px;
+      border-radius: 6px;
+    }
+    .expr-mark-got {
+      text-decoration-color: var(--error);
+      background: rgba(248, 113, 113, 0.16);
+    }
+    .expr-mark-expected {
+      text-decoration-color: var(--accent);
+      background: rgba(94, 234, 212, 0.16);
+    }
+    .type-sep {
+      display: inline-block;
+      width: 12px;
+      text-align: center;
+    }
     .type-text {
       display: inline-block;
       padding: 2px 6px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      /* background: rgba(255, 255, 255, 0.04); */
+      /* border: 1px solid rgba(255, 255, 255, 0.06); */
     }
-    .type-text.got { border-color: rgba(248, 113, 113, 0.4); }
-    .type-text.expected { border-color: rgba(34, 197, 94, 0.4); }
+    .type-text.got { 
+      /* border-color: rgba(248, 113, 113, 0.4);  */
+      /* box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.12);  */
+      /* background: rgba(248, 113, 113, 0.08); */
+    }
+    .type-text.expected { 
+      /* border-color: rgba(94, 234, 212, 0.45);  */
+      /* box-shadow: inset 0 0 0 1px rgba(94, 234, 212, 0.12);  */
+      /* background: rgba(94, 234, 212, 0.08); */
+    }
+    .type-arrow-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: visible;
+    }
+    .type-arrow-path {
+      stroke: var(--warn);
+      stroke-width: 2;
+      fill: none;
+      opacity: 0.9;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+    }
+    .type-arrow-dot { fill: var(--warn); }
+    .type-arrow-label {
+      fill: var(--warn);
+      font-size: 12px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      paint-order: stroke fill;
+      stroke: rgba(0, 0, 0, 0.6);
+      stroke-width: 2px;
+      letter-spacing: 0.04em;
+    }
+    .type-frag { padding: 0 2px; border-radius: 6px; transition: background 120ms ease, outline-color 120ms ease; }
+    .type-frag-got { background: rgba(248, 113, 113, 0.04); }
+    .type-frag-expected { background: rgba(94, 234, 212, 0.04); }
+    .type-frag-mismatch { background: rgba(248, 113, 113, 0.18); border-bottom: 2px solid rgba(248, 113, 113, 0.5); }
+    .type-frag-mismatch-got { background: rgba(248, 113, 113, 0.22); border-bottom-color: rgba(248, 113, 113, 0.65); }
+    .type-frag-mismatch-expected { background: rgba(94, 234, 212, 0.18); border-bottom-color: rgba(94, 234, 212, 0.6); }
+    .type-frag-hovered { background: rgba(94, 234, 212, 0.16); outline: 1px dashed rgba(94, 234, 212, 0.65); }
     .type-mark {
       text-decoration: underline dashed;
       text-decoration-thickness: 2px;
       text-underline-offset: 4px;
+      border-radius: 6px;
     }
-    .type-mark-got { text-decoration-color: var(--error); }
-    .type-mark-expected { text-decoration-color: var(--accent); }
+    .type-mark-got {
+      text-decoration-color: var(--error);
+      background: rgba(248, 113, 113, 0.12);
+    }
+    .type-mark-expected {
+      text-decoration-color: var(--accent);
+      background: rgba(94, 234, 212, 0.12);
+    }
     .occurs-box {
       padding: 12px 14px;
       border-radius: 12px;
@@ -196,6 +325,34 @@
       color: var(--text);
       font-family: "JetBrains Mono", "Fira Code", monospace;
       display: inline-block;
+    }
+    .debug-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .debug-panel {
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      max-height: 240px;
+      overflow: auto;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+    }
+    .debug-panel.hidden { display: none; }
+    .debug-checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -211,6 +368,12 @@
       <section class="pane">
         <div class="pane-header">
           <div class="pane-title">Editor</div>
+          <div class="pane-controls">
+            <label class="example-picker">
+              <span>Examples</span>
+              <select id="example-select" class="example-select"></select>
+            </label>
+          </div>
         </div>
         <div id="editor"></div>
       </section>
@@ -220,6 +383,13 @@
           <div id="status" class="status" data-state="pending">Waiting…</div>
         </div>
         <pre id="output" class="output" data-state="pending"></pre>
+        <pre id="debug-panel" class="debug-panel hidden"></pre>
+        <div class="debug-bar">
+          <label class="debug-checkbox">
+            <input type="checkbox" id="debug-toggle">
+            <span>Debug mode</span>
+          </label>
+        </div>
       </section>
     </div>
   </div>
