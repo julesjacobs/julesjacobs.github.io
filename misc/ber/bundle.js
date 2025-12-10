@@ -23221,7 +23221,8 @@ let bad_fs =
           classes.push("type-frag-mismatch");
           if (side) classes.push(`type-frag-mismatch-${side}`);
         }
-        const idx = loc ? hoverLocs.push(loc) - 1 : -1;
+        const hoverLoc = node.locFar ?? loc;
+        const idx = hoverLoc ? hoverLocs.push(hoverLoc) - 1 : -1;
         const attrs2 = [`class="${classes.join(" ")}"`, `data-type-id="${node.id}"`];
         if (side) attrs2.push(`data-type-side="${side}"`);
         if (idx >= 0) attrs2.push(`data-loc-idx="${idx}"`);
@@ -23314,12 +23315,19 @@ let bad_fs =
     var attachExprHoverHandlers = (container, spans) => {
       const byLabel = (label) => spans.filter((s) => s.label === label);
       const bindHover = (selector, label) => {
-        const el = container.querySelector(selector);
+        const el = container.querySelector(`${selector} .expr-snippet-inner`);
         if (!el) return;
         const hoverSpans = byLabel(label).map((s) => ({ ...s }));
-        if (!hoverSpans.length) return;
-        el.addEventListener("mouseenter", () => applyHoverHighlights(hoverSpans));
-        el.addEventListener("mouseleave", () => applyHoverHighlights([]));
+        const onEnter = () => {
+          el.classList.add("expr-snippet-hovered");
+          applyHoverHighlights(hoverSpans);
+        };
+        const onLeave = () => {
+          el.classList.remove("expr-snippet-hovered");
+          applyHoverHighlights([]);
+        };
+        el.addEventListener("mouseenter", onEnter);
+        el.addEventListener("mouseleave", onLeave);
       };
       bindHover(".expr-snippet.got", "got");
       bindHover(".expr-snippet.expected", "expected");
@@ -23484,12 +23492,12 @@ let bad_fs =
         <div class="type-heading">${headingHtml}</div>
         <div class="type-rows">
           <div class="type-row compact">
-            <code class="expr-snippet got">${exprLeft}</code>
+            <code class="expr-snippet got"><span class="expr-snippet-inner">${exprLeft}</span></code>
             <span class="type-sep">:</span>
             ${typeLeft}
           </div>
           <div class="type-row compact">
-            <code class="expr-snippet expected">${exprRight}</code>
+            <code class="expr-snippet expected"><span class="expr-snippet-inner">${exprRight}</span></code>
             <span class="type-sep">:</span>
             ${typeRight}
           </div>

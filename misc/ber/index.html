@@ -222,19 +222,21 @@
       white-space: pre;
       color: var(--text);
     }
-    .expr-snippet.got { 
-      color: var(--error); 
-      text-decoration: underline dashed;
-      text-decoration-thickness: 2px;
-      text-underline-offset: 4px;
-      text-decoration-color: var(--error);  
+    .expr-snippet-inner { display: inline-block; }
+    .expr-snippet-hovered {
+      background: rgba(94, 234, 212, 0.12);
+      outline: 1px dashed rgba(94, 234, 212, 0.65);
+      outline-offset: 3px;
+      border-radius: 10px;
     }
-    .expr-snippet.expected { 
-      color: var(--accent); 
+    .expr-snippet.got { color: var(--error); }
+    .expr-snippet.expected { color: var(--accent); }
+    .expr-snippet.got .expr-snippet-inner,
+    .expr-snippet.expected .expr-snippet-inner {
       text-decoration: underline dashed;
       text-decoration-thickness: 2px;
       text-underline-offset: 4px;
-      text-decoration-color: var(--accent);  
+      text-decoration-color: currentColor;
     }
     .expr-mark {
       text-decoration: underline dashed;
