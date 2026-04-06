@@ -498,7 +498,7 @@ module Locality = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -544,10 +544,10 @@ module Regionality = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1) lsl 1)) lxor 0b11
 
   module Repr = struct
@@ -594,7 +594,7 @@ module Uniqueness = struct
   let[@inline] join x y = x land y
   let[@inline] meet x y = x lor y
   let[@inline] subtract x y = (y lxor 0b1) lor x
-  let[@inline] imply x y = y land (x lxor 0b1)
+  let[@inline] imply x y = y land lnot x
 
   module Repr = struct
     let[@inline] to_int_unsafe x = x
@@ -636,7 +636,7 @@ module Linearity = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -682,10 +682,10 @@ module Portability = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1) lsl 1)) lxor 0b11
 
   module Repr = struct
@@ -734,10 +734,10 @@ module Contention = struct
   let[@inline] join x y = x land y
   let[@inline] meet x y = x lor y
   let[@inline] subtract x y =
-    let zyx = y land (x lxor 0b11) in
+    let zyx = y land lnot x in
     (zyx lor ((zyx land 0b1) lsl 1)) lxor 0b11
   let[@inline] imply x y =
-    let zyx = y land (x lxor 0b11) in
+    let zyx = y land lnot x in
     zyx lor ((zyx land 0b10) lsr 1)
 
   module Repr = struct
@@ -783,7 +783,7 @@ module Forkable = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -826,7 +826,7 @@ module Yielding = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -870,7 +870,7 @@ module Staticity = struct
   let[@inline] join x y = x land y
   let[@inline] meet x y = x lor y
   let[@inline] subtract x y = (y lxor 0b1) lor x
-  let[@inline] imply x y = y land (x lxor 0b1)
+  let[@inline] imply x y = y land lnot x
 
   module Repr = struct
     let[@inline] to_int_unsafe x = x
@@ -916,7 +916,7 @@ module Statefulness = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b11)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b11) lor y
 
   module Repr = struct
@@ -970,7 +970,7 @@ module Visibility = struct
   let[@inline] join x y = x land y
   let[@inline] meet x y = x lor y
   let[@inline] subtract x y = (y lxor 0b11) lor x
-  let[@inline] imply x y = y land (x lxor 0b11)
+  let[@inline] imply x y = y land lnot x
 
   module Repr = struct
     let[@inline] to_int_unsafe x = x
@@ -1021,10 +1021,10 @@ module Externality = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1) lsl 1)) lxor 0b11
 
   module Repr = struct
@@ -1070,7 +1070,7 @@ module Nullability = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -1116,10 +1116,10 @@ module Separability = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1) lsl 1)) lxor 0b11
 
   module Repr = struct
@@ -1165,7 +1165,7 @@ module Pointerness = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -1204,10 +1204,10 @@ module Monadic = struct
   let[@inline] join x y = x land y
   let[@inline] meet x y = x lor y
   let[@inline] subtract x y =
-    let zyx = y land (x lxor 0b111111) in
+    let zyx = y land lnot x in
     (zyx lor ((zyx land 0b10) lsl 1)) lxor 0b111111
   let[@inline] imply x y =
-    let zyx = y land (x lxor 0b111111) in
+    let zyx = y land lnot x in
     zyx lor ((zyx land 0b100) lsr 1)
 
   module Repr = struct
@@ -1278,10 +1278,10 @@ module Comonadic = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b1111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b100) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b1111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b10) lsl 1)) lxor 0b1111111
 
   module Repr = struct
@@ -1360,10 +1360,10 @@ module Comonadic_with_locality = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b1000) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b100) lsl 1)) lxor 0b11111111
 
   module Repr = struct
@@ -1418,10 +1418,10 @@ module Comonadic_with_regionality = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b111111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10010) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b111111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1001) lsl 1)) lxor 0b111111111
 
   module Repr = struct
@@ -1612,10 +1612,10 @@ module Scannable_axes = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10010) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1001) lsl 1)) lxor 0b111111
 
   module Repr = struct
@@ -1694,7 +1694,7 @@ module Uniqueness_op = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -1740,10 +1740,10 @@ module Contention_op = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b10) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b1) lsl 1)) lxor 0b11
 
   module Repr = struct
@@ -1793,7 +1793,7 @@ module Visibility_op = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b11)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b11) lor y
 
   module Repr = struct
@@ -1842,7 +1842,7 @@ module Staticity_op = struct
   let[@inline] equal (x : t) (y : t) = x = y
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
-  let[@inline] subtract x y = x land (y lxor 0b1)
+  let[@inline] subtract x y = x land lnot y
   let[@inline] imply x y = (x lxor 0b1) lor y
 
   module Repr = struct
@@ -1879,10 +1879,10 @@ module Monadic_op = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b100) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b10) lsl 1)) lxor 0b111111
 
   module Repr = struct
@@ -1955,10 +1955,10 @@ module Kind_axes = struct
   let[@inline] join x y = x lor y
   let[@inline] meet x y = x land y
   let[@inline] subtract x y =
-    let zxy = x land (y lxor 0b11111111111111111111) in
+    let zxy = x land lnot y in
     zxy lor ((zxy land 0b1001000010000001000) lsr 1)
   let[@inline] imply x y =
-    let zxy = x land (y lxor 0b11111111111111111111) in
+    let zxy = x land lnot y in
     (zxy lor ((zxy land 0b100100001000000100) lsl 1)) lxor 0b11111111111111111111
 
   module Repr = struct
