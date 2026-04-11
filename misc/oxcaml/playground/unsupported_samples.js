@@ -23,30 +23,6 @@ export const unsupportedSamples = [
     next_support_guess: "needs extension enable in the browser wrapper",
   },
   {
-    id: "backlog-iarray-length",
-    topic: "Backlog",
-    label: "Immutable arrays / Iarray",
-    filename: "iarray_length.ml",
-    mode: "run",
-    source: [
-      "module Iarray = Stdlib_stable.Iarray;;",
-      "let xs = Iarray.of_list [1; 2; 3];;",
-      "print_endline (string_of_int (Iarray.length xs));;",
-    ].join("\n"),
-    expected_kind: "diagnostic",
-    expected_text: [
-      "Unbound module Stdlib_stable",
-    ],
-    browser_status: "unsupported",
-    local_status: "verified",
-    origin: "testsuite/tests/lib-array/test_iarray.ml",
-    failure_reason:
-      "The browser wrapper does not currently expose the `stdlib_stable` load path and linked implementation surface needed for `Iarray` examples.",
-    local_result_summary:
-      "Verified with the local compiler using `-I +stdlib_stable stdlib_stable.cma`: the program prints 3.",
-    next_support_guess: "needs stdlib_stable packaging in the browser cmis/runtime setup",
-  },
-  {
     id: "backlog-zero-alloc-checker",
     topic: "Backlog",
     label: "Zero_alloc checker",

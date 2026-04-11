@@ -46,6 +46,7 @@ let lastCompletedCheck = {
 let runRevision = -1;
 let editorMarkers = [];
 const loadedScriptUrls = new Map();
+let browserFsPromise = null;
 
 function loadScript(url) {
   const href = url instanceof URL ? url.href : String(url);
@@ -65,14 +66,92 @@ function loadScript(url) {
   return promise;
 }
 
+function installGlobalScriptEvaluator() {
+  globalThis.__oxcamlEvalGlobalScript = (source, label = "oxcaml-runtime.js") => {
+    const script = document.createElement("script");
+    script.textContent = `${String(source)}\n//# sourceURL=${String(label)}`;
+    document.head.appendChild(script);
+    script.remove();
+  };
+}
+
 function buildAssetUrl(path) {
   return new URL(`${buildBase}/${path}`, import.meta.url);
+}
+
+async function fetchJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`failed to fetch ${url}`);
+  }
+  return response.json();
+}
+
+async function readBlobAsBinaryString(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(reader.error ?? new Error("failed to read blob"));
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        reject(new Error("expected binary string from FileReader"));
+        return;
+      }
+      resolve(reader.result);
+    };
+    reader.readAsBinaryString(blob);
+  });
+}
+
+async function fetchBinaryString(url, compression) {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`failed to fetch ${url}`);
+  }
+  if (compression === "gzip") {
+    if (typeof DecompressionStream !== "function") {
+      throw new Error("gzip-compressed browser assets require DecompressionStream support");
+    }
+    if (!response.body) {
+      throw new Error(`missing response body for ${url}`);
+    }
+    const stream = response.body.pipeThrough(new DecompressionStream("gzip"));
+    return readBlobAsBinaryString(await new Response(stream).blob());
+  }
+  return readBlobAsBinaryString(await response.blob());
+}
+
+async function ensureBrowserFsLoaded() {
+  if (browserFsPromise) {
+    return browserFsPromise;
+  }
+  browserFsPromise = (async () => {
+    const manifest = await fetchJson(buildAssetUrl("browser_fs_manifest.json"));
+    if (typeof globalThis.jsoo_create_file !== "function") {
+      throw new Error("js_of_ocaml filesystem initializer is not ready");
+    }
+    let nextIndex = 0;
+    const concurrency = Math.min(6, manifest.length || 1);
+    async function worker() {
+      while (nextIndex < manifest.length) {
+        const entry = manifest[nextIndex];
+        nextIndex += 1;
+        const content = await fetchBinaryString(
+          buildAssetUrl(entry.asset_path),
+          entry.compression,
+        );
+        globalThis.jsoo_create_file(entry.fs_path, content);
+      }
+    }
+    await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  })();
+  return browserFsPromise;
 }
 
 const ready = (async () => {
   await loadScript(new URL("./runtime_shims.js", import.meta.url));
   await loadScript(buildAssetUrl("web_bytecode_js.bc.js"));
-  await loadScript(buildAssetUrl("stdlib.cmis.js"));
+  installGlobalScriptEvaluator();
+  await ensureBrowserFsLoaded();
   const backend = window.WebBytecodeJs;
   if (
     !backend ||

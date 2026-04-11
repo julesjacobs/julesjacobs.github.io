@@ -26,6 +26,14 @@
     );
   }
 
+  function popcnt32(value) {
+    let x = value >>> 0;
+    x -= (x >>> 1) & 0x55555555;
+    x = (x & 0x33333333) + ((x >>> 2) & 0x33333333);
+    x = (x + (x >>> 4)) & 0x0f0f0f0f;
+    return ((x * 0x01010101) >>> 24) | 0;
+  }
+
   global.caml_is_boot_compiler = function caml_is_boot_compiler() {
     return 0;
   };
@@ -33,6 +41,16 @@
   global.caml_ml_domain_index = function caml_ml_domain_index() {
     noteShimCall("caml_ml_domain_index");
     return 0;
+  };
+
+  global.caml_sys_const_arch_amd64 = function caml_sys_const_arch_amd64() {
+    noteShimCall("caml_sys_const_arch_amd64");
+    return 0;
+  };
+
+  global.caml_sys_const_arch_arm64 = function caml_sys_const_arch_arm64() {
+    noteShimCall("caml_sys_const_arch_arm64");
+    return 1;
   };
 
   global.caml_eventlog_pause = function caml_eventlog_pause() {
@@ -138,6 +156,28 @@
 
   global.caml_float32_of_string = function caml_float32_of_string(source) {
     return Math.fround(global.caml_float_of_string(source));
+  };
+
+  global.caml_int_popcnt = function caml_int_popcnt(value) {
+    return popcnt32(value);
+  };
+
+  global.caml_int32_popcnt = function caml_int32_popcnt(value) {
+    return popcnt32(value);
+  };
+
+  global.caml_nativeint_popcnt = function caml_nativeint_popcnt(value) {
+    return popcnt32(value);
+  };
+
+  global.caml_int64_popcnt = function caml_int64_popcnt(value) {
+    if (
+      typeof global.caml_int64_lo32 === "function" &&
+      typeof global.caml_int64_hi32 === "function"
+    ) {
+      return (popcnt32(global.caml_int64_lo32(value)) + popcnt32(global.caml_int64_hi32(value))) | 0;
+    }
+    return popcnt32(value);
   };
 
   global.caml_format_float32 = function caml_format_float32(format, value) {
