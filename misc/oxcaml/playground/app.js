@@ -124,6 +124,22 @@ function removeStoredSource(storageKey) {
 
 const oxcamlIdentifierNames = new Set(["local_", "stack_", "exclave_"]);
 const packageModuleNames = new Set(["Base", "Core", "Stdlib_stable"]);
+const primitiveTypeNames = new Set([
+  "array",
+  "bool",
+  "bytes",
+  "char",
+  "exn",
+  "float",
+  "int",
+  "list",
+  "nativeint",
+  "option",
+  "ref",
+  "result",
+  "string",
+  "unit",
+]);
 const keywordTokens = new Set([
   "and",
   "as",
@@ -486,6 +502,8 @@ function classifySyntaxToken(tokens, index, source) {
             ? "tok-module"
             : "tok-constructor",
         );
+      } else if (primitiveTypeNames.has(token.text)) {
+        classes.push("tok-type");
       } else if (parameterIntroducers.has(prev?.text ?? "")) {
         classes.push("tok-parameter");
       } else if (declarationIntroducers.has(prev?.text ?? "")) {
@@ -521,6 +539,99 @@ function buildSyntaxDecorations(source) {
     builder.add(from, to, Decoration.mark({ class: className }));
   }
   return builder.finish();
+}
+
+function highlightedSyntaxHtml(source) {
+  const tokens = tokenizeSyntax(source);
+  let cursor = 0;
+  let html = "";
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    const className = classifySyntaxToken(tokens, index, source);
+    if (!className) {
+      continue;
+    }
+    html += escapeHtml(source.slice(cursor, token.from));
+    html += `<span class="${className}">${escapeHtml(source.slice(token.from, token.to))}</span>`;
+    cursor = token.to;
+  }
+  html += escapeHtml(source.slice(cursor));
+  return html;
+}
+
+function outcomeStartIndex(line) {
+  const match = /(?:val\s+[A-Za-z_][A-Za-z0-9_']*\s*:|-\s*:|type\b|module(?:\s+type)?\b|exception\b|external\b|class(?:\s+type)?\b)/.exec(line);
+  return match ? match.index : -1;
+}
+
+function splitOutcomeTypeAndValue(text) {
+  const separator = " = ";
+  const index = text.indexOf(separator);
+  if (index === -1) {
+    return { typeText: text, valueText: null };
+  }
+  return {
+    typeText: text.slice(0, index),
+    valueText: text.slice(index + separator.length),
+  };
+}
+
+function highlightedOutcomeHtml(line) {
+  const leadingMatch = /^(\s*)/.exec(line);
+  const leading = leadingMatch ? leadingMatch[1] : "";
+  const body = line.slice(leading.length);
+  const valueMatch = /^(val)\s+([A-Za-z_][A-Za-z0-9_']*)\s*:\s*(.+)$/.exec(body);
+  const expressionMatch = /^(-)\s*:\s*(.+)$/.exec(body);
+  if (!valueMatch && !expressionMatch) {
+    return escapeHtml(leading) + highlightedSyntaxHtml(body || " ");
+  }
+  const keyword = valueMatch ? valueMatch[1] : expressionMatch[1];
+  const name = valueMatch ? valueMatch[2] : null;
+  const rest = valueMatch ? valueMatch[3] : expressionMatch[2];
+  const { typeText, valueText } = splitOutcomeTypeAndValue(rest);
+  const valueHtml = valueText === null
+    ? ""
+    : ` <span class="utop-outcome__equals">=</span> <span class="utop-outcome__value">${highlightedSyntaxHtml(valueText)}</span>`;
+  return (
+    `${escapeHtml(leading)}<span class="utop-outcome__keyword">${escapeHtml(keyword)}</span>` +
+    (name === null ? "" : ` <span class="utop-outcome__name">${escapeHtml(name)}</span>`) +
+    ` <span class="utop-outcome__punctuation">:</span> ` +
+    `<span class="utop-outcome__type">${highlightedSyntaxHtml(typeText.trim())}</span>` +
+    valueHtml
+  );
+}
+
+function transcriptLineHtml(cls, clickableClass, attrs, lineHtml) {
+  return `<span class="transcript-line ${cls}${clickableClass}"${attrs}>${lineHtml}\n</span>`;
+}
+
+function streamLineHtml(line, cls, clickableClass, attrs, { utopMode = false } = {}) {
+  if (!utopMode) {
+    return transcriptLineHtml(cls, clickableClass, attrs, escapeHtml(line || " "));
+  }
+  const index = outcomeStartIndex(line);
+  if (index === 0) {
+    return transcriptLineHtml(
+      `${cls} utop-outcome-line`,
+      clickableClass,
+      attrs,
+      highlightedOutcomeHtml(line || " "),
+    );
+  }
+  if (index > 0) {
+    const stdoutHtml = `<span class="utop-stdout">${escapeHtml(line.slice(0, index))}</span>`;
+    const outcomeHtml = highlightedOutcomeHtml(line.slice(index));
+    return (
+      transcriptLineHtml(cls, clickableClass, attrs, stdoutHtml) +
+      transcriptLineHtml(`${cls} utop-outcome-line`, "", "", outcomeHtml)
+    );
+  }
+  return transcriptLineHtml(
+    `${cls} utop-stdout-line`,
+    clickableClass,
+    attrs,
+    `<span class="utop-stdout">${escapeHtml(line || " ")}</span>`,
+  );
 }
 
 function scheduleSyntaxRefresh() {
@@ -1003,7 +1114,8 @@ const ready = (async () => {
   if (
     !backend ||
     typeof backend.checkString !== "function" ||
-    typeof backend.runString !== "function"
+    typeof backend.runString !== "function" ||
+    typeof backend.utopString !== "function"
   ) {
     throw new Error("static OxCaml backend failed to initialize");
   }
@@ -1026,6 +1138,10 @@ export async function runString(filename, source) {
   return runBackendWithLazyFs("runString", filename, source);
 }
 
+export async function utopString(filename, source) {
+  return runBackendWithLazyFs("utopString", filename, source);
+}
+
 export async function checkFile(file) {
   const source = await file.text();
   return checkString(file.name, source);
@@ -1036,7 +1152,14 @@ export async function runFile(file) {
   return runString(file.name, source);
 }
 
-window.webBytecode = { checkString, interfaceString, runString, checkFile, runFile };
+window.webBytecode = {
+  checkString,
+  interfaceString,
+  runString,
+  utopString,
+  checkFile,
+  runFile,
+};
 
 function escapeHtml(text) {
   return text.replace(/[&<>"]/g, (char) => ({
@@ -1240,7 +1363,7 @@ function buildDiagnosticLineMarkerMap(markers) {
   return lineToMarker;
 }
 
-function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = false } = {}) {
+function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = false, utopMode = false } = {}) {
   const normalized = text.replace(/\r\n/g, "\n");
   if (normalized === "" && emptyPlaceholder !== null) {
     return {
@@ -1274,7 +1397,18 @@ function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = fal
           ? ""
           : ` data-marker-index="${markerIndex}" tabindex="0" role="button"`;
       const clickableClass = markerIndex === undefined ? "" : " clickable";
-      return `<span class="transcript-line ${info.cls}${clickableClass}"${attrs}>${escapeHtml(line || " ")}\n</span>`;
+      let lineHtml = escapeHtml(line || " ");
+      if (info.cls === "code") {
+        const match = /^(\d+\s+\|\s?)(.*)$/.exec(line);
+        if (match) {
+          lineHtml =
+            `<span class="diagnostic-code-prefix">${escapeHtml(match[1])}</span>` +
+            highlightedSyntaxHtml(match[2]);
+        }
+      } else if (info.cls === "stream") {
+        return streamLineHtml(line, info.cls, clickableClass, attrs, { utopMode });
+      }
+      return transcriptLineHtml(info.cls, clickableClass, attrs, lineHtml);
     })
     .join("");
 
@@ -1292,8 +1426,8 @@ function buildInterfaceHtml(text) {
   const trimmed = text.replace(/\r\n/g, "\n").trim();
   const body = trimmed === ""
     ? '<pre class="interface-output__body placeholder">(no exported values)</pre>'
-    : `<pre class="interface-output__body">${escapeHtml(trimmed)}</pre>`;
-  return `<div class="interface-output"><div class="interface-output__label">Types</div>${body}</div>`;
+    : `<pre class="interface-output__body">${highlightedSyntaxHtml(trimmed)}</pre>`;
+  return `<div class="interface-output"><div class="interface-output__label">Inferred types</div>${body}</div>`;
 }
 
 function renderTranscript(text, options) {

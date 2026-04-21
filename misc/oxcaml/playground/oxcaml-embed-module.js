@@ -3,6 +3,7 @@ import {
   interfaceString,
   ready,
   runString,
+  utopString,
 } from "./backend.js";
 import {
   EditorState,
@@ -39,6 +40,22 @@ const setSyntaxDecorationsEffect = StateEffect.define();
 
 const oxcamlIdentifierNames = new Set(["local_", "stack_", "exclave_"]);
 const packageModuleNames = new Set(["Base", "Core", "Stdlib_stable"]);
+const primitiveTypeNames = new Set([
+  "array",
+  "bool",
+  "bytes",
+  "char",
+  "exn",
+  "float",
+  "int",
+  "list",
+  "nativeint",
+  "option",
+  "ref",
+  "result",
+  "string",
+  "unit",
+]);
 const keywordTokens = new Set([
   "and", "as", "assert", "begin", "class", "constraint", "do", "done",
   "downto", "else", "end", "exception", "external", "false", "for", "fun",
@@ -466,6 +483,8 @@ function classifySyntaxToken(tokens, index, source) {
             ? "tok-module"
             : "tok-constructor",
         );
+      } else if (primitiveTypeNames.has(token.text)) {
+        classes.push("tok-type");
       } else if (parameterIntroducers.has(prev?.text ?? "")) {
         classes.push("tok-parameter");
       } else if (declarationIntroducers.has(prev?.text ?? "")) {
@@ -500,6 +519,99 @@ function buildSyntaxDecorations(source) {
     builder.add(from, to, Decoration.mark({ class: className }));
   }
   return builder.finish();
+}
+
+function highlightedSyntaxHtml(source) {
+  const tokens = tokenizeSyntax(source);
+  let cursor = 0;
+  let html = "";
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index];
+    const className = classifySyntaxToken(tokens, index, source);
+    if (!className) {
+      continue;
+    }
+    html += escapeHtml(source.slice(cursor, token.from));
+    html += `<span class="${className}">${escapeHtml(source.slice(token.from, token.to))}</span>`;
+    cursor = token.to;
+  }
+  html += escapeHtml(source.slice(cursor));
+  return html;
+}
+
+function outcomeStartIndex(line) {
+  const match = /(?:val\s+[A-Za-z_][A-Za-z0-9_']*\s*:|-\s*:|type\b|module(?:\s+type)?\b|exception\b|external\b|class(?:\s+type)?\b)/.exec(line);
+  return match ? match.index : -1;
+}
+
+function splitOutcomeTypeAndValue(text) {
+  const separator = " = ";
+  const index = text.indexOf(separator);
+  if (index === -1) {
+    return { typeText: text, valueText: null };
+  }
+  return {
+    typeText: text.slice(0, index),
+    valueText: text.slice(index + separator.length),
+  };
+}
+
+function highlightedOutcomeHtml(line) {
+  const leadingMatch = /^(\s*)/.exec(line);
+  const leading = leadingMatch ? leadingMatch[1] : "";
+  const body = line.slice(leading.length);
+  const valueMatch = /^(val)\s+([A-Za-z_][A-Za-z0-9_']*)\s*:\s*(.+)$/.exec(body);
+  const expressionMatch = /^(-)\s*:\s*(.+)$/.exec(body);
+  if (!valueMatch && !expressionMatch) {
+    return escapeHtml(leading) + highlightedSyntaxHtml(body || " ");
+  }
+  const keyword = valueMatch ? valueMatch[1] : expressionMatch[1];
+  const name = valueMatch ? valueMatch[2] : null;
+  const rest = valueMatch ? valueMatch[3] : expressionMatch[2];
+  const { typeText, valueText } = splitOutcomeTypeAndValue(rest);
+  const valueHtml = valueText === null
+    ? ""
+    : ` <span class="utop-outcome__equals">=</span> <span class="utop-outcome__value">${highlightedSyntaxHtml(valueText)}</span>`;
+  return (
+    `${escapeHtml(leading)}<span class="utop-outcome__keyword">${escapeHtml(keyword)}</span>` +
+    (name === null ? "" : ` <span class="utop-outcome__name">${escapeHtml(name)}</span>`) +
+    ` <span class="utop-outcome__punctuation">:</span> ` +
+    `<span class="utop-outcome__type">${highlightedSyntaxHtml(typeText.trim())}</span>` +
+    valueHtml
+  );
+}
+
+function transcriptLineHtml(cls, clickableClass, attrs, lineHtml) {
+  return `<span class="transcript-line ${cls}${clickableClass}"${attrs}>${lineHtml}\n</span>`;
+}
+
+function streamLineHtml(line, cls, clickableClass, attrs, { utopMode = false } = {}) {
+  if (!utopMode) {
+    return transcriptLineHtml(cls, clickableClass, attrs, escapeHtml(line || " "));
+  }
+  const index = outcomeStartIndex(line);
+  if (index === 0) {
+    return transcriptLineHtml(
+      `${cls} utop-outcome-line`,
+      clickableClass,
+      attrs,
+      highlightedOutcomeHtml(line || " "),
+    );
+  }
+  if (index > 0) {
+    const stdoutHtml = `<span class="utop-stdout">${escapeHtml(line.slice(0, index))}</span>`;
+    const outcomeHtml = highlightedOutcomeHtml(line.slice(index));
+    return (
+      transcriptLineHtml(cls, clickableClass, attrs, stdoutHtml) +
+      transcriptLineHtml(`${cls} utop-outcome-line`, "", "", outcomeHtml)
+    );
+  }
+  return transcriptLineHtml(
+    `${cls} utop-stdout-line`,
+    clickableClass,
+    attrs,
+    `<span class="utop-stdout">${escapeHtml(line || " ")}</span>`,
+  );
 }
 
 function sourceText(editor) {
@@ -666,7 +778,7 @@ function classifyTranscriptLine(line, inDiagnosticBlock, forceDiagnostics) {
   };
 }
 
-function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnostics = false } = {}) {
+function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnostics = false, utopMode = false } = {}) {
   const normalized = text.replace(/\r\n/g, "\n");
   if (normalized === "" && emptyPlaceholder !== null) {
     return {
@@ -700,7 +812,18 @@ function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnosti
           ? ""
           : ` data-marker-index="${markerIndex}" tabindex="0" role="button"`;
       const clickableClass = markerIndex === undefined ? "" : " clickable";
-      return `<span class="transcript-line ${info.cls}${clickableClass}"${attrs}>${escapeHtml(line || " ")}\n</span>`;
+      let lineHtml = escapeHtml(line || " ");
+      if (info.cls === "code") {
+        const match = /^(\d+\s+\|\s?)(.*)$/.exec(line);
+        if (match) {
+          lineHtml =
+            `<span class="diagnostic-code-prefix">${escapeHtml(match[1])}</span>` +
+            highlightedSyntaxHtml(match[2]);
+        }
+      } else if (info.cls === "stream") {
+        return streamLineHtml(line, info.cls, clickableClass, attrs, { utopMode });
+      }
+      return transcriptLineHtml(info.cls, clickableClass, attrs, lineHtml);
     })
     .join("");
 
@@ -718,8 +841,15 @@ function buildInterfaceHtml(text) {
   const trimmed = text.replace(/\r\n/g, "\n").trim();
   const body = trimmed === ""
     ? '<pre class="interface-output__body placeholder">(no exported values)</pre>'
-    : `<pre class="interface-output__body">${escapeHtml(trimmed)}</pre>`;
-  return `<div class="interface-output"><div class="interface-output__label">Types</div>${body}</div>`;
+    : `<pre class="interface-output__body">${highlightedSyntaxHtml(trimmed)}</pre>`;
+  return `<div class="interface-output"><div class="interface-output__label">Inferred types</div>${body}</div>`;
+}
+
+function modeForElement(element, options = {}) {
+  if (options.mode !== undefined) {
+    return options.mode === "utop" ? "utop" : "run";
+  }
+  return element.hasAttribute("utop") ? "utop" : "run";
 }
 
 function injectStyles() {
@@ -770,24 +900,26 @@ function injectStyles() {
 
     .oxcaml-embed__reset {
       position: absolute;
-      right: 4.8rem;
-      top: 0.42rem;
-      z-index: 1;
+      right: 0.7rem;
+      top: 0.62rem;
+      z-index: 5;
       min-height: 1.75rem;
-      border: 1px solid rgba(21, 32, 46, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 6px;
-      background: rgba(255, 255, 255, 0.62);
-      color: #46586a;
+      background: rgba(18, 22, 29, 0.78);
+      color: #d8e3f2;
       cursor: pointer;
       font: 650 0.72rem/1 Avenir Next, Segoe UI, system-ui, sans-serif;
       padding: 0.32rem 0.5rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(8px);
     }
 
     .oxcaml-embed__reset:hover,
     .oxcaml-embed__reset:focus-visible {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: rgba(191, 79, 45, 0.32);
-      color: var(--oxcaml-accent);
+      background: rgba(28, 35, 47, 0.94);
+      border-color: rgba(255, 181, 126, 0.48);
+      color: #ffcfb4;
       outline: none;
     }
 
@@ -813,6 +945,7 @@ function injectStyles() {
     }
 
     .oxcaml-embed__editor-host {
+      position: relative;
       background: var(--oxcaml-editor);
     }
 
@@ -843,7 +976,7 @@ function injectStyles() {
 
     .oxcaml-embed__editor-host .cm-content {
       caret-color: #ffffff;
-      padding: 0.85rem 0.95rem;
+      padding: 0.85rem 5.9rem 0.85rem 0.95rem;
     }
 
     .oxcaml-embed__editor-host .cm-line {
@@ -987,19 +1120,54 @@ function injectStyles() {
       color: #2e4053;
     }
 
+    .diagnostic-code-prefix {
+      color: #718095;
+    }
+
     .transcript-line.detail,
     .transcript-line.trace {
       color: #526274;
     }
 
+    .utop-outcome__keyword {
+      color: #98521a;
+      font-weight: 750;
+    }
+
+    .utop-outcome__name {
+      color: #0b638a;
+      font-weight: 700;
+    }
+
+    .utop-outcome__punctuation,
+    .utop-outcome__equals {
+      color: #718095;
+    }
+
+    .utop-outcome__type {
+      color: var(--oxcaml-ok);
+    }
+
+    .utop-outcome__value {
+      color: #263341;
+    }
+
+    .utop-stdout {
+      color: #334155;
+    }
+
     .interface-output {
-      border-top: 1px solid var(--oxcaml-output-border);
-      padding: 0.75rem 5.5rem 0.85rem 0.95rem;
+      margin: 0 5.5rem 0.85rem 0.95rem;
+      border: 1px solid rgba(15, 123, 95, 0.18);
+      border-left: 4px solid var(--oxcaml-ok);
+      border-radius: 7px;
+      background: rgba(224, 245, 238, 0.62);
+      padding: 0.68rem 0.8rem 0.75rem;
     }
 
     .interface-output__label {
       margin-bottom: 0.45rem;
-      color: var(--oxcaml-muted);
+      color: var(--oxcaml-ok);
       font: 700 0.68rem/1 Avenir Next, Segoe UI, system-ui, sans-serif;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -1007,7 +1175,7 @@ function injectStyles() {
 
     .interface-output__body {
       margin: 0;
-      color: #263647;
+      color: #173829;
       font: 0.84rem/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       white-space: pre-wrap;
     }
@@ -1015,6 +1183,22 @@ function injectStyles() {
     .interface-output__body.placeholder {
       color: var(--oxcaml-muted);
     }
+
+    .oxcaml-embed__output .tok-keyword { color: #98521a; font-weight: 650; }
+    .oxcaml-embed__output .tok-module { color: #0d638c; }
+    .oxcaml-embed__output .tok-string { color: #276a3f; }
+    .oxcaml-embed__output .tok-comment { color: #6d7988; }
+    .oxcaml-embed__output .tok-number { color: #846000; }
+    .oxcaml-embed__output .tok-operator { color: #4f5c6b; }
+    .oxcaml-embed__output .tok-function { color: #0d638c; }
+    .oxcaml-embed__output .tok-parameter { color: #805514; }
+    .oxcaml-embed__output .tok-type { color: #0d638c; }
+    .oxcaml-embed__output .tok-constructor { color: #8a5a00; }
+    .oxcaml-embed__output .tok-oxcaml { color: #b8462b; font-weight: 700; }
+    .oxcaml-embed__output .tok-annotation { color: #8c5f16; font-style: italic; }
+    .oxcaml-embed__output .tok-package { color: #007260; font-weight: 700; }
+    .oxcaml-embed__output .tok-package-open { color: #475fa5; }
+    .oxcaml-embed__output .tok-label { color: #8b3aa8; }
   `;
   document.head.appendChild(style);
 }
@@ -1098,13 +1282,20 @@ async function runEditor(editor, revision = editor.revision) {
       return;
     }
     const source = sourceText(editor);
-    const output = await runString(editor.filename, source);
+    const output =
+      editor.mode === "utop"
+        ? await utopString(editor.filename, source)
+        : await runString(editor.filename, source);
     if (revision !== editor.revision) {
       return;
     }
     updateEditorMarkers(editor, output);
-    const transcriptPreview = buildTranscript(editor, output, { emptyPlaceholder: "(no output)" });
+    const transcriptPreview = buildTranscript(editor, output, {
+      emptyPlaceholder: "(no output)",
+      utopMode: editor.mode === "utop",
+    });
     const showInterface =
+      editor.mode !== "utop" &&
       !transcriptPreview.hasException && !transcriptPreview.hasCompilerError;
     const interfaceOutput = showInterface
       ? await interfaceString(editor.filename, source)
@@ -1115,6 +1306,7 @@ async function runEditor(editor, revision = editor.revision) {
     const transcript = renderTranscript(editor, output, {
       emptyPlaceholder: "(no output)",
       interfaceText: interfaceOutput,
+      utopMode: editor.mode === "utop",
     });
     if (transcript.hasException) {
       setStatus(editor, "error", "exception");
@@ -1203,7 +1395,8 @@ function createEditorElement() {
   transcriptEl.innerHTML =
     '<pre class="transcript"><span class="transcript-line stream placeholder">loading</span></pre>';
 
-  outputEl.append(transcriptEl, resetButtonEl, statusEl);
+  editorHostEl.append(resetButtonEl);
+  outputEl.append(transcriptEl, statusEl);
   root.append(editorHostEl, outputEl);
 
   return {
@@ -1228,10 +1421,12 @@ export function mount(element, options = {}) {
     element.getAttribute("filename") ??
     element.getAttribute("data-filename");
   const filename = explicitFilename ?? `snippet_${mountedEditors.size + 1}.ml`;
+  const mode = modeForElement(element, options);
   const editor = {
     ...createEditorElement(),
     filename,
     markers: [],
+    mode,
     originalSource,
     pendingTimer: null,
     revision: 0,
@@ -1334,4 +1529,5 @@ window.OxCamlPlayground = {
   interfaceString,
   ready,
   runString,
+  utopString,
 };
