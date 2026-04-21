@@ -4,7 +4,7 @@ import {
   ready,
   runString,
   utopString,
-} from "./backend.js";
+} from "./backend.js?v=20260421-input-guard";
 import {
   EditorState,
   RangeSetBuilder,
@@ -33,6 +33,9 @@ import {
 } from "https://esm.sh/@codemirror/commands@6.8.1?deps=@codemirror/state@6.5.2,@codemirror/view@6.38.6,@codemirror/language@6.11.3";
 
 const autoRunDelayMs = 360;
+const maxCheckedSourceLength = 100000;
+const maxCheckedNumericLiteralLength = 80;
+const maxBrowserDecimalIntLiteral = "2147483648";
 const storagePrefix = "oxcaml-editor:v1";
 const mountedEditors = new Set();
 const setDiagnosticsEffect = StateEffect.define();
@@ -618,6 +621,153 @@ function sourceText(editor) {
   return editor.view ? editor.view.state.doc.toString() : "";
 }
 
+function sourcePosition(source, offset) {
+  const prefix = source.slice(0, offset);
+  const line = (prefix.match(/\n/g) || []).length;
+  const lineStart = prefix.lastIndexOf("\n") + 1;
+  return { line, character: offset - lineStart };
+}
+
+function sourceDiagnostic(filename, line, start, end, message) {
+  return `File "${filename}", line ${line + 1}, characters ${start}-${Math.max(end, start + 1)}:\nError: ${message}`;
+}
+
+function unsafeBrowserIntLiteral(token) {
+  if (!/^[0-9][0-9_]*$/.test(token)) {
+    return false;
+  }
+  const digits = token.replace(/_/g, "");
+  if (digits.length > maxBrowserDecimalIntLiteral.length) {
+    return true;
+  }
+  return (
+    digits.length === maxBrowserDecimalIntLiteral.length &&
+    digits > maxBrowserDecimalIntLiteral
+  );
+}
+
+function findNumericLiteralPreflight(source) {
+  let index = 0;
+  let line = 0;
+  let lineStart = 0;
+  while (index < source.length) {
+    const char = source[index];
+    if (char === "\n") {
+      index += 1;
+      line += 1;
+      lineStart = index;
+      continue;
+    }
+    if (isWhitespace(char)) {
+      index += 1;
+      continue;
+    }
+    if (char === "(" && source[index + 1] === "*") {
+      index += 2;
+      let depth = 1;
+      while (index < source.length && depth > 0) {
+        if (source[index] === "\n") {
+          index += 1;
+          line += 1;
+          lineStart = index;
+        } else if (source[index] === "(" && source[index + 1] === "*") {
+          depth += 1;
+          index += 2;
+        } else if (source[index] === "*" && source[index + 1] === ")") {
+          depth -= 1;
+          index += 2;
+        } else {
+          index += 1;
+        }
+      }
+      continue;
+    }
+    if (char === "\"" || char === "'") {
+      const quote = char;
+      index += 1;
+      while (index < source.length) {
+        if (source[index] === "\n") {
+          index += 1;
+          line += 1;
+          lineStart = index;
+        } else if (source[index] === "\\") {
+          index += 2;
+        } else if (source[index] === quote) {
+          index += 1;
+          break;
+        } else {
+          index += 1;
+        }
+      }
+      continue;
+    }
+    if (/[0-9]/.test(char)) {
+      const start = index;
+      const startLine = line;
+      const startCharacter = index - lineStart;
+      index += 1;
+      while (index < source.length && /[A-Za-z0-9_'.]/.test(source[index])) {
+        index += 1;
+      }
+      const token = source.slice(start, index);
+      const length = index - start;
+      if (unsafeBrowserIntLiteral(token)) {
+        return {
+          kind: "int_overflow",
+          line: startLine,
+          start: startCharacter,
+          end: startCharacter + length,
+        };
+      }
+      if (length > maxCheckedNumericLiteralLength) {
+        return {
+          kind: "oversized",
+          line: startLine,
+          start: startCharacter,
+          end: startCharacter + Math.min(length, maxCheckedNumericLiteralLength),
+          length,
+        };
+      }
+      continue;
+    }
+    index += 1;
+  }
+  return null;
+}
+
+function sourcePreflightDiagnostic(filename, source) {
+  if (source.length > maxCheckedSourceLength) {
+    const position = sourcePosition(source, maxCheckedSourceLength);
+    return sourceDiagnostic(
+      filename,
+      position.line,
+      position.character,
+      position.character + 1,
+      `This playground snippet is too large to check as you type. Keep snippets under ${maxCheckedSourceLength.toLocaleString()} characters.`,
+    );
+  }
+  const numericLiteral = findNumericLiteralPreflight(source);
+  if (numericLiteral) {
+    if (numericLiteral.kind === "int_overflow") {
+      return sourceDiagnostic(
+        filename,
+        numericLiteral.line,
+        numericLiteral.start,
+        numericLiteral.end,
+        "Integer literal exceeds the range of representable integers of type int",
+      );
+    }
+    return sourceDiagnostic(
+      filename,
+      numericLiteral.line,
+      numericLiteral.start,
+      numericLiteral.end,
+      `This numeric literal has ${numericLiteral.length.toLocaleString()} characters, which is too large for browser auto-checking. Shorten it or put the digits in a string.`,
+    );
+  }
+  return null;
+}
+
 function updateResetState(editor) {
   if (!editor.resetButtonEl) {
     return;
@@ -839,10 +989,13 @@ function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnosti
 
 function buildInterfaceHtml(text) {
   const trimmed = text.replace(/\r\n/g, "\n").trim();
-  const body = trimmed === ""
-    ? '<pre class="interface-output__body placeholder">(no exported values)</pre>'
-    : `<pre class="interface-output__body">${highlightedSyntaxHtml(trimmed)}</pre>`;
-  return `<div class="interface-output"><div class="interface-output__label">Inferred types</div>${body}</div>`;
+  if (trimmed === "") {
+    return "";
+  }
+  return (
+    '<div class="interface-output"><div class="interface-output__label">Inferred types</div>' +
+    `<pre class="interface-output__body">${highlightedSyntaxHtml(trimmed)}</pre></div>`
+  );
 }
 
 function modeForElement(element, options = {}) {
@@ -1180,10 +1333,6 @@ function injectStyles() {
       white-space: pre-wrap;
     }
 
-    .interface-output__body.placeholder {
-      color: var(--oxcaml-muted);
-    }
-
     .oxcaml-embed__output .tok-keyword { color: #98521a; font-weight: 650; }
     .oxcaml-embed__output .tok-module { color: #0d638c; }
     .oxcaml-embed__output .tok-string { color: #276a3f; }
@@ -1277,11 +1426,20 @@ function scheduleRun(editor) {
 async function runEditor(editor, revision = editor.revision) {
   try {
     setStatus(editor, "running", "running");
+    const source = sourceText(editor);
+    const preflightDiagnostic = sourcePreflightDiagnostic(editor.filename, source);
+    if (preflightDiagnostic) {
+      updateEditorMarkers(editor, preflightDiagnostic);
+      const transcript = renderTranscript(editor, preflightDiagnostic, {
+        forceDiagnostics: true,
+      });
+      setStatus(editor, transcript.hasWarning ? "warning" : "error", "error");
+      return;
+    }
     await ready;
     if (revision !== editor.revision) {
       return;
     }
-    const source = sourceText(editor);
     const output =
       editor.mode === "utop"
         ? await utopString(editor.filename, source)
