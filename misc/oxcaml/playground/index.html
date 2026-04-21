@@ -81,6 +81,29 @@
         pointer-events: none;
       }
 
+      .reset-button {
+        height: 36px;
+        border: 1px solid rgba(19, 31, 47, 0.14);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.72);
+        color: var(--muted);
+        cursor: pointer;
+        font: 650 0.82rem/1 "Avenir Next", "Segoe UI", sans-serif;
+        padding: 0 12px;
+      }
+
+      .reset-button:hover,
+      .reset-button:focus-visible {
+        border-color: rgba(194, 78, 42, 0.34);
+        background: rgba(255, 255, 255, 0.94);
+        color: var(--accent);
+        outline: none;
+      }
+
+      .reset-button[hidden] {
+        display: none;
+      }
+
       .status {
         position: relative;
         min-width: 78px;
@@ -422,6 +445,29 @@
         color: #4f5c6b;
       }
 
+      .interface-output {
+        margin-top: 18px;
+        border-top: 1px solid rgba(19, 31, 47, 0.1);
+        padding-top: 14px;
+      }
+
+      .interface-output__label {
+        margin-bottom: 8px;
+        color: var(--muted);
+        font: 700 0.72rem/1 "Avenir Next", "Segoe UI", sans-serif;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .interface-output__body {
+        margin: 0;
+        white-space: pre-wrap;
+      }
+
+      .interface-output__body.placeholder {
+        color: var(--muted);
+      }
+
       @media (max-width: 1180px) {
         main {
           width: min(100vw - 24px, 1180px);
@@ -448,10 +494,15 @@
         <section class="surface">
           <div class="surface-head editor-head">
             <div class="surface-label">Editor</div>
-            <div class="header-tools">
-              <div class="picker">
-                <select id="sample-picker" aria-label="Sample">
-                  <option value="">Sample</option>
+              <div class="header-tools">
+                <button
+                  id="reset-source"
+                  class="reset-button"
+                  type="button"
+                  hidden>Reset</button>
+                <div class="picker">
+                  <select id="sample-picker" aria-label="Sample">
+                    <option value="">Sample</option>
                 </select>
               </div>
             </div>

@@ -393,6 +393,14 @@ export async function checkString(filename, source) {
   return runBackendWithLazyFs("checkString", filename, source);
 }
 
+export async function interfaceString(filename, source) {
+  const backend = await ready;
+  if (typeof backend.interfaceString !== "function") {
+    return undefined;
+  }
+  return runBackendWithLazyFs("interfaceString", filename, source);
+}
+
 export async function runString(filename, source) {
   return runBackendWithLazyFs("runString", filename, source);
 }
@@ -407,4 +415,4 @@ export async function runFile(file) {
   return runString(file.name, source);
 }
 
-window.webBytecode = { checkString, runString, checkFile, runFile };
+window.webBytecode = { checkString, interfaceString, runString, checkFile, runFile };

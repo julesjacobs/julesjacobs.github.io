@@ -32,6 +32,7 @@ import {
 
 const autoRunDelayMs = 360;
 const buildBase = "./build";
+const storagePrefix = "oxcaml-playground:v1";
 
 const editorHostEl = document.getElementById("editor");
 const outputEl = document.getElementById("output");
@@ -40,6 +41,7 @@ const outputPanelEl = document.getElementById("output-panel");
 const statusEl = document.getElementById("status");
 const statusTextEl = statusEl?.querySelector(".status-text") ?? null;
 const samplePickerEl = document.getElementById("sample-picker");
+const resetButtonEl = document.getElementById("reset-source");
 const fullUi = Boolean(
   editorHostEl &&
   outputLabelEl &&
@@ -48,7 +50,9 @@ const fullUi = Boolean(
 );
 
 let currentFilename = "snippet.ml";
+let currentOriginalSource = "";
 let currentSampleId = null;
+let currentStorageKey = null;
 let pendingRunTimer = null;
 let currentRevision = 0;
 let editorMarkers = [];
@@ -70,6 +74,53 @@ let bootStatusActive = false;
 
 const setDiagnosticsEffect = StateEffect.define();
 const setSyntaxDecorationsEffect = StateEffect.define();
+
+function pageStorageScope() {
+  try {
+    const url = new URL(window.location.href);
+    url.hash = "";
+    return url.href;
+  } catch {
+    return "";
+  }
+}
+
+function stableHash(text) {
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function storageKeyForSource(source) {
+  return `${storagePrefix}:${pageStorageScope()}:${source.length}:${stableHash(source)}`;
+}
+
+function readStoredSource(storageKey) {
+  try {
+    return window.localStorage.getItem(storageKey);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredSource(storageKey, source) {
+  try {
+    window.localStorage.setItem(storageKey, source);
+  } catch {
+    // Storage can be unavailable or full; the playground should still run normally.
+  }
+}
+
+function removeStoredSource(storageKey) {
+  try {
+    window.localStorage.removeItem(storageKey);
+  } catch {
+    // Ignore storage failures.
+  }
+}
 
 const oxcamlIdentifierNames = new Set(["local_", "stack_", "exclave_"]);
 const packageModuleNames = new Set(["Base", "Core", "Stdlib_stable"]);
@@ -529,6 +580,7 @@ function createEditor() {
           scheduleSyntaxRefresh();
           currentRevision += 1;
           editorMarkers = [];
+          persistCurrentSource();
           schedulePipeline();
         }),
       ],
@@ -538,6 +590,26 @@ function createEditor() {
 
 function sourceText() {
   return editorView ? editorView.state.doc.toString() : "";
+}
+
+function updateResetState() {
+  if (!resetButtonEl) {
+    return;
+  }
+  resetButtonEl.hidden = sourceText() === currentOriginalSource;
+}
+
+function persistCurrentSource() {
+  if (!currentStorageKey) {
+    return;
+  }
+  const source = sourceText();
+  if (source === currentOriginalSource) {
+    removeStoredSource(currentStorageKey);
+  } else {
+    writeStoredSource(currentStorageKey, source);
+  }
+  updateResetState();
 }
 
 function replaceEditorSource(source) {
@@ -555,6 +627,7 @@ function replaceEditorSource(source) {
   });
   suppressEditorChanges = false;
   scheduleSyntaxRefresh();
+  updateResetState();
 }
 
 function loadScript(url) {
@@ -941,6 +1014,14 @@ export async function checkString(filename, source) {
   return runBackendWithLazyFs("checkString", filename, source);
 }
 
+export async function interfaceString(filename, source) {
+  const backend = await ready;
+  if (typeof backend.interfaceString !== "function") {
+    return undefined;
+  }
+  return runBackendWithLazyFs("interfaceString", filename, source);
+}
+
 export async function runString(filename, source) {
   return runBackendWithLazyFs("runString", filename, source);
 }
@@ -955,7 +1036,7 @@ export async function runFile(file) {
   return runString(file.name, source);
 }
 
-window.webBytecode = { checkString, runString, checkFile, runFile };
+window.webBytecode = { checkString, interfaceString, runString, checkFile, runFile };
 
 function escapeHtml(text) {
   return text.replace(/[&<>"]/g, (char) => ({
@@ -1207,6 +1288,14 @@ function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = fal
   };
 }
 
+function buildInterfaceHtml(text) {
+  const trimmed = text.replace(/\r\n/g, "\n").trim();
+  const body = trimmed === ""
+    ? '<pre class="interface-output__body placeholder">(no exported values)</pre>'
+    : `<pre class="interface-output__body">${escapeHtml(trimmed)}</pre>`;
+  return `<div class="interface-output"><div class="interface-output__label">Types</div>${body}</div>`;
+}
+
 function renderTranscript(text, options) {
   if (!fullUi || !outputEl) {
     return { hasWarning: false, hasError: false, tone: "idle", html: "" };
@@ -1214,7 +1303,8 @@ function renderTranscript(text, options) {
   const transcript = buildTranscript(text, options);
   setOutputBusy(false);
   setOutputState(transcript.tone);
-  outputEl.innerHTML = transcript.html;
+  outputEl.innerHTML =
+    transcript.html + (options?.interfaceText === undefined ? "" : buildInterfaceHtml(options.interfaceText));
   return transcript;
 }
 
@@ -1237,14 +1327,31 @@ function setSource(source, filename, sampleId = null) {
     return;
   }
   currentFilename = filename;
+  currentOriginalSource = source;
   currentSampleId = sampleId;
+  currentStorageKey = storageKeyForSource(source);
   currentRevision += 1;
   clearEditorMarkers();
-  replaceEditorSource(source);
+  replaceEditorSource(readStoredSource(currentStorageKey) ?? source);
   if (samplePickerEl.value !== (sampleId || "")) {
     samplePickerEl.value = sampleId || "";
   }
+  updateResetState();
   schedulePipeline();
+}
+
+function resetCurrentSource() {
+  if (!currentStorageKey) {
+    return;
+  }
+  removeStoredSource(currentStorageKey);
+  clearPendingWork();
+  currentRevision += 1;
+  clearEditorMarkers();
+  replaceEditorSource(currentOriginalSource);
+  updateResetState();
+  schedulePipeline();
+  editorView?.focus();
 }
 
 function clearPendingWork() {
@@ -1272,12 +1379,25 @@ async function runCurrentSource({ revision = currentSourceRevision() } = {}) {
     if (revision !== currentSourceRevision()) {
       return;
     }
-    const output = await runString(currentFilename, sourceText());
+    const source = sourceText();
+    const output = await runString(currentFilename, source);
     if (revision !== currentSourceRevision()) {
       return;
     }
-    updateEditorMarkers(sourceText(), output);
-    const transcript = renderTranscript(output, { emptyPlaceholder: "(no output)" });
+    updateEditorMarkers(source, output);
+    const transcriptPreview = buildTranscript(output, { emptyPlaceholder: "(no output)" });
+    const showInterface =
+      !transcriptPreview.hasException && !transcriptPreview.hasCompilerError;
+    const interfaceOutput = showInterface
+      ? await interfaceString(currentFilename, source)
+      : undefined;
+    if (revision !== currentSourceRevision()) {
+      return;
+    }
+    const transcript = renderTranscript(output, {
+      emptyPlaceholder: "(no output)",
+      interfaceText: interfaceOutput,
+    });
     if (transcript.hasException) {
       setStatus("error", "exception");
     } else if (transcript.hasCompilerError) {
@@ -1318,6 +1438,8 @@ if (fullUi) {
     }
     setSource(sample.source, sample.filename, sample.id);
   });
+
+  resetButtonEl?.addEventListener("click", resetCurrentSource);
 
   outputEl?.addEventListener("click", (event) => {
     const target = event.target instanceof Element
