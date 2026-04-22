@@ -4,6 +4,10 @@ import {
   getVisibleSamplesByTopic,
 } from "./sample_catalog.js";
 import {
+  stripPlaygroundPreludeInterface,
+  withPlaygroundPrelude,
+} from "./playground_prelude.js";
+import {
   EditorState,
   RangeSetBuilder,
   StateEffect,
@@ -34,6 +38,8 @@ const autoRunDelayMs = 360;
 const maxCheckedSourceLength = 100000;
 const maxCheckedNumericLiteralLength = 80;
 const maxBrowserDecimalIntLiteral = "2147483648";
+const htmlOutputBeginMarker = "%%OXCAML_HTML_BEGIN%%";
+const htmlOutputEndMarker = "%%OXCAML_HTML_END%%";
 const buildBase = "./build";
 const storagePrefix = "oxcaml-playground:v1";
 const clearStorageParam = "clear";
@@ -670,6 +676,50 @@ function streamLineHtml(line, cls, clickableClass, attrs, { utopMode = false } =
   );
 }
 
+function htmlOutputFrameHtml(htmlSource) {
+  return (
+    '<div class="html-output">' +
+    `<iframe class="html-output__frame" sandbox srcdoc="${escapeHtml(htmlSource)}"></iframe>` +
+    "</div>"
+  );
+}
+
+function parsedTranscriptParts(text) {
+  const lines = text.replace(/\n$/, "").split("\n");
+  const parts = [];
+  let textLines = [];
+  let htmlLines = null;
+
+  const flushText = () => {
+    if (textLines.length > 0) {
+      parts.push({ kind: "text", lines: textLines });
+      textLines = [];
+    }
+  };
+
+  for (const line of lines) {
+    if (htmlLines !== null) {
+      if (line === htmlOutputEndMarker) {
+        parts.push({ kind: "html", html: htmlLines.join("\n") });
+        htmlLines = null;
+      } else {
+        htmlLines.push(line);
+      }
+    } else if (line === htmlOutputBeginMarker) {
+      flushText();
+      htmlLines = [];
+    } else {
+      textLines.push(line);
+    }
+  }
+
+  if (htmlLines !== null) {
+    textLines.push(htmlOutputBeginMarker, ...htmlLines);
+  }
+  flushText();
+  return parts;
+}
+
 function scheduleSyntaxRefresh() {
   if (!editorView) {
     return;
@@ -1263,11 +1313,15 @@ async function normalizeBackendResult(result) {
 
 async function runBackendWithLazyFs(methodName, filename, source) {
   const backend = await ready;
+  const effectiveSource = withPlaygroundPrelude(filename, source);
   let previousMissingFilename = null;
   for (let attempt = 0; attempt < browserFsRetryLimit; attempt += 1) {
-    const result = await normalizeBackendResult(backend[methodName](filename, source));
+    const result = await normalizeBackendResult(backend[methodName](filename, effectiveSource));
     if (!result || result.kind === "ok") {
-      return result?.output ?? "";
+      const output = result?.output ?? "";
+      return methodName === "interfaceString"
+        ? stripPlaygroundPreludeInterface(output)
+        : output;
     }
     if (result.kind !== "missing_cmi" || typeof result.filename !== "string") {
       throw new Error(`unexpected backend result from ${methodName}`);
@@ -1559,39 +1613,51 @@ function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = fal
     };
   }
 
-  const lines = normalized.replace(/\n$/, "").split("\n");
+  const parts = parsedTranscriptParts(normalized);
   const markerByLine = buildDiagnosticLineMarkerMap(editorMarkers);
   let hasWarning = false;
   let hasError = false;
   let hasException = false;
   let hasCompilerError = false;
   let inDiagnosticBlock = forceDiagnostics;
-  const body = lines
-    .map((line, lineIndex) => {
-      const info = classifyTranscriptLine(line, inDiagnosticBlock, forceDiagnostics);
-      inDiagnosticBlock = info.nextDiagnosticBlock;
-      hasWarning ||= info.hasWarning;
-      hasError ||= info.hasError;
-      hasException ||= info.hasException;
-      hasCompilerError ||= info.hasCompilerError;
-      const markerIndex = markerByLine.get(lineIndex);
-      const attrs =
-        markerIndex === undefined
-          ? ""
-          : ` data-marker-index="${markerIndex}" tabindex="0" role="button"`;
-      const clickableClass = markerIndex === undefined ? "" : " clickable";
-      let lineHtml = escapeHtml(line || " ");
-      if (info.cls === "code") {
-        const match = /^(\d+\s+\|\s?)(.*)$/.exec(line);
-        if (match) {
-          lineHtml =
-            `<span class="diagnostic-code-prefix">${escapeHtml(match[1])}</span>` +
-            highlightedSyntaxHtml(match[2]);
-        }
-      } else if (info.cls === "stream") {
-        return streamLineHtml(line, info.cls, clickableClass, attrs, { utopMode });
+  let globalLineIndex = 0;
+  const body = parts
+    .map((part) => {
+      if (part.kind === "html") {
+        globalLineIndex += part.html === "" ? 2 : part.html.split("\n").length + 2;
+        return htmlOutputFrameHtml(part.html);
       }
-      return transcriptLineHtml(info.cls, clickableClass, attrs, lineHtml);
+      const preBody = part.lines
+        .map((line) => {
+          const lineIndex = globalLineIndex;
+          globalLineIndex += 1;
+          const info = classifyTranscriptLine(line, inDiagnosticBlock, forceDiagnostics);
+          inDiagnosticBlock = info.nextDiagnosticBlock;
+          hasWarning ||= info.hasWarning;
+          hasError ||= info.hasError;
+          hasException ||= info.hasException;
+          hasCompilerError ||= info.hasCompilerError;
+          const markerIndex = markerByLine.get(lineIndex);
+          const attrs =
+            markerIndex === undefined
+              ? ""
+              : ` data-marker-index="${markerIndex}" tabindex="0" role="button"`;
+          const clickableClass = markerIndex === undefined ? "" : " clickable";
+          let lineHtml = escapeHtml(line || " ");
+          if (info.cls === "code") {
+            const match = /^(\d+\s+\|\s?)(.*)$/.exec(line);
+            if (match) {
+              lineHtml =
+                `<span class="diagnostic-code-prefix">${escapeHtml(match[1])}</span>` +
+                highlightedSyntaxHtml(match[2]);
+            }
+          } else if (info.cls === "stream") {
+            return streamLineHtml(line, info.cls, clickableClass, attrs, { utopMode });
+          }
+          return transcriptLineHtml(info.cls, clickableClass, attrs, lineHtml);
+        })
+        .join("");
+      return preBody === "" ? "" : `<pre class="transcript">${preBody}</pre>`;
     })
     .join("");
 
@@ -1601,7 +1667,7 @@ function buildTranscript(text, { emptyPlaceholder = null, forceDiagnostics = fal
     hasException,
     hasCompilerError,
     tone: hasError ? "error" : hasWarning ? "warning" : "output",
-    html: `<pre class="transcript">${body}</pre>`,
+    html: body,
   };
 }
 

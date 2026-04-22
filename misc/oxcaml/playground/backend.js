@@ -1,3 +1,8 @@
+import {
+  stripPlaygroundPreludeInterface,
+  withPlaygroundPrelude,
+} from "./playground_prelude.js";
+
 const buildBase = "./build";
 
 const loadedScriptUrls = new Map();
@@ -347,11 +352,15 @@ async function normalizeBackendResult(result) {
 
 async function runBackendWithLazyFs(methodName, filename, source) {
   const backend = await ready;
+  const effectiveSource = withPlaygroundPrelude(filename, source);
   let previousMissingFilename = null;
   for (let attempt = 0; attempt < browserFsRetryLimit; attempt += 1) {
-    const result = await normalizeBackendResult(backend[methodName](filename, source));
+    const result = await normalizeBackendResult(backend[methodName](filename, effectiveSource));
     if (!result || result.kind === "ok") {
-      return result?.output ?? "";
+      const output = result?.output ?? "";
+      return methodName === "interfaceString"
+        ? stripPlaygroundPreludeInterface(output)
+        : output;
     }
     if (result.kind !== "missing_cmi" || typeof result.filename !== "string") {
       throw new Error(`unexpected backend result from ${methodName}`);
