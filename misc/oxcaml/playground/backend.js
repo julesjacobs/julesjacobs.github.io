@@ -85,7 +85,7 @@ function getBackendWorker() {
 
 async function directBackend() {
   if (!directBackendPromise) {
-    directBackendPromise = import("./backend_direct.js?v=20260424-multicore");
+    directBackendPromise = import("./backend_direct.js?v=20260424-multicore-fs");
   }
   return directBackendPromise;
 }

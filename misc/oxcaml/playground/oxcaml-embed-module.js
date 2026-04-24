@@ -5,7 +5,7 @@ import {
   ready,
   runString,
   utopString,
-} from "./backend.js?v=20260424-multicore";
+} from "./backend.js?v=20260424-multicore-fs";
 import {
   EditorState,
   RangeSetBuilder,

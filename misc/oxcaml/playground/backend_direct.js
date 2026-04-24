@@ -4,7 +4,7 @@ import {
 } from "./playground_prelude.js";
 
 const buildBase = "./build";
-const compilerAssetVersion = "20260424-multicore";
+const compilerAssetVersion = "20260424-multicore-fs";
 
 const loadedScriptUrls = new Map();
 let browserFsManifestPromise = null;
@@ -90,9 +90,7 @@ function installGlobalScriptEvaluator() {
 
 function buildAssetUrl(path) {
   const url = new URL(`${buildBase}/${path}`, import.meta.url);
-  if (path === "web_bytecode_js.bc.js") {
-    url.searchParams.set("v", compilerAssetVersion);
-  }
+  url.searchParams.set("v", compilerAssetVersion);
   return url;
 }
 
