@@ -4,6 +4,7 @@ const pendingRequests = new Map();
 let nextRequestId = 1;
 let backendWorker = null;
 let directBackendPromise = null;
+let workerFailed = false;
 
 export function addBackendStatusListener(listener) {
   statusListeners.add(listener);
@@ -29,8 +30,15 @@ function rejectPendingRequests(error) {
   pendingRequests.clear();
 }
 
+function retryPendingRequestsDirect() {
+  for (const { resolve, reject, methodName, args } of pendingRequests.values()) {
+    callDirect(methodName, args).then(resolve, reject);
+  }
+  pendingRequests.clear();
+}
+
 function workerSupported() {
-  return typeof Worker === "function" && typeof URL === "function";
+  return !workerFailed && typeof Worker === "function" && typeof URL === "function";
 }
 
 function getBackendWorker() {
@@ -61,13 +69,16 @@ function getBackendWorker() {
     }
   };
   backendWorker.onerror = (event) => {
-    const message = event?.message || "OxCaml worker failed";
-    rejectPendingRequests(new Error(message));
+    workerFailed = true;
     backendWorker?.terminate();
     backendWorker = null;
+    retryPendingRequestsDirect();
   };
   backendWorker.onmessageerror = () => {
-    rejectPendingRequests(new Error("OxCaml worker sent an unreadable message"));
+    workerFailed = true;
+    backendWorker?.terminate();
+    backendWorker = null;
+    retryPendingRequestsDirect();
   };
   return backendWorker;
 }
@@ -96,7 +107,7 @@ function callWorker(methodName, args) {
   const id = nextRequestId;
   nextRequestId += 1;
   return new Promise((resolve, reject) => {
-    pendingRequests.set(id, { resolve, reject });
+    pendingRequests.set(id, { resolve, reject, methodName, args });
     worker.postMessage({ id, methodName, args });
   });
 }
