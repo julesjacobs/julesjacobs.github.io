@@ -5,7 +5,7 @@ import {
   ready,
   runString,
   utopString,
-} from "./backend.js?v=20260422-prelude";
+} from "./backend.js?v=20260423-worker";
 import {
   EditorState,
   RangeSetBuilder,
@@ -33,7 +33,7 @@ import {
   indentWithTab,
 } from "https://esm.sh/@codemirror/commands@6.8.1?deps=@codemirror/state@6.5.2,@codemirror/view@6.38.6,@codemirror/language@6.11.3";
 
-const autoRunDelayMs = 360;
+const autoRunDelayMs = 90;
 const maxCheckedSourceLength = 100000;
 const maxCheckedNumericLiteralLength = 80;
 const maxBrowserDecimalIntLiteral = "2147483648";
@@ -42,6 +42,7 @@ const htmlOutputEndMarker = "%%OXCAML_HTML_END%%";
 const storagePrefix = "oxcaml-editor:v1";
 const clearStorageParam = "clear";
 const mountedEditors = new Set();
+let editorRunQueue = Promise.resolve();
 const setDiagnosticsEffect = StateEffect.define();
 const setSyntaxDecorationsEffect = StateEffect.define();
 
@@ -553,6 +554,7 @@ function buildSyntaxDecorations(source) {
     }
   }
   ranges.push(...collectSupplementalSyntaxRanges(source));
+  ranges.sort((left, right) => left.from - right.from || left.to - right.to);
   const builder = new RangeSetBuilder();
   for (const { from, to, className } of ranges) {
     builder.add(from, to, Decoration.mark({ class: className }));
@@ -1581,6 +1583,7 @@ function clearPendingWork(editor) {
     window.clearTimeout(editor.pendingTimer);
     editor.pendingTimer = null;
   }
+  editor.queuedRevision = null;
 }
 
 function resetEditor(editor) {
@@ -1601,11 +1604,26 @@ function scheduleRun(editor) {
   setStatus(editor, "running", "running");
   editor.pendingTimer = window.setTimeout(() => {
     editor.pendingTimer = null;
-    void runEditor(editor, revision);
+    void requestEditorRun(editor, revision);
   }, autoRunDelayMs);
 }
 
+async function requestEditorRun(editor, revision) {
+  if (editor.running) {
+    editor.queuedRevision = revision;
+    return;
+  }
+  const run = () => runEditor(editor, revision);
+  const queuedRun = editorRunQueue.then(run, run);
+  editorRunQueue = queuedRun.catch(() => {});
+  await queuedRun;
+}
+
 async function runEditor(editor, revision = editor.revision) {
+  if (revision !== editor.revision) {
+    return;
+  }
+  editor.running = true;
   try {
     setStatus(editor, "running", "running");
     const source = sourceText(editor);
@@ -1681,6 +1699,15 @@ async function runEditor(editor, revision = editor.revision) {
       forceDiagnostics: true,
     });
     setStatus(editor, "error", "offline");
+  } finally {
+    editor.running = false;
+    if (editor.queuedRevision !== null) {
+      const nextRevision = editor.queuedRevision;
+      editor.queuedRevision = null;
+      window.setTimeout(() => {
+        void requestEditorRun(editor, nextRevision);
+      }, 0);
+    }
   }
 }
 
@@ -1784,6 +1811,8 @@ export function mount(element, options = {}) {
     mode,
     originalSource,
     pendingTimer: null,
+    queuedRevision: null,
+    running: false,
     revision: 0,
     storageKey,
     suppressEditorChanges: false,
