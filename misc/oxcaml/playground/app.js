@@ -12,7 +12,7 @@ import {
   runFile as backendRunFile,
   runString as backendRunString,
   utopString as backendUtopString,
-} from "./backend.js?v=20260423-worker";
+} from "./backend.js?v=20260424-file-fallback";
 import {
   EditorState,
   RangeSetBuilder,
