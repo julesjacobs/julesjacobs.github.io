@@ -4,7 +4,7 @@ import {
 } from "./playground_prelude.js";
 
 const buildBase = "./build";
-const compilerAssetVersion = "20260424-multicore-fs";
+const compilerAssetVersion = "20260424-multicore-shim";
 
 const loadedScriptUrls = new Map();
 let browserFsManifestPromise = null;
@@ -379,7 +379,8 @@ async function normalizeBackendResult(result) {
 
 async function runBackendWithLazyFs(methodName, filename, source) {
   const backend = await ready;
-  const effectiveSource = withPlaygroundPrelude(filename, source);
+  const effectiveSource =
+    methodName === "utopString" ? source : withPlaygroundPrelude(filename, source);
   let previousMissingFilename = null;
   for (let attempt = 0; attempt < browserFsRetryLimit; attempt += 1) {
     const result = await normalizeBackendResult(backend[methodName](filename, effectiveSource));

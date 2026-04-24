@@ -12,7 +12,7 @@ import {
   runFile as backendRunFile,
   runString as backendRunString,
   utopString as backendUtopString,
-} from "./backend.js?v=20260424-multicore-fs";
+} from "./backend.js?v=20260424-multicore-shim";
 import {
   EditorState,
   RangeSetBuilder,
