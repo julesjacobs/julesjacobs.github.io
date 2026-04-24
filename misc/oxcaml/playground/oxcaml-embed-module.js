@@ -5,7 +5,7 @@ import {
   ready,
   runString,
   utopString,
-} from "./backend.js?v=20260424-file-fallback";
+} from "./backend.js?v=20260424-multicore";
 import {
   EditorState,
   RangeSetBuilder,
@@ -1094,9 +1094,15 @@ function buildInterfaceHtml(text) {
 
 function modeForElement(element, options = {}) {
   if (options.mode !== undefined) {
-    return options.mode === "utop" ? "utop" : "run";
+    return options.mode === "utop" || options.mode === "check" ? options.mode : "run";
   }
-  return element.hasAttribute("utop") ? "utop" : "run";
+  if (element.hasAttribute("utop")) {
+    return "utop";
+  }
+  if (element.hasAttribute("check")) {
+    return "check";
+  }
+  return "run";
 }
 
 function injectStyles() {
@@ -1656,6 +1662,8 @@ async function runEditor(editor, revision = editor.revision) {
         return;
       }
       output = await utopString(editor.filename, source);
+    } else if (editor.mode === "check") {
+      output = await checkString(editor.filename, source);
     } else {
       output = await runString(editor.filename, source);
     }
@@ -1669,6 +1677,7 @@ async function runEditor(editor, revision = editor.revision) {
     });
     const showInterface =
       editor.mode !== "utop" &&
+      editor.mode !== "check" &&
       !transcriptPreview.hasException && !transcriptPreview.hasCompilerError;
     const interfaceOutput = showInterface
       ? await interfaceString(editor.filename, source)

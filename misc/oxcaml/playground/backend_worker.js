@@ -1,4 +1,4 @@
-const backendPromise = import("./backend_direct.js").then((backend) => {
+const backendPromise = import("./backend_direct.js?v=20260424-multicore").then((backend) => {
   backend.addBackendStatusListener(({ state, text }) => {
     globalThis.postMessage({ type: "status", state, text });
   });
