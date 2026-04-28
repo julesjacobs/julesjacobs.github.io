@@ -45,6 +45,8 @@ const mountedEditors = new Set();
 let editorRunQueue = Promise.resolve();
 const setDiagnosticsEffect = StateEffect.define();
 const setSyntaxDecorationsEffect = StateEffect.define();
+const themeModes = new Set(["auto", "light", "dark"]);
+let globalThemeMode = initialThemeMode();
 
 const oxcamlIdentifierNames = new Set(["local_", "stack_", "exclave_"]);
 const packageModuleNames = new Set(["Base", "Core", "Stdlib_stable"]);
@@ -177,6 +179,65 @@ function clearStoredSourcesForRequest() {
   } catch {
     // Ignore storage failures.
   }
+}
+
+function normalizeThemeMode(mode) {
+  const normalized = String(mode ?? "auto").trim().toLowerCase();
+  if (themeModes.has(normalized)) {
+    return normalized;
+  }
+  throw new RangeError(`Unknown OxCaml playground theme mode: ${mode}`);
+}
+
+function initialThemeMode() {
+  try {
+    return normalizeThemeMode(document.documentElement.getAttribute("data-oxcaml-theme"));
+  } catch {
+    return "auto";
+  }
+}
+
+function themeModeForElement(element) {
+  const mode = element.getAttribute("data-oxcaml-theme");
+  return normalizeThemeMode(mode ?? globalThemeMode);
+}
+
+function applyThemeModeToRoot(root, mode) {
+  root.dataset.oxcamlTheme = normalizeThemeMode(mode);
+}
+
+export function setThemeMode(mode, target = null) {
+  const normalized = normalizeThemeMode(mode);
+  if (target?.root instanceof Element) {
+    applyThemeModeToRoot(target.root, normalized);
+    return normalized;
+  }
+  if (target instanceof Element) {
+    if (target.classList.contains("oxcaml-embed")) {
+      applyThemeModeToRoot(target, normalized);
+      return normalized;
+    }
+    for (const root of target.querySelectorAll(".oxcaml-embed")) {
+      applyThemeModeToRoot(root, normalized);
+    }
+    return normalized;
+  }
+  globalThemeMode = normalized;
+  document.documentElement.dataset.oxcamlTheme = normalized;
+  for (const editor of mountedEditors) {
+    applyThemeModeToRoot(editor.root, normalized);
+  }
+  return normalized;
+}
+
+export function getThemeMode(target = null) {
+  if (target?.root instanceof Element) {
+    return target.root.dataset.oxcamlTheme ?? "auto";
+  }
+  if (target instanceof Element && target.classList.contains("oxcaml-embed")) {
+    return target.dataset.oxcamlTheme ?? "auto";
+  }
+  return globalThemeMode;
 }
 
 clearStoredSourcesForRequest();
@@ -1012,14 +1073,17 @@ function classifyTranscriptLine(line, inDiagnosticBlock, forceDiagnostics) {
 
 function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnostics = false, utopMode = false } = {}) {
   const normalized = text.replace(/\r\n/g, "\n");
-  if (normalized === "" && emptyPlaceholder !== null) {
+  if (normalized === "") {
     return {
       hasWarning: false,
       hasError: false,
       hasException: false,
       hasCompilerError: false,
       tone: "output",
-      html: `<pre class="transcript"><span class="transcript-line stream placeholder">${escapeHtml(emptyPlaceholder)}</span></pre>`,
+      isEmpty: true,
+      html: emptyPlaceholder === null
+        ? ""
+        : `<pre class="transcript"><span class="transcript-line stream placeholder">${escapeHtml(emptyPlaceholder)}</span></pre>`,
     };
   }
 
@@ -1077,6 +1141,7 @@ function buildTranscript(editor, text, { emptyPlaceholder = null, forceDiagnosti
     hasException,
     hasCompilerError,
     tone: hasError ? "error" : hasWarning ? "warning" : "output",
+    isEmpty: false,
     html: body,
   };
 }
@@ -1105,6 +1170,17 @@ function modeForElement(element, options = {}) {
   return "run";
 }
 
+function normalizeEmptyOutput(value) {
+  return value === "hide" ? "hide" : "show";
+}
+
+function emptyOutputForElement(element, options = {}) {
+  if (options.emptyOutput !== undefined) {
+    return normalizeEmptyOutput(options.emptyOutput);
+  }
+  return normalizeEmptyOutput(element.getAttribute("data-oxcaml-empty-output"));
+}
+
 function injectStyles() {
   if (document.getElementById("oxcaml-embed-styles")) {
     return;
@@ -1113,99 +1189,154 @@ function injectStyles() {
   style.id = "oxcaml-embed-styles";
   style.textContent = `
     .oxcaml-embed {
-      color-scheme: light dark;
-      --oxcaml-bg: #fffdf9;
-      --oxcaml-ink: #1c2530;
-      --oxcaml-muted: #687586;
-      --oxcaml-border: rgba(21, 32, 46, 0.16);
-      --oxcaml-editor: #fbfcfd;
-      --oxcaml-editor-ink: #1d2733;
-      --oxcaml-editor-gutter: #eef2f6;
-      --oxcaml-editor-gutter-ink: #687586;
-      --oxcaml-editor-gutter-border: rgba(21, 32, 46, 0.1);
-      --oxcaml-editor-active: rgba(21, 32, 46, 0.055);
-      --oxcaml-editor-selection: rgba(15, 123, 95, 0.18);
-      --oxcaml-editor-cursor: #0f7b5f;
-      --oxcaml-output-bg: #f1f5f7;
-      --oxcaml-output-border: rgba(21, 32, 46, 0.12);
-      --oxcaml-accent: #bf4f2d;
-      --oxcaml-ok: #0f7b5f;
-      --oxcaml-warn: #b36b00;
-      --oxcaml-error: #b23b2c;
-      --oxcaml-tooltip-bg: #fffdf9;
-      --oxcaml-tooltip-ink: #1d2733;
-      --oxcaml-stream: #243142;
-      --oxcaml-code: #2e4053;
-      --oxcaml-detail: #526274;
-      --oxcaml-prefix: #718095;
-      --oxcaml-interface-bg: rgba(224, 245, 238, 0.62);
-      --oxcaml-interface-ink: #173829;
-      --syntax-keyword: #98521a;
-      --syntax-module: #0d638c;
-      --syntax-string: #276a3f;
-      --syntax-comment: #6d7988;
-      --syntax-number: #846000;
-      --syntax-operator: #4f5c6b;
-      --syntax-function: #0d638c;
-      --syntax-parameter: #805514;
-      --syntax-type: #0d638c;
-      --syntax-constructor: #8a5a00;
-      --syntax-annotation: #8c5f16;
-      --syntax-package: #007260;
-      --syntax-package-open: #475fa5;
-      --syntax-label: #8b3aa8;
-      border: 1px solid var(--oxcaml-border);
-      border-radius: 8px;
-      background: var(--oxcaml-bg);
-      color: var(--oxcaml-ink);
-      font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
-      margin: 1rem 0;
+      color-scheme: light;
+      --_oxcaml-bg: var(--oxcaml-bg, #fffdf9);
+      --_oxcaml-ink: var(--oxcaml-ink, #1c2530);
+      --_oxcaml-muted: var(--oxcaml-muted, #687586);
+      --_oxcaml-border: var(--oxcaml-border, rgba(21, 32, 46, 0.16));
+      --_oxcaml-editor: var(--oxcaml-editor, #fbfcfd);
+      --_oxcaml-editor-ink: var(--oxcaml-editor-ink, #1d2733);
+      --_oxcaml-editor-gutter: var(--oxcaml-editor-gutter, #eef2f6);
+      --_oxcaml-editor-gutter-ink: var(--oxcaml-editor-gutter-ink, #687586);
+      --_oxcaml-editor-gutter-border: var(--oxcaml-editor-gutter-border, rgba(21, 32, 46, 0.1));
+      --_oxcaml-editor-active: var(--oxcaml-editor-active, rgba(21, 32, 46, 0.055));
+      --_oxcaml-editor-selection: var(--oxcaml-editor-selection, rgba(15, 123, 95, 0.18));
+      --_oxcaml-editor-cursor: var(--oxcaml-editor-cursor, #0f7b5f);
+      --_oxcaml-output-bg: var(--oxcaml-output-bg, #f1f5f7);
+      --_oxcaml-output-border: var(--oxcaml-output-border, rgba(21, 32, 46, 0.12));
+      --_oxcaml-accent: var(--oxcaml-accent, #bf4f2d);
+      --_oxcaml-ok: var(--oxcaml-ok, #0f7b5f);
+      --_oxcaml-warn: var(--oxcaml-warn, #b36b00);
+      --_oxcaml-error: var(--oxcaml-error, #b23b2c);
+      --_oxcaml-tooltip-bg: var(--oxcaml-tooltip-bg, #fffdf9);
+      --_oxcaml-tooltip-ink: var(--oxcaml-tooltip-ink, #1d2733);
+      --_oxcaml-stream: var(--oxcaml-stream, #243142);
+      --_oxcaml-code: var(--oxcaml-code, #2e4053);
+      --_oxcaml-detail: var(--oxcaml-detail, #526274);
+      --_oxcaml-prefix: var(--oxcaml-prefix, #718095);
+      --_oxcaml-interface-bg: var(--oxcaml-interface-bg, rgba(224, 245, 238, 0.62));
+      --_oxcaml-interface-ink: var(--oxcaml-interface-ink, #173829);
+      --_syntax-keyword: var(--syntax-keyword, #98521a);
+      --_syntax-module: var(--syntax-module, #0d638c);
+      --_syntax-string: var(--syntax-string, #276a3f);
+      --_syntax-comment: var(--syntax-comment, #394756);
+      --_syntax-number: var(--syntax-number, #846000);
+      --_syntax-operator: var(--syntax-operator, #4f5c6b);
+      --_syntax-function: var(--syntax-function, #0d638c);
+      --_syntax-parameter: var(--syntax-parameter, #805514);
+      --_syntax-type: var(--syntax-type, #0d638c);
+      --_syntax-constructor: var(--syntax-constructor, #8a5a00);
+      --_syntax-annotation: var(--syntax-annotation, #8c5f16);
+      --_syntax-package: var(--syntax-package, #007260);
+      --_syntax-package-open: var(--syntax-package-open, #475fa5);
+      --_syntax-label: var(--syntax-label, #8b3aa8);
+      --_oxcaml-radius: var(--oxcaml-radius, 8px);
+      --_oxcaml-margin-block: var(--oxcaml-margin-block, 1rem);
+      --_oxcaml-font-family: var(--oxcaml-font-family, Avenir Next, Segoe UI, system-ui, sans-serif);
+      --_oxcaml-mono-font-family: var(--oxcaml-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
+      --_oxcaml-editor-font-size: var(--oxcaml-editor-font-size, 0.92rem);
+      --_oxcaml-output-font-size: var(--oxcaml-output-font-size, 0.86rem);
+      --_oxcaml-editor-min-height: var(--oxcaml-editor-min-height, 9rem);
+      --_oxcaml-editor-max-height: var(--oxcaml-editor-max-height, min(38rem, 72vh));
+      --_oxcaml-output-min-height: var(--oxcaml-output-min-height, 2.75rem);
+      --_oxcaml-html-output-height: var(--oxcaml-html-output-height, 320px);
+      border: 1px solid var(--_oxcaml-border);
+      border-radius: var(--_oxcaml-radius);
+      background: var(--_oxcaml-bg);
+      color: var(--_oxcaml-ink);
+      font-family: var(--_oxcaml-font-family);
+      margin: var(--_oxcaml-margin-block) 0;
       overflow: hidden;
     }
 
     @media (prefers-color-scheme: dark) {
-      .oxcaml-embed {
-        --oxcaml-bg: #17202a;
-        --oxcaml-ink: #eef4fb;
-        --oxcaml-muted: #9aa7b8;
-        --oxcaml-border: rgba(215, 226, 240, 0.16);
-        --oxcaml-editor: #10151d;
-        --oxcaml-editor-ink: #ebf3ff;
-        --oxcaml-editor-gutter: #0c1118;
-        --oxcaml-editor-gutter-ink: #78879c;
-        --oxcaml-editor-gutter-border: rgba(255, 255, 255, 0.08);
-        --oxcaml-editor-active: rgba(255, 255, 255, 0.06);
-        --oxcaml-editor-selection: rgba(110, 169, 255, 0.34);
-        --oxcaml-editor-cursor: #ffd28f;
-        --oxcaml-output-bg: #141c25;
-        --oxcaml-output-border: rgba(215, 226, 240, 0.14);
-        --oxcaml-accent: #ff9f7a;
-        --oxcaml-ok: #7fd6c2;
-        --oxcaml-warn: #f0bd64;
-        --oxcaml-error: #ff7f68;
-        --oxcaml-tooltip-bg: #202b37;
-        --oxcaml-tooltip-ink: #eef4fb;
-        --oxcaml-stream: #dce6f2;
-        --oxcaml-code: #d6e1ef;
-        --oxcaml-detail: #a9b7c8;
-        --oxcaml-prefix: #8e9caf;
-        --oxcaml-interface-bg: rgba(35, 70, 62, 0.46);
-        --oxcaml-interface-ink: #d8f5ea;
-        --syntax-keyword: #ffb57e;
-        --syntax-module: #8ed2ff;
-        --syntax-string: #b6f09c;
-        --syntax-comment: #78879c;
-        --syntax-number: #f7cd74;
-        --syntax-operator: #f0f5ff;
-        --syntax-function: #9fd8ff;
-        --syntax-parameter: #ffd7a1;
-        --syntax-type: #88c6ff;
-        --syntax-constructor: #f2c572;
-        --syntax-annotation: #ffd28f;
-        --syntax-package: #7fd6c2;
-        --syntax-package-open: #a8bcff;
-        --syntax-label: #f4b5ff;
+      .oxcaml-embed:not([data-oxcaml-theme="light"]) {
+        color-scheme: dark;
+        --_oxcaml-bg: var(--oxcaml-bg, #17202a);
+        --_oxcaml-ink: var(--oxcaml-ink, #eef4fb);
+        --_oxcaml-muted: var(--oxcaml-muted, #9aa7b8);
+        --_oxcaml-border: var(--oxcaml-border, rgba(215, 226, 240, 0.16));
+        --_oxcaml-editor: var(--oxcaml-editor, #10151d);
+        --_oxcaml-editor-ink: var(--oxcaml-editor-ink, #ebf3ff);
+        --_oxcaml-editor-gutter: var(--oxcaml-editor-gutter, #0c1118);
+        --_oxcaml-editor-gutter-ink: var(--oxcaml-editor-gutter-ink, #78879c);
+        --_oxcaml-editor-gutter-border: var(--oxcaml-editor-gutter-border, rgba(255, 255, 255, 0.08));
+        --_oxcaml-editor-active: var(--oxcaml-editor-active, rgba(255, 255, 255, 0.06));
+        --_oxcaml-editor-selection: var(--oxcaml-editor-selection, rgba(110, 169, 255, 0.34));
+        --_oxcaml-editor-cursor: var(--oxcaml-editor-cursor, #ffd28f);
+        --_oxcaml-output-bg: var(--oxcaml-output-bg, #141c25);
+        --_oxcaml-output-border: var(--oxcaml-output-border, rgba(215, 226, 240, 0.14));
+        --_oxcaml-accent: var(--oxcaml-accent, #ff9f7a);
+        --_oxcaml-ok: var(--oxcaml-ok, #7fd6c2);
+        --_oxcaml-warn: var(--oxcaml-warn, #f0bd64);
+        --_oxcaml-error: var(--oxcaml-error, #ff7f68);
+        --_oxcaml-tooltip-bg: var(--oxcaml-tooltip-bg, #202b37);
+        --_oxcaml-tooltip-ink: var(--oxcaml-tooltip-ink, #eef4fb);
+        --_oxcaml-stream: var(--oxcaml-stream, #dce6f2);
+        --_oxcaml-code: var(--oxcaml-code, #d6e1ef);
+        --_oxcaml-detail: var(--oxcaml-detail, #a9b7c8);
+        --_oxcaml-prefix: var(--oxcaml-prefix, #8e9caf);
+        --_oxcaml-interface-bg: var(--oxcaml-interface-bg, rgba(35, 70, 62, 0.46));
+        --_oxcaml-interface-ink: var(--oxcaml-interface-ink, #d8f5ea);
+        --_syntax-keyword: var(--syntax-keyword, #ffb57e);
+        --_syntax-module: var(--syntax-module, #8ed2ff);
+        --_syntax-string: var(--syntax-string, #b6f09c);
+        --_syntax-comment: var(--syntax-comment, #dce6f2);
+        --_syntax-number: var(--syntax-number, #f7cd74);
+        --_syntax-operator: var(--syntax-operator, #f0f5ff);
+        --_syntax-function: var(--syntax-function, #9fd8ff);
+        --_syntax-parameter: var(--syntax-parameter, #ffd7a1);
+        --_syntax-type: var(--syntax-type, #88c6ff);
+        --_syntax-constructor: var(--syntax-constructor, #f2c572);
+        --_syntax-annotation: var(--syntax-annotation, #ffd28f);
+        --_syntax-package: var(--syntax-package, #7fd6c2);
+        --_syntax-package-open: var(--syntax-package-open, #a8bcff);
+        --_syntax-label: var(--syntax-label, #f4b5ff);
       }
+    }
+
+    .oxcaml-embed[data-oxcaml-theme="dark"] {
+      color-scheme: dark;
+      --_oxcaml-bg: var(--oxcaml-bg, #17202a);
+      --_oxcaml-ink: var(--oxcaml-ink, #eef4fb);
+      --_oxcaml-muted: var(--oxcaml-muted, #9aa7b8);
+      --_oxcaml-border: var(--oxcaml-border, rgba(215, 226, 240, 0.16));
+      --_oxcaml-editor: var(--oxcaml-editor, #10151d);
+      --_oxcaml-editor-ink: var(--oxcaml-editor-ink, #ebf3ff);
+      --_oxcaml-editor-gutter: var(--oxcaml-editor-gutter, #0c1118);
+      --_oxcaml-editor-gutter-ink: var(--oxcaml-editor-gutter-ink, #78879c);
+      --_oxcaml-editor-gutter-border: var(--oxcaml-editor-gutter-border, rgba(255, 255, 255, 0.08));
+      --_oxcaml-editor-active: var(--oxcaml-editor-active, rgba(255, 255, 255, 0.06));
+      --_oxcaml-editor-selection: var(--oxcaml-editor-selection, rgba(110, 169, 255, 0.34));
+      --_oxcaml-editor-cursor: var(--oxcaml-editor-cursor, #ffd28f);
+      --_oxcaml-output-bg: var(--oxcaml-output-bg, #141c25);
+      --_oxcaml-output-border: var(--oxcaml-output-border, rgba(215, 226, 240, 0.14));
+      --_oxcaml-accent: var(--oxcaml-accent, #ff9f7a);
+      --_oxcaml-ok: var(--oxcaml-ok, #7fd6c2);
+      --_oxcaml-warn: var(--oxcaml-warn, #f0bd64);
+      --_oxcaml-error: var(--oxcaml-error, #ff7f68);
+      --_oxcaml-tooltip-bg: var(--oxcaml-tooltip-bg, #202b37);
+      --_oxcaml-tooltip-ink: var(--oxcaml-tooltip-ink, #eef4fb);
+      --_oxcaml-stream: var(--oxcaml-stream, #dce6f2);
+      --_oxcaml-code: var(--oxcaml-code, #d6e1ef);
+      --_oxcaml-detail: var(--oxcaml-detail, #a9b7c8);
+      --_oxcaml-prefix: var(--oxcaml-prefix, #8e9caf);
+      --_oxcaml-interface-bg: var(--oxcaml-interface-bg, rgba(35, 70, 62, 0.46));
+      --_oxcaml-interface-ink: var(--oxcaml-interface-ink, #d8f5ea);
+      --_syntax-keyword: var(--syntax-keyword, #ffb57e);
+      --_syntax-module: var(--syntax-module, #8ed2ff);
+      --_syntax-string: var(--syntax-string, #b6f09c);
+      --_syntax-comment: var(--syntax-comment, #dce6f2);
+      --_syntax-number: var(--syntax-number, #f7cd74);
+      --_syntax-operator: var(--syntax-operator, #f0f5ff);
+      --_syntax-function: var(--syntax-function, #9fd8ff);
+      --_syntax-parameter: var(--syntax-parameter, #ffd7a1);
+      --_syntax-type: var(--syntax-type, #88c6ff);
+      --_syntax-constructor: var(--syntax-constructor, #f2c572);
+      --_syntax-annotation: var(--syntax-annotation, #ffd28f);
+      --_syntax-package: var(--syntax-package, #7fd6c2);
+      --_syntax-package-open: var(--syntax-package-open, #a8bcff);
+      --_syntax-label: var(--syntax-label, #f4b5ff);
     }
 
     .oxcaml-embed__status {
@@ -1220,7 +1351,7 @@ function injectStyles() {
       position: absolute;
       right: 0.85rem;
       top: 0.72rem;
-      color: var(--oxcaml-muted);
+      color: var(--_oxcaml-muted);
       z-index: 1;
       white-space: nowrap;
     }
@@ -1236,7 +1367,7 @@ function injectStyles() {
       background: rgba(18, 22, 29, 0.78);
       color: #d8e3f2;
       cursor: pointer;
-      font: 650 0.72rem/1 Avenir Next, Segoe UI, system-ui, sans-serif;
+      font: 650 0.72rem/1 var(--_oxcaml-font-family);
       padding: 0.32rem 0.5rem;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
       backdrop-filter: blur(8px);
@@ -1256,44 +1387,44 @@ function injectStyles() {
 
     .oxcaml-embed[data-state="running"] .oxcaml-embed__status,
     .oxcaml-embed[data-state="loading"] .oxcaml-embed__status {
-      color: var(--oxcaml-accent);
+      color: var(--_oxcaml-accent);
     }
 
     .oxcaml-embed[data-state="ready"] .oxcaml-embed__status {
-      color: var(--oxcaml-ok);
+      color: var(--_oxcaml-ok);
     }
 
     .oxcaml-embed[data-state="warning"] .oxcaml-embed__status {
-      color: var(--oxcaml-warn);
+      color: var(--_oxcaml-warn);
     }
 
     .oxcaml-embed[data-state="error"] .oxcaml-embed__status {
-      color: var(--oxcaml-error);
+      color: var(--_oxcaml-error);
     }
 
     .oxcaml-embed__editor-host {
       position: relative;
-      background: var(--oxcaml-editor);
+      background: var(--_oxcaml-editor);
     }
 
     .oxcaml-embed__editor-host .cm-editor {
-      min-height: 9rem;
-      background: var(--oxcaml-editor);
-      color: var(--oxcaml-editor-ink);
-      font: 0.92rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      min-height: var(--_oxcaml-editor-min-height);
+      background: var(--_oxcaml-editor);
+      color: var(--_oxcaml-editor-ink);
+      font: var(--_oxcaml-editor-font-size)/1.55 var(--_oxcaml-mono-font-family);
     }
 
     .oxcaml-embed__editor-host .cm-scroller {
-      min-height: 9rem;
-      max-height: min(38rem, 72vh);
+      min-height: var(--_oxcaml-editor-min-height);
+      max-height: var(--_oxcaml-editor-max-height);
       overflow: auto;
       line-height: 1.55;
     }
 
     .oxcaml-embed__editor-host .cm-gutters {
-      background: var(--oxcaml-editor-gutter);
-      border-right: 1px solid var(--oxcaml-editor-gutter-border);
-      color: var(--oxcaml-editor-gutter-ink);
+      background: var(--_oxcaml-editor-gutter);
+      border-right: 1px solid var(--_oxcaml-editor-gutter-border);
+      color: var(--_oxcaml-editor-gutter-ink);
     }
 
     .oxcaml-embed__editor-host .cm-gutterElement {
@@ -1302,7 +1433,7 @@ function injectStyles() {
     }
 
     .oxcaml-embed__editor-host .cm-content {
-      caret-color: var(--oxcaml-editor-cursor);
+      caret-color: var(--_oxcaml-editor-cursor);
       padding: 0.85rem 5.9rem 0.85rem 0.95rem;
     }
 
@@ -1312,33 +1443,33 @@ function injectStyles() {
 
     .oxcaml-embed__editor-host .cm-activeLine,
     .oxcaml-embed__editor-host .cm-activeLineGutter {
-      background: var(--oxcaml-editor-active);
+      background: var(--_oxcaml-editor-active);
     }
 
     .oxcaml-embed__editor-host .cm-selectionBackground {
-      background: var(--oxcaml-editor-selection) !important;
+      background: var(--_oxcaml-editor-selection) !important;
     }
 
     .oxcaml-embed__editor-host .cm-cursor,
     .oxcaml-embed__editor-host .cm-dropCursor {
-      border-left-color: var(--oxcaml-editor-cursor);
+      border-left-color: var(--_oxcaml-editor-cursor);
     }
 
-    .tok-keyword { color: var(--syntax-keyword); }
-    .tok-module { color: var(--syntax-module); }
-    .tok-string { color: var(--syntax-string); }
-    .tok-comment { color: var(--syntax-comment); }
-    .tok-number { color: var(--syntax-number); }
-    .tok-operator { color: var(--syntax-operator); }
-    .tok-function { color: var(--syntax-function); }
-    .tok-parameter { color: var(--syntax-parameter); }
-    .tok-type { color: var(--syntax-type); }
-    .tok-constructor { color: var(--syntax-constructor); }
-    .tok-oxcaml { color: var(--oxcaml-accent); font-weight: 700; }
-    .tok-annotation { color: var(--syntax-annotation); font-style: italic; }
-    .tok-package { color: var(--syntax-package); font-weight: 700; }
-    .tok-package-open { color: var(--syntax-package-open); }
-    .tok-label { color: var(--syntax-label); }
+    .tok-keyword { color: var(--_syntax-keyword); }
+    .tok-module { color: var(--_syntax-module); }
+    .tok-string { color: var(--_syntax-string); }
+    .tok-comment { color: var(--_syntax-comment); font-style: italic; font-weight: 650; }
+    .tok-number { color: var(--_syntax-number); }
+    .tok-operator { color: var(--_syntax-operator); }
+    .tok-function { color: var(--_syntax-function); }
+    .tok-parameter { color: var(--_syntax-parameter); }
+    .tok-type { color: var(--_syntax-type); }
+    .tok-constructor { color: var(--_syntax-constructor); }
+    .tok-oxcaml { color: var(--_oxcaml-accent); font-weight: 700; }
+    .tok-annotation { color: var(--_syntax-annotation); font-style: italic; }
+    .tok-package { color: var(--_syntax-package); font-weight: 700; }
+    .tok-package-open { color: var(--_syntax-package-open); }
+    .tok-label { color: var(--_syntax-label); }
 
     .cm-diagnostic-error {
       border-bottom: 2px solid rgba(255, 92, 92, 0.95);
@@ -1356,11 +1487,11 @@ function injectStyles() {
     .cm-diagnostic-tooltip {
       max-width: min(520px, calc(100vw - 48px));
       border: 1px solid rgba(21, 32, 46, 0.18);
-      border-radius: 8px;
-      background: var(--oxcaml-tooltip-bg);
-      color: var(--oxcaml-tooltip-ink);
+      border-radius: var(--_oxcaml-radius);
+      background: var(--_oxcaml-tooltip-bg);
+      color: var(--_oxcaml-tooltip-ink);
       box-shadow: 0 14px 32px rgba(16, 24, 35, 0.18);
-      font: 0.82rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font: 0.82rem/1.45 var(--_oxcaml-mono-font-family);
       padding: 0.65rem 0.75rem;
       white-space: pre-wrap;
     }
@@ -1375,12 +1506,12 @@ function injectStyles() {
 
     .oxcaml-embed__output {
       position: relative;
-      min-height: 2.75rem;
+      min-height: var(--_oxcaml-output-min-height);
       margin: 0;
       overflow: auto;
-      border-top: 1px solid var(--oxcaml-output-border);
-      background: var(--oxcaml-output-bg);
-      color: var(--oxcaml-ink);
+      border-top: 1px solid var(--_oxcaml-output-border);
+      background: var(--_oxcaml-output-bg);
+      color: var(--_oxcaml-ink);
     }
 
     .oxcaml-embed[data-busy="true"] .oxcaml-embed__output {
@@ -1390,7 +1521,7 @@ function injectStyles() {
     .transcript {
       margin: 0;
       padding: 0.75rem 5.5rem 0.75rem 0.95rem;
-      font: 0.86rem/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font: var(--_oxcaml-output-font-size)/1.48 var(--_oxcaml-mono-font-family);
       white-space: pre-wrap;
     }
 
@@ -1411,17 +1542,17 @@ function injectStyles() {
     }
 
     .transcript-line.stream {
-      color: var(--oxcaml-stream);
+      color: var(--_oxcaml-stream);
     }
 
     .transcript-line.placeholder {
-      color: var(--oxcaml-muted);
+      color: var(--_oxcaml-muted);
     }
 
     .html-output {
       margin: 0.75rem 0;
-      border: 1px solid var(--oxcaml-output-border);
-      border-radius: 8px;
+      border: 1px solid var(--_oxcaml-output-border);
+      border-radius: var(--_oxcaml-radius);
       background: #fff;
       overflow: hidden;
     }
@@ -1429,7 +1560,7 @@ function injectStyles() {
     .html-output__frame {
       display: block;
       width: 100%;
-      height: 320px;
+      height: var(--_oxcaml-html-output-height);
       border: 0;
       background: #fff;
     }
@@ -1440,104 +1571,104 @@ function injectStyles() {
     }
 
     .transcript-line.warning {
-      color: var(--oxcaml-warn);
+      color: var(--_oxcaml-warn);
       font-weight: 700;
     }
 
     .transcript-line.error,
     .transcript-line.exception {
-      color: var(--oxcaml-error);
+      color: var(--_oxcaml-error);
       font-weight: 700;
     }
 
     .transcript-line.hint {
-      color: var(--syntax-label);
+      color: var(--_syntax-label);
     }
 
     .transcript-line.caret {
-      color: var(--oxcaml-error);
+      color: var(--_oxcaml-error);
       font-weight: 700;
     }
 
     .transcript-line.code {
-      color: var(--oxcaml-code);
+      color: var(--_oxcaml-code);
     }
 
     .diagnostic-code-prefix {
-      color: var(--oxcaml-prefix);
+      color: var(--_oxcaml-prefix);
     }
 
     .transcript-line.detail,
     .transcript-line.trace {
-      color: var(--oxcaml-detail);
+      color: var(--_oxcaml-detail);
     }
 
     .utop-outcome__keyword {
-      color: var(--syntax-keyword);
+      color: var(--_syntax-keyword);
       font-weight: 750;
     }
 
     .utop-outcome__name {
-      color: var(--syntax-module);
+      color: var(--_syntax-module);
       font-weight: 700;
     }
 
     .utop-outcome__punctuation,
     .utop-outcome__equals {
-      color: var(--oxcaml-prefix);
+      color: var(--_oxcaml-prefix);
     }
 
     .utop-outcome__type {
-      color: var(--oxcaml-ok);
+      color: var(--_oxcaml-ok);
     }
 
     .utop-outcome__value {
-      color: var(--oxcaml-code);
+      color: var(--_oxcaml-code);
     }
 
     .utop-stdout {
-      color: var(--oxcaml-detail);
+      color: var(--_oxcaml-detail);
     }
 
     .interface-output {
       margin: 0 5.5rem 0.85rem 0.95rem;
       border: 1px solid rgba(15, 123, 95, 0.18);
-      border-left: 4px solid var(--oxcaml-ok);
+      border-left: 4px solid var(--_oxcaml-ok);
       border-radius: 7px;
-      background: var(--oxcaml-interface-bg);
+      background: var(--_oxcaml-interface-bg);
       padding: 0.68rem 0.8rem 0.75rem;
     }
 
     .interface-output__label {
       margin-bottom: 0.45rem;
-      color: var(--oxcaml-ok);
-      font: 700 0.68rem/1 Avenir Next, Segoe UI, system-ui, sans-serif;
+      color: var(--_oxcaml-ok);
+      font: 700 0.68rem/1 var(--_oxcaml-font-family);
       letter-spacing: 0.12em;
       text-transform: uppercase;
     }
 
     .interface-output__body {
       margin: 0;
-      color: var(--oxcaml-interface-ink);
-      font: 0.84rem/1.48 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--_oxcaml-interface-ink);
+      font: 0.84rem/1.48 var(--_oxcaml-mono-font-family);
       white-space: pre-wrap;
     }
 
-    .oxcaml-embed__output .tok-keyword { color: var(--syntax-keyword); font-weight: 650; }
-    .oxcaml-embed__output .tok-module { color: var(--syntax-module); }
-    .oxcaml-embed__output .tok-string { color: var(--syntax-string); }
-    .oxcaml-embed__output .tok-comment { color: var(--syntax-comment); }
-    .oxcaml-embed__output .tok-number { color: var(--syntax-number); }
-    .oxcaml-embed__output .tok-operator { color: var(--syntax-operator); }
-    .oxcaml-embed__output .tok-function { color: var(--syntax-function); }
-    .oxcaml-embed__output .tok-parameter { color: var(--syntax-parameter); }
-    .oxcaml-embed__output .tok-type { color: var(--syntax-type); }
-    .oxcaml-embed__output .tok-constructor { color: var(--syntax-constructor); }
-    .oxcaml-embed__output .tok-oxcaml { color: var(--oxcaml-accent); font-weight: 700; }
-    .oxcaml-embed__output .tok-annotation { color: var(--syntax-annotation); font-style: italic; }
-    .oxcaml-embed__output .tok-package { color: var(--syntax-package); font-weight: 700; }
-    .oxcaml-embed__output .tok-package-open { color: var(--syntax-package-open); }
-    .oxcaml-embed__output .tok-label { color: var(--syntax-label); }
+    .oxcaml-embed__output .tok-keyword { color: var(--_syntax-keyword); font-weight: 650; }
+    .oxcaml-embed__output .tok-module { color: var(--_syntax-module); }
+    .oxcaml-embed__output .tok-string { color: var(--_syntax-string); }
+    .oxcaml-embed__output .tok-comment { color: var(--_syntax-comment); font-style: italic; font-weight: 650; }
+    .oxcaml-embed__output .tok-number { color: var(--_syntax-number); }
+    .oxcaml-embed__output .tok-operator { color: var(--_syntax-operator); }
+    .oxcaml-embed__output .tok-function { color: var(--_syntax-function); }
+    .oxcaml-embed__output .tok-parameter { color: var(--_syntax-parameter); }
+    .oxcaml-embed__output .tok-type { color: var(--_syntax-type); }
+    .oxcaml-embed__output .tok-constructor { color: var(--_syntax-constructor); }
+    .oxcaml-embed__output .tok-oxcaml { color: var(--_oxcaml-accent); font-weight: 700; }
+    .oxcaml-embed__output .tok-annotation { color: var(--_syntax-annotation); font-style: italic; }
+    .oxcaml-embed__output .tok-package { color: var(--_syntax-package); font-weight: 700; }
+    .oxcaml-embed__output .tok-package-open { color: var(--_syntax-package-open); }
+    .oxcaml-embed__output .tok-label { color: var(--_syntax-label); }
   `;
   document.head.appendChild(style);
 }
@@ -1549,13 +1680,19 @@ function setStatus(editor, state, text) {
 
 function setOutputBusy(editor, isBusy) {
   editor.root.dataset.busy = isBusy ? "true" : "false";
+  if (isBusy) {
+    editor.outputEl.hidden = false;
+  }
 }
 
 function renderTranscript(editor, text, options) {
   const transcript = buildTranscript(editor, text, options);
+  const interfaceHtml =
+    options?.interfaceText === undefined ? "" : buildInterfaceHtml(options.interfaceText);
   setOutputBusy(editor, false);
-  editor.transcriptEl.innerHTML =
-    transcript.html + (options?.interfaceText === undefined ? "" : buildInterfaceHtml(options.interfaceText));
+  editor.transcriptEl.innerHTML = transcript.html + interfaceHtml;
+  editor.outputEl.hidden =
+    editor.emptyOutput === "hide" && transcript.isEmpty && interfaceHtml === "";
   return transcript;
 }
 
@@ -1759,6 +1896,31 @@ function createEditorView(editor, source) {
   });
 }
 
+function copyPresentationAttributes(source, root) {
+  const originalClass = source.getAttribute("class");
+  if (originalClass) {
+    root.className = `oxcaml-embed ${originalClass}`;
+  }
+  const id = source.getAttribute("id");
+  if (id) {
+    root.id = id;
+  }
+  const style = source.getAttribute("style");
+  if (style) {
+    root.setAttribute("style", style);
+  }
+  for (const attribute of source.attributes) {
+    const name = attribute.name.toLowerCase();
+    if (
+      name.startsWith("data-") ||
+      name.startsWith("aria-") ||
+      name === "title"
+    ) {
+      root.setAttribute(attribute.name, attribute.value);
+    }
+  }
+}
+
 function createEditorElement() {
   const root = document.createElement("div");
   root.className = "oxcaml-embed";
@@ -1809,12 +1971,16 @@ export function mount(element, options = {}) {
   const source = readStoredSource(storageKey) ?? originalSource;
   const explicitFilename =
     options.filename ??
-    element.getAttribute("filename") ??
     element.getAttribute("data-filename");
   const filename = explicitFilename ?? `snippet_${mountedEditors.size + 1}.ml`;
   const mode = modeForElement(element, options);
+  const emptyOutput = emptyOutputForElement(element, options);
+  const elements = createEditorElement();
+  copyPresentationAttributes(element, elements.root);
+  applyThemeModeToRoot(elements.root, themeModeForElement(element));
   const editor = {
-    ...createEditorElement(),
+    ...elements,
+    emptyOutput,
     filename,
     markers: [],
     mode,
@@ -1920,7 +2086,9 @@ window.OxCamlPlayground = {
   mount,
   processOxcamlTags,
   interfaceString,
+  getThemeMode,
   ready,
   runString,
+  setThemeMode,
   utopString,
 };
