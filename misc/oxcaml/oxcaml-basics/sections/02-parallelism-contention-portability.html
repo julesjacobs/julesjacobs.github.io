@@ -507,6 +507,46 @@
         white-space: nowrap;
       }
 
+      .callback-mode-use {
+        border-bottom: 1px dotted color-mix(in srgb, currentColor 45%, transparent);
+        border-radius: 3px;
+        cursor: help;
+        display: inline-block;
+        position: relative;
+      }
+
+      .callback-mode-use:hover,
+      .callback-mode-use:focus-visible {
+        background: var(--purple-bg);
+        outline: none;
+      }
+
+      .callback-mode-use::after {
+        background: var(--text);
+        border-radius: 5px;
+        bottom: calc(100% + 5px);
+        box-shadow: 0 8px 18px rgba(26, 36, 57, 0.18);
+        color: var(--panel);
+        content: attr(data-mode-label);
+        font-size: 0.72rem;
+        font-weight: 650;
+        left: 50%;
+        line-height: 1;
+        opacity: 0;
+        padding: 5px 7px;
+        pointer-events: none;
+        position: absolute;
+        transform: translateX(-50%);
+        transition: opacity 120ms ease;
+        white-space: nowrap;
+        z-index: 20;
+      }
+
+      .callback-mode-use:hover::after,
+      .callback-mode-use:focus-visible::after {
+        opacity: 1;
+      }
+
       .callback-denied {
         --rejection-line: color-mix(in srgb, var(--red) 45%, transparent);
         color: var(--muted);
@@ -1823,14 +1863,14 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> _ -&gt;</div>
                     <div class="callback-closure-title uncontended">uncontended</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = x.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1">x.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
               <div class="callback-line indent-2">[1; 2; 3]</div>
-              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
@@ -1847,9 +1887,9 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = x.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="callback-denied">x.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
@@ -1864,7 +1904,7 @@
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
-              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
@@ -1881,14 +1921,14 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title contended">contended</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied">x.hits</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
-                  <div class="callback-line indent-1"><span class="callback-denied">x.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.hits</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
               <div class="callback-line indent-2">()</div>
-              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
         </div>
