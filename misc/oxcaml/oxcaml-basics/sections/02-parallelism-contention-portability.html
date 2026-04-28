@@ -2884,44 +2884,42 @@ val debug_global_counter : unit -> unit @@ nonportable</code></pre>
         <aside class="exercise">
           <h3>Exercise: portabilize a signature</h3>
           <p>This module has one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type says as much as it safely can.</p>
-          <pre><code>module Counter : sig
-  type t
+          <details>
+            <summary>Answer</summary>
+            <p>Put <code>@@ portable</code> on the whole <code>sig</code>, because most of the API should be usable from portable code. Give <code>t</code> the kind <code>value mod portable</code>: the representation has mutable state, so it is not contention-independent, but it does not contain nonportable functions. The immutable field reader can accept <code>t @ contended</code>; the mutable field reader needs <code>t @ shared</code>; the global reset operation must be <code>@@ nonportable</code>.</p>
+            <pre><code>module Counter : sig @@ portable
+  type t : value mod portable
 
   val create : int -> t
-  val id : t -> int
-  val count : t -> int
-  val reset_for_tests : unit -> unit
+  val id : t @ contended -> int
+  val count : t @ shared -> int
+  val reset_for_tests : unit -> unit @@ nonportable
 end = struct
-  type t = { id : int; mutable count : int }
+  type t : value mod portable = { id : int; mutable count : int }
 
   let create id = { id; count = 0 }
-  let id x = x.id
-  let count x = x.count
+  let id (x @ contended) = x.id
+  let count (x @ shared) = x.count
 
   let all_created = ref []
   let reset_for_tests () = all_created := []
 end</code></pre>
-          <details>
-            <summary>Answer</summary>
-            <p>Put <code>@@ portable</code> on the whole <code>sig</code>, because most of the API should be usable from portable code. Give <code>t</code> the kind <code>value mod portable</code>: the representation has mutable state, so it is not contention-independent, but it does not contain nonportable functions. The immutable field reader can accept <code>t @ contended</code>; the mutable field reader needs <code>t @ shared</code>; the global reset operation must be <code>@@ nonportable</code>.</p>
           </details>
         </aside>
         <oxcaml check filename="portabilize.ml">
-          module type Counter = sig @@ portable
-            type t : value mod portable
+          module Counter : sig
+            type t
 
             val create : int -> t
-            val id : t @ contended -> int
-            val count : t @ shared -> int
-            val reset_for_tests : unit -> unit @@ nonportable
-          end
-
-          module Counter : Counter = struct
-            type t : value mod portable = { id : int; mutable count : int }
+            val id : t -> int
+            val count : t -> int
+            val reset_for_tests : unit -> unit
+          end = struct
+            type t = { id : int; mutable count : int }
 
             let create id = { id; count = 0 }
-            let id (x @ contended) = x.id
-            let count (x @ shared) = x.count
+            let id x = x.id
+            let count x = x.count
 
             let all_created = ref []
             let reset_for_tests () = all_created := []
