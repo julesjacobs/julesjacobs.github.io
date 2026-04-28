@@ -508,10 +508,23 @@
       }
 
       .callback-denied {
+        --rejection-line: color-mix(in srgb, var(--red) 45%, transparent);
         color: var(--muted);
-        text-decoration: line-through;
-        text-decoration-color: var(--red);
-        text-decoration-thickness: 2px;
+        display: inline-block;
+        position: relative;
+        text-decoration: none;
+      }
+
+      .callback-denied::after {
+        background: var(--rejection-line);
+        content: "";
+        height: 1px;
+        left: -0.15ch;
+        pointer-events: none;
+        position: absolute;
+        right: -0.15ch;
+        top: 58%;
+        transform: rotate(-2deg);
       }
 
       .callback-line.indent-1 {
@@ -1116,8 +1129,22 @@
       }
 
       .capture-import-row.invalid .capture-src.capture-target {
+        --rejection-line: color-mix(in srgb, var(--red) 45%, transparent);
         color: var(--muted);
-        text-decoration: line-through;
+        position: relative;
+        text-decoration: none;
+      }
+
+      .capture-import-row.invalid .capture-src.capture-target::after {
+        background: var(--rejection-line);
+        content: "";
+        height: 1px;
+        left: 3.8ch;
+        pointer-events: none;
+        position: absolute;
+        right: -0.15ch;
+        top: 58%;
+        transform: rotate(-1deg);
       }
 
       .capture-matrix {
