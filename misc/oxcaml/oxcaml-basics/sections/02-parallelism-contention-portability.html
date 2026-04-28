@@ -1617,9 +1617,10 @@
         <p>In this section you will learn how to use parallelism in OxCaml, and how the OxCaml type checker helps prevent bugs like data races.</p>
         <p>By the end of this section, you should be able to:</p>
         <ul>
-          <li>explain why local mutation can still be safe in parallel work;</li>
+          <li>run work in parallel;</li>
+          <li>understand what a data race is, and how OxCaml's type system prevents them;</li>
           <li>distinguish the contention modes <code>uncontended</code>, <code>shared</code>, and <code>contended</code>;</li>
-          <li>distinguish closure modes <code>nonportable</code>, <code>shareable</code>, and <code>portable</code>;</li>
+          <li>distinguish portability modes <code>nonportable</code>, <code>shareable</code>, and <code>portable</code>;</li>
           <li>predict which modes captured variables have inside shareable and portable closures;</li>
           <li>choose whether a parallel API should ask for a <code>shareable</code> or <code>portable</code> function.</li>
         </ul>
