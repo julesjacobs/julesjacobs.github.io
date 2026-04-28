@@ -521,30 +521,29 @@
         outline: none;
       }
 
-      .callback-mode-use::after {
+      .mode-tooltip {
         background: var(--text);
         border-radius: 5px;
-        bottom: calc(100% + 5px);
         box-shadow: 0 8px 18px rgba(26, 36, 57, 0.18);
         color: var(--panel);
-        content: attr(data-mode-label);
         font-size: 0.72rem;
         font-weight: 650;
-        left: 50%;
         line-height: 1;
         opacity: 0;
         padding: 5px 7px;
         pointer-events: none;
-        position: absolute;
-        transform: translateX(-50%);
-        transition: opacity 120ms ease;
+        position: fixed;
+        transform: translateY(2px);
+        transition: opacity 120ms ease, transform 120ms ease, visibility 120ms ease;
+        visibility: hidden;
         white-space: nowrap;
-        z-index: 20;
+        z-index: 1000;
       }
 
-      .callback-mode-use:hover::after,
-      .callback-mode-use:focus-visible::after {
+      .mode-tooltip.is-visible {
         opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
       }
 
       .callback-denied {
@@ -1853,7 +1852,7 @@
             <h3>Ordinary closure</h3>
             <div class="callback-boundary-code" aria-label="Ordinary closure boundary diagram">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
-              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
               <div class="callback-line indent-1"><span class="tok-fn">List.iter</span></div>
               <div class="callback-closure-argument">
@@ -1863,21 +1862,21 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> _ -&gt;</div>
                     <div class="callback-closure-title uncontended">uncontended</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
               <div class="callback-line indent-2">[1; 2; 3]</div>
-              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
             <h3>Fork/join closure</h3>
             <div class="callback-boundary-code" aria-label="Fork/join closure boundary diagram">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
-              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _result =</div>
               <div class="callback-line indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel</div>
               <div class="callback-closure-argument wide">
@@ -1887,9 +1886,9 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ shared" title="x : t @ shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ shared" aria-label="x : t @ shared">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ shared" aria-label="x : t @ shared">x</span>.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ shared" aria-label="x : t @ shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
@@ -1904,14 +1903,14 @@
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
-              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
             <h3>Spawn closure</h3>
             <div class="callback-boundary-code" aria-label="Spawn closure boundary diagram">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
-              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
               <div class="callback-line indent-1"><span class="tok-fn">Multicore.spawn</span></div>
               <div class="callback-closure-argument">
@@ -1921,14 +1920,14 @@
                     <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title contended">contended</div>
                   </div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
-                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.hits</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
-                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" data-mode-label="x : t @ contended" title="x : t @ contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ contended" aria-label="x : t @ contended">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ contended" aria-label="x : t @ contended">x</span>.hits</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ contended" aria-label="x : t @ contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                 </div>
                 <span class="callback-paren close">)</span>
               </div>
               <div class="callback-line indent-2">()</div>
-              <div class="callback-line"><span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" data-mode-label="x : t @ uncontended" title="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+              <div class="callback-line"><span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits &lt;- <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span>.hits + 1 <span class="tok-comment">(* ok *)</span></div>
             </div>
           </article>
         </div>
@@ -3077,6 +3076,45 @@ end</code></pre>
           });
         });
 
+        const modeTooltipTargets = document.querySelectorAll(".callback-mode-use");
+        const modeTooltip = document.createElement("div");
+        modeTooltip.className = "mode-tooltip";
+        modeTooltip.setAttribute("role", "tooltip");
+        document.body.appendChild(modeTooltip);
+
+        const hideModeTooltip = () => {
+          modeTooltip.classList.remove("is-visible");
+        };
+
+        const showModeTooltip = (target) => {
+          const label = target.dataset.modeLabel;
+          if (!label) return;
+          modeTooltip.textContent = label;
+          modeTooltip.style.left = "0px";
+          modeTooltip.style.top = "0px";
+          modeTooltip.classList.add("is-visible");
+
+          const targetRect = target.getBoundingClientRect();
+          const tooltipRect = modeTooltip.getBoundingClientRect();
+          const gutter = 8;
+          const above = targetRect.top - tooltipRect.height - gutter;
+          const below = targetRect.bottom + gutter;
+          const top = above >= gutter ? above : below;
+          const centered = targetRect.left + targetRect.width / 2 - tooltipRect.width / 2;
+          const maxLeft = window.innerWidth - tooltipRect.width - gutter;
+          const left = Math.min(Math.max(centered, gutter), Math.max(gutter, maxLeft));
+
+          modeTooltip.style.left = `${left}px`;
+          modeTooltip.style.top = `${top}px`;
+        };
+
+        modeTooltipTargets.forEach((target) => {
+          target.addEventListener("mouseenter", () => showModeTooltip(target));
+          target.addEventListener("mouseleave", hideModeTooltip);
+          target.addEventListener("focus", () => showModeTooltip(target));
+          target.addEventListener("blur", hideModeTooltip);
+        });
+
         const linked = document.querySelectorAll("[data-boundary-link]");
         const captureLinked = document.querySelectorAll("[data-capture-link]");
         const overlays = document.querySelectorAll(".capture-overlay");
@@ -3157,7 +3195,11 @@ end</code></pre>
           });
           el.addEventListener("mouseleave", clear);
         });
-        window.addEventListener("resize", clear);
+        window.addEventListener("resize", () => {
+          clear();
+          hideModeTooltip();
+        });
+        window.addEventListener("scroll", hideModeTooltip, true);
       })();
     </script>
     <script src="../assets/course-toc.js?v=theme-20260425" defer></script>
