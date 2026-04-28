@@ -1734,7 +1734,7 @@
         <p class="operational-contract">The important operational contract is: fork/join waits before returning; detached spawn may outlive the call.</p>
         <p class="example-signpost"><strong>Fork/join:</strong> run inside a scheduler; call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
         <div class="code-with-figure">
-          <oxcaml filename="fork_join.ml" no-self-check>
+          <oxcaml filename="fork_join.ml" no-self-check style="--oxcaml-editor-max-height: 40rem">
             (* Worker code: ordinary code we want to run in parallel. *)
             let bits_to_string bits =
               let buf = Buffer.create 0 in
