@@ -14,7 +14,7 @@
         <h2>Unboxed Records</h2>
         <p><strong>Teaching question.</strong> What visible syntax tells you this record is not an ordinary boxed record?</p>
         <p><strong>New idea.</strong> Unboxed records have explicit syntax and a non-<code>value</code> representation.</p>
-        <oxcaml check filename="Ex07_unboxed_records.ml">
+        <oxcaml check data-filename="Ex07_unboxed_records.ml">
           type point = #{ x : float#; y : float# }
 
           let origin = #{ x = #0.0; y = #0.0 }
@@ -25,28 +25,28 @@
 
       <section>
         <h2>Normal Tuples Require value Elements</h2>
-        <oxcaml check filename="Ex07_normal_tuple_requires_value.ml" expect-error>
+        <oxcaml check data-filename="Ex07_normal_tuple_requires_value.ml" expect-error>
           type bad = int * #(string * bool)
         </oxcaml>
       </section>
 
       <section>
         <h2>Unboxed Tuple Destructuring</h2>
-        <oxcaml check filename="Ex07_unboxed_tuple_destructuring.ml">
+        <oxcaml check data-filename="Ex07_unboxed_tuple_destructuring.ml">
           let swap #(x, y) = #(y, x)
         </oxcaml>
       </section>
 
       <section>
         <h2>Labeled Unboxed Tuples</h2>
-        <oxcaml check filename="Ex07_labeled_unboxed_tuples.ml">
+        <oxcaml check data-filename="Ex07_labeled_unboxed_tuples.ml">
           let flip #(x, y, ~lbl:z) = #(~lbl:z, y, x)
         </oxcaml>
       </section>
 
       <section>
         <h2>Unboxed Number Literals</h2>
-        <oxcaml check filename="Ex07_unboxed_number_literals.ml">
+        <oxcaml check data-filename="Ex07_unboxed_number_literals.ml">
           let f64 = #3.14
           let i32 = #123l
           let i64 = #456L
@@ -60,14 +60,14 @@
         <h2>float# option Is Not A Normal Option</h2>
         <p><strong>Teaching question.</strong> Why does <code>float# option</code> fail even though ordinary <code>float option</code> is fine?</p>
         <p><strong>New idea.</strong> Ordinary polymorphic containers still expect <code>value</code>-like arguments.</p>
-        <oxcaml check filename="Ex07_float_u_option_error.ml" expect-error>
+        <oxcaml check data-filename="Ex07_float_u_option_error.ml" expect-error>
           type bad = float# option
         </oxcaml>
       </section>
 
       <section>
         <h2>Unboxed Array Type Syntax</h2>
-        <oxcaml check filename="Ex07_unboxed_array_types.ml">
+        <oxcaml check data-filename="Ex07_unboxed_array_types.ml">
           type float_array = float# array
           type int32_array = int32# array
         </oxcaml>
@@ -77,7 +77,7 @@
         <h2>or_null Construction And Pattern Matching</h2>
         <p><strong>Teaching question.</strong> How does <code>or_null</code> give an optional result without ordinary option allocation?</p>
         <p><strong>New idea.</strong> <code>Null</code> and <code>This</code> give a non-allocating optional shape.</p>
-        <oxcaml check filename="Ex07_or_null_construction.ml">
+        <oxcaml check data-filename="Ex07_or_null_construction.ml">
           let hd_or_null = function
             | [] -> Null
             | x :: _ -> This x
@@ -93,7 +93,7 @@
 
       <section>
         <h2>or_null In A Result Type</h2>
-        <oxcaml check filename="Ex07_or_null_result_type.ml">
+        <oxcaml check data-filename="Ex07_or_null_result_type.ml">
           module type Lookup = sig
             type key
             type value
@@ -105,7 +105,7 @@
 
       <section>
         <h2>Unboxed Product Return</h2>
-        <oxcaml check filename="Ex07_unboxed_product_return.ml">
+        <oxcaml check data-filename="Ex07_unboxed_product_return.ml">
           let quote_stats bid ask =
             let spread = ask -. bid in
             #(~midpoint:(bid +. (spread /. 2.0)), ~spread)

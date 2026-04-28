@@ -16,7 +16,7 @@
 
       <section>
         <h2>Immediate, String, And Sharing Values</h2>
-        <oxcaml check filename="Ex06_immediates_strings_sharing.ml">
+        <oxcaml check data-filename="Ex06_immediates_strings_sharing.ml">
           let immediate = 42
           let short_string = "abc"
           let long_string = "a longer string for byte layout"
@@ -28,7 +28,7 @@
 
       <section>
         <h2>Records And Ordinary Variants</h2>
-        <oxcaml check filename="Ex06_records_and_variants.ml">
+        <oxcaml check data-filename="Ex06_records_and_variants.ml">
           type quote =
             { symbol : string
             ; price : float
@@ -47,7 +47,7 @@
         <h2>Tree ADT</h2>
         <p><strong>Teaching question.</strong> How should a recursive tree alternate between constructor tags, pointers, and heap blocks?</p>
         <p><strong>New idea.</strong> Recursive ADTs are the clearest way to see constructor tags and pointer structure in the visualizer.</p>
-        <oxcaml check filename="Ex06_tree_adt.ml">
+        <oxcaml check data-filename="Ex06_tree_adt.ml">
           type tree =
             | Leaf of string
             | Node of tree * tree
@@ -59,7 +59,7 @@
 
       <section>
         <h2>Boxed Numeric Values</h2>
-        <oxcaml check filename="Ex06_boxed_numeric_values.ml">
+        <oxcaml check data-filename="Ex06_boxed_numeric_values.ml">
           let boxed_float = 3.5
           let boxed_int32 = 123l
           let boxed_int64 = 456L
@@ -69,7 +69,7 @@
 
       <section>
         <h2>Option Shapes</h2>
-        <oxcaml check filename="Ex06_option_shapes.ml">
+        <oxcaml check data-filename="Ex06_option_shapes.ml">
           let none = None
           let some_int = Some 5
           let some_string = Some "value"
@@ -78,7 +78,7 @@
 
       <section>
         <h2>or_null Shapes</h2>
-        <oxcaml check filename="Ex06_or_null_shapes.ml">
+        <oxcaml check data-filename="Ex06_or_null_shapes.ml">
           let null_string = Null
           let this_string = This "value"
 

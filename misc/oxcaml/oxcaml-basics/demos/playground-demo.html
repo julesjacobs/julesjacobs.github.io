@@ -97,7 +97,7 @@
           inferred type and value. This is useful for short conceptual examples.
         </p>
 
-        <oxcaml utop filename="types_and_values.ml">
+        <oxcaml utop data-filename="types_and_values.ml">
           let language = "OxCaml";;
           let answer = 40 + 2;;
           let describe name n =
@@ -113,7 +113,7 @@
           stack, consumes it locally, and prints the result.
         </p>
 
-        <oxcaml filename="stack_tuple_sum.ml">
+        <oxcaml data-filename="stack_tuple_sum.ml">
           let sum () =
             let local_ pair : int * int = stack_ (20, 22) in
             let x, y = pair in
@@ -130,7 +130,7 @@
           parameter is local to the function body.
         </p>
 
-        <oxcaml filename="local_argument.ml">
+        <oxcaml data-filename="local_argument.ml">
           let bump (local_ x : int) = x + 1;;
 
           print_endline (string_of_int (bump 41));;
@@ -145,7 +145,7 @@
           without marking the return as local.
         </p>
 
-        <oxcaml filename="stack_return_needs_exclave.ml" expect-error>
+        <oxcaml data-filename="stack_return_needs_exclave.ml" expect-error>
           let f () = stack_ (3, 5)
         </oxcaml>
       </section>

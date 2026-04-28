@@ -1962,9 +1962,11 @@ function createEditorElement() {
   };
 }
 
-export function mount(element, options = {}) {
+function mountEditor(element, options, { copyAttributes, placeRoot }) {
   injectStyles();
-  const originalSource = options.source ?? dedent(element.textContent ?? "");
+  const originalSource = options.source === undefined
+    ? dedent(element.textContent ?? "")
+    : String(options.source);
   const storageKey =
     options.storageKey ??
     storageKeyForSource(originalSource, options.duplicateIndex ?? 0);
@@ -1976,7 +1978,9 @@ export function mount(element, options = {}) {
   const mode = modeForElement(element, options);
   const emptyOutput = emptyOutputForElement(element, options);
   const elements = createEditorElement();
-  copyPresentationAttributes(element, elements.root);
+  if (copyAttributes) {
+    copyPresentationAttributes(element, elements.root);
+  }
   applyThemeModeToRoot(elements.root, themeModeForElement(element));
   const editor = {
     ...elements,
@@ -1994,7 +1998,7 @@ export function mount(element, options = {}) {
     view: null,
   };
 
-  element.replaceWith(editor.root);
+  placeRoot(editor.root);
   editor.view = createEditorView(editor, source);
   mountedEditors.add(editor);
   scheduleSyntaxRefresh(editor);
@@ -2040,6 +2044,26 @@ export function mount(element, options = {}) {
 
   scheduleRun(editor);
   return editor;
+}
+
+export function mount(target, options = {}) {
+  if (!(target instanceof Element)) {
+    throw new TypeError("mount target must be a DOM element");
+  }
+  const isOxcamlTag = target.tagName.toLowerCase() === "oxcaml";
+  if (!isOxcamlTag && options.source === undefined) {
+    throw new TypeError("mount requires options.source when target is not an <oxcaml> tag");
+  }
+  return mountEditor(target, options, {
+    copyAttributes: isOxcamlTag,
+    placeRoot(root) {
+      if (isOxcamlTag) {
+        target.replaceWith(root);
+      } else {
+        target.replaceChildren(root);
+      }
+    },
+  });
 }
 
 export function processOxcamlTags(root = document) {

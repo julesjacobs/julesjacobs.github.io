@@ -1734,7 +1734,7 @@
         <p class="operational-contract">The important operational contract is: fork/join waits before returning; detached spawn may outlive the call.</p>
         <p class="example-signpost"><strong>Fork/join:</strong> run inside a scheduler; call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
         <div class="code-with-figure">
-          <oxcaml filename="fork_join.ml" no-self-check style="--oxcaml-editor-max-height: 40rem">
+          <oxcaml data-filename="fork_join.ml" no-self-check style="--oxcaml-editor-max-height: 40rem">
             (* Worker code: ordinary code we want to run in parallel. *)
             let bits_to_string bits =
               let buf = Buffer.create 0 in
@@ -1766,7 +1766,7 @@
         </div>
         <p class="example-signpost"><strong>Spawn:</strong> pass a unit function to <code>Multicore.spawn</code>. In the browser playground the shim runs it immediately; native OxCaml can run it in parallel.</p>
         <div class="code-with-figure">
-          <oxcaml filename="spawn.ml" no-self-check>
+          <oxcaml data-filename="spawn.ml" no-self-check>
             (* Worker code: ordinary code we want to run in parallel. *)
             let bits_to_string bits =
               let buf = Buffer.create 0 in
@@ -1805,7 +1805,7 @@
           </details>
         </aside>
         <div class="code-with-figure">
-          <oxcaml check filename="shared_buffer.ml" expect-error>
+          <oxcaml check data-filename="shared_buffer.ml" expect-error>
             (* Worker code: ordinary code we want to run in parallel. *)
             let buf = Buffer.create 0
 
@@ -1975,7 +1975,7 @@
           </article>
         </div>
         <p>The helper functions below make the access requirements explicit. Reading the immutable field works with any mode, reading the mutable field needs <code>shared</code> or <code>uncontended</code>, and writing the mutable field needs <code>uncontended</code>:</p>
-        <oxcaml interface filename="mode_access.ml" no-self-check>
+        <oxcaml data-filename="mode_access.ml" no-self-check>
           type t = { id : int; mutable hits : int }
 
           (* Immutable field reads work even in contended mode. *)
@@ -2164,7 +2164,7 @@
       <section>
         <h2>Portability modes control where functions can be used</h2>
         <p>Helper functions can capture mutable state too. If we define <code>id_x</code>, <code>read_x</code>, and <code>write_x</code> first, then call them later, those helpers still carry their captured <code>x</code> with them:</p>
-        <oxcaml check filename="hidden_helpers.ml" expect-error>
+        <oxcaml check data-filename="hidden_helpers.ml" expect-error>
           type t = { id : int; mutable hits : int }
 
           let x = { id = 1; hits = 0 }
@@ -2308,7 +2308,7 @@
           </article>
         </div>
         <p>The helper modes can also be written directly. These three functions close over the same <code>x</code>, but each one keeps a different amount of access to it:</p>
-        <oxcaml interface filename="helper_modes.ml" no-self-check>
+        <oxcaml data-filename="helper_modes.ml" no-self-check>
           type t = { id : int; mutable hits : int }
 
           let x = { id = 1; hits = 0 }
@@ -2347,7 +2347,7 @@
             <p><code>read_count_later</code> returns a function that captures <code>x</code> and reads a mutable field, so it cannot be used with spawn. <code>bump_count_later</code> returns functions that capture <code>x</code> and write a mutable field, so they cannot be used with fork/join.</p>
           </details>
         </aside>
-        <oxcaml check filename="spawn_capture.ml" expect-error>
+        <oxcaml check data-filename="spawn_capture.ml" expect-error>
           type t = { id : int; mutable count : int }
 
           let get_count (x @ shared) = x.count
@@ -2358,7 +2358,7 @@
           let bad_spawn x =
             ignore (Multicore.spawn (read_count_later x) ())
         </oxcaml>
-        <oxcaml check filename="fork_capture.ml" expect-error no-self-check>
+        <oxcaml check data-filename="fork_capture.ml" expect-error no-self-check>
           type t = { id : int; mutable count : int }
 
           let bump_count (x @ uncontended) =
@@ -2709,7 +2709,7 @@
             <p>Handle the empty list directly. For a nonempty list, fork one branch for the head and one branch for the tail, then combine the mapped head with the mapped tail.</p>
           </details>
         </aside>
-        <oxcaml filename="parallel_map.ml" expect-error no-self-check>
+        <oxcaml data-filename="parallel_map.ml" expect-error no-self-check>
           let bits_to_string bits =
             let buf = Buffer.create 0 in
             List.iter
@@ -2783,13 +2783,13 @@
             <p>The first block is accepted: <code>unit -&gt; unit @ portable</code> parses like <code>unit -&gt; (unit @ portable)</code>, so <code>portable</code> is on the result, not on the whole function value <code>worker</code>. The second block fails because <code>(unit -&gt; unit) @ portable</code> does check <code>worker</code> as portable. When the mode belongs to a function value, put that function type in parentheses.</p>
           </details>
         </aside>
-        <oxcaml check filename="mode_prec_a.ml">
+        <oxcaml check data-filename="mode_prec_a.ml">
           let r = ref 0
 
           let worker : unit -> unit @ portable =
             fun () -> incr r
         </oxcaml>
-        <oxcaml check filename="mode_prec_b.ml" expect-error>
+        <oxcaml check data-filename="mode_prec_b.ml" expect-error>
           let r = ref 0
 
           let worker : (unit -> unit) @ portable =
@@ -2803,13 +2803,13 @@
             <p>The unparenthesized nested form is accepted, but the parenthesized returned-function form fails. So the same rule of thumb applies: if the mode belongs to a function value, put that function type in parentheses.</p>
           </details>
         </aside>
-        <oxcaml check filename="nested_prec_a.ml">
+        <oxcaml check data-filename="nested_prec_a.ml">
           let r = ref 0
 
           let make : int -> unit -> unit @ portable =
             fun _ -> fun () -> incr r
         </oxcaml>
-        <oxcaml check filename="nested_prec_b.ml" expect-error>
+        <oxcaml check data-filename="nested_prec_b.ml" expect-error>
           let r = ref 0
 
           let make : int -> (unit -> unit) @ portable =
@@ -2822,7 +2822,7 @@
         <p>These examples isolate the closure/function side of the story. The question is what a closure may capture when it promises to be usable from more parallel contexts.</p>
         <h3>Portable pure functions</h3>
         <p>On the portability axis, a pure function with no problematic captures is the easy case. The compiler can accept the <code>@ portable</code> annotation because the closure does not depend on thread-local mutable state.</p>
-        <oxcaml check filename="pure_fun.ml">
+        <oxcaml check data-filename="pure_fun.ml">
           let (factorial @ portable) n =
             let rec loop acc i =
               if i <= 1 then acc else loop (acc * i) (i - 1)
@@ -2832,7 +2832,7 @@
 
         <h3>Ordinary closures may capture ordinary refs</h3>
         <p>Without a portability promise, ordinary OCaml closure behavior is still available. This function captures and mutates a reference. That is fine for an ordinary local closure, but it is exactly the kind of capture we do not want to silently ship to another thread.</p>
-        <oxcaml filename="ref_capture.ml">
+        <oxcaml data-filename="ref_capture.ml">
           let r = ref 0
 
           let ordinary () =
@@ -2844,7 +2844,7 @@
 
         <h3>Portable closures may capture immutable data</h3>
         <p>Portable closures may still capture immutable data. Capturing <code>factor</code> is safe because the closure does not get a handle to mutable state that can race with another thread.</p>
-        <oxcaml check filename="immutable_cap.ml">
+        <oxcaml check data-filename="immutable_cap.ml">
           let factor = 3
 
           let (times_factor @ portable) x =
@@ -2861,7 +2861,7 @@
             <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a detached parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
           </details>
         </aside>
-        <oxcaml check filename="bad_ref.ml" expect-error>
+        <oxcaml check data-filename="bad_ref.ml" expect-error>
           let r = ref 0
 
           let (bad @ portable) () = !r
@@ -2869,7 +2869,7 @@
 
         <h3>Portable functions may use fresh local mutation</h3>
         <p>This brings us back to the opening example. A portable function may allocate fresh mutable state inside each call, use it locally, and return an ordinary result. The closure itself is still portable because that fresh state is not captured from the outside.</p>
-        <oxcaml filename="fresh_ref.ml">
+        <oxcaml data-filename="fresh_ref.ml">
           let (fresh_ref @ portable) () =
             let r = ref 0 in
             r := !r + 1;
@@ -2881,7 +2881,7 @@
         <h3>Interface annotations for portable APIs</h3>
         <p>When these ideas become part of a library boundary, the modes belong in the interface. The implementation can use local mutation internally, but the exposed API should say which values are portable and which operations can be called from portable code.</p>
         <p>Here, <code>create</code> promises to produce a portable value, and <code>price</code> promises to work from portable code while only requiring the value in <code>contended</code> mode.</p>
-        <oxcaml check filename="portable_api.ml">
+        <oxcaml check data-filename="portable_api.ml">
           module type Thing = sig
             type t
 
@@ -2901,7 +2901,7 @@ val id : t @ contended -> int
 val debug_global_counter : unit -> unit @@ nonportable</code></pre>
         <p>The usual goal is to make portable the default for the whole signature, then mark only the exceptional operations as nonportable. That is clearer than adding <code>@@ portable</code> one declaration at a time, because the interface says: this module is ready for checked parallel use except where it explicitly says otherwise.</p>
         <p>Do this bottom-up. If <code>B.ml</code> depends on <code>A.mli</code>, then <code>A.mli</code> has to expose portable operations before <code>B.mli</code> can honestly promise that <code>B</code>'s operations are portable.</p>
-        <oxcaml check filename="port_sig.ml">
+        <oxcaml check data-filename="port_sig.ml">
           module type Thing = sig @@ portable
             type t : value mod portable
 
@@ -2945,7 +2945,7 @@ end = struct
 end</code></pre>
           </details>
         </aside>
-        <oxcaml check filename="portabilize.ml">
+        <oxcaml check data-filename="portabilize.ml">
           module Counter : sig
             type t
 
@@ -2970,7 +2970,7 @@ end</code></pre>
           <li><code>value mod portable</code>: crosses portability. In basic code, think “ordinary data, possibly mutable, but not containing nonportable functions.”</li>
           <li><code>value mod contended</code>: crosses contention. In basic code, think “no ordinary mutable state,” but function values can still appear, so this is not a portability promise.</li>
         </ul>
-        <oxcaml check filename="kind_mode.ml">
+        <oxcaml check data-filename="kind_mode.ml">
           type immutable_pair : immutable_data =
             { id : int; name : string }
 

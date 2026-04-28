@@ -1,5 +1,5 @@
 (function () {
-  const assetVersion = "20260428-empty-output";
+  const assetVersion = "20260428-single-mount";
   const script = document.currentScript;
   const moduleUrl = script?.dataset.moduleSrc
     ? new URL(script.dataset.moduleSrc, script.src || document.baseURI).href

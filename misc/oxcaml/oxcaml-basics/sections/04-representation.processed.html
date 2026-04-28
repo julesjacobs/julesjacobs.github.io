@@ -2085,7 +2085,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
           <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>.</p>
         </aside>
 
-        <oxcaml check filename="exercise_hd_or_null.ml">
+        <oxcaml check data-filename="exercise_hd_or_null.ml">
           let hd_option = function
             | [] -> None
             | x :: _ -> Some x
@@ -2104,7 +2104,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
 
         <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The kind system catches this: <code>or_null</code> expects a non-null payload representation, but <code>string or_null</code> is already nullable.</p>
 
-        <oxcaml check filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
+        <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
           type nested = string or_null or_null
         </oxcaml>
 
@@ -2124,12 +2124,12 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
           </details>
         </aside>
 
-        <oxcaml check filename="exercise_value_kind_rejects_float.ml" expect-error>
+        <oxcaml check data-filename="exercise_value_kind_rejects_float.ml" expect-error>
           type ('a : value) box
           type bad = float# box
         </oxcaml>
 
-        <oxcaml check filename="exercise_float64_kind_accepts_float.ml">
+        <oxcaml check data-filename="exercise_float64_kind_accepts_float.ml">
           type ('a : float64) box
           type ok = float# box
 
@@ -2140,7 +2140,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
         <h3>Abstract types need kinds too</h3>
         <p>The same issue appears at module boundaries. In a signature, a plain abstract <code>type t</code> defaults to kind <code>value</code>. That is fine for ordinary OCaml values, but it does not match an implementation where <code>t</code> is an unboxed record.</p>
 
-        <oxcaml check filename="abstract_type_value_default_rejects_unboxed_record.ml" expect-error no-self-check>
+        <oxcaml check data-filename="abstract_type_value_default_rejects_unboxed_record.ml" expect-error no-self-check>
           module type Point = sig
             type t
             val make : float# -> float# -> t
@@ -2156,7 +2156,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
 
         <p>The fix is to keep the representation abstract, but make the kind public. Clients still do not know that <code>t</code> is a record with fields <code>x</code> and <code>y</code>; they only know the layout that calling conventions and downstream kind checks need.</p>
 
-        <oxcaml check filename="abstract_type_unboxed_record_kind.ml">
+        <oxcaml check data-filename="abstract_type_unboxed_record_kind.ml">
           module type Point = sig
             type t : float64 & float64
             val make : float# -> float# -> t
@@ -2175,7 +2175,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
         <h2>Polymorphic code still has a layout</h2>
         <p>Ordinary polymorphic functions are usually polymorphic over ordinary OCaml values. This version of <code>map</code> says that explicitly: both the input element and the output element have kind <code>value</code>. That matches ordinary lists, whose cons cells store each element as one OCaml value word.</p>
 
-        <oxcaml run filename="map_value_layout.ml">
+        <oxcaml data-filename="map_value_layout.ml">
           let rec map_value
             : ('a : value) ('b : value).
               ('a -> 'b) -> 'a list -> 'b list
@@ -2197,7 +2197,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
 
         <p>A product layout has a different calling convention. A value of kind <code>value &amp; value</code>, such as <code>#(string * string)</code>, is not one value word. It has two value components. Code that stores, passes, or returns such elements must be compiled with that layout in mind.</p>
 
-        <oxcaml run filename="map_value_pair_layout.ml">
+        <oxcaml data-filename="map_value_pair_layout.ml">
           type ('a : value & value) product_list =
             | Nil
             | Cons of 'a * 'a product_list

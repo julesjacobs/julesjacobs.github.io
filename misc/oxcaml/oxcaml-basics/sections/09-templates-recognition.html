@@ -14,7 +14,7 @@
         <h2>Generated Shape Of A Mode Template</h2>
         <p><strong>Teaching question.</strong> What family of definitions do you think a mode template would generate from one source?</p>
         <p><strong>New idea.</strong> Template output often looks like a repeated family of modal specializations.</p>
-        <oxcaml check filename="Ex09_generated_template_shape.ml">
+        <oxcaml check data-filename="Ex09_generated_template_shape.ml">
           let id : 'a. 'a @ global -> 'a @ global = fun x -> x
           let id__local : 'a. 'a @ local -> 'a @ local = fun x -> x
         </oxcaml>
@@ -22,7 +22,7 @@
 
       <section>
         <h2>Generated Shape Of A Layout Family</h2>
-        <oxcaml check filename="Ex09_generated_layout_family_shape.ml">
+        <oxcaml check data-filename="Ex09_generated_layout_family_shape.ml">
           let id_value (x : 'a) = x
           let id_float64 : ('a : float64). 'a -> 'a = fun x -> x
         </oxcaml>

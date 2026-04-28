@@ -562,7 +562,7 @@
         <h2>Why heap allocation matters</h2>
         <p>OCaml allocation is usually cheap. The problem in this section is narrower: some hot paths and low-latency paths should avoid allocating on the GC heap, because heap allocation creates future GC work and can be the point where a GC pause happens.</p>
         <p>Start with a harmless-looking helper. Returning <code>Some n</code> is ordinary OCaml style, but it creates an allocated value for the result when the branch is taken.</p>
-        <oxcaml filename="Ex03_motivating_option_allocation.ml">
+        <oxcaml data-filename="Ex03_motivating_option_allocation.ml">
           let maybe_positive n =
             if n >= 0 then Some n else None
 
@@ -774,7 +774,7 @@ let use_stack_list () =
         <h2><code>stack_</code> forces stack allocation</h2>
         <p>The expression <code>stack_ expr</code> tells the compiler that the immediately following allocation should be placed on the stack. If the value can be used entirely inside the current region, this works as expected.</p>
         <p>Here the consumer matters. The list is passed to <code>sum</code>, whose argument is <code>int list @ local</code>. That promise lets callers pass a stack-allocated temporary list. The <code>let total = ...</code> binding also keeps the call to <code>sum</code> out of tail position without using an annotation.</p>
-        <oxcaml run filename="Ex03_stack_list_used_inside_region.ml">
+        <oxcaml data-filename="Ex03_stack_list_used_inside_region.ml">
           let rec sum_loop acc (xs : int list @ local) =
             match xs with
             | [] -> acc
@@ -792,7 +792,7 @@ let use_stack_list () =
         </oxcaml>
         <p>By contrast, <code>List.length (stack_ [1; 2; 3])</code> is not the intended example here: the standard <code>List.length</code> interface expects a global list. APIs that consume stack values need local arguments.</p>
         <p><code>stack_</code> is deliberately strict. If the allocation would have to escape, the compiler rejects the program instead of silently moving that allocation back to the heap.</p>
-        <oxcaml check filename="Ex03_stack_list_escape_global_return.ml" expect-error>
+        <oxcaml check data-filename="Ex03_stack_list_escape_global_return.ml" expect-error>
           let bad () =
             stack_ [1; 2; 3]
         </oxcaml>
@@ -804,7 +804,7 @@ let use_stack_list () =
         <h2>Local arguments let APIs borrow values</h2>
         <p>A function argument annotated <code>@ local</code> is an API promise made by the callee. It says: this function may be passed a local value, and it will not store, return, or otherwise let that argument escape.</p>
         <p>This promise is useful because callers may pass either heap values or stack values. The annotation restricts the function implementation, not the caller.</p>
-        <oxcaml check filename="Ex03_local_consumer.ml">
+        <oxcaml check data-filename="Ex03_local_consumer.ml">
           let inspect (x : int option @ local) =
             match x with
             | None -> 0
@@ -827,7 +827,7 @@ let use_stack_list () =
         <h2>Callback APIs can lend temporary state</h2>
         <p>Local arguments are useful even when performance is not the first concern. They let an API lend a temporary value to user code without allowing that user code to retain it.</p>
         <p>Here <code>with_scratch</code> creates a temporary mutable record and gives it to a callback. The callback can use the scratch object during the call, but its parameter is local, so it cannot store the scratch object for later.</p>
-        <oxcaml check filename="Ex03_with_scratch_local_callback.ml">
+        <oxcaml check data-filename="Ex03_with_scratch_local_callback.ml">
           type scratch = { mutable total : int }
 
           let with_scratch (f : scratch @ local -> 'a) =
@@ -840,7 +840,7 @@ let use_stack_list () =
               s.total)
         </oxcaml>
         <p>If the callback could store <code>s</code> in a global reference, the reference would point at stack storage after <code>with_scratch</code> returns. OxCaml rejects that escape.</p>
-        <oxcaml check filename="Ex03_with_scratch_escape.ml" expect-error>
+        <oxcaml check data-filename="Ex03_with_scratch_escape.ml" expect-error>
           type scratch = { mutable total : int }
 
           let with_scratch (f : scratch @ local -> 'a) =
@@ -858,7 +858,7 @@ let use_stack_list () =
         <h2>Local closures need local callback slots</h2>
         <p>A closure can also be local. If a closure captures a local stack value, the closure itself must not escape beyond that value's region. Higher-order APIs should mark callback arguments as local when they call the callback immediately and do not store it.</p>
         <p>The first version below forces an ordinary, escapable callback type. Passing a closure that captures a stack-allocated counter is rejected.</p>
-        <oxcaml check filename="Ex03_ordinary_callback_rejects_local_closure.ml" expect-error>
+        <oxcaml check data-filename="Ex03_ordinary_callback_rejects_local_closure.ml" expect-error>
           let bump (r : int ref @ local) =
             r := !r + 1
 
@@ -870,7 +870,7 @@ let use_stack_list () =
             call_now (fun () -> bump count)
         </oxcaml>
         <p>Now the API says what it actually does: it only borrows the callback. That lets callers pass local closures.</p>
-        <oxcaml check filename="Ex03_local_callback_slot.ml">
+        <oxcaml check data-filename="Ex03_local_callback_slot.ml">
           let bump (r : int ref @ local) =
             r := !r + 1
 
@@ -888,7 +888,7 @@ let use_stack_list () =
         <h2>Local returns and <code>exclave_</code></h2>
         <p>An ordinary return must be valid after the callee's region has ended. A local return is different: a result type like <code>t @ local</code> says the returned value may be local to the caller's region.</p>
         <p>The <code>exclave_</code> keyword is how we write this. It ends the current region and evaluates the following result-producing expression in the parent region. That is why this helper can return a stack-allocated list as a local result.</p>
-        <oxcaml run filename="Ex03_exclave_return.ml">
+        <oxcaml data-filename="Ex03_exclave_return.ml">
           let make_stack_list () : _ @ local =
             exclave_ stack_ [1; 2; 3]
 
@@ -908,7 +908,7 @@ let use_stack_list () =
             use_result ()
         </oxcaml>
         <p>Because <code>exclave_</code> exits the current region, values local to the callee's region cannot be used inside the <code>exclave_</code>. The result has to be built in the parent region, not by smuggling out a value from the region that is ending.</p>
-        <oxcaml check filename="Ex03_exclave_cannot_use_inner_local.ml" expect-error>
+        <oxcaml check data-filename="Ex03_exclave_cannot_use_inner_local.ml" expect-error>
           let bad () : _ @ local =
             let xs = stack_ [1; 2; 3] in
             exclave_ xs
@@ -919,7 +919,7 @@ let use_stack_list () =
         <h2>Locality crosses API boundaries</h2>
         <p>Locality is not only a local implementation detail. If a helper allocates a temporary value and returns it, the helper's signature must say whether the result is local. Otherwise callers cannot rely on the value living in their region.</p>
         <p>This counter module exposes a local-returning constructor. The allocation in <code>make</code> is placed in the caller's region, so the caller can use the counter as a temporary local value.</p>
-        <oxcaml check filename="Ex03_counter_local_return.ml">
+        <oxcaml check data-filename="Ex03_counter_local_return.ml">
           module Counter = struct
             type t = int ref
 
@@ -951,12 +951,12 @@ let use_stack_list () =
       <section>
         <h2>Some values cross locality</h2>
         <p>Locality only matters when there is a lifetime-sensitive heap object involved. An immediate value such as an <code>int</code> has no heap block whose lifetime can become invalid, so it can cross from local to global.</p>
-        <oxcaml check filename="Ex03_local_int_crosses.ml">
+        <oxcaml check data-filename="Ex03_local_int_crosses.ml">
           let id_local_int (x : int @ local) : int =
             x
         </oxcaml>
         <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as a global result would allow it to outlive the region it belongs to.</p>
-        <oxcaml check filename="Ex03_local_string_does_not_cross.ml" expect-error>
+        <oxcaml check data-filename="Ex03_local_string_does_not_cross.ml" expect-error>
           let id_local_string (x : string @ local) : string @ global =
             x
         </oxcaml>
@@ -968,7 +968,7 @@ let use_stack_list () =
         <p>Stack allocation controls where temporary values live. <code>[@zero_alloc]</code> checks a related but distinct contract: this function should not allocate on the GC heap on normal executions.</p>
         <p>The annotation is a checker, not an optimization request. If the compiler can prove the contract, the function typechecks.</p>
         <template data-native-check-source>
-          <oxcaml native-check filename="Ex03_zeroalloc_add.ml">
+          <oxcaml native-check data-filename="Ex03_zeroalloc_add.ml">
             let[@zero_alloc] add b x y =
               if b then x + y else x
           </oxcaml>
@@ -980,7 +980,7 @@ let use_stack_list () =
         </div>
         <p>A boxed pair is an ordinary heap allocation, so returning a pair from a zeroalloc function fails.</p>
         <template data-native-check-source>
-          <oxcaml native-check filename="Ex03_zeroalloc_heap_pair_fails.ml" expect-error>
+          <oxcaml native-check data-filename="Ex03_zeroalloc_heap_pair_fails.ml" expect-error>
             let[@zero_alloc] pair x y =
               (x, y)
           </oxcaml>
@@ -993,7 +993,7 @@ Error: allocation of 24 bytes</code></pre>
         </div>
         <p>Local stack allocation is allowed by the zeroalloc checker because it does not allocate on the GC heap and will not trigger a GC.</p>
         <template data-native-check-source>
-          <oxcaml native-check filename="Ex03_zeroalloc_local_pair.ml">
+          <oxcaml native-check data-filename="Ex03_zeroalloc_local_pair.ml">
             let[@zero_alloc] local_pair x y : _ @ local =
               exclave_ stack_ (x, y)
           </oxcaml>
@@ -1009,7 +1009,7 @@ Error: allocation of 24 bytes</code></pre>
         <h2>Zeroalloc across API boundaries</h2>
         <p>When callers rely on non-allocation, put the contract in the signature. A <code>val[@zero_alloc]</code> declaration does two things: it checks the implementation, and it gives callers a summary they can use without relying on inlining.</p>
         <template data-native-check-source>
-          <oxcaml native-check filename="Ex03_zeroalloc_signature_contract.ml">
+          <oxcaml native-check data-filename="Ex03_zeroalloc_signature_contract.ml">
             module M : sig
               val[@zero_alloc] f : int -> int
             end = struct
@@ -1027,7 +1027,7 @@ end</code></pre>
         </div>
         <p>The checker is conservative when it cannot see a callee's allocation behavior. A call through an ordinary function argument may allocate, so this zeroalloc function is rejected.</p>
         <template data-native-check-source>
-          <oxcaml native-check filename="Ex03_zeroalloc_indirect_call_fails.ml" expect-error>
+          <oxcaml native-check data-filename="Ex03_zeroalloc_indirect_call_fails.ml" expect-error>
             let[@zero_alloc] apply f x =
               f x
           </oxcaml>

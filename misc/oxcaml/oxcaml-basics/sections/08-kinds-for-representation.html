@@ -12,7 +12,7 @@
 
       <section>
         <h2>Kind-Polymorphic Identity Over float64</h2>
-        <oxcaml check filename="Ex08_id_float64.ml">
+        <oxcaml check data-filename="Ex08_id_float64.ml">
           let id_float64 : ('a : float64). 'a -> 'a = fun x -> x
         </oxcaml>
       </section>
@@ -21,7 +21,7 @@
         <h2>A value Type Parameter Rejects float#</h2>
         <p><strong>Teaching question.</strong> What assumption about the type parameter causes <code>float#</code> to be rejected here?</p>
         <p><strong>New idea.</strong> A <code>value</code> kind bound excludes unboxed layouts like <code>float64</code>.</p>
-        <oxcaml check filename="Ex08_value_parameter_rejects_float.ml" expect-error>
+        <oxcaml check data-filename="Ex08_value_parameter_rejects_float.ml" expect-error>
           type ('a : value) box
           type bad = float# box
         </oxcaml>
@@ -31,7 +31,7 @@
         <h2>A float64 Type Parameter Accepts float#</h2>
         <p><strong>Teaching question.</strong> What changed relative to the previous example?</p>
         <p><strong>New idea.</strong> Choosing the right kind bound admits the intended unboxed layout.</p>
-        <oxcaml check filename="Ex08_float64_parameter_accepts_float.ml">
+        <oxcaml check data-filename="Ex08_float64_parameter_accepts_float.ml">
           type ('a : float64) box
           type ok = float# box
         </oxcaml>
@@ -39,7 +39,7 @@
 
       <section>
         <h2>Scalar Layout Kind Parameters</h2>
-        <oxcaml check filename="Ex08_scalar_layout_kinds.ml">
+        <oxcaml check data-filename="Ex08_scalar_layout_kinds.ml">
           type ('a : bits32) bits32_box
           type ('a : bits64) bits64_box
           type ('a : word) word_box
@@ -52,7 +52,7 @@
 
       <section>
         <h2>Product Layout Parameter</h2>
-        <oxcaml check filename="Ex08_product_layout_parameter.ml">
+        <oxcaml check data-filename="Ex08_product_layout_parameter.ml">
           type ('a : value & float64) pair_like
           type ok = #(string * float#) pair_like
         </oxcaml>
@@ -60,7 +60,7 @@
 
       <section>
         <h2>Generic Signature Over Non-value Layouts</h2>
-        <oxcaml check filename="Ex08_non_value_generic_signature.ml">
+        <oxcaml check data-filename="Ex08_non_value_generic_signature.ml">
           module type Unary = sig
             type ('a : any) t
 
@@ -72,7 +72,7 @@
 
       <section>
         <h2>Ordinary Polymorphism Defaults Toward value</h2>
-        <oxcaml check filename="Ex08_ordinary_polymorphism_value_default.ml" expect-error>
+        <oxcaml check data-filename="Ex08_ordinary_polymorphism_value_default.ml" expect-error>
           type 'a box
           type bad = float# box
         </oxcaml>
