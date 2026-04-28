@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Data Representation Tutorial</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #faf7f1;
+        --ink: #18212c;
+        --muted: #637083;
+        --rule: rgba(24, 33, 44, 0.14);
+        --accent: #0f766e;
+        --accent-soft: rgba(15, 118, 110, 0.1);
+        --code-bg: rgba(24, 33, 44, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+        line-height: 1.62;
+      }
+
+      main {
+        width: min(1040px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+
+      header {
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 34px;
+        padding-bottom: 28px;
+      }
+
+      section {
+        border-bottom: 1px solid var(--rule);
+        padding: 1.5rem 0 2rem;
+      }
+
+      section:last-child {
+        border-bottom: 0;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.12;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2.1rem, 6vw, 3.9rem);
+        font-weight: 720;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0 0 0.75rem;
+        font-size: 1.55rem;
+      }
+
+      h3 {
+        margin: 1.25rem 0 0.55rem;
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 0.75rem 0;
+        max-width: 76ch;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 1.08rem;
+      }
+
+      .note {
+        border-left: 3px solid var(--accent);
+        color: var(--muted);
+        margin: 1rem 0;
+        max-width: 78ch;
+        padding: 0.2rem 0 0.2rem 0.9rem;
+      }
+
+      .terms {
+        display: grid;
+        gap: 0.45rem 1.25rem;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        margin: 1rem 0;
+        max-width: 900px;
+      }
+
+      .term {
+        border-top: 1px solid var(--rule);
+        padding-top: 0.45rem;
+      }
+
+      .term strong {
+        color: var(--ink);
+        display: block;
+      }
+
+      .term span {
+        color: var(--muted);
+        display: block;
+        font-size: 0.95rem;
+      }
+
+      code {
+        background: var(--code-bg);
+        border-radius: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.95em;
+        padding: 0.08em 0.26em;
+      }
+
+      ul,
+      ol {
+        color: var(--muted);
+        margin: 0.6rem 0 1.2rem;
+        max-width: 76ch;
+      }
+
+      li {
+        margin: 0.35rem 0;
+      }
+
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Data Representation And Unboxed Types</h1>
+        <p class="lede">
+          A short OxCaml tutorial for reading native OCaml values as bytes, then
+          using that model to understand what unboxed types buy us.
+        </p>
+        <p class="note">
+          Numeric and pointer words show bytes in the same left-to-right order
+          as the printed raw word, so <code>0x03020100</code> appears as
+          <code>03 02 01 00</code>. String payloads are shown in memory order
+          so the characters read naturally.
+        </p>
+      </header>
+
+      <section>
+        <h2>1. The Normal OCaml Value Model</h2>
+        <p>
+          Most OCaml values have layout <code>value</code>. At runtime, a value is
+          either an immediate word or a pointer to a heap block. Small integers
+          are immediates: the integer is shifted left and the low bit is set, so
+          <code>5</code> appears as raw word <code>0x...0b</code>.
+        </p>
+        <p>
+          Heap blocks have a header word followed by payload words. The block
+          frame shows the total size in bytes, including the runtime header
+          word. The decoded header word shows the block tag, the allocated
+          payload size, and how much of that payload the GC may scan.
+        </p>
+
+        <oxcaml-repr filename="small_integer.ml">
+          let small_integer = 5
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="tuple_of_three_immediates.ml">
+          let tuple_of_three_immediates = (1, 2, 3)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="option_values.ml">
+          let option_values = (None, Some 5)
+        </oxcaml-repr>
+
+        <p>
+          OxCaml's <code>or_null</code> type is a non-allocating option-like
+          type. <code>Null</code> is the raw machine word zero, while
+          <code>This v</code> is represented the same way as <code>v</code>.
+        </p>
+
+        <oxcaml-repr filename="null_string.ml">
+          let null_string =
+            (Null : string or_null)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="or_null_strings.ml">
+          let or_null_strings =
+            ( (Null : string or_null)
+            , (This "present" : string or_null)
+            )
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="or_null_immediates.ml">
+          let or_null_immediates =
+            ( (Null : int or_null)
+            , (This 42 : int or_null)
+            )
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="record_with_or_null_fields.ml">
+          type quote =
+            { symbol : string
+            ; bid : int or_null
+            ; ask : int or_null
+            }
+
+          let record_with_or_null_fields =
+            { symbol = "OX"
+            ; bid = This 101
+            ; ask = Null
+            }
+        </oxcaml-repr>
+
+	        <div class="note">
+	          The name above the first word labels the binding's value word; it
+	          is not a heap block and might live in a register, stack slot, global
+	          slot, or other root location. If that value is a heap pointer, it
+	          points to a numbered heap block such as <code>@1</code>. Numbered
+	          heap blocks start with a decoded runtime header word, followed by
+	          payload words. A label like <code>int 5</code> is an immediate
+	          field, <code>null</code> is the raw word zero, and
+	          <code>-&gt; @2</code> is a pointer field.
+	        </div>
+      </section>
+
+      <section>
+        <h2>2. Algebraic Data Types Are Tags Plus Payloads</h2>
+        <p>
+          Algebraic data types use the same value model. A constructor with no
+          payload is an immediate integer. A constructor with payload is a heap
+          block: the header tag identifies the constructor, and the payload
+          words hold that constructor's arguments.
+        </p>
+
+        <oxcaml-repr filename="constant_constructors.ml">
+          type color = Red | Green | Blue
+
+          let constant_constructors = (Red, Green, Blue)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="variant_payloads.ml">
+          type shape =
+            | Unit_circle
+            | Point of int * int
+            | Named_point of string * int * int
+
+          let variant_payloads =
+            ( Unit_circle
+            , Point (3, 4)
+            , Named_point ("origin", 0, 0)
+            )
+        </oxcaml-repr>
+
+        <p>
+          Inline-record constructors have the same runtime shape as payload
+          constructors. The source gives names to the fields, but the block still
+          stores payload words in order.
+        </p>
+
+        <oxcaml-repr filename="inline_record_constructor.ml">
+          type event =
+            | Heartbeat
+            | Quote of { symbol : string; bid : int; ask : int }
+
+          let inline_record_constructor =
+            Quote { symbol = "OX"; bid = 101; ask = 103 }
+        </oxcaml-repr>
+
+        <p>
+          Recursive ADTs are heap graphs too. The empty case is an immediate;
+          each non-empty case is a block pointing at its head value and tail
+          value.
+        </p>
+
+        <oxcaml-repr filename="recursive_list_adt.ml">
+          type 'a small_list =
+            | Nil
+            | Cons of 'a * 'a small_list
+
+          let recursive_list_adt =
+            Cons ("a", Cons ("b", Cons ("c", Nil)))
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="shared_adt_subtree.ml">
+          type tree =
+            | Leaf of string
+            | Node of tree * tree
+
+          let leaf = Leaf "shared"
+
+          let shared_adt_subtree =
+            Node (leaf, leaf)
+        </oxcaml-repr>
+
+        <div class="note">
+          Runtime tag <code>0</code> is shared by tuples, records, and the first
+          payload-carrying constructor of an ADT. Other payload constructors use
+          nonzero tags, so the header word is the place to look when comparing
+          ADT cases.
+        </div>
+      </section>
+
+      <section>
+        <h2>3. Blocks Form A Graph</h2>
+        <p>
+          The runtime representation is a graph, not a tree. If two fields point
+          to the same heap object, the visualizer gives that object one node id
+          and both fields point to it.
+        </p>
+        <p>
+          Strings are no-scan blocks: the GC does not treat their payload as
+          pointers. The byte cells show the string contents, the zero byte after
+          the contents, and the final padding-count byte used by this runtime.
+        </p>
+
+        <oxcaml-repr filename="same_string_used_twice.ml">
+          let shared = "shared"
+
+          let same_string_used_twice = (shared, shared)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="different_strings.ml">
+          let different_strings = ("left", "right")
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="long_string_spans_words.ml">
+          let long_string_spans_words =
+            "abcdefghijklmnopqrstuvwxyz0123456789"
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="bytes_payload.ml">
+          let bytes_payload =
+            Bytes.of_string "mutable bytes span words too"
+        </oxcaml-repr>
+      </section>
+
+      <section>
+        <h2>4. Numeric Widths Show Up In Blocks</h2>
+        <p>
+          Normal <code>int</code>s and <code>char</code>s are immediates. But
+          boxed fixed-width integers such as <code>int32</code>,
+          <code>int64</code>, and <code>nativeint</code> are heap blocks.
+        </p>
+
+        <oxcaml-repr filename="boxed_integer_widths.ml">
+          let boxed_integer_widths =
+            (42, 'A', 42l, 42L, 42n)
+        </oxcaml-repr>
+
+        <p>
+          OxCaml also has unboxed numeric types. A value-graph visualizer cannot
+          start from a bare <code>int8#</code> or <code>int64#</code> because
+          those are not ordinary <code>value</code>s. If we place them in fields
+          of a boxed record, though, we can see the surrounding mixed block and
+          the raw payload bytes.
+        </p>
+
+        <oxcaml-repr filename="unboxed_numeric_arrays.ml">
+          let unboxed_numeric_arrays =
+            ( [| #1s; #2s; #3s; #4s |]
+            , [| #100S; #200S; #300S |]
+            , [| #0x03020100l; #0x07060504l |]
+            , [| #0x0807060504030201L; #0x1817161514131211L |]
+            , [| #1.5s; #2.5s |]
+            )
+        </oxcaml-repr>
+
+        <p>
+          Unboxed numeric arrays are also not ordinary value arrays. Their
+          runtime tags distinguish specialized raw-storage array
+          representations; those tags are representation tags, not source-level
+          ADT constructor tags.
+        </p>
+
+        <oxcaml-repr filename="unboxed_numeric_fields.ml">
+          type smalls = #{ i8 : int8#; i16 : int16#; i32 : int32#; f32 : float32# }
+
+          type numeric_payload =
+            { name : string
+            ; smalls : smalls
+            ; i64 : int64#
+            ; boxed_i32 : int32
+            ; boxed_i64 : int64
+            ; normal_int : int
+            }
+
+          let unboxed_numeric_fields =
+            { name = "small and large numeric payloads"
+            ; smalls = #{ i8 = #42s; i16 = #32000S; i32 = #0x03020100l; f32 = #1.5s }
+            ; i64 = #0x0807060504030201L
+            ; boxed_i32 = 42l
+            ; boxed_i64 = 42L
+            ; normal_int = 42
+            }
+        </oxcaml-repr>
+
+        <p>
+          This record puts several widths in one block. The byte, half-word,
+          word, double-word, native word, single-precision float, and
+          double-precision float fields all live as raw fields next to ordinary
+          value fields.
+        </p>
+
+        <oxcaml-repr filename="record_of_various_widths.ml">
+          type width_record =
+            { label : string
+            ; byte : int8#
+            ; half : int16#
+            ; word : int32#
+            ; double_word : int64#
+            ; native_word : nativeint#
+            ; single_float : float32#
+            ; double_float : float#
+            ; ordinary_int : int
+            }
+
+          let record_of_various_widths =
+            { label = "mixed widths"
+            ; byte = #0x7fs
+            ; half = #0x1234S
+            ; word = #0x03020100l
+            ; double_word = #0x0807060504030201L
+            ; native_word = #0x10203040n
+            ; single_float = #1.5s
+            ; double_float = #2.5
+            ; ordinary_int = 42
+            }
+        </oxcaml-repr>
+
+        <div class="note">
+          The unboxed numeric fields are raw data inside the record's mixed
+          block. The boxed <code>int32</code> and <code>int64</code> fields are
+          still pointers to separate heap blocks. In the various-width record,
+          the header's <code>scan 2w</code> field says that the first two
+          payload words are scannable values; the raw numeric fields come after
+          that.
+        </div>
+      </section>
+
+      <section>
+        <h2>5. Floats Show Why Representation Matters</h2>
+        <p>
+          A normal <code>float</code> is a <code>value</code>, so a standalone
+          float must be boxed. That box contains the raw IEEE-754 bits. But OCaml
+          has special flat representations for arrays of floats and records made
+          entirely of floats, so those do not need one box per float.
+        </p>
+
+        <oxcaml-repr filename="boxed_float.ml">
+          let boxed_float = 3.5
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="float_array.ml">
+          let float_array = [| 1.0; 2.5 |]
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="all_float_record.ml">
+          type point = { x : float; y : float }
+
+          let all_float_record = { x = 1.0; y = 2.5 }
+        </oxcaml-repr>
+
+        <div class="note">
+          This is the first motivation for layouts: two source-level types can
+          both feel like numbers, but need different runtime treatment if one is
+          a normal boxed value and one is raw floating-point bits.
+        </div>
+      </section>
+
+      <section>
+        <h2>6. OxCaml Makes More Representations Expressible</h2>
+        <p>
+          OxCaml adds layouts for data that is not a normal <code>value</code>.
+          A <code>float#</code> has layout <code>float64</code>; an unboxed
+          product has a product layout such as <code>value &amp; float64</code>.
+          The type system tracks these facts so APIs can say what representation
+          they accept.
+        </p>
+
+        <div class="terms">
+          <div class="term">
+            <strong><code>value</code></strong>
+            <span>ordinary OCaml values: immediates or pointers to heap blocks</span>
+          </div>
+          <div class="term">
+            <strong><code>immediate</code></strong>
+            <span>pointer-free values such as <code>int</code></span>
+          </div>
+          <div class="term">
+            <strong><code>float64</code></strong>
+            <span>raw unboxed 64-bit floats, written <code>float#</code></span>
+          </div>
+          <div class="term">
+            <strong><code>l1 &amp; l2</code></strong>
+            <span>an unboxed product layout with one component per layout</span>
+          </div>
+        </div>
+
+        <p>
+          A normal value visualizer can only start from <code>value</code>s.
+          For non-value layouts, the preprocessor uses the declared layout to
+          render one root component per layout component. Some components are a
+          full machine word, while narrower layouts such as <code>int8#</code>
+          and <code>int16#</code> are shown as narrower byte cells. The source
+          stays focused on the compound value itself, without pretending the
+          unboxed product is a heap block.
+        </p>
+
+        <oxcaml-repr filename="unboxed_pair_of_immediates.ml" layout="value,value">
+          let unboxed_pair_of_immediates = #(1, 2)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="unboxed_pair_with_string.ml" layout="value,value">
+          let unboxed_pair_with_string = #(7, "inline root, heap string")
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="unboxed_pair_with_raw_float.ml" layout="value,float64">
+          let unboxed_pair_with_raw_float = #(7, #3.5)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="mixed_unboxed_raw_product.ml" layout="value,int32,int64,float64">
+          let mixed_unboxed_raw_product =
+            #("raws", #0x03020100l, #0x0807060504030201L, #2.5)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="small_and_native_unboxed_words.ml" layout="int8,int16,nativeint,float32">
+          let small_and_native_unboxed_words =
+            #(#0x7fs, #0x1234S, #0x10203040n, #1.5s)
+        </oxcaml-repr>
+      </section>
+
+      <section>
+        <h2>7. Boxed Versus Unboxed Fields</h2>
+        <p>
+          Compare these two records. The first stores a normal boxed
+          all-float record behind a pointer. The second stores an unboxed record
+          of <code>float#</code>s inline in the outer heap block.
+        </p>
+
+        <oxcaml-repr filename="outer_record_with_boxed_point.ml">
+          type boxed_point = { boxed_x : float; boxed_y : float }
+
+          type sample_boxed =
+            { boxed_label : string
+            ; boxed_point : boxed_point
+            ; boxed_count : int
+            }
+
+          let outer_record_with_boxed_point =
+            { boxed_label = "p"
+            ; boxed_point = { boxed_x = 1.0; boxed_y = 2.5 }
+            ; boxed_count = 7
+            }
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="outer_record_with_unboxed_point.ml">
+          type unboxed_point = #{ unboxed_x : float#; unboxed_y : float# }
+
+          type sample_unboxed =
+            { unboxed_label : string
+            ; unboxed_point : unboxed_point
+            ; unboxed_count : int
+            }
+
+          let outer_record_with_unboxed_point =
+            { unboxed_label = "p"
+            ; unboxed_point = #{ unboxed_x = #1.0; unboxed_y = #2.5 }
+            ; unboxed_count = 7
+            }
+        </oxcaml-repr>
+
+        <div class="note">
+          In the unboxed version, the header's <code>scan 2w</code> field says
+          that the first two payload words are scannable by the GC, and the
+          remaining words are raw floating-point bits.
+        </div>
+      </section>
+
+      <section>
+        <h2>8. Unboxed Products Are Not Just Faster Tuples</h2>
+        <p>
+          Unboxed tuples and unboxed records have their own syntax:
+          <code>#(x, y)</code> and <code>#{ field = value }</code>. They are not
+          ordinary boxed tuples with a different spelling. Their layout can be a
+          product of non-<code>value</code> layouts, so they only fit where the
+          type system knows that such a layout is allowed.
+        </p>
+
+        <oxcaml-repr filename="representation_unboxed_products.ml">
+          type score = #(int * float#)
+          type score_row =
+            { row_name : string
+            ; row_score : score
+            }
+
+          let record_containing_an_unboxed_tuple =
+            { row_name = "score"; row_score = #(7, #3.5) }
+        </oxcaml-repr>
+
+        <p>
+          The practical lesson is not "always unbox." The lesson is that layout
+          is part of the contract. Use unboxed types when you want to remove a
+          box, an indirection, or a heap allocation from code where that
+          representation matters.
+        </p>
+      </section>
+
+      <section>
+        <h2>Classroom Prompts</h2>
+        <ol>
+          <li>Point at each payload word in the first tuple. Which are immediates?</li>
+          <li>Which ADT constructors are immediates, and which ones allocate blocks?</li>
+          <li>In the sharing example, which two fields point to the same string?</li>
+          <li>How many payload words does the long string need, and where is the padding byte?</li>
+          <li>Which numeric fields are boxed, and which are raw fields in the mixed block?</li>
+          <li>Why does a boxed float need a heap block, but an immediate int does not?</li>
+          <li>In the mixed block, which words can the GC scan as pointers?</li>
+          <li>What would go wrong if a polymorphic container assumed every element had layout <code>value</code>?</li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

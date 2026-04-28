@@ -1,0 +1,3102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Examples: Parallelism, Contention, And Portability</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #fbfaf7;
+        --panel: #ffffff;
+        --panel-alt: #f3f0e9;
+        --text: #1d252d;
+        --muted: #65717d;
+        --border: #d8d1c6;
+        --accent: #0f766e;
+        --green: #1f8f5f;
+        --green-bg: #ecfbf4;
+        --orange: #c96a00;
+        --orange-bg: #fff5e9;
+        --red: #c13f49;
+        --red-bg: #fff0f1;
+        --purple: #7a56d8;
+        --purple-bg: #f4efff;
+        --shadow: 0 10px 30px rgba(26, 36, 57, 0.08);
+        --callback-card-min: 44ch;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        max-width: 1120px;
+        width: calc(100vw - 32px);
+        margin: 0 auto;
+        padding: 44px 0 72px;
+      }
+
+      section {
+        margin: 0 0 28px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      p {
+        max-width: 76ch;
+      }
+
+      section > ul {
+        max-width: 76ch;
+        padding-left: 1.35rem;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+
+      p code,
+      li code,
+      summary code {
+        white-space: nowrap;
+      }
+
+      .lecture-intro {
+        margin: 0 0 36px;
+        padding: 0;
+      }
+
+      .lecture-intro p {
+        margin-bottom: 10px;
+      }
+
+      .lecture-intro ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+
+      .lecture-intro li + li {
+        margin-top: 4px;
+      }
+
+      .checkpoint,
+      .exercise {
+        margin: 14px 0;
+        max-width: 820px;
+        padding: 12px 14px;
+        border: 1px solid var(--border);
+        border-left-width: 4px;
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .checkpoint {
+        border-left-color: var(--purple);
+      }
+
+      .exercise {
+        border-left-color: var(--orange);
+      }
+
+      .mode-syntax {
+        background: var(--panel-alt);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin: 16px 0;
+        max-width: 820px;
+        padding: 14px 16px;
+      }
+
+      .mode-syntax h3 {
+        font-size: 0.98rem;
+        margin: 0 0 8px;
+      }
+
+      .mode-syntax p {
+        margin: 0 0 10px;
+      }
+
+      .mode-syntax ul {
+        margin: 0;
+        padding-left: 1.25rem;
+      }
+
+      .mode-syntax li + li {
+        margin-top: 6px;
+      }
+
+      .checkpoint h3,
+      .exercise h3 {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+      }
+
+      .checkpoint p,
+      .exercise p {
+        margin: 0;
+      }
+
+      .checkpoint p + p,
+      .exercise p + p,
+      .exercise details {
+        margin-top: 8px;
+      }
+
+      .exercise summary {
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .exercise details p {
+        margin-top: 8px;
+      }
+
+      .exercise pre {
+        max-width: 100%;
+        margin: 12px 0;
+        overflow-x: auto;
+        padding: 10px 12px;
+        border-radius: 6px;
+        background: var(--panel-alt);
+      }
+
+      .exercise pre code {
+        background: transparent;
+        white-space: pre;
+      }
+
+      .exercise-table-wrap {
+        margin: 10px 0;
+        overflow-x: auto;
+      }
+
+      .exercise-table {
+        width: 100%;
+        min-width: 520px;
+        border-collapse: collapse;
+        font-size: 0.95rem;
+      }
+
+      .exercise-table th,
+      .exercise-table td {
+        border: 1px solid var(--border);
+        padding: 6px 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .exercise-table th {
+        background: var(--panel-alt);
+        font-weight: 700;
+      }
+
+      .exercise-table td {
+        background: var(--panel);
+      }
+
+      .exercise-choice {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 4.25rem;
+        min-height: 1.8rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--panel-alt);
+        color: var(--muted);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .exercise-choice[data-value="yes"] {
+        color: var(--ink);
+        border-color: color-mix(in srgb, var(--teal) 30%, var(--border));
+        background: color-mix(in srgb, var(--teal-bg) 55%, var(--panel));
+      }
+
+      .exercise-choice[data-value="no"] {
+        color: var(--ink);
+        border-color: color-mix(in srgb, var(--purple) 28%, var(--border));
+        background: color-mix(in srgb, var(--purple-bg) 55%, var(--panel));
+      }
+
+      .exercise-choice.is-correct {
+        color: var(--green);
+        border-color: color-mix(in srgb, var(--green) 58%, var(--border));
+        background: var(--green-bg);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 22%, transparent);
+      }
+
+      .exercise-choice.is-incorrect {
+        color: var(--red);
+        border-color: color-mix(in srgb, var(--red) 58%, var(--border));
+        background: color-mix(in srgb, var(--red) 10%, var(--panel));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 28%, transparent);
+      }
+
+      .exercise-choice.is-empty {
+        color: var(--muted);
+        border-color: color-mix(in srgb, var(--orange) 45%, var(--border));
+        background: color-mix(in srgb, var(--orange) 8%, var(--panel));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--orange) 28%, transparent);
+      }
+
+      .exercise-answer-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 4.25rem;
+        min-height: 1.8rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--panel-alt);
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .exercise-controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 10px;
+        margin-top: 8px;
+      }
+
+      .exercise-button {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 4px 10px;
+        background: var(--panel-alt);
+        color: var(--ink);
+        font: inherit;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .exercise-feedback {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .diagram-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      .diagram-grid,
+      .axis-strip-grid,
+      .capture-boundary-grid,
+      .capture-matrix {
+        margin-bottom: 24px;
+      }
+
+      .diagram-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        box-shadow: var(--shadow);
+      }
+
+      .diagram-card h3 {
+        margin-bottom: 8px;
+        font-size: 1rem;
+      }
+
+      .diagram-caption {
+        color: var(--muted);
+        font-size: 0.95rem;
+        margin-bottom: 12px;
+      }
+
+      .parallel-shape {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 14px 0;
+      }
+
+      .parallel-shape .edge {
+        stroke: var(--accent);
+        stroke-width: 2.25;
+        stroke-linecap: round;
+      }
+
+      .parallel-shape .node {
+        fill: var(--panel-alt);
+        stroke: var(--accent);
+        stroke-width: 1.8;
+      }
+
+      .parallel-shape .node.loose {
+        stroke: var(--muted);
+        stroke-dasharray: 3 3;
+      }
+
+      .parallel-shape .root {
+        fill: var(--accent-soft);
+      }
+
+      .parallel-shape text {
+        fill: var(--text);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        text-anchor: middle;
+        dominant-baseline: middle;
+      }
+
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        padding: 0 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--panel-alt);
+        font-size: 0.9rem;
+        white-space: nowrap;
+      }
+
+      .chip.good {
+        color: var(--green);
+        background: var(--green-bg);
+        border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+      }
+
+      .chip.warn {
+        color: var(--orange);
+        background: var(--orange-bg);
+        border-color: color-mix(in srgb, var(--orange) 35%, var(--border));
+      }
+
+      .chip.bad {
+        color: var(--red);
+        background: var(--red-bg);
+        border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+      }
+
+      .chip.note {
+        color: var(--purple);
+        background: var(--purple-bg);
+        border-color: color-mix(in srgb, var(--purple) 35%, var(--border));
+      }
+
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+
+      .flow-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel-alt);
+        padding: 10px 12px;
+      }
+
+      .box.good {
+        background: var(--green-bg);
+        border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+      }
+
+      .box.bad {
+        background: var(--red-bg);
+        border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+      }
+
+      .box.note {
+        background: var(--purple-bg);
+        border-color: color-mix(in srgb, var(--purple) 35%, var(--border));
+      }
+
+      .box.warn {
+        background: var(--orange-bg);
+        border-color: color-mix(in srgb, var(--orange) 35%, var(--border));
+      }
+
+      .callback-boundary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--callback-card-min)), var(--callback-card-min)));
+        gap: 12px;
+        justify-content: start;
+        max-width: min(100%, calc(2 * var(--callback-card-min) + 12px));
+        margin: 16px 0 24px;
+      }
+
+      @media (min-width: 1840px) {
+        .callback-boundary-grid {
+          --callback-grid-wide: min(calc(3 * var(--callback-card-min) + 24px), calc(100vw - 48px));
+          grid-template-columns: repeat(3, var(--callback-card-min));
+          width: var(--callback-grid-wide);
+          max-width: var(--callback-grid-wide);
+          margin-left: calc((100% - var(--callback-grid-wide)) / 2);
+        }
+
+        body.course-toc-ready .callback-boundary-grid {
+          --callback-grid-wide: min(calc(3 * var(--callback-card-min) + 24px), calc(100vw - 448px));
+          margin-left: 0;
+        }
+      }
+
+      .callback-boundary-card {
+        display: grid;
+        align-content: start;
+        gap: 6px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .callback-boundary-card h3 {
+        margin-bottom: 0;
+      }
+
+      .callback-boundary-code {
+        --callback-code-bg: var(--panel);
+        display: grid;
+        gap: 6px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--callback-code-bg);
+        box-shadow: var(--shadow);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.9rem;
+        line-height: 1.35;
+        overflow-x: auto;
+      }
+
+      .callback-line {
+        white-space: nowrap;
+      }
+
+      .callback-denied {
+        color: var(--muted);
+        text-decoration: line-through;
+        text-decoration-color: var(--red);
+        text-decoration-thickness: 2px;
+      }
+
+      .callback-line.indent-1 {
+        padding-left: 2ch;
+      }
+
+      .callback-line.indent-2 {
+        padding-left: 4ch;
+      }
+
+      .callback-closure-argument {
+        display: grid;
+        grid-template-columns: auto minmax(0, max-content) auto;
+        align-items: end;
+        column-gap: 0;
+        margin: 6px 0 6px 2ch;
+        max-width: calc(100% - 2ch);
+        justify-content: start;
+      }
+
+      .callback-closure-argument.wide {
+        grid-template-columns: auto minmax(24ch, max-content) auto;
+        justify-content: start;
+      }
+
+      .callback-paren {
+        align-self: start;
+        padding-top: 8px;
+        margin-right: -0.05ch;
+        line-height: 1.35;
+      }
+
+      .callback-paren.close {
+        align-self: end;
+        margin-left: -0.45ch;
+        margin-right: 0;
+        padding-top: 0;
+        padding-bottom: 8px;
+      }
+
+      .callback-closure-frame {
+        position: relative;
+        display: grid;
+        gap: 6px;
+        min-width: 0;
+        max-width: 100%;
+        padding: 8px 9px;
+        border: 1px dashed color-mix(in srgb, var(--border) 70%, transparent);
+        border-radius: 6px;
+      }
+
+      .callback-closure-frame.shared {
+        background: color-mix(in srgb, var(--purple-bg) 42%, transparent);
+        border-color: color-mix(in srgb, var(--purple) 24%, transparent);
+      }
+
+      .callback-closure-frame.uncontended {
+        background: color-mix(in srgb, var(--green-bg) 48%, transparent);
+        border-color: color-mix(in srgb, var(--green) 24%, transparent);
+      }
+
+      .callback-closure-frame.contended {
+        background: color-mix(in srgb, var(--orange-bg) 48%, transparent);
+        border-color: color-mix(in srgb, var(--orange) 24%, transparent);
+      }
+
+      .callback-closure-header {
+        display: block;
+        min-width: 0;
+      }
+
+      .callback-closure-fun {
+        min-width: 0;
+        padding-right: 9ch;
+        white-space: nowrap;
+      }
+
+      .callback-closure-title {
+        position: absolute;
+        top: 7px;
+        right: 8px;
+        padding: 3px 8px 4px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        color: var(--muted);
+        font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .callback-closure-title.shared {
+        color: var(--purple);
+      }
+
+      .callback-closure-title.uncontended {
+        color: var(--green);
+      }
+
+      .callback-closure-title.contended {
+        color: var(--orange);
+      }
+
+      .box-title {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 3px;
+      }
+
+      .arrow {
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 1.1rem;
+      }
+
+      .comparison {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+
+      .comparison ul {
+        margin: 10px 0 0;
+        padding-left: 18px;
+      }
+
+      .comparison li + li {
+        margin-top: 6px;
+      }
+
+      .operational-contract {
+        margin-top: 24px;
+      }
+
+      .example-signpost {
+        margin-bottom: 8px;
+      }
+
+      .axis-strip-grid {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+        max-width: 820px;
+      }
+
+      .axis-strip {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .axis-strip-heading {
+        display: grid;
+        gap: 3px;
+      }
+
+      .axis-strip-heading h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .axis-strip-heading p {
+        margin: 0;
+        color: var(--muted);
+        max-width: none;
+      }
+
+      .axis-strip-modes {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .axis-mode {
+        min-width: 0;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--panel-alt);
+      }
+
+      .axis-mode code {
+        display: block;
+        margin-bottom: 4px;
+        padding: 0;
+        background: transparent;
+        color: inherit;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .axis-mode ul {
+        margin: 0;
+        padding-left: 1.15rem;
+        color: var(--muted);
+        font-size: 0.88rem;
+        line-height: 1.25;
+      }
+
+      .axis-mode li + li {
+        margin-top: 3px;
+      }
+
+      .axis-strip-note {
+        margin: -2px 0 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+        max-width: none;
+      }
+
+      .axis-invariant {
+        margin: 0;
+        padding-top: 12px;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 0.92rem;
+        max-width: none;
+      }
+
+      .axis-invariant ul {
+        margin: 6px 0 0;
+        padding-left: 1.2rem;
+      }
+
+      .axis-invariant li + li {
+        margin-top: 4px;
+      }
+
+      .axis-mode.good {
+        color: var(--green);
+        border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+        background: var(--green-bg);
+      }
+
+      .axis-mode.note {
+        color: var(--purple);
+        border-color: color-mix(in srgb, var(--purple) 35%, var(--border));
+        background: var(--purple-bg);
+      }
+
+      .axis-mode.warn {
+        color: var(--orange);
+        border-color: color-mix(in srgb, var(--orange) 35%, var(--border));
+        background: var(--orange-bg);
+      }
+
+      .axis-arrow {
+        align-self: center;
+        color: var(--muted);
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      @media (max-width: 720px) {
+        .axis-strip-modes {
+          grid-template-columns: 1fr;
+        }
+
+        .axis-arrow {
+          justify-self: center;
+          font-size: 0;
+        }
+
+        .axis-arrow::before {
+          content: attr(data-mobile);
+          font-size: 1rem;
+        }
+      }
+
+      .capture-boundary-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+        max-width: 820px;
+      }
+
+      .capture-card {
+        display: grid;
+        gap: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .capture-card.portable-card {
+        order: 1;
+      }
+
+      .capture-card.shareable-card {
+        order: 2;
+      }
+
+      .capture-card-header {
+        display: grid;
+        gap: 4px;
+        padding: 10px 14px 7px;
+        margin-bottom: 10px;
+        background: color-mix(in srgb, var(--panel-alt) 92%, transparent);
+      }
+
+      .capture-card-header h3 {
+        margin-bottom: 0;
+      }
+
+      .capture-legend {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .capture-boundary {
+        border: 1px dashed var(--border);
+        border-radius: 10px;
+        background: color-mix(in srgb, var(--panel-alt) 82%, transparent);
+        padding: 12px;
+      }
+
+      .capture-boundary h3 {
+        margin-bottom: 8px;
+      }
+
+      .capture-rule-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .capture-code {
+        margin-top: 0;
+        padding: 12px 14px 14px;
+        position: relative;
+      }
+
+      .capture-overlay {
+        position: absolute;
+        inset: 12px 14px 14px;
+        width: calc(100% - 28px);
+        height: calc(100% - 26px);
+        pointer-events: none;
+        overflow: visible;
+        z-index: 0;
+      }
+
+      .capture-overlay path {
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.95;
+      }
+
+      .capture-code-body {
+        padding: 0;
+        display: grid;
+        gap: 10px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .capture-code-block {
+        display: grid;
+        gap: 6px;
+      }
+
+      .capture-code-block.outer {
+        padding-bottom: 8px;
+      }
+
+      .capture-code-block.api-call {
+        padding-top: 2px;
+      }
+
+      .capture-closure-box {
+        position: relative;
+        margin-left: 2ch;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        overflow: visible;
+      }
+
+      .capture-closure-box.shareable {
+        border-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-closure-box.portable {
+        border-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-closure-box.is-linked-hover {
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
+      }
+
+      .capture-closure-title {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--panel-alt) 88%, transparent);
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        padding: 5px 10px 6px;
+        line-height: 1.1;
+        white-space: nowrap;
+        z-index: 1;
+        transform: translate(-50%, -50%);
+      }
+
+      .capture-closure-title.shareable {
+        background: color-mix(in srgb, #00695c 12%, var(--panel-alt));
+        color: #00695c;
+        border-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-closure-title.portable {
+        background: color-mix(in srgb, #6a1b9a 12%, var(--panel-alt));
+        color: #6a1b9a;
+        border-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-closure-title.is-linked-hover {
+        filter: brightness(0.96);
+      }
+
+      .capture-closure-content {
+        display: grid;
+        gap: 6px;
+        padding: 6px 10px 6px 12px;
+      }
+
+      .capture-line {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: baseline;
+      }
+
+      .capture-line.is-capture-hover,
+      .capture-import-row.is-capture-hover {
+        background: color-mix(in srgb, var(--panel-alt) 82%, transparent);
+        border-radius: 6px;
+      }
+
+      .capture-line.is-capture-hover .capture-src,
+      .capture-import-row.is-capture-hover .capture-src {
+        font-weight: 600;
+      }
+
+      .capture-import-list {
+        display: grid;
+        gap: 6px;
+      }
+
+      .capture-import-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: baseline;
+      }
+
+      .capture-src {
+        display: block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        white-space: pre-wrap;
+      }
+
+      .tok-kw {
+        color: #7c4dff;
+      }
+
+      .tok-type {
+        color: #1565c0;
+      }
+
+      .tok-mode {
+        color: #00897b;
+      }
+
+      .tok-mode.link-shareable {
+        color: #00695c;
+        font-weight: 700;
+      }
+
+      .tok-mode.link-portable {
+        color: #6a1b9a;
+        font-weight: 700;
+      }
+
+      .tok-mode.is-linked-hover {
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 2px;
+      }
+
+      .tok-fn {
+        color: #c62828;
+      }
+
+      .tok-num {
+        color: #b26a00;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .tok-kw {
+          color: #b39ddb;
+        }
+
+        .tok-type {
+          color: #90caf9;
+        }
+
+        .tok-mode {
+          color: #80cbc4;
+        }
+
+        .tok-mode.link-shareable {
+          color: #a5d6a7;
+        }
+
+        .tok-mode.link-portable {
+          color: #d1c4e9;
+        }
+
+        .capture-closure-box.shareable {
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-closure-box.portable {
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-closure-title.shareable {
+          background: color-mix(in srgb, #a5d6a7 14%, var(--panel-alt));
+          color: #a5d6a7;
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-closure-title.portable {
+          background: color-mix(in srgb, #d1c4e9 14%, var(--panel-alt));
+          color: #d1c4e9;
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .tok-fn {
+          color: #ef9a9a;
+        }
+
+        .tok-num {
+          color: #ffcc80;
+        }
+      }
+
+      .capture-src.indent-1 {
+        padding-left: 2ch;
+      }
+
+      .capture-src.indent-2 {
+        padding-left: 4ch;
+      }
+
+      .capture-note {
+        font-size: 0.82rem;
+        line-height: 1.35;
+        border-radius: 999px;
+        padding: 3px 8px;
+        border: 1px solid var(--border);
+        white-space: nowrap;
+      }
+
+      .capture-note.good {
+        color: var(--green);
+        background: var(--green-bg);
+        border-color: color-mix(in srgb, var(--green) 35%, var(--border));
+      }
+
+      .capture-note.warn {
+        color: var(--orange);
+        background: var(--orange-bg);
+        border-color: color-mix(in srgb, var(--orange) 35%, var(--border));
+      }
+
+      .capture-note.bad {
+        color: var(--red);
+        background: var(--red-bg);
+        border-color: color-mix(in srgb, var(--red) 35%, var(--border));
+      }
+
+      .capture-line.is-capture-hover .capture-note,
+      .capture-import-row.is-capture-hover .capture-note {
+        box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent);
+        filter: brightness(0.98);
+      }
+
+      .capture-import-row.invalid .capture-src.capture-target {
+        color: var(--muted);
+        text-decoration: line-through;
+      }
+
+      .capture-matrix {
+        margin-top: 24px;
+        display: grid;
+        gap: 18px;
+        max-width: 820px;
+        --capture-matrix-col-min: 132px;
+      }
+
+      .capture-boundary-grid + p {
+        margin-top: 16px;
+        margin-bottom: 12px;
+      }
+
+      .capture-matrix-head {
+        display: grid;
+        grid-template-columns: 40px repeat(6, minmax(var(--capture-matrix-col-min), 1fr));
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .capture-matrix-corner {
+        min-height: 1px;
+      }
+
+      .capture-matrix-colhead {
+        padding: 9px 12px;
+        background: color-mix(in srgb, var(--panel-alt) 92%, transparent);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      .capture-matrix-colhead.boundary-sep {
+        border-left: 2px solid color-mix(in srgb, var(--text) 22%, var(--border));
+      }
+
+      .capture-matrix-boundary {
+        position: relative;
+        min-height: 76px;
+        border: 1px dashed color-mix(in srgb, var(--border) 88%, transparent);
+        border-radius: 8px;
+        overflow: visible;
+        background: color-mix(in srgb, var(--panel) 97%, transparent);
+      }
+
+      .capture-matrix-boundary.shareable {
+        border-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-matrix-boundary.portable {
+        border-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-matrix-boundary-title {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--panel-alt) 88%, transparent);
+        color: var(--muted);
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        border-right: 1px solid var(--border);
+        padding: 8px 4px;
+        line-height: 1.1;
+        border-top-left-radius: 7px;
+        border-bottom-left-radius: 7px;
+      }
+
+      .capture-matrix-boundary-title.shareable {
+        background: color-mix(in srgb, #00695c 12%, var(--panel-alt));
+        color: #00695c;
+        border-right-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-matrix-boundary-title.portable {
+        background: color-mix(in srgb, #6a1b9a 12%, var(--panel-alt));
+        color: #6a1b9a;
+        border-right-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-matrix-boundary-body {
+        position: relative;
+        margin-left: 40px;
+        padding-top: 8px;
+      }
+
+      .capture-matrix-entry-arrows {
+        position: absolute;
+        top: -12px;
+        left: 0;
+        right: 0;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(var(--capture-matrix-col-min), 1fr));
+        pointer-events: none;
+      }
+
+      .capture-matrix-entry-arrow {
+        justify-self: center;
+        font-size: 0.78rem;
+        line-height: 1;
+        color: var(--muted);
+        text-shadow: 0 0 0.5px color-mix(in srgb, var(--panel) 90%, transparent);
+      }
+
+      .capture-matrix-entry-arrow.shareable {
+        color: #00695c;
+      }
+
+      .capture-matrix-entry-arrow.portable {
+        color: #6a1b9a;
+      }
+
+      .capture-matrix-rowgrid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(var(--capture-matrix-col-min), 1fr));
+        gap: 0;
+      }
+
+      .capture-matrix-cell {
+        padding: 10px 14px 12px;
+        min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92rem;
+      }
+
+      .capture-matrix-cell + .capture-matrix-cell {
+        border-left: 1px dashed color-mix(in srgb, var(--border) 82%, transparent);
+      }
+
+      .capture-matrix-cell.boundary-sep {
+        border-left: 2px solid color-mix(in srgb, var(--text) 22%, var(--border));
+      }
+
+      .capture-matrix-cell code {
+        background: none;
+        padding: 0;
+      }
+
+      .capture-matrix-cell.good {
+        color: var(--green);
+      }
+
+      .capture-matrix-cell.warn {
+        color: var(--orange);
+      }
+
+      .capture-matrix-cell.bad {
+        color: var(--red);
+      }
+
+      .capture-matrix-note {
+        font-size: 0.95rem;
+        color: var(--text);
+        line-height: 1.35;
+        margin: 0;
+      }
+
+      .capture-matrix-transposed {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+        --capture-matrix-transposed-col-min: 172px;
+      }
+
+      .capture-matrix-transposed-rowheads {
+        display: grid;
+        grid-template-rows: repeat(6, minmax(0, 1fr));
+        gap: 0;
+        padding-top: 10px;
+      }
+
+      .capture-matrix-transposed-rowhead {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3px 0;
+        background: transparent;
+        border: 0;
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      .capture-matrix-transposed-rowhead + .capture-matrix-transposed-rowhead {
+        border-top-style: dashed;
+      }
+
+      .capture-matrix-transposed-rowhead code {
+        width: 100%;
+        padding: 6px 12px;
+        background: color-mix(in srgb, var(--panel-alt) 92%, transparent);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .capture-matrix-transposed-grid {
+        display: grid;
+        grid-template-columns:
+          140px
+          minmax(var(--capture-matrix-transposed-col-min), 1fr)
+          minmax(var(--capture-matrix-transposed-col-min), 1fr)
+          minmax(var(--capture-matrix-transposed-col-min), 1fr);
+        gap: 8px;
+        align-items: stretch;
+      }
+
+      .capture-matrix-transposed-box {
+        position: relative;
+        border: 1px dashed color-mix(in srgb, var(--border) 88%, transparent);
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--panel) 97%, transparent);
+        overflow: visible;
+      }
+
+      .capture-matrix-transposed-box.shareable {
+        border-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-box.portable {
+        border-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-box.nonportable {
+        border-color: color-mix(in srgb, var(--muted) 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-boxhead {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px 6px;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        background: color-mix(in srgb, var(--panel-alt) 88%, transparent);
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        text-transform: uppercase;
+        line-height: 1.1;
+        white-space: nowrap;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+      }
+
+      .capture-matrix-transposed-boxhead.shareable {
+        background: color-mix(in srgb, #00695c 12%, var(--panel-alt));
+        color: #00695c;
+        border-color: color-mix(in srgb, #00695c 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-boxhead.portable {
+        background: color-mix(in srgb, #6a1b9a 12%, var(--panel-alt));
+        color: #6a1b9a;
+        border-color: color-mix(in srgb, #6a1b9a 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-boxhead.nonportable {
+        background: color-mix(in srgb, var(--muted) 10%, var(--panel-alt));
+        color: var(--muted);
+        border-color: color-mix(in srgb, var(--muted) 42%, var(--border));
+      }
+
+      .capture-matrix-transposed-values {
+        display: grid;
+        grid-template-rows: repeat(6, minmax(0, 1fr));
+        padding-top: 10px;
+      }
+
+      .capture-matrix-transposed-cell {
+        position: relative;
+        padding: 10px 14px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92rem;
+      }
+
+      .capture-matrix-transposed-cell::before {
+        content: "→";
+        position: absolute;
+        left: 2px;
+        top: 50%;
+        transform: translate(-50%, -50%) scaleX(1.45);
+        font-size: 0.84rem;
+        line-height: 1;
+        text-shadow: 0 0 0.5px color-mix(in srgb, var(--panel) 90%, transparent);
+        pointer-events: none;
+      }
+
+      .capture-matrix-transposed-box.shareable .capture-matrix-transposed-cell::before {
+        color: #00695c;
+      }
+
+      .capture-matrix-transposed-box.portable .capture-matrix-transposed-cell::before {
+        color: #6a1b9a;
+      }
+
+      .capture-matrix-transposed-box.nonportable .capture-matrix-transposed-cell::before {
+        color: var(--muted);
+      }
+
+      .capture-matrix-transposed-cell + .capture-matrix-transposed-cell {
+        border-top: 1px dashed color-mix(in srgb, var(--border) 82%, transparent);
+      }
+
+      .capture-matrix-transposed-cell.boundary-sep {
+        border-top: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+      }
+
+      .capture-matrix-transposed-cell code {
+        background: none;
+        padding: 0;
+      }
+
+      .capture-matrix-transposed-cell.good {
+        color: var(--green);
+      }
+
+      .capture-matrix-transposed-cell.warn {
+        color: var(--orange);
+      }
+
+      .capture-matrix-transposed-cell.bad {
+        color: var(--red);
+      }
+
+      @media (max-width: 720px) {
+        .capture-matrix-transposed {
+          --capture-matrix-transposed-col-min: 112px;
+        }
+
+        .capture-matrix-transposed-grid {
+          grid-template-columns:
+            128px
+            minmax(var(--capture-matrix-transposed-col-min), 1fr)
+            minmax(var(--capture-matrix-transposed-col-min), 1fr)
+            minmax(var(--capture-matrix-transposed-col-min), 1fr);
+          gap: 6px;
+        }
+
+        .capture-matrix-transposed-rowhead,
+        .capture-matrix-transposed-cell {
+          font-size: 0.78rem;
+        }
+
+        .capture-matrix-transposed-rowhead code {
+          padding: 6px 8px;
+          white-space: nowrap;
+        }
+
+        .capture-matrix-transposed-cell {
+          padding: 10px 8px 12px;
+        }
+
+        .capture-matrix-transposed-boxhead {
+          font-size: 0.62rem;
+          padding: 4px 7px 5px;
+        }
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .capture-matrix-boundary.shareable {
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-matrix-boundary.portable {
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-matrix-boundary-title.shareable {
+          background: color-mix(in srgb, #a5d6a7 14%, var(--panel-alt));
+          color: #a5d6a7;
+          border-right-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-matrix-boundary-title.portable {
+          background: color-mix(in srgb, #d1c4e9 14%, var(--panel-alt));
+          color: #d1c4e9;
+          border-right-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-matrix-entry-arrow.shareable {
+          color: #a5d6a7;
+        }
+
+        .capture-matrix-entry-arrow.portable {
+          color: #d1c4e9;
+        }
+
+        .capture-matrix-transposed-boundaryhead.shareable {
+          background: color-mix(in srgb, #a5d6a7 14%, var(--panel-alt));
+          color: #a5d6a7;
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-boundaryhead.portable {
+          background: color-mix(in srgb, #d1c4e9 14%, var(--panel-alt));
+          color: #d1c4e9;
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-arrow.shareable {
+          color: #a5d6a7;
+        }
+
+        .capture-matrix-transposed-arrow.portable {
+          color: #d1c4e9;
+        }
+
+        .capture-matrix-transposed-box.shareable {
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-box.portable {
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-box.nonportable {
+          border-color: color-mix(in srgb, var(--muted) 48%, var(--border));
+        }
+
+        .capture-matrix-transposed-boxhead.shareable {
+          background: color-mix(in srgb, #a5d6a7 14%, var(--panel-alt));
+          color: #a5d6a7;
+          border-color: color-mix(in srgb, #a5d6a7 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-boxhead.portable {
+          background: color-mix(in srgb, #d1c4e9 14%, var(--panel-alt));
+          color: #d1c4e9;
+          border-color: color-mix(in srgb, #d1c4e9 42%, var(--border));
+        }
+
+        .capture-matrix-transposed-boxhead.nonportable {
+          background: color-mix(in srgb, var(--muted) 14%, var(--panel-alt));
+          color: var(--muted);
+          border-color: color-mix(in srgb, var(--muted) 48%, var(--border));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="lecture-page">
+      <h1>Parallelism: contention and portability</h1>
+
+      <section class="lecture-intro">
+        <p>This lecture is about how OxCaml turns the informal question “is this safe to use in parallel?” into checks on values, closures, and API boundaries. We will start with the operational difference between fork/join and detached spawn, then use ordinary local-vs-shared mutable state to motivate the mode vocabulary.</p>
+        <p>By the end of this section, you should be able to:</p>
+        <ul>
+          <li>explain why local mutation can still be safe in parallel work;</li>
+          <li>distinguish the contention modes <code>uncontended</code>, <code>shared</code>, and <code>contended</code>;</li>
+          <li>distinguish closure modes <code>nonportable</code>, <code>shareable</code>, and <code>portable</code>;</li>
+          <li>predict which modes captured variables have inside shareable and portable closures;</li>
+          <li>choose whether a parallel API should ask for a <code>shareable</code> or <code>portable</code> function.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>The parallel APIs we will use</h2>
+        <p>Before we talk about modes, it helps to know the two API shapes that motivate them. OxCaml has structured fork/join APIs for work that must finish before the parent continues, and detached spawn APIs for work that may keep running after the parent returns from the call.</p>
+        <div class="comparison">
+          <article class="diagram-card">
+            <h3><code>Parallel.fork_join2</code></h3>
+            <p class="diagram-caption">Run two pieces of work, wait for both to finish, and return both results.</p>
+            <svg class="parallel-shape" viewBox="0 0 320 154" role="img" aria-labelledby="fork-join-shape-title">
+              <title id="fork-join-shape-title">Fork/join computations form a connected tree.</title>
+              <line class="edge" x1="142" y1="42" x2="108" y2="64"></line>
+              <line class="edge" x1="178" y1="42" x2="212" y2="64"></line>
+              <line class="edge" x1="84" y1="94" x2="70" y2="108"></line>
+              <line class="edge" x1="108" y1="94" x2="122" y2="108"></line>
+              <line class="edge" x1="212" y1="94" x2="198" y2="108"></line>
+              <line class="edge" x1="236" y1="94" x2="250" y2="108"></line>
+              <rect class="node root" x="132" y="10" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="68" y="64" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="196" y="64" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="36" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="100" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="164" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node" x="228" y="108" width="56" height="32" rx="8"></rect>
+              <text x="160" y="26">A</text>
+              <text x="96" y="80">B</text>
+              <text x="224" y="80">C</text>
+              <text x="64" y="124">D</text>
+              <text x="128" y="124">E</text>
+              <text x="192" y="124">F</text>
+              <text x="256" y="124">G</text>
+            </svg>
+            <ul>
+              <li>The computation starts inside a scheduler.</li>
+              <li>The scheduler provides a <code>Parallel.t</code> capability.</li>
+              <li>Each function receives a nested <code>Parallel.t</code>.</li>
+              <li>The parent resumes only after the join.</li>
+            </ul>
+          </article>
+
+          <article class="diagram-card">
+            <h3><code>Multicore.spawn</code></h3>
+            <p class="diagram-caption">Start detached work and let the parent continue immediately.</p>
+            <svg class="parallel-shape" viewBox="0 0 320 154" role="img" aria-labelledby="spawn-shape-title">
+              <title id="spawn-shape-title">Detached spawn computations are loose parallel computation nodes.</title>
+              <rect class="node loose root" x="132" y="10" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="68" y="64" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="196" y="64" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="36" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="100" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="164" y="108" width="56" height="32" rx="8"></rect>
+              <rect class="node loose" x="228" y="108" width="56" height="32" rx="8"></rect>
+              <text x="160" y="26">A</text>
+              <text x="96" y="80">B</text>
+              <text x="224" y="80">C</text>
+              <text x="64" y="124">D</text>
+              <text x="128" y="124">E</text>
+              <text x="192" y="124">F</text>
+              <text x="256" y="124">G</text>
+            </svg>
+            <ul>
+              <li>The spawned work may overlap with later parent-side effects.</li>
+              <li>That makes captured mutable state much more dangerous.</li>
+              <li>The spawned function is therefore checked more strictly.</li>
+              <li>In the browser page, a shim runs the function synchronously; native OxCaml can run it in parallel.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="operational-contract">The important operational contract is: fork/join waits before returning; detached spawn may outlive the call.</p>
+        <p class="example-signpost"><strong>Fork/join:</strong> run inside a scheduler; call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
+        <div class="code-with-figure">
+          <oxcaml filename="fork_join.ml" no-self-check>
+            (* Worker code: ordinary code we want to run in parallel. *)
+            let bits_to_string bits =
+              let buf = Buffer.create 0 in
+              List.iter
+                (fun bit ->
+                   Buffer.add_char buf (if bit then '1' else '0'))
+                bits;
+              Buffer.contents buf
+
+            (* Parallel computation: fork two workers and join their results. *)
+            let strings_in_parallel parallel =
+              let #(left, right) =
+                Parallel.fork_join2
+                  parallel
+                  (fun _parallel -> bits_to_string [true; false; true; true])
+                  (fun _parallel -> bits_to_string [false; true; false; false])
+              in
+              left ^ "\n" ^ right
+
+            (* Scheduler entry point: start the fork/join computation. *)
+            let () =
+              let scheduler = Parallel.Scheduler.Sequential.create () in
+              let s =
+                Parallel.Scheduler.Sequential.parallel scheduler ~f:strings_in_parallel
+              in
+              print_endline s
+          </oxcaml>
+          <div aria-hidden="true"></div>
+        </div>
+        <p class="example-signpost"><strong>Spawn:</strong> pass a unit function to <code>Multicore.spawn</code>. In the browser playground the shim runs it immediately; native OxCaml can run it in parallel.</p>
+        <div class="code-with-figure">
+          <oxcaml filename="spawn.ml" no-self-check>
+            (* Worker code: ordinary code we want to run in parallel. *)
+            let bits_to_string bits =
+              let buf = Buffer.create 0 in
+              List.iter
+                (fun bit ->
+                   Buffer.add_char buf (if bit then '1' else '0'))
+                bits;
+              Buffer.contents buf
+
+            (* Spawn: start the worker function and let the parent continue. *)
+            let () =
+              ignore (Multicore.spawn
+                (fun () -> print_endline (bits_to_string [true; false; true; true]))
+                ());
+              print_endline (bits_to_string [false; true; false; false])
+          </oxcaml>
+          <figure class="course-figure">
+            <img src="../assets/images/buffers-fresh.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people each working at their own computer, with separate code on separate screens.">
+            <figcaption>Fresh per-call buffers are like separate workspaces: each parallel call mutates only its own scratch state.</figcaption>
+          </figure>
+        </div>
+        <p>In both examples, <code>bits_to_string</code> creates its buffer inside the function. Each call gets a fresh buffer, so the compiler infers that this function is safe enough to call in parallel. In the inferred interface, that shows up as <code>@@ portable</code>; we will define that mode precisely below.</p>
+      </section>
+
+      <section>
+        <h2>Parallelism plus mutation can cause bugs</h2>
+        <p>Parallelism means two pieces of work may make progress at overlapping times. Mutation means the order of steps can affect the result. Together, they make some ordinary-looking refactors unsafe.</p>
+        <p>The safe version above allocates a fresh buffer on every call. A tempting optimization is to move the buffer outside the function and reuse it. That changes the ownership story: there is no longer one buffer per call, but one buffer shared by every call.</p>
+        <p>If two calls overlap, they may clear and append to that shared buffer in an interleaved order. That is a <em>data race</em>: the string one call returns may contain pieces of another call's work.</p>
+        <aside class="exercise">
+          <h3>Exercise: which object is shared?</h3>
+          <p>Compare this version with the earlier <code>bits_to_string</code>. Which binding moved, and which object would two overlapping calls now share?</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>buf</code> moved from inside <code>bits_to_string</code> to a top-level binding. Every call to <code>bits_to_string_shared</code> now clears and appends to that same buffer.</p>
+          </details>
+        </aside>
+        <div class="code-with-figure">
+          <oxcaml check filename="shared_buffer.ml" expect-error>
+            (* Worker code: ordinary code we want to run in parallel. *)
+            let buf = Buffer.create 0
+
+            let bits_to_string_shared bits =
+              Buffer.clear buf;
+              List.iter
+                (fun bit ->
+                   Buffer.add_char buf (if bit then '1' else '0'))
+                bits;
+              Buffer.contents buf
+
+            (* Spawn: start the worker function and let the parent continue. *)
+            let () =
+              ignore (Multicore.spawn
+                (fun () -> print_endline (bits_to_string_shared [true; false; true; true]))
+                ());
+              print_endline (bits_to_string_shared [false; true; false; false])
+          </oxcaml>
+          <figure class="course-figure">
+            <img src="../assets/images/buffers-shared.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people sharing one computer with scrambled code on the screen, looking confused.">
+            <figcaption>A shared buffer is one workspace used by overlapping calls, so their mutations can interfere.</figcaption>
+          </figure>
+        </div>
+        <p>OxCaml rejects this spawned use of the refactored function. The error says <code>bits_to_string_shared</code> is <code>nonportable</code>: in this context, that means it is not safe to call in parallel.</p>
+        <h3>What counts as a data race?</h3>
+        <p>The bad case is overlapping access to the same mutable state when at least one access writes. Two parallel writes are bad because the final value can depend on which piece of work happens to write last. A read parallel with a write is also bad, because the read may see either the old value or the new value depending on scheduling.</p>
+        <p>Two parallel reads are fine: neither read changes the state, so their order cannot affect the result. Reads and writes are also fine when the program gives them a defined order, either by ordinary program order or by synchronization. For example, <code>fork_join2</code> synchronizes after its children finish, so parent code after the fork/join runs after both child computations are done.</p>
+        <h3>Why OxCaml tracks data races in the type system</h3>
+        <ul>
+          <li>Parallel code often calls existing libraries. The type checker tells you whether those calls are safe in a parallel context.</li>
+          <li>This matters especially for code that was not originally written with parallel callers in mind.</li>
+          <li>Whether a function is safe to call in parallel is recorded in checked module signatures, instead of living in comments you cannot fully trust or being rediscovered every time.</li>
+          <li>The type checker does part of the review for you, so you do not have to manually chase every function body for hidden mutable state.</li>
+          <li>The type checker gives AI tools the same feedback, so AI can fix broken code instead of presenting you with concurrency bugs.</li>
+        </ul>
+        <p>The rest of this lecture explains how OxCaml tracks this: first mutable access to values, then which functions are allowed to run in parallel, then how captured variables cross a closure boundary.</p>
+      </section>
+
+      <section>
+        <h2>Contention modes control access to values</h2>
+        <p>In ordinary OCaml, variables have types, like <code>x : t</code>. In OxCaml, variables also have modes, like <code>x : t @ mode</code>. One of the modes that OxCaml tracks is <b>contention</b>, which controls read and write access to mutable data in a parallel context. Therefore, the same source variable can have different modes at different use sites. That is demonstrated in the examples below, where <code>x : t @ uncontended</code> at the top level becomes <code>x : t @ shared</code> or <code>x : t @ contended</code> in the forked/spawned closure, and restricts read and write operations:</p>
+        <div class="callback-boundary-grid">
+          <article class="diagram-card callback-boundary-card">
+            <h3>Ordinary closure</h3>
+            <div class="callback-boundary-code" aria-label="Ordinary closure boundary diagram">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">List.iter</span></div>
+              <div class="callback-closure-argument">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame uncontended">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _ -&gt;</div>
+                    <div class="callback-closure-title uncontended">uncontended</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = x.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1">x.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-line indent-2">[1; 2; 3]</div>
+              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+            </div>
+          </article>
+          <article class="diagram-card callback-boundary-card">
+            <h3>Fork/join closure</h3>
+            <div class="callback-boundary-code" aria-label="Fork/join closure boundary diagram">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> _result =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel</div>
+              <div class="callback-closure-argument wide">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame shared">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-title shared">shared</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = x.hits <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied">x.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-closure-argument wide">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame shared">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-title shared">shared</div>
+                  </div>
+                  <div class="callback-line indent-1">...</div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+            </div>
+          </article>
+          <article class="diagram-card callback-boundary-card">
+            <h3>Spawn closure</h3>
+            <div class="callback-boundary-code" aria-label="Spawn closure boundary diagram">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Multicore.spawn</span></div>
+              <div class="callback-closure-argument">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame contended">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
+                    <div class="callback-closure-title contended">contended</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = x.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied">x.hits</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied">x.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-line indent-2">()</div>
+              <div class="callback-line">x.hits &lt;- x.hits + 1 <span class="tok-comment">(* ok *)</span></div>
+            </div>
+          </article>
+        </div>
+        <p>The final line in each example is outside the passed function, so it can still mutate <code>x</code>. In the <code>spawn</code> case, that may look surprising because spawned work may still be running. The reason it is safe is that inside the spawned function, captured <code>x</code> is treated as <code>x @ contended</code>: the function can use immutable fields of <code>x</code>, but it cannot read or write <code>x.hits</code>.</p>
+        <div class="axis-strip-grid">
+          <article class="axis-strip">
+            <div class="axis-strip-heading">
+              <h3>Contention axis</h3>
+              <p>Contention controls how mutable fields may be used.</p>
+            </div>
+            <div class="axis-strip-modes" aria-label="Contention modes ordered by can be used as: uncontended to shared to contended">
+              <div class="axis-mode good">
+                <code>x @ uncontended</code>
+                <ul>
+                  <li>we can read and write x's mutable fields</li>
+                  <li>parallel users can access x's immutable fields only</li>
+                </ul>
+              </div>
+              <div class="axis-arrow" aria-hidden="true" data-mobile="↓">→</div>
+              <div class="axis-mode note">
+                <code>x @ shared</code>
+                <ul>
+                  <li>we can read but not write x's mutable fields</li>
+                  <li>parallel users may read x's mutable fields</li>
+                </ul>
+              </div>
+              <div class="axis-arrow" aria-hidden="true" data-mobile="↓">→</div>
+              <div class="axis-mode warn">
+                <code>x @ contended</code>
+                <ul>
+                  <li>we cannot read or write x's mutable fields</li>
+                  <li>parallel users may write x's mutable fields</li>
+                </ul>
+              </div>
+            </div>
+            <p class="axis-strip-note">The arrows mean “can be passed to”: if we have <code>x @ uncontended</code>, we may pass <code>x</code> to a function that only requires <code>x @ shared</code> or <code>x @ contended</code>.</p>
+            <div class="axis-invariant">
+              <strong>Invariant.</strong> For any mutable value <code>x</code>, at any given time OxCaml maintains one of two access patterns:
+              <ul>
+                <li><strong>Single writer:</strong> one user has write access (<code>x @ uncontended</code>), while any number of parallel users have no access to the mutable parts (<code>x @ contended</code>).</li>
+                <li><strong>Many readers:</strong> any number of users have read access (<code>x @ shared</code>).</li>
+              </ul>
+              That rules out parallel writes and write/read races.
+            </div>
+          </article>
+        </div>
+        <p>The helper functions below make the access requirements explicit. Reading the immutable field works with any mode, reading the mutable field needs <code>shared</code> or <code>uncontended</code>, and writing the mutable field needs <code>uncontended</code>:</p>
+        <oxcaml interface filename="mode_access.ml" no-self-check>
+          type t = { id : int; mutable hits : int }
+
+          (* Immutable field reads work even in contended mode. *)
+          let get_id (x @ contended) = x.id
+
+          (* Mutable field reads need shared or uncontended mode. *)
+          let get_hits (x @ shared) = x.hits
+
+          (* Mutable field writes need uncontended mode. *)
+          let bump_hits (x @ uncontended) = x.hits <- x.hits + 1
+        </oxcaml>
+        <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access.</p>
+        <aside class="exercise helper-call-exercise" data-helper-call-exercise>
+          <h3>Exercise: captured <code>x</code> across the three contexts</h3>
+          <p>Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Parallel.fork_join2</code>, or <code>Multicore.spawn</code>. Which helper calls are allowed inside each function? Click each cell to choose <code>yes</code> or <code>no</code>.</p>
+          <div class="exercise-table-wrap">
+            <table class="exercise-table">
+              <thead>
+                <tr>
+                  <th>Call on captured <code>x</code></th>
+                  <th><code>List.iter</code></th>
+                  <th><code>fork_join2</code></th>
+                  <th><code>spawn</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>get_id x</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in List.iter">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in fork_join2">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in spawn">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>get_hits x</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_hits x in List.iter">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_hits x in fork_join2">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="get_hits x in spawn">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>bump_hits x</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="bump_hits x in List.iter">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="bump_hits x in fork_join2">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="bump_hits x in spawn">?</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="exercise-controls">
+            <button type="button" class="exercise-button" data-check-helper-table>Check table</button>
+            <button type="button" class="exercise-button" data-reset-helper-table>Reset</button>
+            <span class="exercise-feedback" data-helper-table-feedback aria-live="polite"></span>
+          </div>
+          <details data-helper-table-answer>
+            <summary>Answer</summary>
+            <p>For captured <code>x</code>, the answer is:</p>
+            <div class="exercise-table-wrap">
+              <table class="exercise-table">
+                <thead>
+                  <tr>
+                    <th>Call on captured <code>x</code></th>
+                    <th><code>List.iter</code></th>
+                    <th><code>fork_join2</code></th>
+                    <th><code>spawn</code></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>get_id x</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>get_hits x</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>bump_hits x</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p><code>List.iter</code> uses an ordinary function, so captured <code>x</code> stays uncontended. In a function passed to <code>fork_join2</code>, captured <code>x</code> becomes shared: mutable reads are allowed, mutable writes are not. In a function passed to <code>spawn</code>, captured <code>x</code> becomes contended: immutable-field reads are allowed, but mutable reads and writes are not.</p>
+          </details>
+        </aside>
+        <aside class="exercise">
+          <h3>Exercise: <code>x</code> created inside the passed function</h3>
+          <p>Now suppose each function creates its own <code>x</code> inside the function body before calling the helper. What changes in the table above?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>All cells become <code>yes</code>. The restrictions above are about captured mutable state crossing into the function. Fresh mutable state created inside that function is owned by that function body, so the body has uncontended access to it.</p>
+          </details>
+        </aside>
+        <aside class="exercise helper-call-exercise" data-interactive-table>
+          <h3>Exercise: which mode permits each field access?</h3>
+          <p>For each operation, decide which argument modes are strong enough. Click each cell to choose <code>yes</code> or <code>no</code>.</p>
+          <div class="exercise-table-wrap">
+            <table class="exercise-table">
+              <thead>
+                <tr>
+                  <th>Operation on <code>x</code></th>
+                  <th><code>x @ uncontended</code></th>
+                  <th><code>x @ shared</code></th>
+                  <th><code>x @ contended</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>x.id</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ contended">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>x.hits</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits with x @ contended">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>x.hits &lt;- x.hits + 1</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits write with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ contended">?</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="exercise-controls">
+            <button type="button" class="exercise-button" data-check-table>Check table</button>
+            <button type="button" class="exercise-button" data-reset-table>Reset</button>
+            <span class="exercise-feedback" data-table-feedback aria-live="polite"></span>
+          </div>
+          <details data-table-answer>
+            <summary>Answer</summary>
+            <div class="exercise-table-wrap">
+              <table class="exercise-table">
+                <thead>
+                  <tr>
+                    <th>Operation on <code>x</code></th>
+                    <th><code>x @ uncontended</code></th>
+                    <th><code>x @ shared</code></th>
+                    <th><code>x @ contended</code></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>x.id</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>x.hits</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>x.hits &lt;- x.hits + 1</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Immutable field reads work in any mode. Mutable field reads need <code>x @ shared</code> or <code>x @ uncontended</code>. Mutable field writes need <code>x @ uncontended</code>.</p>
+          </details>
+        </aside>
+        <h3>Back to the buffer</h3>
+        <p><code>Buffer.clear</code> and <code>Buffer.add_char</code> are mutating operations. They require the same access as <code>bump_hits</code>: uncontended access to the buffer.</p>
+        <div class="code-sketch" aria-label="Buffer mutator signatures">
+          <code><span class="tok-keyword">val</span> <span class="tok-function">clear</span> : <span class="tok-module">Buffer</span>.t <span class="tok-annotation">@ uncontended</span> -&gt; unit
+<span class="tok-keyword">val</span> <span class="tok-function">add_char</span> : <span class="tok-module">Buffer</span>.t <span class="tok-annotation">@ uncontended</span> -&gt; char -&gt; unit</code>
+        </div>
+        <p>That is why <code>bits_to_string_shared</code> gives a type error when called from spawned work: inside the spawned function, the captured buffer is <code>contended</code>, but the function performs operations that require <code>uncontended</code> access.</p>
+        <p>So far the examples accessed <code>x</code> or <code>buf</code> directly inside the function passed to parallel work. The same rule applies when that access is hidden behind a helper.</p>
+      </section>
+
+      <section>
+        <h2>Portability modes control where functions can be used</h2>
+        <p>Helper functions can capture mutable state too. If we define <code>id_x</code>, <code>read_x</code>, and <code>write_x</code> first, then call them later, those helpers still carry their captured <code>x</code> with them:</p>
+        <oxcaml check filename="hidden_helpers.ml" expect-error>
+          type t = { id : int; mutable hits : int }
+
+          let x = { id = 1; hits = 0 }
+
+          let id_x () = x.id           (* a portable function *)
+          let read_x () = x.hits       (* a shareable function *)
+          let write_x v = x.hits <- v  (* a nonportable function *)
+
+          let _ =
+            ignore (Multicore.spawn (fun () -> write_x 1) ());
+            write_x 2
+        </oxcaml>
+        <h3>Moving access into helpers does not change the rule</h3>
+        <p>OxCaml still catches the data race hiding behind the helper. It tracks the <code>portability</code> of functions, and <code>write_x</code> is <code>nonportable</code> because it writes to captured state.</p>
+        <div class="callback-boundary-grid">
+          <article class="diagram-card callback-boundary-card">
+            <h3><code>List.iter</code></h3>
+            <div class="callback-boundary-code" aria-label="List.iter helper calls use an ordinary closure">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> id_x () = x.id</div>
+              <div class="callback-line"><span class="tok-kw">let</span> read_x () = x.hits</div>
+              <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
+              <div class="callback-line"></div>
+              <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">List.iter</span></div>
+              <div class="callback-closure-argument">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame uncontended">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _ -&gt;</div>
+                    <div class="callback-closure-title uncontended">uncontended</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = id_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = read_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1">write_x (n + 1) <span class="tok-comment">(* ok *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-line indent-2">[1; 2; 3]</div>
+            </div>
+          </article>
+          <article class="diagram-card callback-boundary-card">
+            <h3><code>Parallel.fork_join2</code></h3>
+            <div class="callback-boundary-code" aria-label="Fork join helper calls cross shareable boundaries">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> id_x () = x.id</div>
+              <div class="callback-line"><span class="tok-kw">let</span> read_x () = x.hits</div>
+              <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
+              <div class="callback-line"></div>
+              <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel</div>
+              <div class="callback-closure-argument wide">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame shared">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-title shared">shared</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = id_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = read_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied">write_x (n + 1)</span> <span class="tok-comment">(* no *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-closure-argument wide">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame shared">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-title shared">shared</div>
+                  </div>
+                  <div class="callback-line indent-1">...</div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+            </div>
+          </article>
+          <article class="diagram-card callback-boundary-card">
+            <h3><code>Multicore.spawn</code></h3>
+            <div class="callback-boundary-code" aria-label="Spawned helper calls cross a portable boundary">
+              <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
+              <div class="callback-line"><span class="tok-kw">let</span> id_x () = x.id</div>
+              <div class="callback-line"><span class="tok-kw">let</span> read_x () = x.hits</div>
+              <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
+              <div class="callback-line"></div>
+              <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Multicore.spawn</span></div>
+              <div class="callback-closure-argument wide">
+                <span class="callback-paren">(</span>
+                <div class="callback-closure-frame contended">
+                  <div class="callback-closure-header">
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
+                    <div class="callback-closure-title contended">contended</div>
+                  </div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = id_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
+                  <div class="callback-line indent-1"><span class="tok-kw">let</span> n = <span class="callback-denied">read_x ()</span> <span class="tok-kw">in</span> <span class="tok-comment">(* no *)</span></div>
+                  <div class="callback-line indent-1"><span class="callback-denied">write_x (n + 1)</span> <span class="tok-comment">(* no *)</span></div>
+                </div>
+                <span class="callback-paren close">)</span>
+              </div>
+              <div class="callback-line indent-2">()</div>
+            </div>
+          </article>
+        </div>
+        <p>The portability axis answers one question: which parallel contexts can this function be used in? That also determines what access the function keeps to captured state.</p>
+        <div class="axis-strip-grid">
+          <article class="axis-strip">
+            <div class="axis-strip-heading">
+              <h3>Portability axis</h3>
+              <p>Which parallel contexts a function can be used in, and what access it gets to captures.</p>
+            </div>
+            <div class="axis-strip-modes" aria-label="Portability modes ordered by can be used as: portable to shareable to nonportable">
+              <div class="axis-mode good">
+                <code>portable</code>
+                <ul>
+                  <li>can be used in independent parallel work</li>
+                  <li>only immutable-field access to captures</li>
+                </ul>
+              </div>
+              <div class="axis-arrow" aria-hidden="true" data-mobile="↓">→</div>
+              <div class="axis-mode note">
+                <code>shareable</code>
+                <ul>
+                  <li>can be used in structured parallel work</li>
+                  <li>read-only access to mutable fields of captures</li>
+                </ul>
+              </div>
+              <div class="axis-arrow" aria-hidden="true" data-mobile="↓">→</div>
+              <div class="axis-mode warn">
+                <code>nonportable</code>
+                <ul>
+                  <li>not promised safe for parallel use</li>
+                  <li>read-write access to mutable fields of captures</li>
+                </ul>
+              </div>
+            </div>
+            <p class="axis-strip-note">The arrows mean “can be passed to”: a <code>portable</code> function may be passed where <code>shareable</code> or <code>nonportable</code> is enough.</p>
+          </article>
+        </div>
+        <p>The helper modes can also be written directly. These three functions close over the same <code>x</code>, but each one keeps a different amount of access to it:</p>
+        <oxcaml interface filename="helper_modes.ml" no-self-check>
+          type t = { id : int; mutable hits : int }
+
+          let x = { id = 1; hits = 0 }
+
+          let (id_x @ portable) () = x.id
+          let (read_x @ shareable) () = x.hits
+          let (write_x @ nonportable) v = x.hits <- v
+        </oxcaml>
+        <p>For now, focus on the source annotations. <code>id_x</code> is portable because it only uses the immutable field. <code>read_x</code> is shareable because it reads mutable state. <code>write_x</code> is nonportable because it writes mutable state.</p>
+        <aside class="exercise">
+          <h3>Exercise: where can each helper be used?</h3>
+          <p>Using the annotations in the block above, decide which helpers can be used from an ordinary function, fork/join work, and spawned work.</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in ordinary and fork/join work, but not spawned work. <code>write_x</code> can only be used in ordinary code.</p>
+          </details>
+        </aside>
+        <aside class="exercise">
+          <h3>Exercise: make a helper more portable</h3>
+          <p>What would have to change before <code>read_x</code> could be annotated <code>@ portable</code>? What would have to change before <code>write_x</code> could be annotated <code>@ shareable</code>?</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>read_x</code> would have to stop reading the mutable field; reading <code>x.id</code> would be fine. <code>write_x</code> would have to stop writing the mutable field; a shareable function may read mutable captures, but it may not mutate them.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <h2>You cannot hide the unsafe part in a returned function</h2>
+        <p>The previous helper functions took the mutable record as an argument. A different way to hide the access is to build a helper that captures the record and returns a function. That does not bypass the checks: the returned function still has a portability mode, and the captured value still has to be usable inside it.</p>
+        <aside class="exercise">
+          <h3>Exercise: which helper captures <code>x</code>?</h3>
+          <p>In the next two blocks, which helper creates the returned function that captures <code>x</code>?</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>read_count_later</code> returns a function that captures <code>x</code> and reads a mutable field, so it cannot be used with spawn. <code>bump_count_later</code> returns functions that capture <code>x</code> and write a mutable field, so they cannot be used with fork/join.</p>
+          </details>
+        </aside>
+        <oxcaml check filename="spawn_capture.ml" expect-error>
+          type t = { id : int; mutable count : int }
+
+          let get_count (x @ shared) = x.count
+
+          let read_count_later x () =
+            ignore (get_count x)
+
+          let bad_spawn x =
+            ignore (Multicore.spawn (read_count_later x) ())
+        </oxcaml>
+        <oxcaml check filename="fork_capture.ml" expect-error no-self-check>
+          type t = { id : int; mutable count : int }
+
+          let bump_count (x @ uncontended) =
+            x.count <- x.count + 1
+
+          let bump_count_later x _parallel =
+            bump_count x
+
+          let bad_fork_join (parallel : Parallel.t @ local) x =
+            let #(_left, _right) =
+              Parallel.fork_join2
+                parallel
+                (bump_count_later x)
+                (bump_count_later x)
+            in
+            x.count
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2><code>shared</code> vs <code>shareable</code></h2>
+        <p>Before we use these names in closure-boundary diagrams, separate the similar-looking words. <code>shared</code> is about what you may do with a value. <code>shareable</code> is about what a closure may safely capture when an API wants to run it in parallel.</p>
+        <aside class="exercise">
+          <h3>Exercise: <code>shared</code> or <code>shareable</code>?</h3>
+          <p>For each phrase, decide whether it is talking about <code>shared</code> or <code>shareable</code>: “may read this mutable field,” “can be passed to fork/join,” “may not write in this mode,” and “not strong enough for detached spawn.”</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Reading a mutable field and forbidding writes are about a <code>shared</code> value. Passing a function to fork/join and being too weak for detached spawn are about a <code>shareable</code> closure.</p>
+          </details>
+        </aside>
+        <div class="comparison">
+          <article class="diagram-card">
+            <h3><code>shared</code> on a value</h3>
+            <p class="diagram-caption">A value-level access mode on the contention axis.</p>
+            <ul>
+              <li>Lets you read immutable fields.</li>
+              <li>Lets you read mutable fields.</li>
+              <li>Still forbids writes in shared mode.</li>
+              <li>Useful when several computations may read the same object.</li>
+            </ul>
+            <div class="chip-row">
+              <span class="chip note">value property</span>
+              <span class="chip good">read-sharing allowed</span>
+              <span class="chip bad">writes still rejected</span>
+            </div>
+          </article>
+
+          <article class="diagram-card">
+            <h3><code>shareable</code> on a closure</h3>
+            <p class="diagram-caption">A closure/API contract about what captured state is safe to hand to parallel code.</p>
+            <ul>
+              <li>Good fit for structured fork/join work.</li>
+              <li>Still too weak for detached spawn.</li>
+              <li>Detached spawn needs <code>portable</code> because the parent keeps running.</li>
+              <li>So the API shape determines which annotation is sound.</li>
+            </ul>
+            <div class="chip-row">
+              <span class="chip note">closure property</span>
+              <span class="chip warn">depends on synchronization shape</span>
+              <span class="chip bad">not enough for detached spawn</span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>How captures cross a closure boundary</h2>
+        <p>The type of a captured variable stays the same, but its <em>mode inside the closure</em> can change. These diagrams show the captures flowing through the boundary directly: source mode on the left, imported mode on the right, with rejected cases crossed out.</p>
+        <p>This is the central rule for reading the rest of the compiler errors. A closure is a boundary: values from the outer scope must pass through that boundary before the closure body can use them. The stronger the closure's portability promise, the more restrictive the imported mode becomes. In the fork/join diagram, assume <code>parallel : Parallel.t @ local</code> is already in scope.</p>
+        <aside class="checkpoint">
+          <h3>Checkpoint: predict the boundary effect</h3>
+          <p>Look for <code>b @ uncontended</code> in both diagrams. Predict whether the closure body still gets <code>uncontended</code> mode, a weaker mode, or an error.</p>
+        </aside>
+        <div class="capture-boundary-grid">
+          <article class="diagram-card capture-card shareable-card">
+            <div class="capture-card-header">
+              <h3><code>shareable</code> closure</h3>
+              <p class="capture-legend">A structured fork/join closure may still use captures in shared/read-only mode, but not in uncontended/write-capable mode.</p>
+            </div>
+            <div class="capture-code">
+              <svg class="capture-overlay" aria-hidden="true"></svg>
+              <div class="capture-code-body">
+                <div class="capture-code-block outer">
+                  <div class="capture-line" data-capture-link="shareable-factor">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">n</span> = <span class="tok-num">10</span></span>
+                    <span class="capture-note good">immutable data</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-r">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">b</span> @ <span class="tok-mode">uncontended</span> = (...)</span>
+                    <span class="capture-note good">uncontended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-img">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">a</span> @ <span class="tok-mode">shared</span> = (...)</span>
+                    <span class="capture-note good">shared</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-q">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">c</span> @ <span class="tok-mode">contended</span> = (...)</span>
+                    <span class="capture-note good">contended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-p">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">f</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">portable</span> = (...)</span>
+                    <span class="capture-note good">portable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-g">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">g</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">shareable</span> = (...)</span>
+                    <span class="capture-note good">shareable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-n">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">h</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">nonportable</span> = (...)</span>
+                    <span class="capture-note good">nonportable</span>
+                  </div>
+                </div>
+                <div class="capture-code-block">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">Parallel.t</span> @ <span class="tok-mode">local</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
+                  </div>
+                </div>
+                <div class="capture-closure-box shareable" data-boundary-link="shareable">
+                  <div class="capture-closure-title shareable" data-boundary-link="shareable">shareable Closure Boundary</div>
+                  <div class="capture-closure-content">
+                    <div class="capture-code-block">
+                      <div class="capture-line">
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _parallel -&gt;</span>
+                      </div>
+                      <div class="capture-import-list">
+                      <div class="capture-import-row" data-capture-link="shareable-factor">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">n'</span> = n <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">stays unchanged</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="shareable-r">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">b'</span> @ <span class="tok-mode">shared</span> = b <span class="tok-kw">in</span></span>
+                        <span class="capture-note warn">uncontended becomes shared</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="shareable-img">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">a'</span> @ <span class="tok-mode">shared</span> = a <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">shared stays shared</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="shareable-q">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">c'</span> @ <span class="tok-mode">contended</span> = c <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">contended stays contended</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="shareable-p">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">f</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">can use portable</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="shareable-g">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">g</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">can use shareable</span>
+                      </div>
+                      <div class="capture-import-row invalid" data-capture-link="shareable-n">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">h</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note bad">cannot use nonportable</span>
+                      </div>
+                      </div>
+                      <div class="capture-line">
+                        <span class="capture-src indent-2">...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="capture-code-block api-call">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> #(_left, _right) =</span>
+                    <span class="capture-note good">fork/join</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel worker worker</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">in</span></span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> b'' @ <span class="tok-mode">uncontended</span> = b</span>
+                    <span class="capture-note good">outside: still uncontended</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="diagram-card capture-card portable-card">
+            <div class="capture-card-header">
+              <h3><code>portable</code> closure</h3>
+              <p class="capture-legend">A detached-spawn closure is checked even more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
+            </div>
+            <div class="capture-code">
+              <svg class="capture-overlay" aria-hidden="true"></svg>
+              <div class="capture-code-body">
+                <div class="capture-code-block outer">
+                  <div class="capture-line" data-capture-link="portable-factor">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">n</span> = <span class="tok-num">10</span></span>
+                    <span class="capture-note good">immutable data</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-r">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">b</span> @ <span class="tok-mode">uncontended</span> = (...)</span>
+                    <span class="capture-note good">uncontended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-img">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">a</span> @ <span class="tok-mode">shared</span> = (...)</span>
+                    <span class="capture-note good">shared</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-q">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">c</span> @ <span class="tok-mode">contended</span> = (...)</span>
+                    <span class="capture-note good">contended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-p">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">f</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">portable</span> = (...)</span>
+                    <span class="capture-note good">portable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-g">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">g</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">shareable</span> = (...)</span>
+                    <span class="capture-note good">shareable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-n">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">h</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">nonportable</span> = (...)</span>
+                    <span class="capture-note good">nonportable</span>
+                  </div>
+                </div>
+                <div class="capture-code-block">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">unit</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-portable" data-boundary-link="portable">portable</span> =</span>
+                  </div>
+                </div>
+                <div class="capture-closure-box portable" data-boundary-link="portable">
+                  <div class="capture-closure-title portable" data-boundary-link="portable">portable Closure Boundary</div>
+                  <div class="capture-closure-content">
+                    <div class="capture-code-block">
+                      <div class="capture-line">
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
+                      </div>
+                      <div class="capture-import-list">
+                      <div class="capture-import-row" data-capture-link="portable-factor">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">n'</span> = n <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">stays unchanged</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="portable-r">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">b'</span> @ <span class="tok-mode">contended</span> = b <span class="tok-kw">in</span></span>
+                        <span class="capture-note warn">uncontended becomes contended</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="portable-img">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">a'</span> @ <span class="tok-mode">contended</span> = a <span class="tok-kw">in</span></span>
+                        <span class="capture-note warn">shared becomes contended</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="portable-q">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">c'</span> @ <span class="tok-mode">contended</span> = c <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">contended stays contended</span>
+                      </div>
+                      <div class="capture-import-row" data-capture-link="portable-p">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">f</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note good">can use portable</span>
+                      </div>
+                      <div class="capture-import-row invalid" data-capture-link="portable-g">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">g</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note bad">cannot use shareable</span>
+                      </div>
+                      <div class="capture-import-row invalid" data-capture-link="portable-n">
+                        <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">h</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                        <span class="capture-note bad">cannot use nonportable</span>
+                      </div>
+                      </div>
+                      <div class="capture-line">
+                        <span class="capture-src indent-2">...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="capture-code-block api-call">
+                  <div class="capture-line">
+                    <span class="capture-src">ignore (<span class="tok-fn">Multicore.spawn</span> worker ())</span>
+                    <span class="capture-note good">spawn</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> a'' @ <span class="tok-mode">shared</span> = a</span>
+                    <span class="capture-note good">outside: still shared</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> b'' @ <span class="tok-mode">uncontended</span> = b</span>
+                    <span class="capture-note good">outside: still uncontended</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+        <p><strong>What this means for mutable state.</strong> In a <code>portable</code> closure, captured mutable state has <code>contended</code> mode, so ordinary mutable-field reads and writes are both unavailable. In a <code>shareable</code> closure, captured mutable state has at most <code>shared</code> mode, so reads are allowed but writes still require <code>uncontended</code> and are rejected.</p>
+        <div class="capture-matrix">
+          <p class="capture-matrix-note">The same boundary behavior can be summarized by asking which mode each captured value has inside each kind of closure.</p>
+          <div class="capture-matrix-transposed">
+            <div class="capture-matrix-transposed-grid">
+              <div class="capture-matrix-transposed-rowheads">
+                <div class="capture-matrix-transposed-rowhead"><code>@ uncontended</code></div>
+                <div class="capture-matrix-transposed-rowhead"><code>@ shared</code></div>
+                <div class="capture-matrix-transposed-rowhead"><code>@ contended</code></div>
+                <div class="capture-matrix-transposed-rowhead"><code>@ portable</code></div>
+                <div class="capture-matrix-transposed-rowhead"><code>@ shareable</code></div>
+                <div class="capture-matrix-transposed-rowhead"><code>@ nonportable</code></div>
+              </div>
+              <div class="capture-matrix-transposed-box portable">
+                <div class="capture-matrix-transposed-boxhead portable">in portable closure</div>
+                <div class="capture-matrix-transposed-values">
+                  <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
+                  <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                  <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                  <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                  <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                </div>
+              </div>
+              <div class="capture-matrix-transposed-box shareable">
+                <div class="capture-matrix-transposed-boxhead shareable">in shareable closure</div>
+                <div class="capture-matrix-transposed-values">
+                  <div class="capture-matrix-transposed-cell warn"><code>shared</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                  <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>shareable</code></div>
+                  <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                </div>
+              </div>
+              <div class="capture-matrix-transposed-box nonportable">
+                <div class="capture-matrix-transposed-boxhead nonportable">in nonportable closure</div>
+                <div class="capture-matrix-transposed-values">
+                  <div class="capture-matrix-transposed-cell good"><code>uncontended</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                  <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>shareable</code></div>
+                  <div class="capture-matrix-transposed-cell good"><code>nonportable</code></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p>A closure boundary keeps captured variables' types the same, but it can weaken their contention mode inside the closure: <code>uncontended</code> may become <code>shared</code> or <code>contended</code> depending on the closure mode.</p>
+          <p>For captured functions, the practical rule is that you can only call functions that are at least as portable as the closure you are inside.</p>
+          <p>The more portable a closure is, the more restrictive it must be about captured variables; that is exactly what makes it safe to use in more parallel contexts.</p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Exercise: implement general <code>parallel_map</code></h2>
+        <p>Now apply the function-mode and access rules in a real helper. Write a polymorphic <code>parallel_map</code>, then use it on the bit-list worker from the start of the lecture.</p>
+        <aside class="exercise">
+          <h3>Exercise: implement <code>parallel_map</code></h3>
+          <p>Write a polymorphic <code>parallel_map</code> using <code>Parallel.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Replace <code>failwith "implement this"</code> with the recursive fork/join implementation.</p>
+          <p>The starter leaves the modes off on purpose. After the implementation mentions <code>Parallel.fork_join2</code>, the compiler can infer the relevant modes from how the function argument and list flow through the fork/join tree.</p>
+          <details>
+            <summary>Hint</summary>
+            <p>Handle the empty list directly. For a nonempty list, fork one branch for the head and one branch for the tail, then combine the mapped head with the mapped tail.</p>
+          </details>
+        </aside>
+        <oxcaml filename="parallel_map.ml" expect-error no-self-check>
+          let bits_to_string bits =
+            let buf = Buffer.create 0 in
+            List.iter
+              (fun bit ->
+                 Buffer.add_char buf (if bit then '1' else '0'))
+              bits;
+            Buffer.contents buf
+
+          let rec parallel_map parallel f xs =
+            failwith "implement this"
+
+          let bits_to_strings (parallel : Parallel.t @ local) rows =
+            parallel_map parallel bits_to_string rows
+
+          let () =
+            let rows =
+              [[true; false; true; true]; [false; true; false; false]]
+            in
+            let scheduler = Parallel.Scheduler.Sequential.create () in
+            let strings =
+              Parallel.Scheduler.Sequential.parallel scheduler
+                ~f:(fun parallel -> bits_to_strings parallel rows)
+            in
+            print_endline (String.concat "\n" strings)
+        </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise: read the inferred type of <code>parallel_map</code></h3>
+          <p>After completing the <code>parallel_map</code> implementation exercise above and asking for inferred types, you should have seen a signature shaped like this:</p>
+          <pre><code>val parallel_map :
+  Parallel.t @ local ->
+  ('a @ shared -> 'b) @ shareable ->
+  'a list @ shareable shared ->
+  'b list @@ portable</code></pre>
+          <p>For each mode annotation, decide whether it is a requirement on callers or a promise checked against the implementation of <code>parallel_map</code>. Then say what concrete restriction it creates. Pay special attention to the two separate annotations in <code>('a @ shared -&gt; 'b) @ shareable</code> and the two separate annotations on <code>'a list @ shareable shared</code>.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Read the type as a contract for moving work into a fork/join tree.</p>
+            <ul>
+              <li><code>Parallel.t @ local</code> is checked against the implementation of <code>parallel_map</code>. It promises that <code>parallel_map</code> only borrows the scheduler capability while it runs; it will not store it, return it, or let it escape.</li>
+              <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the caller's function. <code>parallel_map</code> is going to use that function inside fork/join branches, so the function itself must be safe to share into those branches. This is most visible when the function captures other functions or other portability-sensitive values.</li>
+              <li>The inner <code>'a @ shared</code> is a requirement on what the function can do with each element. <code>parallel_map</code> will only pass an element in shared mode. If an element contains mutable state, the function may read that state but may not mutate it. For ordinary immutable elements, this restriction usually has no visible effect.</li>
+              <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a requirement on the caller's input list. Pieces of the list flow into the fork/join tree, so the elements must be shareable. This matters when <code>'a</code> is a function type, or contains functions or other portability-sensitive values.</li>
+              <li>The <code>@ shared</code> on <code>'a list @ shareable shared</code> is also a requirement on the caller's input list. <code>parallel_map</code> only gets read-capable access to the list and to the elements it extracts from it. This matters when <code>'a</code> contains mutable state.</li>
+              <li>The final <code>@@ portable</code> is a promise checked against the implementation of <code>parallel_map</code>. The function itself does not depend on hidden nonportable state, so it can be used from portable code.</li>
+            </ul>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <h2>Mode annotation syntax reference</h2>
+        <aside class="mode-syntax">
+          <h3>Mode annotation syntax</h3>
+          <p>OxCaml can often infer modes. We write them explicitly when we want to document an API boundary or make an error point closer to the relevant value.</p>
+          <ul>
+            <li>On a binder, write the mode after the name: <code>let get_count (x @ shared) = ...</code> or <code>let r @ uncontended = ref 0</code>.</li>
+            <li>On a type annotation, write the mode after the type: <code>let get_count (x : t @ shared) = ...</code>.</li>
+            <li>For a function being defined, <code>let (worker @ portable) x = ...</code> puts the mode on the function value <code>worker</code>.</li>
+            <li>For a function value with an explicit type, write the function type in parentheses: <code>let worker : (int -&gt; int) @ portable = ...</code>.</li>
+            <li>For a function argument, the same function-value form says what callers must provide: <code>let run (f : (unit -&gt; unit) @ portable) = ...</code>.</li>
+            <li>In a module signature, a <code>val</code> item uses <code>@@</code> for the declared value itself: <code>val f : (int -&gt; int) @@ portable</code>.</li>
+            <li>The same pattern is common for API functions: <code>val run : (unit -&gt; unit) @ portable -&gt; unit @@ portable</code> requires a portable function argument and declares <code>run</code> itself portable.</li>
+            <li>Inside a function type, the source and target can have their own modes: <code>'a @ uncontended -&gt; 'b @ portable</code>.</li>
+          </ul>
+        </aside>
+        <aside class="exercise">
+          <h3>Exercise: where does <code>@ portable</code> attach?</h3>
+          <p>The next two blocks differ only by parentheses around the function type. The function body increments a captured reference, so it should fail if <code>worker</code> itself is being checked as portable. Predict which block is accepted.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The first block is accepted: <code>unit -&gt; unit @ portable</code> parses like <code>unit -&gt; (unit @ portable)</code>, so <code>portable</code> is on the result, not on the whole function value <code>worker</code>. The second block fails because <code>(unit -&gt; unit) @ portable</code> does check <code>worker</code> as portable. When the mode belongs to a function value, put that function type in parentheses.</p>
+          </details>
+        </aside>
+        <oxcaml check filename="mode_prec_a.ml">
+          let r = ref 0
+
+          let worker : unit -> unit @ portable =
+            fun () -> incr r
+        </oxcaml>
+        <oxcaml check filename="mode_prec_b.ml" expect-error>
+          let r = ref 0
+
+          let worker : (unit -> unit) @ portable =
+            fun () -> incr r
+        </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise: nested function type precedence</h3>
+          <p>Run the same experiment for a function that returns another function. Does <code>let make : int -&gt; unit -&gt; unit @ portable = ...</code> check the returned function as portable, or do you need <code>int -&gt; (unit -&gt; unit) @ portable</code>?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The unparenthesized nested form is accepted, but the parenthesized returned-function form fails. So the same rule of thumb applies: if the mode belongs to a function value, put that function type in parentheses.</p>
+          </details>
+        </aside>
+        <oxcaml check filename="nested_prec_a.ml">
+          let r = ref 0
+
+          let make : int -> unit -> unit @ portable =
+            fun _ -> fun () -> incr r
+        </oxcaml>
+        <oxcaml check filename="nested_prec_b.ml" expect-error>
+          let r = ref 0
+
+          let make : int -> (unit -> unit) @ portable =
+            fun _ -> fun () -> incr r
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Worked portability examples</h2>
+        <p>These examples isolate the closure/function side of the story. The question is what a closure may capture when it promises to be usable from more parallel contexts.</p>
+        <h3>Portable pure functions</h3>
+        <p>On the portability axis, a pure function with no problematic captures is the easy case. The compiler can accept the <code>@ portable</code> annotation because the closure does not depend on thread-local mutable state.</p>
+        <oxcaml check filename="pure_fun.ml">
+          let (factorial @ portable) n =
+            let rec loop acc i =
+              if i <= 1 then acc else loop (acc * i) (i - 1)
+            in
+            loop 1 n
+        </oxcaml>
+
+        <h3>Ordinary closures may capture ordinary refs</h3>
+        <p>Without a portability promise, ordinary OCaml closure behavior is still available. This function captures and mutates a reference. That is fine for an ordinary local closure, but it is exactly the kind of capture we do not want to silently ship to another thread.</p>
+        <oxcaml filename="ref_capture.ml">
+          let r = ref 0
+
+          let ordinary () =
+            r := !r + 1;
+            !r
+
+          let () = print_endline (string_of_int (ordinary ()))
+        </oxcaml>
+
+        <h3>Portable closures may capture immutable data</h3>
+        <p>Portable closures may still capture immutable data. Capturing <code>factor</code> is safe because the closure does not get a handle to mutable state that can race with another thread.</p>
+        <oxcaml check filename="immutable_cap.ml">
+          let factor = 3
+
+          let (times_factor @ portable) x =
+            x * factor
+        </oxcaml>
+
+        <h3>Portable closures reject ordinary ref captures</h3>
+        <p>By contrast, capturing an ordinary reference and reading it inside a <code>@ portable</code> closure fails. Inside a portable closure, captured mutable state has a mode too restrictive for ordinary ref access.</p>
+        <aside class="exercise">
+          <h3>Exercise: why does the ref capture fail?</h3>
+          <p>Why is the previous immutable capture accepted while this reference capture is rejected?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a detached parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
+          </details>
+        </aside>
+        <oxcaml check filename="bad_ref.ml" expect-error>
+          let r = ref 0
+
+          let (bad @ portable) () = !r
+        </oxcaml>
+
+        <h3>Portable functions may use fresh local mutation</h3>
+        <p>This brings us back to the opening example. A portable function may allocate fresh mutable state inside each call, use it locally, and return an ordinary result. The closure itself is still portable because that fresh state is not captured from the outside.</p>
+        <oxcaml filename="fresh_ref.ml">
+          let (fresh_ref @ portable) () =
+            let r = ref 0 in
+            r := !r + 1;
+            !r
+
+          let () = print_endline (string_of_int (fresh_ref ()))
+        </oxcaml>
+
+        <h3>Interface annotations for portable APIs</h3>
+        <p>When these ideas become part of a library boundary, the modes belong in the interface. The implementation can use local mutation internally, but the exposed API should say which values are portable and which operations can be called from portable code.</p>
+        <p>Here, <code>create</code> promises to produce a portable value, and <code>price</code> promises to work from portable code while only requiring the value in <code>contended</code> mode.</p>
+        <oxcaml check filename="portable_api.ml">
+          module type Thing = sig
+            type t
+
+            val create : price:float -> mood:int -> t @ portable @@ portable
+            val price : t @ contended -> float @@ portable
+          end
+        </oxcaml>
+
+        <h3>Portabilizing your code</h3>
+        <p>Portabilizing an API means changing its <code>.mli</code> so parallel callers can see the right checked promises. If most values in an interface should be callable from portable code, put <code>@@ portable</code> at the top of the <code>.mli</code>. Inside a module type, write <code>sig @@ portable</code>. Individual declarations can opt out with <code>@@ nonportable</code>.</p>
+        <pre><code>@@ portable
+
+type t : value mod portable
+
+val create : int -> t
+val id : t @ contended -> int
+val debug_global_counter : unit -> unit @@ nonportable</code></pre>
+        <p>The usual goal is to make portable the default for the whole signature, then mark only the exceptional operations as nonportable. That is clearer than adding <code>@@ portable</code> one declaration at a time, because the interface says: this module is ready for checked parallel use except where it explicitly says otherwise.</p>
+        <p>Do this bottom-up. If <code>B.ml</code> depends on <code>A.mli</code>, then <code>A.mli</code> has to expose portable operations before <code>B.mli</code> can honestly promise that <code>B</code>'s operations are portable.</p>
+        <oxcaml check filename="port_sig.ml">
+          module type Thing = sig @@ portable
+            type t : value mod portable
+
+            val create : int -> t
+            val id : t @ contended -> int
+            val debug_global_counter : unit -> unit @@ nonportable
+          end
+
+          module Thing : Thing = struct
+            type t : value mod portable = { id : int; mutable count : int }
+
+            let create id = { id; count = 0 }
+            let id (x @ contended) = x.id
+
+            let debug_count = ref 0
+            let debug_global_counter () = incr debug_count
+          end
+        </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise: portabilize a signature</h3>
+          <p>This module has one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type says as much as it safely can.</p>
+          <pre><code>module Counter : sig
+  type t
+
+  val create : int -> t
+  val id : t -> int
+  val count : t -> int
+  val reset_for_tests : unit -> unit
+end = struct
+  type t = { id : int; mutable count : int }
+
+  let create id = { id; count = 0 }
+  let id x = x.id
+  let count x = x.count
+
+  let all_created = ref []
+  let reset_for_tests () = all_created := []
+end</code></pre>
+          <details>
+            <summary>Answer</summary>
+            <p>Put <code>@@ portable</code> on the whole <code>sig</code>, because most of the API should be usable from portable code. Give <code>t</code> the kind <code>value mod portable</code>: the representation has mutable state, so it is not contention-independent, but it does not contain nonportable functions. The immutable field reader can accept <code>t @ contended</code>; the mutable field reader needs <code>t @ shared</code>; the global reset operation must be <code>@@ nonportable</code>.</p>
+          </details>
+        </aside>
+        <oxcaml check filename="portabilize.ml">
+          module type Counter = sig @@ portable
+            type t : value mod portable
+
+            val create : int -> t
+            val id : t @ contended -> int
+            val count : t @ shared -> int
+            val reset_for_tests : unit -> unit @@ nonportable
+          end
+
+          module Counter : Counter = struct
+            type t : value mod portable = { id : int; mutable count : int }
+
+            let create id = { id; count = 0 }
+            let id (x @ contended) = x.id
+            let count (x @ shared) = x.count
+
+            let all_created = ref []
+            let reset_for_tests () = all_created := []
+          end
+        </oxcaml>
+        <p>Kinds are the other half of portabilizing signatures. They tell the compiler when values of a type do not need ordinary portability or contention tracking.</p>
+        <ul>
+          <li><code>immutable_data</code>: no function values and no ordinary mutable state, so the type crosses both portability and contention.</li>
+          <li><code>value mod portable</code>: crosses portability. In basic code, think “ordinary data, possibly mutable, but not containing nonportable functions.”</li>
+          <li><code>value mod contended</code>: crosses contention. In basic code, think “no ordinary mutable state,” but function values can still appear, so this is not a portability promise.</li>
+        </ul>
+        <oxcaml check filename="kind_mode.ml">
+          type immutable_pair : immutable_data =
+            { id : int; name : string }
+
+          let both
+                (x : immutable_pair @ nonportable uncontended)
+                : immutable_pair @ portable contended =
+            x
+
+          type mutable_counter : value mod portable =
+            { id : int; mutable count : int }
+
+          let portable_counter
+                (x : mutable_counter @ nonportable)
+                : mutable_counter @ portable =
+            x
+
+          type callback_box : value mod contended =
+            { f : int -> int }
+
+          let contended_callback
+                (x : callback_box @ uncontended)
+                : callback_box @ contended =
+            x
+        </oxcaml>
+        <p>Functors add one more practical wrinkle. Later, in the what-else lecture, we will see how templating can generate the modal versions of functors that would otherwise be repetitive to portabilize by hand.</p>
+        <p>The summary slogan for this segment is: the more parallel freedom a closure gets, the more restricted its use of captured variables must be. That restriction is not arbitrary; it is the mechanism that lets APIs expose parallelism without silently admitting shared mutable races.</p>
+      </section>
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="01-why-oxcaml-exists.html">
+          <span>Previous</span>
+          <strong>Why OxCaml Exists</strong>
+        </a>
+        <a class="next" href="03-locality-stack-zeroalloc.html">
+          <span>Next</span>
+          <strong>Locality And Zeroalloc</strong>
+        </a>
+      </nav>
+    </main>
+
+    <script>
+      (() => {
+        document.querySelectorAll("[data-interactive-table], [data-helper-call-exercise]").forEach((exercise) => {
+          if (exercise.dataset.interactiveInitialized) return;
+          exercise.dataset.interactiveInitialized = "true";
+          const choices = Array.from(exercise.querySelectorAll(".exercise-choice"));
+          const feedback =
+            exercise.querySelector("[data-table-feedback]") ||
+            exercise.querySelector("[data-helper-table-feedback]");
+          const answer =
+            exercise.querySelector("[data-table-answer]") ||
+            exercise.querySelector("[data-helper-table-answer]");
+          const checkButton =
+            exercise.querySelector("[data-check-table]") ||
+            exercise.querySelector("[data-check-helper-table]");
+          const resetButton =
+            exercise.querySelector("[data-reset-table]") ||
+            exercise.querySelector("[data-reset-helper-table]");
+          const labels = { "": "?", yes: "yes", no: "no" };
+          const setChoice = (button, value) => {
+            button.dataset.value = value;
+            button.textContent = labels[value];
+            button.classList.remove("is-correct", "is-incorrect", "is-empty");
+          };
+          const markChoices = () => {
+            let correct = 0;
+            let filled = 0;
+            choices.forEach((button) => {
+              button.classList.remove("is-correct", "is-incorrect", "is-empty");
+              const value = button.dataset.value;
+              if (!value) {
+                button.classList.add("is-empty");
+                return;
+              }
+              filled += 1;
+              if (value === button.dataset.correct) {
+                correct += 1;
+                button.classList.add("is-correct");
+              } else {
+                button.classList.add("is-incorrect");
+              }
+            });
+            if (feedback) {
+              if (filled === choices.length && correct === choices.length) {
+                feedback.textContent = "All entries are correct.";
+              } else {
+                feedback.textContent = `${correct}/${choices.length} entries are correct. Blank cells are still unanswered.`;
+              }
+            }
+          };
+          choices.forEach((button) => {
+            button.addEventListener("click", () => {
+              const next = button.dataset.value === "" ? "yes" : button.dataset.value === "yes" ? "no" : "";
+              setChoice(button, next);
+              if (answer?.open) markChoices();
+              else if (feedback) feedback.textContent = "";
+            });
+          });
+          checkButton?.addEventListener("click", markChoices);
+          resetButton?.addEventListener("click", () => {
+            choices.forEach((button) => setChoice(button, ""));
+            if (feedback) feedback.textContent = "";
+          });
+          answer?.addEventListener("toggle", () => {
+            if (answer.open) markChoices();
+          });
+        });
+
+        const linked = document.querySelectorAll("[data-boundary-link]");
+        const captureLinked = document.querySelectorAll("[data-capture-link]");
+        const overlays = document.querySelectorAll(".capture-overlay");
+        let markerIdCounter = 0;
+        const clearOverlays = () => {
+          overlays.forEach((overlay) => {
+            overlay.innerHTML = "";
+          });
+        };
+        const drawCaptureOverlay = (scope, key) => {
+          if (!scope) return;
+          const overlay = scope.querySelector(".capture-overlay");
+          const source = scope.querySelector(`.capture-code-block.outer .capture-line[data-capture-link="${key}"]`);
+          const target = scope.querySelector(`.capture-import-row[data-capture-link="${key}"] .capture-target`);
+          if (!overlay || !source || !target) return;
+          const overlayRect = overlay.getBoundingClientRect();
+          if (overlayRect.width === 0 || overlayRect.height === 0) return;
+          overlay.setAttribute("viewBox", `0 0 ${overlayRect.width} ${overlayRect.height}`);
+          const sourceAnchor = source.querySelector(".capture-link-source") || source.querySelector(".capture-src");
+          const targetAnchor = target.querySelector(".capture-link-target") || target;
+          if (!sourceAnchor || !targetAnchor) return;
+          const sourceRect = sourceAnchor.getBoundingClientRect();
+          const targetRect = targetAnchor.getBoundingClientRect();
+          const toneEl = source.querySelector(".capture-note");
+          const stroke = toneEl ? getComputedStyle(toneEl).color : "currentColor";
+          const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+          const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+          const markerId = `capture-arrowhead-${markerIdCounter++}`;
+          marker.setAttribute("id", markerId);
+          marker.setAttribute("markerWidth", "8");
+          marker.setAttribute("markerHeight", "8");
+          marker.setAttribute("refX", "6");
+          marker.setAttribute("refY", "3");
+          marker.setAttribute("orient", "auto");
+          const tip = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          tip.setAttribute("d", "M0,0 L6,3 L0,6");
+          tip.setAttribute("fill", stroke);
+          marker.appendChild(tip);
+          defs.appendChild(marker);
+          overlay.appendChild(defs);
+          const startX = sourceRect.right - overlayRect.left + 8;
+          const startY = sourceRect.top + sourceRect.height / 2 - overlayRect.top;
+          const endX = targetRect.left - overlayRect.left - 8;
+          const endY = targetRect.top + targetRect.height / 2 - overlayRect.top;
+          const bend = Math.max(34, (endX - startX) * 0.4);
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          path.setAttribute(
+            "d",
+            `M ${startX} ${startY} C ${startX + bend} ${startY}, ${endX - bend} ${endY}, ${endX} ${endY}`
+          );
+          path.setAttribute("stroke", stroke);
+          path.setAttribute("marker-end", `url(#${markerId})`);
+          overlay.appendChild(path);
+        };
+        const clear = () => {
+          linked.forEach((el) => el.classList.remove("is-linked-hover"));
+          captureLinked.forEach((el) => el.classList.remove("is-capture-hover"));
+          clearOverlays();
+        };
+        linked.forEach((el) => {
+          const key = el.getAttribute("data-boundary-link");
+          el.addEventListener("mouseenter", () => {
+            clear();
+            document
+              .querySelectorAll(`[data-boundary-link="${key}"]`)
+              .forEach((match) => match.classList.add("is-linked-hover"));
+          });
+          el.addEventListener("mouseleave", clear);
+        });
+        captureLinked.forEach((el) => {
+          const key = el.getAttribute("data-capture-link");
+          el.addEventListener("mouseenter", () => {
+            clear();
+            document
+              .querySelectorAll(`[data-capture-link="${key}"]`)
+              .forEach((match) => match.classList.add("is-capture-hover"));
+            drawCaptureOverlay(el.closest(".capture-code"), key);
+          });
+          el.addEventListener("mouseleave", clear);
+        });
+        window.addEventListener("resize", clear);
+      })();
+    </script>
+    <script src="../assets/course-toc.js?v=theme-20260425" defer></script>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

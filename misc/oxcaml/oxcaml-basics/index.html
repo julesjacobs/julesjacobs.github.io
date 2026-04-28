@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Basics Course</title>
+    <link rel="stylesheet" href="assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="course-index">
+      <header class="no-rule">
+        <div class="course-header-lockup">
+          <figure class="course-mark">
+            <img src="assets/images/oxcaml-basics.avif" alt="OxCaml Basics" width="1024" height="1024">
+          </figure>
+          <div class="course-header-copy">
+            <p class="lede">A three-hour course for Jane Street interns and engineers about safe high-performance OCaml: checked parallelism, stack allocation and zero allocation, and control over runtime representation.</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="section-band">
+        <ol class="course-sequence">
+          <li>
+            <span class="sequence-number">00</span>
+            <div class="sequence-main">
+              <h3><a href="examples/01-why-oxcaml-exists.html">Why OxCaml exists</a></h3>
+              <p>Why ordinary OCaml is not always enough for high-performance code, and which OxCaml features this course will cover.</p>
+              <p class="sequence-meta">10 min · motivation</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="sequence-number">01</span>
+            <div class="sequence-main">
+              <h3><a href="examples/02-parallelism-contention-portability.html">Parallelism: contention and portability</a></h3>
+              <p>Fork/join, detached spawn, mutable-state safety, portability modes, contention modes, and closure boundaries.</p>
+              <p class="sequence-meta">50 min · parallelism</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="sequence-number">02</span>
+            <div class="sequence-main">
+              <h3><a href="examples/03-locality-stack-zeroalloc.html">Locality, stack allocation, and zeroalloc</a></h3>
+              <p>How local values, <code>stack_</code>, <code>exclave_</code>, and zero-allocation checks help control heap allocation and latency.</p>
+              <p class="sequence-meta">45 min · allocation</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="sequence-number">03</span>
+            <div class="sequence-main">
+              <h3><a href="examples/04-representation.processed.html">Value layouts and unboxing</a></h3>
+              <p>Uniform OCaml values first, then the costs of boxes and pointers, then layouts, unboxed values, <code>or_null</code>, and a short note on templates.</p>
+              <p class="sequence-meta">60 min · representation</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+    </main>
+    <script src="assets/course-toc.js?v=theme-20260425" defer></script>
+  </body>
+</html>

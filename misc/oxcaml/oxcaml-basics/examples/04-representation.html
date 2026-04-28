@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Basics: Value Layouts And Unboxing</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="lecture-page">
+      <h1>Value layouts and unboxing</h1>
+
+      <section class="lecture-intro">
+        <p>This lecture is about how OCaml values are represented at runtime, why that representation is a good default, and where high-performance code needs more control. We first build the plain OCaml <code>value</code> model, then look at the costs of boxing and indirection, and then introduce the OxCaml features that change the representation.</p>
+        <p>By the end, students should be able to look at a small value and explain which parts are immediate words, which parts are heap blocks, where pointers and headers appear, and which OxCaml feature would remove a particular box or allocation.</p>
+        <p>For ordinary numeric and pointer words, the byte cells are shown in the same left-to-right order as the printed raw word. For example, a raw word such as <code>0x03020100</code> appears as bytes <code>03 02 01 00</code>. String payloads are the exception: they are shown in memory order so the characters read naturally.</p>
+      </section>
+
+      <section>
+        <h2>The runtime picture</h2>
+        <p>Start with the one invariant that ordinary OCaml code relies on: an OCaml <code>value</code> is one machine word. On a 64-bit runtime, the low bit of that word tells the runtime how to interpret the rest of the word.</p>
+
+        <figure class="value-model-figure">
+          <div class="value-model-grid">
+            <div class="value-model-panel">
+              <h3>Immediate value</h3>
+              <div class="value-word value-word-immediate" aria-label="Immediate value word with payload bits and low bit one">
+                <span class="value-word-main">63 bits of immediate data</span>
+                <span class="value-word-tag">1</span>
+              </div>
+              <p>The data is stored directly in the value word. Small integers and constructors with no payload use this shape.</p>
+            </div>
+
+            <div class="value-model-panel">
+              <h3>Pointer value</h3>
+              <div class="value-word value-word-pointer" aria-label="Pointer value word with aligned address bits and low bit zero">
+                <span class="value-word-main">aligned heap address</span>
+                <span class="value-word-tag">0</span>
+              </div>
+              <div class="value-pointer-line" aria-hidden="true"></div>
+              <div class="heap-block-model" aria-label="Heap block with header word and payload words">
+                <div class="heap-block-label">heap block</div>
+                <div class="heap-model">
+                  <div class="heap-model-word heap-model-header">
+                    <strong>header word</strong>
+                    <span>size, tag, scan info</span>
+                  </div>
+                  <div class="heap-model-word">
+                    <strong>payload 0</strong>
+                    <span>value or raw data</span>
+                  </div>
+                  <div class="heap-model-ellipsis" aria-label="more payload words">...</div>
+                  <div class="heap-model-word">
+                    <strong>payload N</strong>
+                    <span>value or raw data</span>
+                  </div>
+                </div>
+              </div>
+              <p>The word points to a heap block. The block has a header followed by payload words.</p>
+            </div>
+          </div>
+        </figure>
+
+        <p>The payload words are interpreted according to the block kind. Some payload words are themselves OCaml <code>value</code>s, so the GC follows them as pointers when needed. Other payload words are raw data, such as float bits or string bytes, so the GC must not treat them as pointers.</p>
+        <p>The header word tells the runtime how large the block is and how the payload should be scanned. For ordinary blocks, the payload is usually either all values or all raw data. For algebraic data types, the header tag also identifies which constructor with payload a block represents. Constructors with no payload are the simpler case: they are immediate integers, so they do not need a heap block at all.</p>
+      </section>
+
+      <section>
+        <h2>Plain OCaml has a uniform <code>value</code> representation</h2>
+        <p>Most ordinary OCaml expressions produce this same runtime shape: one <code>value</code> word, either immediate data or a pointer to a heap block.</p>
+        <p>This uniform model is a strength of OCaml. The GC, polymorphic functions, tuples, records, variants, and many library data structures can all talk about values without knowing the exact source type.</p>
+
+        <oxcaml-repr filename="plain_value_integer.ml">
+          let plain_value_integer = 5
+        </oxcaml-repr>
+
+        <p>A tuple is not stored directly in the root word. The root word points to a heap block. The heap block has a header and then one payload word per tuple field.</p>
+
+        <oxcaml-repr filename="plain_value_tuple.ml">
+          let plain_value_tuple = (1, 2, 3)
+        </oxcaml-repr>
+
+        <p>Records have the same basic shape as tuples: a header followed by payload words. Immutable and mutable fields are both fields in the block; mutability is a property of what the program may do with the field, not a different block shape.</p>
+
+        <oxcaml-repr filename="plain_value_record.ml">
+          type quote =
+            { symbol : string
+            ; price : int
+            ; mutable size : int
+            }
+
+          let plain_value_record =
+            { symbol = "OX"; price = 101; size = 7 }
+        </oxcaml-repr>
+
+        <aside class="exercise">
+          <h3>Exercise: identify the value shapes</h3>
+          <p>Before looking at the next few visualizations, predict the runtime shape of each source-level construct: a small integer, a string, a tuple, a record, and a constructor with payload. Which ones are immediate words, and which ones need a heap block?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Small integers are immediate words. Strings are heap blocks containing raw bytes. Tuples and records are heap blocks whose fields are payload words. A constructor with payload is also a heap block; its header tag distinguishes it from the other payload-carrying constructors of the same type.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <h2>Variants are also values</h2>
+        <p>Algebraic data types use the same runtime model. A constructor with no payload is an immediate integer. A constructor with payload is a heap block; the header tag tells the runtime which constructor with payload it is.</p>
+
+        <oxcaml-repr filename="constant_constructors.ml">
+          type color = Red | Green | Blue
+
+          let constant_constructors = (Red, Green, Blue)
+        </oxcaml-repr>
+
+        <oxcaml-repr filename="variant_payloads.ml">
+          type order =
+            | Market
+            | Limit of string * int
+            | Stop of string * int
+
+          let variant_payloads =
+            ( Market
+            , Limit ("ABC", 100)
+            , Stop ("ABC", 95)
+            )
+        </oxcaml-repr>
+
+        <p>Recursive data is a graph of these same values. Each constructor with payload allocates a block. Its fields point at other values, which may themselves be immediates or pointers to blocks.</p>
+
+        <oxcaml-repr filename="recursive_tree.ml">
+          type tree =
+            | Leaf of string
+            | Node of tree * tree
+
+          let recursive_tree =
+            Node (Leaf "left", Node (Leaf "middle", Leaf "right"))
+        </oxcaml-repr>
+      </section>
+
+      <section>
+        <h2>Heap blocks can be shared</h2>
+        <p>The runtime representation is a graph, not a tree. If two fields point to the same heap object, there is one heap block with two incoming references.</p>
+
+        <oxcaml-repr filename="shared_string_tuple.ml">
+          let shared = "shared"
+
+          let shared_string_tuple = (shared, shared, "other")
+        </oxcaml-repr>
+      </section>
+
+      <section>
+        <h2>The uniform model has costs</h2>
+        <p>The uniform <code>value</code> model is convenient, but it has costs. Some data cannot fit directly in one immediate word. A standalone <code>float</code> or <code>int64</code> is boxed: the value word points to a heap block containing the raw bits.</p>
+
+        <oxcaml-repr filename="boxed_numeric_values.ml">
+          let boxed_numeric_values =
+            (3.5, 456L)
+        </oxcaml-repr>
+
+        <p>Boxing creates heap allocation and pointer indirection. That is often fine. It becomes a problem in code where the cost of many small allocations, cache misses, or GC work matters.</p>
+        <p>Option values show the same issue. <code>None</code> is an immediate, but <code>Some payload</code> normally allocates a block to hold the payload.</p>
+
+        <oxcaml-repr filename="ordinary_option_values.ml">
+          let ordinary_option_values =
+            (None, Some "found")
+        </oxcaml-repr>
+      </section>
+
+      <section>
+        <h2>Indirection shows up in nested data</h2>
+        <p>Nested boxed data creates chains of pointers. Here the outer record points to a separate boxed point, and that point stores two boxed floats.</p>
+
+        <oxcaml-repr filename="outer_record_with_boxed_point.ml">
+          type boxed_point = { x : float; y : float }
+
+          type sample =
+            { label : string
+            ; point : boxed_point
+            ; count : int
+            }
+
+          let outer_record_with_boxed_point =
+            { label = "p"
+            ; point = { x = 1.0; y = 2.5 }
+            ; count = 7
+            }
+        </oxcaml-repr>
+
+        <p>One representation cannot be optimal for every performance-sensitive path. OxCaml adds ways to express a different representation when the programmer knows which cost matters.</p>
+      </section>
+
+      <section>
+        <h2>OxCaml layouts remove specific boxes</h2>
+        <p>OxCaml layouts remove specific boxes from the uniform <code>value</code> model. They do not make every heap object disappear; they say which parts of a value should stop being ordinary boxed data.</p>
+
+        <h3>Tuple block</h3>
+        <p><strong>Uniform cost:</strong> an ordinary tuple allocates a heap block just to group its fields. <strong>Layout version:</strong> an unboxed product carries the components directly. The string is still a heap object; the removed box is the tuple block itself.</p>
+        <p>Unlike an ordinary tuple, the unboxed product is not represented by one pointer to a tuple block. Its representation is just its components: here, the immediate integer and the string pointer. Those components can live in separate registers or stack slots.</p>
+
+        <oxcaml-repr filename="unboxed_pair_of_values.ml" layout="value,value">
+          let unboxed_pair_of_values = #(1, "one")
+        </oxcaml-repr>
+
+        <h3>Numeric boxes</h3>
+        <p><strong>Uniform cost:</strong> the boxed numeric example had a tuple block, a boxed float, and a custom block for the <code>int64</code>. <strong>Layout version:</strong> raw <code>float#</code> and <code>int64#</code> components store the bits directly in the product.</p>
+
+        <oxcaml-repr filename="unboxed_numeric_values.ml" layout="float64,int64">
+          let unboxed_numeric_values = #(#3.5, #456L)
+        </oxcaml-repr>
+
+        <h3>Nested record indirection</h3>
+        <p><strong>Uniform cost:</strong> the boxed-point example had an outer record pointing to a separate point block, and that point stored two boxed floats. <strong>Layout version:</strong> the point is an unboxed record, so the outer record stores the two raw float fields inline.</p>
+
+        <oxcaml-repr filename="outer_record_with_unboxed_point.ml">
+          type unboxed_point = #{ x : float#; y : float# }
+
+          type sample =
+            { label : string
+            ; point : unboxed_point
+            ; count : int
+            }
+
+          let outer_record_with_unboxed_point =
+            { label = "p"
+            ; point = #{ x = #1.0; y = #2.5 }
+            ; count = 7
+            }
+        </oxcaml-repr>
+
+        <h3>Option payload allocation</h3>
+        <p><strong>Uniform cost:</strong> <code>Some payload</code> normally allocates a wrapper block. <strong>Layout version:</strong> <code>or_null</code> uses <code>Null</code> for the missing case, and <code>This v</code> has the same representation as <code>v</code>, so the present case does not need an extra option wrapper.</p>
+
+        <oxcaml-repr filename="or_null_values.ml">
+          let or_null_values =
+            ( (Null : string or_null)
+            , (This "found" : string or_null)
+            )
+        </oxcaml-repr>
+
+        <aside class="exercise">
+          <h3>Exercise: convert <code>hd</code> to <code>or_null</code></h3>
+          <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>.</p>
+        </aside>
+
+        <oxcaml check filename="exercise_hd_or_null.ml">
+          let hd_option = function
+            | [] -> None
+            | x :: _ -> Some x
+
+          let hd_or_null = function
+            | [] -> Null
+            | x :: _ -> This x
+
+          let value_or default = function
+            | Null -> default
+            | This x -> x
+
+          let first = value_or "empty" (hd_or_null ["first"; "second"])
+          let missing = value_or "empty" (hd_or_null [])
+        </oxcaml>
+
+        <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The kind system catches this: <code>or_null</code> expects a non-null payload representation, but <code>string or_null</code> is already nullable.</p>
+
+        <oxcaml check filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
+          type nested = string or_null or_null
+        </oxcaml>
+
+      </section>
+
+      <section>
+        <h2>Kinds record which representations are allowed</h2>
+        <p>Once values can have different layouts, APIs need a way to say which layouts they accept. That is what representation kinds are for. Ordinary polymorphism usually assumes <code>value</code>. Unboxed values require signatures that mention layouts such as <code>float64</code>, <code>bits32</code>, <code>bits64</code>, <code>word</code>, or product layouts.</p>
+        <p>If a compiler error says a type parameter expects <code>value</code>, read that as: this API expects ordinary one-word OCaml values, not arbitrary unboxed layouts.</p>
+
+        <aside class="exercise">
+          <h3>Exercise: choose the kind bound</h3>
+          <p>The first block says that <code>box</code> only accepts ordinary <code>value</code>-layout types, so <code>float#</code> is rejected. Change the kind bound so the type accepts <code>float#</code>.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Use <code>float64</code> for <code>float#</code>. For an unboxed pair such as <code>#(string * float#)</code>, use the product layout <code>value &amp; float64</code>.</p>
+          </details>
+        </aside>
+
+        <oxcaml check filename="exercise_value_kind_rejects_float.ml" expect-error>
+          type ('a : value) box
+          type bad = float# box
+        </oxcaml>
+
+        <oxcaml check filename="exercise_float64_kind_accepts_float.ml">
+          type ('a : float64) box
+          type ok = float# box
+
+          type ('a : value & float64) pair_box
+          type ok_pair = #(string * float#) pair_box
+        </oxcaml>
+
+        <h3>Abstract types need kinds too</h3>
+        <p>The same issue appears at module boundaries. In a signature, a plain abstract <code>type t</code> defaults to kind <code>value</code>. That is fine for ordinary OCaml values, but it does not match an implementation where <code>t</code> is an unboxed record.</p>
+
+        <oxcaml check filename="abstract_type_value_default_rejects_unboxed_record.ml" expect-error no-self-check>
+          module type Point = sig
+            type t
+            val make : float# -> float# -> t
+            val get_x : t -> float#
+          end
+
+          module Bad : Point = struct
+            type t = #{ x : float#; y : float# }
+            let make x y = #{ x; y }
+            let get_x p = p.#x
+          end
+        </oxcaml>
+
+        <p>The fix is to keep the representation abstract, but make the kind public. Clients still do not know that <code>t</code> is a record with fields <code>x</code> and <code>y</code>; they only know the layout that calling conventions and downstream kind checks need.</p>
+
+        <oxcaml check filename="abstract_type_unboxed_record_kind.ml">
+          module type Point = sig
+            type t : float64 & float64
+            val make : float# -> float# -> t
+            val get_x : t -> float#
+          end
+
+          module Good : Point = struct
+            type t = #{ x : float#; y : float# }
+            let make x y = #{ x; y }
+            let get_x p = p.#x
+          end
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Polymorphic code still has a layout</h2>
+        <p>Ordinary polymorphic functions are usually polymorphic over ordinary OCaml values. This version of <code>map</code> says that explicitly: both the input element and the output element have kind <code>value</code>. That matches ordinary lists, whose cons cells store each element as one OCaml value word.</p>
+
+        <oxcaml run filename="map_value_layout.ml">
+          let rec map_value
+            : ('a : value) ('b : value).
+              ('a -> 'b) -> 'a list -> 'b list
+            =
+            fun f xs ->
+              match xs with
+              | [] -> []
+              | x :: xs -> f x :: map_value f xs
+
+          let lengths = map_value String.length ["one"; "two"]
+
+          let () =
+            List.iter
+              (fun length ->
+                 print_int length;
+                 print_newline ())
+              lengths
+        </oxcaml>
+
+        <p>A product layout has a different calling convention. A value of kind <code>value &amp; value</code>, such as <code>#(string * string)</code>, is not one value word. It has two value components. Code that stores, passes, or returns such elements must be compiled with that layout in mind.</p>
+
+        <oxcaml run filename="map_value_pair_layout.ml">
+          type ('a : value & value) product_list =
+            | Nil
+            | Cons of 'a * 'a product_list
+
+          let rec map_product_list
+            : ('a : value & value) ('b : value & value).
+              ('a -> 'b) -> 'a product_list -> 'b product_list
+            =
+            fun f xs ->
+              match xs with
+              | Nil -> Nil
+              | Cons (x, xs) -> Cons (f x, map_product_list f xs)
+
+          let swapped =
+            map_product_list
+              (fun #(left, right) -> #(right, left))
+              (Cons (#("left", "right"), Nil))
+
+          let rec print_product_list = function
+            | Nil -> ()
+            | Cons (#(left, right), xs) ->
+              print_endline (left ^ " " ^ right);
+              print_product_list xs
+
+          let () = print_product_list swapped
+        </oxcaml>
+
+        <p>The implementation pattern still looks like ordinary <code>map</code>, but the generated machine code is different. It must know how many registers or stack slots carry an element, which fields the GC should scan, and how to store the result back into the container. That is why real libraries often need separate definitions for different layouts rather than one ordinary polymorphic function.</p>
+      </section>
+
+      <section>
+        <h2>Templates help avoid repeating representation variants</h2>
+        <p><code>ppx_template</code> reduces layout-specific repetition. When the source pattern is the same but the modes, kinds, or layouts differ, templates generate the needed family of checked variants from one definition.</p>
+
+        <p>The ppx syntax looks like this:</p>
+
+        <pre class="code-sketch"><code>let%template[@kind k = (value, value &amp; value)] id
+  : ('a : k). 'a -> 'a
+  =
+  fun x -> x
+;;</code></pre>
+
+        <p>The <code>[@kind k = ...]</code> attribute says: generate one copy where <code>k</code> is ordinary <code>value</code>, and another copy where <code>k</code> is the product layout <code>value &amp; value</code>. The source body is the same, but the generated functions can have different calling conventions.</p>
+
+        <pre class="code-sketch"><code>(* Semantic expansion: two checked instances. *)
+let id_value
+  : ('a : value). 'a -> 'a
+  =
+  fun x -> x
+
+let id_product
+  : ('a : value &amp; value). 'a -> 'a
+  =
+  fun x -> x</code></pre>
+
+        <p>The real generated names are deliberately not part of the interface. At call sites, code selects the intended instance with a mono-attribute such as <code>id [@kind value &amp; value]</code>; <code>id [@kind value]</code> is the default instance and can be written simply as <code>id</code>.</p>
+
+        <p>For a map-shaped API, the input element layout and output element layout should be separate variables. Base and Core use this pattern for map-like functions: the input can have one kind and the mapped result can have another.</p>
+
+        <pre class="code-sketch"><code>[%%template:
+[@@@kind.default ki = (value, value &amp; value)]
+[@@@kind.default ko = (value, value &amp; value)]
+
+type ('a : k) vec
+[@@kind k = (value, value &amp; value)]
+
+val map
+  : ('a : ki) ('b : ko).
+    ('a -> 'b)
+    -> ('a vec[@kind ki])
+    -> ('b vec[@kind ko])]</code></pre>
+
+      </section>
+
+      <section>
+        <h2>Summary</h2>
+        <p>Plain OCaml gives most data the uniform <code>value</code> representation: a word that is either an immediate or a pointer to a heap block. OxCaml keeps that model as the default, but lets performance-sensitive code use more precise layouts when a box, pointer indirection, or option allocation is the cost we need to remove.</p>
+      </section>
+
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="03-locality-stack-zeroalloc.html">
+          <span>Previous</span>
+          <strong>Locality And Zeroalloc</strong>
+        </a>
+      </nav>
+    </main>
+    <script src="../assets/course-toc.js?v=theme-20260425" defer></script>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

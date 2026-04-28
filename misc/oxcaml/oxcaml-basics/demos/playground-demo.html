@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Basics Playground Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --page: #fbfaf7;
+        --ink: #1d252d;
+        --muted: #5f6b76;
+        --rule: #d9d3c8;
+        --accent: #b54e2f;
+        --code-bg: #f0ece4;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--page);
+        color: var(--ink);
+        font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(880px, calc(100vw - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      header {
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 34px;
+        padding-bottom: 28px;
+      }
+
+      h1,
+      h2 {
+        line-height: 1.15;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2.1rem, 7vw, 4rem);
+        font-weight: 720;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 2.3rem 0 0.7rem;
+        font-size: 1.45rem;
+      }
+
+      p {
+        margin: 0.75rem 0;
+      }
+
+      .lede {
+        color: var(--muted);
+        font-size: 1.08rem;
+        max-width: 66ch;
+      }
+
+      code {
+        background: var(--code-bg);
+        border-radius: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.95em;
+        padding: 0.08em 0.26em;
+      }
+
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>OxCaml Basics Playground Demo</h1>
+        <p class="lede">
+          This is an ordinary HTML course page with embedded OxCaml examples.
+          Each runnable block is written as an <code>&lt;oxcaml&gt;</code> tag;
+          the script at the end of the page turns those tags into editors.
+        </p>
+      </header>
+
+      <section>
+        <h2>Types and Values</h2>
+        <p>
+          In toplevel mode, each phrase ending in <code>;;</code> reports the
+          inferred type and value. This is useful for short conceptual examples.
+        </p>
+
+        <oxcaml utop filename="types_and_values.ml">
+          let language = "OxCaml";;
+          let answer = 40 + 2;;
+          let describe name n =
+            Printf.sprintf "%s example: %d" name n;;
+          describe language answer;;
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Locality and Stack Allocation</h2>
+        <p>
+          OxCaml can track local values. This example allocates a pair on the
+          stack, consumes it locally, and prints the result.
+        </p>
+
+        <oxcaml filename="stack_tuple_sum.ml">
+          let sum () =
+            let local_ pair : int * int = stack_ (20, 22) in
+            let x, y = pair in
+            x + y;;
+
+          print_endline (string_of_int (sum ()));;
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Local Arguments</h2>
+        <p>
+          Mode annotations can appear on function parameters. Here, the
+          parameter is local to the function body.
+        </p>
+
+        <oxcaml filename="local_argument.ml">
+          let bump (local_ x : int) = x + 1;;
+
+          print_endline (string_of_int (bump 41));;
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Errors as Teaching Material</h2>
+        <p>
+          The embedded playground also works for exercises where the initial
+          code is intentionally wrong. This one returns a stack-allocated value
+          without marking the return as local.
+        </p>
+
+        <oxcaml filename="stack_return_needs_exclave.ml" expect-error>
+          let f () = stack_ (3, 5)
+        </oxcaml>
+      </section>
+    </main>
+
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

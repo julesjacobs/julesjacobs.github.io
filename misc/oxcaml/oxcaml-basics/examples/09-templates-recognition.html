@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Examples: ppx_template Recognition</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="example-page">
+      <h1>ppx_template Recognition</h1>
+
+      <section>
+        <h2>Generated Shape Of A Mode Template</h2>
+        <p><strong>Teaching question.</strong> What family of definitions do you think a mode template would generate from one source?</p>
+        <p><strong>New idea.</strong> Template output often looks like a repeated family of modal specializations.</p>
+        <oxcaml check filename="Ex09_generated_template_shape.ml">
+          let id : 'a. 'a @ global -> 'a @ global = fun x -> x
+          let id__local : 'a. 'a @ local -> 'a @ local = fun x -> x
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Generated Shape Of A Layout Family</h2>
+        <oxcaml check filename="Ex09_generated_layout_family_shape.ml">
+          let id_value (x : 'a) = x
+          let id_float64 : ('a : float64). 'a -> 'a = fun x -> x
+        </oxcaml>
+      </section>
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="05-what-else.html">
+          <span>Previous</span>
+          <strong>What Else</strong>
+        </a>
+        <a class="next" href="../index.html">
+          <span>Next</span>
+          <strong>Course Index</strong>
+        </a>
+      </nav>
+    </main>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

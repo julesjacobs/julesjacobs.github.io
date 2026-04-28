@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Examples: Kinds For Representation</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="example-page">
+      <h1>Kinds For Representation</h1>
+
+      <section>
+        <h2>Kind-Polymorphic Identity Over float64</h2>
+        <oxcaml check filename="Ex08_id_float64.ml">
+          let id_float64 : ('a : float64). 'a -> 'a = fun x -> x
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>A value Type Parameter Rejects float#</h2>
+        <p><strong>Teaching question.</strong> What assumption about the type parameter causes <code>float#</code> to be rejected here?</p>
+        <p><strong>New idea.</strong> A <code>value</code> kind bound excludes unboxed layouts like <code>float64</code>.</p>
+        <oxcaml check filename="Ex08_value_parameter_rejects_float.ml" expect-error>
+          type ('a : value) box
+          type bad = float# box
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>A float64 Type Parameter Accepts float#</h2>
+        <p><strong>Teaching question.</strong> What changed relative to the previous example?</p>
+        <p><strong>New idea.</strong> Choosing the right kind bound admits the intended unboxed layout.</p>
+        <oxcaml check filename="Ex08_float64_parameter_accepts_float.ml">
+          type ('a : float64) box
+          type ok = float# box
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Scalar Layout Kind Parameters</h2>
+        <oxcaml check filename="Ex08_scalar_layout_kinds.ml">
+          type ('a : bits32) bits32_box
+          type ('a : bits64) bits64_box
+          type ('a : word) word_box
+
+          type ok32 = int32# bits32_box
+          type ok64 = int64# bits64_box
+          type okword = nativeint# word_box
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Product Layout Parameter</h2>
+        <oxcaml check filename="Ex08_product_layout_parameter.ml">
+          type ('a : value & float64) pair_like
+          type ok = #(string * float#) pair_like
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Generic Signature Over Non-value Layouts</h2>
+        <oxcaml check filename="Ex08_non_value_generic_signature.ml">
+          module type Unary = sig
+            type ('a : any) t
+
+            val id_float : float# t -> float# t
+            val id_pair : #(string * float#) t -> #(string * float#) t
+          end
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Ordinary Polymorphism Defaults Toward value</h2>
+        <oxcaml check filename="Ex08_ordinary_polymorphism_value_default.ml" expect-error>
+          type 'a box
+          type bad = float# box
+        </oxcaml>
+      </section>
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="04-representation.processed.html">
+          <span>Previous</span>
+          <strong>Representation Lecture</strong>
+        </a>
+        <a class="next" href="04-representation.processed.html">
+          <span>Next</span>
+          <strong>Representation Lecture</strong>
+        </a>
+      </nav>
+    </main>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Examples: Representation Visualizer Companion</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="example-page">
+      <h1>Representation Visualizer Companion</h1>
+      <p>
+        These are ordinary checked values that should have corresponding native
+        visualizer examples in course/demos/representation-visualizer-demo.html.
+      </p>
+
+      <section>
+        <h2>Immediate, String, And Sharing Values</h2>
+        <oxcaml check filename="Ex06_immediates_strings_sharing.ml">
+          let immediate = 42
+          let short_string = "abc"
+          let long_string = "a longer string for byte layout"
+
+          let shared = "shared"
+          let tuple_with_sharing = (shared, shared, Some 5)
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Records And Ordinary Variants</h2>
+        <oxcaml check filename="Ex06_records_and_variants.ml">
+          type quote =
+            { symbol : string
+            ; price : float
+            ; mutable volume : int
+            }
+
+          type side = Buy | Sell
+          type order = Limit of side * float | Market of side
+
+          let quote = { symbol = "ABC"; price = 12.5; volume = 10 }
+          let orders = [ Limit (Buy, 12.4); Market Sell ]
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Tree ADT</h2>
+        <p><strong>Teaching question.</strong> How should a recursive tree alternate between constructor tags, pointers, and heap blocks?</p>
+        <p><strong>New idea.</strong> Recursive ADTs are the clearest way to see constructor tags and pointer structure in the visualizer.</p>
+        <oxcaml check filename="Ex06_tree_adt.ml">
+          type tree =
+            | Leaf of string
+            | Node of tree * tree
+
+          let sample =
+            Node (Leaf "left", Node (Leaf "middle", Leaf "right"))
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Boxed Numeric Values</h2>
+        <oxcaml check filename="Ex06_boxed_numeric_values.ml">
+          let boxed_float = 3.5
+          let boxed_int32 = 123l
+          let boxed_int64 = 456L
+          let boxed_nativeint = 789n
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>Option Shapes</h2>
+        <oxcaml check filename="Ex06_option_shapes.ml">
+          let none = None
+          let some_int = Some 5
+          let some_string = Some "value"
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>or_null Shapes</h2>
+        <oxcaml check filename="Ex06_or_null_shapes.ml">
+          let null_string = Null
+          let this_string = This "value"
+
+          let recover default = function
+            | Null -> default
+            | This x -> x
+
+          let recovered = recover "fallback" this_string
+        </oxcaml>
+      </section>
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="04-representation.processed.html">
+          <span>Previous</span>
+          <strong>Representation Lecture</strong>
+        </a>
+        <a class="next" href="04-representation.processed.html">
+          <span>Next</span>
+          <strong>Representation Lecture</strong>
+        </a>
+      </nav>
+    </main>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>

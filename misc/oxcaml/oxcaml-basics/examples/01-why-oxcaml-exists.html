@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Basics: Why OxCaml Exists</title>
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+  </head>
+  <body>
+    <main class="overview-page">
+      <header class="no-rule">
+        <h1>Why OxCaml exists</h1>
+        <p class="lede">OxCaml starts from OCaml's safe, high-level programming model and adds explicit, compiler-checked control over low-level behavior needed for high-performance code: parallelism, allocation, and representation.</p>
+      </header>
+
+      <section class="section-band">
+        <div class="grid">
+          <article class="card">
+            <h3>Parallelism</h3>
+            <p>Parallel programs need to use multiple cores without introducing bugs. OxCaml's type checker tracks which functions can be safely called in parallel, and when use of mutable state is safe.</p>
+          </article>
+
+          <article class="card">
+            <h3>Allocation</h3>
+            <p>A GC pause at the wrong time is unacceptable in low-latency code. OxCaml adds stack allocation, with type checking to ensure stack-allocated values do not escape.</p>
+          </article>
+
+          <article class="card">
+            <h3>Representation</h3>
+            <p>High-performance programs need to avoid unnecessary pointer indirections and heap allocations. OxCaml uses types and layouts to give control over value representation.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-band">
+        <h2>OxCaml language features</h2>
+        <p>In this course you'll learn about the following OxCaml features.</p>
+
+        <ul class="feature-list">
+          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>f @ portable</code>, <code>t @ contended</code> — how values and functions may be used.</span></li>
+          <li><strong>Stack allocation</strong><span class="feature-copy"><code>stack_ expr</code>, <code>exclave_ expr</code> — allocate temporary values without putting them on the heap.</span></li>
+          <li><strong>Zero allocation checks</strong><span class="feature-copy"><code>let[@zero_alloc] f ...</code> — ask the compiler to check that a function does not allocate on normal paths.</span></li>
+          <li><strong>Layouts and unboxed values</strong><span class="feature-copy"><code>float#</code>, <code>#(x, y)</code>, <code>#{ x : float# }</code> — control value representation.</span></li>
+          <li><strong>Kinds</strong><span class="feature-copy"><code>type t : value mod portable</code>, <code>('a : value & immediate)</code> — track type-level layout and mode information.</span></li>
+          <li><strong>Templates</strong><span class="feature-copy"><code>let%template</code>, <code>[@mode]</code>, <code>[@kind]</code> — generate related definitions across modes, kinds, and layouts.</span></li>
+        </ul>
+      </section>
+
+      <section class="section-band">
+        <h2>Learning goals</h2>
+        <p>By the end of the course, you should be able to:</p>
+        <ul class="outcome-list">
+          <li>read small OxCaml examples that use parallelism, stack allocation, zero-allocation checks, and representation layouts;</li>
+          <li>recognize common annotations such as <code>@ local</code>, <code>@ contended</code>, <code>@ portable</code>, layout annotations, and <code>[@zero_alloc]</code> in real signatures;</li>
+          <li>explain common compiler errors involving escaping values, unsafe mutable access, heap allocation, or representation mismatch;</li>
+          <li>choose the relevant OxCaml feature for small performance-sensitive examples.</li>
+        </ul>
+      </section>
+
+      <nav class="page-nav" aria-label="Page navigation">
+        <a class="prev" href="../index.html">
+          <span>Previous</span>
+          <strong>Course Index</strong>
+        </a>
+        <a class="next" href="02-parallelism-contention-portability.html">
+          <span>Next</span>
+          <strong>Parallelism</strong>
+        </a>
+      </nav>
+
+    </main>
+    <script src="../assets/course-toc.js?v=theme-20260425" defer></script>
+  </body>
+</html>
