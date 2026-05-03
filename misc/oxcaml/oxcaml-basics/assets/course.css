@@ -187,6 +187,10 @@ a {
   margin: 0;
 }
 
+.course-mark picture {
+  display: block;
+}
+
 .course-mark img {
   display: block;
   height: auto;
