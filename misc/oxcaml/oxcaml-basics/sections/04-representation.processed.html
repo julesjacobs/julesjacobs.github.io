@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics: Value Layouts And Unboxing</title>
-    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260428">
   </head>
   <body>
     <main class="lecture-page">
@@ -70,7 +70,7 @@
         <p>Most ordinary OCaml expressions produce this same runtime shape: one <code>value</code> word, either immediate data or a pointer to a heap block.</p>
         <p>This uniform model is a strength of OCaml. The GC, polymorphic functions, tuples, records, variants, and many library data structures can all talk about values without knowing the exact source type.</p>
 
-
+        
 <style>
   .native-repr-example {
     background: rgba(248, 250, 252, 0.5);
@@ -141,29 +141,6 @@
 	  .native-repr-source .tok-package { color: var(--syntax-package); font-weight: 700; }
 	  .native-repr-source .tok-package-open { color: var(--syntax-package-open); }
 	  .native-repr-source .tok-label { color: var(--syntax-label); }
-	  @media (prefers-color-scheme: dark) {
-	    .native-repr-source {
-	      --oxcaml-editor: #10151d;
-	      --oxcaml-editor-ink: #ebf3ff;
-	      --oxcaml-editor-gutter-border: rgba(255, 255, 255, 0.08);
-	      --syntax-keyword: #ffb57e;
-	      --syntax-module: #8ed2ff;
-	      --syntax-string: #b6f09c;
-	      --syntax-comment: #78879c;
-	      --syntax-number: #f7cd74;
-	      --syntax-operator: #f0f5ff;
-	      --syntax-function: #9fd8ff;
-	      --syntax-parameter: #ffd7a1;
-	      --syntax-type: #88c6ff;
-	      --syntax-constructor: #f2c572;
-	      --syntax-property: #d7c1ff;
-	      --syntax-tag: #ff9f7a;
-	      --syntax-annotation: #ffd28f;
-	      --syntax-package: #7fd6c2;
-	      --syntax-package-open: #a8bcff;
-	      --syntax-label: #f4b5ff;
-	    }
-	  }
 	  .native-repr-graph {
 	    color: #111827;
 	    display: grid;
@@ -496,8 +473,150 @@
 	  .native-repr-null .native-repr-byte {
 	    border-top-color: #cbd5e1;
 	  }
+	  @media (prefers-color-scheme: dark) {
+	    .native-repr-example {
+	      background: rgba(17, 21, 18, 0.78);
+	      border-color: rgba(168, 181, 174, 0.26);
+	    }
+	    .native-repr-source {
+	      --oxcaml-editor: #121714;
+	      --oxcaml-editor-ink: #edf4ef;
+	      --oxcaml-editor-gutter-border: rgba(237, 244, 239, 0.1);
+	      --syntax-keyword: #ffb57e;
+	      --syntax-module: #8ed2ff;
+	      --syntax-string: #b6f09c;
+	      --syntax-comment: #8391a4;
+	      --syntax-number: #f7cd74;
+	      --syntax-operator: #d8e1ec;
+	      --syntax-function: #9fd8ff;
+	      --syntax-parameter: #ffd7a1;
+	      --syntax-type: #88c6ff;
+	      --syntax-constructor: #f2c572;
+	      --syntax-property: #d7c1ff;
+	      --syntax-tag: #ff9f7a;
+	      --syntax-annotation: #ffd28f;
+	      --syntax-package: #7fd6c2;
+	      --syntax-package-open: #a8bcff;
+	      --syntax-label: #f4b5ff;
+	    }
+	    .native-repr-example > .native-repr-graph,
+	    .native-repr-example > .native-repr-stdout {
+	      border-top-color: rgba(168, 181, 174, 0.22);
+	    }
+	    .native-repr-graph {
+	      color: #edf4ef;
+	    }
+	    .native-repr-heap-region .native-repr-region-label {
+	      background: rgba(168, 188, 255, 0.16);
+	      border-color: rgba(168, 188, 255, 0.34);
+	      color: #b9c7ff;
+	    }
+	    .native-repr-region-note,
+	    .native-repr-size {
+	      color: #a8b5ae;
+	    }
+	    .native-repr-block {
+	      background: #171c19;
+	      border-color: rgba(168, 181, 174, 0.48);
+	      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
+	    }
+	    .native-repr-immediate-block {
+	      background: rgba(242, 182, 109, 0.12);
+	      border-color: rgba(242, 182, 109, 0.34);
+	    }
+	    .native-repr-null-block {
+	      background: rgba(168, 181, 174, 0.08);
+	      border-color: rgba(168, 181, 174, 0.34);
+	    }
+	    .native-repr-layout-component {
+	      background: rgba(32, 38, 32, 0.78);
+	      border-color: rgba(168, 181, 174, 0.3);
+	      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+	    }
+	    .native-repr-layout-component-label {
+	      color: #c8d4cd;
+	    }
+	    .native-repr-block-title {
+	      background: rgba(50, 60, 53, 0.8);
+	      border-bottom-color: rgba(168, 181, 174, 0.3);
+	    }
+	    .native-repr-immediate-block .native-repr-block-title {
+	      background: rgba(242, 182, 109, 0.16);
+	      border-bottom-color: rgba(242, 182, 109, 0.28);
+	    }
+	    .native-repr-word {
+	      background: #202620;
+	      border-color: #4a584f;
+	      color: #edf4ef;
+	    }
+	    .native-repr-byte {
+	      border-right-color: #3a463f;
+	      border-top-color: #3a463f;
+	      color: #a8b5ae;
+	    }
+	    .native-repr-header {
+	      background: rgba(196, 167, 255, 0.15);
+	    }
+	    .native-repr-header-word {
+	      background: #202620;
+	      border-color: rgba(196, 167, 255, 0.48);
+	    }
+	    .native-repr-header-field {
+	      border-right-color: rgba(196, 167, 255, 0.16);
+	      border-top-color: rgba(196, 167, 255, 0.22);
+	    }
+	    .native-repr-header-tag-field {
+	      background: rgba(196, 167, 255, 0.18);
+	      color: #d3c2ff;
+	    }
+	    .native-repr-header-color-field {
+	      background: rgba(255, 154, 163, 0.16);
+	      color: #ffb3bb;
+	    }
+	    .native-repr-header-wosize-field {
+	      background: rgba(147, 209, 255, 0.16);
+	      color: #b5e0ff;
+	    }
+	    .native-repr-header-reserved-field {
+	      background: rgba(242, 182, 109, 0.17);
+	      color: #ffd09a;
+	    }
+	    .native-repr-edge {
+	      background: rgba(103, 214, 201, 0.13);
+	    }
+	    .native-repr-imm {
+	      background: rgba(242, 182, 109, 0.13);
+	    }
+	    .native-repr-null,
+	    .native-repr-raw {
+	      background: rgba(168, 181, 174, 0.1);
+	    }
+	    .native-repr-header .native-repr-label {
+	      background: rgba(196, 167, 255, 0.15);
+	      color: #d3c2ff;
+	    }
+	    .native-repr-edge .native-repr-label {
+	      color: var(--accent, #67d6c9);
+	    }
+	    .native-repr-imm .native-repr-label {
+	      color: #ffd09a;
+	    }
+	    .native-repr-null .native-repr-label,
+	    .native-repr-raw .native-repr-label {
+	      color: #c8d4cd;
+	    }
+	    .native-repr-edge .native-repr-byte {
+	      border-top-color: rgba(103, 214, 201, 0.35);
+	    }
+	    .native-repr-imm .native-repr-byte {
+	      border-top-color: rgba(242, 182, 109, 0.35);
+	    }
+	    .native-repr-null .native-repr-byte {
+	      border-top-color: rgba(168, 181, 174, 0.34);
+	    }
+	  }
 	</style>
-
+	
 <script>
 (() => {
   function clearGraph(graph) {
@@ -593,11 +712,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_tuple
 This labels the root value word, not a heap block.'>plain_value_tuple</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102d96ea8
+raw address word: 0x00000001008deea8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xd9'>d9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x8d'>8d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
 least-significant byte on this little-endian machine'>a8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-plain_value_tuple-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -661,11 +780,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_record
 This labels the root value word, not a heap block.'>plain_value_record</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_record-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000428800bd0
+raw address word: 0x0000000524800bd0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x28'>28</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x80'>80</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x0b'>0b</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x24'>24</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x80'>80</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x0b'>0b</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
 least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-plain_value_record-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -693,11 +812,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_record-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100382eb0
+raw address word: 0x000000010030aeb0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x38'>38</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x30'>30</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
 least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 101
 raw word: 0x00000000000000cb
 encoded as (n &lt;&lt; 1) | 1
@@ -766,11 +885,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: constant_constructors
 This labels the root value word, not a heap block.'>constant_constructors</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-constant_constructors-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x000000010033eeb0
+raw address word: 0x0000000104caeeb0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x33'>33</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
 least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-constant_constructors-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -834,11 +953,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: variant_payloads
 This labels the root value word, not a heap block.'>variant_payloads</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102216ea8
+raw address word: 0x0000000102f9aea8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x21'>21</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
 least-significant byte on this little-endian machine'>a8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-variant_payloads-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -871,17 +990,17 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x01
 least-significant byte on this little-endian machine'>01</span><span class='native-repr-label'>int 0</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000102216ee0
+raw address word: 0x0000000102f9aee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x21'>21</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000102216ec8
+raw address word: 0x0000000102f9aec8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x21'>21</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
 least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 24 bytes
@@ -908,11 +1027,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000102216ef8
+raw address word: 0x0000000102f9aef8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x21'>21</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
 least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 100
 raw word: 0x00000000000000c9
 encoded as (n &lt;&lt; 1) | 1
@@ -944,11 +1063,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000102216ef8
+raw address word: 0x0000000102f9aef8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x21'>21</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
 least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 95
 raw word: 0x00000000000000bf
 encoded as (n &lt;&lt; 1) | 1
@@ -1003,11 +1122,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: recursive_tree
 This labels the root value word, not a heap block.'>recursive_tree</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102ca6ea0
+raw address word: 0x0000000104c16ea0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
 least-significant byte on this little-endian machine'>a0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-recursive_tree-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1035,17 +1154,17 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000102ca6f10
+raw address word: 0x0000000104c16f10
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x10
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x10
 least-significant byte on this little-endian machine'>10</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000102ca6eb8
+raw address word: 0x0000000104c16eb8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
 least-significant byte on this little-endian machine'>b8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1072,11 +1191,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000102ca6f20
+raw address word: 0x0000000104c16f20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
 least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @4</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 24 bytes
@@ -1103,17 +1222,17 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-5' title='pointer to heap block @5
-raw address word: 0x0000000102ca6ef0
+raw address word: 0x0000000104c16ef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
 least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @5</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-6' title='pointer to heap block @6
-raw address word: 0x0000000102ca6ed0
+raw address word: 0x0000000104c16ed0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
 least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @6</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-4'><div class='native-repr-block-title' title='heap block @4
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @4
 Pointer words labeled -&gt; @4 refer to this block.'>@4</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1169,11 +1288,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-7' title='pointer to heap block @7
-raw address word: 0x0000000102ca6f00
+raw address word: 0x0000000104c16f00
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
 least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>-&gt; @7</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-6'><div class='native-repr-block-title' title='heap block @6
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @6
 Pointer words labeled -&gt; @6 refer to this block.'>@6</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1200,11 +1319,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-8' title='pointer to heap block @8
-raw address word: 0x0000000102ca6ee0
+raw address word: 0x0000000104c16ee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @8</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-7'><div class='native-repr-block-title' title='heap block @7
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @7
 Pointer words labeled -&gt; @7 refer to this block.'>@7</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1283,11 +1402,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: shared_string_tuple
 This labels the root value word, not a heap block.'>shared_string_tuple</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000100f9aeb0
+raw address word: 0x000000010266eeb0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
 least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1315,23 +1434,23 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100f9aee0
+raw address word: 0x000000010266eee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100f9aee0
+raw address word: 0x000000010266eee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000100f9aed0
+raw address word: 0x000000010266eed0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
 least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1409,11 +1528,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: boxed_numeric_values
 This labels the root value word, not a heap block.'>boxed_numeric_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000100ef2eb0
+raw address word: 0x0000000104c4aeb0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
 least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1441,17 +1560,17 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100ef2ee0
+raw address word: 0x0000000104c4aee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000100ef2ec8
+raw address word: 0x0000000104c4aec8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
 least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1509,9 +1628,9 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (255), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 255, custom</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='custom block raw payload word 0
-raw word: 0x0000000100f44118
+raw word: 0x0000000104c9c118
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf4'>f4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x41'>41</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x18
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc9'>c9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xc1'>c1</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x18
 least-significant byte on this little-endian machine'>18</span><span class='native-repr-label'>raw word</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='custom block raw payload word 1
 raw word: 0x00000000000001c8
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -1533,11 +1652,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: ordinary_option_values
 This labels the root value word, not a heap block.'>ordinary_option_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000100b22eb0
+raw address word: 0x00000001044a6eb0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb2'>b2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
 least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1570,11 +1689,11 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x01
 least-significant byte on this little-endian machine'>01</span><span class='native-repr-label'>int 0</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100b22ec8
+raw address word: 0x00000001044a6ec8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb2'>b2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
 least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1601,11 +1720,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000100b22ed8
+raw address word: 0x00000001044a6ed8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb2'>b2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd8
 least-significant byte on this little-endian machine'>d8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -1665,11 +1784,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_boxed_point
 This labels the root value word, not a heap block.'>outer_record_with_boxed_point</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102176ec0
+raw address word: 0x00000001047deec0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x17'>17</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
 least-significant byte on this little-endian machine'>c0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-outer_record_with_boxed_point-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1697,17 +1816,17 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000102176ef8
+raw address word: 0x00000001047deef8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x17'>17</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
 least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000102176ee0
+raw address word: 0x00000001047deee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x17'>17</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
 least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @3</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
 raw word: 0x000000000000000f
 encoded as (n &lt;&lt; 1) | 1
@@ -1810,16 +1929,16 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x03
 least-significant byte on this little-endian machine'>03</span></span></span><span class='native-repr-layout-component' title='pointer value
-raw address word: 0x000000010102ef08
+raw address word: 0x000000010018af08
 points to heap block @1
 Hover to highlight the target and all refs to it.
 Click to jump to the target block.'><span class='native-repr-layout-component-label'>-&gt; @1</span><a class='native-repr-word native-repr-edge native-repr-word-no-label' style='--bytes:8' href='#native-repr-unboxed_pair_of_values-8-node-1' title='pointer value
-raw address word: 0x000000010102ef08
+raw address word: 0x000000010018af08
 points to heap block @1
 Hover to highlight the target and all refs to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x18'>18</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xaf'>af</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
 least-significant byte on this little-endian machine'>08</span></a></span></div></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-unboxed_pair_of_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1905,11 +2024,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_unboxed_point
 This labels the root value word, not a heap block.'>outer_record_with_unboxed_point</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104922ec0
+raw address word: 0x000000010247eec0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x92'>92</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x47'>47</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
 least-significant byte on this little-endian machine'>c0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-outer_record_with_unboxed_point-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -1939,11 +2058,11 @@ For ordinary blocks, this is also the number of payload words the GC scans. For 
 bits 56-63
 raw reserved byte: 0x03
 On native OxCaml, a nonzero value marks a mixed block and encodes the scannable prefix as reserved - 1. Here the GC scans the first 2 of 4 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-label'>tag 0, mixed</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104922ee8
+raw address word: 0x000000010247eee8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x92'>92</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x47'>47</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe8
 least-significant byte on this little-endian machine'>e8</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
 raw word: 0x000000000000000f
 encoded as (n &lt;&lt; 1) | 1
@@ -2007,11 +2126,11 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: or_null_values
 This labels the root value word, not a heap block.'>or_null_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-or_null_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001020eaea0
+raw address word: 0x00000001006b2ea0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x0e'>0e</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x6b'>6b</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
 least-significant byte on this little-endian machine'>a0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-or_null_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
@@ -2042,11 +2161,11 @@ Zero means this is not a native mixed block; when the tag is scannable, the GC s
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
 least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>null</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-or_null_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x00000001020eaeb8
+raw address word: 0x00000001006b2eb8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x0e'>0e</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x6b'>6b</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
 least-significant byte on this little-endian machine'>b8</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-or_null_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
@@ -2175,7 +2294,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
         <h2>Polymorphic code still has a layout</h2>
         <p>Ordinary polymorphic functions are usually polymorphic over ordinary OCaml values. This version of <code>map</code> says that explicitly: both the input element and the output element have kind <code>value</code>. That matches ordinary lists, whose cons cells store each element as one OCaml value word.</p>
 
-        <oxcaml data-filename="map_value_layout.ml">
+        <oxcaml run data-filename="map_value_layout.ml">
           let rec map_value
             : ('a : value) ('b : value).
               ('a -> 'b) -> 'a list -> 'b list
@@ -2197,7 +2316,7 @@ first byte in memory; least-significant byte on this little-endian machine'>66</
 
         <p>A product layout has a different calling convention. A value of kind <code>value &amp; value</code>, such as <code>#(string * string)</code>, is not one value word. It has two value components. Code that stores, passes, or returns such elements must be compiled with that layout in mind.</p>
 
-        <oxcaml data-filename="map_value_pair_layout.ml">
+        <oxcaml run data-filename="map_value_pair_layout.ml">
           type ('a : value & value) product_list =
             | Nil
             | Cons of 'a * 'a product_list

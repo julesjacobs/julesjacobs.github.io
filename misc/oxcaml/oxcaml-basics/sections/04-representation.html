@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics: Value Layouts And Unboxing</title>
-    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260428">
   </head>
   <body>
     <main class="lecture-page">
@@ -333,7 +333,7 @@
         <h2>Polymorphic code still has a layout</h2>
         <p>Ordinary polymorphic functions are usually polymorphic over ordinary OCaml values. This version of <code>map</code> says that explicitly: both the input element and the output element have kind <code>value</code>. That matches ordinary lists, whose cons cells store each element as one OCaml value word.</p>
 
-        <oxcaml data-filename="map_value_layout.ml">
+        <oxcaml run data-filename="map_value_layout.ml">
           let rec map_value
             : ('a : value) ('b : value).
               ('a -> 'b) -> 'a list -> 'b list
@@ -355,7 +355,7 @@
 
         <p>A product layout has a different calling convention. A value of kind <code>value &amp; value</code>, such as <code>#(string * string)</code>, is not one value word. It has two value components. Code that stores, passes, or returns such elements must be compiled with that layout in mind.</p>
 
-        <oxcaml data-filename="map_value_pair_layout.ml">
+        <oxcaml run data-filename="map_value_pair_layout.ml">
           type ('a : value & value) product_list =
             | Nil
             | Cons of 'a * 'a product_list

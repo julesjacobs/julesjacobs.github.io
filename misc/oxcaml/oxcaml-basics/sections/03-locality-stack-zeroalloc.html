@@ -4,19 +4,82 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Locality, Stack Allocation, And Zeroalloc</title>
-    <link rel="stylesheet" href="../assets/course.css?v=theme-20260425">
+    <link rel="stylesheet" href="../assets/course.css?v=theme-20260428">
     <style>
       .allocation-figure {
         --lifetime-caller-row: 152px;
         --lifetime-current-row: 152px;
         --lifetime-row-gap: 8px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58));
+        --allocation-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58));
+        --allocation-memory-panel: rgba(255, 255, 255, 0.72);
+        --allocation-heap-accent: #8b5cf6;
+        --allocation-call-accent: #d97706;
+        --allocation-call-bg: #fffbeb;
+        --allocation-call-border: #fbbf24;
+        --allocation-callee-bg: #fff7ed;
+        --allocation-callee-border: #fdba74;
+        --allocation-region-bg: #f0fdfa;
+        --allocation-region-border: rgba(15, 118, 110, 0.34);
+        --allocation-parent-region-bg: #ecfdf5;
+        --allocation-callee-region-bg: #f8fafc;
+        --allocation-callee-region-border: #cbd5e1;
+        --allocation-empty-region-bg: rgba(248, 250, 252, 0.62);
+        --allocation-empty-region-border: rgba(148, 163, 184, 0.45);
+        --allocation-boundary-bg: #fef3c7;
+        --allocation-boundary-border: #d97706;
+        --allocation-boundary-ring: rgba(217, 119, 6, 0.18);
+        --allocation-current-row-bg: rgba(217, 119, 6, 0.045);
+        --allocation-caller-row-bg: rgba(15, 118, 110, 0.045);
+        --allocation-heap-empty-bg: rgba(248, 250, 252, 0.4);
+        --allocation-heap-empty-border: rgba(148, 163, 184, 0.32);
+        --allocation-heap-empty-ink: rgba(100, 116, 139, 0.82);
+        --allocation-list-bg: #f5f3ff;
+        --allocation-list-border: #c4b5fd;
+        --allocation-invalid-bg: #fff1f2;
+        --allocation-invalid-border: #fb7185;
+        --allocation-invalid-ink: #9f1239;
+        --allocation-rejected: #be123c;
+        background: var(--allocation-surface);
         border: 1px solid var(--rule);
         border-radius: 8px;
         box-sizing: border-box;
         margin: 24px 0 20px;
         max-width: 1020px;
         padding: 18px;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .allocation-figure {
+          --allocation-surface: linear-gradient(180deg, rgba(28, 34, 30, 0.92), rgba(22, 27, 24, 0.82));
+          --allocation-memory-panel: rgba(23, 28, 25, 0.78);
+          --allocation-heap-accent: #c4a7ff;
+          --allocation-call-accent: #f2b66d;
+          --allocation-call-bg: rgba(242, 182, 109, 0.16);
+          --allocation-call-border: rgba(242, 182, 109, 0.42);
+          --allocation-callee-bg: rgba(255, 176, 106, 0.14);
+          --allocation-callee-border: rgba(255, 176, 106, 0.38);
+          --allocation-region-bg: rgba(103, 214, 201, 0.14);
+          --allocation-region-border: rgba(103, 214, 201, 0.36);
+          --allocation-parent-region-bg: rgba(123, 217, 155, 0.13);
+          --allocation-callee-region-bg: rgba(168, 181, 174, 0.11);
+          --allocation-callee-region-border: rgba(168, 181, 174, 0.34);
+          --allocation-empty-region-bg: rgba(168, 181, 174, 0.09);
+          --allocation-empty-region-border: rgba(168, 181, 174, 0.28);
+          --allocation-boundary-bg: rgba(242, 182, 109, 0.17);
+          --allocation-boundary-border: rgba(242, 182, 109, 0.55);
+          --allocation-boundary-ring: rgba(242, 182, 109, 0.2);
+          --allocation-current-row-bg: rgba(242, 182, 109, 0.08);
+          --allocation-caller-row-bg: rgba(103, 214, 201, 0.08);
+          --allocation-heap-empty-bg: rgba(168, 181, 174, 0.08);
+          --allocation-heap-empty-border: rgba(168, 181, 174, 0.26);
+          --allocation-heap-empty-ink: rgba(168, 181, 174, 0.82);
+          --allocation-list-bg: rgba(196, 167, 255, 0.15);
+          --allocation-list-border: rgba(196, 167, 255, 0.42);
+          --allocation-invalid-bg: rgba(255, 154, 163, 0.14);
+          --allocation-invalid-border: rgba(255, 154, 163, 0.48);
+          --allocation-invalid-ink: #ffb3bb;
+          --allocation-rejected: #ff8f9a;
+        }
       }
 
       .allocation-figure h3 {
@@ -111,7 +174,7 @@
       }
 
       .memory-column {
-        background: rgba(255, 255, 255, 0.72);
+        background: var(--allocation-memory-panel);
         border: 1px solid var(--rule);
         border-radius: 8px;
         box-sizing: border-box;
@@ -122,11 +185,11 @@
       }
 
       .memory-column.heap-column {
-        border-top: 5px solid #8b5cf6;
+        border-top: 5px solid var(--allocation-heap-accent);
       }
 
       .memory-column.call-column {
-        border-top: 5px solid #d97706;
+        border-top: 5px solid var(--allocation-call-accent);
       }
 
       .memory-column.alloc-column {
@@ -175,9 +238,9 @@
       .allocation-figure:not([data-allocation-state="heap"]) .region-stack::before {
         background: linear-gradient(
           180deg,
-          rgba(217, 119, 6, 0.045) 0 var(--lifetime-current-row),
+          var(--allocation-current-row-bg) 0 var(--lifetime-current-row),
           transparent var(--lifetime-current-row) calc(var(--lifetime-current-row) + var(--lifetime-row-gap)),
-          rgba(15, 118, 110, 0.045) calc(var(--lifetime-current-row) + var(--lifetime-row-gap)) 100%
+          var(--allocation-caller-row-bg) calc(var(--lifetime-current-row) + var(--lifetime-row-gap)) 100%
         );
         border-radius: 8px;
         content: "";
@@ -223,13 +286,13 @@
       }
 
       .call-frame {
-        background: #fffbeb;
-        border: 1px solid #fbbf24;
+        background: var(--allocation-call-bg);
+        border: 1px solid var(--allocation-call-border);
       }
 
       .call-frame.callee {
-        background: #fff7ed;
-        border-color: #fdba74;
+        background: var(--allocation-callee-bg);
+        border-color: var(--allocation-callee-border);
       }
 
       .call-frame.exiting,
@@ -238,23 +301,23 @@
       }
 
       .region-frame {
-        background: #f0fdfa;
-        border: 1px solid rgba(15, 118, 110, 0.34);
+        background: var(--allocation-region-bg);
+        border: 1px solid var(--allocation-region-border);
         position: relative;
       }
 
       .region-frame.parent {
-        background: #ecfdf5;
+        background: var(--allocation-parent-region-bg);
       }
 
       .region-frame.callee-region {
-        background: #f8fafc;
-        border-color: #cbd5e1;
+        background: var(--allocation-callee-region-bg);
+        border-color: var(--allocation-callee-region-border);
       }
 
       .region-frame.empty-region {
-        background: rgba(248, 250, 252, 0.62);
-        border-color: rgba(148, 163, 184, 0.45);
+        background: var(--allocation-empty-region-bg);
+        border-color: var(--allocation-empty-region-border);
         border-style: dashed;
         color: var(--muted);
       }
@@ -274,9 +337,9 @@
       }
 
       .region-boundary {
-        background: #fef3c7;
-        border: 1px dashed #d97706;
-        box-shadow: inset 0 0 0 1px rgba(217, 119, 6, 0.18);
+        background: var(--allocation-boundary-bg);
+        border: 1px dashed var(--allocation-boundary-border);
+        box-shadow: inset 0 0 0 1px var(--allocation-boundary-ring);
         text-align: center;
       }
 
@@ -291,9 +354,9 @@
       }
 
       .heap-column .empty-space {
-        background: rgba(248, 250, 252, 0.4);
-        border-color: rgba(148, 163, 184, 0.32);
-        color: rgba(100, 116, 139, 0.82);
+        background: var(--allocation-heap-empty-bg);
+        border-color: var(--allocation-heap-empty-border);
+        color: var(--allocation-heap-empty-ink);
         min-height: 88px;
       }
 
@@ -359,8 +422,8 @@
       }
 
       .list-cell {
-        background: #f5f3ff;
-        border: 1px solid #c4b5fd;
+        background: var(--allocation-list-bg);
+        border: 1px solid var(--allocation-list-border);
         border-radius: 7px;
         display: grid;
         font-size: 0.78rem;
@@ -371,14 +434,14 @@
       }
 
       .list-cell.stack-cell {
-        background: #ecfdf5;
-        border-color: rgba(15, 118, 110, 0.34);
+        background: var(--allocation-parent-region-bg);
+        border-color: var(--allocation-region-border);
       }
 
       .list-cell.invalid {
-        background: #fff1f2;
-        border-color: #fb7185;
-        color: #9f1239;
+        background: var(--allocation-invalid-bg);
+        border-color: var(--allocation-invalid-border);
+        color: var(--allocation-invalid-ink);
       }
 
       .list-cell.result-block {
@@ -444,7 +507,7 @@
       }
 
       .memory-arrow.rejected {
-        color: #be123c;
+        color: var(--allocation-rejected);
         text-decoration: none;
       }
 
@@ -466,7 +529,7 @@
 
       .allocation-figure[data-allocation-state="escape"] .list-cell.invalid::after,
       .allocation-figure[data-allocation-state="escape"] .region-frame.exiting::after {
-        background: #be123c;
+        background: var(--allocation-rejected);
         content: "";
         height: 2px;
         left: 8px;
@@ -774,7 +837,7 @@ let use_stack_list () =
         <h2><code>stack_</code> forces stack allocation</h2>
         <p>The expression <code>stack_ expr</code> tells the compiler that the immediately following allocation should be placed on the stack. If the value can be used entirely inside the current region, this works as expected.</p>
         <p>Here the consumer matters. The list is passed to <code>sum</code>, whose argument is <code>int list @ local</code>. That promise lets callers pass a stack-allocated temporary list. The <code>let total = ...</code> binding also keeps the call to <code>sum</code> out of tail position without using an annotation.</p>
-        <oxcaml data-filename="Ex03_stack_list_used_inside_region.ml">
+        <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
           let rec sum_loop acc (xs : int list @ local) =
             match xs with
             | [] -> acc
@@ -888,7 +951,7 @@ let use_stack_list () =
         <h2>Local returns and <code>exclave_</code></h2>
         <p>An ordinary return must be valid after the callee's region has ended. A local return is different: a result type like <code>t @ local</code> says the returned value may be local to the caller's region.</p>
         <p>The <code>exclave_</code> keyword is how we write this. It ends the current region and evaluates the following result-producing expression in the parent region. That is why this helper can return a stack-allocated list as a local result.</p>
-        <oxcaml data-filename="Ex03_exclave_return.ml">
+        <oxcaml run data-filename="Ex03_exclave_return.ml">
           let make_stack_list () : _ @ local =
             exclave_ stack_ [1; 2; 3]
 

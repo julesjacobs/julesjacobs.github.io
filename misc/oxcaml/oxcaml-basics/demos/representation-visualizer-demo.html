@@ -6,7 +6,7 @@
     <title>OxCaml Data Representation Tutorial</title>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: light dark;
         --page: #faf7f1;
         --ink: #18212c;
         --muted: #637083;
@@ -14,6 +14,18 @@
         --accent: #0f766e;
         --accent-soft: rgba(15, 118, 110, 0.1);
         --code-bg: rgba(24, 33, 44, 0.08);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #101311;
+          --ink: #edf4ef;
+          --muted: #a8b5ae;
+          --rule: rgba(237, 244, 239, 0.14);
+          --accent: #67d6c9;
+          --accent-soft: rgba(103, 214, 201, 0.14);
+          --code-bg: #202620;
+        }
       }
 
       * {

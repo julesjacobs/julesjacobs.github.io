@@ -1,9 +1,9 @@
 (function () {
-  const version = "20260428-single-mount";
+  const version = "20260428-style-api";
   const script = document.currentScript;
   const localHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
   const baseUrl = localHostnames.has(window.location.hostname)
-    ? new URL("../../playground/", script?.src || document.baseURI).href
+    ? new URL("../../playground-local/", script?.src || document.baseURI).href
     : "https://julesjacobs.com/misc/oxcaml/playground/";
   const scrollKey = `oxcaml-course-scroll:${window.location.pathname}${window.location.search}`;
   let savedScroll = readSavedScroll();

@@ -60,19 +60,9 @@
   const themes = [
     {
       key: "teal",
-      vars: {
-        "--accent": "#0f766e",
-        "--accent-border": "rgba(15, 118, 110, 0.18)",
-        "--accent-soft": "rgba(15, 118, 110, 0.1)",
-      },
     },
     {
       key: "logo",
-      vars: {
-        "--accent": "#dd701b",
-        "--accent-border": "rgba(221, 112, 27, 0.24)",
-        "--accent-soft": "rgba(221, 112, 27, 0.13)",
-      },
     },
   ];
   const themesByKey = new Map(themes.map((theme) => [theme.key, theme]));
@@ -82,9 +72,6 @@
     const theme = themesByKey.get(themeKey) || themes[0];
     currentThemeKey = theme.key;
     document.documentElement.dataset.courseTheme = theme.key;
-    for (const [name, value] of Object.entries(theme.vars)) {
-      document.documentElement.style.setProperty(name, value);
-    }
   };
 
   applyTheme("teal");

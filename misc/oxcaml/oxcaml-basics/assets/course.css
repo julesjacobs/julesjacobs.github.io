@@ -1,6 +1,6 @@
 :root,
 :root[data-course-theme="teal"] {
-  color-scheme: light;
+  color-scheme: light dark;
   --page: #fbfaf7;
   --panel: #ffffff;
   --panel-alt: #f3f0e9;
@@ -11,12 +11,60 @@
   --accent-border: rgba(15, 118, 110, 0.18);
   --accent-soft: rgba(15, 118, 110, 0.1);
   --warn-soft: rgba(180, 83, 9, 0.11);
+  --warn: #92400e;
+  --danger: #8f1d1d;
+  --danger-border: rgba(185, 28, 28, 0.18);
+  --danger-soft: rgba(185, 28, 28, 0.07);
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-glass-strong: rgba(255, 255, 255, 0.94);
+  --surface-glass-solid: rgba(255, 255, 255, 0.98);
+  --shadow-soft: rgba(29, 37, 45, 0.09);
+  --shadow-panel: rgba(29, 37, 45, 0.14);
+  --tag-immediate-bg: #fed7aa;
+  --tag-immediate-ink: #7c2d12;
+  --tag-header-bg: #f3e8ff;
+  --tag-header-border: #ddd6fe;
 }
 
 :root[data-course-theme="logo"] {
   --accent: #dd701b;
   --accent-border: rgba(221, 112, 27, 0.24);
   --accent-soft: rgba(221, 112, 27, 0.13);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root,
+  :root[data-course-theme="teal"] {
+    --page: #101311;
+    --panel: #171c19;
+    --panel-alt: #202620;
+    --ink: #edf4ef;
+    --muted: #a8b5ae;
+    --rule: #354139;
+    --accent: #67d6c9;
+    --accent-border: rgba(103, 214, 201, 0.32);
+    --accent-soft: rgba(103, 214, 201, 0.14);
+    --warn: #f2b66d;
+    --warn-soft: rgba(242, 182, 109, 0.14);
+    --danger: #ff9aa3;
+    --danger-border: rgba(255, 154, 163, 0.28);
+    --danger-soft: rgba(255, 154, 163, 0.13);
+    --surface-glass: rgba(23, 28, 25, 0.72);
+    --surface-glass-strong: rgba(23, 28, 25, 0.94);
+    --surface-glass-solid: rgba(23, 28, 25, 0.98);
+    --shadow-soft: rgba(0, 0, 0, 0.26);
+    --shadow-panel: rgba(0, 0, 0, 0.38);
+    --tag-immediate-bg: rgba(242, 182, 109, 0.2);
+    --tag-immediate-ink: #ffd09a;
+    --tag-header-bg: rgba(196, 167, 255, 0.16);
+    --tag-header-border: rgba(196, 167, 255, 0.34);
+  }
+
+  :root[data-course-theme="logo"] {
+    --accent: #ffb06a;
+    --accent-border: rgba(255, 176, 106, 0.34);
+    --accent-soft: rgba(255, 176, 106, 0.15);
+  }
 }
 
 * {
@@ -411,10 +459,10 @@ a {
 
 .course-compact-summary {
   align-items: baseline;
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--surface-glass-strong);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(29, 37, 45, 0.09);
+  box-shadow: 0 8px 24px var(--shadow-soft);
   cursor: pointer;
   display: flex;
   gap: 8px;
@@ -441,10 +489,10 @@ a {
 }
 
 .course-compact-panel {
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--surface-glass-solid);
   border: 1px solid var(--rule);
   border-radius: 8px;
-  box-shadow: 0 16px 36px rgba(29, 37, 45, 0.14);
+  box-shadow: 0 16px 36px var(--shadow-panel);
   margin-bottom: 6px;
   max-height: min(72vh, 560px);
   overflow: auto;
@@ -572,7 +620,7 @@ a {
 }
 
 .value-model-panel {
-  background: rgba(255, 255, 255, 0.58);
+  background: var(--surface-glass);
   border: 1px solid var(--rule);
   border-radius: 8px;
   padding: 16px;
@@ -619,8 +667,8 @@ a {
 }
 
 .value-word-immediate .value-word-tag {
-  background: #fed7aa;
-  color: #7c2d12;
+  background: var(--tag-immediate-bg);
+  color: var(--tag-immediate-ink);
 }
 
 .value-word-pointer .value-word-tag {
@@ -648,7 +696,7 @@ a {
 }
 
 .heap-block-model {
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--surface-glass);
   border: 1px solid var(--rule);
   border-radius: 8px;
   margin-top: -1px;
@@ -697,8 +745,8 @@ a {
 }
 
 .heap-model-header {
-  background: #f3e8ff;
-  border-color: #ddd6fe;
+  background: var(--tag-header-bg);
+  border-color: var(--tag-header-border);
 }
 
 .heap-model-ellipsis {
@@ -713,7 +761,38 @@ a {
 }
 
 oxcaml,
-.oxcaml-embed,
+.oxcaml-embed {
+  display: block;
+  max-width: 820px;
+  --oxcaml-bg: var(--panel);
+  --oxcaml-ink: var(--ink);
+  --oxcaml-muted: var(--muted);
+  --oxcaml-border: var(--rule);
+  --oxcaml-editor-selection: var(--accent-soft);
+  --oxcaml-editor-cursor: var(--accent);
+  --oxcaml-output-bg: var(--panel-alt);
+  --oxcaml-output-border: var(--rule);
+  --oxcaml-accent: var(--accent);
+  --oxcaml-ok: var(--accent);
+  --oxcaml-file: #49627d;
+  --oxcaml-radius: 8px;
+  --oxcaml-margin-block: 1rem 1.15rem;
+  --oxcaml-font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+  --oxcaml-mono-font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+oxcaml .transcript-line.file,
+.oxcaml-embed .transcript-line.file {
+  color: var(--oxcaml-file, var(--oxcaml-detail, var(--muted)));
+}
+
+@media (prefers-color-scheme: dark) {
+  oxcaml,
+  .oxcaml-embed {
+    --oxcaml-file: #c8d4cd;
+  }
+}
+
 .checkpoint,
 .exercise {
   display: block;
@@ -744,9 +823,9 @@ oxcaml,
 }
 
 .native-diagnostic {
-  background: rgba(185, 28, 28, 0.07);
-  border: 1px solid rgba(185, 28, 28, 0.18);
-  color: #8f1d1d;
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   line-height: 1.45;
   overflow-x: auto;
@@ -800,6 +879,13 @@ oxcaml,
 
   .sequence-main h3 {
     font-size: 1.05rem;
+  }
+
+  p code,
+  li code,
+  summary code {
+    overflow-wrap: anywhere;
+    white-space: normal;
   }
 
   .course-header-lockup {
@@ -873,6 +959,27 @@ oxcaml,
   max-width: 820px;
   overflow-x: auto;
   padding: 13px 15px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .code-sketch {
+    --syntax-annotation: #ffd28f;
+    --syntax-comment: #8391a4;
+    --syntax-constructor: #f2c572;
+    --syntax-function: #9fd8ff;
+    --syntax-keyword: #ffb57e;
+    --syntax-label: #f4b5ff;
+    --syntax-module: #8ed2ff;
+    --syntax-number: #f7cd74;
+    --syntax-operator: #d8e1ec;
+    --syntax-oxcaml: #ff9f7a;
+    --syntax-package: #7fd6c2;
+    --syntax-package-open: #a8bcff;
+    --syntax-parameter: #ffd7a1;
+    --syntax-property: #d7c1ff;
+    --syntax-string: #b6f09c;
+    --syntax-type: #88c6ff;
+  }
 }
 
 .code-sketch code {
@@ -982,6 +1089,17 @@ oxcaml,
   color: var(--ink);
 }
 
+@media (max-width: 640px) {
+  .feature-list li {
+    gap: 4px;
+    grid-template-columns: 1fr;
+  }
+
+  .feature-list strong {
+    text-align: left;
+  }
+}
+
 .outcome-list {
   margin: 0;
   max-width: 78ch;
@@ -1012,7 +1130,7 @@ oxcaml,
 
 .pill.warn {
   background: var(--warn-soft);
-  color: #92400e;
+  color: var(--warn);
 }
 
 .schedule {

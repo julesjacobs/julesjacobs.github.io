@@ -6,13 +6,24 @@
     <title>OxCaml Basics Playground Demo</title>
     <style>
       :root {
-        color-scheme: light;
+        color-scheme: light dark;
         --page: #fbfaf7;
         --ink: #1d252d;
         --muted: #5f6b76;
         --rule: #d9d3c8;
         --accent: #b54e2f;
         --code-bg: #f0ece4;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #101311;
+          --ink: #edf4ef;
+          --muted: #a8b5ae;
+          --rule: #354139;
+          --accent: #ffb06a;
+          --code-bg: #202620;
+        }
       }
 
       * {
@@ -76,6 +87,18 @@
 
       a {
         color: var(--accent);
+      }
+
+      oxcaml,
+      .oxcaml-embed {
+        --oxcaml-bg: var(--page);
+        --oxcaml-ink: var(--ink);
+        --oxcaml-muted: var(--muted);
+        --oxcaml-border: var(--rule);
+        --oxcaml-output-bg: var(--code-bg);
+        --oxcaml-output-border: var(--rule);
+        --oxcaml-accent: var(--accent);
+        --oxcaml-ok: var(--accent);
       }
     </style>
   </head>
