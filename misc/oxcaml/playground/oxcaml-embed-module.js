@@ -45,8 +45,6 @@ const mountedEditors = new Set();
 let editorRunQueue = Promise.resolve();
 const setDiagnosticsEffect = StateEffect.define();
 const setSyntaxDecorationsEffect = StateEffect.define();
-const themeModes = new Set(["auto", "light", "dark"]);
-let globalThemeMode = initialThemeMode();
 
 const oxcamlIdentifierNames = new Set(["local_", "stack_", "exclave_"]);
 const packageModuleNames = new Set(["Base", "Core", "Stdlib_stable"]);
@@ -179,65 +177,6 @@ function clearStoredSourcesForRequest() {
   } catch {
     // Ignore storage failures.
   }
-}
-
-function normalizeThemeMode(mode) {
-  const normalized = String(mode ?? "auto").trim().toLowerCase();
-  if (themeModes.has(normalized)) {
-    return normalized;
-  }
-  throw new RangeError(`Unknown OxCaml playground theme mode: ${mode}`);
-}
-
-function initialThemeMode() {
-  try {
-    return normalizeThemeMode(document.documentElement.getAttribute("data-oxcaml-theme"));
-  } catch {
-    return "auto";
-  }
-}
-
-function themeModeForElement(element) {
-  const mode = element.getAttribute("data-oxcaml-theme");
-  return normalizeThemeMode(mode ?? globalThemeMode);
-}
-
-function applyThemeModeToRoot(root, mode) {
-  root.dataset.oxcamlTheme = normalizeThemeMode(mode);
-}
-
-export function setThemeMode(mode, target = null) {
-  const normalized = normalizeThemeMode(mode);
-  if (target?.root instanceof Element) {
-    applyThemeModeToRoot(target.root, normalized);
-    return normalized;
-  }
-  if (target instanceof Element) {
-    if (target.classList.contains("oxcaml-embed")) {
-      applyThemeModeToRoot(target, normalized);
-      return normalized;
-    }
-    for (const root of target.querySelectorAll(".oxcaml-embed")) {
-      applyThemeModeToRoot(root, normalized);
-    }
-    return normalized;
-  }
-  globalThemeMode = normalized;
-  document.documentElement.dataset.oxcamlTheme = normalized;
-  for (const editor of mountedEditors) {
-    applyThemeModeToRoot(editor.root, normalized);
-  }
-  return normalized;
-}
-
-export function getThemeMode(target = null) {
-  if (target?.root instanceof Element) {
-    return target.root.dataset.oxcamlTheme ?? "auto";
-  }
-  if (target instanceof Element && target.classList.contains("oxcaml-embed")) {
-    return target.dataset.oxcamlTheme ?? "auto";
-  }
-  return globalThemeMode;
 }
 
 clearStoredSourcesForRequest();
@@ -1189,6 +1128,14 @@ function injectStyles() {
   style.id = "oxcaml-embed-styles";
   style.textContent = `
     .oxcaml-embed {
+      --_oxcaml-color-scheme: var(--oxcaml-color-scheme, auto);
+      --_oxcaml-margin-block: var(--oxcaml-margin-block, 1rem);
+      container-name: oxcaml-embed;
+      font-family: var(--oxcaml-font-family, Avenir Next, Segoe UI, system-ui, sans-serif);
+      margin: var(--_oxcaml-margin-block) 0;
+    }
+
+    .oxcaml-embed__surface {
       color-scheme: light;
       --_oxcaml-bg: var(--oxcaml-bg, #fffdf9);
       --_oxcaml-ink: var(--oxcaml-ink, #1c2530);
@@ -1231,8 +1178,7 @@ function injectStyles() {
       --_syntax-package-open: var(--syntax-package-open, #475fa5);
       --_syntax-label: var(--syntax-label, #8b3aa8);
       --_oxcaml-radius: var(--oxcaml-radius, 8px);
-      --_oxcaml-margin-block: var(--oxcaml-margin-block, 1rem);
-      --_oxcaml-font-family: var(--oxcaml-font-family, Avenir Next, Segoe UI, system-ui, sans-serif);
+      --_oxcaml-font-family: inherit;
       --_oxcaml-mono-font-family: var(--oxcaml-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Consolas, monospace);
       --_oxcaml-editor-font-size: var(--oxcaml-editor-font-size, 0.92rem);
       --_oxcaml-output-font-size: var(--oxcaml-output-font-size, 0.86rem);
@@ -1245,12 +1191,59 @@ function injectStyles() {
       background: var(--_oxcaml-bg);
       color: var(--_oxcaml-ink);
       font-family: var(--_oxcaml-font-family);
-      margin: var(--_oxcaml-margin-block) 0;
       overflow: hidden;
     }
 
     @media (prefers-color-scheme: dark) {
-      .oxcaml-embed:not([data-oxcaml-theme="light"]) {
+      @container oxcaml-embed style(--_oxcaml-color-scheme: auto) {
+        .oxcaml-embed__surface {
+          color-scheme: dark;
+          --_oxcaml-bg: var(--oxcaml-bg, #17202a);
+          --_oxcaml-ink: var(--oxcaml-ink, #eef4fb);
+          --_oxcaml-muted: var(--oxcaml-muted, #9aa7b8);
+          --_oxcaml-border: var(--oxcaml-border, rgba(215, 226, 240, 0.16));
+          --_oxcaml-editor: var(--oxcaml-editor, #10151d);
+          --_oxcaml-editor-ink: var(--oxcaml-editor-ink, #ebf3ff);
+          --_oxcaml-editor-gutter: var(--oxcaml-editor-gutter, #0c1118);
+          --_oxcaml-editor-gutter-ink: var(--oxcaml-editor-gutter-ink, #78879c);
+          --_oxcaml-editor-gutter-border: var(--oxcaml-editor-gutter-border, rgba(255, 255, 255, 0.08));
+          --_oxcaml-editor-active: var(--oxcaml-editor-active, rgba(255, 255, 255, 0.06));
+          --_oxcaml-editor-selection: var(--oxcaml-editor-selection, rgba(110, 169, 255, 0.34));
+          --_oxcaml-editor-cursor: var(--oxcaml-editor-cursor, #ffd28f);
+          --_oxcaml-output-bg: var(--oxcaml-output-bg, #141c25);
+          --_oxcaml-output-border: var(--oxcaml-output-border, rgba(215, 226, 240, 0.14));
+          --_oxcaml-accent: var(--oxcaml-accent, #ff9f7a);
+          --_oxcaml-ok: var(--oxcaml-ok, #7fd6c2);
+          --_oxcaml-warn: var(--oxcaml-warn, #f0bd64);
+          --_oxcaml-error: var(--oxcaml-error, #ff7f68);
+          --_oxcaml-tooltip-bg: var(--oxcaml-tooltip-bg, #202b37);
+          --_oxcaml-tooltip-ink: var(--oxcaml-tooltip-ink, #eef4fb);
+          --_oxcaml-stream: var(--oxcaml-stream, #dce6f2);
+          --_oxcaml-code: var(--oxcaml-code, #d6e1ef);
+          --_oxcaml-detail: var(--oxcaml-detail, #a9b7c8);
+          --_oxcaml-prefix: var(--oxcaml-prefix, #8e9caf);
+          --_oxcaml-interface-bg: var(--oxcaml-interface-bg, rgba(35, 70, 62, 0.46));
+          --_oxcaml-interface-ink: var(--oxcaml-interface-ink, #d8f5ea);
+          --_syntax-keyword: var(--syntax-keyword, #ffb57e);
+          --_syntax-module: var(--syntax-module, #8ed2ff);
+          --_syntax-string: var(--syntax-string, #b6f09c);
+          --_syntax-comment: var(--syntax-comment, #dce6f2);
+          --_syntax-number: var(--syntax-number, #f7cd74);
+          --_syntax-operator: var(--syntax-operator, #f0f5ff);
+          --_syntax-function: var(--syntax-function, #9fd8ff);
+          --_syntax-parameter: var(--syntax-parameter, #ffd7a1);
+          --_syntax-type: var(--syntax-type, #88c6ff);
+          --_syntax-constructor: var(--syntax-constructor, #f2c572);
+          --_syntax-annotation: var(--syntax-annotation, #ffd28f);
+          --_syntax-package: var(--syntax-package, #7fd6c2);
+          --_syntax-package-open: var(--syntax-package-open, #a8bcff);
+          --_syntax-label: var(--syntax-label, #f4b5ff);
+        }
+      }
+    }
+
+    @container oxcaml-embed style(--_oxcaml-color-scheme: dark) {
+      .oxcaml-embed__surface {
         color-scheme: dark;
         --_oxcaml-bg: var(--oxcaml-bg, #17202a);
         --_oxcaml-ink: var(--oxcaml-ink, #eef4fb);
@@ -1293,50 +1286,6 @@ function injectStyles() {
         --_syntax-package-open: var(--syntax-package-open, #a8bcff);
         --_syntax-label: var(--syntax-label, #f4b5ff);
       }
-    }
-
-    .oxcaml-embed[data-oxcaml-theme="dark"] {
-      color-scheme: dark;
-      --_oxcaml-bg: var(--oxcaml-bg, #17202a);
-      --_oxcaml-ink: var(--oxcaml-ink, #eef4fb);
-      --_oxcaml-muted: var(--oxcaml-muted, #9aa7b8);
-      --_oxcaml-border: var(--oxcaml-border, rgba(215, 226, 240, 0.16));
-      --_oxcaml-editor: var(--oxcaml-editor, #10151d);
-      --_oxcaml-editor-ink: var(--oxcaml-editor-ink, #ebf3ff);
-      --_oxcaml-editor-gutter: var(--oxcaml-editor-gutter, #0c1118);
-      --_oxcaml-editor-gutter-ink: var(--oxcaml-editor-gutter-ink, #78879c);
-      --_oxcaml-editor-gutter-border: var(--oxcaml-editor-gutter-border, rgba(255, 255, 255, 0.08));
-      --_oxcaml-editor-active: var(--oxcaml-editor-active, rgba(255, 255, 255, 0.06));
-      --_oxcaml-editor-selection: var(--oxcaml-editor-selection, rgba(110, 169, 255, 0.34));
-      --_oxcaml-editor-cursor: var(--oxcaml-editor-cursor, #ffd28f);
-      --_oxcaml-output-bg: var(--oxcaml-output-bg, #141c25);
-      --_oxcaml-output-border: var(--oxcaml-output-border, rgba(215, 226, 240, 0.14));
-      --_oxcaml-accent: var(--oxcaml-accent, #ff9f7a);
-      --_oxcaml-ok: var(--oxcaml-ok, #7fd6c2);
-      --_oxcaml-warn: var(--oxcaml-warn, #f0bd64);
-      --_oxcaml-error: var(--oxcaml-error, #ff7f68);
-      --_oxcaml-tooltip-bg: var(--oxcaml-tooltip-bg, #202b37);
-      --_oxcaml-tooltip-ink: var(--oxcaml-tooltip-ink, #eef4fb);
-      --_oxcaml-stream: var(--oxcaml-stream, #dce6f2);
-      --_oxcaml-code: var(--oxcaml-code, #d6e1ef);
-      --_oxcaml-detail: var(--oxcaml-detail, #a9b7c8);
-      --_oxcaml-prefix: var(--oxcaml-prefix, #8e9caf);
-      --_oxcaml-interface-bg: var(--oxcaml-interface-bg, rgba(35, 70, 62, 0.46));
-      --_oxcaml-interface-ink: var(--oxcaml-interface-ink, #d8f5ea);
-      --_syntax-keyword: var(--syntax-keyword, #ffb57e);
-      --_syntax-module: var(--syntax-module, #8ed2ff);
-      --_syntax-string: var(--syntax-string, #b6f09c);
-      --_syntax-comment: var(--syntax-comment, #dce6f2);
-      --_syntax-number: var(--syntax-number, #f7cd74);
-      --_syntax-operator: var(--syntax-operator, #f0f5ff);
-      --_syntax-function: var(--syntax-function, #9fd8ff);
-      --_syntax-parameter: var(--syntax-parameter, #ffd7a1);
-      --_syntax-type: var(--syntax-type, #88c6ff);
-      --_syntax-constructor: var(--syntax-constructor, #f2c572);
-      --_syntax-annotation: var(--syntax-annotation, #ffd28f);
-      --_syntax-package: var(--syntax-package, #7fd6c2);
-      --_syntax-package-open: var(--syntax-package-open, #a8bcff);
-      --_syntax-label: var(--syntax-label, #f4b5ff);
     }
 
     .oxcaml-embed__status {
@@ -1911,6 +1860,9 @@ function copyPresentationAttributes(source, root) {
   }
   for (const attribute of source.attributes) {
     const name = attribute.name.toLowerCase();
+    if (name === "data-oxcaml-theme") {
+      continue;
+    }
     if (
       name.startsWith("data-") ||
       name.startsWith("aria-") ||
@@ -1925,6 +1877,8 @@ function createEditorElement() {
   const root = document.createElement("div");
   root.className = "oxcaml-embed";
   root.dataset.state = "loading";
+  const surfaceEl = document.createElement("div");
+  surfaceEl.className = "oxcaml-embed__surface";
 
   const statusEl = document.createElement("div");
   statusEl.className = "oxcaml-embed__status";
@@ -1950,10 +1904,12 @@ function createEditorElement() {
 
   editorHostEl.append(resetButtonEl);
   outputEl.append(transcriptEl, statusEl);
-  root.append(editorHostEl, outputEl);
+  surfaceEl.append(editorHostEl, outputEl);
+  root.append(surfaceEl);
 
   return {
     root,
+    surfaceEl,
     statusEl,
     resetButtonEl,
     editorHostEl,
@@ -1981,7 +1937,6 @@ function mountEditor(element, options, { copyAttributes, placeRoot }) {
   if (copyAttributes) {
     copyPresentationAttributes(element, elements.root);
   }
-  applyThemeModeToRoot(elements.root, themeModeForElement(element));
   const editor = {
     ...elements,
     emptyOutput,
@@ -2110,9 +2065,7 @@ window.OxCamlPlayground = {
   mount,
   processOxcamlTags,
   interfaceString,
-  getThemeMode,
   ready,
   runString,
-  setThemeMode,
   utopString,
 };
