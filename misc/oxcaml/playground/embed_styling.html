@@ -429,15 +429,16 @@ let () =
             When the target is not an <code>&lt;oxcaml&gt;</code> tag,
             <code>mount</code> requires <code>source</code>. It accepts the
             same option names as the markup API: <code>mode</code>,
-            <code>filename</code>, <code>emptyOutput</code>, and
-            <code>storageKey</code>. CSS custom properties on the target
-            element inherit into the generated widget.
+            <code>filename</code>, <code>emptyOutput</code>,
+            <code>runTrigger</code>, and <code>storageKey</code>. CSS custom
+            properties on the target element inherit into the generated widget.
           </p>
 
           <pre><code>const editor = api.mount(target, {
   mode: "check",
   filename: "exercise.ml",
   emptyOutput: "hide",
+  runTrigger: "manual-after-initial",
   storageKey: "chapter-2/exercise-4",
   source: "let add_tax cents = cents + (cents / 10)",
 });</code></pre>
@@ -483,6 +484,55 @@ let add_tax cents =
 });</code></pre>
         </section>
 
+        <section id="run-trigger">
+          <h2>Run Trigger</h2>
+          <p>
+            Widgets run or check as you type by default. Add
+            <code>data-oxcaml-run-trigger="manual"</code> when an example
+            should wait for the reader. Manual widgets show a
+            mode-specific button with the keyboard shortcut in its label.
+            Use <code>manual-after-initial</code> to run or check once on
+            initial load, then require the button after edits.
+          </p>
+
+          <pre><code>&lt;oxcaml check data-oxcaml-run-trigger="manual"&gt;
+let add_tax cents =
+  cents + (cents / 10)
+&lt;/oxcaml&gt;</code></pre>
+
+          <oxcaml check data-oxcaml-run-trigger="manual">
+let add_tax cents =
+  cents + (cents / 10)
+          </oxcaml>
+
+          <pre><code>&lt;oxcaml data-oxcaml-run-trigger="manual"&gt;
+let message = "Run me with the button"
+let () = print_endline message
+&lt;/oxcaml&gt;</code></pre>
+
+          <oxcaml class="compact-example" data-oxcaml-run-trigger="manual">
+let message = "Run me with the button"
+let () = print_endline message
+          </oxcaml>
+
+          <pre><code>&lt;oxcaml check data-oxcaml-run-trigger="manual-after-initial"&gt;
+let discounted cents =
+  cents - (cents / 5)
+&lt;/oxcaml&gt;</code></pre>
+
+          <oxcaml check data-oxcaml-run-trigger="manual-after-initial">
+let discounted cents =
+  cents - (cents / 5)
+          </oxcaml>
+
+          <p>
+            Programmatic mounts use <code>runTrigger: "manual"</code> or
+            <code>runTrigger: "manual-after-initial"</code>. The shortcut is
+            <code>⌘↵</code> on macOS and <code>Ctrl+Enter</code> elsewhere
+            when the editor has focus.
+          </p>
+        </section>
+
         <section id="settings-reference">
           <h2>Settings Reference</h2>
           <p>
@@ -504,6 +554,7 @@ let add_tax cents =
               <tr><td>Execution mode</td><td><code>&lt;oxcaml&gt;</code>, <code>&lt;oxcaml check&gt;</code>, or <code>&lt;oxcaml utop&gt;</code></td><td><code>mode: "run" | "check" | "utop"</code></td></tr>
               <tr><td>Filename for diagnostics</td><td><code>data-filename="example.ml"</code></td><td><code>filename: "example.ml"</code></td></tr>
               <tr><td>Empty output panel</td><td><code>data-oxcaml-empty-output="show|hide"</code></td><td><code>emptyOutput: "show" | "hide"</code></td></tr>
+              <tr><td>Run trigger</td><td><code>data-oxcaml-run-trigger="auto|manual|manual-after-initial"</code></td><td><code>runTrigger: "auto" | "manual" | "manual-after-initial"</code></td></tr>
               <tr><td>Color scheme</td><td><code>style="--oxcaml-color-scheme: auto|light|dark"</code></td><td>Set <code>--oxcaml-color-scheme</code> on the target or an ancestor.</td></tr>
               <tr><td>Reusable visual variant</td><td><code>class="..."</code></td><td>Set a class on the target before mounting.</td></tr>
               <tr><td>One-off visual override</td><td><code>style="--oxcaml-accent: ..."</code></td><td>Set CSS variables on the target or generated root.</td></tr>
@@ -758,6 +809,8 @@ let () =
               <tr><td><code>.oxcaml-embed__output</code></td><td>Output panel.</td></tr>
               <tr><td><code>.oxcaml-embed__transcript</code></td><td>Transcript wrapper inside the output panel.</td></tr>
               <tr><td><code>.oxcaml-embed__status</code></td><td>Status label.</td></tr>
+              <tr><td><code>.oxcaml-embed__controls</code></td><td>Top-right button group.</td></tr>
+              <tr><td><code>.oxcaml-embed__run</code></td><td>Manual run/check button.</td></tr>
               <tr><td><code>.oxcaml-embed__reset</code></td><td>Reset button shown after user edits.</td></tr>
             </tbody>
           </table>
@@ -879,6 +932,7 @@ let () =
         <a href="#execution-modes">Execution modes</a>
         <a href="#programmatic-mounting">Programmatic mounting</a>
         <a href="#output-panel">Output panel</a>
+        <a href="#run-trigger">Run trigger</a>
         <a href="#settings-reference">Settings reference</a>
         <a href="#theme-mode">Color scheme</a>
         <a href="#attribute-transfer">Preserved attributes</a>

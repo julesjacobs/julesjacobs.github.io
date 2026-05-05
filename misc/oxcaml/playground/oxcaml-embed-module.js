@@ -825,7 +825,7 @@ function sourcePreflightDiagnostic(filename, source) {
       position.line,
       position.character,
       position.character + 1,
-      `This playground snippet is too large to check as you type. Keep snippets under ${maxCheckedSourceLength.toLocaleString()} characters.`,
+      `This playground snippet is too large for browser checking. Keep snippets under ${maxCheckedSourceLength.toLocaleString()} characters.`,
     );
   }
   const numericLiteral = findNumericLiteralPreflight(source);
@@ -844,7 +844,7 @@ function sourcePreflightDiagnostic(filename, source) {
       numericLiteral.line,
       numericLiteral.start,
       numericLiteral.end,
-      `This numeric literal has ${numericLiteral.length.toLocaleString()} characters, which is too large for browser auto-checking. Shorten it or put the digits in a string.`,
+      `This numeric literal has ${numericLiteral.length.toLocaleString()} characters, which is too large for browser checking. Shorten it or put the digits in a string.`,
     );
   }
   return null;
@@ -1109,6 +1109,21 @@ function modeForElement(element, options = {}) {
   return "run";
 }
 
+function normalizeRunTrigger(value) {
+  const normalized = String(value ?? "auto").trim().toLowerCase();
+  if (normalized === "manual" || normalized === "manual-after-initial") {
+    return normalized;
+  }
+  return "auto";
+}
+
+function runTriggerForElement(element, options = {}) {
+  if (options.runTrigger !== undefined) {
+    return normalizeRunTrigger(options.runTrigger);
+  }
+  return normalizeRunTrigger(element.getAttribute("data-oxcaml-run-trigger"));
+}
+
 function normalizeEmptyOutput(value) {
   return value === "hide" ? "hide" : "show";
 }
@@ -1118,6 +1133,27 @@ function emptyOutputForElement(element, options = {}) {
     return normalizeEmptyOutput(options.emptyOutput);
   }
   return normalizeEmptyOutput(element.getAttribute("data-oxcaml-empty-output"));
+}
+
+function runActionLabel(mode) {
+  return mode === "check" ? "Check" : "Run";
+}
+
+function runShortcutLabel() {
+  const platform =
+    navigator.userAgentData?.platform ??
+    navigator.platform ??
+    "";
+  return /Mac|iPhone|iPad|iPod/i.test(platform) ? "⌘↵" : "Ctrl+Enter";
+}
+
+function runButtonText(mode) {
+  return `${runActionLabel(mode)} (${runShortcutLabel()})`;
+}
+
+function runTriggerIsManual(editor) {
+  return editor.runTrigger === "manual" ||
+    editor.runTrigger === "manual-after-initial";
 }
 
 function injectStyles() {
@@ -1305,11 +1341,18 @@ function injectStyles() {
       white-space: nowrap;
     }
 
-    .oxcaml-embed__reset {
+    .oxcaml-embed__controls {
       position: absolute;
       right: 0.7rem;
       top: 0.62rem;
+      display: flex;
+      gap: 0.42rem;
+      align-items: center;
       z-index: 5;
+    }
+
+    .oxcaml-embed__run,
+    .oxcaml-embed__reset {
       min-height: 1.75rem;
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 6px;
@@ -1320,8 +1363,17 @@ function injectStyles() {
       padding: 0.32rem 0.5rem;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
       backdrop-filter: blur(8px);
+      white-space: nowrap;
     }
 
+    .oxcaml-embed__run {
+      background: var(--_oxcaml-accent);
+      border-color: color-mix(in srgb, var(--_oxcaml-accent), #000 16%);
+      color: #fff;
+    }
+
+    .oxcaml-embed__run:hover,
+    .oxcaml-embed__run:focus-visible,
     .oxcaml-embed__reset:hover,
     .oxcaml-embed__reset:focus-visible {
       background: rgba(28, 35, 47, 0.94);
@@ -1330,8 +1382,14 @@ function injectStyles() {
       outline: none;
     }
 
+    .oxcaml-embed__run[hidden],
     .oxcaml-embed__reset[hidden] {
       display: none;
+    }
+
+    .oxcaml-embed[data-run-trigger="manual"] .cm-content,
+    .oxcaml-embed[data-run-trigger="manual-after-initial"] .cm-content {
+      padding-right: 13rem;
     }
 
     .oxcaml-embed[data-state="running"] .oxcaml-embed__status,
@@ -1678,6 +1736,25 @@ function clearPendingWork(editor) {
   editor.queuedRevision = null;
 }
 
+function markManualRunPending(editor, { initial = false } = {}) {
+  clearPendingWork(editor);
+  setOutputBusy(editor, false);
+  setStatus(editor, "idle", initial ? "idle" : "edited");
+  if (initial) {
+    editor.transcriptEl.innerHTML = "";
+    editor.outputEl.hidden = true;
+  }
+}
+
+function requestImmediateRun(editor) {
+  clearPendingWork(editor);
+  editor.revision += 1;
+  const revision = editor.revision;
+  setOutputBusy(editor, true);
+  setStatus(editor, "running", "running");
+  void requestEditorRun(editor, revision);
+}
+
 function resetEditor(editor) {
   removeStoredSource(editor.storageKey);
   clearPendingWork(editor);
@@ -1685,7 +1762,11 @@ function resetEditor(editor) {
   editor.revision += 1;
   replaceEditorSource(editor, editor.originalSource);
   updateResetState(editor);
-  scheduleRun(editor);
+  if (runTriggerIsManual(editor)) {
+    markManualRunPending(editor, { initial: true });
+  } else {
+    scheduleRun(editor);
+  }
 }
 
 function scheduleRun(editor) {
@@ -1820,7 +1901,21 @@ function createEditorView(editor, source) {
         highlightActiveLineGutter(),
         indentOnInput(),
         bracketMatching(),
-        keymap.of([indentWithTab, ...defaultKeymap, ...historyKeymap]),
+        keymap.of([
+          {
+            key: "Mod-Enter",
+            run() {
+              if (!runTriggerIsManual(editor)) {
+                return false;
+              }
+              requestImmediateRun(editor);
+              return true;
+            },
+          },
+          indentWithTab,
+          ...defaultKeymap,
+          ...historyKeymap,
+        ]),
         EditorView.contentAttributes.of({
           spellcheck: "false",
           autocorrect: "off",
@@ -1838,7 +1933,11 @@ function createEditorView(editor, source) {
           editor.markers = [];
           editor.revision += 1;
           persistEditorSource(editor);
-          scheduleRun(editor);
+          if (runTriggerIsManual(editor)) {
+            markManualRunPending(editor);
+          } else {
+            scheduleRun(editor);
+          }
         }),
       ],
     }),
@@ -1884,6 +1983,14 @@ function createEditorElement() {
   statusEl.className = "oxcaml-embed__status";
   statusEl.textContent = "loading";
 
+  const controlsEl = document.createElement("div");
+  controlsEl.className = "oxcaml-embed__controls";
+
+  const runButtonEl = document.createElement("button");
+  runButtonEl.type = "button";
+  runButtonEl.className = "oxcaml-embed__run";
+  runButtonEl.hidden = true;
+
   const resetButtonEl = document.createElement("button");
   resetButtonEl.type = "button";
   resetButtonEl.className = "oxcaml-embed__reset";
@@ -1902,7 +2009,8 @@ function createEditorElement() {
   transcriptEl.innerHTML =
     '<pre class="transcript"><span class="transcript-line stream placeholder">loading</span></pre>';
 
-  editorHostEl.append(resetButtonEl);
+  controlsEl.append(resetButtonEl, runButtonEl);
+  editorHostEl.append(controlsEl);
   outputEl.append(transcriptEl, statusEl);
   surfaceEl.append(editorHostEl, outputEl);
   root.append(surfaceEl);
@@ -1910,6 +2018,8 @@ function createEditorElement() {
   return {
     root,
     surfaceEl,
+    controlsEl,
+    runButtonEl,
     statusEl,
     resetButtonEl,
     editorHostEl,
@@ -1932,6 +2042,7 @@ function mountEditor(element, options, { copyAttributes, placeRoot }) {
     element.getAttribute("data-filename");
   const filename = explicitFilename ?? `snippet_${mountedEditors.size + 1}.ml`;
   const mode = modeForElement(element, options);
+  const runTrigger = runTriggerForElement(element, options);
   const emptyOutput = emptyOutputForElement(element, options);
   const elements = createEditorElement();
   if (copyAttributes) {
@@ -1947,11 +2058,16 @@ function mountEditor(element, options, { copyAttributes, placeRoot }) {
     pendingTimer: null,
     queuedRevision: null,
     running: false,
+    runTrigger,
     revision: 0,
     storageKey,
     suppressEditorChanges: false,
     view: null,
   };
+  editor.root.dataset.runTrigger = runTrigger;
+  editor.runButtonEl.textContent = runButtonText(mode);
+  editor.runButtonEl.title = `${runActionLabel(mode)} source (${runShortcutLabel()})`;
+  editor.runButtonEl.hidden = !runTriggerIsManual(editor);
 
   placeRoot(editor.root);
   editor.view = createEditorView(editor, source);
@@ -1961,6 +2077,11 @@ function mountEditor(element, options, { copyAttributes, placeRoot }) {
 
   editor.resetButtonEl.addEventListener("click", () => {
     resetEditor(editor);
+    editor.view?.focus();
+  });
+
+  editor.runButtonEl.addEventListener("click", () => {
+    requestImmediateRun(editor);
     editor.view?.focus();
   });
 
@@ -1997,7 +2118,11 @@ function mountEditor(element, options, { copyAttributes, placeRoot }) {
     }
   });
 
-  scheduleRun(editor);
+  if (editor.runTrigger === "manual") {
+    markManualRunPending(editor, { initial: true });
+  } else {
+    scheduleRun(editor);
+  }
   return editor;
 }
 
