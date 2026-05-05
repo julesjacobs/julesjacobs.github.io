@@ -1343,25 +1343,25 @@ function injectStyles() {
 
     .oxcaml-embed__controls {
       position: absolute;
-      right: 0.7rem;
-      top: 0.62rem;
+      right: 0.58rem;
+      top: 0.54rem;
       display: flex;
-      gap: 0.42rem;
+      gap: 0.26rem;
       align-items: center;
       z-index: 5;
     }
 
     .oxcaml-embed__run,
     .oxcaml-embed__reset {
-      min-height: 1.75rem;
+      min-height: 1.34rem;
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
+      border-radius: 4px;
       background: rgba(18, 22, 29, 0.78);
       color: #d8e3f2;
       cursor: pointer;
-      font: 650 0.72rem/1 var(--_oxcaml-font-family);
-      padding: 0.32rem 0.5rem;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+      font: 650 0.61rem/1 var(--_oxcaml-font-family);
+      padding: 0.2rem 0.34rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.16);
       backdrop-filter: blur(8px);
       white-space: nowrap;
     }
