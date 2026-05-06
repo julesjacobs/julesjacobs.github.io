@@ -7,7 +7,7 @@ let directBackendPromise = null;
 let workerFailed = false;
 
 const backendWorkerUrl = new URL(
-  "./backend_worker.js?v=20260427-worker-blob",
+  "./backend_worker.js?v=20260506-ppx-driver",
   import.meta.url,
 ).href;
 
@@ -147,7 +147,7 @@ function getBackendWorker() {
 
 async function directBackend() {
   if (!directBackendPromise) {
-    directBackendPromise = import("./backend_direct.js?v=20260427-worker-blob");
+    directBackendPromise = import("./backend_direct.js?v=20260506-ppx-driver");
   }
   return directBackendPromise;
 }

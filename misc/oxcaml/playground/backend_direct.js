@@ -4,7 +4,7 @@ import {
 } from "./playground_prelude.js";
 
 const buildBase = "./build";
-const compilerAssetVersion = "20260424-multicore-shim";
+const compilerAssetVersion = "20260506-ppx-driver";
 
 const loadedScriptUrls = new Map();
 let browserFsManifestPromise = null;

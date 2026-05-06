@@ -322,6 +322,32 @@ let () =
   print_endline (greeting "OxCaml")
           </oxcaml>
 
+          <h3>Use PPX String Interpolation</h3>
+          <p>
+            The static playground includes <code>ppx_string</code>, so
+            examples can use <code>[%string "..."]</code> for interpolation.
+          </p>
+
+          <pre><code>&lt;oxcaml&gt;
+open Base
+
+let greeting name =
+  [%string "Hello, %{name} from ppx_string"]
+
+let () =
+  Stdlib.print_endline (greeting "OxCaml")
+&lt;/oxcaml&gt;</code></pre>
+
+          <oxcaml>
+open Base
+
+let greeting name =
+  [%string "Hello, %{name} from ppx_string"]
+
+let () =
+  Stdlib.print_endline (greeting "OxCaml")
+          </oxcaml>
+
           <h3>Use Toplevel Phrases</h3>
           <p>
             Add <code>utop</code> for examples that should behave like
@@ -490,7 +516,8 @@ let add_tax cents =
             Widgets run or check as you type by default. Add
             <code>data-oxcaml-run-trigger="manual"</code> when an example
             should wait for the reader. Manual widgets show a
-            mode-specific button with the keyboard shortcut in its label.
+            mode-specific button with the keyboard shortcut in an immediate
+            tooltip.
             Use <code>manual-after-initial</code> to run or check once on
             initial load, then require the button after edits.
           </p>
