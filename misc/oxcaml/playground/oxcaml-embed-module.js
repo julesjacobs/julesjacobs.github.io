@@ -3,6 +3,7 @@ import {
   checkString,
   interfaceString,
   ready,
+  readyForOptions,
   runString,
   utopString,
 } from "./backend.js?v=20260506-ppx-driver";
@@ -2226,6 +2227,7 @@ window.OxCamlPlayground = {
   processOxcamlTags,
   interfaceString,
   ready,
+  readyForOptions,
   runString,
   utopString,
 };

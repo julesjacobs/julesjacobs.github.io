@@ -348,6 +348,26 @@ let () =
   Stdlib.print_endline (greeting "OxCaml")
           </oxcaml>
 
+          <h3>Use Jane PPXs When Needed</h3>
+          <p>
+            The static playground includes the Jane PPX set, so examples can
+            use extensions such as <code>[%here]</code> directly.
+          </p>
+
+          <pre><code>&lt;oxcaml&gt;
+let loc = [%here]
+
+let () =
+  Printf.printf "line %d\n" loc.pos_lnum
+&lt;/oxcaml&gt;</code></pre>
+
+          <oxcaml>
+let loc = [%here]
+
+let () =
+  Printf.printf "line %d\n" loc.pos_lnum
+          </oxcaml>
+
           <h3>Use Toplevel Phrases</h3>
           <p>
             Add <code>utop</code> for examples that should behave like
