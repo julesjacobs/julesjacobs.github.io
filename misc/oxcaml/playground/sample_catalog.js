@@ -52,7 +52,7 @@ export const supportedSamples = [
     label: "Runtime exception",
     filename: "runtime_exception.ml",
     mode: "run",
-    source: "raise (Failure \"boom\");;\n",
+    source: "let () = raise (Failure \"boom\")\n",
     expected_kind: "diagnostic",
     expected_text: [
       "Exception: Failure \"boom\".",
@@ -192,8 +192,8 @@ export const supportedSamples = [
     ].join("\n"),
     expected_kind: "diagnostic",
     expected_text: [
-      "This value is contended",
-      "expected to be portable",
+      "This value is shared",
+      "expected to be shareable",
       "expected to be uncontended",
     ],
     browser_status: "supported",
