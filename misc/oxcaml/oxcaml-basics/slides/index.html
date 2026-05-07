@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>OxCaml Basics Slides</title>
+    <link rel="stylesheet" href="vendor/reveal/reset.css">
+    <link rel="stylesheet" href="vendor/reveal/reveal.css">
+    <link rel="stylesheet" href="slides.css?v=full-pass-30">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section class="slide title-slide" data-background-color="#f6f8fb">
+          <div class="title-lockup">
+            <div>
+              <p class="eyebrow">OxCaml Basics</p>
+              <h1>Checked control over parallelism, allocation, and representation</h1>
+              <p class="lede">A three-hour technical course for OCaml engineers learning OxCaml's performance-oriented type system.</p>
+            </div>
+            <img class="title-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
+          </div>
+          <aside class="notes">Keep this minimal. The slides are the live teaching path; the course pages are the reference material.</aside>
+        </section>
+
+        <section class="slide route-slide">
+          <h2>The route</h2>
+          <ol class="route">
+            <li><span>00</span><strong>Why OxCaml exists</strong><em>checked low-level intent</em></li>
+            <li><span>01</span><strong>Parallelism</strong><em>contention and portability</em></li>
+            <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_, zeroalloc</em></li>
+            <li><span>03</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
+          </ol>
+          <aside class="notes">Each topic is a checked lever: race safety, lifetime/allocation, and runtime layout.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Why OxCaml exists</h2>
+          <div class="lever-grid">
+            <article><h3>OCaml default</h3><p>Safe, high-level, uniform values, GC-managed allocation.</p></article>
+            <article><h3>OxCaml addition</h3><p>Explicit compiler-checked control when the default costs too much.</p></article>
+            <article><h3>The goal</h3><p>Checked low-level intent, not unsafe faster OCaml.</p></article>
+          </div>
+          <aside class="notes">Frame every feature as making a performance-relevant fact visible to the type checker.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Three failure classes</h2>
+          <div class="failure-grid">
+            <article class="bad"><h3>Data race</h3><p>Overlapping mutable access when at least one access writes.</p></article>
+            <article class="bad"><h3>Dangling stack pointer</h3><p>A local value escapes the region that owns it.</p></article>
+            <article class="bad"><h3>Representation mismatch</h3><p>Code expects one value word, but the caller has raw or product layout.</p></article>
+          </div>
+          <p class="takeaway fragment">In all three cases, OxCaml turns a runtime failure mode into a compile-time error.</p>
+          <aside class="notes">This primes the lecture around error reading, not feature memorization.</aside>
+        </section>
+
+        <section class="slide section-slide" data-background-color="#101827">
+          <p class="eyebrow">Module 01</p>
+          <h1>Parallelism: contention and portability</h1>
+          <ul class="goal-list">
+            <li>Run structured fork/join and detached spawn.</li>
+            <li>Predict mutable reads and writes from modes.</li>
+            <li>Distinguish explicit arguments from hidden closure captures.</li>
+            <li>Read callback API types positionally.</li>
+          </ul>
+          <aside class="notes">Start from operational shapes before introducing the two mode axes.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Parallelism understanding ladder</h2>
+          <div class="level-ladder">
+            <article><span>0</span><strong>Problem</strong><p>Parallel mutation can race.</p></article>
+            <article><span>1</span><strong>Surface behavior</strong><p>Callback bodies appear to be checked.</p></article>
+            <article><span>2</span><strong>Contention</strong><p>Direct field access requires a mode.</p></article>
+            <article><span>3</span><strong>Closure boundary</strong><p>Parallel closures weaken captured values.</p></article>
+            <article><span>4</span><strong>Explicit arguments</strong><p>Calls check parameter-mode requirements.</p></article>
+            <article><span>5</span><strong>Hidden captures</strong><p>Function values carry portability.</p></article>
+            <article><span>6</span><strong>Positional modes</strong><p>Read each annotation where it appears.</p></article>
+            <article><span>7</span><strong>Ordinary APIs</strong><p>Fork and spawn are not magic names.</p></article>
+            <article><span>8</span><strong>API design</strong><p>Use modes to design parallel helpers.</p></article>
+          </div>
+          <aside class="notes">Each level should answer a puzzle created by the previous level.</aside>
+        </section>
+
+        <section class="slide split-slide">
+          <h2><span class="level-mark">Level 0</span> Parallel work can overlap</h2>
+          <div class="two-up">
+            <article>
+              <h3>fork_join2</h3>
+              <pre><code>let #(left, right) =
+  Parallel.fork_join2 parallel
+    (fun _parallel -> left_work ())
+    (fun _parallel -> right_work ())
+in
+combine left right</code></pre>
+              <p>Children may overlap; parent resumes after both finish.</p>
+            </article>
+            <article>
+              <h3>spawn</h3>
+              <pre><code>ignore (Multicore.spawn
+  (fun () -> worker ())
+  ());
+parent_side_effect ()</code></pre>
+              <p>Spawned work may overlap later parent effects.</p>
+            </article>
+          </div>
+          <aside class="notes">The operational shape motivates the different callback requirements later.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 0</span> Parallel mutation can race</h2>
+          <div class="two-up">
+            <article><h3>danger shape</h3><pre><code>let r = ref 0
+
+Parallel.fork_join2 parallel
+  (fun _ -> incr r)
+  (fun _ -> incr r)</code></pre><p>Both callbacks may touch the same mutable cell at the same time.</p></article>
+            <article><h3>overlap rule</h3>
+              <table class="matrix compact-matrix">
+                <thead><tr><th></th><th>read</th><th>write</th></tr></thead>
+                <tbody>
+                  <tr><th>read</th><td class="ok">safe</td><td class="bad">race</td></tr>
+                  <tr><th>write</th><td class="bad">race</td><td class="bad">race</td></tr>
+                </tbody>
+              </table>
+              <p>Two reads are fine. Anything overlapping a write needs ownership or synchronization.</p>
+            </article>
+          </div>
+          <aside class="notes">No modes yet. Students only need the programming problem.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 1</span> Direct body check is a first model</h2>
+          <div class="two-up">
+            <article class="bad-card"><h3>captured mutable state</h3><pre><code>let x = { hits = 0 }
+
+Parallel.fork_join2 parallel
+  (fun _ -> x.hits <- x.hits + 1)
+  (fun _ -> x.hits <- x.hits + 1)</code></pre><p>The callback body directly writes state captured from outside.</p></article>
+            <article class="ok-card"><h3>fresh mutable state</h3><pre><code>ignore (Multicore.spawn
+  (fun () ->
+     let x = { hits = 0 } in
+     x.hits <- x.hits + 1)
+  ())</code></pre><p>Fresh state created inside the callback is owned by that callback body.</p></article>
+          </div>
+          <p class="takeaway">Useful simplification: the compiler appears to check callback bodies. It is not just scanning syntax.</p>
+          <aside class="notes">This model predicts simple direct-access examples, then motivates modes.</aside>
+        </section>
+
+        <section class="slide live-slide visual-live">
+          <h2><span class="level-mark">Level 1</span> Fresh per-call buffer</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>Each call owns its buffer. Parallel calls mutate separate scratch state.</p>
+              <img class="side-image" src="../assets/images/buffers-fresh.avif" alt="Separate workspaces for fresh buffers">
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">spawn_fresh_buffer.ml</div>
+              <oxcaml data-filename="spawn_fresh_buffer.ml" no-self-check>
+let bits_to_string bits =
+  let buf = Buffer.create 0 in
+  List.iter
+    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let () =
+  ignore (Multicore.spawn
+    (fun () -> print_endline (bits_to_string [true; false; true]))
+    ());
+  print_endline (bits_to_string [false; true; false])
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Ask where the mutable object is allocated. The answer is inside each call.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 2</span> Contention modes describe mutable access</h2>
+          <div class="axis-strip">
+            <div class="mode-axis axis-strip-modes">
+              <div class="axis-mode good"><code>x @ uncontended</code><ul><li>read and write mutable fields</li><li>ordinary single-owner access</li></ul></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode note"><code>x @ shared</code><ul><li>read mutable fields</li><li>no mutable writes</li></ul></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>parallel users may write</li></ul></div>
+            </div>
+            <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
+          </div>
+          <aside class="notes">Use the single-writer or many-readers invariant. Do not conflate shared with shareable.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 2</span> Field access has mode requirements</h2>
+          <div class="three-up">
+            <article><h3>immutable field</h3><pre><code>x.id</code></pre><p>works even when <code>x</code> is <code>contended</code></p></article>
+            <article><h3>mutable read</h3><pre><code>x.hits</code></pre><p>needs <code>x</code> at least <code>shared</code></p></article>
+            <article><h3>mutable write</h3><pre><code>x.hits <- x.hits + 1</code></pre><p>needs <code>x @ uncontended</code></p></article>
+          </div>
+          <p class="takeaway">A direct field operation succeeds or fails according to the available contention mode.</p>
+          <aside class="notes">This is the precise replacement for the direct body scan model.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 3</span> Closure boundaries weaken captures</h2>
+          <div class="boundary-grid">
+            <article class="boundary-card shareable-boundary">
+              <h3><code>shareable</code> closure boundary</h3>
+              <p class="boundary-signature"><code>(Parallel.t @ local -> unit) @ shareable</code></p>
+              <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ shared</code></div>
+              <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ shared</code></div>
+              <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
+              <p>Mutable reads can survive; mutable writes cannot.</p>
+            </article>
+            <article class="boundary-card portable-boundary">
+              <h3><code>portable</code> closure boundary</h3>
+              <p class="boundary-signature"><code>(unit -> unit) @ portable</code></p>
+              <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ contended</code></div>
+              <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ contended</code></div>
+              <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
+              <p>Captured mutable reads and writes are both unavailable.</p>
+            </article>
+          </div>
+          <p class="takeaway">The closure mode controls how captured values are seen inside the body.</p>
+          <aside class="notes">Outside the closure, the original binding still has its original mode.</aside>
+        </section>
+
+        <section class="slide split-slide">
+          <h2><span class="level-mark">Level 3</span> Captured <code>x</code> in three contexts</h2>
+          <div class="three-up">
+            <article><h3>ordinary</h3><p><code>x @ uncontended</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> ok</li><li><code>x.hits &lt;- ...</code> ok</li></ul></article>
+            <article><h3>fork/join</h3><p><code>x @ shared</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> ok</li><li><code>x.hits &lt;- ...</code> rejected</li></ul></article>
+            <article><h3>spawn</h3><p><code>x @ contended</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> rejected</li><li><code>x.hits &lt;- ...</code> rejected</li></ul></article>
+          </div>
+          <aside class="notes">This resolves why fork/join and spawn differ before API types are introduced.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2><span class="level-mark">Level 4</span> Explicit argument requirements</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>A helper’s type records what mode each explicit argument requires.</p>
+              <p>The compiler does not need to inline the helper body.</p>
+              <p class="diagnostic-callout">Inside fork/join, <code>x</code> may be only <code>shared</code>; <code>bump_hits</code> requires <code>uncontended</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">mode_access.ml</div>
+              <oxcaml interface data-show-interface data-filename="mode_access.ml" no-self-check>
+type t = { id : int; mutable hits : int }
+
+let get_id (x @ contended) = x.id
+let get_hits (x @ shared) = x.hits
+let bump_hits (x @ uncontended) = x.hits <- x.hits + 1
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Highlight immutable read, mutable read, mutable write.</aside>
+        </section>
+
+        <section class="slide exercise-slide">
+          <h2><span class="level-mark">Level 4</span> Exercise: helper calls on captured <code>x</code></h2>
+          <p>Suppose <code>x</code> is captured from outside the function being passed. Which helper calls are allowed?</p>
+          <div class="exercise-with-reference">
+            <article class="exercise-reference">
+              <h3>Helpers</h3>
+              <pre><code>type t = { id : int; mutable hits : int }
+
+let get_id (x @ contended) = x.id
+let get_hits (x @ shared) = x.hits
+let bump_hits (x @ uncontended) =
+  x.hits &lt;- x.hits + 1</code></pre>
+            </article>
+            <div class="exercise-table-panel">
+              <table class="prediction-table compact-prediction" data-prediction-table>
+                <thead><tr><th>Call</th><th>List.iter</th><th>fork_join2</th><th>spawn</th></tr></thead>
+                <tbody>
+                  <tr><th><code>get_id x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td></tr>
+                  <tr><th><code>get_hits x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="no">?</button></td></tr>
+                  <tr><th><code>bump_hits x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="no">?</button></td><td><button type="button" data-answer="no">?</button></td></tr>
+                </tbody>
+              </table>
+              <div class="exercise-controls"><button type="button" data-check-table>Check</button><button type="button" data-reset-table>Reset</button><span data-table-feedback aria-live="polite"></span></div>
+            </div>
+          </div>
+          <aside class="notes">The table should be answered after the boundary rule and explicit argument rule.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 5</span> Portability axis</h2>
+          <div class="axis-strip">
+            <div class="mode-axis axis-strip-modes portability">
+              <div class="axis-mode good"><code>portable</code><ul><li>detached parallel work</li><li>closures keep no mutable access</li></ul></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode note"><code>shareable</code><ul><li>structured fork/join work</li><li>closures keep read-only access</li></ul></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>closures may keep read/write access</li></ul></div>
+            </div>
+            <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
+          </div>
+          <aside class="notes">For closures, portability mostly summarizes what the closure captured and how it may use those captures.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2><span class="level-mark">Level 5</span> Hidden captures travel with function values</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>write_x 1</code> has no explicit <code>x</code> argument.</p>
+              <p>The mutable access is hidden in the function value <code>write_x</code>.</p>
+              <p>So the call checks whether <code>write_x</code> is portable enough.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">hidden_helpers.ml</div>
+              <oxcaml check data-filename="hidden_helpers.ml" expect-error>
+type t = { id : int; mutable hits : int }
+let x = { id = 1; hits = 0 }
+
+let id_x () = x.id
+let read_x () = x.hits
+let write_x v = x.hits <- v
+
+let _ =
+  ignore (Multicore.spawn (fun () -> write_x 1) ());
+  write_x 2
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">There is no explicit x argument in write_x 1. The danger is inside the closure value write_x.</aside>
+        </section>
+
+        <section class="slide live-slide visual-live">
+          <h2><span class="level-mark">Level 5</span> Shared buffer revisited</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>Moving <code>buf</code> to the top level makes <code>bits_to_string_shared</code> carry hidden mutable state.</p>
+              <p class="diagnostic-callout">Failure chain: captured <code>buf</code> → nonportable function value → spawn requires portable callback.</p>
+              <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">shared_buffer.ml</div>
+              <oxcaml check data-filename="shared_buffer.ml" expect-error>
+let buf = Buffer.create 0
+
+let bits_to_string_shared bits =
+  Buffer.clear buf;
+  List.iter
+    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let () =
+  ignore (Multicore.spawn
+    (fun () ->
+       print_endline (bits_to_string_shared [true; false; true]))
+    ());
+  print_endline (bits_to_string_shared [false; true; false])
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This is the concrete buffer example after students have the portability rule.</aside>
+        </section>
+
+        <section class="slide exercise-slide">
+          <h2><span class="level-mark">Level 5</span> Exercise: hidden-capture helpers</h2>
+          <p>Where can each helper be used?</p>
+          <div class="exercise-with-reference">
+            <article class="exercise-reference">
+              <h3>Helpers</h3>
+              <pre><code>type t = { id : int; mutable hits : int }
+let x = { id = 1; hits = 0 }
+
+let id_x () = x.id
+let read_x () = x.hits
+let write_x v = x.hits &lt;- v</code></pre>
+            </article>
+            <div class="exercise-table-panel">
+              <table class="prediction-table compact-prediction" data-prediction-table>
+                <thead><tr><th>Helper</th><th>ordinary</th><th>fork/join</th><th>spawn</th></tr></thead>
+                <tbody>
+                  <tr><th><code>id_x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td></tr>
+                  <tr><th><code>read_x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="no">?</button></td></tr>
+                  <tr><th><code>write_x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="no">?</button></td><td><button type="button" data-answer="no">?</button></td></tr>
+                </tbody>
+              </table>
+              <div class="exercise-controls"><button type="button" data-check-table>Check</button><button type="button" data-reset-table>Reset</button><span data-table-feedback aria-live="polite"></span></div>
+            </div>
+          </div>
+          <aside class="notes">Map rows to portable, shareable, nonportable.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 5</span> Two questions per call</h2>
+          <div class="two-up">
+            <article><h3>explicit argument failure</h3><pre><code>let bump_hits (x @ uncontended) =
+  x.hits <- x.hits + 1
+
+fun _parallel -> bump_hits x</code></pre><p>Is <code>x</code> available at the parameter mode?</p></article>
+            <article><h3>function-value failure</h3><pre><code>let write_x v =
+  x.hits <- v
+
+fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareable or portable enough?</p></article>
+          </div>
+          <aside class="notes">For any call inside parallel work, ask both questions: arguments and callee value.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 6</span> Modes are positional</h2>
+          <div class="position-grid">
+            <article><code>t @ shared</code><p>this value position requires shared contention</p></article>
+            <article><code>(unit -> unit) @ portable</code><p>this function value must be portable</p></article>
+            <article><code>('a @ shared -> 'b) @ shareable</code><p>callback value is shareable; its argument is provided as shared</p></article>
+            <article><code>((unit -> unit) @ portable -> unit) @ shareable</code><p>outer function is shareable; its argument must be a portable function</p></article>
+          </div>
+          <p class="takeaway">Do not split “values vs functions.” Function values are values; read the annotation at its type position.</p>
+          <aside class="notes">This prepares students for real signatures.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 7</span> Parallel APIs are ordinary typed APIs</h2>
+          <div class="signature-card">
+            <pre><code>val fork_join2 :
+  Parallel.t @ local ->
+  (Parallel.t @ local -> 'a) @ shareable ->
+  (Parallel.t @ local -> 'b) @ shareable ->
+  #('a * 'b)
+
+val spawn :
+  (unit -> unit) @ portable ->
+  unit -> unit</code></pre>
+          </div>
+          <p class="takeaway">The callback argument types trigger the earlier rules. There is no compiler special case for these names.</p>
+          <aside class="notes">No compiler magic for these names. The callback slots impose the modal requirements.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2><span class="level-mark">Level 8</span> Exercise: parallel_map shape</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The callback mode propagates through higher-order helper APIs.</p>
+              <p>Predict the inferred promise on <code>f</code>: both fork/join callbacks must be allowed to call it.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">parallel_map.ml</div>
+              <oxcaml data-show-interface data-filename="parallel_map.ml" no-self-check>
+let rec parallel_map parallel f xs =
+  match xs with
+  | [] -> []
+  | x :: xs ->
+    let #(y, ys) =
+      Parallel.fork_join2 parallel
+        (fun _parallel -> f x)
+        (fun parallel -> parallel_map parallel f xs)
+    in
+    y :: ys
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This is intentionally a mode-reading exercise, not a long coding exercise.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2><span class="level-mark">Level 8</span> Read the capstone type positionally</h2>
+          <div class="signature-card capstone-signature">
+            <pre><code>val parallel_map :
+  Parallel.t @ local ->
+  ('a @ shared -> 'b) @ shareable ->
+  'a list @ shareable shared ->
+  'b list @@ portable</code></pre>
+          </div>
+          <div class="type-callouts">
+            <p><strong>callback:</strong> shareable value; receives each element as shared</p>
+            <p><strong>input list:</strong> may flow into fork/join work; read-only access</p>
+            <p><strong>implementation:</strong> checked as portable enough to call from parallel contexts</p>
+          </div>
+          <aside class="notes">Use this as API-design discussion: what should be shareable, portable, shared, or local?</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Parallelism recap</h2>
+          <div class="checklist">
+            <p><strong>0.</strong> Parallel mutation can race.</p>
+            <p><strong>1.</strong> Surface model: callback bodies appear to be checked.</p>
+            <p><strong>2.</strong> Direct reads/writes require contention modes.</p>
+            <p><strong>3.</strong> Shareable and portable closure boundaries weaken captured values.</p>
+            <p><strong>4.</strong> Function calls check explicit argument-mode requirements.</p>
+            <p><strong>5.</strong> Function values carry portability, catching hidden captures.</p>
+            <p><strong>6-8.</strong> Modes are positional; ordinary API types create reusable parallel contracts.</p>
+          </div>
+          <aside class="notes">This is the durable mental model for the parallelism section.</aside>
+        </section>
+
+        <section class="slide section-slide" data-background-color="#101827">
+          <p class="eyebrow">Module 02</p>
+          <h1>Locality, stack allocation, and zeroalloc</h1>
+          <ul class="goal-list">
+            <li>Explain why heap allocation matters in hot paths.</li>
+            <li>Use local arguments and local returns.</li>
+            <li>Predict stack escape errors.</li>
+            <li>Read <code>[@zero_alloc]</code> as a checked contract.</li>
+          </ul>
+          <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Why heap allocation matters</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>OCaml allocation is usually cheap. Some hot or low-latency paths need a checked no-GC-heap-allocation contract.</p>
+              <p><code>Some n</code> is ordinary style, but the present case allocates.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_motivating_option_allocation.ml</div>
+              <oxcaml data-filename="Ex03_motivating_option_allocation.ml">
+let maybe_positive n =
+  if n >= 0 then Some n else None
+
+let () =
+  match maybe_positive 3 with
+  | None -> print_endline "none"
+  | Some n -> print_endline (string_of_int n)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The point is not that option is bad. The point is that some APIs need allocation behavior in the contract.</aside>
+        </section>
+
+        <section class="slide widget-slide">
+          <h2>Three storage places</h2>
+          <figure class="allocation-figure allocation-diagram-only" data-allocation-state="stack">
+            <p class="diagram-caption">Temporary list state: the call stack borrows, the allocation stack owns the local list, and the GC heap does not receive a list block.</p>
+            <div class="memory-map" data-current-state="stack" aria-label="Allocation model for summing a temporary local list">
+              <div class="memory-column call-column">
+                <div class="memory-title">Call stack<span class="memory-subtitle">function calls and returns</span></div>
+                <div class="memory-stack" data-visible-states="heap">
+                  <div class="call-frame callee exiting"><strong>make_heap_list frame</strong><span>popped after returning pointer</span></div>
+                  <div class="call-frame"><strong>caller frame</strong><span>prints total after <code>sum</code> returns</span></div>
+                </div>
+                <div class="memory-stack is-visible" data-visible-states="stack">
+                  <div class="call-frame callee"><strong>sum frame</strong><span>borrows <code>int list @ local</code></span></div>
+                  <div class="call-frame"><strong>caller frame</strong><span>prints total after local list is consumed</span></div>
+                </div>
+                <div class="memory-stack" data-visible-states="escape">
+                  <div class="call-frame callee exiting"><strong>bad frame</strong><span>return would pop this frame</span></div>
+                  <div class="call-frame"><strong>caller frame</strong><span>ordinary return would keep pointer</span></div>
+                </div>
+                <div class="memory-stack" data-visible-states="exclave">
+                  <div class="call-frame callee exiting"><strong>make_stack_list frame</strong><span>returns after <code>exclave_</code></span></div>
+                  <div class="call-frame"><strong>caller frame</strong><span>prints total after returned local list is consumed</span></div>
+                </div>
+              </div>
+              <div class="memory-column alloc-column">
+                <div class="memory-title">Allocation stack<span class="memory-subtitle">local OCaml blocks</span></div>
+                <div class="empty-space" data-visible-states="heap"><span>No stack allocation in the heap-list state.</span></div>
+                <div class="region-stack is-visible" data-visible-states="stack">
+                  <div class="region-row">
+                    <div class="region-frame callee-region empty-region allocation-gap"><span><code>sum</code> borrows; no local blocks</span></div>
+                  </div>
+                  <div class="region-row">
+                    <div class="stack-pointer">caller region</div>
+                    <div class="list-spine">
+                      <div class="list-spine-label">local list spine consumed by <code>sum</code></div>
+                      <div class="list-cell stack-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-nil">[]</div>
+                    </div>
+                    <div class="region-frame"><strong>caller region</strong><span>cells are reclaimed when this region ends</span></div>
+                  </div>
+                </div>
+                <div class="region-stack" data-visible-states="escape">
+                  <div class="region-row">
+                    <div class="stack-pointer"><code>bad</code> region mark</div>
+                    <div class="list-spine">
+                      <div class="list-spine-label">callee-local list spine</div>
+                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-nil">[]</div>
+                    </div>
+                    <div class="region-frame callee-region exiting"><strong><code>bad</code> region</strong><span>reclaimed on return</span></div>
+                  </div>
+                  <div class="region-row">
+                    <div class="memory-arrow rejected">caller pointer invalid</div>
+                  </div>
+                </div>
+                <div class="region-stack" data-visible-states="exclave">
+                  <div class="region-row">
+                    <div class="region-frame callee-region exiting"><strong>callee region</strong><span>temporary stack blocks reclaimed first</span></div>
+                    <div class="region-boundary"><strong><code>exclave_</code></strong><span>subsequent allocation happens in caller region</span></div>
+                  </div>
+                  <div class="region-row">
+                    <div class="stack-pointer">caller region</div>
+                    <div class="list-spine">
+                      <div class="list-spine-label">returned list spine in caller region</div>
+                      <div class="list-cell stack-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-cell stack-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
+                      <div class="list-nil">[]</div>
+                    </div>
+                    <div class="region-frame parent"><strong>caller region</strong><span>result stays valid until this region ends</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="memory-column heap-column">
+                <div class="memory-title">GC heap<span class="memory-subtitle">ordinary OCaml allocation</span></div>
+                <div data-visible-states="heap">
+                  <div class="list-spine">
+                    <div class="list-spine-label">global list spine from <code>make_heap_list</code></div>
+                    <div class="list-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
+                    <div class="list-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
+                    <div class="list-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
+                    <div class="list-nil">[]</div>
+                  </div>
+                  <div class="memory-arrow">caller receives pointer</div>
+                  <div class="memory-note">The list remains valid after <code>make_heap_list</code> returns.</div>
+                </div>
+                <div class="empty-space is-visible" data-visible-states="stack escape exclave"><span>No new heap list is needed in this state.</span></div>
+              </div>
+            </div>
+          </figure>
+          <aside class="notes">Use this static slide for the runtime model. The next slides cover rejected escape and exclave_ without depending on a tabbed widget.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>stack_ succeeds when consumed locally</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>stack_</code> forces the following allocation onto the allocation stack.</p>
+              <p>The consumer matters: <code>sum</code> accepts <code>int list @ local</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_stack_list_used_inside_region.ml</div>
+              <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
+let rec sum_loop acc (xs : int list @ local) =
+  match xs with
+  | [] -> acc
+  | x :: xs -> sum_loop (acc + x) xs
+
+let sum (xs : int list @ local) =
+  sum_loop 0 xs
+
+let () =
+  print_endline (string_of_int (sum (stack_ [1; 2; 3])))
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Explain that local is a promise by the callee: it will not retain the list.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>stack_ rejects escapes</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>stack_</code> is strict: it does not silently move an escaping allocation back to the heap.</p>
+              <p class="diagnostic-callout">Expected outcome: rejected escape.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_stack_list_escape_global_return.ml</div>
+              <oxcaml check data-filename="Ex03_stack_list_escape_global_return.ml" expect-error>
+let bad () =
+  stack_ [1; 2; 3]
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Tie this to the dangling pointer diagram: the callee region would be reclaimed.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Local arguments let APIs borrow values</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The restriction is on the function body, not on callers.</p>
+              <p>Callers may pass heap values or stack values.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_local_consumer.ml</div>
+              <oxcaml check data-filename="Ex03_local_consumer.ml">
+let inspect (x : int option @ local) =
+  match x with
+  | None -> 0
+  | Some n -> n
+
+let demo () =
+  inspect (stack_ (Some 42)) [@nontail]
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Ask: who is restricted? Answer: inspect's implementation.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Callback APIs can lend temporary state</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>A callback can use temporary state during the call, but cannot retain it.</p>
+              <p>The local parameter is the API contract.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_with_scratch_local_callback.ml</div>
+              <oxcaml check data-filename="Ex03_with_scratch_local_callback.ml">
+type scratch = { mutable total : int }
+
+let with_scratch (f : scratch @ local -> 'a) =
+  let s = stack_ { total = 0 } in
+  f s [@nontail]
+
+let add_with_scratch x y =
+  with_scratch (fun s ->
+    s.total <- x + y;
+    s.total)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This is borrowing, not just allocation optimization.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Local closures need local callback slots</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>If a closure captures a local value, the closure itself is local.</p>
+              <p>Immediate-call APIs should accept local callback values.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_local_callback_slot.ml</div>
+              <oxcaml check data-filename="Ex03_local_callback_slot.ml">
+let bump (r : int ref @ local) =
+  r := !r + 1
+
+let call_now (f : (unit -> unit) @ local) =
+  f ()
+
+let good () =
+  let count = stack_ (ref 0) in
+  call_now (fun () -> bump count);
+  !count
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Contrast with an ordinary callback slot, which would allow the closure to escape.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Local returns and exclave_</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>exclave_</code> exits the current region and evaluates the result expression in the parent region.</p>
+              <p>The result may be local to the caller.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_exclave_return.ml</div>
+              <oxcaml run data-filename="Ex03_exclave_return.ml">
+let make_stack_list () : _ @ local =
+  exclave_ stack_ [1; 2; 3]
+
+let rec sum acc (xs : int list @ local) =
+  match xs with
+  | [] -> acc
+  | x :: xs -> sum (acc + x) xs
+
+let () =
+  print_endline (string_of_int (sum 0 (make_stack_list ())))
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Do not describe exclave_ as smuggling out an existing local value. It builds the result in the parent region.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Some values cross locality</h2>
+          <div class="two-up">
+            <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int =
+  x</code></pre><p>No lifetime-sensitive heap block.</p></article>
+            <article><h3>Pointer</h3><pre><code>let id_local_string
+  (x : string @ local) : string @ global =
+  x</code></pre><p>Rejected: the string may point into a local region.</p></article>
+          </div>
+          <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>zero_alloc checks heap allocation</h2>
+          <div class="three-up">
+            <article><h3>passes</h3><pre><code>let[@zero_alloc] add b x y =
+  if b then x + y else x</code></pre></article>
+            <article><h3>fails</h3><pre><code>let[@zero_alloc] pair x y =
+  (x, y)</code></pre><p>heap pair allocation</p></article>
+            <article><h3>passes</h3><pre><code>let[@zero_alloc] local_pair x y
+    : _ @ local =
+  exclave_ stack_ (x, y)</code></pre></article>
+          </div>
+          <aside class="notes">The annotation is a checker, not an optimization request. Native-check examples can be wired later.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Allocation recap</h2>
+          <div class="checklist">
+            <p><strong>local/global</strong> controls lifetime and escape.</p>
+            <p><strong>stack_</strong> forces the next allocation onto the allocation stack.</p>
+            <p><strong>exclave_</strong> builds a local result in the caller region.</p>
+            <p><strong>[@zero_alloc]</strong> checks no GC heap allocation.</p>
+          </div>
+          <aside class="notes">Separate lifetime control from heap allocation control.</aside>
+        </section>
+
+        <section class="slide section-slide" data-background-color="#101827">
+          <p class="eyebrow">Module 03</p>
+          <h1>Value layouts and unboxing</h1>
+          <ul class="goal-list">
+            <li>Explain immediate words vs heap-block pointers.</li>
+            <li>Spot boxes, headers, pointers, and raw fields.</li>
+            <li>Choose the feature that removes a specific cost.</li>
+            <li>Read layout and kind requirements in APIs.</li>
+          </ul>
+          <aside class="notes">Start from the ordinary OCaml runtime invariant, then show where it costs.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Runtime invariant: one OCaml value word</h2>
+          <div class="value-model-figure">
+            <div class="value-model-grid">
+              <div class="value-model-panel">
+                <h3>Immediate value</h3>
+                <div class="value-word value-word-immediate"><span class="value-word-main">63 bits of immediate data</span><span class="value-word-tag">1</span></div>
+                <p>Small integers and constructors with no payload use this shape.</p>
+              </div>
+              <div class="value-model-panel">
+                <h3>Pointer value</h3>
+                <div class="value-word value-word-pointer"><span class="value-word-main">aligned heap address</span><span class="value-word-tag">0</span></div>
+                <div class="value-pointer-line" aria-hidden="true"></div>
+                <div class="heap-block-model">
+                  <div class="heap-block-label">heap block</div>
+                  <div class="heap-model">
+                    <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
+                    <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
+                    <div class="heap-model-ellipsis">...</div>
+                    <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
+                  </div>
+                </div>
+                <p>The word points to a heap block with a header and payload words.</p>
+              </div>
+            </div>
+          </div>
+          <aside class="notes">Avoid over-detailing endianness. The key fact is low-bit interpretation.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Heap block anatomy</h2>
+          <div class="heap-block-model heap-block-slide">
+            <div class="heap-block-label">heap block</div>
+            <div class="heap-model">
+              <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
+              <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
+              <div class="heap-model-word"><strong>payload 1</strong><span>value or raw data</span></div>
+              <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
+            </div>
+          </div>
+          <p class="takeaway">The GC follows fields described as values. Raw data fields are not scanned as pointers.</p>
+          <aside class="notes">This distinction matters for unboxed float fields and mixed blocks.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Uniform value representation is powerful</h2>
+          <div class="two-up">
+            <article><h3>Source</h3><pre><code>let plain_value_integer = 5
+let plain_value_tuple = (1, 2, 3)
+type quote =
+  { symbol : string
+  ; price : int
+  ; mutable size : int
+  }</code></pre></article>
+            <article><h3>Runtime model</h3><p>GC, polymorphism, tuples, records, variants, and libraries all agree on one value shape.</p></article>
+          </div>
+          <aside class="notes">The uniform model is a strength before it is a cost.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Variants and recursive data are values too</h2>
+          <div class="two-up">
+            <article><h3>Constant constructors</h3><p>Represented as immediates.</p></article>
+            <article><h3>Payload constructors</h3><p>Allocate heap blocks; the header tag identifies the constructor.</p></article>
+          </div>
+          <p class="takeaway">Recursive data is a graph of value words and heap blocks.</p>
+          <aside class="notes">This is where the representation visualizer is strongest in the course page.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Sharing: the heap is a graph</h2>
+          <pre><code>let shared = "shared"
+let t = (shared, shared, "other")</code></pre>
+          <p class="takeaway">Two fields can point at the same heap object. Visualizations must preserve sharing.</p>
+          <aside class="notes">Do not redraw shared heap graphs as trees.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Uniform model costs: boxes and pointers</h2>
+          <div class="cost-ledger">
+            <article><h3>boxed numeric values</h3><pre><code>let boxed_numeric_values =
+  (3.5, 456L)</code></pre><p>tuple block, boxed float, boxed int64</p></article>
+            <article><h3>ordinary option values</h3><pre><code>let ordinary_option_values =
+  (None, Some "found")</code></pre><p>Some wrapper block</p></article>
+          </div>
+          <aside class="notes">Boxes mean allocation, headers, pointer indirection, and future GC work.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Layouts remove specific boxes</h2>
+          <div class="cost-ledger">
+            <article><h3>ordinary tuple</h3><pre><code>(1, "one")</code></pre><p>one heap block for grouping</p></article>
+            <article class="ok-card"><h3>unboxed product</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
+          </div>
+          <aside class="notes">Unboxing removes the specified box, not everything reachable.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Unboxed records inline nested fields</h2>
+          <div class="cost-ledger">
+            <article><h3>boxed point</h3><pre><code>type boxed_point =
+  { x : float; y : float }
+
+type sample =
+  { label : string
+  ; point : boxed_point
+  ; count : int
+  }</code></pre><p>outer record points to a point block with boxed floats</p></article>
+            <article class="ok-card"><h3>unboxed point</h3><pre><code>type unboxed_point =
+  #{ x : float#; y : float# }
+
+type sample =
+  { label : string
+  ; point : unboxed_point
+  ; count : int
+  }</code></pre><p>raw float fields inline in the outer record</p></article>
+          </div>
+          <aside class="notes">This is the most concrete representation win in the lecture.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>or_null removes option wrapper allocation</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <div class="repr-map">
+                <div class="repr-row">
+                  <code>None</code>
+                  <span class="repr-arrow">→</span>
+                  <code>Null</code>
+                  <span>missing value</span>
+                </div>
+                <div class="repr-row">
+                  <code>Some payload</code>
+                  <span class="repr-arrow">→</span>
+                  <code>This payload</code>
+                  <span>same representation as the payload</span>
+                </div>
+              </div>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">exercise_hd_or_null.ml</div>
+              <oxcaml check data-filename="exercise_hd_or_null.ml">
+let hd_option = function
+  | [] -> None
+  | x :: _ -> Some x
+
+let hd_or_null = function
+  | [] -> Null
+  | x :: _ -> This x
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Ask students to rewrite option first, then discuss representation.</aside>
+        </section>
+
+        <section class="slide live-slide or-null-error-slide">
+          <h2>The limit: or_null cannot be nested</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>Null</code> is represented by the null machine word.</p>
+              <p>If <code>string or_null or_null</code> were allowed, the same null word would need two meanings: the outer missing value and the inner missing value.</p>
+              <p class="diagnostic-callout">The payload of <code>or_null</code> must be non-null. A value that is already <code>or_null</code> is maybe-null.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">or_null_cannot_be_nested.ml</div>
+              <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
+type nested = string or_null or_null
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Put this after the allocation win: first teach the useful representation, then show the boundary condition.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Kinds record allowed representations</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>If an error says a type parameter expects <code>value</code>, the API expects ordinary one-word OCaml values.</p>
+              <p>Edit the kind bound from <code>value</code> to <code>float64</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">exercise_value_kind_rejects_float.ml</div>
+              <oxcaml check data-filename="exercise_value_kind_rejects_float.ml" expect-error>
+type ('a : value) box
+type bad = float# box
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The fix is float64. For an unboxed product, use product layouts such as value & float64.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Abstract types need public kinds</h2>
+          <div class="two-up">
+            <article><h3>bad signature</h3><pre><code>module type Point = sig
+  type t
+  val make : float# -> float# -> t
+end</code></pre><p>plain abstract type defaults to value</p></article>
+            <article><h3>fixed signature</h3><pre><code>module type Point = sig
+  type t : float64 & float64
+  val make : float# -> float# -> t
+end</code></pre><p>representation remains abstract; kind is public</p></article>
+          </div>
+          <aside class="notes">Kinds are part of the calling convention even when fields remain hidden.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Polymorphic code still has a layout</h2>
+          <div class="two-up">
+            <article><h3>ordinary map</h3><pre><code>let rec map_value
+  : ('a : value) ('b : value).
+    ('a -> 'b)
+    -> 'a list
+    -> 'b list</code></pre></article>
+            <article><h3>product layout map</h3><pre><code>type ('a : value & value) product_list = ...
+
+let rec map_product_list
+  : ('a : value & value) ('b : value & value).
+    ('a -> 'b)
+    -> 'a product_list
+    -> 'b product_list</code></pre></article>
+          </div>
+          <aside class="notes">Code must know how many components are passed, returned, stored, and scanned.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Templates reduce layout-specific repetition</h2>
+          <pre><code>let%template[@kind k = (value, value & value)] id
+  : ('a : k). 'a -> 'a =
+  fun x -> x</code></pre>
+          <p class="takeaway">One source pattern can generate related checked definitions with different calling conventions.</p>
+          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson.</aside>
+        </section>
+
+        <section class="slide summary-slide">
+          <h2>Choose the checked lever</h2>
+          <div class="lever-grid">
+            <article><h3>Race risk</h3><p>Use contention and portability requirements.</p></article>
+            <article><h3>Lifetime or heap allocation risk</h3><p>Use local, stack_, exclave_, and zeroalloc summaries.</p></article>
+            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed values, or_null, kinds, and templates.</p></article>
+          </div>
+          <p class="takeaway">All three make performance-sensitive intent explicit and checked.</p>
+          <aside class="notes">This is the final durable takeaway.</aside>
+        </section>
+
+        <section class="slide appendix-slide">
+          <h2>Presenter controls</h2>
+          <ul>
+            <li>Press <kbd>S</kbd> for speaker view with notes, timer, current slide, and next slide preview.</li>
+            <li>Use arrow keys for slides and fragments.</li>
+            <li>When focus is inside an editor or widget, keyboard events stay with the interactive element.</li>
+          </ul>
+          <aside class="notes">This slide can be removed for the final delivered lecture deck.</aside>
+        </section>
+      </div>
+    </div>
+
+    <script src="vendor/reveal/reveal.js"></script>
+    <script src="vendor/reveal/plugin/notes.js"></script>
+    <script src="slides.js?v=full-pass-30"></script>
+    <script src="../assets/oxcaml-embed-loader.js"></script>
+  </body>
+</html>
