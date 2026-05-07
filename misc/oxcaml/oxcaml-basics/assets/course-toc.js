@@ -112,6 +112,7 @@
               kind: exerciseContainer ? "exercise" : checkpointContainer ? "checkpoint" : "section",
             };
           });
+  const exerciseHeadings = headings.filter((heading) => heading.kind === "exercise");
 
   const el = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -221,6 +222,13 @@
   compactNav.append(compactPanel);
   document.body.append(compactNav);
 
+  let nextExerciseLink = null;
+  if (exerciseHeadings.length > 0) {
+    nextExerciseLink = el("a", "course-next-exercise", "Next exercise");
+    nextExerciseLink.setAttribute("aria-label", "Jump to next exercise");
+    document.body.append(nextExerciseLink);
+  }
+
   const activeLinks = () => Array.from(document.querySelectorAll("[data-toc-target]"));
   const currentSummary = compactNav.querySelector(".course-compact-current");
 
@@ -244,6 +252,32 @@
       : currentPage.title;
   };
 
+  const nextExerciseAfterViewport = () => {
+    if (exerciseHeadings.length === 0) return null;
+    const y = window.scrollY + 170;
+    return exerciseHeadings.find((heading) => heading.element.offsetTop > y) || exerciseHeadings[0];
+  };
+
+  const updateNextExerciseLink = () => {
+    if (!nextExerciseLink) return;
+    const nextExercise = nextExerciseAfterViewport();
+    if (!nextExercise) return;
+    nextExerciseLink.href = `#${nextExercise.id}`;
+    nextExerciseLink.title = nextExercise.title;
+  };
+
+  if (nextExerciseLink) {
+    nextExerciseLink.addEventListener("click", (event) => {
+      const nextExercise = nextExerciseAfterViewport();
+      if (!nextExercise) return;
+      event.preventDefault();
+      holdActiveSection(nextExercise.id);
+      nextExercise.element.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.history.replaceState(null, "", `#${nextExercise.id}`);
+      updateNextExerciseLink();
+    });
+  }
+
   const holdActiveSection = (id) => {
     heldActiveId = id;
     window.clearTimeout(holdTimer);
@@ -266,6 +300,7 @@
       else break;
     }
     setActiveSection(current.id);
+    updateNextExerciseLink();
   };
 
   const scheduleUpdate = () => {
@@ -275,6 +310,7 @@
   };
 
   updateActiveSection();
+  updateNextExerciseLink();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
 })();

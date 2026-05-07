@@ -37,7 +37,7 @@
         <p>In this course you'll learn about the following OxCaml features.</p>
 
         <ul class="feature-list">
-          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>f @ portable</code>, <code>t @ contended</code> — how values and functions may be used.</span></li>
+          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>x @ shared</code>, <code>(unit -&gt; unit) @ portable</code>, <code>f @@ portable</code> — checked requirements on how a value may be used at a particular binder or type position.</span></li>
           <li><strong>Stack allocation</strong><span class="feature-copy"><code>stack_ expr</code>, <code>exclave_ expr</code> — allocate temporary values without putting them on the heap.</span></li>
           <li><strong>Zero allocation checks</strong><span class="feature-copy"><code>let[@zero_alloc] f ...</code> — ask the compiler to check that a function does not allocate on normal paths.</span></li>
           <li><strong>Layouts and unboxed values</strong><span class="feature-copy"><code>float#</code>, <code>#(x, y)</code>, <code>#{ x : float# }</code> — control value representation.</span></li>

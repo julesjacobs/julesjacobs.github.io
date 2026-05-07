@@ -293,6 +293,39 @@
     );
   }
 
+  function setupExerciseJump() {
+    const exerciseSlides = Reveal.getSlides().filter((slide) => slide.classList.contains("exercise-slide"));
+    if (!exerciseSlides.length) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "exercise-jump";
+    button.textContent = "Next exercise";
+    button.setAttribute("aria-label", "Jump to next exercise slide");
+    document.querySelector(".reveal")?.append(button);
+
+    const indicesFor = (slide) => Reveal.getIndices(slide);
+    const pastCountFor = (slide) => Reveal.getSlidePastCount(slide);
+
+    function nextExerciseSlide() {
+      const current = Reveal.getCurrentSlide();
+      const currentPast = current ? pastCountFor(current) : -1;
+      return (
+        exerciseSlides.find((slide) => pastCountFor(slide) > currentPast) ||
+        exerciseSlides[0]
+      );
+    }
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const target = nextExerciseSlide();
+      if (!target) return;
+      const indices = indicesFor(target);
+      Reveal.slide(indices.h, indices.v, indices.f);
+    });
+  }
+
   normalizeCodeIndentation();
   highlightStaticCode();
   setupDelegatedInteractions();
@@ -314,5 +347,6 @@
     plugins: [RevealNotes]
   }).then(() => {
     setupStateWidgets();
+    setupExerciseJump();
   });
 }());

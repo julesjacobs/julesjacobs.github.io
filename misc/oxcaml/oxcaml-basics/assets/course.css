@@ -450,6 +450,40 @@ a {
   overflow: hidden;
 }
 
+.course-next-exercise {
+  align-items: center;
+  background: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 78%, black);
+  border-radius: 999px;
+  bottom: 12px;
+  box-shadow: 0 8px 24px var(--shadow-soft);
+  color: #ffffff;
+  display: inline-flex;
+  font-size: 0.84rem;
+  font-weight: 760;
+  gap: 6px;
+  left: 12px;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 10px 13px;
+  position: fixed;
+  text-decoration: none;
+  z-index: 42;
+}
+
+.course-next-exercise::after {
+  content: "↓";
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+.course-next-exercise:hover,
+.course-next-exercise:focus-visible {
+  background: var(--accent-strong);
+  color: #ffffff;
+  text-decoration: none;
+}
+
 .course-compact-toc {
   align-items: flex-end;
   bottom: 12px;

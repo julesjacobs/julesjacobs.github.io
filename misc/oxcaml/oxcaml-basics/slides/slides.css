@@ -92,6 +92,34 @@
   --tag-header-border: rgba(112, 225, 255, 0.38);
 }
 
+.exercise-jump {
+  background: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 78%, black);
+  border-radius: 999px;
+  bottom: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
+  color: #ffffff;
+  cursor: pointer;
+  font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 760;
+  left: 18px;
+  letter-spacing: 0;
+  line-height: 1;
+  padding: 10px 13px;
+  position: absolute;
+  z-index: 40;
+}
+
+.exercise-jump::after {
+  content: " ↓";
+}
+
+.exercise-jump:hover,
+.exercise-jump:focus-visible {
+  background: #005676;
+}
+
 body {
   background: var(--bg);
 }
@@ -1015,7 +1043,8 @@ body {
 }
 
 .runtime-note,
-.diagnostic-callout {
+.diagnostic-callout,
+.browser-note {
   border-left: 4px solid var(--accent-2);
   padding-left: 18px;
 }

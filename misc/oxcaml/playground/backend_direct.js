@@ -1,7 +1,7 @@
 import {
   stripPlaygroundPreludeInterface,
   withPlaygroundPrelude,
-} from "./playground_prelude.js";
+} from "./playground_prelude.js?v=20260507-parallel-shim";
 
 const buildBase = "./build";
 const compilerAssetVersion = "20260506-ppx-driver";

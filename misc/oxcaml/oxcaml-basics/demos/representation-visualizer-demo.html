@@ -452,7 +452,7 @@
           The unboxed numeric fields are raw data inside the record's mixed
           block. The boxed <code>int32</code> and <code>int64</code> fields are
           still pointers to separate heap blocks. In the various-width record,
-          the header's <code>scan 2w</code> field says that the first two
+          the header's <code>scan 2 w</code> field says that the first two
           payload words are scannable values; the raw numeric fields come after
           that.
         </div>
@@ -591,7 +591,7 @@
         </oxcaml-repr>
 
         <div class="note">
-          In the unboxed version, the header's <code>scan 2w</code> field says
+          In the unboxed version, the header's <code>scan 2 w</code> field says
           that the first two payload words are scannable by the GC, and the
           remaining words are raw floating-point bits.
         </div>

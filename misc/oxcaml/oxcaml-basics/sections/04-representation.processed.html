@@ -70,7 +70,7 @@
         <p>Most ordinary OCaml expressions produce this same runtime shape: one <code>value</code> word, either immediate data or a pointer to a heap block.</p>
         <p>This uniform model is a strength of OCaml. The GC, polymorphic functions, tuples, records, variants, and many library data structures can all talk about values without knowing the exact source type.</p>
 
-        
+
 <style>
   .native-repr-example {
     background: rgba(248, 250, 252, 0.5);
@@ -616,7 +616,7 @@
 	    }
 	  }
 	</style>
-	
+
 <script>
 (() => {
   function clearGraph(graph) {
@@ -712,16 +712,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_tuple
 This labels the root value word, not a heap block.'>plain_value_tuple</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001008deea8
+raw address word: 0x0000000102b8aee8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x8d'>8d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
-least-significant byte on this little-endian machine'>a8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb8'>b8</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe8
+least-significant byte on this little-endian machine'>e8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-plain_value_tuple-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000f00
@@ -740,7 +740,7 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 1
@@ -780,16 +780,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_record
 This labels the root value word, not a heap block.'>plain_value_record</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_record-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000524800bd0
+raw address word: 0x0000000c40800bd0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x24'>24</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x80'>80</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x0b'>0b</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x0c'>0c</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x40'>40</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x80'>80</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x0b'>0b</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
 least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-plain_value_record-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000c00
@@ -808,16 +808,16 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-plain_value_record-8-node-2' title='pointer to heap block @2
-raw address word: 0x000000010030aeb0
+raw address word: 0x0000000100a3eef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x30'>30</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
-least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 101
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xa3'>a3</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 101
 raw word: 0x00000000000000cb
 encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -830,7 +830,7 @@ shown first to match the printed raw word'>00</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>0f</span><span class='native-repr-label'>int 7</span></span></div></div><div class='native-repr-block' id='native-repr-plain_value_record-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -849,7 +849,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -885,16 +885,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: constant_constructors
 This labels the root value word, not a heap block.'>constant_constructors</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-constant_constructors-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104caeeb0
+raw address word: 0x0000000100e92ef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xca'>ca</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
-least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xe9'>e9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-constant_constructors-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000f00
@@ -913,7 +913,7 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 0
@@ -953,16 +953,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: variant_payloads
 This labels the root value word, not a heap block.'>variant_payloads</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102f9aea8
+raw address word: 0x0000000104ef6ee8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa8
-least-significant byte on this little-endian machine'>a8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe8
+least-significant byte on this little-endian machine'>e8</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-variant_payloads-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000f00
@@ -981,7 +981,7 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 0
@@ -990,21 +990,21 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x01
 least-significant byte on this little-endian machine'>01</span><span class='native-repr-label'>int 0</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000102f9aee0
+raw address word: 0x0000000104ef6f20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000102f9aec8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-3' title='pointer to heap block @3
+raw address word: 0x0000000104ef6f08
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
-least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
+least-significant byte on this little-endian machine'>08</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 2 words
 raw header: 0x0000000000000b00
@@ -1023,16 +1023,16 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000102f9aef8
+raw address word: 0x0000000104ef6f38
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
-least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 100
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x38
+least-significant byte on this little-endian machine'>38</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 100
 raw word: 0x00000000000000c9
 encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -1040,7 +1040,7 @@ shown first to match the printed raw word'>00</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>c9</span><span class='native-repr-label'>int 100</span></span></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 1, 2 words
 raw header: 0x0000000000000b01
@@ -1059,16 +1059,16 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000102f9aef8
+raw address word: 0x0000000104ef6f38
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xf9'>f9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
-least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 95
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xef'>ef</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x38
+least-significant byte on this little-endian machine'>38</span><span class='native-repr-label'>-&gt; @4</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 95
 raw word: 0x00000000000000bf
 encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -1076,7 +1076,7 @@ shown first to match the printed raw word'>00</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>bf</span><span class='native-repr-label'>int 95</span></span></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-4'><div class='native-repr-block-title' title='heap block @4
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @4
 Pointer words labeled -&gt; @4 refer to this block.'>@4</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1095,7 +1095,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1122,16 +1122,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: recursive_tree
 This labels the root value word, not a heap block.'>recursive_tree</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104c16ea0
+raw address word: 0x000000010509eee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
-least-significant byte on this little-endian machine'>a0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-recursive_tree-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 1, 2 words
 raw header: 0x0000000000000b01
@@ -1150,25 +1150,25 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104c16f10
+raw address word: 0x000000010509ef50
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x10
-least-significant byte on this little-endian machine'>10</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000104c16eb8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x50
+least-significant byte on this little-endian machine'>50</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-3' title='pointer to heap block @3
+raw address word: 0x000000010509eef8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
-least-significant byte on this little-endian machine'>b8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
+least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 1 word
 raw header: 0x0000000000000700
@@ -1187,19 +1187,19 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-4' title='pointer to heap block @4
-raw address word: 0x0000000104c16f20
+raw address word: 0x000000010509ef60
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
-least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @4</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-3'><div class='native-repr-block-title' title='heap block @3
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x60
+least-significant byte on this little-endian machine'>60</span><span class='native-repr-label'>-&gt; @4</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 1, 2 words
 raw header: 0x0000000000000b01
@@ -1218,25 +1218,25 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 1, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-5' title='pointer to heap block @5
-raw address word: 0x0000000104c16ef0
+raw address word: 0x000000010509ef30
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
-least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @5</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-6' title='pointer to heap block @6
-raw address word: 0x0000000104c16ed0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x30
+least-significant byte on this little-endian machine'>30</span><span class='native-repr-label'>-&gt; @5</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-6' title='pointer to heap block @6
+raw address word: 0x000000010509ef10
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
-least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @6</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-4'><div class='native-repr-block-title' title='heap block @4
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x10
+least-significant byte on this little-endian machine'>10</span><span class='native-repr-label'>-&gt; @6</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-4'><div class='native-repr-block-title' title='heap block @4
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @4
 Pointer words labeled -&gt; @4 refer to this block.'>@4</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1255,7 +1255,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1265,7 +1265,7 @@ bytes shown in memory order, byte offset 0 first'><span class='native-repr-byte'
 first byte in memory; least-significant byte on this little-endian machine'>6c</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 1 = 0x65'>65</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 3 = 0x74'>74</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 7 = 0x03'>03</span><span class='native-repr-label'>&quot;left&quot;</span></span></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-5'><div class='native-repr-block-title' title='heap block @5
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @5
 Pointer words labeled -&gt; @5 refer to this block.'>@5</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 1 word
 raw header: 0x0000000000000700
@@ -1284,19 +1284,19 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-7' title='pointer to heap block @7
-raw address word: 0x0000000104c16f00
+raw address word: 0x000000010509ef40
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6f'>6f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
-least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>-&gt; @7</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-6'><div class='native-repr-block-title' title='heap block @6
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x40
+least-significant byte on this little-endian machine'>40</span><span class='native-repr-label'>-&gt; @7</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-6'><div class='native-repr-block-title' title='heap block @6
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @6
 Pointer words labeled -&gt; @6 refer to this block.'>@6</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 1 word
 raw header: 0x0000000000000700
@@ -1315,19 +1315,19 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-recursive_tree-8-node-8' title='pointer to heap block @8
-raw address word: 0x0000000104c16ee0
+raw address word: 0x000000010509ef20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc1'>c1</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @8</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-7'><div class='native-repr-block-title' title='heap block @7
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x09'>09</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @8</span></a></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-7'><div class='native-repr-block-title' title='heap block @7
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @7
 Pointer words labeled -&gt; @7 refer to this block.'>@7</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1346,7 +1346,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1356,7 +1356,7 @@ bytes shown in memory order, byte offset 0 first'><span class='native-repr-byte'
 first byte in memory; least-significant byte on this little-endian machine'>6d</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 1 = 0x69'>69</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 2 = 0x64'>64</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 3 = 0x64'>64</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 4 = 0x6c'>6c</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 5 = 0x65'>65</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 7 = 0x01'>01</span><span class='native-repr-label'>&quot;middle&quot;</span></span></div></div><div class='native-repr-block' id='native-repr-recursive_tree-8-node-8'><div class='native-repr-block-title' title='heap block @8
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @8
 Pointer words labeled -&gt; @8 refer to this block.'>@8</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1375,7 +1375,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1402,16 +1402,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: shared_string_tuple
 This labels the root value word, not a heap block.'>shared_string_tuple</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x000000010266eeb0
+raw address word: 0x000000010028eef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
-least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x28'>28</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000f00
@@ -1430,31 +1430,31 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x000000010266eee0
+raw address word: 0x000000010028ef20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x000000010266eee0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x28'>28</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
+raw address word: 0x000000010028ef20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-3' title='pointer to heap block @3
-raw address word: 0x000000010266eed0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x28'>28</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-3' title='pointer to heap block @3
+raw address word: 0x000000010028ef10
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x66'>66</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd0
-least-significant byte on this little-endian machine'>d0</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x28'>28</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x10
+least-significant byte on this little-endian machine'>10</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1473,7 +1473,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1483,7 +1483,7 @@ bytes shown in memory order, byte offset 0 first'><span class='native-repr-byte'
 first byte in memory; least-significant byte on this little-endian machine'>73</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 1 = 0x68'>68</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 2 = 0x61'>61</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 3 = 0x72'>72</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 4 = 0x65'>65</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 5 = 0x64'>64</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 7 = 0x01'>01</span><span class='native-repr-label'>&quot;shared&quot;</span></span></div></div><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1502,7 +1502,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1528,16 +1528,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: boxed_numeric_values
 This labels the root value word, not a heap block.'>boxed_numeric_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104c4aeb0
+raw address word: 0x0000000100a2aef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
-least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xa2'>a2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 2 words
 raw header: 0x0000000000000b00
@@ -1556,25 +1556,25 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104c4aee0
+raw address word: 0x0000000100a2af20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000104c4aec8
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xa2'>a2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xaf'>af</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-3' title='pointer to heap block @3
+raw address word: 0x0000000100a2af08
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc4'>c4</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
-least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xa2'>a2</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xaf'>af</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
+least-significant byte on this little-endian machine'>08</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 253, float
 raw header: 0x00000000000007fd
@@ -1593,7 +1593,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (253), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 253, float</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='boxed float payload
@@ -1605,7 +1605,7 @@ shown first to match the printed raw word'>40</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>float 3.5</span></span></div></div><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 255, custom
 raw header: 0x0000000000000bff
@@ -1624,14 +1624,14 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (255), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 255, custom</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='custom block raw payload word 0
-raw word: 0x0000000104c9c118
+raw word: 0x0000000100a7c250
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc9'>c9</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xc1'>c1</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x18
-least-significant byte on this little-endian machine'>18</span><span class='native-repr-label'>raw word</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='custom block raw payload word 1
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xa7'>a7</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xc2'>c2</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x50
+least-significant byte on this little-endian machine'>50</span><span class='native-repr-label'>raw word</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='custom block raw payload word 1
 raw word: 0x00000000000001c8
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x01'>01</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
@@ -1652,16 +1652,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: ordinary_option_values
 This labels the root value word, not a heap block.'>ordinary_option_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001044a6eb0
+raw address word: 0x000000010108eef0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb0
-least-significant byte on this little-endian machine'>b0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x08'>08</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf0
+least-significant byte on this little-endian machine'>f0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 2 words
 raw header: 0x0000000000000b00
@@ -1680,7 +1680,7 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 0
@@ -1689,15 +1689,15 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x01
 least-significant byte on this little-endian machine'>01</span><span class='native-repr-label'>int 0</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x00000001044a6ec8
+raw address word: 0x000000010108ef08
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc8
-least-significant byte on this little-endian machine'>c8</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x08'>08</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
+least-significant byte on this little-endian machine'>08</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 1 word
 raw header: 0x0000000000000700
@@ -1716,19 +1716,19 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 1 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 1 word</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-ordinary_option_values-8-node-3' title='pointer to heap block @3
-raw address word: 0x00000001044a6ed8
+raw address word: 0x000000010108ef18
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4a'>4a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x6e'>6e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xd8
-least-significant byte on this little-endian machine'>d8</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-3'><div class='native-repr-block-title' title='heap block @3
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x08'>08</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x18
+least-significant byte on this little-endian machine'>18</span><span class='native-repr-label'>-&gt; @3</span></a></div></div><div class='native-repr-block' id='native-repr-ordinary_option_values-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1747,7 +1747,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1784,16 +1784,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_boxed_point
 This labels the root value word, not a heap block.'>outer_record_with_boxed_point</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001047deec0
+raw address word: 0x00000001050a2f00
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
-least-significant byte on this little-endian machine'>c0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x0a'>0a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2f'>2f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
+least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-outer_record_with_boxed_point-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 32 bytes
-This includes the runtime header word plus 3 payload words.'>32B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 3 payload words.'>32 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 3 words
 raw header: 0x0000000000000f00
@@ -1812,22 +1812,22 @@ bits 10-55
 raw wosize: 3
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>3 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 3 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 3 words</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x00000001047deef8
+raw address word: 0x00000001050a2f38
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
-least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-3' title='pointer to heap block @3
-raw address word: 0x00000001047deee0
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x0a'>0a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2f'>2f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x38
+least-significant byte on this little-endian machine'>38</span><span class='native-repr-label'>-&gt; @2</span></a><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-3' title='pointer to heap block @3
+raw address word: 0x00000001050a2f20
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x7d'>7d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
-least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @3</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x05'>05</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x0a'>0a</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2f'>2f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x20
+least-significant byte on this little-endian machine'>20</span><span class='native-repr-label'>-&gt; @3</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
 raw word: 0x000000000000000f
 encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -1835,7 +1835,7 @@ shown first to match the printed raw word'>00</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>0f</span><span class='native-repr-label'>int 7</span></span></div></div><div class='native-repr-block' id='native-repr-outer_record_with_boxed_point-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1854,7 +1854,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -1864,7 +1864,7 @@ bytes shown in memory order, byte offset 0 first'><span class='native-repr-byte'
 first byte in memory; least-significant byte on this little-endian machine'>70</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 7 = 0x06'>06</span><span class='native-repr-label'>&quot;p&quot;</span></span></div></div><div class='native-repr-block' id='native-repr-outer_record_with_boxed_point-8-node-3'><div class='native-repr-block-title' title='heap block @3
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @3
 Pointer words labeled -&gt; @3 refer to this block.'>@3</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 254, floats
 raw header: 0x0000000000000bfe
@@ -1883,7 +1883,7 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (254), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 254, floats</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='float payload word 0
@@ -1929,21 +1929,21 @@ encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x03
 least-significant byte on this little-endian machine'>03</span></span></span><span class='native-repr-layout-component' title='pointer value
-raw address word: 0x000000010018af08
+raw address word: 0x00000001024def48
 points to heap block @1
 Hover to highlight the target and all refs to it.
 Click to jump to the target block.'><span class='native-repr-layout-component-label'>-&gt; @1</span><a class='native-repr-word native-repr-edge native-repr-word-no-label' style='--bytes:8' href='#native-repr-unboxed_pair_of_values-8-node-1' title='pointer value
-raw address word: 0x000000010018af08
+raw address word: 0x00000001024def48
 points to heap block @1
 Hover to highlight the target and all refs to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x18'>18</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xaf'>af</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x08
-least-significant byte on this little-endian machine'>08</span></a></span></div></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x4d'>4d</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xef'>ef</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x48
+least-significant byte on this little-endian machine'>48</span></a></span></div></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-unboxed_pair_of_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -1962,7 +1962,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -2024,16 +2024,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_unboxed_point
 This labels the root value word, not a heap block.'>outer_record_with_unboxed_point</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x000000010247eec0
+raw address word: 0x0000000104c02f00
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x47'>47</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xc0
-least-significant byte on this little-endian machine'>c0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc0'>c0</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2f'>2f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
+least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-outer_record_with_unboxed_point-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 40 bytes
-This includes the runtime header word plus 4 payload words.'>40B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 4 payload words.'>40 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, mixed
 raw header: 0x0300000000001300
@@ -2054,16 +2054,16 @@ bits 10-55
 raw wosize: 4
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>4w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>4 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x03
-On native OxCaml, a nonzero value marks a mixed block and encodes the scannable prefix as reserved - 1. Here the GC scans the first 2 of 4 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-label'>tag 0, mixed</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x000000010247eee8
+On native OxCaml, a nonzero value marks a mixed block and encodes the scannable prefix as reserved - 1. Here the GC scans the first 2 of 4 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-label'>tag 0, mixed</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-2' title='pointer to heap block @2
+raw address word: 0x0000000104c02f28
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x02'>02</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x47'>47</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xee'>ee</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe8
-least-significant byte on this little-endian machine'>e8</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xc0'>c0</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2f'>2f</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x28
+least-significant byte on this little-endian machine'>28</span><span class='native-repr-label'>-&gt; @2</span></a><span class='native-repr-word native-repr-imm' style='--bytes:8' title='immediate integer 7
 raw word: 0x000000000000000f
 encoded as (n &lt;&lt; 1) | 1
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
@@ -2081,7 +2081,7 @@ shown first to match the printed raw word'>40</span><span class='native-repr-byt
 least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>raw word</span></span></div></div><div class='native-repr-block' id='native-repr-outer_record_with_unboxed_point-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -2100,7 +2100,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0
@@ -2126,16 +2126,16 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: or_null_values
 This labels the root value word, not a heap block.'>or_null_values</div><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-or_null_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001006b2ea0
+raw address word: 0x0000000104b0aee0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x6b'>6b</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xa0
-least-significant byte on this little-endian machine'>a0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb0'>b0</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xe0
+least-significant byte on this little-endian machine'>e0</span><span class='native-repr-label'>-&gt; @1</span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
 Heap blocks are allocated objects. Pointers from roots or other heap blocks refer to these blocks.'><div class='native-repr-region-label' title='heap allocated blocks'>heap</div><div class='native-repr-region-content native-repr-heap-blocks'><div class='native-repr-block' id='native-repr-or_null_values-8-node-1'><div class='native-repr-block-title' title='heap block @1
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @1
 Pointer words labeled -&gt; @1 refer to this block.'>@1</span><span class='native-repr-size' title='total heap block size: 24 bytes
-This includes the runtime header word plus 2 payload words.'>24B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 2 payload words.'>24 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 0, 2 words
 raw header: 0x0000000000000b00
@@ -2154,22 +2154,22 @@ bits 10-55
 raw wosize: 2
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>2 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved / scannable-size field
 bits 56-63
 raw reserved byte: 0x00
 Zero means this is not a native mixed block; when the tag is scannable, the GC scans all 2 allocated payload words.'><span class='native-repr-header-field-label'>scan</span><span class='native-repr-header-field-value'>all</span></span><span class='native-repr-label'>tag 0, 2 words</span></span><span class='native-repr-word native-repr-null' style='--bytes:8' title='0x0000000000000000
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
 shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x00'>00</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0x00
 least-significant byte on this little-endian machine'>00</span><span class='native-repr-label'>null</span></span><a class='native-repr-word native-repr-edge' style='--bytes:8' href='#native-repr-or_null_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x00000001006b2eb8
+raw address word: 0x0000000104b0aef8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 bytes shown most-significant first to match the printed raw word'><span class='native-repr-byte' style='grid-column:1' title='byte offset 7 = 0x00
-shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0x6b'>6b</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0x2e'>2e</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xb8
-least-significant byte on this little-endian machine'>b8</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-or_null_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
+shown first to match the printed raw word'>00</span><span class='native-repr-byte' style='grid-column:2' title='byte offset 6 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:3' title='byte offset 5 = 0x00'>00</span><span class='native-repr-byte' style='grid-column:4' title='byte offset 4 = 0x01'>01</span><span class='native-repr-byte' style='grid-column:5' title='byte offset 3 = 0x04'>04</span><span class='native-repr-byte' style='grid-column:6' title='byte offset 2 = 0xb0'>b0</span><span class='native-repr-byte' style='grid-column:7' title='byte offset 1 = 0xae'>ae</span><span class='native-repr-byte native-repr-byte-last' style='grid-column:8' title='byte offset 0 = 0xf8
+least-significant byte on this little-endian machine'>f8</span><span class='native-repr-label'>-&gt; @2</span></a></div></div><div class='native-repr-block' id='native-repr-or_null_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
 Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @2
 Pointer words labeled -&gt; @2 refer to this block.'>@2</span><span class='native-repr-size' title='total heap block size: 16 bytes
-This includes the runtime header word plus 1 payload word.'>16B</span></div><div class='native-repr-mem' title='block memory
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
 Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word' title='runtime header word
 tag 252, string
 raw header: 0x00000000000007fc
@@ -2188,7 +2188,7 @@ bits 10-55
 raw wosize: 1
 This is the allocated payload size: the number of payload words after the header. The total heap block size is one header word plus these payload words.
 
-For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
+For ordinary blocks, this is also the number of payload words the GC scans. For native mixed blocks, the scannable word count is different and comes from the reserved field.'><span class='native-repr-header-field-label'>alloc</span><span class='native-repr-header-field-value'>1 w</span></span><span class='native-repr-header-field native-repr-header-reserved-field' title='reserved field
 bits 56-63
 raw reserved byte: 0x00
 This block has a no-scan tag (252), so the GC does not scan its payload words as OCaml values. The no-scan behavior comes from the tag, not from this reserved byte.'><span class='native-repr-header-field-label'>res</span><span class='native-repr-header-field-value'>0</span></span><span class='native-repr-label'>tag 252, string</span></span><span class='native-repr-word native-repr-raw' style='--bytes:8' title='string payload word 0

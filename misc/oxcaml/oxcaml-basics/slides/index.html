@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=full-pass-30">
+    <link rel="stylesheet" href="slides.css?v=exercise-nav-20260507">
   </head>
   <body>
     <div class="reveal">
@@ -153,6 +153,7 @@ Parallel.fork_join2 parallel
           <div class="live-layout">
             <div class="live-copy">
               <p>Each call owns its buffer. Parallel calls mutate separate scratch state.</p>
+              <p class="browser-note">Browser playground note: the API names are real, but JavaScript runs the scheduler and spawn shim sequentially.</p>
               <img class="side-image" src="../assets/images/buffers-fresh.avif" alt="Separate workspaces for fresh buffers">
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -166,6 +167,7 @@ let bits_to_string bits =
   Buffer.contents buf
 
 let () =
+  print_endline "The output is:";
   ignore (Multicore.spawn
     (fun () -> print_endline (bits_to_string [true; false; true]))
     ());
@@ -349,6 +351,7 @@ let bits_to_string_shared bits =
   Buffer.contents buf
 
 let () =
+  print_endline "The output is:";
   ignore (Multicore.spawn
     (fun () ->
        print_endline (bits_to_string_shared [true; false; true]))
@@ -1074,7 +1077,7 @@ let rec map_product_list
 
     <script src="vendor/reveal/reveal.js"></script>
     <script src="vendor/reveal/plugin/notes.js"></script>
-    <script src="slides.js?v=full-pass-30"></script>
+    <script src="slides.js?v=exercise-nav-20260507"></script>
     <script src="../assets/oxcaml-embed-loader.js"></script>
   </body>
 </html>

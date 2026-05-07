@@ -27,6 +27,34 @@ end = struct
     spawn_on ~domain:0 f x
 end
 
+module Parallel : sig
+  type t
+  val fork_join2
+    :  t @ local
+    -> (t @ local -> 'a) @ shareable
+    -> (t @ local -> 'b) @ shareable
+    -> #('a * 'b)
+  module Scheduler : sig
+    module Sequential : sig
+      type scheduler
+      val create : unit -> scheduler
+      val parallel : scheduler -> f:(t @ local -> 'a) -> 'a
+    end
+  end
+end = struct
+  type t = unit
+  let fork_join2 parallel left right =
+    #(left parallel, right parallel)
+  module Scheduler = struct
+    module Sequential = struct
+      type scheduler = unit
+      let create () = ()
+      let parallel scheduler ~f =
+        f scheduler
+    end
+  end
+end
+
 `;
 
 function escapedStringLiteral(text) {
@@ -38,5 +66,7 @@ export function withPlaygroundPrelude(filename, source) {
 }
 
 export function stripPlaygroundPreludeInterface(output) {
-  return String(output).replace(/^module Multicore :\n\s*sig\n(?:.|\n)*?\n\s*end(?: @@ stateless)?\n?/, "");
+  return String(output)
+    .replace(/^module Multicore :\n[\s\S]*?^  end(?: @@ stateless)?\n?/m, "")
+    .replace(/^module Parallel :\n[\s\S]*?^  end(?: @@ stateless)?\n?/m, "");
 }
