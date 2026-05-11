@@ -1,5 +1,5 @@
 (function () {
-  const version = "20260507-parallel-shim";
+  const version = "20260511-embed-margin";
   const script = document.currentScript;
   const localHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
   const baseUrl = localHostnames.has(window.location.hostname)

@@ -109,6 +109,7 @@
               level: Number(heading.tagName.slice(1)),
               title: heading.textContent.trim().replace(/\s+/g, " "),
               element: heading,
+              exerciseContainer,
               kind: exerciseContainer ? "exercise" : checkpointContainer ? "checkpoint" : "section",
             };
           });
@@ -236,6 +237,10 @@
   let scheduled = false;
   let heldActiveId = "";
   let holdTimer = 0;
+  let lastExerciseJumpId = "";
+  let lastExerciseJumpTime = 0;
+  const exerciseScrollGap = 86;
+  const targetAnimationTimers = new WeakMap();
 
   const setActiveSection = (id) => {
     if (id === activeId) return;
@@ -252,10 +257,29 @@
       : currentPage.title;
   };
 
+  const headingDocumentTop = (heading) =>
+    heading.element.getBoundingClientRect().top + window.scrollY;
+
+  const exerciseAfter = (heading) => {
+    const index = exerciseHeadings.indexOf(heading);
+    if (index < 0) return exerciseHeadings[0] || null;
+    return exerciseHeadings[index + 1] || exerciseHeadings[0] || null;
+  };
+
   const nextExerciseAfterViewport = () => {
     if (exerciseHeadings.length === 0) return null;
-    const y = window.scrollY + 170;
-    return exerciseHeadings.find((heading) => heading.element.offsetTop > y) || exerciseHeadings[0];
+    const y = window.scrollY + exerciseScrollGap + 24;
+    let nextExercise = exerciseHeadings.find((heading) => headingDocumentTop(heading) > y) || exerciseHeadings[0];
+
+    const lastJumpTarget = exerciseHeadings.find((heading) => heading.id === lastExerciseJumpId);
+    if (lastJumpTarget && nextExercise === lastJumpTarget) {
+      const expectedTop = window.scrollY + exerciseScrollGap;
+      const recentJump = window.performance.now() - lastExerciseJumpTime < 5000;
+      const nearLastJumpTarget = Math.abs(headingDocumentTop(lastJumpTarget) - expectedTop) < 260;
+      if (recentJump || nearLastJumpTarget) nextExercise = exerciseAfter(lastJumpTarget);
+    }
+
+    return nextExercise;
   };
 
   const updateNextExerciseLink = () => {
@@ -266,14 +290,55 @@
     nextExerciseLink.title = nextExercise.title;
   };
 
+  const animateTargetExercise = (heading) => {
+    const target = heading.exerciseContainer || heading.element;
+    const priorTimer = targetAnimationTimers.get(target);
+    if (priorTimer) window.clearTimeout(priorTimer);
+    target.classList.remove("course-exercise-targeted");
+    void target.offsetWidth;
+    target.classList.add("course-exercise-targeted");
+    targetAnimationTimers.set(
+      target,
+      window.setTimeout(() => target.classList.remove("course-exercise-targeted"), 1500)
+    );
+  };
+
+  const animateTargetExerciseWhenVisible = (heading) => {
+    const target = heading.exerciseContainer || heading.element;
+    const started = window.performance.now();
+    let lastScrollY = window.scrollY;
+    let settledFrames = 0;
+    const tick = () => {
+      const rect = target.getBoundingClientRect();
+      const visible = rect.top < window.innerHeight * 0.85 && rect.bottom > 80;
+      const scrollDelta = Math.abs(window.scrollY - lastScrollY);
+      settledFrames = scrollDelta < 0.5 ? settledFrames + 1 : 0;
+      lastScrollY = window.scrollY;
+      if ((visible && settledFrames >= 5) || (visible && window.performance.now() - started > 1600)) {
+        animateTargetExercise(heading);
+      } else {
+        window.requestAnimationFrame(tick);
+      }
+    };
+    window.requestAnimationFrame(tick);
+  };
+
+  const scrollToExercise = (heading) => {
+    const targetY = headingDocumentTop(heading) - exerciseScrollGap;
+    window.scrollTo({ top: Math.max(0, targetY), behavior: "smooth" });
+  };
+
   if (nextExerciseLink) {
     nextExerciseLink.addEventListener("click", (event) => {
       const nextExercise = nextExerciseAfterViewport();
       if (!nextExercise) return;
       event.preventDefault();
+      lastExerciseJumpId = nextExercise.id;
+      lastExerciseJumpTime = window.performance.now();
       holdActiveSection(nextExercise.id);
-      nextExercise.element.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToExercise(nextExercise);
       window.history.replaceState(null, "", `#${nextExercise.id}`);
+      animateTargetExerciseWhenVisible(nextExercise);
       updateNextExerciseLink();
     });
   }

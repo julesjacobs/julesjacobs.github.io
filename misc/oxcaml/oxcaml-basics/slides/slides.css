@@ -93,21 +93,21 @@
 }
 
 .exercise-jump {
-  background: var(--accent);
-  border: 1px solid color-mix(in srgb, var(--accent) 78%, black);
+  background: #006d92;
+  border: 1px solid #005676;
   border-radius: 999px;
-  bottom: 18px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.18);
   color: #ffffff;
   cursor: pointer;
   font-family: Avenir Next, Segoe UI, system-ui, sans-serif;
   font-size: 15px;
   font-weight: 760;
-  left: 18px;
   letter-spacing: 0;
   line-height: 1;
   padding: 10px 13px;
   position: absolute;
+  right: 18px;
+  top: 18px;
   z-index: 40;
 }
 
@@ -118,6 +118,32 @@
 .exercise-jump:hover,
 .exercise-jump:focus-visible {
   background: #005676;
+  border-color: #00445f;
+}
+
+.reveal .slides section.exercise-targeted {
+  animation: slideExerciseTarget 1.4s ease-out;
+  border-radius: 14px;
+}
+
+@keyframes slideExerciseTarget {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 109, 146, 0.48);
+    outline: 3px solid rgba(0, 109, 146, 0.78);
+    outline-offset: 10px;
+  }
+
+  58% {
+    box-shadow: 0 0 0 18px rgba(0, 109, 146, 0);
+    outline-color: rgba(0, 109, 146, 0.52);
+    outline-offset: 14px;
+  }
+
+  100% {
+    box-shadow: 0 0 0 24px rgba(0, 109, 146, 0);
+    outline-color: rgba(0, 109, 146, 0);
+    outline-offset: 18px;
+  }
 }
 
 body {

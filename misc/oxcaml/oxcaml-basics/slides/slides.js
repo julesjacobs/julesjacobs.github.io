@@ -316,6 +316,14 @@
       );
     }
 
+    function animateExerciseSlide(slide) {
+      slide.classList.remove("exercise-targeted");
+      window.setTimeout(() => {
+        slide.classList.add("exercise-targeted");
+        window.setTimeout(() => slide.classList.remove("exercise-targeted"), 1500);
+      }, 120);
+    }
+
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -323,6 +331,7 @@
       if (!target) return;
       const indices = indicesFor(target);
       Reveal.slide(indices.h, indices.v, indices.f);
+      animateExerciseSlide(target);
     });
   }
 
