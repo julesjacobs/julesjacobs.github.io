@@ -1816,7 +1816,7 @@
         <p>As a first approximation:</p>
         <ul>
           <li>a fork/join callback may read captured mutable state, but may not write it;</li>
-          <li>a spawned callback is checked more strictly, because the spawned work may overlap with later parent-side effects;</li>
+          <li>a spawned callback may not even read mutable fields, because that read may overlap with a later write in the parent;</li>
           <li>fresh mutable state created inside the callback is still owned by that callback body.</li>
         </ul>
         <p>This approximation is useful, but incomplete. The compiler is not doing a syntactic scan for assignments, and it is not special-casing the names <code>Parallel.fork_join2</code> or <code>Multicore.spawn</code>. It type-checks ordinary function calls using mode requirements. The next sections make that precise.</p>
@@ -1973,7 +1973,6 @@
         <p>So a call like <code>bump_hits x</code> can fail even when <code>bump_hits</code> itself has no hidden mutable capture. The failure is at the explicit argument position:</p>
         <pre><code>available at call site:  x @ shared
 required by callee:      x @ uncontended</code></pre>
-        <p>This is a contention-mode failure, not a portability failure.</p>
         <aside class="exercise helper-call-exercise" data-helper-call-exercise>
           <h3>Exercise: captured <code>x</code> across the three contexts</h3>
           <p>Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Parallel.fork_join2</code>, or <code>Multicore.spawn</code>. Which helper calls are allowed inside each function? Click each cell to choose <code>yes</code> or <code>no</code>.</p>
