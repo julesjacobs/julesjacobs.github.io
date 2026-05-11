@@ -769,6 +769,108 @@ let () =
           <aside class="notes">Do not describe exclave_ as smuggling out an existing local value. It builds the result in the parent region.</aside>
         </section>
 
+        <section class="slide concept-slide modality-picture-slide">
+          <h2>Runtime placement and mode view are different facts</h2>
+          <figure class="modality-figure">
+            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
+          </figure>
+          <div class="three-up compact-cards">
+            <article><h3>stack data</h3><p>Must be viewed as <code>@ local</code>.</p></article>
+            <article><h3>heap data</h3><p>Can be viewed as <code>@ local</code> by submoding.</p></article>
+            <article><h3><code>@@ global</code></h3><p>Preserves the global view across a field boundary.</p></article>
+          </div>
+          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode view.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Submoding: use global data locally</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>escape xs</code> stores the list in a global ref, so <code>xs</code> is usable globally.</p>
+              <p><code>sum xs</code> then uses the same value through the more restrictive <code>@ local</code> view.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_submoding_global_inner_used_locally.ml</div>
+              <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
+let saved : int list option ref = ref None
+
+let escape xs =
+  saved := Some xs
+
+let rec sum (xs : int list @ local) =
+  match xs with
+  | [] -> 0
+  | x :: xs -> x + sum xs
+
+let demo () =
+  let xs = [1; 2; 3] in
+  escape xs;
+  sum xs
+
+let () =
+  print_endline (string_of_int (demo ()))
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Submoding is safe weakening: a global value can be used by an API that only promises local use.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Plain local containers lose the global view</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
+              <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
+              <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error>
+let saved : int list option ref = ref None
+
+let escape xs =
+  saved := Some xs
+
+let demo () =
+  let inner = [1; 2; 3] in
+  escape inner;
+  let outer = stack_ [inner] in
+  match outer with
+  | [] -> ()
+  | inner :: _ -> escape inner
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap list became unsafe at runtime.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Modalities preserve the global view</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>Modes.Global.t</code> has a field with modality <code>@@ global</code>.</p>
+              <p>The outer list can be local while <code>inner.global</code> is still known to be global.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_global_wrapper_preserves_inner_list_globality.ml</div>
+              <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
+let saved : int list option ref = ref None
+
+let escape xs =
+  saved := Some xs
+
+let demo () =
+  let inner = [1; 2; 3] in
+  escape inner;
+  let outer = stack_ [{ Modes.Global.global = inner }] in
+  match outer with
+  | [] -> ()
+  | inner :: _ -> escape inner.global
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Phrase this as a field-boundary rule, not a cast. The wrapper can only be built from a global value.</aside>
+        </section>
+
         <section class="slide concept-slide">
           <h2>Some values cross locality</h2>
           <div class="two-up">

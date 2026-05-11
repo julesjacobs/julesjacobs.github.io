@@ -617,6 +617,8 @@
           <li>describe the basic stack-region model behind <code>local</code> and <code>global</code>;</li>
           <li>use <code>stack_</code>, local arguments, and local returns in small examples;</li>
           <li>explain what <code>exclave_</code> changes about the result's region;</li>
+          <li>explain why submoding lets global values be used locally;</li>
+          <li>use modalities such as <code>@@ global</code> to preserve global fields inside local containers;</li>
           <li>understand how stack allocation helps satisfy <code>[@zero_alloc]</code> contracts.</li>
         </ul>
       </section>
@@ -1009,6 +1011,73 @@ let use_stack_list () =
             <p>The constructor should expose a local result, for example <code>val make : unit -> t @ local</code>. Adding local annotations only at the call site cannot move an allocation that already happened inside the callee's region.</p>
           </details>
         </aside>
+      </section>
+
+      <section>
+        <h2>Submoding lets global values be used locally</h2>
+        <p>A local argument does not mean the caller must pass stack data. It means the callee promises not to let that argument escape. So an ordinary heap value can be used where an API asks for <code>@ local</code>. This safe weakening is called submoding.</p>
+        <p>The list below is ordinary heap data: <code>escape xs</code> stores it in a ref. The same list can still be passed to <code>sum</code>, because <code>sum</code> only needs a local view of the list.</p>
+        <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
+          let saved : int list option ref = ref None
+
+          let escape xs =
+            saved := Some xs
+
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let demo () =
+            let xs = [1; 2; 3] in
+            escape xs;
+            sum xs
+
+          let () =
+            print_endline (string_of_int (demo ()))
+        </oxcaml>
+        <p>Submoding is enough when the later operation only needs <code>@ local</code>. It is not enough when we later need to recover the global view after passing through a local container.</p>
+      </section>
+
+      <section>
+        <h2>Modalities preserve global fields inside local containers</h2>
+        <p>Submoding has a limit: after a value passes through a local container, ordinary field access gives back only the local view. That is fine when the next consumer accepts <code>@ local</code>, but it loses the information needed by a consumer that requires <code>@ global</code>.</p>
+        <p>We can expose the limit with a ref cell. The contents of an ordinary ref must be global, because the ref cell may outlive the current stack region. The helper <code>escape</code> therefore requires a global list, even though its inferred type does not mention modes explicitly.</p>
+        <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error>
+          let saved : int list option ref = ref None
+
+          let escape xs =
+            saved := Some xs
+
+          let demo () =
+            let inner = [1; 2; 3] in
+            escape inner;
+            let outer = stack_ [inner] in
+            match outer with
+            | [] -> ()
+            | inner :: _ -> escape inner
+        </oxcaml>
+        <p>The first <code>escape inner</code> succeeds, so <code>inner</code> starts out usable globally. The failure happens only after <code>inner</code> has been extracted through <code>outer : int list list @ local</code>. Since ordinary list fields carry no stronger promise, the extracted <code>inner</code> is now only available as local.</p>
+        <p>A modality keeps a field stronger than the container around it. <code>Modes.Global.t</code> is an unboxed wrapper whose field is marked <code>@@ global</code>. Even when the wrapper sits inside a local outer list, projecting <code>.global</code> recovers a global value.</p>
+        <figure class="course-figure">
+          <img src="../assets/images/locality-modality-regions-v3.png" width="1692" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces showing stack data at local, heap data viewed as local by submoding, and a global heap field preserved by an @@ global modality. A rejected arrow shows that heap data cannot point to stack data.">
+          <figcaption>Runtime placement and compile-time mode are separate facts. A heap value can be viewed as <code>@ local</code> by submoding, while a field with <code>@@ global</code> preserves the knowledge that its contents remain <code>@ global</code>.</figcaption>
+        </figure>
+        <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
+          let saved : int list option ref = ref None
+
+          let escape xs =
+            saved := Some xs
+
+          let demo () =
+            let inner = [1; 2; 3] in
+            escape inner;
+            let outer = stack_ [{ Modes.Global.global = inner }] in
+            match outer with
+            | [] -> ()
+            | inner :: _ -> escape inner.global
+        </oxcaml>
+        <p>This is not a cast. The wrapper can only be built from a value that is actually global. The modality records that promise, so a local temporary structure can point at longer-lived data without losing the fact that the pointed-to data may still escape.</p>
       </section>
 
       <section>
