@@ -42,7 +42,7 @@
     ]);
     const typeWords = new Set([
       "bool", "contended", "float", "float64", "float64s", "global", "immediate", "int", "local",
-      "nonportable", "portable", "shareable", "shared", "string", "uncontended", "unit", "value"
+      "nonportable", "portable", "shareable", "shared", "stateless", "string", "uncontended", "unit", "value"
     ]);
     const constructors = new Set(["None", "Null", "Some", "This"]);
 
@@ -324,6 +324,11 @@
       }, 120);
     }
 
+    function updateVisibility() {
+      const current = Reveal.getCurrentSlide();
+      button.classList.toggle("is-hidden", current?.classList.contains("exercise-slide"));
+    }
+
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -333,6 +338,8 @@
       Reveal.slide(indices.h, indices.v, indices.f);
       animateExerciseSlide(target);
     });
+    Reveal.on("slidechanged", updateVisibility);
+    updateVisibility();
   }
 
   normalizeCodeIndentation();

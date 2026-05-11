@@ -104,11 +104,15 @@
   font-weight: 760;
   letter-spacing: 0;
   line-height: 1;
-  padding: 10px 13px;
+  padding: 9px 12px;
   position: absolute;
   right: 18px;
-  top: 18px;
+  bottom: 22px;
   z-index: 40;
+}
+
+.exercise-jump.is-hidden {
+  display: none;
 }
 
 .exercise-jump::after {
@@ -1112,6 +1116,11 @@ oxcaml,
 }
 
 .reveal .oxcaml-embed {
+  --oxcaml-editor-font-size: 0.9rem;
+  --oxcaml-output-font-size: 0.86rem;
+}
+
+.reveal .compact-live .oxcaml-embed {
   --oxcaml-editor-font-size: 0.78rem;
   --oxcaml-output-font-size: 0.74rem;
 }
@@ -1140,7 +1149,7 @@ oxcaml,
 }
 
 .reveal .oxcaml-embed[data-show-interface] {
-  --oxcaml-output-font-size: 0.76rem;
+  --oxcaml-output-font-size: 0.86rem;
 }
 
 .reveal .oxcaml-embed[data-show-interface] .transcript:has(.placeholder) {
@@ -1165,7 +1174,7 @@ oxcaml,
 
 .reveal .oxcaml-embed[data-show-interface] .interface-output__body {
   color: #173829;
-  font-size: 13px;
+  font-size: var(--oxcaml-output-font-size);
   line-height: 1.38;
   overflow-wrap: anywhere;
   white-space: pre-wrap;

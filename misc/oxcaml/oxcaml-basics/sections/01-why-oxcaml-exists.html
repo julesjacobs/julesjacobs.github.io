@@ -17,7 +17,7 @@
         <div class="grid">
           <article class="card">
             <h3>Parallelism</h3>
-            <p>Parallel programs need to use multiple cores without introducing bugs. OxCaml's type checker tracks which functions can be safely called in parallel, and when use of mutable state is safe.</p>
+            <p>Parallel programs need to use multiple cores without introducing data races. OxCaml's type checker tracks which callbacks can run in parallel and how they may access captured mutable state.</p>
           </article>
 
           <article class="card">
@@ -37,11 +37,11 @@
         <p>In this course you'll learn about the following OxCaml features.</p>
 
         <ul class="feature-list">
-          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>x @ shared</code>, <code>(unit -&gt; unit) @ portable</code>, <code>f @@ portable</code> — checked requirements on how a value may be used at a particular binder or type position.</span></li>
+          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>x @ shared</code>, <code>(unit -&gt; unit) @ portable</code>, <code>f @@ portable</code> — checked requirements on how a value may be used at a particular binder or type position, such as whether a parallel callback may read captured mutable state.</span></li>
           <li><strong>Stack allocation</strong><span class="feature-copy"><code>stack_ expr</code>, <code>exclave_ expr</code> — allocate temporary values without putting them on the heap.</span></li>
           <li><strong>Zero allocation checks</strong><span class="feature-copy"><code>let[@zero_alloc] f ...</code> — ask the compiler to check that a function does not allocate on normal paths.</span></li>
           <li><strong>Layouts and unboxed values</strong><span class="feature-copy"><code>float#</code>, <code>#(x, y)</code>, <code>#{ x : float# }</code> — control value representation.</span></li>
-          <li><strong>Kinds</strong><span class="feature-copy"><code>type t : value mod portable</code>, <code>('a : value & immediate)</code> — track type-level layout and mode information.</span></li>
+          <li><strong>Kinds</strong><span class="feature-copy"><code>type t : value mod portable</code>, <code>('a : value & immediate)</code> — record what modes or layouts every value of a type can support.</span></li>
           <li><strong>Templates</strong><span class="feature-copy"><code>let%template</code>, <code>[@mode]</code>, <code>[@kind]</code> — generate related definitions across modes, kinds, and layouts.</span></li>
         </ul>
       </section>

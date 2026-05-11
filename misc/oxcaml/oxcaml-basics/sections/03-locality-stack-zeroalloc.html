@@ -644,7 +644,7 @@
         <p>A stack region is a lifetime zone. A value allocated in a region is reclaimed when that region ends, so it must not be used after the region ends. For the first mental model, think of a function body as the region.</p>
         <p>The locality mode records this lifetime fact. A <code>local</code> value must not escape the region it belongs to. A <code>global</code> value may escape. Stack-allocated values are local because they would become invalid after the stack region is reclaimed.</p>
         <p>At runtime, OxCaml stack allocations are not placed inside ordinary function call frames. They go on a separate allocation stack. The call stack still tracks which functions are active; the allocation stack tracks local blocks and the region marks used to reclaim them.</p>
-        <p>The <code>sum</code> helper below takes its list <code>@ local</code>, so it may inspect a stack-allocated list but cannot retain it.</p>
+        <p>The <code>sum</code> helper used in the diagram takes its list <code>@ local</code>, so it may inspect a stack-allocated list but cannot retain it. The full definition appears after the diagram.</p>
         <figure class="allocation-figure" data-allocation-state="heap" aria-labelledby="allocation-figure-title">
           <h3 id="allocation-figure-title">Call stack, allocation stack, GC heap</h3>
           <p>This diagram follows the same temporary list through ordinary heap allocation, local stack allocation, a rejected escape, and an <code>exclave_</code> local return.</p>
@@ -839,6 +839,7 @@ let use_stack_list () =
         <h2><code>stack_</code> forces stack allocation</h2>
         <p>The expression <code>stack_ expr</code> tells the compiler that the immediately following allocation should be placed on the stack. If the value can be used entirely inside the current region, this works as expected.</p>
         <p>Here the consumer matters. The list is passed to <code>sum</code>, whose argument is <code>int list @ local</code>. That promise lets callers pass a stack-allocated temporary list. The <code>let total = ...</code> binding also keeps the call to <code>sum</code> out of tail position without using an annotation.</p>
+        <p>Tail position matters because a tail call ends the current call's region before control moves to the callee. If a stack-allocated value from the current region is passed to that tail call, the callee would receive a value whose region has already ended. A local <code>let</code> binding, or an explicit <code>[@nontail]</code> annotation in later examples, keeps the caller's region alive until the local-consuming call returns.</p>
         <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
           let rec sum_loop acc (xs : int list @ local) =
             match xs with
@@ -922,29 +923,39 @@ let use_stack_list () =
       <section>
         <h2>Local closures need local callback slots</h2>
         <p>A closure can also be local. If a closure captures a local stack value, the closure itself must not escape beyond that value's region. Higher-order APIs should mark callback arguments as local when they call the callback immediately and do not store it.</p>
-        <p>The first version below forces an ordinary, escapable callback type. Passing a closure that captures a stack-allocated counter is rejected.</p>
+        <p>This matters most at an interface boundary. If the public signature says the callback is an ordinary function value, callers must provide a callback that can escape. A closure that captures a stack-allocated counter cannot make that promise:</p>
         <oxcaml check data-filename="Ex03_ordinary_callback_rejects_local_closure.ml" expect-error>
           let bump (r : int ref @ local) =
             r := !r + 1
 
-          let call_now (f : unit -> unit) =
-            f ()
+          module type Runner = sig
+            val call_now : (unit -> unit) -> unit
+          end
+
+          module Runner : Runner = struct
+            let call_now f = f ()
+          end
 
           let bad () =
             let count = stack_ (ref 0) in
-            call_now (fun () -> bump count)
+            Runner.call_now (fun () -> bump count) [@nontail]
         </oxcaml>
         <p>Now the API says what it actually does: it only borrows the callback. That lets callers pass local closures.</p>
         <oxcaml check data-filename="Ex03_local_callback_slot.ml">
           let bump (r : int ref @ local) =
             r := !r + 1
 
-          let call_now (f : (unit -> unit) @ local) =
-            f ()
+          module type Runner = sig
+            val call_now : (unit -> unit) @ local -> unit
+          end
+
+          module Runner : Runner = struct
+            let call_now f = f ()
+          end
 
           let good () =
             let count = stack_ (ref 0) in
-            call_now (fun () -> bump count);
+            Runner.call_now (fun () -> bump count) [@nontail];
             !count
         </oxcaml>
       </section>
@@ -1043,7 +1054,7 @@ let use_stack_list () =
         <h2>Modalities preserve global fields inside local containers</h2>
         <p>Submoding has a limit: after a value passes through a local container, ordinary field access gives back only the local view. That is fine when the next consumer accepts <code>@ local</code>, but it loses the information needed by a consumer that requires <code>@ global</code>.</p>
         <p>We can expose the limit with a ref cell. The contents of an ordinary ref must be global, because the ref cell may outlive the current stack region. The helper <code>escape</code> therefore requires a global list, even though its inferred type does not mention modes explicitly.</p>
-        <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error>
+        <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
           let saved : int list option ref = ref None
 
           let escape xs =

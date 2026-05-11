@@ -371,9 +371,8 @@
         <p>
           OxCaml also has unboxed numeric types. A value-graph visualizer cannot
           start from a bare <code>int8#</code> or <code>int64#</code> because
-          those are not ordinary <code>value</code>s. If we place them in fields
-          of a boxed record, though, we can see the surrounding mixed block and
-          the raw payload bytes.
+          those are not ordinary <code>value</code>s. Arrays give the first
+          boxed containers where we can inspect their raw storage.
         </p>
 
         <oxcaml-repr filename="unboxed_numeric_arrays.ml">
@@ -416,7 +415,7 @@
         </oxcaml-repr>
 
         <p>
-          This record puts several widths in one block. The byte, half-word,
+          Records show the same idea inside a mixed block. This record puts several widths in one block. The byte, half-word,
           word, double-word, native word, single-precision float, and
           double-precision float fields all live as raw fields next to ordinary
           value fields.
@@ -482,7 +481,7 @@
         </oxcaml-repr>
 
         <div class="note">
-          This is the first motivation for layouts: two source-level types can
+          Floats give the simplest motivation for layouts: two source-level types can
           both feel like numbers, but need different runtime treatment if one is
           a normal boxed value and one is raw floating-point bits.
         </div>
@@ -605,6 +604,12 @@
           ordinary boxed tuples with a different spelling. Their layout can be a
           product of non-<code>value</code> layouts, so they only fit where the
           type system knows that such a layout is allowed.
+        </p>
+        <p>
+          For example, an ordinary list cell expects each element to be a single
+          <code>value</code> word. A product such as <code>#(7, #3.5)</code>
+          has two components with different layouts, so an API must say that it
+          accepts that product layout before such a value can fit there.
         </p>
 
         <oxcaml-repr filename="representation_unboxed_products.ml">

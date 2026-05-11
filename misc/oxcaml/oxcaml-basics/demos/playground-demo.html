@@ -125,7 +125,7 @@
           let answer = 40 + 2;;
           let describe name n =
             Printf.sprintf "%s example: %d" name n;;
-          describe language answer;;
+          let description = describe language answer;;
         </oxcaml>
       </section>
 
@@ -150,7 +150,9 @@
         <h2>Local Arguments</h2>
         <p>
           Mode annotations can appear on function parameters. Here, the
-          parameter is local to the function body.
+          parameter is local to the function body. This example is only about
+          the syntax; later examples use local parameters for values whose
+          lifetime matters.
         </p>
 
         <oxcaml data-filename="local_argument.ml">
@@ -165,7 +167,8 @@
         <p>
           The embedded playground also works for exercises where the initial
           code is intentionally wrong. This one returns a stack-allocated value
-          without marking the return as local.
+          without marking the return as local. That would let a caller use a
+          value after the callee's stack region has ended.
         </p>
 
         <oxcaml data-filename="stack_return_needs_exclave.ml" expect-error>

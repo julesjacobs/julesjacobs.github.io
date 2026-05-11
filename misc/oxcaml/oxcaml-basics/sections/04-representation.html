@@ -95,10 +95,10 @@
 
         <aside class="exercise">
           <h3>Exercise: identify the value shapes</h3>
-          <p>Before looking at the next few visualizations, predict the runtime shape of each source-level construct: a small integer, a string, a tuple, a record, and a constructor with payload. Which ones are immediate words, and which ones need a heap block?</p>
+          <p>Before looking at the string and variant visualizations, predict the runtime shape of each source-level construct: a string, an empty-list constructor, and a constructor with payload. Which ones are immediate words, and which ones need a heap block?</p>
           <details>
             <summary>Answer</summary>
-            <p>Small integers are immediate words. Strings are heap blocks containing raw bytes. Tuples and records are heap blocks whose fields are payload words. A constructor with payload is also a heap block; its header tag distinguishes it from the other payload-carrying constructors of the same type.</p>
+            <p>Strings are heap blocks containing raw bytes. The empty-list constructor is an immediate word. A constructor with payload is a heap block; its header tag distinguishes it from the other payload-carrying constructors of the same type.</p>
           </details>
         </aside>
       </section>
@@ -169,7 +169,7 @@
 
       <section>
         <h2>Indirection shows up in nested data</h2>
-        <p>Nested boxed data creates chains of pointers. Here the outer record points to a separate boxed point, and that point stores two boxed floats.</p>
+        <p>Nested boxed data creates chains of pointers. Here the outer record points to a separate point block. Because the point contains only floats, OCaml uses its specialized all-float-record representation: the point block stores raw float payload words, not pointers to separate boxed float objects.</p>
 
         <oxcaml-repr filename="outer_record_with_boxed_point.ml">
           type boxed_point = { x : float; y : float }
@@ -210,7 +210,8 @@
         </oxcaml-repr>
 
         <h3>Nested record indirection</h3>
-        <p><strong>Uniform cost:</strong> the boxed-point example had an outer record pointing to a separate point block, and that point stored two boxed floats. <strong>Layout version:</strong> the point is an unboxed record, so the outer record stores the two raw float fields inline.</p>
+        <p><strong>Uniform cost:</strong> the boxed-point example had an outer record pointing to a separate all-float point block. <strong>Layout version:</strong> the point is an unboxed record, so the outer record stores the two raw float fields inline and removes the separate point block.</p>
+        <p>That outer record is a mixed block: the runtime records which leading payload words are ordinary values that the GC should scan, and which remaining words are raw numeric data. Mixed-block layout may group the scannable value words before the raw numeric words, so the memory order need not match the source field order exactly.</p>
 
         <oxcaml-repr filename="outer_record_with_unboxed_point.ml">
           type unboxed_point = #{ x : float#; y : float# }
@@ -411,7 +412,7 @@ let id_product
   =
   fun x -> x</code></pre>
 
-        <p>The real generated names are deliberately not part of the interface. At call sites, code selects the intended instance with a mono-attribute such as <code>id [@kind value &amp; value]</code>; <code>id [@kind value]</code> is the default instance and can be written simply as <code>id</code>.</p>
+        <p>The generated names exist, but callers should not rely on those implementation details. At call sites, code selects the intended instance with a mono-attribute such as <code>id [@kind value &amp; value]</code>; <code>id [@kind value]</code> is the default instance and can be written simply as <code>id</code>.</p>
 
         <p>For a map-shaped API, the input element layout and output element layout should be separate variables. Base and Core use this pattern for map-like functions: the input can have one kind and the mapped result can have another.</p>
 

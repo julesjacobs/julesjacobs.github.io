@@ -186,7 +186,7 @@ let () =
               <b class="axis-arrow">→</b>
               <div class="axis-mode note"><code>x @ shared</code><ul><li>read mutable fields</li><li>no mutable writes</li></ul></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>parallel users may write</li></ul></div>
+              <div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>some other user may write</li></ul></div>
             </div>
             <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
           </div>
@@ -208,23 +208,23 @@ let () =
           <h2><span class="level-mark">Level 3</span> Closure boundaries weaken captures</h2>
           <div class="boundary-grid">
             <article class="boundary-card shareable-boundary">
-              <h3><code>shareable</code> closure boundary</h3>
-              <p class="boundary-signature"><code>(Parallel.t @ local -> unit) @ shareable</code></p>
+              <h3>fork/join callback boundary</h3>
+              <p class="boundary-signature">structured parallel callback</p>
               <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ shared</code></div>
               <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ shared</code></div>
               <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
               <p>Mutable reads can survive; mutable writes cannot.</p>
             </article>
             <article class="boundary-card portable-boundary">
-              <h3><code>portable</code> closure boundary</h3>
-              <p class="boundary-signature"><code>(unit -> unit) @ portable</code></p>
+              <h3>spawn callback boundary</h3>
+              <p class="boundary-signature">detached parallel callback</p>
               <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ contended</code></div>
               <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ contended</code></div>
               <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
               <p>Captured mutable reads and writes are both unavailable.</p>
             </article>
           </div>
-          <p class="takeaway">The closure mode controls how captured values are seen inside the body.</p>
+          <p class="takeaway">The callback boundary controls how captured values are seen inside the body.</p>
           <aside class="notes">Outside the closure, the original binding still has its original mode.</aside>
         </section>
 
@@ -244,6 +244,7 @@ let () =
             <div class="live-copy">
               <p>A helper’s type records what mode each explicit argument requires.</p>
               <p>The compiler does not need to inline the helper body.</p>
+              <p>In inferred interfaces, plain <code>t</code> means the default requirement: <code>t @ uncontended</code>.</p>
               <p class="diagnostic-callout">Inside fork/join, <code>x</code> may be only <code>shared</code>; <code>bump_hits</code> requires <code>uncontended</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -298,7 +299,7 @@ let bump_hits (x @ uncontended) =
               <b class="axis-arrow">→</b>
               <div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>closures may keep read/write access</li></ul></div>
             </div>
-            <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
+            <p class="axis-strip-note">Portability answers: can this value be used in this parallel context? These are the names for the callback-boundary behaviors from Level 3.</p>
           </div>
           <aside class="notes">For closures, portability mostly summarizes what the closure captured and how it may use those captures.</aside>
         </section>
@@ -427,15 +428,15 @@ fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareab
   (Parallel.t @ local -> 'b) @ shareable ->
   #('a * 'b)
 
-val spawn :
+val spawn :  (* schematic *)
   (unit -> unit) @ portable ->
   unit -> unit</code></pre>
           </div>
-          <p class="takeaway">The callback argument types trigger the earlier rules. There is no compiler special case for these names.</p>
+          <p class="takeaway">The callback argument types trigger the earlier rules. The real spawn API also tracks once/unique/unyielding details and returns a spawn_result.</p>
           <aside class="notes">No compiler magic for these names. The callback slots impose the modal requirements.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide live-slide exercise-slide">
           <h2><span class="level-mark">Level 8</span> Exercise: parallel_map shape</h2>
           <div class="live-layout">
             <div class="live-copy">
@@ -468,12 +469,12 @@ let rec parallel_map parallel f xs =
   Parallel.t @ local ->
   ('a @ shared -> 'b) @ shareable ->
   'a list @ shareable shared ->
-  'b list @@ portable</code></pre>
+  'b list @@ stateless</code></pre>
           </div>
           <div class="type-callouts">
             <p><strong>callback:</strong> shareable value; receives each element as shared</p>
             <p><strong>input list:</strong> may flow into fork/join work; read-only access</p>
-            <p><strong>implementation:</strong> checked as portable enough to call from parallel contexts</p>
+            <p><strong>implementation:</strong> inferred stateless, which implies portable</p>
           </div>
           <aside class="notes">Use this as API-design discussion: what should be shareable, portable, shared, or local?</aside>
         </section>
@@ -529,8 +530,14 @@ let () =
 
         <section class="slide widget-slide">
           <h2>Three storage places</h2>
-          <figure class="allocation-figure allocation-diagram-only" data-allocation-state="stack">
-            <p class="diagram-caption">Temporary list state: the call stack borrows, the allocation stack owns the local list, and the GC heap does not receive a list block.</p>
+          <figure class="allocation-figure allocation-diagram-only" data-state-widget data-allocation-state="stack">
+            <div class="state-tabs" role="tablist" aria-label="Allocation states">
+              <button type="button" data-state="stack" aria-selected="true">stack list</button>
+              <button type="button" data-state="heap" aria-selected="false">heap list</button>
+              <button type="button" data-state="escape" aria-selected="false">bad escape</button>
+              <button type="button" data-state="exclave" aria-selected="false">exclave return</button>
+            </div>
+            <p class="diagram-caption">Compare ordinary heap allocation, stack allocation, rejected escape, and <code>exclave_</code> returns across the call stack, allocation stack, and GC heap.</p>
             <div class="memory-map" data-current-state="stack" aria-label="Allocation model for summing a temporary local list">
               <div class="memory-column call-column">
                 <div class="memory-title">Call stack<span class="memory-subtitle">function calls and returns</span></div>
@@ -621,7 +628,7 @@ let () =
               </div>
             </div>
           </figure>
-          <aside class="notes">Use this static slide for the runtime model. The next slides cover rejected escape and exclave_ without depending on a tabbed widget.</aside>
+          <aside class="notes">Use the tabs to compare ordinary heap allocation, stack allocation, rejected escape, and exclave_.</aside>
         </section>
 
         <section class="slide live-slide">
@@ -692,7 +699,34 @@ let demo () =
         </section>
 
         <section class="slide live-slide">
-          <h2>Callback APIs can lend temporary state</h2>
+          <h2>Ordinary callback slots cannot borrow stack state</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>A parameter of type <code>scratch -> 'a</code> asks for a global scratch argument.</p>
+              <p>That is necessary because the callback type would allow the function to retain its argument.</p>
+              <p class="diagnostic-callout">Expected outcome: rejected at <code>f s</code>; this API did not promise borrowing.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex03_with_scratch_escape.ml</div>
+              <oxcaml check data-filename="Ex03_with_scratch_escape.ml" expect-error>
+type scratch = { mutable total : int }
+
+let saved : scratch option ref = ref None
+
+let with_scratch_bad (f : scratch -> 'a) =
+  let s = stack_ { total = 0 } in
+  f s [@nontail]
+
+let bad () =
+  with_scratch_bad (fun s -> saved := Some s)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The saved ref shows why the ordinary callback type is unsafe for stack state, even though the type checker rejects at the call.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Local callback parameters express borrowing</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>A callback can use temporary state during the call, but cannot retain it.</p>
@@ -722,6 +756,9 @@ let add_with_scratch x y =
           <div class="live-layout">
             <div class="live-copy">
               <p>If a closure captures a local value, the closure itself is local.</p>
+              <p>An ordinary <code>unit -> unit</code> slot is too global for that closure.</p>
+              <pre><code>let call_now_bad (f : unit -> unit) =
+  f ()</code></pre>
               <p>Immediate-call APIs should accept local callback values.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -824,7 +861,7 @@ let () =
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
-              <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error>
+              <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
 let saved : int list option ref = ref None
 
 let escape xs =
@@ -1020,22 +1057,20 @@ let t = (shared, shared, "other")</code></pre>
         <section class="slide concept-slide">
           <h2>Unboxed records inline nested fields</h2>
           <div class="cost-ledger">
-            <article><h3>boxed point</h3><pre><code>type boxed_point =
-  { x : float; y : float }
+            <article><h3>mixed boxed point</h3><pre><code>type boxed_point =
+  { x : float; y : float; label : string }
 
 type sample =
-  { label : string
-  ; point : boxed_point
+  { point : boxed_point
   ; count : int
-  }</code></pre><p>outer record points to a point block with boxed floats</p></article>
-            <article class="ok-card"><h3>unboxed point</h3><pre><code>type unboxed_point =
-  #{ x : float#; y : float# }
+  }</code></pre><p>mixed ordinary record: float fields are boxed value fields</p></article>
+            <article class="ok-card"><h3>mixed unboxed point</h3><pre><code>type unboxed_point =
+  #{ x : float#; y : float#; label : string }
 
 type sample =
-  { label : string
-  ; point : unboxed_point
+  { point : unboxed_point
   ; count : int
-  }</code></pre><p>raw float fields inline in the outer record</p></article>
+  }</code></pre><p>raw float fields and the label pointer are stored inline</p></article>
           </div>
           <aside class="notes">This is the most concrete representation win in the lecture.</aside>
         </section>
@@ -1114,10 +1149,10 @@ type bad = float# box
         <section class="slide concept-slide">
           <h2>Abstract types need public kinds</h2>
           <div class="two-up">
-            <article><h3>bad signature</h3><pre><code>module type Point = sig
+            <article><h3>bad for an unboxed point</h3><pre><code>module type Point = sig
   type t
   val make : float# -> float# -> t
-end</code></pre><p>plain abstract type defaults to value</p></article>
+end</code></pre><p>plain abstract type defaults to value, losing the product layout</p></article>
             <article><h3>fixed signature</h3><pre><code>module type Point = sig
   type t : float64 & float64
   val make : float# -> float# -> t
