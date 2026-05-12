@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Determinization Explorer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <section class="editor-pane" aria-label="Program editor">
+          <div class="pane-title">
+            <h2>Program</h2>
+            <div class="editor-controls">
+              <label class="example-picker">
+                <span>Example</span>
+                <select id="example-select"></select>
+              </label>
+              <label class="toggle-control">
+                <input id="type-hints-toggle" type="checkbox" />
+                <span>Type hints</span>
+              </label>
+              <span id="status" class="status editor-status" title="Ready" aria-label="Ready">•</span>
+            </div>
+          </div>
+          <div id="editor" class="editor"></div>
+          <div id="editor-diagnostics" class="editor-diagnostics">No diagnostics.</div>
+        </section>
+
+        <section class="outputs" aria-label="Compiler outputs">
+          <article class="output-panel primary coupling-panel">
+            <div class="coupling-heading">
+              <h2>Coupled semantics</h2>
+              <div class="coupling-actions">
+                <span id="coupling-status" class="status">Ready</span>
+                <button id="rerun-coupling" type="button">Rerun</button>
+                <button id="many-coupling" type="button">Run 200</button>
+              </div>
+            </div>
+            <div id="coupling-trace" class="coupling-trace"></div>
+            <section class="distribution-panel" aria-label="Empirical result distributions">
+              <div class="distribution-heading">
+                <h2>Empirical result distributions</h2>
+                <span id="distribution-status" class="status">0 samples</span>
+              </div>
+              <div id="distribution-view" class="distribution-view"></div>
+            </section>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script src="./app.bundle.js"></script>
+  </body>
+</html>
