@@ -122,6 +122,68 @@
     return node;
   };
 
+  const initializeExerciseFreeformAnswers = () => {
+    const storageAvailable = (() => {
+      try {
+        const key = "oxcaml-basics:storage-test";
+        window.localStorage.setItem(key, "1");
+        window.localStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    })();
+    const storagePrefix = "oxcaml-basics:exercise-freeform:v1:";
+    const pageKey = window.location.pathname.replace(/\/+/g, "/");
+    const answerSummaryPattern = /^answer(?:\s+key)?$/i;
+
+    document.querySelectorAll(".exercise").forEach((exercise, index) => {
+      if (exercise.dataset.freeformInitialized) return;
+      exercise.dataset.freeformInitialized = "true";
+      const answerDetails = Array.from(exercise.querySelectorAll("details")).find((details) => {
+        const summary = details.querySelector("summary");
+        return summary && answerSummaryPattern.test(summary.textContent.trim());
+      });
+      if (!answerDetails) return;
+      if (
+        exercise.querySelector(
+          ".exercise-choice, .exercise-freeform-textarea, input, select, textarea, [contenteditable='true'], oxcaml, .oxcaml-embed"
+        )
+      ) {
+        return;
+      }
+
+      const heading = exercise.querySelector("h2, h3, h4, h5, h6");
+      const exerciseId = heading?.id || uniqueId(`exercise-${index + 1}`);
+      if (heading && !heading.id) heading.id = exerciseId;
+      const textareaId = `${exerciseId}-freeform-answer`;
+      const storageKey = `${storagePrefix}${pageKey}#${exerciseId}`;
+
+      const wrapper = el("div", "exercise-freeform");
+      const label = el("label", "exercise-freeform-label", "Your answer");
+      label.setAttribute("for", textareaId);
+      const textarea = document.createElement("textarea");
+      textarea.className = "exercise-freeform-textarea";
+      textarea.id = textareaId;
+      textarea.rows = 5;
+      textarea.spellcheck = true;
+      textarea.placeholder = "Write your answer here before opening the answer key.";
+
+      if (storageAvailable) {
+        textarea.value = window.localStorage.getItem(storageKey) || "";
+        textarea.addEventListener("input", () => {
+          if (textarea.value) window.localStorage.setItem(storageKey, textarea.value);
+          else window.localStorage.removeItem(storageKey);
+        });
+      }
+
+      wrapper.append(label, textarea);
+      exercise.insertBefore(wrapper, answerDetails);
+    });
+  };
+
+  initializeExerciseFreeformAnswers();
+
   const homeIcon = () => {
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
