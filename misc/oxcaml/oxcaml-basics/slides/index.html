@@ -1101,13 +1101,35 @@ let hd_option = function
   | [] -> None
   | x :: _ -> Some x
 
+let hd_or_null xs =
+  failwith "implement this"
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Ask students to rewrite option first, then discuss representation.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>or_null answer</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>Null</code> replaces <code>None</code>.</p>
+              <p><code>This x</code> replaces <code>Some x</code> without adding a wrapper block around <code>x</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">exercise_hd_or_null.ml</div>
+              <oxcaml check data-filename="exercise_hd_or_null_answer.ml">
+let hd_option = function
+  | [] -> None
+  | x :: _ -> Some x
+
 let hd_or_null = function
   | [] -> Null
   | x :: _ -> This x
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Ask students to rewrite option first, then discuss representation.</aside>
+          <aside class="notes">The important representation fact is that This x has x's representation, while Some x normally allocates an option block.</aside>
         </section>
 
         <section class="slide live-slide or-null-error-slide">

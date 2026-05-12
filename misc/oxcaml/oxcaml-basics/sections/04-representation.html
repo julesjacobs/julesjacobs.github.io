@@ -249,9 +249,8 @@
             | [] -> None
             | x :: _ -> Some x
 
-          let hd_or_null = function
-            | [] -> Null
-            | x :: _ -> This x
+          let hd_or_null xs =
+            failwith "implement this"
 
           let value_or default = function
             | Null -> default
@@ -260,6 +259,14 @@
           let first = value_or "empty" (hd_or_null ["first"; "second"])
           let missing = value_or "empty" (hd_or_null [])
         </oxcaml>
+
+        <details>
+          <summary>Answer key</summary>
+          <pre><code>let hd_or_null = function
+  | [] -> Null
+  | x :: _ -> This x</code></pre>
+          <p>This has the same branch shape as <code>hd_option</code>. The missing case uses the null word, and the present case uses <code>This x</code>, which has the same runtime representation as <code>x</code> instead of allocating a separate <code>Some</code> wrapper.</p>
+        </details>
 
         <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The kind system catches this: <code>or_null</code> expects a non-null payload representation, but <code>string or_null</code> is already nullable.</p>
 
