@@ -392,15 +392,17 @@ button:active {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
+  width: 34px;
+  min-width: 34px;
   min-height: 18px;
   border-radius: 999px;
-  padding: 0 6px;
-  font-size: 10px;
+  padding: 0;
+  font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   cursor: help;
   outline: none;
+  white-space: nowrap;
 }
 
 .step-check.ok {
@@ -543,6 +545,7 @@ button:active {
   -webkit-box-decoration-break: clone;
   padding: 0 2px;
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .corr-item {

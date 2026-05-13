@@ -19748,7 +19748,7 @@ sampled normally`;
       case "Reject":
         return "reject";
       case "DomainError":
-        return `domain_error(${expr.message})`;
+        return `domain_error(${domainErrorSummary(expr)})`;
       case "Mean":
         return prettyMean(expr);
       case "Nil":
@@ -19924,6 +19924,10 @@ ${indent(elseBranch)}`;
   function formatNumber2(value) {
     if (Object.is(value, -0)) return "0";
     return Number.isInteger(value) ? String(value) : String(value);
+  }
+  function domainErrorSummary(expr) {
+    const distribution = expr.distribution ? `${distNames[expr.distribution] ?? expr.distribution.toLowerCase()}: ` : "";
+    return `${distribution}${expr.reason ?? expr.message}`;
   }
   function prettyAffine(affine) {
     const terms = [];
@@ -20459,6 +20463,16 @@ ${indent(elseBranch)}`;
   var floatDistributions = /* @__PURE__ */ new Set(["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Bernoulli", "Poisson", "Discrete"]);
   var MIN_POSITIVE_SAMPLE = Number.MIN_VALUE;
   var PROBABILITY_EPS = 1e-9;
+  var ARITIES = {
+    Uniform: 2,
+    Gauss: 2,
+    Exponential: 1,
+    Gamma: 2,
+    Beta: 2,
+    Flip: 1,
+    Bernoulli: 1,
+    Poisson: 1
+  };
   var DistributionDomainError = class extends Error {
     constructor(kind, message) {
       super(`domain error in ${distributionName(kind)}: ${message}`);
@@ -20558,11 +20572,19 @@ ${indent(elseBranch)}`;
     return values;
   }
   function validateMeanDomain(kind, args) {
+    for (const arg of args) validateFiniteAffine(kind, arg);
     const values = args.map((arg) => isConcreteAffine(arg) ? affineToNumber(arg) : null);
     validateConcreteDomain(kind, values, { skipSymbolic: true });
   }
+  function validateFiniteAffine(kind, arg) {
+    if (!Number.isFinite(arg.constant)) throw new DistributionDomainError(kind, "parameters must be finite");
+    for (const coeff of Object.values(arg.terms)) {
+      if (!Number.isFinite(coeff)) throw new DistributionDomainError(kind, "parameters must be finite");
+    }
+  }
   function validateConcreteDomain(kind, values, options = {}) {
     const skipSymbolic = Boolean(options.skipSymbolic);
+    validateArity(kind, values.length);
     const concrete = values.filter((value) => value !== null);
     for (const value of concrete) {
       if (!Number.isFinite(value)) throw new DistributionDomainError(kind, "parameters must be finite");
@@ -20614,6 +20636,15 @@ ${indent(elseBranch)}`;
       }
       default:
         throw new Error(`unknown distribution ${kind}`);
+    }
+  }
+  function validateArity(kind, actual) {
+    if (kind === "Discrete") return;
+    const expected = ARITIES[kind];
+    if (expected === void 0) throw new Error(`unknown distribution ${kind}`);
+    if (actual !== expected) {
+      const noun = expected === 1 ? "parameter" : "parameters";
+      throw new DistributionDomainError(kind, `expected ${expected} ${noun}, got ${actual}`);
     }
   }
   function distributionName(kind) {
@@ -22087,7 +22118,7 @@ ${indent2(elseBranch)}`;
   function stepCheck(frame, coupled) {
     const ok = frameOk(frame);
     const domainError = hasDomainError(frame);
-    const label = domainError && ok ? "DOMAIN" : ok ? "OK" : "FAIL";
+    const label = domainError && ok ? "ERR" : ok ? "OK" : "FAIL";
     const aria = domainError && ok ? "Coupling checks reached a shared domain error" : ok ? "Coupling checks passed" : "Coupling check failed";
     return `
     <span class="step-check ${ok ? domainError ? "domain" : "ok" : "fail"}" tabindex="0" aria-label="${aria}">
