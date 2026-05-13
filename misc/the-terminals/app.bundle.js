@@ -8530,14 +8530,14 @@ var DeterminizeSim = (() => {
       }
       return newHeight;
     }
-    refresh(whiteSpace, lineHeight, charWidth, textHeight, lineLength, knownHeights) {
+    refresh(whiteSpace, lineHeight, charWidth, textHeight, lineLength2, knownHeights) {
       let lineWrapping = wrappingWhiteSpace.indexOf(whiteSpace) > -1;
       let changed = Math.abs(lineHeight - this.lineHeight) > 0.3 || this.lineWrapping != lineWrapping;
       this.lineWrapping = lineWrapping;
       this.lineHeight = lineHeight;
       this.charWidth = charWidth;
       this.textHeight = textHeight;
-      this.lineLength = lineLength;
+      this.lineLength = lineLength2;
       if (changed) {
         this.heightSamples = {};
         for (let i = 0; i < knownHeights.length; i++) {
@@ -16670,11 +16670,11 @@ var DeterminizeSim = (() => {
         if (line2.from == last)
           continue;
         last = line2.from;
-        let indent2 = getIndentation(state, line2.from);
-        if (indent2 == null)
+        let indent3 = getIndentation(state, line2.from);
+        if (indent3 == null)
           continue;
         let cur = /^\s*/.exec(line2.text)[0];
-        let norm = indentString(state, indent2);
+        let norm = indentString(state, indent3);
         if (cur != norm)
           changes.push({ from: line2.from, to: line2.from + cur.length, insert: norm });
       }
@@ -17678,12 +17678,12 @@ var DeterminizeSim = (() => {
         }
         if (line.from > prevLine && (from == to || to > line.from)) {
           prevLine = line.from;
-          let indent2 = /^\s*/.exec(line.text)[0].length;
-          let empty = indent2 == line.length;
-          let comment2 = line.text.slice(indent2, indent2 + token.length) == token ? indent2 : -1;
-          if (indent2 < line.text.length && indent2 < minIndent)
-            minIndent = indent2;
-          lines.push({ line, comment: comment2, token, indent: indent2, empty, single: false });
+          let indent3 = /^\s*/.exec(line.text)[0].length;
+          let empty = indent3 == line.length;
+          let comment2 = line.text.slice(indent3, indent3 + token.length) == token ? indent3 : -1;
+          if (indent3 < line.text.length && indent3 < minIndent)
+            minIndent = indent3;
+          lines.push({ line, comment: comment2, token, indent: indent3, empty, single: false });
         }
         pos = line.to + 1;
       }
@@ -17697,9 +17697,9 @@ var DeterminizeSim = (() => {
     }
     if (option != 2 && lines.some((l) => l.comment < 0 && (!l.empty || l.single))) {
       let changes = [];
-      for (let { line, token, indent: indent2, empty, single } of lines)
+      for (let { line, token, indent: indent3, empty, single } of lines)
         if (single || !empty)
-          changes.push({ from: line.from + indent2, insert: token + " " });
+          changes.push({ from: line.from + indent3, insert: token + " " });
       let changeSet = state.changes(changes);
       return { changes: changeSet, selection: state.selection.map(changeSet, 1) };
     } else if (option != 1 && lines.some((l) => l.comment >= 0)) {
@@ -18479,16 +18479,16 @@ var DeterminizeSim = (() => {
         if (atEof)
           from = to = (to <= line.to ? line : state.doc.lineAt(to)).to;
         let cx = new IndentContext(state, { simulateBreak: from, simulateDoubleBreak: !!explode });
-        let indent2 = getIndentation(cx, from);
-        if (indent2 == null)
-          indent2 = countColumn(/^\s*/.exec(state.doc.lineAt(from).text)[0], state.tabSize);
+        let indent3 = getIndentation(cx, from);
+        if (indent3 == null)
+          indent3 = countColumn(/^\s*/.exec(state.doc.lineAt(from).text)[0], state.tabSize);
         while (to < line.to && /\s/.test(line.text[to - line.from]))
           to++;
         if (explode)
           ({ from, to } = explode);
         else if (from > line.from && from < line.from + 100 && !/\S/.test(line.text.slice(0, from)))
           from = line.from;
-        let insert2 = ["", indentString(state, indent2)];
+        let insert2 = ["", indentString(state, indent3)];
         if (explode)
           insert2.push(indentString(state, cx.lineIndent(line.from, -1)));
         return {
@@ -18528,15 +18528,15 @@ var DeterminizeSim = (() => {
       return found == null ? -1 : found;
     } });
     let changes = changeBySelectedLine(state, (line, changes2, range) => {
-      let indent2 = getIndentation(context, line.from);
-      if (indent2 == null)
+      let indent3 = getIndentation(context, line.from);
+      if (indent3 == null)
         return;
       if (!/\S/.test(line.text))
-        indent2 = 0;
+        indent3 = 0;
       let cur = /^\s*/.exec(line.text)[0];
-      let norm = indentString(state, indent2);
+      let norm = indentString(state, indent3);
       if (cur != norm || range.from < line.from + cur.length) {
-        updated[line.from] = indent2;
+        updated[line.from] = indent3;
         changes2.push({ from: line.from, to: line.from + cur.length, insert: norm });
       }
     });
@@ -19123,8 +19123,8 @@ var DeterminizeSim = (() => {
         const gTy = floatG();
         const left = infer(env, expr.left, gTy);
         const right = infer(env, expr.right, gTy);
-        assertSubtype(gTy, expected, expr);
-        return typed(expr, gTy, { left, right });
+        const resTy = ensureFloat(expected, expr);
+        return typed(expr, resTy, { left, right });
       }
       case "Div": {
         const scaling = expr.right.kind === "Const";
@@ -19673,11 +19673,11 @@ sampled normally`;
       return { ...first, from: start, to: this.tokens[this.pos - 1].to };
     }
     parseUnaryKeyword() {
-      const keyword2 = this.current();
+      const keyword3 = this.current();
       this.pos++;
       const expr = this.parseAtom();
       const map = { FST: "Fst", SND: "Snd", INL: "Inl", INR: "Inr" };
-      return node(map[keyword2.kind], { expr }, keyword2.from, expr.to);
+      return node(map[keyword3.kind], { expr }, keyword3.from, expr.to);
     }
     parseObserve() {
       const start = this.take("OBSERVE").from;
@@ -19769,16 +19769,9 @@ ${indent(prettyExpr(expr.body))}`, 0);
         return wrap(`rec ${expr.name} ${expr.param} =>
 ${indent(prettyExpr(expr.body))}`, 0);
       case "Let":
-        return `let ${expr.name} =
-${indent(prettyExpr(expr.value))}
-in
-${indent(prettyExpr(expr.body))}`;
+        return prettyLet(expr);
       case "If":
-        return `if ${prettyExpr(expr.cond)}
-then
-${indent(prettyExpr(expr.thenBranch))}
-else
-${indent(prettyExpr(expr.elseBranch))}`;
+        return prettyIf(expr);
       case "App":
         return wrap(`${prettyExpr(expr.fn, 5)} ${prettyExpr(expr.arg, 6)}`, 5);
       case "Pair":
@@ -19899,6 +19892,37 @@ ${indent(prettyTyped(te.consBranch))}
   function rightOf(expr) {
     return expr.right ?? expr.tail;
   }
+  function prettyLet(expr) {
+    const value = prettyExpr(expr.value);
+    const body = prettyExpr(expr.body);
+    if (!hasLineBreak(value)) {
+      return `let ${expr.name} = ${value} in
+${body}`;
+    }
+    return `let ${expr.name} =
+${indent(value)}
+in
+${indent(body)}`;
+  }
+  function prettyIf(expr) {
+    const cond = prettyExpr(expr.cond);
+    const thenBranch = prettyExpr(expr.thenBranch);
+    const elseBranch = prettyExpr(expr.elseBranch);
+    if (!hasLineBreak(cond) && !hasLineBreak(thenBranch) && !hasLineBreak(elseBranch) && lineLength(`if ${cond} then ${thenBranch} else ${elseBranch}`) <= 80) {
+      return `if ${cond} then ${thenBranch} else ${elseBranch}`;
+    }
+    return `if ${cond}
+then
+${indent(thenBranch)}
+else
+${indent(elseBranch)}`;
+  }
+  function hasLineBreak(text) {
+    return text.includes("\n");
+  }
+  function lineLength(text) {
+    return Math.max(...text.split("\n").map((line) => line.length));
+  }
   function indent(text) {
     return text.split("\n").map((line) => line ? `  ${line}` : line).join("\n");
   }
@@ -19963,6 +19987,7 @@ ${indent(prettyTyped(te.consBranch))}
       for (const effect of tr.effects) {
         if (effect.is(setDiagnostics)) return effect.value;
       }
+      if (tr.docChanged) return [];
       return value;
     },
     provide(field) {
@@ -20031,9 +20056,16 @@ ${indent(prettyTyped(te.consBranch))}
     if (result.ok) return [];
     const docLength = typeof doc2 === "string" ? doc2.length : doc2;
     return result.diagnostics.map((diagnostic) => {
-      const from = clamp(diagnostic.from ?? 0, 0, docLength);
+      let from = clamp(diagnostic.from ?? 0, 0, docLength);
+      if (from === docLength && docLength > 0) {
+        return {
+          from: docLength - 1,
+          to: docLength,
+          message: diagnostic.message
+        };
+      }
       const rawTo = diagnostic.to ?? Math.min(docLength, from + 1);
-      const to = docLength === 0 ? 0 : Math.max(from + 1, clamp(rawTo, 0, docLength));
+      let to = docLength === 0 ? 0 : Math.max(from + 1, clamp(rawTo, 0, docLength));
       return {
         from,
         to: Math.min(to, docLength),
@@ -20068,6 +20100,10 @@ ${indent(prettyTyped(te.consBranch))}
       source: "let u = uniform[E](0, 1) in\nlet y = uniform[E](u, 2) in\n2 * u + y - 1"
     },
     {
+      name: "Bad E-branching",
+      source: "let x = uniform[E](0, 1) in\nlet y = uniform[G](0, 1) in\nif x < 0.5 then x + y else x - y"
+    },
+    {
       name: "Pairs",
       source: "let x = uniform(0, 1) in\nlet y = gauss(x, 1) in\n(fst (x, y)) + snd (x, y)"
     },
@@ -20085,7 +20121,7 @@ ${indent(prettyTyped(te.consBranch))}
     },
     {
       name: "Recursive function",
-      source: "let f = rec f n =>\n  if n <= 0 then 1 else n * f (n - 1)\nin\nf 4"
+      source: "let f = rec f n =>\n  if n <= 0 then gamma(1, 2) else gamma(f (n - 1), 2)\nin\nf 4"
     }
   ];
 
@@ -20144,6 +20180,40 @@ ${indent(prettyTyped(te.consBranch))}
     "poisson",
     "discrete"
   ]);
+  var TypeHintWidget = class extends WidgetType {
+    constructor(type, from, to) {
+      super();
+      this.type = type;
+      this.from = from;
+      this.to = to;
+    }
+    eq(other) {
+      return other.type === this.type && other.from === this.from && other.to === this.to;
+    }
+    toDOM(view) {
+      const span = document.createElement("span");
+      span.className = "type-hint";
+      span.textContent = `: ${this.type}`;
+      span.title = this.type;
+      span.tabIndex = 0;
+      span.dataset.from = String(this.from);
+      span.dataset.to = String(this.to);
+      const show = () => view?.dispatch?.({ effects: setHoveredTypeHint.of({ from: this.from, to: this.to }) });
+      const hide = () => view?.dispatch?.({ effects: setHoveredTypeHint.of(null) });
+      span.addEventListener("mouseenter", show);
+      span.addEventListener("mouseover", show);
+      span.addEventListener("pointerenter", show);
+      span.addEventListener("click", show);
+      span.addEventListener("focus", show);
+      span.addEventListener("mouseleave", hide);
+      span.addEventListener("pointerleave", hide);
+      span.addEventListener("blur", hide);
+      return span;
+    }
+    ignoreEvent() {
+      return false;
+    }
+  };
   var ModeHintWidget = class extends WidgetType {
     constructor(mode) {
       super();
@@ -20163,26 +20233,8 @@ ${indent(prettyTyped(te.consBranch))}
       return true;
     }
   };
-  var TypeHintWidget = class extends WidgetType {
-    constructor(type) {
-      super();
-      this.type = type;
-    }
-    eq(other) {
-      return other.type === this.type;
-    }
-    toDOM() {
-      const span = document.createElement("span");
-      span.className = "type-hint";
-      span.textContent = `: ${this.type}`;
-      span.title = this.type;
-      return span;
-    }
-    ignoreEvent() {
-      return true;
-    }
-  };
   var setTypeHints = StateEffect.define();
+  var setHoveredTypeHint = StateEffect.define();
   var typeHintState = StateField.define({
     create() {
       return false;
@@ -20194,6 +20246,32 @@ ${indent(prettyTyped(te.consBranch))}
       return value;
     }
   });
+  var hoveredTypeHintState = StateField.define({
+    create() {
+      return null;
+    },
+    update(value, tr) {
+      let next = value;
+      if (next && tr.docChanged) {
+        next = {
+          from: tr.changes.mapPos(next.from),
+          to: tr.changes.mapPos(next.to)
+        };
+      }
+      for (const effect of tr.effects) {
+        if (effect.is(setHoveredTypeHint)) next = effect.value;
+      }
+      return next && next.from < next.to ? next : null;
+    },
+    provide(field) {
+      return EditorView.decorations.from(field, (hovered) => {
+        if (!hovered) return Decoration.none;
+        return Decoration.set([
+          Decoration.mark({ class: "type-hint-target" }).range(hovered.from, hovered.to)
+        ]);
+      });
+    }
+  });
   var modeHints = ViewPlugin.fromClass(
     class {
       constructor(view) {
@@ -20201,15 +20279,47 @@ ${indent(prettyTyped(te.consBranch))}
       }
       update(update) {
         const typeHintChanged = update.transactions.some((tr) => tr.effects.some((effect) => effect.is(setTypeHints)));
-        if (update.docChanged || update.viewportChanged || typeHintChanged) {
+        if (update.docChanged || update.selectionSet || update.viewportChanged || typeHintChanged) {
           this.decorations = buildModeHints(update.view);
         }
       }
     },
     {
-      decorations: (plugin) => plugin.decorations
+      decorations: (plugin) => plugin.decorations,
+      eventHandlers: {
+        mouseover(event, view) {
+          const hint = typeHintTarget(event);
+          if (!hint) return false;
+          view.dispatch({ effects: setHoveredTypeHint.of(hint) });
+          return false;
+        },
+        mouseout(event, view) {
+          if (!typeHintTarget(event)) return false;
+          view.dispatch({ effects: setHoveredTypeHint.of(null) });
+          return false;
+        },
+        focusin(event, view) {
+          const hint = typeHintTarget(event);
+          if (!hint) return false;
+          view.dispatch({ effects: setHoveredTypeHint.of(hint) });
+          return false;
+        },
+        focusout(event, view) {
+          if (!typeHintTarget(event)) return false;
+          view.dispatch({ effects: setHoveredTypeHint.of(null) });
+          return false;
+        }
+      }
     }
   );
+  function typeHintTarget(event) {
+    const target = event.target instanceof Element ? event.target.closest(".type-hint") : null;
+    if (!target) return null;
+    const from = Number(target.dataset.from);
+    const to = Number(target.dataset.to);
+    if (!Number.isFinite(from) || !Number.isFinite(to) || from >= to) return null;
+    return { from, to };
+  }
   function buildModeHints(view) {
     const source = view.state.doc.toString();
     const result = analyze(source);
@@ -20221,6 +20331,7 @@ ${indent(prettyTyped(te.consBranch))}
       if (span.kind !== "distribution" || span.mode !== "E" && span.mode !== "G") continue;
       const hint = hintPosition(source, span);
       if (!hint) continue;
+      if (cursorAtHintPosition(view, hint.pos)) continue;
       decorations2.push({
         pos: hint.pos,
         decoration: Decoration.widget({
@@ -20239,7 +20350,7 @@ ${indent(prettyTyped(te.consBranch))}
         decorations2.push({
           pos: span.to,
           decoration: Decoration.widget({
-            widget: new TypeHintWidget(span.type),
+            widget: new TypeHintWidget(span.type, span.from, span.to),
             side: 1
           })
         });
@@ -20248,6 +20359,9 @@ ${indent(prettyTyped(te.consBranch))}
     decorations2.sort((a, b) => a.pos - b.pos);
     for (const item of decorations2) builder.add(item.pos, item.pos, item.decoration);
     return builder.finish();
+  }
+  function cursorAtHintPosition(view, pos) {
+    return view.state.selection.ranges.some((range) => range.empty && Math.abs(range.head - pos) <= 1);
   }
   function hintPosition(source, span) {
     const text = source.slice(span.from, span.to);
@@ -20348,6 +20462,7 @@ ${indent(prettyTyped(te.consBranch))}
 
   // src/runtime/distributions.js
   var floatDistributions = /* @__PURE__ */ new Set(["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Bernoulli", "Poisson", "Discrete"]);
+  var MIN_POSITIVE_SAMPLE = Number.MIN_VALUE;
   function sampleDistribution(kind, args, rng) {
     switch (kind) {
       case "Uniform": {
@@ -20437,7 +20552,7 @@ ${indent(prettyTyped(te.consBranch))}
   function gammaSample(alpha, beta, rng) {
     if (alpha <= 0 || beta <= 0) throw new Error("gamma: parameters must be > 0");
     const scale = 1 / beta;
-    if (alpha < 1) return gammaSample(alpha + 1, beta, rng) * rng.positive() ** (1 / alpha);
+    if (alpha < 1) return positiveSample(gammaSample(alpha + 1, beta, rng) * rng.positive() ** (1 / alpha));
     const d = alpha - 1 / 3;
     const c = 1 / Math.sqrt(9 * d);
     for (; ; ) {
@@ -20446,9 +20561,12 @@ ${indent(prettyTyped(te.consBranch))}
       if (v <= 0) continue;
       const v3 = v * v * v;
       const u = rng.positive();
-      if (u < 1 - 0.0331 * x ** 4) return scale * d * v3;
-      if (Math.log(u) < 0.5 * x * x + d * (1 - v3 + Math.log(v3))) return scale * d * v3;
+      if (u < 1 - 0.0331 * x ** 4) return positiveSample(scale * d * v3);
+      if (Math.log(u) < 0.5 * x * x + d * (1 - v3 + Math.log(v3))) return positiveSample(scale * d * v3);
     }
+  }
+  function positiveSample(value) {
+    return Number.isFinite(value) && value > 0 ? value : MIN_POSITIVE_SAMPLE;
   }
   function stdNormal(rng) {
     return Math.sqrt(-2 * Math.log(rng.positive())) * Math.cos(2 * Math.PI * rng.next());
@@ -20500,6 +20618,16 @@ ${indent(prettyTyped(te.consBranch))}
       expr: runtimeFromTyped(typed2),
       determinized: runtimeFromAst(determinize(typed2)),
       typed: typed2
+    };
+  }
+  function prepareRuntimeUnchecked(source) {
+    const ast = parse(source);
+    const expr = runtimeFromAst(ast);
+    return {
+      expr,
+      determinized: determinizeResidual(expr),
+      typed: null,
+      unchecked: true
     };
   }
   function runtimeFromTyped(te) {
@@ -20621,6 +20749,16 @@ ${indent(prettyTyped(te.consBranch))}
         throw new Error(`unsupported expression ${expr.kind}`);
     }
   }
+  function runOrdinary(expr, streams, maxSteps = 1e3) {
+    let state = { expr: clone(expr), rngE: streams.rngE.clone(), rngG: streams.rngG.clone() };
+    const trace = [prettyExpr(state.expr)];
+    for (let steps = 0; steps < maxSteps && !isValue(state.expr); steps++) {
+      state = stepOrdinary(state);
+      trace.push(prettyExpr(state.expr));
+    }
+    if (!isValue(state.expr)) throw new Error("ordinary semantics did not terminate");
+    return { ...state, trace, value: state.expr };
+  }
   function stepOrdinary(state) {
     const result = step(state.expr, { kind: "ordinary", rngE: state.rngE, rngG: state.rngG });
     return { ...state, expr: result.expr, rngE: result.rngE ?? state.rngE, rngG: result.rngG ?? state.rngG };
@@ -20648,21 +20786,23 @@ ${indent(prettyTyped(te.consBranch))}
     const env = symbolicMeanEnv(symbolicState);
     return determinizeResidual(concretize(symbolicState.expr, env));
   }
-  function runCoupledTrace(source, seed = 1, maxSymbolicSteps = 1e3, maxSyncSteps = 200) {
-    const prepared = prepareRuntime(source);
+  function runCoupledTrace(source, seed = 1, maxSymbolicSteps = 1e3, maxSyncSteps = 200, options = {}) {
+    const prepared = options.allowIllTyped ? prepareRuntimeUnchecked(source) : prepareRuntime(source);
     const streams = makeStreams(seed);
     let symbolic = { expr: clone(prepared.expr), sigma: [], rngG: streams.rngG.clone(), nextSymbol: 1 };
     let original = { expr: clone(prepared.expr), rngE: streams.rngE.clone(), rngG: streams.rngG.clone() };
     let determinizedState = { expr: clone(prepared.determinized), rngE: streams.rngE.clone(), rngG: streams.rngG.clone() };
     const frames = [];
     for (let stepIndex = 0; stepIndex <= maxSymbolicSteps; stepIndex++) {
-      const originalTarget = projectSample(symbolic, streams.rngE);
-      const determinizedTarget = projectMeanDeterminized(symbolic);
-      const originalSync = advanceToTarget(original, originalTarget, maxSyncSteps);
-      const determinizedSync = advanceToTarget(determinizedState, determinizedTarget, maxSyncSteps);
+      const originalProjection = safe(() => projectSample(symbolic, streams.rngE));
+      const determinizedProjection = safe(() => projectMeanDeterminized(symbolic));
+      const originalTarget = originalProjection.value;
+      const determinizedTarget = determinizedProjection.value;
+      const originalSync = originalProjection.ok ? advanceToTarget(original, originalTarget, maxSyncSteps) : failedAdvance(original, originalProjection.error);
+      const determinizedSync = determinizedProjection.ok ? advanceToTarget(determinizedState, determinizedTarget, maxSyncSteps) : failedAdvance(determinizedState, determinizedProjection.error);
       original = originalSync.state;
       determinizedState = determinizedSync.state;
-      frames.push({
+      const frame = {
         step: stepIndex,
         original: clone(original.expr),
         symbolic: clone(symbolic.expr),
@@ -20673,15 +20813,46 @@ ${indent(prettyTyped(te.consBranch))}
         originalOk: originalSync.ok,
         determinizedOk: determinizedSync.ok,
         originalMicroSteps: originalSync.steps,
-        determinizedMicroSteps: determinizedSync.steps
-      });
+        determinizedMicroSteps: determinizedSync.steps,
+        originalError: originalSync.error,
+        determinizedError: determinizedSync.error
+      };
+      if (originalSync.ok && determinizedSync.ok && !isValue(symbolic.expr)) {
+        const nextSymbolic = safe(() => stepSymbolic(symbolic));
+        if (nextSymbolic.ok) {
+          frames.push({ ...frame, symbolicOk: true });
+          symbolic = nextSymbolic.value;
+          continue;
+        }
+        frames.push({ ...frame, symbolicOk: false, symbolicError: nextSymbolic.error });
+        break;
+      }
+      frames.push({ ...frame, symbolicOk: true });
       if (!originalSync.ok || !determinizedSync.ok || isValue(symbolic.expr)) break;
-      symbolic = stepSymbolic(symbolic);
     }
     return {
       seed,
       frames,
-      ok: frames.every((frame) => frame.originalOk && frame.determinizedOk)
+      unchecked: prepared.unchecked ?? false,
+      finalOriginal: safe(() => runOrdinary(prepared.expr, streams).value).value,
+      finalDeterminized: safe(() => runOrdinary(prepared.determinized, streams).value).value,
+      ok: frames.every((frame) => frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false)
+    };
+  }
+  function safe(fn) {
+    try {
+      return { ok: true, value: fn() };
+    } catch (error) {
+      return { ok: false, error: error?.message ?? String(error) };
+    }
+  }
+  function failedAdvance(state, error) {
+    return {
+      ok: false,
+      state,
+      steps: 0,
+      microTrace: [prettyExpr(state.expr)],
+      error
     };
   }
   function step(expr, ctx) {
@@ -20795,16 +20966,27 @@ ${indent(prettyTyped(te.consBranch))}
     let current = state;
     let steps = 0;
     const microTrace = [prettyExpr(current.expr)];
-    while (!exprEqual(current.expr, target) && steps < maxSteps && !isValue(current.expr)) {
-      current = stepOrdinary(current);
-      steps += 1;
-      microTrace.push(prettyExpr(current.expr));
+    try {
+      while (!exprEqual(current.expr, target) && steps < maxSteps && !isValue(current.expr)) {
+        current = stepOrdinary(current);
+        steps += 1;
+        microTrace.push(prettyExpr(current.expr));
+      }
+    } catch (error) {
+      return {
+        ok: false,
+        state: current,
+        steps,
+        microTrace,
+        error: error?.message ?? String(error)
+      };
     }
     return {
       ok: exprEqual(current.expr, target),
       state: current,
       steps,
-      microTrace
+      microTrace,
+      error: exprEqual(current.expr, target) ? void 0 : "ordinary trace did not reach the projected target"
     };
   }
   function symbolicMeanEnv(symbolicState) {
@@ -21010,10 +21192,6 @@ ${indent(prettyTyped(te.consBranch))}
         return prettyExpr(a) === prettyExpr(b);
     }
   }
-  function prettySymbolicState(state) {
-    const sigma = state.sigma.length === 0 ? "empty" : state.sigma.map((binding) => `${binding.name} ~ ${binding.kind.toLowerCase()}(${binding.args.map(prettyAffine2).join(", ")})`).join("; ");
-    return `<${sigma} || ${prettyExpr(state.expr)}>`;
-  }
   function clone(expr) {
     if (expr.kind === "SymFloat") return symFloat(expr.affine, expr.from, expr.to);
     return JSON.parse(JSON.stringify(expr));
@@ -21025,12 +21203,279 @@ ${indent(prettyTyped(te.consBranch))}
     return node(kind, props, source.from ?? 0, source.to ?? source.from ?? 0);
   }
 
+  // src/traceRender.js
+  var infix2 = {
+    Lt: ["<", 1],
+    Leq: ["<=", 1],
+    Cons: ["::", 2],
+    Add: ["+", 3],
+    Sub: ["-", 3],
+    Mul: ["*", 4],
+    Div: ["/", 4]
+  };
+  var distNames2 = {
+    Uniform: "uniform",
+    Gauss: "gauss",
+    Exponential: "exponential",
+    Gamma: "gamma",
+    Beta: "beta",
+    Flip: "flip",
+    Bernoulli: "bernoulli",
+    Poisson: "poisson",
+    Discrete: "discrete"
+  };
+  function renderTraceExpr(expr, options = {}) {
+    return renderExpr(expr, 0, stepPath(expr), options);
+  }
+  function renderExpr(expr, prec2 = 0, focusPath = null, options = {}) {
+    const focused = focusPath && focusPath.length === 0;
+    const wrap = (html2, level) => prec2 > level ? `(${html2})` : html2;
+    let html;
+    switch (expr.kind) {
+      case "Var":
+        html = renderHighlightedText(expr.name, options);
+        break;
+      case "Const":
+      case "Bool":
+      case "Unit":
+      case "Nil":
+      case "SymFloat":
+        html = renderHighlightedText(prettyExpr(expr), options);
+        break;
+      case "Let":
+        html = renderLet(expr, focusPath, options);
+        break;
+      case "If":
+        html = renderIf(expr, focusPath, options);
+        break;
+      case "Lam":
+        html = wrap(`fun ${plain(expr.param)} =>
+${indent2(renderExpr(expr.body, 0, childFocus(focusPath, "body"), options))}`, 0);
+        break;
+      case "Rec":
+        html = wrap(`rec ${plain(expr.name)} ${plain(expr.param)} =>
+${indent2(renderExpr(expr.body, 0, childFocus(focusPath, "body"), options))}`, 0);
+        break;
+      case "App":
+        html = wrap(`${renderExpr(expr.fn, 5, childFocus(focusPath, "fn"), options)} ${renderExpr(expr.arg, 6, childFocus(focusPath, "arg"), options)}`, 5);
+        break;
+      case "Pair":
+        html = `(${renderExpr(expr.left, 0, childFocus(focusPath, "left"), options)}, ${renderExpr(expr.right, 0, childFocus(focusPath, "right"), options)})`;
+        break;
+      case "Fst":
+      case "Snd":
+      case "Inl":
+      case "Inr":
+        html = `${keyword2(expr.kind.toLowerCase())} ${renderExpr(expr.expr, 6, childFocus(focusPath, "expr"), options)}`;
+        break;
+      case "Neg":
+        html = wrap(`-${renderExpr(expr.expr, 6, childFocus(focusPath, "expr"), options)}`, 6);
+        break;
+      case "Case":
+        html = `${keyword2("match")} ${renderExpr(expr.scrutinee, 0, childFocus(focusPath, "scrutinee"), options)} ${keyword2("with")} ${keyword2("inl")} ${plain(expr.leftName)} =>
+${indent2(renderExpr(expr.left, 0, childFocus(focusPath, "left"), options))}
+| ${keyword2("inr")} ${plain(expr.rightName)} =>
+${indent2(renderExpr(expr.right, 0, childFocus(focusPath, "right"), options))}`;
+        break;
+      case "MatchList":
+        html = `${keyword2("match")} ${renderExpr(expr.scrutinee, 0, childFocus(focusPath, "scrutinee"), options)} ${keyword2("with")} [] =>
+${indent2(renderExpr(expr.nilBranch, 0, childFocus(focusPath, "nilBranch"), options))}
+| ${plain(expr.headName)} :: ${plain(expr.tailName)} =>
+${indent2(renderExpr(expr.consBranch, 0, childFocus(focusPath, "consBranch"), options))}`;
+        break;
+      case "Observe":
+        html = `${keyword2("observe")}(${renderExpr(expr.cond, 0, childFocus(focusPath, "cond"), options)})`;
+        break;
+      default:
+        if (expr.kind in infix2) {
+          const [op, level] = infix2[expr.kind];
+          html = wrap(`${renderExpr(leftOf2(expr), level, childFocus(focusPath, leftKey(expr)), options)} ${plain(op)} ${renderExpr(rightOf2(expr), level + (expr.kind === "Cons" ? -1 : 1), childFocus(focusPath, rightKey(expr)), options)}`, level);
+          break;
+        }
+        if (expr.kind in distNames2) {
+          html = renderDistribution(expr, focusPath, options);
+          break;
+        }
+        html = renderHighlightedText(prettyExpr(expr), options);
+    }
+    if (expr.kind === "SymFloat") html = valueSpan(html);
+    if (focused) html = stepSpan(html);
+    return html;
+  }
+  function renderHighlightedText(code, options = {}) {
+    const escaped = escapeHtml(code);
+    return escaped.replace(
+      /\b(let|in|if|then|else|match|with|fun|rec|true|false|fst|snd|inl|inr|observe)\b|\b(uniform|gauss|exponential|gamma|beta|flip|bernoulli|poisson|discrete)\b|(\[[EG]\])|\b(v\d+)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi,
+      (match, keywordMatch, dist2, mode, sym, number2) => {
+        if (keywordMatch) return `<span class="tok-keyword">${match}</span>`;
+        if (dist2) return `<span class="tok-dist">${match}</span>`;
+        if (mode) return `<span class="tok-mode">${match}</span>`;
+        if (sym) return corrSpan(match, "tok-sym", sym);
+        if (number2) return numberSpan(match, options);
+        return match;
+      }
+    );
+  }
+  function renderLet(expr, focusPath, options) {
+    const value = renderExpr(expr.value, 0, childFocus(focusPath, "value"), options);
+    const body = renderExpr(expr.body, 0, childFocus(focusPath, "body"), options);
+    if (!prettyExpr(expr.value).includes("\n")) {
+      return `${keyword2("let")} ${plain(expr.name)} = ${value} ${keyword2("in")}
+${body}`;
+    }
+    return `${keyword2("let")} ${plain(expr.name)} =
+${indent2(value)}
+${keyword2("in")}
+${indent2(body)}`;
+  }
+  function renderIf(expr, focusPath, options) {
+    const cond = renderExpr(expr.cond, 0, childFocus(focusPath, "cond"), options);
+    const thenBranch = renderExpr(expr.thenBranch, 0, childFocus(focusPath, "thenBranch"), options);
+    const elseBranch = renderExpr(expr.elseBranch, 0, childFocus(focusPath, "elseBranch"), options);
+    const plainText = prettyExpr(expr);
+    if (!plainText.includes("\n")) {
+      return `${keyword2("if")} ${cond} ${keyword2("then")} ${thenBranch} ${keyword2("else")} ${elseBranch}`;
+    }
+    return `${keyword2("if")} ${cond}
+${keyword2("then")}
+${indent2(thenBranch)}
+${keyword2("else")}
+${indent2(elseBranch)}`;
+  }
+  function renderDistribution(expr, focusPath, options) {
+    const name2 = `<span class="tok-dist">${distNames2[expr.kind]}</span>`;
+    const mode = expr.mode ? `<span class="tok-mode">[${plain(expr.mode)}]</span>` : "";
+    if (expr.kind === "Discrete") {
+      return `${name2}${mode}(${expr.choices.map((choice) => renderHighlightedText(String(choice.probability), options)).join(", ")})`;
+    }
+    return `${name2}${mode}(${expr.args.map((arg, index) => renderExpr(arg, 0, childFocus(focusPath, "args", index), options)).join(", ")})`;
+  }
+  function valueSpan(html) {
+    return `<span class="trace-value symbolic-value" title="symbolic affine value">${html}</span>`;
+  }
+  function stepSpan(html) {
+    return `<span class="trace-step" title="next small-step reduction">${html}</span>`;
+  }
+  function corrSpan(text, className, symbol) {
+    const escaped = escapeHtml(text);
+    return `<span class="corr-item ${className}" data-corr="${escapeHtml(symbol)}" title="corresponds to ${escapeHtml(symbol)}">${escaped}</span>`;
+  }
+  function numberSpan(text, options) {
+    const symbol = options.highlightMeans ? meanSymbolForNumber(Number(text), options.meanBySymbol) : null;
+    const html = `<span class="tok-number">${text}</span>`;
+    return symbol ? `<span class="corr-item" data-corr="${escapeHtml(symbol)}" title="mean substituted for ${escapeHtml(symbol)}">${html}</span>` : html;
+  }
+  function meanSymbolForNumber(value, meanBySymbol) {
+    if (!Number.isFinite(value) || !meanBySymbol) return null;
+    for (const [symbol, mean] of Object.entries(meanBySymbol)) {
+      if (Number.isFinite(mean) && Math.abs(value - mean) <= 1e-9) return symbol;
+    }
+    return null;
+  }
+  function stepPath(expr) {
+    if (isValue(expr)) return null;
+    switch (expr.kind) {
+      case "Let":
+        return isValue(expr.value) ? [] : prepend("value", stepPath(expr.value));
+      case "App":
+        if (!isValue(expr.fn)) return prepend("fn", stepPath(expr.fn));
+        if (!isValue(expr.arg)) return prepend("arg", stepPath(expr.arg));
+        return [];
+      case "Pair":
+        if (!isValue(expr.left)) return prepend("left", stepPath(expr.left));
+        if (!isValue(expr.right)) return prepend("right", stepPath(expr.right));
+        return null;
+      case "Fst":
+      case "Snd":
+        return isValue(expr.expr) ? [] : prepend("expr", stepPath(expr.expr));
+      case "Inl":
+      case "Inr":
+        return isValue(expr.expr) ? null : prepend("expr", stepPath(expr.expr));
+      case "Case":
+        return isValue(expr.scrutinee) ? [] : prepend("scrutinee", stepPath(expr.scrutinee));
+      case "Cons":
+        if (!isValue(expr.head)) return prepend("head", stepPath(expr.head));
+        if (!isValue(expr.tail)) return prepend("tail", stepPath(expr.tail));
+        return null;
+      case "MatchList":
+        return isValue(expr.scrutinee) ? [] : prepend("scrutinee", stepPath(expr.scrutinee));
+      case "If":
+        return isValue(expr.cond) ? [] : prepend("cond", stepPath(expr.cond));
+      case "Neg":
+        return isValue(expr.expr) ? [] : prepend("expr", stepPath(expr.expr));
+      case "Add":
+      case "Sub":
+      case "Mul":
+      case "Div":
+      case "Lt":
+      case "Leq":
+        if (!isValue(expr.left)) return prepend("left", stepPath(expr.left));
+        if (!isValue(expr.right)) return prepend("right", stepPath(expr.right));
+        return [];
+      case "Observe":
+        return isValue(expr.cond) ? [] : prepend("cond", stepPath(expr.cond));
+      case "Uniform":
+      case "Gauss":
+      case "Exponential":
+      case "Gamma":
+      case "Beta":
+      case "Flip":
+      case "Bernoulli":
+      case "Poisson":
+        for (let i = 0; i < expr.args.length; i++) {
+          if (!isValue(expr.args[i])) return prepend("args", prepend(i, stepPath(expr.args[i])));
+        }
+        return [];
+      case "Discrete":
+        return [];
+      default:
+        return [];
+    }
+  }
+  function prepend(part, rest) {
+    return [part, ...rest ?? []];
+  }
+  function childFocus(focusPath, key, index = null) {
+    if (!focusPath || focusPath.length === 0 || focusPath[0] !== key) return null;
+    if (index === null) return focusPath.slice(1);
+    return focusPath[1] === index ? focusPath.slice(2) : null;
+  }
+  function keyword2(text) {
+    return `<span class="tok-keyword">${escapeHtml(text)}</span>`;
+  }
+  function plain(text) {
+    return escapeHtml(text);
+  }
+  function indent2(html) {
+    return html.split("\n").map((line) => line ? `  ${line}` : line).join("\n");
+  }
+  function leftOf2(expr) {
+    return expr.left ?? expr.head;
+  }
+  function rightOf2(expr) {
+    return expr.right ?? expr.tail;
+  }
+  function leftKey(expr) {
+    return "left" in expr ? "left" : "head";
+  }
+  function rightKey(expr) {
+    return "right" in expr ? "right" : "tail";
+  }
+  function escapeHtml(text) {
+    return String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+  }
+
   // src/main.js
   var editorHost = document.querySelector("#editor");
   var exampleSelect = document.querySelector("#example-select");
   var statusEl = document.querySelector("#status");
   var typeHintsToggle = document.querySelector("#type-hints-toggle");
+  var debugToggle = document.querySelector("#debug-toggle");
   var editorDiagnostics = document.querySelector("#editor-diagnostics");
+  var debugPanel = document.querySelector("#debug-panel");
+  var debugLogEl = document.querySelector("#debug-log");
+  var debugCopyButton = document.querySelector("#debug-copy");
+  var debugClearButton = document.querySelector("#debug-clear");
   var panels = {
     coupling: document.querySelector("#coupling-trace"),
     couplingStatus: document.querySelector("#coupling-status"),
@@ -21040,11 +21485,22 @@ ${indent(prettyTyped(te.consBranch))}
   var rerunButton = document.querySelector("#rerun-coupling");
   var manyButton = document.querySelector("#many-coupling");
   typeHintsToggle.checked = false;
+  var ANALYZE_IDLE_MS = 500;
+  var checkPopoverPortal = document.createElement("div");
+  checkPopoverPortal.className = "floating-check-popover";
+  checkPopoverPortal.setAttribute("role", "tooltip");
+  document.body.append(checkPopoverPortal);
   var latest = null;
   var debounce = null;
   var couplingSeed = 2026;
   var sampleSource = "";
   var lastSampleKey = "";
+  var activeCheck = null;
+  var hideCheckPopoverTimer = null;
+  var activeCorrespondence = null;
+  var debugEnabled = false;
+  var debugSeq = 0;
+  var debugLog = [];
   var samples = {
     original: [],
     determinized: []
@@ -21089,6 +21545,7 @@ ${indent(prettyTyped(te.consBranch))}
         detLanguage,
         detHighlighting,
         typeHintState,
+        hoveredTypeHintState,
         diagnosticsState,
         modeHints,
         typeHover(),
@@ -21096,6 +21553,7 @@ ${indent(prettyTyped(te.consBranch))}
         keymap.of([...defaultKeymap, ...historyKeymap]),
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
+          if (update.docChanged || update.selectionSet) logEditorUpdate(update);
           if (update.docChanged) scheduleAnalyze();
         })
       ]
@@ -21103,6 +21561,7 @@ ${indent(prettyTyped(te.consBranch))}
   });
   exampleSelect.addEventListener("change", () => {
     const source = examples[Number(exampleSelect.value)].source;
+    logDebug("example-change", { example: examples[Number(exampleSelect.value)].name });
     editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: source } });
     runAnalyze();
   });
@@ -21113,43 +21572,125 @@ ${indent(prettyTyped(te.consBranch))}
   manyButton.addEventListener("click", () => {
     const source = editor.state.doc.toString();
     if (source !== sampleSource) resetSamples(source);
+    let latestCoupled = null;
     for (let i = 0; i < 200; i++) {
       const seed = Math.floor(1 + Math.random() * 4294967295);
-      const coupled = runCoupledTrace(source, seed);
-      addSampleFromCoupling(coupled, source);
+      try {
+        const coupled = runCoupling(source, seed);
+        addSampleFromCoupling(coupled, source);
+        couplingSeed = seed;
+        latestCoupled = coupled;
+      } catch {
+        break;
+      }
     }
+    if (latestCoupled) renderCoupling(latestCoupled);
     renderDistributions();
   });
   typeHintsToggle.addEventListener("change", () => {
+    logDebug("type-hints-toggle", { checked: typeHintsToggle.checked });
     editor.dispatch({ effects: setTypeHints.of(typeHintsToggle.checked) });
+  });
+  debugToggle.addEventListener("change", () => {
+    debugEnabled = debugToggle.checked;
+    debugPanel.hidden = !debugEnabled;
+    if (debugEnabled) {
+      logDebug("debug-enabled", collectEditorDebugState("toggle"));
+    } else {
+      renderDebugLog();
+    }
+  });
+  debugCopyButton.addEventListener("click", async () => {
+    const text = debugLog.map((entry) => JSON.stringify(entry)).join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      debugCopyButton.textContent = "Copied";
+      setTimeout(() => {
+        debugCopyButton.textContent = "Copy";
+      }, 900);
+    } catch {
+      debugLogEl.textContent = text;
+    }
+  });
+  debugClearButton.addEventListener("click", () => {
+    debugLog.length = 0;
+    debugSeq = 0;
+    logDebug("debug-cleared", collectEditorDebugState("clear"));
+  });
+  panels.coupling.addEventListener("pointerover", (event) => {
+    const corr = event.target instanceof Element ? event.target.closest(".corr-item") : null;
+    if (corr) showCorrespondence(corr);
+    const check = event.target instanceof Element ? event.target.closest(".step-check") : null;
+    if (check) showCheckPopover(check);
+  });
+  panels.coupling.addEventListener("pointerout", (event) => {
+    const corr = event.target instanceof Element ? event.target.closest(".corr-item") : null;
+    if (corr) {
+      const next2 = event.relatedTarget instanceof Element ? event.relatedTarget.closest(".corr-item") : null;
+      if (!next2 || next2.dataset.corr !== corr.dataset.corr) hideCorrespondence();
+    }
+    const check = event.target instanceof Element ? event.target.closest(".step-check") : null;
+    if (!check) return;
+    const next = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+    if (next && (check.contains(next) || checkPopoverPortal.contains(next))) return;
+    scheduleHideCheckPopover();
+  });
+  panels.coupling.addEventListener("focusin", (event) => {
+    const corr = event.target instanceof Element ? event.target.closest(".corr-item") : null;
+    if (corr) showCorrespondence(corr);
+    const check = event.target instanceof Element ? event.target.closest(".step-check") : null;
+    if (check) showCheckPopover(check);
+  });
+  panels.coupling.addEventListener("focusout", (event) => {
+    const corr = event.target instanceof Element ? event.target.closest(".corr-item") : null;
+    if (corr) hideCorrespondence();
+    const next = event.relatedTarget instanceof Element ? event.relatedTarget : null;
+    if (next && (panels.coupling.contains(next) || checkPopoverPortal.contains(next))) return;
+    scheduleHideCheckPopover();
+  });
+  checkPopoverPortal.addEventListener("pointerenter", cancelHideCheckPopover);
+  checkPopoverPortal.addEventListener("pointerleave", scheduleHideCheckPopover);
+  window.addEventListener("scroll", () => {
+    if (activeCheck) positionCheckPopover(activeCheck);
+  }, true);
+  window.addEventListener("resize", () => {
+    if (activeCheck) positionCheckPopover(activeCheck);
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hideCheckPopover();
   });
   function scheduleAnalyze() {
     clearTimeout(debounce);
-    debounce = setTimeout(runAnalyze, 120);
+    logDebug("schedule-analyze", { idleMs: ANALYZE_IDLE_MS, ...collectEditorDebugState("schedule") });
+    debounce = setTimeout(runAnalyze, ANALYZE_IDLE_MS);
   }
   function runAnalyze() {
     const source = editor.state.doc.toString();
+    logDebug("run-analyze-start", collectEditorDebugState("before-analyze"));
     latest = analyze(source);
     const diagnostics = normalizeDiagnostics(latest, source);
     editor.dispatch({ effects: setDiagnostics.of(diagnostics) });
+    logDebug("run-analyze-result", {
+      ok: latest.ok,
+      diagnostics: diagnostics.map((diagnostic) => ({ from: diagnostic.from, to: diagnostic.to, message: diagnostic.message })),
+      rawDiagnostics: latest.ok ? [] : latest.diagnostics,
+      ...collectEditorDebugState("after-diagnostics-dispatch")
+    });
     renderResult(latest);
   }
   function renderResult(result) {
+    logDebug("render-result", { ok: result.ok, ...collectEditorDebugState("render-result") });
     if (result.ok) {
       setEditorStatus("ok", "Parsed and checked", "\u2713");
       editorDiagnostics.textContent = "No diagnostics.";
       editorDiagnostics.className = "editor-diagnostics ok";
-      renderSemantics(editor.state.doc.toString());
+      renderSemantics(editor.state.doc.toString(), { allowIllTyped: false });
       return;
     }
     setEditorStatus("error", "Diagnostics", "!");
     editorDiagnostics.textContent = result.diagnostics.map((diag) => diag.message).join("\n");
     editorDiagnostics.className = "editor-diagnostics error";
-    panels.coupling.innerHTML = "";
-    panels.couplingStatus.textContent = result.diagnostics.map((diag) => diag.message).join("; ");
-    panels.couplingStatus.className = "status error";
-    panels.distribution.innerHTML = "";
-    panels.distributionStatus.textContent = "0 samples";
+    renderSemantics(editor.state.doc.toString(), { allowIllTyped: true });
   }
   function setEditorStatus(kind, label, glyph) {
     statusEl.textContent = glyph;
@@ -21157,23 +21698,152 @@ ${indent(prettyTyped(te.consBranch))}
     statusEl.setAttribute("aria-label", label);
     statusEl.className = `status editor-status ${kind}`;
   }
-  function renderSemantics(source) {
+  function logEditorUpdate(update) {
+    logDebug("editor-update", {
+      docChanged: update.docChanged,
+      selectionSet: update.selectionSet,
+      transactions: update.transactions.map((transaction) => ({
+        docChanged: transaction.docChanged,
+        selection: transaction.selection ? transaction.selection.ranges.map((range) => ({
+          from: range.from,
+          to: range.to,
+          anchor: range.anchor,
+          head: range.head,
+          empty: range.empty
+        })) : [],
+        userEvent: transaction.annotation(Transaction.userEvent) ?? null,
+        effects: transaction.effects.length
+      })),
+      ...collectEditorDebugState("update")
+    });
+  }
+  function logDebug(event, data = {}) {
+    if (!debugEnabled && event !== "debug-enabled") return;
+    debugLog.push({
+      seq: ++debugSeq,
+      timeMs: Math.round(performance.now()),
+      event,
+      ...data
+    });
+    if (debugLog.length > 400) debugLog.splice(0, debugLog.length - 400);
+    renderDebugLog();
+  }
+  function renderDebugLog() {
+    if (!debugLogEl) return;
+    debugLogEl.textContent = debugLog.map((entry) => JSON.stringify(entry)).join("\n");
+    debugLogEl.scrollTop = debugLogEl.scrollHeight;
+  }
+  function collectEditorDebugState(label) {
     try {
+      const doc2 = editor.state.doc.toString();
+      const selection = editor.state.selection.ranges.map((range) => ({
+        from: range.from,
+        to: range.to,
+        anchor: range.anchor,
+        head: range.head,
+        empty: range.empty
+      }));
+      const main = editor.state.selection.main;
+      const headLine = editor.state.doc.lineAt(main.head);
+      const diagnostics = readDiagnosticsForDebug();
+      const root = editorHost.closest(".editor-pane") ?? document;
+      return {
+        label,
+        doc: {
+          length: doc2.length,
+          lines: editor.state.doc.lines,
+          text: capDebugText(doc2, 2e3)
+        },
+        selection,
+        activeLine: {
+          number: headLine.number,
+          from: headLine.from,
+          to: headLine.to,
+          text: headLine.text
+        },
+        example: examples[Number(exampleSelect.value)]?.name ?? null,
+        typeHintsEnabled: typeHintsToggle.checked,
+        status: statusEl.getAttribute("aria-label"),
+        diagnostics: diagnostics.map((diagnostic) => ({
+          from: diagnostic.from,
+          to: diagnostic.to,
+          message: diagnostic.message
+        })),
+        dom: {
+          activeElement: describeElement(document.activeElement),
+          cursorCount: root.querySelectorAll(".cm-cursor").length,
+          cursorStyles: Array.from(root.querySelectorAll(".cm-cursor"), (el) => el.getAttribute("style") ?? ""),
+          modeHints: Array.from(root.querySelectorAll(".mode-hint"), describeHint),
+          typeHints: Array.from(root.querySelectorAll(".type-hint"), describeHint),
+          diagnosticSquiggles: root.querySelectorAll(".diagnostic-squiggle").length,
+          diagnosticPoints: root.querySelectorAll(".diagnostic-point").length,
+          contentText: capDebugText(editorHost.querySelector(".cm-content")?.innerText ?? "", 2e3)
+        }
+      };
+    } catch (error) {
+      return {
+        label,
+        collectError: error?.message ?? String(error)
+      };
+    }
+  }
+  function readDiagnosticsForDebug() {
+    try {
+      return editor.state.field(diagnosticsState);
+    } catch {
+      return [];
+    }
+  }
+  function describeHint(element) {
+    const rect = element.getBoundingClientRect();
+    return {
+      text: element.textContent,
+      className: element.className,
+      left: Math.round(rect.left),
+      top: Math.round(rect.top),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height)
+    };
+  }
+  function describeElement(element) {
+    if (!(element instanceof Element)) return null;
+    return {
+      tag: element.tagName.toLowerCase(),
+      id: element.id || null,
+      className: typeof element.className === "string" ? element.className : null,
+      text: capDebugText(element.textContent ?? "", 120)
+    };
+  }
+  function capDebugText(text, maxLength) {
+    if (text.length <= maxLength) return text;
+    return `${text.slice(0, maxLength)}...<truncated ${text.length - maxLength} chars>`;
+  }
+  function renderSemantics(source, options = {}) {
+    try {
+      logDebug("render-semantics-start", { allowIllTyped: Boolean(options.allowIllTyped), sourceLength: source.length });
       if (source !== sampleSource) resetSamples(source);
-      const coupled = runCoupledTrace(source, couplingSeed);
+      const coupled = runCoupling(source, couplingSeed, options);
       addSampleFromCoupling(coupled, source);
       renderCoupling(coupled);
       renderDistributions();
+      logDebug("render-semantics-ok", { frames: coupled.frames.length, ok: coupled.ok, ...collectEditorDebugState("render-semantics-ok") });
     } catch (error) {
       panels.coupling.innerHTML = "";
-      panels.couplingStatus.textContent = "Coupling failed";
+      panels.couplingStatus.textContent = options.allowIllTyped ? "Trace unavailable" : "Coupling failed";
       panels.couplingStatus.className = "status error";
       panels.distribution.innerHTML = "";
       panels.distributionStatus.textContent = "not numeric";
+      logDebug("render-semantics-error", { message: error?.message ?? String(error), ...collectEditorDebugState("render-semantics-error") });
     }
   }
+  function runCoupling(source, seed, options = {}) {
+    return runCoupledTrace(source, seed, 1e3, 200, {
+      allowIllTyped: Boolean(options.allowIllTyped || !latest?.ok)
+    });
+  }
   function renderCoupling(coupled) {
-    panels.couplingStatus.textContent = `seed ${coupled.seed} - ${coupled.ok ? "checked" : "failed"}`;
+    hideCheckPopover();
+    panels.couplingStatus.textContent = `seed ${coupled.seed} - ${coupled.ok ? "checked" : "failed"}${coupled.unchecked ? " (unchecked)" : ""}`;
     panels.couplingStatus.className = `status ${coupled.ok ? "ok" : "error"}`;
     panels.coupling.innerHTML = `
     <div class="coupling-table-head">
@@ -21184,33 +21854,136 @@ ${indent(prettyTyped(te.consBranch))}
     </div>
     <div class="coupling-table-body">
   ` + coupled.frames.map((frame) => {
-      const symbolicState = { sigma: frame.sigma, expr: frame.symbolic };
-      const sigma = sigmaText(symbolicState);
-      const sigmaLines = Math.max(1, Math.min(4, sigma.split("\n").filter(Boolean).length));
+      const sigma = sigmaView(frame.sigma);
+      const sigmaLines = Math.max(1, Math.min(4, sigma.lineCount));
+      const ok = frameOk(frame);
       return `
-        <section class="coupling-row ${frame.originalOk && frame.determinizedOk ? "" : "failed"}" style="--sigma-lines: ${sigmaLines}">
+        <section class="coupling-row ${ok ? "" : "failed"}" style="--sigma-lines: ${sigmaLines}">
           <div class="step-rail">
             <span>${frame.step}</span>
-            <small>${frame.originalOk && frame.determinizedOk ? "OK" : "FAIL"}</small>
+            ${stepCheck(frame, coupled)}
           </div>
-          ${couplingCell(prettyExpr(frame.original), "", "original")}
-          ${couplingCell(prettyExpr(frame.symbolic), sigma, "symbolic")}
-          ${couplingCell(prettyExpr(frame.determinized), "", "determinized")}
+          ${couplingCell(frame.original, "", "original", {})}
+          ${couplingCell(frame.symbolic, sigma.html, "symbolic", {})}
+          ${couplingCell(frame.determinized, "", "determinized", { meanBySymbol: sigma.meanBySymbol, highlightMeans: true })}
         </section>
       `;
     }).join("") + "</div>";
   }
-  function couplingCell(code, meta2, tone) {
+  function frameOk(frame) {
+    return frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false;
+  }
+  function stepCheck(frame, coupled) {
+    const ok = frameOk(frame);
+    return `
+    <span class="step-check ${ok ? "ok" : "fail"}" tabindex="0" aria-label="${ok ? "Coupling checks passed" : "Coupling check failed"}">
+      ${ok ? "OK" : "FAIL"}
+      <span class="check-popover-source">
+        ${checkPopoverContent(frame, coupled, ok)}
+      </span>
+    </span>
+  `;
+  }
+  function checkPopoverContent(frame, coupled, ok) {
+    const originalTarget = frame.originalTarget ? prettyExpr(frame.originalTarget) : "not available";
+    const determinizedTarget = frame.determinizedTarget ? prettyExpr(frame.determinizedTarget) : "not available";
+    return `
+    <strong>${ok ? "Coupling checks passed at this symbolic step." : "Coupling check failed at this symbolic step."}</strong>
+    <span>The source trace must match the symbolic state after sampling stored E-bindings with the same E-randomness.</span>
+    <code>${escapeHtml2(originalTarget)}</code>
+    <span>The determinized trace must match the symbolic state after replacing stored E-bindings by their means.</span>
+    <code>${escapeHtml2(determinizedTarget)}</code>
+    <span>Source sync: ${frame.originalOk ? `${frame.originalMicroSteps} step${frame.originalMicroSteps === 1 ? "" : "s"}` : `failed${frame.originalError ? `: ${escapeHtml2(frame.originalError)}` : ""}`}</span>
+    <span>Determinized sync: ${frame.determinizedOk ? `${frame.determinizedMicroSteps} step${frame.determinizedMicroSteps === 1 ? "" : "s"}` : `failed${frame.determinizedError ? `: ${escapeHtml2(frame.determinizedError)}` : ""}`}</span>
+    ${frame.symbolicOk === false ? `<span>Symbolic next step failed: ${escapeHtml2(frame.symbolicError)}</span>` : ""}
+    ${coupled.unchecked ? "<em>This trace is running despite type/mode diagnostics, so failures show why the theorem needs the type system.</em>" : ""}
+  `;
+  }
+  function couplingCell(expr, meta2, tone, traceOptions = {}) {
     return `
     <article class="coupling-cell ${tone}">
-      <div class="sigma-strip ${meta2 ? "" : "blank"}">${meta2 ? highlightDet(meta2) : "&nbsp;"}</div>
-      <pre class="code-view">${highlightDet(code)}</pre>
+      <div class="sigma-strip ${meta2 ? "" : "blank"}">${meta2 || "&nbsp;"}</div>
+      <pre class="code-view">${renderTraceExpr(expr, traceOptions)}</pre>
     </article>
   `;
   }
-  function sigmaText(state) {
-    if (state.sigma.length === 0) return "";
-    return prettySymbolicState(state).slice(1).split(" || ")[0].replaceAll("; ", "\n");
+  function showCheckPopover(check) {
+    const source = check.querySelector(".check-popover-source");
+    if (!source) return;
+    cancelHideCheckPopover();
+    activeCheck = check;
+    checkPopoverPortal.innerHTML = source.innerHTML;
+    checkPopoverPortal.classList.add("visible");
+    check.classList.add("popover-open");
+    positionCheckPopover(check);
+  }
+  function positionCheckPopover(check) {
+    const anchor = check.getBoundingClientRect();
+    const popover = checkPopoverPortal.getBoundingClientRect();
+    const margin = 10;
+    const preferredLeft = anchor.right + 10;
+    const left = preferredLeft + popover.width <= window.innerWidth - margin ? preferredLeft : Math.max(margin, anchor.left - popover.width - 10);
+    const centeredTop = anchor.top + anchor.height / 2 - popover.height / 2;
+    const top2 = clamp2(centeredTop, margin, window.innerHeight - popover.height - margin);
+    checkPopoverPortal.style.left = `${left}px`;
+    checkPopoverPortal.style.top = `${top2}px`;
+  }
+  function scheduleHideCheckPopover() {
+    clearTimeout(hideCheckPopoverTimer);
+    hideCheckPopoverTimer = setTimeout(hideCheckPopover, 120);
+  }
+  function cancelHideCheckPopover() {
+    clearTimeout(hideCheckPopoverTimer);
+  }
+  function hideCheckPopover() {
+    clearTimeout(hideCheckPopoverTimer);
+    if (activeCheck) activeCheck.classList.remove("popover-open");
+    activeCheck = null;
+    checkPopoverPortal.classList.remove("visible");
+  }
+  function showCorrespondence(anchor) {
+    const symbol = anchor.dataset.corr;
+    if (!symbol) return;
+    const scope = anchor.closest(".coupling-row") ?? panels.coupling;
+    const key = `${symbol}:${rowIndex(scope)}`;
+    if (activeCorrespondence === key) return;
+    hideCorrespondence();
+    activeCorrespondence = key;
+    for (const item of scope.querySelectorAll(`[data-corr="${cssEscape(symbol)}"]`)) {
+      item.classList.add("corr-active");
+    }
+  }
+  function hideCorrespondence() {
+    if (!activeCorrespondence) return;
+    for (const item of panels.coupling.querySelectorAll(".corr-active")) item.classList.remove("corr-active");
+    activeCorrespondence = null;
+  }
+  function rowIndex(scope) {
+    return scope instanceof HTMLElement ? String(Array.prototype.indexOf.call(scope.parentElement?.children ?? [], scope)) : "all";
+  }
+  function sigmaView(sigma) {
+    if (sigma.length === 0) return { html: "", lineCount: 0, meanBySymbol: {} };
+    const env = /* @__PURE__ */ new Map();
+    const meanBySymbol = {};
+    const lines = sigma.map((binding) => {
+      let mean = NaN;
+      try {
+        const meanArgs = binding.args.map((arg) => affineConst(evalAffine(arg, env)));
+        mean = affineToNumber(meanDistribution(binding.kind, meanArgs));
+        env.set(binding.name, mean);
+        meanBySymbol[binding.name] = mean;
+      } catch {
+        env.set(binding.name, NaN);
+        meanBySymbol[binding.name] = NaN;
+      }
+      const args = binding.args.map((arg) => renderHighlightedText(prettyAffine2(arg))).join(", ");
+      return `<span class="sigma-binding corr-item" data-corr="${escapeHtml2(binding.name)}" tabindex="0"><span class="sigma-definition"><span class="tok-sym">${escapeHtml2(binding.name)}</span> ~ <span class="tok-dist">${binding.kind.toLowerCase()}</span>(${args})</span><span class="sigma-mean">E[<span class="tok-sym">${escapeHtml2(binding.name)}</span>] = ${meanMarkup(binding.name, mean)}</span></span>`;
+    });
+    return { html: lines.join("\n"), lineCount: lines.length, meanBySymbol };
+  }
+  function meanMarkup(symbol, mean) {
+    const value = formatNumber4(mean);
+    return `<span class="corr-item sigma-mean-value" data-corr="${escapeHtml2(symbol)}" title="mean substituted for ${escapeHtml2(symbol)}">${escapeHtml2(value)}</span>`;
   }
   function resetSamples(source) {
     sampleSource = source;
@@ -21222,8 +21995,8 @@ ${indent(prettyTyped(te.consBranch))}
     const key = `${source}:${coupled.seed}`;
     if (key === lastSampleKey) return;
     const finalFrame = coupled.frames.at(-1);
-    const originalValue = numericValue(finalFrame?.original);
-    const determinizedValue = numericValue(finalFrame?.determinized);
+    const originalValue = numericValue(finalFrame?.original) ?? numericValue(coupled.finalOriginal);
+    const determinizedValue = numericValue(finalFrame?.determinized) ?? numericValue(coupled.finalDeterminized);
     if (Number.isFinite(originalValue) && Number.isFinite(determinizedValue)) {
       samples.original.push(originalValue);
       samples.determinized.push(determinizedValue);
@@ -21231,7 +22004,7 @@ ${indent(prettyTyped(te.consBranch))}
     }
   }
   function numericValue(expr) {
-    return expr?.kind === "Const" ? expr.value : NaN;
+    return expr?.kind === "Const" ? expr.value : void 0;
   }
   function renderDistributions() {
     const count = Math.min(samples.original.length, samples.determinized.length);
@@ -21245,55 +22018,113 @@ ${indent(prettyTyped(te.consBranch))}
     const max = Math.max(...all);
     const pad = Math.max((max - min) * 0.08, 1e-6);
     const domain = [min - pad, max + pad];
-    const meanDelta = average(samples.original) - average(samples.determinized);
+    const originalStats = sampleStats(samples.original);
+    const determinizedStats = sampleStats(samples.determinized);
     panels.distribution.innerHTML = `
-    ${distributionCard("Original", samples.original, domain, "original")}
-    <div class="symbolic-distribution-note">
-      <span>mean difference</span>
-      <strong>${formatNumber4(meanDelta)}</strong>
-      <small>Original minus determinized</small>
-    </div>
-    ${distributionCard("Determinized", samples.determinized, domain, "determinized")}
+    ${distributionCard("Original", samples.original, originalStats, domain, "original")}
+    ${comparisonCard(originalStats, determinizedStats)}
+    ${distributionCard("Determinized", samples.determinized, determinizedStats, domain, "determinized")}
   `;
   }
-  function distributionCard(title, values, domain, tone) {
+  function comparisonCard(originalStats, determinizedStats) {
+    const ratio = varianceRatio(originalStats, determinizedStats);
+    return `
+    <div class="symbolic-distribution-note">
+      <div class="variance-ratio-card">
+        <span>Variance ratio</span>
+        ${metricValue(ratio.value, "x")}
+        <p>${ratio.explanation}</p>
+      </div>
+    </div>
+  `;
+  }
+  function metricBlock(label, value, caption, suffix = "") {
+    return `
+    <div class="metric-block">
+      <span>${label}</span>
+      ${metricValue(value, suffix)}
+      <small>${caption}</small>
+    </div>
+  `;
+  }
+  function metricValue(value, suffix = "") {
+    return `<strong class="metric-value">${escapeHtml2(formatNumber4(value))}${suffix}</strong>`;
+  }
+  function distributionCard(title, values, stats, domain, tone) {
     const width = 520;
-    const height = 160;
-    const margin = { top: 12, right: 16, bottom: 30, left: 32 };
-    const mean = average(values);
+    const height = 230;
+    const margin = { top: 16, right: 16, bottom: 26, left: 34 };
+    const pdfBand = { top: 20, bottom: 94 };
+    const cdfBand = { top: 126, bottom: 200 };
     const x = (value) => margin.left + (value - domain[0]) / (domain[1] - domain[0]) * (width - margin.left - margin.right);
-    const y = (probability) => margin.top + (1 - probability) * (height - margin.top - margin.bottom);
+    const yPdf = (density, maxDensity2) => pdfBand.bottom - density / maxDensity2 * (pdfBand.bottom - pdfBand.top);
+    const yCdf = (probability) => cdfBand.top + (1 - probability) * (cdfBand.bottom - cdfBand.top);
     const sorted = [...values].sort((a, b) => a - b);
-    const path = ecdfPath(sorted, domain, x, y);
-    const area = `${path} L ${x(domain[1]).toFixed(2)} ${y(0).toFixed(2)} L ${x(domain[0]).toFixed(2)} ${y(0).toFixed(2)} Z`;
+    const cdfPath = ecdfPath(sorted, domain, x, yCdf);
+    const cdfArea = `${cdfPath} L ${x(domain[1]).toFixed(2)} ${yCdf(0).toFixed(2)} L ${x(domain[0]).toFixed(2)} ${yCdf(0).toFixed(2)} Z`;
+    const bins = histogram(values, domain, 100);
+    const maxDensity = Math.max(1e-12, ...bins.map((bin) => bin.density));
+    const pdfBars = bins.map((bin) => {
+      const left = x(bin.left);
+      const right = x(bin.right);
+      const top2 = yPdf(bin.density, maxDensity);
+      return `<rect class="dist-bin" x="${left.toFixed(2)}" y="${top2.toFixed(2)}" width="${Math.max(0.5, right - left).toFixed(2)}" height="${(pdfBand.bottom - top2).toFixed(2)}"></rect>`;
+    }).join("");
     const rugValues = values.slice(-180);
     const rugs = rugValues.map((value, index) => {
-      const jitter = index % 5 * 1.8;
+      const jitter = index % 4 * 1.6;
       const rx = x(value);
-      return `<line class="dist-rug" x1="${rx.toFixed(2)}" y1="${(height - margin.bottom + 7 + jitter).toFixed(2)}" x2="${rx.toFixed(2)}" y2="${(height - margin.bottom + 13 + jitter).toFixed(2)}"></line>`;
+      return `<line class="dist-rug" x1="${rx.toFixed(2)}" y1="${(cdfBand.bottom + 7 + jitter).toFixed(2)}" x2="${rx.toFixed(2)}" y2="${(cdfBand.bottom + 13 + jitter).toFixed(2)}"></line>`;
     }).join("");
-    const meanX = x(mean);
+    const meanX = x(stats.mean);
     return `
     <article class="dist-card ${tone}">
       <div class="dist-title">
         <span>${title}</span>
-        <span>n ${values.length} \xB7 mean ${formatNumber4(mean)}</span>
+        <span class="metric-pair">mean ${metricValue(stats.mean)}</span>
       </div>
-      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${title} empirical CDF">
-        <line class="dist-grid" x1="${margin.left}" y1="${y(1)}" x2="${width - margin.right}" y2="${y(1)}"></line>
-        <line class="dist-grid" x1="${margin.left}" y1="${y(0.5)}" x2="${width - margin.right}" y2="${y(0.5)}"></line>
-        <line class="dist-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
-        <path class="dist-area" d="${area}"></path>
-        <path class="dist-curve" d="${path}"></path>
-        <line class="dist-mean" x1="${meanX.toFixed(2)}" y1="${margin.top}" x2="${meanX.toFixed(2)}" y2="${height - margin.bottom}"></line>
+      <div class="dist-metrics">
+        ${metricBlock("Variance", stats.variance, "sample variance")}
+        ${metricBlock("Std. error", stats.standardError, "mean uncertainty")}
+      </div>
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${title} empirical PDF and CDF">
+        <text class="dist-section-label" x="${margin.left}" y="12">PDF estimate - 100 bins</text>
+        <line class="dist-grid" x1="${margin.left}" y1="${pdfBand.top}" x2="${width - margin.right}" y2="${pdfBand.top}"></line>
+        <line class="dist-axis" x1="${margin.left}" y1="${pdfBand.bottom}" x2="${width - margin.right}" y2="${pdfBand.bottom}"></line>
+        ${pdfBars}
+
+        <text class="dist-section-label" x="${margin.left}" y="${cdfBand.top - 8}">Empirical CDF</text>
+        <line class="dist-grid" x1="${margin.left}" y1="${yCdf(1)}" x2="${width - margin.right}" y2="${yCdf(1)}"></line>
+        <line class="dist-grid" x1="${margin.left}" y1="${yCdf(0.5)}" x2="${width - margin.right}" y2="${yCdf(0.5)}"></line>
+        <line class="dist-axis" x1="${margin.left}" y1="${cdfBand.bottom}" x2="${width - margin.right}" y2="${cdfBand.bottom}"></line>
+        <path class="dist-area cdf-area" d="${cdfArea}"></path>
+        <path class="dist-curve cdf-curve" d="${cdfPath}"></path>
+        <line class="dist-mean" x1="${meanX.toFixed(2)}" y1="${pdfBand.top}" x2="${meanX.toFixed(2)}" y2="${cdfBand.bottom}"></line>
         ${rugs}
-        <text class="dist-label" x="${margin.left}" y="${height - 7}">${formatNumber4(domain[0])}</text>
-        <text class="dist-label end" x="${width - margin.right}" y="${height - 7}">${formatNumber4(domain[1])}</text>
-        <text class="dist-label y" x="${margin.left - 7}" y="${y(1) + 4}">1</text>
-        <text class="dist-label y" x="${margin.left - 7}" y="${y(0) + 4}">0</text>
+        <text class="dist-label" x="${margin.left}" y="${height - 6}">${formatNumber4(domain[0])}</text>
+        <text class="dist-label end" x="${width - margin.right}" y="${height - 6}">${formatNumber4(domain[1])}</text>
+        <text class="dist-label y" x="${margin.left - 7}" y="${yCdf(1) + 4}">1</text>
+        <text class="dist-label y" x="${margin.left - 7}" y="${yCdf(0) + 4}">0</text>
       </svg>
     </article>
   `;
+  }
+  function histogram(values, domain, count) {
+    const width = domain[1] - domain[0];
+    const binWidth = width / count;
+    const bins = Array.from({ length: count }, (_, index) => ({
+      left: domain[0] + index * binWidth,
+      right: domain[0] + (index + 1) * binWidth,
+      count: 0,
+      density: 0
+    }));
+    for (const value of values) {
+      const rawIndex = Math.floor((value - domain[0]) / binWidth);
+      const index = Math.max(0, Math.min(count - 1, rawIndex));
+      bins[index].count += 1;
+    }
+    for (const bin of bins) bin.density = bin.count / (values.length * binWidth);
+    return bins;
   }
   function ecdfPath(sorted, domain, x, y) {
     if (sorted.length === 0) return "";
@@ -21310,26 +22141,66 @@ ${indent(prettyTyped(te.consBranch))}
   function average(values) {
     return values.reduce((sum, value) => sum + value, 0) / values.length;
   }
+  function sampleStats(values) {
+    const n2 = values.length;
+    const mean = average(values);
+    const variance = n2 < 2 ? NaN : values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (n2 - 1);
+    return {
+      n: n2,
+      mean,
+      variance,
+      standardError: Number.isFinite(variance) ? Math.sqrt(variance / n2) : NaN
+    };
+  }
+  function varianceRatio(originalStats, determinizedStats) {
+    const originalVariance = originalStats.variance;
+    const determinizedVariance = determinizedStats.variance;
+    if (!Number.isFinite(originalVariance) || !Number.isFinite(determinizedVariance)) {
+      return {
+        value: NaN,
+        explanation: "Run at least two samples to estimate variance and sample savings."
+      };
+    }
+    if (originalVariance === 0 && determinizedVariance === 0) {
+      return {
+        value: NaN,
+        explanation: "Both estimators have zero observed variance, so there is no sample reduction to estimate."
+      };
+    }
+    if (determinizedVariance === 0) {
+      return {
+        value: Infinity,
+        explanation: "The determinized estimator has zero observed variance, so it needs only one sample here; the sample reduction is effectively unbounded."
+      };
+    }
+    if (originalVariance === 0) {
+      return {
+        value: 0,
+        explanation: "The original estimator has zero observed variance here, so determinization shows no sample reduction on this run."
+      };
+    }
+    const ratio = originalVariance / determinizedVariance;
+    return {
+      value: ratio,
+      explanation: `For the same mean accuracy, the determinized program needs about ${formatNumber4(1 / ratio)}x as many samples, i.e. about ${formatNumber4(ratio)}x fewer samples.`
+    };
+  }
   function formatNumber4(value) {
+    if (value === Infinity) return "\u221E";
+    if (value === -Infinity) return "-\u221E";
     if (!Number.isFinite(value)) return "n/a";
+    if (Number.isInteger(value) && Math.abs(value) < 1e5) return String(value);
     if (Math.abs(value) >= 1e3 || Math.abs(value) < 1e-3) return value.toExponential(2);
     return Number(value.toFixed(4)).toString();
   }
-  function highlightDet(code) {
-    const escaped = escapeHtml(code);
-    return escaped.replace(
-      /\b(let|in|if|then|else|match|with|fun|rec|true|false|fst|snd|inl|inr|observe)\b|\b(uniform|gauss|exponential|gamma|beta|flip|bernoulli|poisson|discrete)\b|(\[[EG]\])|\b(v\d+)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi,
-      (match, keyword2, dist2, mode, sym, number2) => {
-        if (keyword2) return `<span class="tok-keyword">${match}</span>`;
-        if (dist2) return `<span class="tok-dist">${match}</span>`;
-        if (mode) return `<span class="tok-mode">${match}</span>`;
-        if (sym) return `<span class="tok-sym">${match}</span>`;
-        if (number2) return `<span class="tok-number">${match}</span>`;
-        return match;
-      }
-    );
+  function clamp2(value, min, max) {
+    return Math.max(min, Math.min(max, value));
   }
-  function escapeHtml(text) {
+  function cssEscape(value) {
+    if (window.CSS?.escape) return window.CSS.escape(value);
+    return String(value).replace(/["\\]/g, "\\$&");
+  }
+  function escapeHtml2(text) {
     return String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;");
   }
   runAnalyze();

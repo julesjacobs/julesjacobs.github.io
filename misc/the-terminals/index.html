@@ -21,11 +21,25 @@
                 <input id="type-hints-toggle" type="checkbox" />
                 <span>Type hints</span>
               </label>
+              <label class="toggle-control debug-toggle">
+                <input id="debug-toggle" type="checkbox" />
+                <span>Debug</span>
+              </label>
               <span id="status" class="status editor-status" title="Ready" aria-label="Ready">•</span>
             </div>
           </div>
           <div id="editor" class="editor"></div>
           <div id="editor-diagnostics" class="editor-diagnostics">No diagnostics.</div>
+          <section id="debug-panel" class="debug-panel" hidden>
+            <div class="debug-toolbar">
+              <strong>Editor debug trace</strong>
+              <div>
+                <button id="debug-copy" type="button">Copy</button>
+                <button id="debug-clear" type="button">Clear</button>
+              </div>
+            </div>
+            <pre id="debug-log"></pre>
+          </section>
         </section>
 
         <section class="outputs" aria-label="Compiler outputs">
