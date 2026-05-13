@@ -20775,14 +20775,21 @@ ${indent(elseBranch)}`;
       nextSymbol: result.nextSymbol ?? state.nextSymbol
     };
   }
-  function projectSample(symbolicState, rngE) {
+  function projectSampleWithEnv(symbolicState, rngE) {
+    const env = symbolicSampleEnv(symbolicState, rngE);
+    return {
+      expr: concretize(symbolicState.expr, env),
+      sampleBySymbol: Object.fromEntries(env)
+    };
+  }
+  function symbolicSampleEnv(symbolicState, rngE) {
     const env = /* @__PURE__ */ new Map();
     const rng = rngE.clone();
     for (const binding of symbolicState.sigma) {
       const args = instantiateArgs(binding.args, env);
       env.set(binding.name, sampleDistribution(binding.kind, args, rng));
     }
-    return concretize(symbolicState.expr, env);
+    return env;
   }
   function projectMeanDeterminized(symbolicState) {
     const env = symbolicMeanEnv(symbolicState);
@@ -20796,9 +20803,9 @@ ${indent(elseBranch)}`;
     let determinizedState = { expr: clone(prepared.determinized), rngE: streams.rngE.clone(), rngG: streams.rngG.clone() };
     const frames = [];
     for (let stepIndex = 0; stepIndex <= maxSymbolicSteps; stepIndex++) {
-      const originalProjection = safe(() => projectSample(symbolic, streams.rngE));
+      const originalProjection = safe(() => projectSampleWithEnv(symbolic, streams.rngE));
       const determinizedProjection = safe(() => projectMeanDeterminized(symbolic));
-      const originalTarget = originalProjection.value;
+      const originalTarget = originalProjection.value?.expr;
       const determinizedTarget = determinizedProjection.value;
       const originalSync = originalProjection.ok ? advanceToTarget(original, originalTarget, maxSyncSteps) : failedAdvance(original, originalProjection.error);
       const determinizedSync = determinizedProjection.ok ? advanceToTarget(determinizedState, determinizedTarget, maxSyncSteps) : failedAdvance(determinizedState, determinizedProjection.error);
@@ -20809,6 +20816,7 @@ ${indent(elseBranch)}`;
         original: clone(original.expr),
         symbolic: clone(symbolic.expr),
         sigma: symbolic.sigma.map(cloneBinding),
+        sampleBySymbol: originalProjection.value?.sampleBySymbol ?? {},
         determinized: clone(determinizedState.expr),
         originalTarget,
         determinizedTarget,
@@ -21373,14 +21381,15 @@ ${indent2(elseBranch)}`;
     return `<span class="corr-item ${className}" data-corr="${escapeHtml(symbol)}" title="corresponds to ${escapeHtml(symbol)}">${escaped}</span>`;
   }
   function numberSpan(text, options) {
-    const symbol = options.highlightMeans ? meanSymbolForNumber(Number(text), options.meanBySymbol) : null;
+    const symbol = symbolForNumber(Number(text), options.valueBySymbol);
     const html = `<span class="tok-number">${text}</span>`;
-    return symbol ? `<span class="corr-item" data-corr="${escapeHtml(symbol)}" title="mean substituted for ${escapeHtml(symbol)}">${html}</span>` : html;
+    const label = options.valueLabel ?? "corresponds to";
+    return symbol ? `<span class="corr-item" data-corr="${escapeHtml(symbol)}" title="${escapeHtml(label)} ${escapeHtml(symbol)}">${html}</span>` : html;
   }
-  function meanSymbolForNumber(value, meanBySymbol) {
-    if (!Number.isFinite(value) || !meanBySymbol) return null;
-    for (const [symbol, mean] of Object.entries(meanBySymbol)) {
-      if (Number.isFinite(mean) && Math.abs(value - mean) <= 1e-9) return symbol;
+  function symbolForNumber(value, valueBySymbol) {
+    if (!Number.isFinite(value) || !valueBySymbol) return null;
+    for (const [symbol, target] of Object.entries(valueBySymbol)) {
+      if (Number.isFinite(target) && Math.abs(value - target) <= 1e-9) return symbol;
     }
     return null;
   }
@@ -21891,9 +21900,9 @@ ${indent2(elseBranch)}`;
             <span>${frame.step}</span>
             ${stepCheck(frame, coupled)}
           </div>
-          ${couplingCell(frame.original, "", "original", { focusPath: changedPath(previous?.original, frame.original) })}
+          ${couplingCell(frame.original, "", "original", { focusPath: changedPath(previous?.original, frame.original), valueBySymbol: frame.sampleBySymbol, valueLabel: "sampled value for" })}
           ${couplingCell(frame.symbolic, sigma.html, "symbolic", { focusPath: changedPath(previous?.symbolic, frame.symbolic) })}
-          ${couplingCell(frame.determinized, "", "determinized", { focusPath: changedPath(previous?.determinized, frame.determinized), meanBySymbol: sigma.meanBySymbol, highlightMeans: true })}
+          ${couplingCell(frame.determinized, "", "determinized", { focusPath: changedPath(previous?.determinized, frame.determinized), valueBySymbol: sigma.meanBySymbol, valueLabel: "mean substituted for" })}
         </section>
       `;
     }).join("") + "</div>";
