@@ -19760,6 +19760,8 @@ sampled normally`;
         return expr.value ? "true" : "false";
       case "Unit":
         return "()";
+      case "Reject":
+        return "reject";
       case "Nil":
         return "[]";
       case "Lam":
@@ -20084,40 +20086,40 @@ ${indent(elseBranch)}`;
       source: "let a = uniform(0, 1) in\na + 2"
     },
     {
-      name: "Gamma dependency",
-      source: "let x = gamma(1, 2) in\nlet y = gamma(x, 8) in\ny + 1"
-    },
-    {
-      name: "G multiplication",
-      source: "uniform(0, 1) * uniform(1, 2) + uniform(2, 3) * 3"
-    },
-    {
-      name: "Explicit E/G modes",
-      source: "let u = uniform[E](0, 1) in\nlet b = beta[G](3, 2) in\nlet g = gamma[E](u, b) in\n2 * g + 1"
+      name: "Dependent uniform",
+      source: "let x = uniform(0, 1) in\nlet y = uniform(x, 2) in\nx + y"
     },
     {
       name: "Symbolic affine samples",
-      source: "let u = uniform[E](0, 1) in\nlet y = uniform[E](u, 2) in\n2 * u + y - 1"
+      source: "let u = uniform(0, 1) in\nlet v = uniform(u, 2) in\n2 * u + v - 1"
+    },
+    {
+      name: "Nonlinear use",
+      source: "let x = uniform(0, 1) in\nx * x + uniform(0, 1)"
+    },
+    {
+      name: "Mixed residual randomness",
+      source: "let u = uniform(0, 1) in\nlet b = beta(3, 2) in\nlet g = gamma(u, b) in\n2 * g + 1"
+    },
+    {
+      name: "Pairs",
+      source: "let x = uniform(0, 1) in\nlet p = (x, uniform(x, 2)) in\nfst p + snd p"
+    },
+    {
+      name: "List sum",
+      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nsum (uniform(0, 1) :: uniform(1, 2) :: gamma(1, 2) :: [])"
+    },
+    {
+      name: "Random list sum",
+      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nlet draw = rec draw _ =>\n  if flip(0.5) then [] else uniform(0, 1) :: draw 0\nin\nsum (draw 0)"
+    },
+    {
+      name: "Observe",
+      source: "let x = uniform(0, 1) in\nlet y = uniform(0, x) in\nlet _ = observe(x < 0.8) in\nx + y"
     },
     {
       name: "Bad E-branching",
       source: "let x = uniform[E](0, 1) in\nlet y = uniform[G](0, 1) in\nif x < 0.5 then x + y else x - y"
-    },
-    {
-      name: "Pairs",
-      source: "let x = uniform(0, 1) in\nlet y = gauss(x, 1) in\n(fst (x, y)) + snd (x, y)"
-    },
-    {
-      name: "Sums",
-      source: "match inl uniform(0, 1) with inl x => x + 1 | inr y => y + 2"
-    },
-    {
-      name: "Lists",
-      source: "match uniform(0, 1) :: [] with [] => 0 | x :: xs => x + 1"
-    },
-    {
-      name: "Observe",
-      source: "let x = uniform[G](0, 1) in\nlet _ = observe(x < 0.8) in\nx"
     },
     {
       name: "Recursive function",
@@ -20921,7 +20923,7 @@ ${indent(elseBranch)}`;
       case "Observe":
         if (!isValue(expr.cond)) return stepChild(expr, "cond", ctx);
         if (expr.cond.kind !== "Bool") throw new Error("observe: expected bool");
-        if (!expr.cond.value) throw new Error("observe failure");
+        if (!expr.cond.value) return out(n("Reject", {}, expr), ctx);
         return out(n("Unit", {}, expr), ctx);
       case "Uniform":
       case "Gauss":
@@ -21062,10 +21064,12 @@ ${indent(elseBranch)}`;
   }
   function stepChild(expr, key, ctx) {
     const result = step(expr[key], ctx);
+    if (result.expr.kind === "Reject") return out(result.expr, { ...ctx, ...contextPatch(result) });
     return rebuild(expr, { [key]: result.expr }, ctx, result);
   }
   function stepIndexedChild(expr, key, index, ctx) {
     const result = step(expr[key][index], ctx);
+    if (result.expr.kind === "Reject") return out(result.expr, { ...ctx, ...contextPatch(result) });
     const next = expr[key].slice();
     next[index] = result.expr;
     return rebuild(expr, { [key]: next }, ctx, result);
@@ -21164,7 +21168,7 @@ ${indent(elseBranch)}`;
     }
   }
   function isValue(expr) {
-    return expr.kind === "Const" || expr.kind === "SymFloat" || expr.kind === "Bool" || expr.kind === "Unit" || expr.kind === "Lam" || expr.kind === "Rec" || expr.kind === "Nil" || expr.kind === "Pair" && isValue(expr.left) && isValue(expr.right) || expr.kind === "Inl" && isValue(expr.expr) || expr.kind === "Inr" && isValue(expr.expr) || expr.kind === "Cons" && isValue(expr.head) && isValue(expr.tail);
+    return expr.kind === "Reject" || expr.kind === "Const" || expr.kind === "SymFloat" || expr.kind === "Bool" || expr.kind === "Unit" || expr.kind === "Lam" || expr.kind === "Rec" || expr.kind === "Nil" || expr.kind === "Pair" && isValue(expr.left) && isValue(expr.right) || expr.kind === "Inl" && isValue(expr.expr) || expr.kind === "Inr" && isValue(expr.expr) || expr.kind === "Cons" && isValue(expr.head) && isValue(expr.tail);
   }
   function numberValue(expr) {
     return affineToNumber(valueToAffine(expr));
@@ -21178,6 +21182,7 @@ ${indent(elseBranch)}`;
         return a.value === b.value;
       case "Unit":
       case "Nil":
+      case "Reject":
         return true;
       case "Pair":
         return exprEqual(a.left, b.left, eps) && exprEqual(a.right, b.right, eps);
@@ -21225,7 +21230,13 @@ ${indent(elseBranch)}`;
     Discrete: "discrete"
   };
   function renderTraceExpr(expr, options = {}) {
-    return renderExpr(expr, 0, stepPath(expr), options);
+    return renderExpr(expr, 0, options.focusPath ?? null, options);
+  }
+  function changedPath(before, after) {
+    if (!before || !after || sameExpr(before, after)) return null;
+    if (before.kind !== after.kind) return [];
+    const child = changedChildPath(before, after);
+    return child ?? [];
   }
   function renderExpr(expr, prec2 = 0, focusPath = null, options = {}) {
     const focused = focusPath && focusPath.length === 0;
@@ -21239,6 +21250,7 @@ ${indent(elseBranch)}`;
       case "Bool":
       case "Unit":
       case "Nil":
+      case "Reject":
       case "SymFloat":
         html = renderHighlightedText(prettyExpr(expr), options);
         break;
@@ -21354,7 +21366,7 @@ ${indent2(elseBranch)}`;
     return `<span class="trace-value symbolic-value" title="symbolic affine value">${html}</span>`;
   }
   function stepSpan(html) {
-    return `<span class="trace-step" title="next small-step reduction">${html}</span>`;
+    return `<span class="trace-step" title="result of previous small-step">${html}</span>`;
   }
   function corrSpan(text, className, symbol) {
     const escaped = escapeHtml(text);
@@ -21372,48 +21384,37 @@ ${indent2(elseBranch)}`;
     }
     return null;
   }
-  function stepPath(expr) {
-    if (isValue(expr)) return null;
-    switch (expr.kind) {
+  function changedChildPath(before, after) {
+    switch (after.kind) {
       case "Let":
-        return isValue(expr.value) ? [] : prepend("value", stepPath(expr.value));
+        return changedFieldPath(before, after, "value") ?? changedFieldPath(before, after, "body");
       case "App":
-        if (!isValue(expr.fn)) return prepend("fn", stepPath(expr.fn));
-        if (!isValue(expr.arg)) return prepend("arg", stepPath(expr.arg));
-        return [];
+        return changedFieldPath(before, after, "fn") ?? changedFieldPath(before, after, "arg");
       case "Pair":
-        if (!isValue(expr.left)) return prepend("left", stepPath(expr.left));
-        if (!isValue(expr.right)) return prepend("right", stepPath(expr.right));
-        return null;
+        return changedFieldPath(before, after, "left") ?? changedFieldPath(before, after, "right");
       case "Fst":
       case "Snd":
-        return isValue(expr.expr) ? [] : prepend("expr", stepPath(expr.expr));
       case "Inl":
       case "Inr":
-        return isValue(expr.expr) ? null : prepend("expr", stepPath(expr.expr));
-      case "Case":
-        return isValue(expr.scrutinee) ? [] : prepend("scrutinee", stepPath(expr.scrutinee));
-      case "Cons":
-        if (!isValue(expr.head)) return prepend("head", stepPath(expr.head));
-        if (!isValue(expr.tail)) return prepend("tail", stepPath(expr.tail));
-        return null;
-      case "MatchList":
-        return isValue(expr.scrutinee) ? [] : prepend("scrutinee", stepPath(expr.scrutinee));
-      case "If":
-        return isValue(expr.cond) ? [] : prepend("cond", stepPath(expr.cond));
       case "Neg":
-        return isValue(expr.expr) ? [] : prepend("expr", stepPath(expr.expr));
+        return changedFieldPath(before, after, "expr");
+      case "Case":
+        return changedFieldPath(before, after, "scrutinee") ?? changedFieldPath(before, after, "left") ?? changedFieldPath(before, after, "right");
+      case "Cons":
+        return changedFieldPath(before, after, "head") ?? changedFieldPath(before, after, "tail");
+      case "MatchList":
+        return changedFieldPath(before, after, "scrutinee") ?? changedFieldPath(before, after, "nilBranch") ?? changedFieldPath(before, after, "consBranch");
+      case "If":
+        return changedFieldPath(before, after, "cond") ?? changedFieldPath(before, after, "thenBranch") ?? changedFieldPath(before, after, "elseBranch");
       case "Add":
       case "Sub":
       case "Mul":
       case "Div":
       case "Lt":
       case "Leq":
-        if (!isValue(expr.left)) return prepend("left", stepPath(expr.left));
-        if (!isValue(expr.right)) return prepend("right", stepPath(expr.right));
-        return [];
+        return changedFieldPath(before, after, "left") ?? changedFieldPath(before, after, "right");
       case "Observe":
-        return isValue(expr.cond) ? [] : prepend("cond", stepPath(expr.cond));
+        return changedFieldPath(before, after, "cond");
       case "Uniform":
       case "Gauss":
       case "Exponential":
@@ -21422,18 +21423,29 @@ ${indent2(elseBranch)}`;
       case "Flip":
       case "Bernoulli":
       case "Poisson":
-        for (let i = 0; i < expr.args.length; i++) {
-          if (!isValue(expr.args[i])) return prepend("args", prepend(i, stepPath(expr.args[i])));
-        }
-        return [];
+        return changedIndexedPath(before, after, "args");
       case "Discrete":
-        return [];
+        return null;
       default:
-        return [];
+        return null;
     }
   }
-  function prepend(part, rest) {
-    return [part, ...rest ?? []];
+  function changedFieldPath(before, after, key) {
+    if (!(key in before) || !(key in after) || sameExpr(before[key], after[key])) return null;
+    return [key, ...changedPath(before[key], after[key]) ?? []];
+  }
+  function changedIndexedPath(before, after, key) {
+    if (!Array.isArray(before[key]) || !Array.isArray(after[key])) return null;
+    const count = Math.min(before[key].length, after[key].length);
+    for (let index = 0; index < count; index++) {
+      if (!sameExpr(before[key][index], after[key][index])) {
+        return [key, index, ...changedPath(before[key][index], after[key][index]) ?? []];
+      }
+    }
+    return before[key].length === after[key].length ? null : [];
+  }
+  function sameExpr(before, after) {
+    return prettyExpr(before) === prettyExpr(after);
   }
   function childFocus(focusPath, key, index = null) {
     if (!focusPath || focusPath.length === 0 || focusPath[0] !== key) return null;
@@ -21868,7 +21880,8 @@ ${indent2(elseBranch)}`;
       <span>Determinized</span>
     </div>
     <div class="coupling-table-body">
-  ` + coupled.frames.map((frame) => {
+  ` + coupled.frames.map((frame, index, frames) => {
+      const previous = index > 0 ? frames[index - 1] : null;
       const sigma = sigmaView(frame.sigma);
       const sigmaLines = Math.max(1, Math.min(4, sigma.lineCount));
       const ok = frameOk(frame);
@@ -21878,9 +21891,9 @@ ${indent2(elseBranch)}`;
             <span>${frame.step}</span>
             ${stepCheck(frame, coupled)}
           </div>
-          ${couplingCell(frame.original, "", "original", {})}
-          ${couplingCell(frame.symbolic, sigma.html, "symbolic", {})}
-          ${couplingCell(frame.determinized, "", "determinized", { meanBySymbol: sigma.meanBySymbol, highlightMeans: true })}
+          ${couplingCell(frame.original, "", "original", { focusPath: changedPath(previous?.original, frame.original) })}
+          ${couplingCell(frame.symbolic, sigma.html, "symbolic", { focusPath: changedPath(previous?.symbolic, frame.symbolic) })}
+          ${couplingCell(frame.determinized, "", "determinized", { focusPath: changedPath(previous?.determinized, frame.determinized), meanBySymbol: sigma.meanBySymbol, highlightMeans: true })}
         </section>
       `;
     }).join("") + "</div>";
