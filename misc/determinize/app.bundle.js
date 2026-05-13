@@ -20939,17 +20939,27 @@ ${indent(elseBranch)}`;
         originalError: originalSync.error,
         determinizedError: determinizedSync.error
       };
+      const consistency = terminalEffectConsistency(frame);
+      const checkedFrame = {
+        ...frame,
+        consistencyOk: consistency.ok,
+        consistencyError: consistency.error
+      };
+      if (!consistency.ok) {
+        frames.push({ ...checkedFrame, symbolicOk: true });
+        break;
+      }
       if (originalSync.ok && determinizedSync.ok && !isValue(symbolic.expr)) {
         const nextSymbolic = safe(() => stepSymbolic(symbolic));
         if (nextSymbolic.ok) {
-          frames.push({ ...frame, symbolicOk: true });
+          frames.push({ ...checkedFrame, symbolicOk: true });
           symbolic = nextSymbolic.value;
           continue;
         }
-        frames.push({ ...frame, symbolicOk: false, symbolicError: nextSymbolic.error });
+        frames.push({ ...checkedFrame, symbolicOk: false, symbolicError: nextSymbolic.error });
         break;
       }
-      frames.push({ ...frame, symbolicOk: true });
+      frames.push({ ...checkedFrame, symbolicOk: true });
       if (!originalSync.ok || !determinizedSync.ok || isValue(symbolic.expr)) break;
     }
     return {
@@ -20958,8 +20968,43 @@ ${indent(elseBranch)}`;
       unchecked: prepared.unchecked ?? false,
       finalOriginal: safe(() => runOrdinary(prepared.expr, streams).value).value,
       finalDeterminized: safe(() => runOrdinary(prepared.determinized, streams).value).value,
-      ok: frames.every((frame) => frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false)
+      ok: frames.every(frameChecksOk)
     };
+  }
+  function frameChecksOk(frame) {
+    return frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false && frame.consistencyOk !== false;
+  }
+  function terminalEffectConsistency(frame) {
+    const effects = [
+      ["Original", frame.original],
+      ["Symbolic", frame.symbolic],
+      ["Determinized", frame.determinized]
+    ].map(([label, expr]) => ({ label, effect: terminalEffect(expr) }));
+    const active = effects.filter((item) => item.effect);
+    if (active.length === 0) return { ok: true };
+    if (active.length !== effects.length) {
+      const errored = active.map((item) => item.label).join(", ");
+      const succeeded = effects.filter((item) => !item.effect).map((item) => item.label).join(", ");
+      return { ok: false, error: `terminal effect mismatch: ${errored} errored, but ${succeeded} did not` };
+    }
+    const [first] = active;
+    const mismatch = active.find((item) => !sameTerminalEffect(first.effect, item.effect));
+    if (!mismatch) return { ok: true };
+    return {
+      ok: false,
+      error: `terminal effect mismatch: ${first.label} reached ${prettyTerminalEffect(first.effect)}, but ${mismatch.label} reached ${prettyTerminalEffect(mismatch.effect)}`
+    };
+  }
+  function terminalEffect(expr) {
+    if (expr?.kind === "Reject") return { kind: "Reject" };
+    if (expr?.kind === "DomainError") return { kind: "DomainError", message: expr.message };
+    return null;
+  }
+  function sameTerminalEffect(a, b) {
+    return a.kind === b.kind && (a.kind !== "DomainError" || a.message === b.message);
+  }
+  function prettyTerminalEffect(effect) {
+    return effect.kind === "DomainError" ? effect.message : effect.kind.toLowerCase();
   }
   function safe(fn) {
     try {
@@ -22097,7 +22142,7 @@ ${indent2(elseBranch)}`;
       const ok = frameOk(frame);
       const domainError = hasDomainError(frame);
       return `
-        <section class="coupling-row ${ok ? "" : "failed"} ${domainError ? "domain-error-row" : ""}" style="--sigma-lines: ${sigmaLines}">
+        <section class="coupling-row ${ok ? "" : "failed"} ${ok && domainError ? "domain-error-row" : ""}" style="--sigma-lines: ${sigmaLines}">
           <div class="step-rail">
             <span>${frame.step}</span>
             ${stepCheck(frame, coupled)}
@@ -22110,7 +22155,7 @@ ${indent2(elseBranch)}`;
     }).join("") + "</div>";
   }
   function frameOk(frame) {
-    return frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false;
+    return frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false && frame.consistencyOk !== false;
   }
   function hasDomainError(frame) {
     return frame.original?.kind === "DomainError" || frame.symbolic?.kind === "DomainError" || frame.determinized?.kind === "DomainError";
@@ -22141,6 +22186,7 @@ ${indent2(elseBranch)}`;
     <code>${escapeHtml2(determinizedTarget)}</code>
     <span>Source sync: ${frame.originalOk ? `${frame.originalMicroSteps} step${frame.originalMicroSteps === 1 ? "" : "s"}` : `failed${frame.originalError ? `: ${escapeHtml2(frame.originalError)}` : ""}`}</span>
     <span>Determinized sync: ${frame.determinizedOk ? `${frame.determinizedMicroSteps} step${frame.determinizedMicroSteps === 1 ? "" : "s"}` : `failed${frame.determinizedError ? `: ${escapeHtml2(frame.determinizedError)}` : ""}`}</span>
+    ${frame.consistencyOk === false ? `<span>Terminal consistency: failed: ${escapeHtml2(frame.consistencyError)}</span>` : ""}
     ${frame.symbolicOk === false ? `<span>Symbolic next step failed: ${escapeHtml2(frame.symbolicError)}</span>` : ""}
     ${coupled.unchecked ? "<em>This trace is running despite type/mode diagnostics, so failures show why the theorem needs the type system.</em>" : ""}
   `;
