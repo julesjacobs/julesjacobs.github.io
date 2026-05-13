@@ -20099,7 +20099,7 @@ ${indent(elseBranch)}`;
     },
     {
       name: "Mixed residual randomness",
-      source: "let u = uniform(0, 1) in\nlet b = beta(3, 2) in\nlet g = gamma(u, b) in\n2 * g + 1"
+      source: "let u = uniform(0, 1) in\nlet b = beta(9, 1) in\nlet g = gamma(u, b) in\n2 * g + 1"
     },
     {
       name: "Pairs",
