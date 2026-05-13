@@ -18897,32 +18897,30 @@ var DeterminizeSim = (() => {
       case "Leq":
         return exprNode(te.kind, { left: ofTyped(te.left), right: ofTyped(te.right) }, te.from, te.to);
       case "Uniform":
-        if (floatMode(te) === "E") return exprNode("Mul", { left: exprNode("Add", { left: ofTyped(te.args[0]), right: ofTyped(te.args[1]) }, te.from, te.to), right: exprNode("Const", { value: 0.5 }, te.from, te.to) }, te.from, te.to);
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode("Uniform", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Gauss":
-        if (floatMode(te) === "E") return ofTyped(te.args[0]);
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode("Gauss", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Exponential":
-        if (floatMode(te) === "E") return exprNode("Div", { left: exprNode("Const", { value: 1 }, te.from, te.to), right: ofTyped(te.args[0]) }, te.from, te.to);
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode("Exponential", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Gamma":
-        if (floatMode(te) === "E") return exprNode("Div", { left: ofTyped(te.args[0]), right: ofTyped(te.args[1]) }, te.from, te.to);
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode("Gamma", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Beta":
-        if (floatMode(te) === "E") {
-          const a = ofTyped(te.args[0]);
-          const b = ofTyped(te.args[1]);
-          return exprNode("Div", { left: a, right: exprNode("Add", { left: a, right: b }, te.from, te.to) }, te.from, te.to);
-        }
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode("Beta", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Flip":
         return exprNode("Flip", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Bernoulli":
       case "Poisson":
-        if (floatMode(te) === "E") return ofTyped(te.args[0]);
+        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
         return exprNode(te.kind, { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
       case "Discrete":
-        if (floatMode(te) === "E") return weightedSum(te.choices.map((choice) => ({ probability: choice.probability, value: ofTyped(choice.value) })), te);
+        if (floatMode(te) === "E") {
+          return meanNode("Discrete", te.choices.map((choice) => exprNode("Const", { value: choice.probability }, te.from, te.to)), te);
+        }
         return exprNode("Discrete", { mode: null, choices: te.choices.map((choice) => ({ probability: choice.probability, value: ofTyped(choice.value) })) }, te.from, te.to);
       case "Observe":
         return exprNode("Observe", { cond: ofTyped(te.cond) }, te.from, te.to);
@@ -18930,12 +18928,8 @@ var DeterminizeSim = (() => {
         throw new Error(`unsupported typed expression ${te.kind}`);
     }
   }
-  function weightedSum(choices, source) {
-    if (choices.length === 0) return exprNode("Const", { value: 0 }, source.from, source.to);
-    const [first, ...rest] = choices;
-    const term = exprNode("Mul", { left: exprNode("Const", { value: first.probability }, source.from, source.to), right: first.value }, source.from, source.to);
-    if (rest.length === 0) return term;
-    return exprNode("Add", { left: term, right: weightedSum(rest, source) }, source.from, source.to);
+  function meanNode(distribution, args, source) {
+    return exprNode("Mean", { distribution, args }, source.from, source.to);
   }
 
   // src/compiler/infer.js
@@ -19115,24 +19109,15 @@ var DeterminizeSim = (() => {
         return typed(expr, ty, { left, right });
       }
       case "Mul": {
-        const scaling = expr.left.kind === "Const" || expr.right.kind === "Const";
-        if (scaling) {
-          const ty = ensureFloat(expected, expr);
-          return typed(expr, ty, { left: infer(env, expr.left, ty), right: infer(env, expr.right, ty) });
-        }
-        const gTy = floatG();
-        const left = infer(env, expr.left, gTy);
-        const right = infer(env, expr.right, gTy);
         const resTy = ensureFloat(expected, expr);
+        const left = infer(env, expr.left, resTy);
+        const right = infer(env, expr.right, floatG());
         return typed(expr, resTy, { left, right });
       }
       case "Div": {
-        const scaling = expr.right.kind === "Const";
-        const aTy = scaling ? expected : floatG();
-        const bTy = scaling ? expected : aTy;
         const resTy = ensureFloat(expected, expr);
-        const left = infer(env, expr.left, aTy);
-        const right = infer(env, expr.right, bTy);
+        const left = infer(env, expr.left, resTy);
+        const right = infer(env, expr.right, floatG());
         return typed(expr, resTy, { left, right });
       }
       case "Lt":
@@ -19171,7 +19156,7 @@ var DeterminizeSim = (() => {
         return typed(expr, ty, { mode: expr.mode, args: [infer(env, expr.args[0], paramTy), infer(env, expr.args[1], paramTy)] });
       }
       case "Flip": {
-        const p = infer(env, expr.args[0], freshFloat());
+        const p = infer(env, expr.args[0], floatG());
         assertSubtype(TBool, expected, expr);
         return typed(expr, TBool, { mode: expr.mode, args: [p] });
       }
@@ -19762,6 +19747,10 @@ sampled normally`;
         return "()";
       case "Reject":
         return "reject";
+      case "DomainError":
+        return `domain_error(${expr.message})`;
+      case "Mean":
+        return prettyMean(expr);
       case "Nil":
         return "[]";
       case "Lam":
@@ -19878,6 +19867,10 @@ ${indent(prettyTyped(te.consBranch))}
     const mode = expr.mode ? `[${expr.mode}]` : "";
     if (expr.kind === "Discrete") return `${name2}${mode}(${expr.choices.map((c) => formatNumber2(c.probability)).join(", ")})`;
     return `${name2}${mode}(${expr.args.map((arg) => prettyExpr(arg)).join(", ")})`;
+  }
+  function prettyMean(expr) {
+    const name2 = distNames[expr.distribution] ?? expr.distribution.toLowerCase();
+    return `mean_${name2}(${expr.args.map((arg) => prettyExpr(arg)).join(", ")})`;
   }
   function prettyTypedDistribution(te) {
     const name2 = distNames[te.kind];
@@ -20091,7 +20084,7 @@ ${indent(elseBranch)}`;
     },
     {
       name: "Symbolic affine samples",
-      source: "let u = uniform(0, 1) in\nlet v = uniform(u, 2) in\n2 * u + v - 1"
+      source: "let u = uniform(0, 1) in\nlet v = uniform(u, 2) in\nu * 2 + v - 1"
     },
     {
       name: "Nonlinear use",
@@ -20099,7 +20092,7 @@ ${indent(elseBranch)}`;
     },
     {
       name: "Mixed residual randomness",
-      source: "let u = uniform(0, 1) in\nlet b = beta(9, 1) in\nlet g = gamma(u, b) in\n2 * g + 1"
+      source: "let u = uniform(0, 1) in\nlet b = beta(9, 1) in\nlet g = gamma(u, b) in\ng * 2 + 1"
     },
     {
       name: "Pairs",
@@ -20465,45 +20458,52 @@ ${indent(elseBranch)}`;
   // src/runtime/distributions.js
   var floatDistributions = /* @__PURE__ */ new Set(["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Bernoulli", "Poisson", "Discrete"]);
   var MIN_POSITIVE_SAMPLE = Number.MIN_VALUE;
+  var PROBABILITY_EPS = 1e-9;
+  var DistributionDomainError = class extends Error {
+    constructor(kind, message) {
+      super(`domain error in ${distributionName(kind)}: ${message}`);
+      this.name = "DistributionDomainError";
+      this.kind = kind;
+      this.reason = message;
+    }
+  };
+  function isDistributionDomainError(error) {
+    return error instanceof DistributionDomainError;
+  }
   function sampleDistribution(kind, args, rng) {
+    const domain = validateSampleDomain(kind, args);
     switch (kind) {
       case "Uniform": {
-        const a = numberArg(args[0]);
-        const b = numberArg(args[1]);
-        const lo = Math.min(a, b);
-        const hi = Math.max(a, b);
+        const [lo, hi] = domain;
         return lo + rng.next() * (hi - lo);
       }
       case "Gauss": {
-        const mean = numberArg(args[0]);
-        const variance = numberArg(args[1]);
+        const [mean, variance] = domain;
         const u1 = rng.positive();
         const u2 = rng.next();
         return mean + Math.sqrt(variance) * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
       }
       case "Exponential": {
-        const rate = numberArg(args[0]);
-        if (rate <= 0) throw new Error("exponential: rate must be > 0");
+        const [rate] = domain;
         return -Math.log(rng.positive()) / rate;
       }
       case "Gamma":
-        return gammaSample(numberArg(args[0]), numberArg(args[1]), rng);
+        return gammaSample(domain[0], domain[1], rng);
       case "Beta": {
-        const x = gammaSample(numberArg(args[0]), 1, rng);
-        const y = gammaSample(numberArg(args[1]), 1, rng);
+        const x = gammaSample(domain[0], 1, rng);
+        const y = gammaSample(domain[1], 1, rng);
         return x / (x + y);
       }
       case "Flip": {
-        const p = numberArg(args[0]);
-        if (p < 0 || p > 1) throw new Error("flip: p not in [0,1]");
+        const [p] = domain;
         return rng.next() < p;
       }
       case "Bernoulli":
-        return rng.next() < numberArg(args[0]) ? 1 : 0;
+        return rng.next() < domain[0] ? 1 : 0;
       case "Poisson":
-        return poissonSample(numberArg(args[0]), rng);
+        return poissonSample(domain[0], rng);
       case "Discrete": {
-        const probabilities = args.map(numberArg);
+        const probabilities = domain;
         const total = probabilities.reduce((a, b) => a + b, 0);
         const r = rng.next() * total;
         let acc = 0;
@@ -20518,6 +20518,7 @@ ${indent(elseBranch)}`;
     }
   }
   function meanDistribution(kind, args) {
+    validateMeanDomain(kind, args);
     switch (kind) {
       case "Uniform":
         return affineScale(affineAdd(args[0], args[1]), 0.5);
@@ -20551,8 +20552,74 @@ ${indent(elseBranch)}`;
     }
     throw new Error(`expected numeric argument, got ${JSON.stringify(arg)}`);
   }
+  function validateSampleDomain(kind, args) {
+    const values = args.map(numberArg);
+    validateConcreteDomain(kind, values);
+    return values;
+  }
+  function validateMeanDomain(kind, args) {
+    const values = args.map((arg) => isConcreteAffine(arg) ? affineToNumber(arg) : null);
+    validateConcreteDomain(kind, values, { skipSymbolic: true });
+  }
+  function validateConcreteDomain(kind, values, options = {}) {
+    const skipSymbolic = Boolean(options.skipSymbolic);
+    const concrete = values.filter((value) => value !== null);
+    for (const value of concrete) {
+      if (!Number.isFinite(value)) throw new DistributionDomainError(kind, "parameters must be finite");
+    }
+    const arg = (index) => values[index];
+    const check = (index, predicate, message) => {
+      const value = arg(index);
+      if (value === null && skipSymbolic) return;
+      if (!predicate(value)) throw new DistributionDomainError(kind, message);
+    };
+    switch (kind) {
+      case "Uniform":
+        if (!(skipSymbolic && (arg(0) === null || arg(1) === null)) && arg(0) > arg(1)) {
+          throw new DistributionDomainError(kind, "lower bound must be <= upper bound");
+        }
+        break;
+      case "Gauss":
+        check(1, (value) => value >= 0, "variance must be >= 0");
+        break;
+      case "Exponential":
+        check(0, (value) => value > 0, "rate must be > 0");
+        break;
+      case "Gamma":
+        check(0, (value) => value > 0, "shape must be > 0");
+        check(1, (value) => value > 0, "rate must be > 0");
+        break;
+      case "Beta":
+        check(0, (value) => value > 0, "alpha must be > 0");
+        check(1, (value) => value > 0, "beta must be > 0");
+        break;
+      case "Flip":
+      case "Bernoulli":
+        check(0, (value) => value >= 0 && value <= 1, "probability must be in [0, 1]");
+        break;
+      case "Poisson":
+        check(0, (value) => value >= 0, "lambda must be >= 0");
+        break;
+      case "Discrete": {
+        if (values.length === 0) throw new DistributionDomainError(kind, "at least one probability is required");
+        for (const [index, value] of values.entries()) {
+          if (value === null && skipSymbolic) continue;
+          if (value < 0 || value > 1) throw new DistributionDomainError(kind, `probability ${index} must be in [0, 1]`);
+        }
+        if (!values.includes(null)) {
+          const total = values.reduce((sum, value) => sum + value, 0);
+          if (Math.abs(total - 1) > PROBABILITY_EPS) throw new DistributionDomainError(kind, "probabilities must sum to 1");
+        }
+        break;
+      }
+      default:
+        throw new Error(`unknown distribution ${kind}`);
+    }
+  }
+  function distributionName(kind) {
+    return kind === "Gauss" ? "gauss" : kind.toLowerCase();
+  }
   function gammaSample(alpha, beta, rng) {
-    if (alpha <= 0 || beta <= 0) throw new Error("gamma: parameters must be > 0");
     const scale = 1 / beta;
     if (alpha < 1) return positiveSample(gammaSample(alpha + 1, beta, rng) * rng.positive() ** (1 / alpha));
     const d = alpha - 1 / 3;
@@ -20574,7 +20641,6 @@ ${indent(elseBranch)}`;
     return Math.sqrt(-2 * Math.log(rng.positive())) * Math.cos(2 * Math.PI * rng.next());
   }
   function poissonSample(lambda, rng) {
-    if (lambda < 0) throw new Error("poisson: lambda must be >= 0");
     if (lambda === 0) return 0;
     const l = Math.exp(-lambda);
     let k = 0;
@@ -20703,7 +20769,10 @@ ${indent(elseBranch)}`;
       case "Unit":
       case "Nil":
       case "SymFloat":
+      case "DomainError":
         return clone(expr);
+      case "Mean":
+        return n("Mean", { distribution: expr.distribution, args: expr.args.map(runtimeFromAst) }, expr);
       case "Lam":
         return n("Lam", { param: expr.param, body: runtimeFromAst(expr.body) }, expr);
       case "Rec":
@@ -20776,24 +20845,36 @@ ${indent(elseBranch)}`;
     };
   }
   function projectSampleWithEnv(symbolicState, rngE) {
-    const env = symbolicSampleEnv(symbolicState, rngE);
-    return {
-      expr: concretize(symbolicState.expr, env),
-      sampleBySymbol: Object.fromEntries(env)
-    };
-  }
-  function symbolicSampleEnv(symbolicState, rngE) {
     const env = /* @__PURE__ */ new Map();
     const rng = rngE.clone();
+    const sampleBySymbol = {};
     for (const binding of symbolicState.sigma) {
       const args = instantiateArgs(binding.args, env);
-      env.set(binding.name, sampleDistribution(binding.kind, args, rng));
+      try {
+        const value = sampleDistribution(binding.kind, args, rng);
+        env.set(binding.name, value);
+        sampleBySymbol[binding.name] = value;
+      } catch (error) {
+        if (!isDistributionDomainError(error)) throw error;
+        return {
+          expr: domainErrorExpr(error, symbolicState.expr),
+          sampleBySymbol
+        };
+      }
     }
-    return env;
+    return {
+      expr: concretize(symbolicState.expr, env),
+      sampleBySymbol
+    };
   }
   function projectMeanDeterminized(symbolicState) {
-    const env = symbolicMeanEnv(symbolicState);
-    return determinizeResidual(concretize(symbolicState.expr, env));
+    try {
+      const env = symbolicMeanEnv(symbolicState);
+      return determinizeResidual(concretize(symbolicState.expr, env));
+    } catch (error) {
+      if (!isDistributionDomainError(error)) throw error;
+      return domainErrorExpr(error, symbolicState.expr);
+    }
   }
   function runCoupledTrace(source, seed = 1, maxSymbolicSteps = 1e3, maxSyncSteps = 200, options = {}) {
     const prepared = options.allowIllTyped ? prepareRuntimeUnchecked(source) : prepareRuntime(source);
@@ -20933,6 +21014,8 @@ ${indent(elseBranch)}`;
         if (expr.cond.kind !== "Bool") throw new Error("observe: expected bool");
         if (!expr.cond.value) return out(n("Reject", {}, expr), ctx);
         return out(n("Unit", {}, expr), ctx);
+      case "Mean":
+        return stepMean(expr, ctx);
       case "Uniform":
       case "Gauss":
       case "Exponential":
@@ -20947,9 +21030,29 @@ ${indent(elseBranch)}`;
     }
     throw new Error(`stuck expression ${expr.kind}`);
   }
+  function stepMean(expr, ctx) {
+    for (let i = 0; i < expr.args.length; i++) {
+      if (!isValue(expr.args[i])) return stepIndexedChild(expr, "args", i, ctx);
+    }
+    try {
+      const mean = meanDistribution(expr.distribution, expr.args.map(valueToAffine));
+      return out(floatResult(mean, expr), ctx);
+    } catch (error) {
+      if (!isDistributionDomainError(error)) throw error;
+      return out(domainErrorExpr(error, expr), ctx);
+    }
+  }
   function stepDistribution(expr, ctx) {
     for (let i = 0; i < expr.args.length; i++) {
       if (!isValue(expr.args[i])) return stepIndexedChild(expr, "args", i, ctx);
+    }
+    if (ctx.kind === "symbolic" && expr.mode === "E" && floatDistributions.has(expr.kind)) {
+      try {
+        meanDistribution(expr.kind, expr.args.map(valueToAffine));
+      } catch (error) {
+        if (!isDistributionDomainError(error)) throw error;
+        return out(domainErrorExpr(error, expr), ctx);
+      }
     }
     if (ctx.kind === "symbolic" && expr.mode === "E" && floatDistributions.has(expr.kind)) {
       const name2 = `v${ctx.nextSymbol}`;
@@ -20958,19 +21061,35 @@ ${indent(elseBranch)}`;
     }
     const streamName = expr.mode === "E" ? "rngE" : "rngG";
     const rng = ctx[streamName];
-    const value = sampleDistribution(expr.kind, expr.args, rng);
-    return out(typeof value === "boolean" ? n("Bool", { value }, expr) : n("Const", { value }, expr), { ...ctx, [streamName]: rng });
+    try {
+      const value = sampleDistribution(expr.kind, expr.args, rng);
+      return out(typeof value === "boolean" ? n("Bool", { value }, expr) : n("Const", { value }, expr), { ...ctx, [streamName]: rng });
+    } catch (error) {
+      if (!isDistributionDomainError(error)) throw error;
+      return out(domainErrorExpr(error, expr), { ...ctx, [streamName]: rng });
+    }
   }
   function stepDiscrete(expr, ctx) {
     if (ctx.kind === "symbolic" && expr.mode === "E") {
+      try {
+        meanDistribution("Discrete", expr.choices.map((choice) => affineConst(choice.probability)));
+      } catch (error) {
+        if (!isDistributionDomainError(error)) throw error;
+        return out(domainErrorExpr(error, expr), ctx);
+      }
       const name2 = `v${ctx.nextSymbol}`;
       const binding = { name: name2, kind: "Discrete", args: expr.choices.map((choice) => affineConst(choice.probability)) };
       return out(symFloat(affineVar(name2), expr.from, expr.to), { ...ctx, sigma: [...ctx.sigma, binding], nextSymbol: ctx.nextSymbol + 1 });
     }
     const streamName = expr.mode === "E" ? "rngE" : "rngG";
     const rng = ctx[streamName];
-    const index = sampleDistribution("Discrete", expr.choices.map((choice) => n("Const", { value: choice.probability }, expr)), rng);
-    return out(expr.choices[index].value, { ...ctx, [streamName]: rng });
+    try {
+      const index = sampleDistribution("Discrete", expr.choices.map((choice) => n("Const", { value: choice.probability }, expr)), rng);
+      return out(expr.choices[index].value, { ...ctx, [streamName]: rng });
+    } catch (error) {
+      if (!isDistributionDomainError(error)) throw error;
+      return out(domainErrorExpr(error, expr), { ...ctx, [streamName]: rng });
+    }
   }
   function advanceToTarget(state, target, maxSteps) {
     let current = state;
@@ -21009,40 +21128,44 @@ ${indent(elseBranch)}`;
   }
   function determinizeResidual(expr) {
     switch (expr.kind) {
+      case "Mean":
+        return n("Mean", { distribution: expr.distribution, args: expr.args.map(determinizeResidual) }, expr);
       case "Uniform": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return n("Mul", { left: n("Add", { left: args[0], right: args[1] }, expr), right: n("Const", { value: 0.5 }, expr) }, expr);
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n("Uniform", { mode: "G", args }, expr);
       }
       case "Gauss": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return args[0];
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n("Gauss", { mode: "G", args }, expr);
       }
       case "Exponential": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return n("Div", { left: n("Const", { value: 1 }, expr), right: args[0] }, expr);
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n("Exponential", { mode: "G", args }, expr);
       }
       case "Gamma": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return n("Div", { left: args[0], right: args[1] }, expr);
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n("Gamma", { mode: "G", args }, expr);
       }
       case "Beta": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return n("Div", { left: args[0], right: n("Add", { left: args[0], right: args[1] }, expr) }, expr);
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n("Beta", { mode: "G", args }, expr);
       }
       case "Bernoulli":
       case "Poisson": {
         const args = expr.args.map(determinizeResidual);
-        if (expr.mode === "E") return args[0];
+        if (expr.mode === "E") return meanNode2(expr.kind, args, expr);
         return n(expr.kind, { mode: "G", args }, expr);
       }
       case "Discrete": {
         const choices = expr.choices.map((choice) => ({ probability: choice.probability, value: determinizeResidual(choice.value) }));
-        if (expr.mode === "E") return weightedChoiceSum(choices, expr);
+        if (expr.mode === "E") {
+          return meanNode2("Discrete", choices.map((choice) => n("Const", { value: choice.probability }, expr)), expr);
+        }
         return n("Discrete", { mode: "G", choices }, expr);
       }
       case "Flip":
@@ -21051,12 +21174,8 @@ ${indent(elseBranch)}`;
         return mapChildren(expr, determinizeResidual);
     }
   }
-  function weightedChoiceSum(choices, source) {
-    if (choices.length === 0) return n("Const", { value: 0 }, source);
-    const [first, ...rest] = choices;
-    const term = n("Mul", { left: n("Const", { value: first.probability }, source), right: first.value }, source);
-    if (rest.length === 0) return term;
-    return n("Add", { left: term, right: weightedChoiceSum(rest, source) }, source);
+  function meanNode2(distribution, args, source) {
+    return n("Mean", { distribution, args }, source);
   }
   function arithmetic(kind, left, right, source) {
     const a = valueToAffine(left);
@@ -21072,15 +21191,18 @@ ${indent(elseBranch)}`;
   }
   function stepChild(expr, key, ctx) {
     const result = step(expr[key], ctx);
-    if (result.expr.kind === "Reject") return out(result.expr, { ...ctx, ...contextPatch(result) });
+    if (isTerminalError(result.expr)) return out(result.expr, { ...ctx, ...contextPatch(result) });
     return rebuild(expr, { [key]: result.expr }, ctx, result);
   }
   function stepIndexedChild(expr, key, index, ctx) {
     const result = step(expr[key][index], ctx);
-    if (result.expr.kind === "Reject") return out(result.expr, { ...ctx, ...contextPatch(result) });
+    if (isTerminalError(result.expr)) return out(result.expr, { ...ctx, ...contextPatch(result) });
     const next = expr[key].slice();
     next[index] = result.expr;
     return rebuild(expr, { [key]: next }, ctx, result);
+  }
+  function isTerminalError(expr) {
+    return expr.kind === "Reject" || expr.kind === "DomainError";
   }
   function rebuild(expr, patch, ctx, result) {
     return out(n(expr.kind, { ...copyProps(expr), ...patch }, expr), { ...ctx, ...contextPatch(result) });
@@ -21152,6 +21274,8 @@ ${indent(elseBranch)}`;
         return n("MatchList", { scrutinee: f(expr.scrutinee), nilBranch: f(expr.nilBranch), headName: expr.headName, tailName: expr.tailName, consBranch: f(expr.consBranch) }, expr);
       case "Observe":
         return n("Observe", { cond: f(expr.cond) }, expr);
+      case "Mean":
+        return n("Mean", { distribution: expr.distribution, args: expr.args.map(f) }, expr);
       case "Uniform":
       case "Gauss":
       case "Exponential":
@@ -21171,12 +21295,14 @@ ${indent(elseBranch)}`;
     switch (expr.kind) {
       case "SymFloat":
         return n("Const", { value: evalAffine(expr.affine, env) }, expr);
+      case "DomainError":
+        return clone(expr);
       default:
         return mapChildren(expr, (child) => concretize(child, env));
     }
   }
   function isValue(expr) {
-    return expr.kind === "Reject" || expr.kind === "Const" || expr.kind === "SymFloat" || expr.kind === "Bool" || expr.kind === "Unit" || expr.kind === "Lam" || expr.kind === "Rec" || expr.kind === "Nil" || expr.kind === "Pair" && isValue(expr.left) && isValue(expr.right) || expr.kind === "Inl" && isValue(expr.expr) || expr.kind === "Inr" && isValue(expr.expr) || expr.kind === "Cons" && isValue(expr.head) && isValue(expr.tail);
+    return expr.kind === "Reject" || expr.kind === "DomainError" || expr.kind === "Const" || expr.kind === "SymFloat" || expr.kind === "Bool" || expr.kind === "Unit" || expr.kind === "Lam" || expr.kind === "Rec" || expr.kind === "Nil" || expr.kind === "Pair" && isValue(expr.left) && isValue(expr.right) || expr.kind === "Inl" && isValue(expr.expr) || expr.kind === "Inr" && isValue(expr.expr) || expr.kind === "Cons" && isValue(expr.head) && isValue(expr.tail);
   }
   function numberValue(expr) {
     return affineToNumber(valueToAffine(expr));
@@ -21192,6 +21318,8 @@ ${indent(elseBranch)}`;
       case "Nil":
       case "Reject":
         return true;
+      case "DomainError":
+        return a.message === b.message;
       case "Pair":
         return exprEqual(a.left, b.left, eps) && exprEqual(a.right, b.right, eps);
       case "Inl":
@@ -21204,6 +21332,9 @@ ${indent(elseBranch)}`;
       default:
         return prettyExpr(a) === prettyExpr(b);
     }
+  }
+  function domainErrorExpr(error, source) {
+    return n("DomainError", { message: error.message, distribution: error.kind ?? null, reason: error.reason ?? error.message }, source ?? { from: 0, to: 0 });
   }
   function clone(expr) {
     if (expr.kind === "SymFloat") return symFloat(expr.affine, expr.from, expr.to);
@@ -21262,6 +21393,9 @@ ${indent(elseBranch)}`;
       case "SymFloat":
         html = renderHighlightedText(prettyExpr(expr), options);
         break;
+      case "DomainError":
+        html = `<span class="trace-domain-error" title="${escapeHtml(expr.message)}">${renderHighlightedText(prettyExpr(expr), options)}</span>`;
+        break;
       case "Let":
         html = renderLet(expr, focusPath, options);
         break;
@@ -21306,6 +21440,9 @@ ${indent2(renderExpr(expr.consBranch, 0, childFocus(focusPath, "consBranch"), op
       case "Observe":
         html = `${keyword2("observe")}(${renderExpr(expr.cond, 0, childFocus(focusPath, "cond"), options)})`;
         break;
+      case "Mean":
+        html = renderMean(expr, focusPath, options);
+        break;
       default:
         if (expr.kind in infix2) {
           const [op, level] = infix2[expr.kind];
@@ -21325,9 +21462,10 @@ ${indent2(renderExpr(expr.consBranch, 0, childFocus(focusPath, "consBranch"), op
   function renderHighlightedText(code, options = {}) {
     const escaped = escapeHtml(code);
     return escaped.replace(
-      /\b(let|in|if|then|else|match|with|fun|rec|true|false|fst|snd|inl|inr|observe)\b|\b(uniform|gauss|exponential|gamma|beta|flip|bernoulli|poisson|discrete)\b|(\[[EG]\])|\b(v\d+)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi,
-      (match, keywordMatch, dist2, mode, sym, number2) => {
+      /\b(let|in|if|then|else|match|with|fun|rec|true|false|fst|snd|inl|inr|observe|domain_error)\b|\b(mean_(?:uniform|gauss|exponential|gamma|beta|bernoulli|poisson|discrete))\b|\b(uniform|gauss|exponential|gamma|beta|flip|bernoulli|poisson|discrete)\b|(\[[EG]\])|\b(v\d+)\b|(-?\d+(?:\.\d+)?(?:e[+-]?\d+)?)/gi,
+      (match, keywordMatch, mean, dist2, mode, sym, number2) => {
         if (keywordMatch) return `<span class="tok-keyword">${match}</span>`;
+        if (mean) return `<span class="tok-mean">${match}</span>`;
         if (dist2) return `<span class="tok-dist">${match}</span>`;
         if (mode) return `<span class="tok-mode">${match}</span>`;
         if (sym) return corrSpan(match, "tok-sym", sym);
@@ -21369,6 +21507,33 @@ ${indent2(elseBranch)}`;
       return `${name2}${mode}(${expr.choices.map((choice) => renderHighlightedText(String(choice.probability), options)).join(", ")})`;
     }
     return `${name2}${mode}(${expr.args.map((arg, index) => renderExpr(arg, 0, childFocus(focusPath, "args", index), options)).join(", ")})`;
+  }
+  function renderMean(expr, focusPath, options) {
+    const name2 = distNames2[expr.distribution] ?? expr.distribution.toLowerCase();
+    const args = expr.args.map((arg, index) => renderExpr(arg, 0, childFocus(focusPath, "args", index), options));
+    const formula = meanFormula(expr.distribution, expr.args.map((arg) => prettyExpr(arg)));
+    return `<span class="mean-form" title="one-step mean redex: ${escapeHtml(formula)}"><span class="tok-mean">mean_${plain(name2)}</span>(${args.join(", ")})</span>`;
+  }
+  function meanFormula(distribution, args) {
+    switch (distribution) {
+      case "Uniform":
+        return `(${args[0]} + ${args[1]}) * 0.5`;
+      case "Gauss":
+        return args[0];
+      case "Exponential":
+        return `1 / ${args[0]}`;
+      case "Gamma":
+        return `${args[0]} / ${args[1]}`;
+      case "Beta":
+        return `${args[0]} / (${args[0]} + ${args[1]})`;
+      case "Bernoulli":
+      case "Poisson":
+        return args[0];
+      case "Discrete":
+        return args.map((probability, index) => `${index} * ${probability}`).join(" + ") || "0";
+      default:
+        return `mean(${args.join(", ")})`;
+    }
   }
   function valueSpan(html) {
     return `<span class="trace-value symbolic-value" title="symbolic affine value">${html}</span>`;
@@ -21424,6 +21589,8 @@ ${indent2(elseBranch)}`;
         return changedFieldPath(before, after, "left") ?? changedFieldPath(before, after, "right");
       case "Observe":
         return changedFieldPath(before, after, "cond");
+      case "Mean":
+        return changedIndexedPath(before, after, "args");
       case "Uniform":
       case "Gauss":
       case "Exponential":
@@ -21434,6 +21601,8 @@ ${indent2(elseBranch)}`;
       case "Poisson":
         return changedIndexedPath(before, after, "args");
       case "Discrete":
+        return null;
+      case "DomainError":
         return null;
       default:
         return null;
@@ -21879,8 +22048,9 @@ ${indent2(elseBranch)}`;
   }
   function renderCoupling(coupled) {
     hideCheckPopover();
-    panels.couplingStatus.textContent = `seed ${coupled.seed} - ${coupled.ok ? "checked" : "failed"}${coupled.unchecked ? " (unchecked)" : ""}`;
-    panels.couplingStatus.className = `status ${coupled.ok ? "ok" : "error"}`;
+    const terminalDomainError = coupled.frames.some(hasDomainError);
+    panels.couplingStatus.textContent = `seed ${coupled.seed} - ${coupled.ok ? terminalDomainError ? "checked domain error" : "checked" : "failed"}${coupled.unchecked ? " (unchecked)" : ""}`;
+    panels.couplingStatus.className = `status ${coupled.ok ? terminalDomainError ? "warning" : "ok" : "error"}`;
     panels.coupling.innerHTML = `
     <div class="coupling-table-head">
       <span></span>
@@ -21894,8 +22064,9 @@ ${indent2(elseBranch)}`;
       const sigma = sigmaView(frame.sigma);
       const sigmaLines = Math.max(1, Math.min(4, sigma.lineCount));
       const ok = frameOk(frame);
+      const domainError = hasDomainError(frame);
       return `
-        <section class="coupling-row ${ok ? "" : "failed"}" style="--sigma-lines: ${sigmaLines}">
+        <section class="coupling-row ${ok ? "" : "failed"} ${domainError ? "domain-error-row" : ""}" style="--sigma-lines: ${sigmaLines}">
           <div class="step-rail">
             <span>${frame.step}</span>
             ${stepCheck(frame, coupled)}
@@ -21910,22 +22081,29 @@ ${indent2(elseBranch)}`;
   function frameOk(frame) {
     return frame.originalOk && frame.determinizedOk && frame.symbolicOk !== false;
   }
+  function hasDomainError(frame) {
+    return frame.original?.kind === "DomainError" || frame.symbolic?.kind === "DomainError" || frame.determinized?.kind === "DomainError";
+  }
   function stepCheck(frame, coupled) {
     const ok = frameOk(frame);
+    const domainError = hasDomainError(frame);
+    const label = domainError && ok ? "DOMAIN" : ok ? "OK" : "FAIL";
+    const aria = domainError && ok ? "Coupling checks reached a shared domain error" : ok ? "Coupling checks passed" : "Coupling check failed";
     return `
-    <span class="step-check ${ok ? "ok" : "fail"}" tabindex="0" aria-label="${ok ? "Coupling checks passed" : "Coupling check failed"}">
-      ${ok ? "OK" : "FAIL"}
+    <span class="step-check ${ok ? domainError ? "domain" : "ok" : "fail"}" tabindex="0" aria-label="${aria}">
+      ${label}
       <span class="check-popover-source">
-        ${checkPopoverContent(frame, coupled, ok)}
+        ${checkPopoverContent(frame, coupled, ok, domainError)}
       </span>
     </span>
   `;
   }
-  function checkPopoverContent(frame, coupled, ok) {
+  function checkPopoverContent(frame, coupled, ok, domainError) {
     const originalTarget = frame.originalTarget ? prettyExpr(frame.originalTarget) : "not available";
     const determinizedTarget = frame.determinizedTarget ? prettyExpr(frame.determinizedTarget) : "not available";
     return `
-    <strong>${ok ? "Coupling checks passed at this symbolic step." : "Coupling check failed at this symbolic step."}</strong>
+    <strong>${domainError && ok ? "All traces reached the same domain error at this symbolic step." : ok ? "Coupling checks passed at this symbolic step." : "Coupling check failed at this symbolic step."}</strong>
+    ${domainError ? `<span class="domain-error-note">${escapeHtml2(domainErrorMessage(frame))}</span>` : ""}
     <span>The source trace must match the symbolic state after sampling stored E-bindings with the same E-randomness.</span>
     <code>${escapeHtml2(originalTarget)}</code>
     <span>The determinized trace must match the symbolic state after replacing stored E-bindings by their means.</span>
@@ -21935,6 +22113,9 @@ ${indent2(elseBranch)}`;
     ${frame.symbolicOk === false ? `<span>Symbolic next step failed: ${escapeHtml2(frame.symbolicError)}</span>` : ""}
     ${coupled.unchecked ? "<em>This trace is running despite type/mode diagnostics, so failures show why the theorem needs the type system.</em>" : ""}
   `;
+  }
+  function domainErrorMessage(frame) {
+    return frame.original?.message ?? frame.symbolic?.message ?? frame.determinized?.message ?? "domain error";
   }
   function couplingCell(expr, meta2, tone, traceOptions = {}) {
     return `
@@ -22004,21 +22185,26 @@ ${indent2(elseBranch)}`;
     const meanBySymbol = {};
     const lines = sigma.map((binding) => {
       let mean = NaN;
+      let meanError = null;
       try {
         const meanArgs = binding.args.map((arg) => affineConst(evalAffine(arg, env)));
         mean = affineToNumber(meanDistribution(binding.kind, meanArgs));
         env.set(binding.name, mean);
         meanBySymbol[binding.name] = mean;
-      } catch {
+      } catch (error) {
+        meanError = error?.message ?? String(error);
         env.set(binding.name, NaN);
         meanBySymbol[binding.name] = NaN;
       }
       const args = binding.args.map((arg) => renderHighlightedText(prettyAffine2(arg))).join(", ");
-      return `<span class="sigma-binding corr-item" data-corr="${escapeHtml2(binding.name)}" tabindex="0"><span class="sigma-definition"><span class="tok-sym">${escapeHtml2(binding.name)}</span> ~ <span class="tok-dist">${binding.kind.toLowerCase()}</span>(${args})</span><span class="sigma-mean">E[<span class="tok-sym">${escapeHtml2(binding.name)}</span>] = ${meanMarkup(binding.name, mean)}</span></span>`;
+      return `<span class="sigma-binding corr-item" data-corr="${escapeHtml2(binding.name)}" tabindex="0"><span class="sigma-definition"><span class="tok-sym">${escapeHtml2(binding.name)}</span> ~ <span class="tok-dist">${binding.kind.toLowerCase()}</span>(${args})</span><span class="sigma-mean">E[<span class="tok-sym">${escapeHtml2(binding.name)}</span>] = ${meanMarkup(binding.name, mean, meanError)}</span></span>`;
     });
     return { html: lines.join("\n"), lineCount: lines.length, meanBySymbol };
   }
-  function meanMarkup(symbol, mean) {
+  function meanMarkup(symbol, mean, error = null) {
+    if (error) {
+      return `<span class="sigma-mean-error" title="${escapeHtml2(error)}">domain error</span>`;
+    }
     const value = formatNumber4(mean);
     return `<span class="corr-item sigma-mean-value" data-corr="${escapeHtml2(symbol)}" title="mean substituted for ${escapeHtml2(symbol)}">${escapeHtml2(value)}</span>`;
   }

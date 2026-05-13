@@ -226,6 +226,11 @@ button:active {
   color: var(--red);
 }
 
+.status.warning {
+  background: #fffaeb;
+  color: var(--amber);
+}
+
 .editor-status {
   width: 26px;
   min-width: 26px;
@@ -351,6 +356,10 @@ button:active {
   background: #fda29b;
 }
 
+.coupling-row.domain-error-row {
+  background: #fedf89;
+}
+
 .step-rail {
   display: grid;
   align-content: center;
@@ -402,6 +411,11 @@ button:active {
 .step-check.fail {
   background: var(--red-bg);
   color: var(--red);
+}
+
+.step-check.domain {
+  background: #fffaeb;
+  color: var(--amber);
 }
 
 .step-check.popover-open {
@@ -462,6 +476,15 @@ button:active {
   font-weight: 750;
 }
 
+.floating-check-popover .domain-error-note {
+  border: 1px solid rgba(254, 223, 137, 0.28);
+  border-radius: 7px;
+  background: rgba(161, 92, 7, 0.22);
+  color: #fffbeb;
+  padding: 7px;
+  font-weight: 800;
+}
+
 .coupling-cell {
   min-width: 0;
   background: var(--panel);
@@ -500,6 +523,26 @@ button:active {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   padding: 0 2px;
+}
+
+.mean-form {
+  border-radius: 4px;
+  background: rgba(21, 128, 61, 0.08);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 1px;
+}
+
+.trace-domain-error {
+  display: inline;
+  border: 1px solid rgba(161, 92, 7, 0.36);
+  border-radius: 4px;
+  background: rgba(254, 223, 137, 0.28);
+  color: #7a3f00;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 2px;
+  font-weight: 800;
 }
 
 .corr-item {
@@ -549,6 +592,11 @@ button:active {
 .sigma-mean-value {
   color: #087443;
   font-weight: 850;
+}
+
+.sigma-mean-error {
+  color: var(--amber);
+  font-weight: 900;
 }
 
 .sigma-strip.blank {
@@ -872,6 +920,11 @@ button:active {
 .tok-dist {
   color: #1d4ed8;
   font-weight: 750;
+}
+
+.tok-mean {
+  color: #15803d;
+  font-weight: 800;
 }
 
 .tok-mode {
