@@ -109,6 +109,10 @@ pre {
   margin: 0;
 }
 
+.debug-toggle[hidden] {
+  display: none;
+}
+
 select {
   height: 38px;
   min-width: 0;

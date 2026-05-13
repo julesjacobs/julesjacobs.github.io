@@ -21471,6 +21471,7 @@ ${indent2(elseBranch)}`;
   var statusEl = document.querySelector("#status");
   var typeHintsToggle = document.querySelector("#type-hints-toggle");
   var debugToggle = document.querySelector("#debug-toggle");
+  var debugToggleControl = document.querySelector(".debug-toggle");
   var editorDiagnostics = document.querySelector("#editor-diagnostics");
   var debugPanel = document.querySelector("#debug-panel");
   var debugLogEl = document.querySelector("#debug-log");
@@ -21505,6 +21506,8 @@ ${indent2(elseBranch)}`;
     original: [],
     determinized: []
   };
+  updateDebugVisibility();
+  window.addEventListener("hashchange", updateDebugVisibility);
   function typeHover() {
     return hoverTooltip((view, pos) => {
       if (!latest?.ok) return null;
@@ -21522,6 +21525,18 @@ ${indent2(elseBranch)}`;
         }
       };
     });
+  }
+  function updateDebugVisibility() {
+    const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash.toLowerCase();
+    const visible = params.has("debug") || hash === "#debug" || hash.includes("debug");
+    debugToggleControl.hidden = !visible;
+    debugToggleControl.style.display = visible ? "" : "none";
+    if (!visible && debugEnabled) {
+      debugEnabled = false;
+      debugToggle.checked = false;
+      debugPanel.hidden = true;
+    }
   }
   for (const [index, example] of examples.entries()) {
     const option = document.createElement("option");
