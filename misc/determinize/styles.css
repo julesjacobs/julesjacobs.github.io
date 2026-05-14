@@ -79,10 +79,10 @@ pre {
 
 .example-picker {
   display: grid;
-  grid-template-columns: auto minmax(150px, 1fr);
+  grid-template-columns: auto minmax(130px, 1fr);
   align-items: center;
   gap: 8px;
-  width: min(260px, 38vw);
+  width: min(230px, 34vw);
   color: var(--muted);
   font-size: 11px;
   font-weight: 750;
@@ -94,11 +94,11 @@ pre {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 38px;
+  min-height: 34px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
-  padding: 0 11px;
+  padding: 0 9px;
   color: var(--ink);
   font-size: 13px;
   font-weight: 800;
@@ -114,7 +114,7 @@ pre {
 }
 
 select {
-  height: 38px;
+  height: 34px;
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1080,6 +1080,15 @@ button:active {
   color: #1d4ed8;
 }
 
+.mode-hint.replacement-mode {
+  width: 3ch;
+  margin: 0;
+  border-color: transparent;
+  padding: 0;
+  justify-content: center;
+  pointer-events: auto;
+}
+
 .type-hint {
   display: inline-flex;
   align-items: center;
@@ -1120,12 +1129,14 @@ button:active {
   }
 
   .example-picker {
-    width: 100%;
+    width: min(250px, 100%);
   }
 
   .editor-controls {
-    display: grid;
-    justify-content: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: end;
+    gap: 6px;
   }
 
   .outputs {

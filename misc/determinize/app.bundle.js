@@ -11235,8 +11235,8 @@ var DeterminizeSim = (() => {
             if (first)
               this.announceDOM.textContent = "";
             first = false;
-            let div = this.announceDOM.appendChild(document.createElement("div"));
-            div.textContent = effect.value;
+            let div2 = this.announceDOM.appendChild(document.createElement("div"));
+            div2.textContent = effect.value;
           }
     }
     mountStyles() {
@@ -18652,6 +18652,682 @@ var DeterminizeSim = (() => {
     return { kind, ...props, from, to };
   }
 
+  // src/compiler/linearSolver.js
+  var INF = "inf";
+  var NEG_INF = "-inf";
+  function computeRhoStar(subtyping, options = {}) {
+    const system = buildLinearSystem(subtyping, options);
+    const solved = computeIterativeEndpointValues(subtyping, system, options);
+    const endpointValues = solved.endpointValues;
+    system.warnings.push(...solved.warnings);
+    const intervals = {};
+    for (const interval of subtyping.intervalVars ?? []) {
+      intervals[interval.id] = {
+        id: interval.id,
+        lower: endpointValues[interval.lower] ?? { kind: NEG_INF },
+        upper: endpointValues[interval.upper] ?? { kind: INF },
+        sourceText: interval.sourceText,
+        role: interval.role
+      };
+    }
+    return {
+      hardCount: system.hard.length,
+      obligationCount: system.obligations.length,
+      warnings: system.warnings,
+      endpointValues,
+      intervals,
+      obligations: system.obligations.map((obligation) => ({
+        id: obligation.id,
+        assertion: obligation.assertion,
+        reason: obligation.reason,
+        sourceText: obligation.sourceText,
+        status: checkObligation(obligation, endpointValues, solved.widenedEndpoints)
+      }))
+    };
+  }
+  function computeIterativeEndpointValues(subtyping, system, options = {}) {
+    const endpointValues = {};
+    for (const variable of system.variables) {
+      endpointValues[variable] = variable.endsWith(".lo") ? { kind: INF } : { kind: NEG_INF };
+    }
+    for (const [variable, value] of system.fixed.entries()) endpointValues[variable] = { kind: value };
+    const rules = iterationRules(subtyping.endpointConstraints ?? [], system);
+    const warnings = [];
+    const widenedEndpoints = /* @__PURE__ */ new Set();
+    const widenAfter = options.widenAfter ?? Math.max(8, system.variables.length * 2);
+    const maxPasses = options.maxWideningPasses ?? Math.max(widenAfter + 8, system.variables.length * 4);
+    let usedWidening = false;
+    for (let pass = 0; pass < maxPasses; pass++) {
+      let changed = false;
+      for (const rule of rules) {
+        const value = evaluateExtendedExpr(rule.expr, endpointValues);
+        if (value.kind === "unknown" || value.kind === "infeasible") continue;
+        const current = endpointValues[rule.target];
+        const next = rule.direction === "min" ? extendedMin(current, value) : extendedMax(current, value);
+        if (!sameBound(current, next)) {
+          endpointValues[rule.target] = pass >= widenAfter ? widenedEndpoint(rule.direction) : next;
+          if (pass >= widenAfter) {
+            widenedEndpoints.add(rule.target);
+            usedWidening = true;
+          }
+          changed = true;
+        }
+      }
+      if (!changed) break;
+    }
+    if (usedWidening) warnings.push({ reason: "used widening phase for recursive or cyclic interval constraints" });
+    normalizeWidenedIntervals(subtyping, endpointValues, warnings, widenedEndpoints);
+    return { endpointValues, warnings, widenedEndpoints };
+  }
+  function iterationRules(endpointConstraints, system) {
+    const rules = [];
+    for (const constraint of endpointConstraints) {
+      if (isDomainObligation(constraint) || /well-formedness/i.test(constraint.reason ?? "")) continue;
+      const parsed = parseEndpointConstraint(constraint);
+      if (parsed.kind !== "hard") continue;
+      const assertions = splitEndpointAssertion(constraint.assertion);
+      for (const assertion of assertions) {
+        let left;
+        let right;
+        try {
+          [left, right] = splitComparison(assertion, "<=");
+        } catch {
+          system.warnings.push({ constraint, reason: "iteration solver skipped malformed assertion" });
+          continue;
+        }
+        let leftExpr;
+        let rightExpr;
+        try {
+          leftExpr = parseExpr(left);
+          rightExpr = parseExpr(right);
+        } catch (error) {
+          system.warnings.push({ constraint, reason: `iteration solver skipped unsupported assertion: ${error?.message ?? String(error)}` });
+          continue;
+        }
+        const leftVar = simpleVariable(leftExpr);
+        const rightVar = simpleVariable(rightExpr);
+        if (leftVar?.endsWith(".lo")) rules.push({ target: leftVar, direction: "min", expr: rightExpr, source: constraint });
+        if (rightVar?.endsWith(".hi")) rules.push({ target: rightVar, direction: "max", expr: leftExpr, source: constraint });
+      }
+    }
+    return rules;
+  }
+  function splitEndpointAssertion(assertion) {
+    if (assertion.includes(" OR ") || /(^|[^<])<([^=]|$)/.test(assertion)) return [];
+    if (/(^|[^<])=([^=]|$)/.test(assertion)) {
+      const [left, right] = splitComparison(assertion, "=");
+      return [`${left} <= ${right}`, `${right} <= ${left}`];
+    }
+    if (assertion.includes("<=")) return [assertion];
+    return [];
+  }
+  function widenedEndpoint(direction) {
+    return { kind: direction === "min" ? NEG_INF : INF };
+  }
+  function normalizeWidenedIntervals(subtyping, endpointValues, warnings, widenedEndpoints) {
+    for (const interval of subtyping.intervalVars ?? []) {
+      const lower = endpointValues[interval.lower];
+      const upper = endpointValues[interval.upper];
+      if (lower?.kind === INF || upper?.kind === NEG_INF || lower?.kind === "infeasible" || upper?.kind === "infeasible") {
+        endpointValues[interval.lower] = { kind: NEG_INF };
+        endpointValues[interval.upper] = { kind: INF };
+        widenedEndpoints.add(interval.lower);
+        widenedEndpoints.add(interval.upper);
+        warnings.push({ interval: interval.id, reason: "widened bottom or infeasible interval to top" });
+        continue;
+      }
+      if (lower?.kind === "rational" && upper?.kind === "rational" && lower.value.gt(upper.value)) {
+        endpointValues[interval.lower] = { kind: NEG_INF };
+        endpointValues[interval.upper] = { kind: INF };
+        widenedEndpoints.add(interval.lower);
+        widenedEndpoints.add(interval.upper);
+        warnings.push({ interval: interval.id, reason: "widened inverted finite interval to top" });
+      }
+    }
+  }
+  function buildLinearSystem(subtyping, options = {}) {
+    const rawHard = [];
+    const hard = [];
+    const obligations = [];
+    const fixed = /* @__PURE__ */ new Map();
+    const variables = /* @__PURE__ */ new Set();
+    const warnings = [];
+    const maxInequalities = options.maxInequalities ?? 2e4;
+    for (const interval of subtyping.intervalVars ?? []) {
+      variables.add(interval.lower);
+      variables.add(interval.upper);
+    }
+    for (const constraint of subtyping.endpointConstraints ?? []) {
+      const parsed = parseEndpointConstraint(constraint);
+      if (parsed.kind === "obligation") {
+        obligations.push({ ...constraint, parsed });
+        continue;
+      }
+      if (parsed.kind === "fixed") {
+        fixed.set(parsed.variable, parsed.value);
+        continue;
+      }
+      if (parsed.kind === "skip") {
+        warnings.push({ constraint, reason: parsed.reason });
+        continue;
+      }
+      for (const inequality of parsed.inequalities) {
+        for (const variable of inequality.coeffs.keys()) variables.add(variable);
+        rawHard.push({ inequality, constraint });
+      }
+    }
+    for (const { inequality, constraint } of rawHard) {
+      const substituted = substituteFixedEndpoints(inequality, fixed);
+      if (substituted.kind === "hard") {
+        for (const variable of substituted.inequality.coeffs.keys()) variables.add(variable);
+        hard.push(substituted.inequality);
+      } else if (substituted.kind === "impossible") {
+        hard.push(constExpr(Rational.one()));
+        warnings.push({ constraint, reason: "fixed infinite endpoint makes constraint impossible" });
+      } else if (substituted.kind === "unknown") {
+        warnings.push({ constraint, reason: "constraint contains indeterminate infinities" });
+      }
+    }
+    const finiteVariables = [...variables].filter((variable) => !fixed.has(variable));
+    return {
+      hard,
+      obligations,
+      fixed,
+      variables: [...variables],
+      finiteVariables,
+      warnings,
+      maxInequalities
+    };
+  }
+  function parseLinearInequality(text) {
+    const normalized = text.trim();
+    if (normalized.includes(" OR ")) return { kind: "skip", reason: "disjunctive constraint" };
+    if (/(^|[^A-Za-z0-9_])(?:\+?inf|-inf)(?=$|[^A-Za-z0-9_])/.test(normalized)) return parseInfinityConstraint(normalized);
+    if (normalized.includes("<=")) {
+      const [left, right] = splitComparison(normalized, "<=");
+      return { kind: "hard", inequalities: [exprSub(parseExpr(left), parseExpr(right))] };
+    }
+    if (/[^<]=[^=]/.test(normalized)) {
+      const [left, right] = splitComparison(normalized, "=");
+      const forward = exprSub(parseExpr(left), parseExpr(right));
+      return { kind: "hard", inequalities: [forward, scaleExpr(forward, Rational.fromInt(-1))] };
+    }
+    if (normalized.includes("<")) {
+      const [left, right] = splitComparison(normalized, "<");
+      return { kind: "hard", inequalities: [exprSub(parseExpr(left), parseExpr(right))] };
+    }
+    throw new Error(`unsupported linear assertion: ${text}`);
+  }
+  function splitComparison(text, operator2) {
+    const parts = text.split(operator2).map((part) => part.trim());
+    if (parts.length !== 2 || !parts[0] || !parts[1]) throw new Error(`malformed linear assertion: ${text}`);
+    return parts;
+  }
+  function parseEndpointConstraint(constraint) {
+    if (isDomainObligation(constraint)) return { kind: "obligation" };
+    return parseLinearInequality(constraint.assertion);
+  }
+  function isDomainObligation(constraint) {
+    return /domain|excludes/i.test(constraint.reason ?? "") || / OR /.test(constraint.assertion);
+  }
+  function parseInfinityConstraint(text) {
+    let match = text.match(/^([A-Za-z]\w*\.(?:lo|hi))\s*<=\s*-inf$/);
+    if (match) return { kind: "fixed", variable: match[1], value: NEG_INF };
+    match = text.match(/^\+inf\s*<=\s*([A-Za-z]\w*\.(?:lo|hi))$/);
+    if (match) return { kind: "fixed", variable: match[1], value: INF };
+    return { kind: "skip", reason: "unsupported infinity constraint" };
+  }
+  function checkObligation(obligation, endpointValues, impreciseEndpoints = /* @__PURE__ */ new Set()) {
+    if (obligation.assertion.includes(" OR ")) return checkDisjunctiveObligation(obligation.assertion, endpointValues, impreciseEndpoints);
+    if (obligation.assertion.includes("<=")) {
+      const [left, right] = obligation.assertion.split("<=").map((part) => part.trim());
+      return compareLinearObligation(left, right, endpointValues, false, impreciseEndpoints);
+    }
+    if (obligation.assertion.includes("<")) {
+      const [left, right] = obligation.assertion.split("<").map((part) => part.trim());
+      return compareLinearObligation(left, right, endpointValues, true, impreciseEndpoints);
+    }
+    return { kind: "unknown", detail: "unsupported obligation" };
+  }
+  function checkDisjunctiveObligation(assertion, endpointValues, impreciseEndpoints) {
+    const results = assertion.split(/\s+OR\s+/).map((part) => {
+      if (part.includes("<=")) {
+        const [left, right] = splitComparison(part, "<=");
+        return compareLinearObligation(left, right, endpointValues, false, impreciseEndpoints);
+      }
+      if (part.includes("<")) {
+        const [left, right] = splitComparison(part, "<");
+        return compareLinearObligation(left, right, endpointValues, true, impreciseEndpoints);
+      }
+      return { kind: "unknown", detail: part };
+    });
+    if (results.some((result) => result.kind === "passed")) return { kind: "passed", detail: results.map((result) => result.detail).join(" OR ") };
+    if (results.every((result) => result.kind === "failed")) return { kind: "failed", detail: results.map((result) => result.detail).join(" OR ") };
+    return { kind: "unknown", detail: results.map((result) => result.detail).join(" OR ") };
+  }
+  function compareLinearObligation(leftText, rightText, endpointValues, strict, impreciseEndpoints) {
+    const expression = exprSub(parseExpr(leftText), parseExpr(rightText));
+    if ([...expression.coeffs.keys()].some((variable) => impreciseEndpoints.has(variable))) {
+      return { kind: "unknown", detail: "depends on a widened interval endpoint" };
+    }
+    const difference = evaluateExtendedExpr(expression, endpointValues);
+    const ok = strict ? extendedLtZero(difference) : extendedLteZero(difference);
+    if (ok == null) return { kind: "unknown", detail: `${formatBound(difference)} ${strict ? "<" : "<="} 0` };
+    return { kind: ok ? "passed" : "failed", detail: `${formatBound(difference)} ${strict ? "<" : "<="} 0` };
+  }
+  function evaluateExtendedExpr(expr, endpointValues) {
+    let value = { kind: "rational", value: expr.constant };
+    for (const [variable, coeff] of expr.coeffs) {
+      const endpoint = endpointValues[variable];
+      if (!endpoint) return { kind: "unknown" };
+      value = extendedAdd(value, extendedScale(endpoint, coeff));
+    }
+    return value;
+  }
+  function extendedScale(value, coeff) {
+    if (coeff.isZero()) return { kind: "rational", value: Rational.zero() };
+    if (value.kind === "rational") return { kind: "rational", value: value.value.mul(coeff) };
+    if (value.kind === INF) return { kind: coeff.gt(Rational.zero()) ? INF : NEG_INF };
+    if (value.kind === NEG_INF) return { kind: coeff.gt(Rational.zero()) ? NEG_INF : INF };
+    return { kind: "unknown" };
+  }
+  function extendedAdd(left, right) {
+    if (left.kind === "unknown" || right.kind === "unknown") return { kind: "unknown" };
+    if (left.kind === "rational" && right.kind === "rational") return { kind: "rational", value: left.value.add(right.value) };
+    if (left.kind === INF && right.kind === NEG_INF || left.kind === NEG_INF && right.kind === INF) return { kind: "unknown" };
+    if (left.kind === INF || right.kind === INF) return { kind: INF };
+    if (left.kind === NEG_INF || right.kind === NEG_INF) return { kind: NEG_INF };
+    return { kind: "unknown" };
+  }
+  function extendedMin(left, right) {
+    if (!left || left.kind === "unknown") return right;
+    if (right.kind === "unknown") return left;
+    if (left.kind === NEG_INF || right.kind === NEG_INF) return { kind: NEG_INF };
+    if (left.kind === INF) return right;
+    if (right.kind === INF) return left;
+    return left.value.lte(right.value) ? left : right;
+  }
+  function extendedMax(left, right) {
+    if (!left || left.kind === "unknown") return right;
+    if (right.kind === "unknown") return left;
+    if (left.kind === INF || right.kind === INF) return { kind: INF };
+    if (left.kind === NEG_INF) return right;
+    if (right.kind === NEG_INF) return left;
+    return right.value.gt(left.value) ? right : left;
+  }
+  function extendedLteZero(value) {
+    if (value.kind === NEG_INF) return true;
+    if (value.kind === "unknown") return null;
+    if (value.kind === INF) return false;
+    return value.value.lte(Rational.zero());
+  }
+  function extendedLtZero(value) {
+    if (value.kind === NEG_INF) return true;
+    if (value.kind === "unknown") return null;
+    if (value.kind === INF) return false;
+    return value.value.lt(Rational.zero());
+  }
+  function parseExpr(text) {
+    const parser = new LinearParser(text);
+    const expr = parser.parseExpression();
+    parser.expectEnd();
+    return expr;
+  }
+  var LinearParser = class {
+    constructor(text) {
+      this.tokens = tokenize(text);
+      this.pos = 0;
+    }
+    parseExpression() {
+      let expr = this.parseTerm();
+      while (this.peek("+") || this.peek("-")) {
+        const op = this.next().value;
+        const rhs = this.parseTerm();
+        expr = op === "+" ? exprAdd(expr, rhs) : exprSub(expr, rhs);
+      }
+      return expr;
+    }
+    parseTerm() {
+      let expr = this.parseFactor();
+      while (this.peek("*")) {
+        this.next();
+        const rhs = this.parseFactor();
+        if (expr.coeffs.size === 0) expr = scaleExpr(rhs, expr.constant);
+        else if (rhs.coeffs.size === 0) expr = scaleExpr(expr, rhs.constant);
+        else throw new Error("nonlinear term in linear expression");
+      }
+      return expr;
+    }
+    parseFactor() {
+      if (this.peek("-")) {
+        this.next();
+        return scaleExpr(this.parseFactor(), Rational.fromInt(-1));
+      }
+      if (this.peek("(")) {
+        this.next();
+        const expr = this.parseExpression();
+        this.expect(")");
+        return expr;
+      }
+      const token = this.next();
+      if (token.kind === "number") return constExpr(Rational.fromString(token.value));
+      if (token.kind === "var") return varExpr(token.value);
+      throw new Error(`unexpected token ${token.value}`);
+    }
+    peek(value) {
+      return this.tokens[this.pos]?.value === value;
+    }
+    next() {
+      if (this.pos >= this.tokens.length) throw new Error("unexpected end of expression");
+      return this.tokens[this.pos++];
+    }
+    expect(value) {
+      const token = this.next();
+      if (token.value !== value) throw new Error(`expected ${value}, got ${token.value}`);
+    }
+    expectEnd() {
+      if (this.pos !== this.tokens.length) throw new Error(`unexpected token ${this.tokens[this.pos].value}`);
+    }
+  };
+  function tokenize(text) {
+    const tokens = [];
+    let i = 0;
+    while (i < text.length) {
+      const ch = text[i];
+      if (/\s/.test(ch)) {
+        i++;
+      } else if ("()+-*".includes(ch)) {
+        tokens.push({ kind: "op", value: ch });
+        i++;
+      } else {
+        const rest = text.slice(i);
+        const number2 = rest.match(/^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?/);
+        if (number2) {
+          tokens.push({ kind: "number", value: number2[0] });
+          i += number2[0].length;
+          continue;
+        }
+        const variable = rest.match(/^[A-Za-z]\w*\.(?:lo|hi)/);
+        if (variable) {
+          tokens.push({ kind: "var", value: variable[0] });
+          i += variable[0].length;
+          continue;
+        }
+        throw new Error(`unexpected character in linear expression: ${ch}`);
+      }
+    }
+    return tokens;
+  }
+  function constExpr(constant) {
+    return { coeffs: /* @__PURE__ */ new Map(), constant };
+  }
+  function varExpr(variable) {
+    return { coeffs: /* @__PURE__ */ new Map([[variable, Rational.one()]]), constant: Rational.zero() };
+  }
+  function exprAdd(left, right) {
+    const coeffs = new Map(left.coeffs);
+    for (const [variable, coeff] of right.coeffs) coeffs.set(variable, (coeffs.get(variable) ?? Rational.zero()).add(coeff));
+    return cleanExpr({ coeffs, constant: left.constant.add(right.constant) });
+  }
+  function exprSub(left, right) {
+    return exprAdd(left, scaleExpr(right, Rational.fromInt(-1)));
+  }
+  function scaleExpr(expr, scalar) {
+    const coeffs = /* @__PURE__ */ new Map();
+    for (const [variable, coeff] of expr.coeffs) coeffs.set(variable, coeff.mul(scalar));
+    return cleanExpr({ coeffs, constant: expr.constant.mul(scalar) });
+  }
+  function cleanExpr(expr) {
+    for (const [variable, coeff] of expr.coeffs) {
+      if (coeff.isZero()) expr.coeffs.delete(variable);
+    }
+    return expr;
+  }
+  function formatBound(bound) {
+    if (!bound) return "?";
+    if (bound.kind === "rational") return bound.value.toString();
+    return bound.kind;
+  }
+  function sameBound(left, right) {
+    if (!left || !right || left.kind !== right.kind) return false;
+    if (left.kind !== "rational") return true;
+    return left.value.eq(right.value);
+  }
+  function substituteFixedEndpoints(inequality, fixed) {
+    let infinite = null;
+    const coeffs = /* @__PURE__ */ new Map();
+    for (const [variable, coeff] of inequality.coeffs) {
+      const fixedValue = fixed.get(variable);
+      if (!fixedValue) {
+        coeffs.set(variable, coeff);
+        continue;
+      }
+      const signed = signedInfinity(fixedValue, coeff);
+      if (signed == null) continue;
+      infinite = combineInfinity(infinite, signed);
+      if (infinite === "unknown") return { kind: "unknown" };
+    }
+    if (infinite === INF) return coeffs.size === 0 ? { kind: "impossible" } : { kind: "unknown" };
+    if (infinite === NEG_INF) return { kind: "tautology" };
+    return { kind: "hard", inequality: cleanExpr({ coeffs, constant: inequality.constant }) };
+  }
+  function simpleVariable(expr) {
+    if (!expr.constant.isZero() || expr.coeffs.size !== 1) return null;
+    const [[variable, coeff]] = expr.coeffs.entries();
+    return coeff.eq(Rational.one()) ? variable : null;
+  }
+  function signedInfinity(value, coeff) {
+    if (coeff.isZero()) return null;
+    if (value === INF) return coeff.gt(Rational.zero()) ? INF : NEG_INF;
+    if (value === NEG_INF) return coeff.gt(Rational.zero()) ? NEG_INF : INF;
+    return null;
+  }
+  function combineInfinity(left, right) {
+    if (left == null) return right;
+    if (left === right) return left;
+    return "unknown";
+  }
+  var Rational = class _Rational {
+    constructor(num, den = 1n) {
+      if (den === 0n) throw new Error("zero denominator");
+      if (den < 0n) {
+        num = -num;
+        den = -den;
+      }
+      const g = gcd(abs(num), den);
+      this.num = num / g;
+      this.den = den / g;
+    }
+    static zero() {
+      return new _Rational(0n);
+    }
+    static one() {
+      return new _Rational(1n);
+    }
+    static fromInt(value) {
+      return new _Rational(BigInt(value));
+    }
+    static fromString(text) {
+      const match = String(text).match(/^([+-]?)(?:(\d+)(?:\.(\d*))?|\.(\d+))(?:[eE]([+-]?\d+))?$/);
+      if (!match) throw new Error(`invalid rational literal: ${text}`);
+      const [, sign, whole = "", fracA = "", fracB = "", exponentText = "0"] = match;
+      const frac = fracA || fracB;
+      const digits = `${whole || "0"}${frac}`;
+      let num = BigInt(digits || "0");
+      let den = 10n ** BigInt(frac.length);
+      const exponent = Number(exponentText);
+      if (exponent >= 0) num *= 10n ** BigInt(exponent);
+      else den *= 10n ** BigInt(-exponent);
+      return new _Rational(sign === "-" ? -num : num, den);
+    }
+    add(other) {
+      return new _Rational(this.num * other.den + other.num * this.den, this.den * other.den);
+    }
+    sub(other) {
+      return this.add(other.neg());
+    }
+    mul(other) {
+      return new _Rational(this.num * other.num, this.den * other.den);
+    }
+    div(other) {
+      return new _Rational(this.num * other.den, this.den * other.num);
+    }
+    recip() {
+      return new _Rational(this.den, this.num);
+    }
+    neg() {
+      return new _Rational(-this.num, this.den);
+    }
+    isZero() {
+      return this.num === 0n;
+    }
+    lt(other) {
+      return this.num * other.den < other.num * this.den;
+    }
+    lte(other) {
+      return this.num * other.den <= other.num * this.den;
+    }
+    gt(other) {
+      return this.num * other.den > other.num * this.den;
+    }
+    eq(other) {
+      return this.num === other.num && this.den === other.den;
+    }
+    toString() {
+      return this.den === 1n ? String(this.num) : `${this.num}/${this.den}`;
+    }
+  };
+  function gcd(a, b) {
+    while (b !== 0n) {
+      const r = a % b;
+      a = b;
+      b = r;
+    }
+    return a || 1n;
+  }
+  function abs(value) {
+    return value < 0n ? -value : value;
+  }
+
+  // src/compiler/discretizationSafety.js
+  var ENDPOINT_RE = /\b([A-Za-z]\w*)\.(lo|hi)\b/g;
+  function computeDiscretizationSafety(subtyping, options = {}) {
+    const rho = computeRhoStar(subtyping, options);
+    const blockedSites = blockedDiscretizationSites(subtyping, rho);
+    return {
+      rho,
+      blockedSites,
+      blockedDiscretizationSites: blockedSites
+    };
+  }
+  function siteKey(source) {
+    return `${source?.from ?? ""}:${source?.to ?? ""}`;
+  }
+  function blockedDiscretizationSites(subtyping, rho) {
+    const badIntervals = /* @__PURE__ */ new Set();
+    const dependencies = intervalDependencies(subtyping.endpointConstraints ?? []);
+    const badObligations = new Map(rho.obligations.filter((obligation) => obligation.status.kind !== "passed").map((obligation) => [obligation.id, obligation]));
+    for (const constraint of subtyping.endpointConstraints ?? []) {
+      const obligation = badObligations.get(constraint.id);
+      if (!obligation) continue;
+      const ids = [.../* @__PURE__ */ new Set([...constraint.intervalIds ?? [], ...endpointIntervalIds(constraint.assertion)])];
+      if (isBenignStrictPositiveFailure(constraint, obligation, ids, dependencies, subtyping.intervalVars ?? [])) continue;
+      for (const id of ids) badIntervals.add(id);
+    }
+    const worklist = [...badIntervals];
+    for (let i = 0; i < worklist.length; i++) {
+      const id = worklist[i];
+      for (const dependency of dependencies.get(id) ?? []) {
+        if (badIntervals.has(dependency)) continue;
+        badIntervals.add(dependency);
+        worklist.push(dependency);
+      }
+    }
+    const blocked = /* @__PURE__ */ new Set();
+    for (const interval of subtyping.intervalVars ?? []) {
+      if (!badIntervals.has(interval.id)) continue;
+      if (looksLikeDistributionSite(interval.sourceText)) blocked.add(siteKey(interval));
+    }
+    return blocked;
+  }
+  function isBenignStrictPositiveFailure(constraint, obligation, ids, dependencies, intervalVars) {
+    if (obligation.status.kind !== "failed") return false;
+    if (!/^0\s*<\s*[A-Za-z]\w*\.lo$/.test(constraint.assertion)) return false;
+    if (!/0 < 0/.test(obligation.status.detail ?? "")) return false;
+    const closure = dependencyClosure(ids, dependencies);
+    const currentSite = siteKey(constraint);
+    return [...closure].some((id) => {
+      const interval = intervalVars.find((candidate) => candidate.id === id);
+      if (siteKey(interval) === currentSite) return false;
+      return /^(?:gamma|exponential)\s*(?:\[[EG]\])?\s*\(/.test(interval?.sourceText ?? "");
+    });
+  }
+  function dependencyClosure(ids, dependencies) {
+    const seen = new Set(ids);
+    const worklist = [...ids];
+    for (let i = 0; i < worklist.length; i++) {
+      for (const dependency of dependencies.get(worklist[i]) ?? []) {
+        if (seen.has(dependency)) continue;
+        seen.add(dependency);
+        worklist.push(dependency);
+      }
+    }
+    return seen;
+  }
+  function intervalDependencies(endpointConstraints) {
+    const dependencies = /* @__PURE__ */ new Map();
+    for (const constraint of endpointConstraints) {
+      if (isDomainConstraint(constraint) || /well-formedness/i.test(constraint.reason ?? "")) continue;
+      for (const assertion of splitAssertions(constraint.assertion)) {
+        const dependency = assertionDependency(assertion);
+        if (!dependency) continue;
+        for (const source of dependency.sources) addDependency(dependencies, dependency.target, source);
+      }
+    }
+    return dependencies;
+  }
+  function assertionDependency(assertion) {
+    const parts = assertion.split("<=").map((part) => part.trim());
+    if (parts.length !== 2) return null;
+    const [left, right] = parts;
+    const leftSimple = simpleEndpoint(left);
+    const rightSimple = simpleEndpoint(right);
+    if (leftSimple?.side === "lo") {
+      return { target: leftSimple.interval, sources: endpointIntervalIds(right).filter((id) => id !== leftSimple.interval) };
+    }
+    if (rightSimple?.side === "hi") {
+      return { target: rightSimple.interval, sources: endpointIntervalIds(left).filter((id) => id !== rightSimple.interval) };
+    }
+    return null;
+  }
+  function splitAssertions(assertion) {
+    if (assertion.includes(" OR ") || /(^|[^<])<([^=]|$)/.test(assertion)) return [];
+    if (/(^|[^<])=([^=]|$)/.test(assertion)) {
+      const [left, right] = assertion.split("=").map((part) => part.trim());
+      return [`${left} <= ${right}`, `${right} <= ${left}`];
+    }
+    return assertion.includes("<=") ? [assertion] : [];
+  }
+  function endpointIntervalIds(text) {
+    const ids = [];
+    for (const match of text.matchAll(ENDPOINT_RE)) ids.push(match[1]);
+    return [...new Set(ids)];
+  }
+  function simpleEndpoint(text) {
+    const match = text.match(/^\s*([A-Za-z]\w*)\.(lo|hi)\s*$/);
+    return match ? { interval: match[1], side: match[2] } : null;
+  }
+  function addDependency(dependencies, target, source) {
+    if (!dependencies.has(target)) dependencies.set(target, /* @__PURE__ */ new Set());
+    dependencies.get(target).add(source);
+  }
+  function isDomainConstraint(constraint) {
+    return /domain|excludes/i.test(constraint.reason ?? "") || / OR /.test(constraint.assertion);
+  }
+  function looksLikeDistributionSite(text = "") {
+    return /^(?:uniform|gauss|exponential|gamma|beta|bernoulli|poisson|discrete)\s*(?:\[[EG]\])?\s*\(/.test(text);
+  }
+
   // src/compiler/types.js
   var modeCounter = 0;
   var tyCounter = 0;
@@ -18828,42 +19504,42 @@ var DeterminizeSim = (() => {
     const ty = zonk(typedExpr.typ);
     return ty.tag === "Float" ? ty.mode.mode : null;
   }
-  function determinize(typedExpr) {
-    return ofTyped(typedExpr);
+  function determinize(typedExpr, options = {}) {
+    return ofTyped(typedExpr, options);
   }
-  function ofTyped(te) {
+  function ofTyped(te, options) {
     switch (te.kind) {
       case "Var":
         return exprNode("Var", { name: te.name }, te.from, te.to);
       case "Lam":
-        return exprNode("Lam", { param: te.param, body: ofTyped(te.body) }, te.from, te.to);
+        return exprNode("Lam", { param: te.param, body: ofTyped(te.body, options) }, te.from, te.to);
       case "Rec":
-        return exprNode("Rec", { name: te.name, param: te.param, body: ofTyped(te.body) }, te.from, te.to);
+        return exprNode("Rec", { name: te.name, param: te.param, body: ofTyped(te.body, options) }, te.from, te.to);
       case "App":
-        return exprNode("App", { fn: ofTyped(te.fn), arg: ofTyped(te.arg) }, te.from, te.to);
+        return exprNode("App", { fn: ofTyped(te.fn, options), arg: ofTyped(te.arg, options) }, te.from, te.to);
       case "Unit":
         return exprNode("Unit", {}, te.from, te.to);
       case "Pair":
-        return exprNode("Pair", { left: ofTyped(te.left), right: ofTyped(te.right) }, te.from, te.to);
+        return exprNode("Pair", { left: ofTyped(te.left, options), right: ofTyped(te.right, options) }, te.from, te.to);
       case "Fst":
       case "Snd":
       case "Inl":
       case "Inr":
       case "Neg":
-        return exprNode(te.kind, { expr: ofTyped(te.expr) }, te.from, te.to);
+        return exprNode(te.kind, { expr: ofTyped(te.expr, options) }, te.from, te.to);
       case "Nil":
         return exprNode("Nil", {}, te.from, te.to);
       case "Cons":
-        return exprNode("Cons", { head: ofTyped(te.head), tail: ofTyped(te.tail) }, te.from, te.to);
+        return exprNode("Cons", { head: ofTyped(te.head, options), tail: ofTyped(te.tail, options) }, te.from, te.to);
       case "Case":
         return exprNode(
           "Case",
           {
-            scrutinee: ofTyped(te.scrutinee),
+            scrutinee: ofTyped(te.scrutinee, options),
             leftName: te.leftName,
-            left: ofTyped(te.left),
+            left: ofTyped(te.left, options),
             rightName: te.rightName,
-            right: ofTyped(te.right)
+            right: ofTyped(te.right, options)
           },
           te.from,
           te.to
@@ -18872,11 +19548,11 @@ var DeterminizeSim = (() => {
         return exprNode(
           "MatchList",
           {
-            scrutinee: ofTyped(te.scrutinee),
-            nilBranch: ofTyped(te.nilBranch),
+            scrutinee: ofTyped(te.scrutinee, options),
+            nilBranch: ofTyped(te.nilBranch, options),
             headName: te.headName,
             tailName: te.tailName,
-            consBranch: ofTyped(te.consBranch)
+            consBranch: ofTyped(te.consBranch, options)
           },
           te.from,
           te.to
@@ -18884,9 +19560,9 @@ var DeterminizeSim = (() => {
       case "Bool":
         return exprNode("Bool", { value: te.value }, te.from, te.to);
       case "If":
-        return exprNode("If", { cond: ofTyped(te.cond), thenBranch: ofTyped(te.thenBranch), elseBranch: ofTyped(te.elseBranch) }, te.from, te.to);
+        return exprNode("If", { cond: ofTyped(te.cond, options), thenBranch: ofTyped(te.thenBranch, options), elseBranch: ofTyped(te.elseBranch, options) }, te.from, te.to);
       case "Let":
-        return exprNode("Let", { name: te.name, value: ofTyped(te.value), body: ofTyped(te.body) }, te.from, te.to);
+        return exprNode("Let", { name: te.name, value: ofTyped(te.value, options), body: ofTyped(te.body, options) }, te.from, te.to);
       case "Const":
         return exprNode("Const", { value: te.value }, te.from, te.to);
       case "Add":
@@ -18895,41 +19571,46 @@ var DeterminizeSim = (() => {
       case "Div":
       case "Lt":
       case "Leq":
-        return exprNode(te.kind, { left: ofTyped(te.left), right: ofTyped(te.right) }, te.from, te.to);
+        return exprNode(te.kind, { left: ofTyped(te.left, options), right: ofTyped(te.right, options) }, te.from, te.to);
       case "Uniform":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode("Uniform", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode("Uniform", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Gauss":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode("Gauss", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode("Gauss", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Exponential":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode("Exponential", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode("Exponential", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Gamma":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode("Gamma", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode("Gamma", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Beta":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode("Beta", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode("Beta", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Flip":
-        return exprNode("Flip", { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        return exprNode("Flip", { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Bernoulli":
       case "Poisson":
-        if (floatMode(te) === "E") return meanNode(te.kind, te.args.map(ofTyped), te);
-        return exprNode(te.kind, { mode: null, args: te.args.map(ofTyped) }, te.from, te.to);
+        if (shouldMean(te, options)) return meanNode(te.kind, te.args.map((arg) => ofTyped(arg, options)), te);
+        return exprNode(te.kind, { mode: null, args: te.args.map((arg) => ofTyped(arg, options)) }, te.from, te.to);
       case "Discrete":
-        if (floatMode(te) === "E") {
+        if (shouldMean(te, options)) {
           return meanNode("Discrete", te.choices.map((choice) => exprNode("Const", { value: choice.probability }, te.from, te.to)), te);
         }
-        return exprNode("Discrete", { mode: null, choices: te.choices.map((choice) => ({ probability: choice.probability, value: ofTyped(choice.value) })) }, te.from, te.to);
+        return exprNode("Discrete", { mode: null, choices: te.choices.map((choice) => ({ probability: choice.probability, value: ofTyped(choice.value, options) })) }, te.from, te.to);
       case "Observe":
-        return exprNode("Observe", { cond: ofTyped(te.cond) }, te.from, te.to);
+        return exprNode("Observe", { cond: ofTyped(te.cond, options) }, te.from, te.to);
       default:
         throw new Error(`unsupported typed expression ${te.kind}`);
     }
   }
-  function meanNode(distribution, args, source) {
-    return exprNode("Mean", { distribution, args }, source.from, source.to);
+  function shouldMean(te, options) {
+    const blocked = options.blockedDiscretizationSites ?? options.blockedSites;
+    const mode = options.modeBySite?.get(siteKey(te)) ?? floatMode(te);
+    return mode === "E" && !blocked?.has(siteKey(te));
+  }
+  function meanNode(distribution2, args, source) {
+    return exprNode("Mean", { distribution: distribution2, args }, source.from, source.to);
   }
 
   // src/compiler/infer.js
@@ -19194,6 +19875,14 @@ var DeterminizeSim = (() => {
     go(typedExpr);
     return typedExpr;
   }
+  function applyDistributionModes(typedExpr, modeBySite2 = /* @__PURE__ */ new Map()) {
+    const go = (te) => {
+      if (isDistribution(te.kind) && modeBySite2.has(siteKey(te))) te.mode = modeBySite2.get(siteKey(te));
+      for (const child of typedChildren(te)) go(child);
+    };
+    go(typedExpr);
+    return typedExpr;
+  }
   function typedChildren(te) {
     switch (te.kind) {
       case "Lam":
@@ -19242,30 +19931,575 @@ var DeterminizeSim = (() => {
         return [];
     }
   }
-  function collectSpans(te, spans = []) {
-    spans.push({
-      from: te.from,
-      to: te.to,
-      kind: ["Var"].includes(te.kind) ? "identifier" : isDistribution(te.kind) ? "distribution" : "expr",
-      type: formatType(te.typ),
-      mode: zonk(te.typ)?.tag === "Float" ? zonk(te.typ).mode.mode ?? "?" : void 0,
-      text: hoverText(te)
-    });
-    for (const child of typedChildren(te)) collectSpans(child, spans);
-    return spans;
-  }
-  function hoverText(te) {
-    const base2 = `${te.kind}: ${formatType(te.typ)}`;
-    if (!isDistribution(te.kind)) return base2;
-    const mode = te.typ.tag === "Float" ? te.typ.mode.mode ?? "?" : "?";
-    if (mode === "E") return `${base2}
-determinizes to its expectation`;
-    if (mode === "G") return `${base2}
-sampled normally`;
-    return base2;
-  }
   function isDistribution(kind) {
     return ["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Flip", "Bernoulli", "Poisson", "Discrete"].includes(kind);
+  }
+
+  // src/compiler/intervals.js
+  var FLOAT_DISTS = /* @__PURE__ */ new Set(["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Bernoulli", "Poisson", "Discrete"]);
+  var ALL_DISTS = /* @__PURE__ */ new Set([...FLOAT_DISTS, "Flip"]);
+  var INF2 = "+inf";
+  var NEG_INF2 = "-inf";
+  function collectIntervalConstraints(typedExpr, source = "") {
+    const state = {
+      source,
+      constraints: [],
+      expressions: [],
+      intervalVars: [],
+      endpointVars: [],
+      nextInterval: 1,
+      nextConstraint: 1
+    };
+    const result = analyzeExpr(typedExpr, /* @__PURE__ */ new Map(), state);
+    return {
+      source,
+      root: result.interval ?? null,
+      constraints: state.constraints,
+      expressions: state.expressions.sort(bySpan),
+      intervalVars: state.intervalVars,
+      endpointVars: state.endpointVars,
+      summary: summarizeConstraints(state.constraints)
+    };
+  }
+  function formatIntervalType(type, interval) {
+    const ty = zonk(type);
+    if (ty.tag !== "Float" || !interval) return formatType(type);
+    return `float[${ty.mode.mode ?? `?m${ty.mode.id}`}, ${interval.id}]`;
+  }
+  function analyzeExpr(te, env, state) {
+    switch (te.kind) {
+      case "Const":
+        return constantExpr(te, state);
+      case "Bool":
+        return scalarValue("Bool");
+      case "Unit":
+        return scalarValue("Unit");
+      case "Var":
+        return varExpr2(te, env, state);
+      case "Let":
+        return letExpr(te, env, state);
+      case "Lam":
+        return lamExpr(te, env, state);
+      case "Rec":
+        return recExpr(te, env, state);
+      case "App":
+        return appExpr(te, env, state);
+      case "Neg":
+        return unaryFloatExpr(te, env, state, "negation", (arg) => termInterval(`-(${arg.upper})`, `-(${arg.lower})`));
+      case "Add":
+        return binaryFloatExpr(te, env, state, "addition", (left, right) => termInterval(`(${left.lower} + ${right.lower})`, `(${left.upper} + ${right.upper})`));
+      case "Sub":
+        return binaryFloatExpr(te, env, state, "subtraction", (left, right) => termInterval(`(${left.lower} - ${right.upper})`, `(${left.upper} - ${right.lower})`));
+      case "Mul":
+        return mulExpr(te, env, state);
+      case "Div":
+        return divExpr(te, env, state);
+      case "Lt":
+      case "Leq":
+        analyzeExpr(te.left, env, state);
+        analyzeExpr(te.right, env, state);
+        return scalarValue("Bool");
+      case "If":
+        return ifExpr(te, env, state);
+      case "Pair":
+        return { kind: "Pair", left: analyzeExpr(te.left, env, state), right: analyzeExpr(te.right, env, state) };
+      case "Fst":
+        return projectExpr(te, env, state, "left");
+      case "Snd":
+        return projectExpr(te, env, state, "right");
+      case "Inl":
+      case "Inr":
+        return { kind: te.kind, value: analyzeExpr(te.expr, env, state) };
+      case "Case":
+        return caseExpr(te, env, state);
+      case "Nil":
+        return { kind: "List", elem: bottomValue() };
+      case "Cons":
+        return consExpr(te, env, state);
+      case "MatchList":
+        return matchListExpr(te, env, state);
+      case "Observe":
+        analyzeExpr(te.cond, env, state);
+        return scalarValue("Unit");
+      default:
+        if (ALL_DISTS.has(te.kind)) return distributionExpr(te, env, state);
+        return unknownValue(te, state, "unknown expression");
+    }
+  }
+  function constantExpr(te, state) {
+    const interval = freshExprInterval(te, state);
+    interval.singleton = te.value;
+    const value = formatNumber2(te.value);
+    addConstraint(state, te, {
+      kind: "definition",
+      label: "constant",
+      assertion: `${interval.id} = [${value}, ${value}]`,
+      endpointAssertions: [`${interval.lower} = ${value}`, `${interval.upper} = ${value}`],
+      intervalIds: [interval.id],
+      reason: "a numeric literal has a singleton interval"
+    });
+    return floatValue(interval);
+  }
+  function varExpr2(te, env, state) {
+    const binding = env.get(te.name);
+    if (!binding) return unknownValue(te, state, `unbound interval for ${te.name}`);
+    if (!binding.interval) return cloneValue(binding);
+    const interval = freshExprInterval(te, state);
+    addEqualIntervals(state, te, interval, binding.interval, `variable ${te.name}`);
+    return floatValue(interval);
+  }
+  function letExpr(te, env, state) {
+    const value = analyzeExpr(te.value, env, state);
+    const next = new Map(env);
+    next.set(te.name, value);
+    const body = analyzeExpr(te.body, next, state);
+    if (!isFloatType(te.typ)) return body;
+    const interval = freshExprInterval(te, state);
+    if (body.interval) addEqualIntervals(state, te, interval, body.interval, "let body result");
+    return floatValue(interval);
+  }
+  function lamExpr(te, env, state) {
+    const fn = functionValue(`lambda@${position(te)}`, freshSummaryInterval(te, state, "lambda argument"), freshSummaryInterval(te, state, "lambda result"));
+    const next = new Map(env).set(te.param, floatValue(fn.argInterval));
+    analyzeExpr(te.body, next, state);
+    return fn;
+  }
+  function recExpr(te, env, state) {
+    const fn = functionValue(te.name, freshSummaryInterval(te, state, `${te.name} argument`), freshSummaryInterval(te, state, `${te.name} result`));
+    const next = new Map(env).set(te.name, fn).set(te.param, floatValue(fn.argInterval));
+    const body = analyzeExpr(te.body, next, state);
+    if (body.interval) {
+      addSubsetConstraint(state, te, body.interval, fn.resultInterval, {
+        kind: "recursive-summary",
+        label: "recursive result invariant",
+        reason: `recursive summary for ${te.name} must contain every body result`
+      });
+    }
+    return fn;
+  }
+  function appExpr(te, env, state) {
+    const fn = analyzeExpr(te.fn, env, state);
+    const arg = analyzeExpr(te.arg, env, state);
+    if (!isFloatType(te.typ)) return scalarValue(zonk(te.typ)?.tag ?? "Unknown");
+    const interval = freshExprInterval(te, state);
+    if (fn.kind === "Function") {
+      if (arg.interval) {
+        addSubsetConstraint(state, te.arg, arg.interval, fn.argInterval, {
+          kind: "function-argument",
+          label: "function argument",
+          reason: `argument interval must fit the summary domain of ${fn.name}`
+        });
+      }
+      addEqualIntervals(state, te, interval, fn.resultInterval, `function result of ${fn.name}`);
+    }
+    return floatValue(interval);
+  }
+  function unaryFloatExpr(te, env, state, label, transfer) {
+    const value = analyzeExpr(te.expr, env, state);
+    const interval = freshExprInterval(te, state);
+    if (value.interval) addContainsTerm(state, te, interval, transfer(value.interval), label, [value.interval.id]);
+    return floatValue(interval);
+  }
+  function binaryFloatExpr(te, env, state, label, transfer) {
+    const left = analyzeExpr(te.left, env, state);
+    const right = analyzeExpr(te.right, env, state);
+    const interval = freshExprInterval(te, state);
+    if (left.interval && right.interval) addContainsTerm(state, te, interval, transfer(left.interval, right.interval), label, [left.interval.id, right.interval.id]);
+    return floatValue(interval);
+  }
+  function mulExpr(te, env, state) {
+    const left = analyzeExpr(te.left, env, state);
+    const right = analyzeExpr(te.right, env, state);
+    const interval = freshExprInterval(te, state);
+    if (!left.interval || !right.interval) return floatValue(interval);
+    const leftConst = singletonConstant(left.interval);
+    const rightConst = singletonConstant(right.interval);
+    if (leftConst != null) {
+      addContainsTerm(state, te, interval, scaleTermInterval(right.interval, leftConst), "constant-left multiplication", [left.interval.id, right.interval.id]);
+    } else if (rightConst != null) {
+      addContainsTerm(state, te, interval, scaleTermInterval(left.interval, rightConst), "constant-right multiplication", [left.interval.id, right.interval.id]);
+    } else {
+      addContainsTerm(state, te, interval, termInterval(NEG_INF2, INF2), "nonlinear multiplication", [left.interval.id, right.interval.id]);
+    }
+    return floatValue(interval);
+  }
+  function divExpr(te, env, state) {
+    const left = analyzeExpr(te.left, env, state);
+    const right = analyzeExpr(te.right, env, state);
+    const interval = freshExprInterval(te, state);
+    if (right.interval) {
+      addConstraint(state, te.right, {
+        kind: "domain",
+        label: "division denominator",
+        assertion: `0 notin ${right.interval.id}`,
+        endpointAssertions: [`${right.interval.upper} < 0 OR 0 < ${right.interval.lower}`],
+        intervalIds: [right.interval.id],
+        reason: "division denominator must be nonzero"
+      });
+    }
+    const rightConst = right.interval ? singletonConstant(right.interval) : null;
+    if (left.interval && rightConst != null && rightConst !== 0) {
+      addContainsTerm(state, te, interval, scaleTermInterval(left.interval, 1 / rightConst), "constant-denominator division", [left.interval.id, right.interval.id]);
+    } else if (left.interval && right.interval) {
+      addContainsTerm(state, te, interval, termInterval(NEG_INF2, INF2), "division with non-singleton denominator", [left.interval.id, right.interval.id]);
+    }
+    return floatValue(interval);
+  }
+  function ifExpr(te, env, state) {
+    analyzeExpr(te.cond, env, state);
+    const thenValue = analyzeExpr(te.thenBranch, env, state);
+    const elseValue = analyzeExpr(te.elseBranch, env, state);
+    if (!isFloatType(te.typ)) return thenValue ?? elseValue ?? scalarValue("Unknown");
+    const interval = freshExprInterval(te, state);
+    if (thenValue.interval) addSubsetConstraint(state, te.thenBranch, thenValue.interval, interval, { kind: "join", label: "then branch", reason: "if interval contains every then-branch result" });
+    if (elseValue.interval) addSubsetConstraint(state, te.elseBranch, elseValue.interval, interval, { kind: "join", label: "else branch", reason: "if interval contains every else-branch result" });
+    return floatValue(interval);
+  }
+  function projectExpr(te, env, state, side) {
+    const value = analyzeExpr(te.expr, env, state);
+    return value.kind === "Pair" ? value[side] : unknownValue(te, state, `${te.kind.toLowerCase()} projection`);
+  }
+  function caseExpr(te, env, state) {
+    analyzeExpr(te.scrutinee, env, state);
+    const leftEnv = new Map(env).set(te.leftName, freshSummaryFloat(te.left, state, `case ${te.leftName}`));
+    const rightEnv = new Map(env).set(te.rightName, freshSummaryFloat(te.right, state, `case ${te.rightName}`));
+    const left = analyzeExpr(te.left, leftEnv, state);
+    const right = analyzeExpr(te.right, rightEnv, state);
+    if (!isFloatType(te.typ)) return left ?? right ?? scalarValue("Unknown");
+    const interval = freshExprInterval(te, state);
+    if (left.interval) addSubsetConstraint(state, te.left, left.interval, interval, { kind: "join", label: "left case", reason: "case interval contains every left-branch result" });
+    if (right.interval) addSubsetConstraint(state, te.right, right.interval, interval, { kind: "join", label: "right case", reason: "case interval contains every right-branch result" });
+    return floatValue(interval);
+  }
+  function consExpr(te, env, state) {
+    const head = analyzeExpr(te.head, env, state);
+    const tail = analyzeExpr(te.tail, env, state);
+    const elem = freshSummaryInterval(te, state, "list element");
+    if (head.interval) addSubsetConstraint(state, te.head, head.interval, elem, { kind: "list", label: "list head", reason: "list element interval contains the cons head" });
+    if (tail.elem?.interval) addSubsetConstraint(state, te.tail, tail.elem.interval, elem, { kind: "list", label: "list tail", reason: "list element interval contains the tail element interval" });
+    return { kind: "List", elem: floatValue(elem) };
+  }
+  function matchListExpr(te, env, state) {
+    const scrutinee = analyzeExpr(te.scrutinee, env, state);
+    const nilBranch = analyzeExpr(te.nilBranch, env, state);
+    const consReachable = scrutinee.elem?.kind !== "Bottom";
+    const elem = consReachable ? scrutinee.elem ?? freshSummaryFloat(te.scrutinee, state, "matched list element") : bottomValue();
+    const consEnv = new Map(env).set(te.headName, elem).set(te.tailName, { kind: "List", elem });
+    const consBranch = consReachable ? analyzeExpr(te.consBranch, consEnv, state) : null;
+    if (!isFloatType(te.typ)) return nilBranch ?? consBranch ?? scalarValue("Unknown");
+    const interval = freshExprInterval(te, state);
+    if (nilBranch.interval) addSubsetConstraint(state, te.nilBranch, nilBranch.interval, interval, { kind: "join", label: "nil branch", reason: "list match interval contains every nil-branch result" });
+    if (consBranch?.interval) addSubsetConstraint(state, te.consBranch, consBranch.interval, interval, { kind: "join", label: "cons branch", reason: "list match interval contains every cons-branch result" });
+    return floatValue(interval);
+  }
+  function distributionExpr(te, env, state) {
+    if (te.kind === "Discrete") return discreteExpr(te, env, state);
+    const argValues = distributionArgs(te).map((arg) => analyzeExpr(arg, env, state));
+    const argIntervals = argValues.map((arg, index) => arg.interval ?? freshSummaryInterval(te, state, `${te.kind.toLowerCase()} arg ${index + 1}`));
+    const mode = distributionMode(te);
+    addDistributionDomainConstraints(te, argIntervals, mode, state);
+    if (te.kind === "Flip") return scalarValue("Bool");
+    const interval = freshExprInterval(te, state);
+    addContainsTerm(state, te, interval, distributionRange(te.kind, argIntervals), `${te.kind.toLowerCase()} result range`, argIntervals.map((arg) => arg.id), { mode });
+    return floatValue(interval);
+  }
+  function discreteExpr(te, env, state) {
+    const mode = distributionMode(te);
+    const interval = freshExprInterval(te, state);
+    const totalProbability = te.choices.reduce((sum, choice) => sum + choice.probability, 0);
+    for (const [index, choice] of te.choices.entries()) {
+      const probability = formatNumber2(choice.probability);
+      addConstraint(state, te, {
+        kind: "domain",
+        mode,
+        label: `discrete probability ${index}`,
+        assertion: `${probability} in [0, 1]`,
+        endpointAssertions: [`0 <= ${probability}`, `${probability} <= 1`],
+        intervalIds: [interval.id],
+        reason: "discrete probabilities must be between zero and one"
+      });
+      const value = analyzeExpr(choice.value, env, state);
+      if (value.interval) addSubsetConstraint(state, choice.value, value.interval, interval, {
+        kind: "choice",
+        label: `discrete choice ${index}`,
+        reason: "discrete result interval contains every choice value"
+      });
+    }
+    const total = formatNumber2(totalProbability);
+    addConstraint(state, te, {
+      kind: "domain",
+      mode,
+      label: "discrete probability sum",
+      assertion: "probabilities sum to 1",
+      endpointAssertions: [`${total} <= 1`, `1 <= ${total}`],
+      intervalIds: [interval.id],
+      reason: "discrete probabilities must form a distribution"
+    });
+    return floatValue(interval);
+  }
+  function addDistributionDomainConstraints(te, args, mode, state) {
+    const base2 = {
+      kind: "domain",
+      mode,
+      label: te.kind,
+      reason: `${te.kind.toLowerCase()} domain restriction`
+    };
+    const lowerAtLeast = (index, bound, label) => addConstraint(state, te, {
+      ...base2,
+      assertion: `${bound} <= lower(${label})`,
+      endpointAssertions: [`${bound} <= ${args[index].lower}`],
+      intervalIds: [args[index].id]
+    });
+    const lowerGreater = (index, bound, label) => addConstraint(state, te, {
+      ...base2,
+      assertion: `${bound} < lower(${label})`,
+      endpointAssertions: [`${bound} < ${args[index].lower}`],
+      intervalIds: [args[index].id]
+    });
+    const upperAtMost = (index, bound, label) => addConstraint(state, te, {
+      ...base2,
+      assertion: `upper(${label}) <= ${bound}`,
+      endpointAssertions: [`${args[index].upper} <= ${bound}`],
+      intervalIds: [args[index].id]
+    });
+    switch (te.kind) {
+      case "Uniform":
+        addConstraint(state, te, {
+          ...base2,
+          assertion: `upper(lower-bound) <= lower(upper-bound)`,
+          endpointAssertions: [`${args[0].upper} <= ${args[1].lower}`],
+          intervalIds: [args[0].id, args[1].id],
+          reason: "uniform lower bound must be <= upper bound for every execution"
+        });
+        break;
+      case "Gauss":
+        lowerAtLeast(1, "0", "variance");
+        break;
+      case "Exponential":
+        lowerGreater(0, "0", "rate");
+        break;
+      case "Gamma":
+        lowerGreater(0, "0", "shape");
+        lowerGreater(1, "0", "rate");
+        break;
+      case "Beta":
+        lowerGreater(0, "0", "alpha");
+        lowerGreater(1, "0", "beta");
+        break;
+      case "Flip":
+      case "Bernoulli":
+        lowerAtLeast(0, "0", "probability");
+        upperAtMost(0, "1", "probability");
+        break;
+      case "Poisson":
+        lowerAtLeast(0, "0", "lambda");
+        break;
+      case "Discrete":
+        for (let i = 0; i < args.length; i++) {
+          lowerAtLeast(i, "0", `p${i}`);
+          upperAtMost(i, "1", `p${i}`);
+        }
+        addConstraint(state, te, {
+          ...base2,
+          assertion: "probabilities sum to 1",
+          endpointAssertions: [args.map((arg) => `${arg.lower}..${arg.upper}`).join(" + ") + " sums to 1"],
+          intervalIds: args.map((arg) => arg.id),
+          reason: "discrete probabilities must form a distribution"
+        });
+        break;
+    }
+  }
+  function distributionRange(kind, args) {
+    switch (kind) {
+      case "Uniform":
+        return termInterval(args[0].lower, args[1].upper);
+      case "Gauss":
+        return termInterval(NEG_INF2, INF2);
+      case "Exponential":
+      case "Gamma":
+      case "Poisson":
+        return termInterval("0", INF2);
+      case "Beta":
+      case "Bernoulli":
+        return termInterval("0", "1");
+      case "Discrete":
+        return termInterval("0", String(Math.max(0, args.length - 1)));
+      default:
+        return termInterval(NEG_INF2, INF2);
+    }
+  }
+  function addEqualIntervals(state, te, left, right, label) {
+    addConstraint(state, te, {
+      kind: "equality",
+      label,
+      assertion: `${left.id} = ${right.id}`,
+      endpointAssertions: [`${left.lower} = ${right.lower}`, `${left.upper} = ${right.upper}`],
+      intervalIds: [left.id, right.id],
+      reason: "the expression has exactly the bound interval"
+    });
+  }
+  function addSubsetConstraint(state, te, sourceInterval, targetInterval, extra) {
+    addConstraint(state, te, {
+      ...extra,
+      assertion: `${sourceInterval.id} subset ${targetInterval.id}`,
+      endpointAssertions: [`${targetInterval.lower} <= ${sourceInterval.lower}`, `${sourceInterval.upper} <= ${targetInterval.upper}`],
+      intervalIds: [sourceInterval.id, targetInterval.id]
+    });
+  }
+  function addContainsTerm(state, te, target, term, label, intervalIds = [], extra = {}) {
+    addConstraint(state, te, {
+      kind: "definition",
+      label,
+      assertion: `${target.id} contains [${term.lower}, ${term.upper}]`,
+      endpointAssertions: [`${target.lower} <= ${term.lower}`, `${term.upper} <= ${target.upper}`],
+      intervalIds: [target.id, ...intervalIds],
+      reason: "the expression interval overapproximates the interval operation",
+      ...extra
+    });
+  }
+  function addConstraint(state, te, constraint) {
+    const id = `C${state.nextConstraint++}`;
+    state.constraints.push({
+      id,
+      status: "pending",
+      from: te?.from,
+      to: te?.to,
+      sourceText: sliceSource(state.source, te),
+      requirement: constraint.assertion,
+      endpointVars: endpointVarsOf(constraint.endpointAssertions ?? []),
+      ...constraint
+    });
+  }
+  function freshExprInterval(te, state) {
+    const interval = freshInterval(state, {
+      from: te.from,
+      to: te.to,
+      kind: te.kind,
+      role: "expression",
+      type: formatType(te.typ),
+      sourceText: sliceSource(state.source, te)
+    });
+    state.expressions.push({
+      from: te.from,
+      to: te.to,
+      kind: te.kind,
+      type: formatType(te.typ),
+      interval,
+      intervalText: interval.id,
+      typeWithInterval: formatIntervalType(te.typ, interval),
+      sourceText: sliceSource(state.source, te)
+    });
+    return interval;
+  }
+  function freshSummaryInterval(te, state, role) {
+    return freshInterval(state, {
+      from: te?.from,
+      to: te?.to,
+      kind: "Summary",
+      role,
+      type: "",
+      sourceText: sliceSource(state.source, te)
+    });
+  }
+  function freshSummaryFloat(te, state, role) {
+    return floatValue(freshSummaryInterval(te, state, role));
+  }
+  function freshInterval(state, meta2) {
+    const id = `I${state.nextInterval++}`;
+    const interval = { id, lower: `${id}.lo`, upper: `${id}.hi` };
+    state.intervalVars.push({ ...interval, ...meta2 });
+    state.endpointVars.push({ id: interval.lower, interval: id, bound: "lower" }, { id: interval.upper, interval: id, bound: "upper" });
+    addConstraint(state, meta2, {
+      kind: "wellformed",
+      label: "interval well-formedness",
+      assertion: `${id}.lo <= ${id}.hi`,
+      endpointAssertions: [`${interval.lower} <= ${interval.upper}`],
+      intervalIds: [id],
+      reason: "every interval variable has ordered endpoints"
+    });
+    return interval;
+  }
+  function unknownValue(te, state, role) {
+    return isFloatType(te.typ) ? floatValue(freshSummaryInterval(te, state, role)) : scalarValue(zonk(te.typ)?.tag ?? "Unknown");
+  }
+  function scalarValue(kind) {
+    return { kind };
+  }
+  function bottomValue() {
+    return { kind: "Bottom" };
+  }
+  function floatValue(interval) {
+    return { kind: "Float", interval };
+  }
+  function functionValue(name2, argInterval, resultInterval) {
+    return { kind: "Function", name: name2, argInterval, resultInterval };
+  }
+  function cloneValue(value) {
+    if (!value) return value;
+    return { ...value };
+  }
+  function termInterval(lower, upper) {
+    return { lower, upper };
+  }
+  function scaleTermInterval(value, scale) {
+    if (scale === 0) return termInterval("0", "0");
+    const lo = scaleBound(value.lower, scale);
+    const hi = scaleBound(value.upper, scale);
+    return scale > 0 ? termInterval(lo, hi) : termInterval(hi, lo);
+  }
+  function singletonConstant(interval) {
+    if (Number.isFinite(interval.singleton)) return interval.singleton;
+    const lower = Number(interval.lower);
+    const upper = Number(interval.upper);
+    if (!Number.isFinite(lower) || !Number.isFinite(upper) || lower !== upper) return null;
+    return lower;
+  }
+  function scaleBound(value, scale) {
+    if (value === INF2) return scale > 0 ? INF2 : NEG_INF2;
+    if (value === NEG_INF2) return scale > 0 ? NEG_INF2 : INF2;
+    return `${formatNumber2(scale)} * ${value}`;
+  }
+  function distributionArgs(te) {
+    if (te.kind === "Discrete") return te.choices.map((choice) => choice.value);
+    return te.args ?? [];
+  }
+  function distributionMode(te) {
+    const ty = zonk(te.typ);
+    return te.mode ?? (ty.tag === "Float" ? ty.mode.mode : void 0);
+  }
+  function isFloatType(type) {
+    return zonk(type)?.tag === "Float";
+  }
+  function endpointVarsOf(assertions) {
+    const vars = /* @__PURE__ */ new Set();
+    for (const assertion of assertions) {
+      for (const match of String(assertion).matchAll(/\bI\d+\.(?:lo|hi)\b/g)) vars.add(match[0]);
+    }
+    return [...vars];
+  }
+  function summarizeConstraints(constraints) {
+    const byKind = /* @__PURE__ */ new Map();
+    for (const constraint of constraints) byKind.set(constraint.kind, (byKind.get(constraint.kind) ?? 0) + 1);
+    return {
+      total: constraints.length,
+      byKind: Object.fromEntries(byKind.entries())
+    };
+  }
+  function bySpan(a, b) {
+    return (a.from ?? 0) - (b.from ?? 0) || (a.to ?? 0) - (b.to ?? 0);
+  }
+  function position(te) {
+    return `${te.from ?? "?"}-${te.to ?? "?"}`;
+  }
+  function sliceSource(source, te) {
+    if (!source || te?.from == null || te?.to == null || te.to < te.from) return "";
+    const text = source.slice(te.from, te.to);
+    if (text.length <= 80) return text;
+    return `${text.slice(0, 77)}...`;
+  }
+  function formatNumber2(value) {
+    if (Object.is(value, -0)) return "0";
+    return Number.isInteger(value) ? String(value) : String(value);
   }
 
   // src/compiler/lexer.js
@@ -19335,7 +20569,7 @@ sampled normally`;
         i += 2;
         continue;
       }
-      const num = source.slice(i).match(/^[0-9]+(?:\.[0-9]*)?(?:[eE][+-]?[0-9]+)?/);
+      const num = source.slice(i).match(/^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?/);
       if (num) {
         const text = num[0];
         push("FLOAT", Number(text), i, i + text.length);
@@ -19655,7 +20889,7 @@ sampled normally`;
         return node("Pair", { left: first, right: second }, start, end);
       }
       this.take("RPAREN");
-      return { ...first, from: start, to: this.tokens[this.pos - 1].to };
+      return first;
     }
     parseUnaryKeyword() {
       const keyword3 = this.current();
@@ -19711,6 +20945,818 @@ sampled normally`;
     return new Parser2(source).parseMain();
   }
 
+  // src/compiler/subtypeCheck.js
+  var FLOAT_DISTS2 = /* @__PURE__ */ new Set(["Uniform", "Gauss", "Exponential", "Gamma", "Beta", "Bernoulli", "Poisson", "Discrete"]);
+  var ALL_DISTS2 = /* @__PURE__ */ new Set([...FLOAT_DISTS2, "Flip"]);
+  function checkSubtyping(ast, source = "", options = {}) {
+    const state = {
+      source,
+      forcedG: options.forcedG ?? /* @__PURE__ */ new Set(),
+      nextType: 1,
+      nextMode: 1,
+      nextInterval: 1,
+      nextConstraint: 1,
+      nextEndpoint: 1,
+      typeVars: [],
+      modeVars: [],
+      intervalVars: [],
+      initialConstraints: [],
+      worklist: [],
+      solverSteps: [],
+      endpointConstraints: [],
+      modeConstraints: [],
+      expressionTypes: [],
+      errors: []
+    };
+    const result = infer2(ast, /* @__PURE__ */ new Map(), state);
+    solveSubtypeConstraints(state);
+    forceExpressionSitesToG(state);
+    solveModeConstraints(state, { defaultUnsolved: options.defaultModes !== false });
+    return {
+      ok: state.errors.length === 0,
+      resultType: formatType2(result),
+      typeVars: state.typeVars,
+      modeVars: state.modeVars,
+      intervalVars: state.intervalVars,
+      initialConstraints: state.initialConstraints.filter((constraint) => !constraint.generated),
+      subtypeConstraints: state.initialConstraints,
+      solverSteps: state.solverSteps,
+      endpointConstraints: state.endpointConstraints,
+      modeConstraints: state.modeConstraints,
+      expressionTypes: state.expressionTypes,
+      spans: collectSubtypingSpans(state),
+      errors: state.errors
+    };
+  }
+  function infer2(expr, env, state) {
+    const type = inferInner(expr, env, state);
+    state.expressionTypes.push({
+      kind: expr.kind,
+      type,
+      from: expr.from,
+      to: expr.to,
+      sourceText: sliceSource2(state.source, expr)
+    });
+    return type;
+  }
+  function inferInner(expr, env, state) {
+    switch (expr.kind) {
+      case "Var":
+        if (!env.has(expr.name)) {
+          state.errors.push({ message: `unbound variable \`${expr.name}\``, from: expr.from, to: expr.to });
+          return freshTypeVar(state, expr, `unbound ${expr.name}`);
+        }
+        return env.get(expr.name);
+      case "Const": {
+        const ty = floatType(freshMode(state, expr), freshInterval2(state, expr, "constant"));
+        const value = formatNumber3(expr.value);
+        addEndpoint(state, expr, `${ty.interval.lower} = ${value}`, "constant lower endpoint", [ty.interval.id]);
+        addEndpoint(state, expr, `${ty.interval.upper} = ${value}`, "constant upper endpoint", [ty.interval.id]);
+        return ty;
+      }
+      case "Bool":
+        return { kind: "Bool" };
+      case "Unit":
+        return { kind: "Unit" };
+      case "Let": {
+        const valueTy = infer2(expr.value, env, state);
+        return infer2(expr.body, new Map(env).set(expr.name, valueTy), state);
+      }
+      case "Lam": {
+        const arg = freshTypeVar(state, expr, `${expr.param} argument`);
+        const body = infer2(expr.body, new Map(env).set(expr.param, arg), state);
+        return { kind: "Arrow", arg, result: body };
+      }
+      case "Rec": {
+        const arg = freshTypeVar(state, expr, `${expr.name} argument`);
+        const result = freshTypeVar(state, expr, `${expr.name} result`);
+        const fn = { kind: "Arrow", arg, result };
+        const next = new Map(env).set(expr.name, fn).set(expr.param, arg);
+        const body = infer2(expr.body, next, state);
+        addSubtype(state, expr.body, body, result, "recursive function body");
+        return fn;
+      }
+      case "App": {
+        const fn = infer2(expr.fn, env, state);
+        const arg = infer2(expr.arg, env, state);
+        const expectedArg = freshTypeVar(state, expr.arg, "application argument");
+        const result = freshTypeVar(state, expr, "application result");
+        addSubtype(state, expr.fn, fn, { kind: "Arrow", arg: expectedArg, result }, "function position");
+        addSubtype(state, expr.arg, arg, expectedArg, "argument position");
+        return result;
+      }
+      case "Pair":
+        return { kind: "Pair", left: infer2(expr.left, env, state), right: infer2(expr.right, env, state) };
+      case "Fst": {
+        const value = infer2(expr.expr, env, state);
+        const left = freshTypeVar(state, expr, "fst component");
+        const right = freshTypeVar(state, expr, "fst discarded component");
+        addSubtype(state, expr.expr, value, { kind: "Pair", left, right }, "fst input");
+        return left;
+      }
+      case "Snd": {
+        const value = infer2(expr.expr, env, state);
+        const left = freshTypeVar(state, expr, "snd discarded component");
+        const right = freshTypeVar(state, expr, "snd component");
+        addSubtype(state, expr.expr, value, { kind: "Pair", left, right }, "snd input");
+        return right;
+      }
+      case "Inl": {
+        const left = infer2(expr.expr, env, state);
+        return { kind: "Sum", left, right: bottomType() };
+      }
+      case "Inr": {
+        const right = infer2(expr.expr, env, state);
+        return { kind: "Sum", left: bottomType(), right };
+      }
+      case "Case": {
+        const left = freshTypeVar(state, expr, "case left input");
+        const right = freshTypeVar(state, expr, "case right input");
+        const scrutinee = infer2(expr.scrutinee, env, state);
+        addSubtype(state, expr.scrutinee, scrutinee, { kind: "Sum", left, right }, "case scrutinee");
+        const result = freshTypeVar(state, expr, "case result");
+        addSubtype(state, expr.left, infer2(expr.left, new Map(env).set(expr.leftName, left), state), result, "left case branch");
+        addSubtype(state, expr.right, infer2(expr.right, new Map(env).set(expr.rightName, right), state), result, "right case branch");
+        return result;
+      }
+      case "Nil":
+        return { kind: "List", elem: bottomType() };
+      case "Cons": {
+        const head = infer2(expr.head, env, state);
+        const tail = infer2(expr.tail, env, state);
+        const elem = freshTypeVar(state, expr, "list element");
+        addSubtype(state, expr.head, head, elem, "list head");
+        addSubtype(state, expr.tail, tail, { kind: "List", elem }, "list tail");
+        return { kind: "List", elem };
+      }
+      case "MatchList": {
+        const elem = freshTypeVar(state, expr, "matched list element");
+        const scrutinee = infer2(expr.scrutinee, env, state);
+        addSubtype(state, expr.scrutinee, scrutinee, { kind: "List", elem }, "list match scrutinee");
+        const result = freshTypeVar(state, expr, "list match result");
+        addSubtype(state, expr.nilBranch, infer2(expr.nilBranch, env, state), result, "nil branch");
+        const consEnv = new Map(env).set(expr.headName, elem).set(expr.tailName, { kind: "List", elem });
+        addSubtype(state, expr.consBranch, infer2(expr.consBranch, consEnv, state), result, "cons branch");
+        return result;
+      }
+      case "If": {
+        const cond = infer2(expr.cond, env, state);
+        addSubtype(state, expr.cond, cond, { kind: "Bool" }, "if condition");
+        const result = freshTypeVar(state, expr, "if result");
+        addSubtype(state, expr.thenBranch, infer2(expr.thenBranch, env, state), result, "then branch");
+        addSubtype(state, expr.elseBranch, infer2(expr.elseBranch, env, state), result, "else branch");
+        return result;
+      }
+      case "Neg":
+        return unaryFloat(expr, env, state, "negation", (arg, result) => [
+          `${result.lower} <= -(${arg.upper})`,
+          `-(${arg.lower}) <= ${result.upper}`
+        ]);
+      case "Add":
+        return binaryFloat(expr, env, state, "addition", (left, right, result) => [
+          `${result.lower} <= (${left.lower} + ${right.lower})`,
+          `(${left.upper} + ${right.upper}) <= ${result.upper}`
+        ]);
+      case "Sub":
+        return binaryFloat(expr, env, state, "subtraction", (left, right, result) => [
+          `${result.lower} <= (${left.lower} - ${right.upper})`,
+          `(${left.upper} - ${right.lower}) <= ${result.upper}`
+        ]);
+      case "Mul":
+        return mul(expr, env, state);
+      case "Div":
+        return div(expr, env, state);
+      case "Lt":
+      case "Leq": {
+        addSubtype(state, expr.left, infer2(expr.left, env, state), concreteFloat("G", state, expr.left, "comparison left"), "comparison left");
+        addSubtype(state, expr.right, infer2(expr.right, env, state), concreteFloat("G", state, expr.right, "comparison right"), "comparison right");
+        return { kind: "Bool" };
+      }
+      case "Observe":
+        addSubtype(state, expr.cond, infer2(expr.cond, env, state), { kind: "Bool" }, "observe condition");
+        return { kind: "Unit" };
+      default:
+        if (ALL_DISTS2.has(expr.kind)) return distribution(expr, env, state);
+        return freshTypeVar(state, expr, `unsupported ${expr.kind}`);
+    }
+  }
+  function unaryFloat(expr, env, state, label, endpointAssertions) {
+    const value = infer2(expr.expr, env, state);
+    const result = floatType(freshMode(state, expr), freshInterval2(state, expr, label));
+    const valueFloat = expectFloat(state, expr.expr, value, result.mode, label);
+    for (const assertion of endpointAssertions(valueFloat.interval, result.interval)) addEndpoint(state, expr, assertion, label, [result.interval.id]);
+    return result;
+  }
+  function binaryFloat(expr, env, state, label, endpointAssertions) {
+    const left = infer2(expr.left, env, state);
+    const right = infer2(expr.right, env, state);
+    const result = floatType(freshMode(state, expr), freshInterval2(state, expr, label));
+    const leftFloat = expectFloat(state, expr.left, left, result.mode, `${label} left`);
+    const rightFloat = expectFloat(state, expr.right, right, result.mode, `${label} right`);
+    for (const assertion of endpointAssertions(leftFloat.interval, rightFloat.interval, result.interval)) {
+      addEndpoint(state, expr, assertion, label, [result.interval.id]);
+    }
+    return result;
+  }
+  function mul(expr, env, state) {
+    const left = infer2(expr.left, env, state);
+    const right = infer2(expr.right, env, state);
+    const result = floatType(freshMode(state, expr), freshInterval2(state, expr, "multiplication"));
+    const leftFloat = expectFloat(state, expr.left, left, result.mode, "multiplication left");
+    const rightFloat = expectFloat(state, expr.right, right, modeConst("G"), "multiplication right");
+    const leftConstant = constValue(expr.left);
+    const rightConstant = constValue(expr.right);
+    if (rightConstant != null) {
+      addScaledInterval(state, expr, result.interval, leftFloat.interval, rightConstant, "constant-right multiplication");
+    } else if (leftConstant != null) {
+      addScaledInterval(state, expr, result.interval, rightFloat.interval, leftConstant, "constant-left multiplication");
+    } else {
+      addEndpoint(state, expr, `${result.interval.lower} <= -inf`, "nonlinear multiplication lower approximation", [result.interval.id]);
+      addEndpoint(state, expr, `+inf <= ${result.interval.upper}`, "nonlinear multiplication upper approximation", [result.interval.id]);
+    }
+    return result;
+  }
+  function addScaledInterval(state, expr, result, arg, constant, reason) {
+    const value = formatNumber3(constant);
+    if (constant >= 0) {
+      addEndpoint(state, expr, `${result.lower} <= (${value} * ${arg.lower})`, `${reason} lower`, [result.id, arg.id]);
+      addEndpoint(state, expr, `(${value} * ${arg.upper}) <= ${result.upper}`, `${reason} upper`, [result.id, arg.id]);
+    } else {
+      addEndpoint(state, expr, `${result.lower} <= (${value} * ${arg.upper})`, `${reason} lower`, [result.id, arg.id]);
+      addEndpoint(state, expr, `(${value} * ${arg.lower}) <= ${result.upper}`, `${reason} upper`, [result.id, arg.id]);
+    }
+  }
+  function constValue(expr) {
+    return expr?.kind === "Const" && Number.isFinite(expr.value) ? expr.value : null;
+  }
+  function div(expr, env, state) {
+    const left = infer2(expr.left, env, state);
+    const right = infer2(expr.right, env, state);
+    const result = floatType(freshMode(state, expr), freshInterval2(state, expr, "division"));
+    expectFloat(state, expr.left, left, result.mode, "division numerator");
+    const rightG = expectFloat(state, expr.right, right, modeConst("G"), "division denominator");
+    addEndpoint(state, expr.right, `${rightG.interval.upper} < 0 OR 0 < ${rightG.interval.lower}`, "division denominator excludes zero", [rightG.interval.id]);
+    addEndpoint(state, expr, `${result.interval.lower} <= -inf`, "division lower approximation", [result.interval.id]);
+    addEndpoint(state, expr, `+inf <= ${result.interval.upper}`, "division upper approximation", [result.interval.id]);
+    return result;
+  }
+  function distribution(expr, env, state) {
+    if (expr.kind === "Flip") {
+      if (expr.mode) state.errors.push({ message: "flip does not support E/G mode annotations", from: expr.from, to: expr.to });
+      const probability = expectFloat(state, expr.args[0], infer2(expr.args[0], env, state), modeConst("G"), "flip probability");
+      addProbabilityDomain(state, expr, probability, expr.args[0], probability.interval.id, "flip probability");
+      return { kind: "Bool" };
+    }
+    const mode = state.forcedG.has(siteKey2(expr)) ? modeConst("G") : expr.mode ? modeConst(expr.mode) : freshMode(state, expr);
+    const result = floatType(mode, freshInterval2(state, expr, `${expr.kind} result`));
+    if (expr.kind === "Discrete") {
+      const totalProbability = expr.choices.reduce((sum, choice) => sum + choice.probability, 0);
+      for (const [index, choice] of expr.choices.entries()) {
+        if (choice.probability < 0 || choice.probability > 1) {
+          state.errors.push({ message: "discrete probability must be in [0, 1]", from: expr.from, to: expr.to });
+        }
+        const probability = formatNumber3(choice.probability);
+        addEndpoint(state, expr, `0 <= ${probability}`, `discrete probability ${index} lower domain`, [result.interval.id]);
+        addEndpoint(state, expr, `${probability} <= 1`, `discrete probability ${index} upper domain`, [result.interval.id]);
+        const choiceType = infer2(choice.value, env, state);
+        addSubtype(state, choice.value, choiceType, result, `discrete choice ${index} value`);
+      }
+      const total = formatNumber3(totalProbability);
+      addEndpoint(state, expr, `${total} <= 1`, "discrete probability sum upper domain", [result.interval.id]);
+      addEndpoint(state, expr, `1 <= ${total}`, "discrete probability sum lower domain", [result.interval.id]);
+      return result;
+    }
+    const args = distributionArgs2(expr);
+    const argTypes = args.map((arg) => infer2(arg, env, state));
+    switch (expr.kind) {
+      case "Uniform":
+        {
+          const lower = expectFloat(state, args[0], argTypes[0], result.mode, "uniform lower bound");
+          const upper = expectFloat(state, args[1], argTypes[1], result.mode, "uniform upper bound");
+          addEndpoint(state, expr, `${lower.interval.upper} <= ${upper.interval.lower}`, "uniform domain", [result.interval.id]);
+          addEndpoint(state, expr, `${result.interval.lower} <= ${lower.interval.lower}`, "uniform result lower", [result.interval.id]);
+          addEndpoint(state, expr, `${upper.interval.upper} <= ${result.interval.upper}`, "uniform result upper", [result.interval.id]);
+        }
+        break;
+      case "Gauss":
+        expectFloat(state, args[0], argTypes[0], result.mode, "gauss mean");
+        {
+          const variance = expectFloat(state, args[1], argTypes[1], modeConst("G"), "gauss variance");
+          addEndpoint(state, expr, `0 <= ${variance.interval.lower}`, "gauss variance domain", [result.interval.id]);
+        }
+        addEndpoint(state, expr, `${result.interval.lower} <= -inf`, "gauss lower approximation", [result.interval.id]);
+        addEndpoint(state, expr, `+inf <= ${result.interval.upper}`, "gauss upper approximation", [result.interval.id]);
+        break;
+      case "Exponential":
+        {
+          const rate = expectFloat(state, args[0], argTypes[0], modeConst("G"), "exponential rate");
+          addEndpoint(state, expr, `0 < ${rate.interval.lower}`, "exponential rate domain", [result.interval.id]);
+        }
+        addPositiveRange(state, expr, result, "exponential result");
+        break;
+      case "Gamma":
+        {
+          const shape = expectFloat(state, args[0], argTypes[0], result.mode, "gamma shape");
+          const rate = expectFloat(state, args[1], argTypes[1], modeConst("G"), "gamma rate");
+          addEndpoint(state, expr, `0 < ${shape.interval.lower}`, "gamma shape domain", [result.interval.id]);
+          addEndpoint(state, expr, `0 < ${rate.interval.lower}`, "gamma rate domain", [result.interval.id]);
+        }
+        addPositiveRange(state, expr, result, "gamma result");
+        break;
+      case "Beta":
+        {
+          const alpha = expectFloat(state, args[0], argTypes[0], modeConst("G"), "beta alpha");
+          const beta = expectFloat(state, args[1], argTypes[1], modeConst("G"), "beta beta");
+          addEndpoint(state, expr, `0 < ${alpha.interval.lower}`, "beta alpha domain", [result.interval.id]);
+          addEndpoint(state, expr, `0 < ${beta.interval.lower}`, "beta beta domain", [result.interval.id]);
+        }
+        addUnitRange(state, expr, result, "beta result");
+        break;
+      case "Bernoulli":
+        {
+          const probability = expectFloat(state, args[0], argTypes[0], result.mode, "bernoulli probability");
+          addProbabilityDomain(state, expr, probability, args[0], result.interval.id, "bernoulli probability");
+        }
+        addUnitRange(state, expr, result, "bernoulli result");
+        break;
+      case "Poisson":
+        {
+          const lambda = expectFloat(state, args[0], argTypes[0], result.mode, "poisson lambda");
+          addEndpoint(state, expr, `0 <= ${lambda.interval.lower}`, "poisson lambda domain", [result.interval.id]);
+        }
+        addPositiveRange(state, expr, result, "poisson result");
+        break;
+    }
+    return result;
+  }
+  function solveSubtypeConstraints(state) {
+    let steps = 0;
+    while (state.worklist.length) {
+      steps += 1;
+      if (steps > 5e3 || state.initialConstraints.length > 5e3) {
+        const source = state.worklist[0]?.source;
+        state.errors.push({ message: "recursive types are not supported", from: source?.from, to: source?.to });
+        state.worklist.length = 0;
+        break;
+      }
+      const constraint = state.worklist.shift();
+      const lhs = prune(constraint.lhs);
+      const rhs = prune(constraint.rhs);
+      const text = `${formatType2(lhs)} <: ${formatType2(rhs)}`;
+      if (lhs === rhs || sameTypeVar(lhs, rhs)) {
+        addStep(state, constraint, "discharge reflexive constraint", text);
+      } else if (lhs.kind === "Bottom") {
+        addStep(state, constraint, "discharge bottom subtype", text);
+      } else if (lhs.kind === "TVar") {
+        if (occursIn(lhs, rhs)) {
+          state.errors.push({ message: "recursive types are not supported", from: constraint.from, to: constraint.to });
+          addStep(state, constraint, "error", text);
+          continue;
+        }
+        const value = skeletonLike(rhs, state, constraint.source);
+        lhs.value = value;
+        addStep(state, constraint, "instantiate subtype variable", `${lhs.id} := ${formatType2(value)}`);
+        addSubtype(state, constraint.source, value, rhs, constraint.reason, { generated: true });
+      } else if (rhs.kind === "TVar") {
+        if (occursIn(rhs, lhs)) {
+          state.errors.push({ message: "recursive types are not supported", from: constraint.from, to: constraint.to });
+          addStep(state, constraint, "error", text);
+          continue;
+        }
+        const value = skeletonLike(lhs, state, constraint.source);
+        rhs.value = value;
+        addStep(state, constraint, "instantiate supertype variable", `${rhs.id} := ${formatType2(value)}`);
+        addSubtype(state, constraint.source, lhs, value, constraint.reason, { generated: true });
+      } else if (lhs.kind === "Pair" && rhs.kind === "Pair") {
+        addGenerated(state, constraint, "decompose covariant pair", text, [
+          addSubtype(state, constraint.source, lhs.left, rhs.left, "pair left", { generated: true }),
+          addSubtype(state, constraint.source, lhs.right, rhs.right, "pair right", { generated: true })
+        ]);
+      } else if (lhs.kind === "Sum" && rhs.kind === "Sum") {
+        addGenerated(state, constraint, "decompose covariant sum", text, [
+          addSubtype(state, constraint.source, lhs.left, rhs.left, "sum left", { generated: true }),
+          addSubtype(state, constraint.source, lhs.right, rhs.right, "sum right", { generated: true })
+        ]);
+      } else if (lhs.kind === "List" && rhs.kind === "List") {
+        addGenerated(state, constraint, "decompose covariant list", text, [
+          addSubtype(state, constraint.source, lhs.elem, rhs.elem, "list element", { generated: true })
+        ]);
+      } else if (lhs.kind === "Arrow" && rhs.kind === "Arrow") {
+        addGenerated(state, constraint, "decompose function with contravariant argument", text, [
+          addSubtype(state, constraint.source, rhs.arg, lhs.arg, "function argument", { generated: true }),
+          addSubtype(state, constraint.source, lhs.result, rhs.result, "function result", { generated: true })
+        ]);
+      } else if (lhs.kind === "Float" && rhs.kind === "Float") {
+        addStep(state, constraint, "lower float subtyping to mode and interval constraints", text);
+        addModeConstraint(state, constraint.source, lhs.mode, rhs.mode, "float mode subtyping");
+        addEndpoint(state, constraint.source, `${rhs.interval.lower} <= ${lhs.interval.lower}`, "float interval lower inclusion", [lhs.interval.id, rhs.interval.id]);
+        addEndpoint(state, constraint.source, `${lhs.interval.upper} <= ${rhs.interval.upper}`, "float interval upper inclusion", [lhs.interval.id, rhs.interval.id]);
+      } else if (lhs.kind === rhs.kind && ["Unit", "Bool"].includes(lhs.kind)) {
+        addStep(state, constraint, "discharge primitive subtype", text);
+      } else {
+        state.errors.push({ message: `type mismatch: expected ${formatTypeForError2(rhs)}, found ${formatTypeForError2(lhs)}`, from: constraint.from, to: constraint.to });
+        addStep(state, constraint, "error", text);
+      }
+    }
+  }
+  function solveModeConstraints(state, options = {}) {
+    propagateModes(state);
+    if (options.defaultUnsolved !== false) {
+      for (const mode of state.modeVars) {
+        if (pruneMode(mode.ref).kind === "MVar" && !pruneMode(mode.ref).value) {
+          mode.ref.value = modeConst("E");
+        }
+      }
+      propagateModes(state);
+    }
+    for (const constraint of state.modeConstraints) {
+      const lhs = pruneMode(constraint.lhs);
+      const rhs = pruneMode(constraint.rhs);
+      constraint.assertion = `${formatMode(lhs)} <= ${formatMode(rhs)}`;
+      if (lhs.kind === "ModeConst" && rhs.kind === "ModeConst") {
+        if (lhs.value === "E" && rhs.value === "G") {
+          constraint.status = "error";
+          state.errors.push({ message: "mode mismatch: expected G-mode sample, found E-mode sample", from: constraint.from, to: constraint.to });
+        } else {
+          constraint.status = "solved";
+        }
+      } else if (lhs.kind === "ModeConst" && lhs.value === "E" && rhs.kind === "MVar") {
+        rhs.value = modeConst("E");
+        constraint.status = "solved";
+      } else if (rhs.kind === "ModeConst" && rhs.value === "G" && lhs.kind === "MVar") {
+        lhs.value = modeConst("G");
+        constraint.status = "solved";
+      } else {
+        constraint.status = "residual";
+      }
+    }
+    for (const constraint of state.modeConstraints) {
+      constraint.assertion = `${formatMode(pruneMode(constraint.lhs))} <= ${formatMode(pruneMode(constraint.rhs))}`;
+    }
+  }
+  function forceExpressionSitesToG(state) {
+    for (const entry of state.expressionTypes) {
+      if (!state.forcedG.has(siteKey2(entry))) continue;
+      const ty = prune(entry.type);
+      if (ty.kind === "Float") forceModeRefToG(ty.mode);
+    }
+    propagateModes(state);
+  }
+  function forceModeRefToG(mode) {
+    const ref = pruneMode(mode);
+    if (ref.kind === "MVar") ref.value = modeConst("G");
+  }
+  function propagateModes(state) {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const constraint of state.modeConstraints) {
+        const lhs = pruneMode(constraint.lhs);
+        const rhs = pruneMode(constraint.rhs);
+        if (lhs.kind === "ModeConst" && rhs.kind === "ModeConst") continue;
+        if (lhs.kind === "ModeConst" && lhs.value === "E" && rhs.kind === "MVar") {
+          rhs.value = modeConst("E");
+          changed = true;
+        } else if (rhs.kind === "ModeConst" && rhs.value === "G" && lhs.kind === "MVar") {
+          lhs.value = modeConst("G");
+          changed = true;
+        }
+      }
+    }
+  }
+  function skeletonLike(type, state, source) {
+    const ty = prune(type);
+    switch (ty.kind) {
+      case "Pair":
+        return { kind: "Pair", left: freshTypeVar(state, source, "pair left skeleton"), right: freshTypeVar(state, source, "pair right skeleton") };
+      case "Sum":
+        return { kind: "Sum", left: freshTypeVar(state, source, "sum left skeleton"), right: freshTypeVar(state, source, "sum right skeleton") };
+      case "List":
+        return { kind: "List", elem: freshTypeVar(state, source, "list element skeleton") };
+      case "Arrow":
+        return { kind: "Arrow", arg: freshTypeVar(state, source, "function arg skeleton"), result: freshTypeVar(state, source, "function result skeleton") };
+      case "Float":
+        return floatType(freshMode(state, source), freshInterval2(state, source, "float skeleton"));
+      case "Bottom":
+        return bottomType();
+      default:
+        return ty;
+    }
+  }
+  function addSubtype(state, source, lhs, rhs, reason, options = {}) {
+    const id = `S${state.nextConstraint++}`;
+    const constraint = {
+      id,
+      lhs,
+      rhs,
+      lhsText: formatType2(lhs),
+      rhsText: formatType2(rhs),
+      reason,
+      from: source?.from,
+      to: source?.to,
+      source,
+      sourceText: sliceSource2(state.source, source),
+      generated: Boolean(options.generated)
+    };
+    state.initialConstraints.push(constraint);
+    state.worklist.push(constraint);
+    return id;
+  }
+  function addEndpoint(state, source, assertion, reason, intervalIds = []) {
+    const id = `E${state.nextEndpoint++}`;
+    state.endpointConstraints.push({
+      id,
+      assertion,
+      reason,
+      intervalIds,
+      from: source?.from,
+      to: source?.to,
+      sourceText: sliceSource2(state.source, source)
+    });
+  }
+  function addModeConstraint(state, source, lhs, rhs, reason) {
+    const id = `M${state.modeConstraints.length + 1}`;
+    state.modeConstraints.push({
+      id,
+      lhs,
+      rhs,
+      assertion: `${formatMode(lhs)} <= ${formatMode(rhs)}`,
+      reason,
+      from: source?.from,
+      to: source?.to,
+      sourceText: sliceSource2(state.source, source),
+      status: "pending"
+    });
+  }
+  function expectFloat(state, source, actual, mode, role) {
+    const expected = floatType(mode, freshInterval2(state, source, role));
+    addSubtype(state, source, actual, expected, role);
+    return expected;
+  }
+  function addStep(state, constraint, action, constraintText) {
+    state.solverSteps.push({
+      id: `T${state.solverSteps.length + 1}`,
+      action,
+      constraintId: constraint.id,
+      constraintText,
+      generated: [],
+      from: constraint.from,
+      to: constraint.to,
+      sourceText: constraint.sourceText
+    });
+  }
+  function addGenerated(state, constraint, action, constraintText, generated) {
+    state.solverSteps.push({
+      id: `T${state.solverSteps.length + 1}`,
+      action,
+      constraintId: constraint.id,
+      constraintText,
+      generated,
+      from: constraint.from,
+      to: constraint.to,
+      sourceText: constraint.sourceText
+    });
+  }
+  function addPositiveRange(state, expr, result, reason) {
+    addEndpoint(state, expr, `${result.interval.lower} <= 0`, `${reason} lower bound`, [result.interval.id]);
+    addEndpoint(state, expr, `+inf <= ${result.interval.upper}`, `${reason} upper bound`, [result.interval.id]);
+  }
+  function addUnitRange(state, expr, result, reason) {
+    addEndpoint(state, expr, `${result.interval.lower} <= 0`, `${reason} lower bound`, [result.interval.id]);
+    addEndpoint(state, expr, `1 <= ${result.interval.upper}`, `${reason} upper bound`, [result.interval.id]);
+  }
+  function addProbabilityDomain(state, expr, type, source, resultIntervalId, reason) {
+    const interval = intervalOf(type, state, source);
+    addEndpoint(state, expr, `0 <= ${interval.lower}`, `${reason} lower domain`, [resultIntervalId, interval.id]);
+    addEndpoint(state, expr, `${interval.upper} <= 1`, `${reason} upper domain`, [resultIntervalId, interval.id]);
+  }
+  function concreteFloat(mode, state, source, role) {
+    return floatType(modeConst(mode), freshInterval2(state, source, role));
+  }
+  function floatType(mode, interval) {
+    return { kind: "Float", mode, interval };
+  }
+  function bottomType() {
+    return { kind: "Bottom" };
+  }
+  function freshTypeVar(state, source, role) {
+    const variable = { kind: "TVar", id: `?T${state.nextType++}`, value: null };
+    state.typeVars.push({ id: variable.id, role, from: source?.from, to: source?.to, sourceText: sliceSource2(state.source, source) });
+    return variable;
+  }
+  function freshMode(state, source) {
+    const variable = { kind: "MVar", id: `?M${state.nextMode++}`, value: null };
+    state.modeVars.push({ id: variable.id, ref: variable, from: source?.from, to: source?.to, sourceText: sliceSource2(state.source, source) });
+    return variable;
+  }
+  function freshInterval2(state, source, role) {
+    const id = `J${state.nextInterval++}`;
+    const interval = { id, lower: `${id}.lo`, upper: `${id}.hi` };
+    state.intervalVars.push({ ...interval, role, from: source?.from, to: source?.to, sourceText: sliceSource2(state.source, source) });
+    addEndpoint(state, source, `${interval.lower} <= ${interval.upper}`, "interval well-formedness", [id]);
+    return interval;
+  }
+  function intervalOf(type, state, source) {
+    const ty = prune(type);
+    if (ty.kind === "Float") return ty.interval;
+    return freshInterval2(state, source, "non-float coerced interval");
+  }
+  function prune(type) {
+    if (type?.kind !== "TVar" || !type.value) return type;
+    type.value = prune(type.value);
+    return type.value;
+  }
+  function pruneMode(mode) {
+    if (mode?.kind !== "MVar" || !mode.value) return mode;
+    mode.value = pruneMode(mode.value);
+    return mode.value;
+  }
+  function sameTypeVar(lhs, rhs) {
+    return lhs?.kind === "TVar" && rhs?.kind === "TVar" && lhs.id === rhs.id;
+  }
+  function occursIn(variable, type, seen = /* @__PURE__ */ new Set()) {
+    const ty = prune(type);
+    if (!ty || seen.has(ty)) return false;
+    if (sameTypeVar(variable, ty)) return true;
+    seen.add(ty);
+    switch (ty.kind) {
+      case "Pair":
+      case "Sum":
+        return occursIn(variable, ty.left, seen) || occursIn(variable, ty.right, seen);
+      case "List":
+        return occursIn(variable, ty.elem, seen);
+      case "Arrow":
+        return occursIn(variable, ty.arg, seen) || occursIn(variable, ty.result, seen);
+      case "Float":
+      case "Bottom":
+      case "Unit":
+      case "Bool":
+      case "TVar":
+      default:
+        return false;
+    }
+  }
+  function modeConst(value) {
+    return { kind: "ModeConst", value };
+  }
+  function siteKey2(source) {
+    return `${source?.from ?? ""}:${source?.to ?? ""}`;
+  }
+  function collectSubtypingSpans(report) {
+    const intervalById = new Map((report.intervalVars ?? []).map((interval) => [interval.id, interval]));
+    const spans = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const entry of report.expressionTypes ?? []) {
+      if (entry.from == null || entry.to == null || entry.to < entry.from) continue;
+      const type = formatType2(entry.type);
+      const z = prune(entry.type);
+      const mode = z.kind === "Float" ? formatMode(pruneMode(z.mode)) : void 0;
+      const interval = z.kind === "Float" ? intervalById.get(z.interval.id) : void 0;
+      const text = hoverText(entry, type, mode, interval);
+      const kind = FLOAT_DISTS2.has(entry.kind) || entry.kind === "Flip" ? "distribution" : entry.kind === "Var" ? "identifier" : "expr";
+      const key = `${entry.from}:${entry.to}:${type}:${kind}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      spans.push({
+        from: entry.from,
+        to: entry.to,
+        kind,
+        type,
+        mode,
+        interval: interval ? `${interval.id} = [${interval.lower}, ${interval.upper}]` : void 0,
+        refinedType: interval && z.kind === "Float" ? `${formatMode(pruneMode(z.mode))}, ${interval.id}` : void 0,
+        text
+      });
+    }
+    return spans.sort((a, b) => a.to - a.from - (b.to - b.from) || a.from - b.from);
+  }
+  function hoverText(entry, type, mode, interval) {
+    let text = `${entry.sourceText || entry.kind}: ${type}`;
+    if (interval) text += `
+interval: ${interval.id} = [${interval.lower}, ${interval.upper}]`;
+    if (mode === "E") text += "\ndeterminizes to its expectation";
+    if (mode === "G") text += "\nsampled normally";
+    return text;
+  }
+  function formatType2(type, prec2 = 0) {
+    const ty = prune(type);
+    switch (ty.kind) {
+      case "TVar":
+        return ty.id;
+      case "Unit":
+        return "unit";
+      case "Bool":
+        return "bool";
+      case "Bottom":
+        return "never";
+      case "Float":
+        return `float[${formatMode(ty.mode)}, ${ty.interval.id}]`;
+      case "Pair": {
+        const text = `${formatType2(ty.left, 2)} * ${formatType2(ty.right, 2)}`;
+        return prec2 > 2 ? `(${text})` : text;
+      }
+      case "Sum": {
+        const text = `${formatType2(ty.left, 2)} + ${formatType2(ty.right, 2)}`;
+        return prec2 > 2 ? `(${text})` : text;
+      }
+      case "List":
+        return `[${formatType2(ty.elem)}]`;
+      case "Arrow": {
+        const text = `${formatType2(ty.arg, 1)} -> ${formatType2(ty.result, 0)}`;
+        return prec2 > 1 ? `(${text})` : text;
+      }
+      default:
+        return ty?.kind ?? "?";
+    }
+  }
+  function formatTypeForError2(type, prec2 = 0) {
+    const ty = prune(type);
+    switch (ty.kind) {
+      case "TVar":
+        return "unknown";
+      case "Unit":
+        return "unit";
+      case "Bool":
+        return "bool";
+      case "Bottom":
+        return "never";
+      case "Float":
+        return "float";
+      case "Pair": {
+        const text = `${formatTypeForError2(ty.left, 2)} * ${formatTypeForError2(ty.right, 2)}`;
+        return prec2 > 2 ? `(${text})` : text;
+      }
+      case "Sum": {
+        const text = `${formatTypeForError2(ty.left, 2)} + ${formatTypeForError2(ty.right, 2)}`;
+        return prec2 > 2 ? `(${text})` : text;
+      }
+      case "List":
+        return `[${formatTypeForError2(ty.elem)}]`;
+      case "Arrow": {
+        const text = `${formatTypeForError2(ty.arg, 1)} -> ${formatTypeForError2(ty.result, 0)}`;
+        return prec2 > 1 ? `(${text})` : text;
+      }
+      default:
+        return ty?.kind ?? "unknown";
+    }
+  }
+  function formatMode(mode) {
+    const m = pruneMode(mode);
+    if (m.kind === "ModeConst") return m.value;
+    if (m.kind === "MVar") return m.id;
+    return "?";
+  }
+  function distributionArgs2(expr) {
+    if (expr.kind === "Discrete") return expr.choices.map((choice) => choice.value);
+    return expr.args ?? [];
+  }
+  function sliceSource2(source, expr) {
+    if (!source || expr?.from == null || expr?.to == null || expr.to < expr.from) return "";
+    const text = source.slice(expr.from, expr.to);
+    return text.length <= 80 ? text : `${text.slice(0, 77)}...`;
+  }
+  function formatNumber3(value) {
+    if (Object.is(value, -0)) return "0";
+    return Number.isInteger(value) ? String(value) : String(value);
+  }
+
+  // src/compiler/prepare.js
+  function prepareCheckedProgram(source, options = {}) {
+    const ast = parse(source);
+    const initialSubtyping = checkSubtyping(ast, source);
+    if (!initialSubtyping.ok) throwSubtypingError(initialSubtyping);
+    const safetyOptions = { maxInequalities: options.maxInequalities ?? 5e3 };
+    const initialSafety = computeDiscretizationSafety(initialSubtyping, safetyOptions);
+    const subtyping = checkSubtyping(ast, source, { forcedG: initialSafety.blockedSites });
+    if (!subtyping.ok) throwSubtypingError(subtyping);
+    const discretizationSafety = computeDiscretizationSafety(subtyping, safetyOptions);
+    discretizationSafety.blockedSites = initialSafety.blockedSites;
+    discretizationSafety.blockedDiscretizationSites = initialSafety.blockedSites;
+    discretizationSafety.modeBySite = modeBySite(subtyping.spans);
+    const typed2 = inferProgram(ast);
+    applyDistributionModes(typed2, discretizationSafety.modeBySite);
+    return {
+      ast,
+      typed: typed2,
+      initialSubtyping,
+      subtyping,
+      discretizationSafety
+    };
+  }
+  function modeBySite(spans) {
+    const modes = /* @__PURE__ */ new Map();
+    for (const span of spans ?? []) {
+      if (span.kind === "distribution" && (span.mode === "E" || span.mode === "G")) {
+        modes.set(siteKey(span), span.mode);
+      }
+    }
+    return modes;
+  }
+  function throwSubtypingError(report) {
+    const error = report.errors[0] ?? { message: "type error" };
+    throw new CompileError(error.message, error.from, error.to);
+  }
+
   // src/compiler/pretty.js
   var infix = {
     Lt: ["<", 1],
@@ -19738,7 +21784,7 @@ sampled normally`;
       case "Var":
         return expr.name;
       case "Const":
-        return formatNumber2(expr.value);
+        return formatNumber4(expr.value);
       case "SymFloat":
         return prettyAffine(expr.affine);
       case "Bool":
@@ -19802,7 +21848,7 @@ ${indent(prettyExpr(expr.consBranch))}`;
       case "Var":
         return withType(te.name, 6);
       case "Const":
-        return withType(formatNumber2(te.value), 6);
+        return withType(formatNumber4(te.value), 6);
       case "Bool":
         return withType(te.value ? "true" : "false", 6);
       case "Unit":
@@ -19865,7 +21911,7 @@ ${indent(prettyTyped(te.consBranch))}
   function prettyDistribution(expr) {
     const name2 = distNames[expr.kind];
     const mode = expr.mode ? `[${expr.mode}]` : "";
-    if (expr.kind === "Discrete") return `${name2}${mode}(${expr.choices.map((c) => formatNumber2(c.probability)).join(", ")})`;
+    if (expr.kind === "Discrete") return `${name2}${mode}(${expr.choices.map((c) => formatNumber4(c.probability)).join(", ")})`;
     return `${name2}${mode}(${expr.args.map((arg) => prettyExpr(arg)).join(", ")})`;
   }
   function prettyMean(expr) {
@@ -19878,7 +21924,7 @@ ${indent(prettyTyped(te.consBranch))}
     const derivedMode = ty.tag === "Float" ? ty.mode.mode : null;
     const mode = te.mode ?? derivedMode;
     const modeText = mode ? `[${mode}]` : "";
-    if (te.kind === "Discrete") return `${name2}${modeText}(${te.choices.map((c) => formatNumber2(c.probability)).join(", ")})`;
+    if (te.kind === "Discrete") return `${name2}${modeText}(${te.choices.map((c) => formatNumber4(c.probability)).join(", ")})`;
     return `${name2}${modeText}(${te.args.map((arg) => prettyTyped(arg)).join(", ")})`;
   }
   function leftOf(expr) {
@@ -19921,24 +21967,24 @@ ${indent(elseBranch)}`;
   function indent(text) {
     return text.split("\n").map((line) => line ? `  ${line}` : line).join("\n");
   }
-  function formatNumber2(value) {
+  function formatNumber4(value) {
     if (Object.is(value, -0)) return "0";
     return Number.isInteger(value) ? String(value) : String(value);
   }
   function domainErrorSummary(expr) {
-    const distribution = expr.distribution ? `${distNames[expr.distribution] ?? expr.distribution.toLowerCase()}: ` : "";
-    return `${distribution}${expr.reason ?? expr.message}`;
+    const distribution2 = expr.distribution ? `${distNames[expr.distribution] ?? expr.distribution.toLowerCase()}: ` : "";
+    return `${distribution2}${expr.reason ?? expr.message}`;
   }
   function prettyAffine(affine) {
     const terms = [];
     if (Math.abs(affine.constant ?? 0) > 1e-12 || Object.keys(affine.terms ?? {}).length === 0) {
-      terms.push(formatNumber2(affine.constant ?? 0));
+      terms.push(formatNumber4(affine.constant ?? 0));
     }
     for (const [name2, coeff] of Object.entries(affine.terms ?? {})) {
       if (Math.abs(coeff) <= 1e-12) continue;
       if (coeff === 1) terms.push(name2);
       else if (coeff === -1) terms.push(`-${name2}`);
-      else terms.push(`${formatNumber2(coeff)}*${name2}`);
+      else terms.push(`${formatNumber4(coeff)}*${name2}`);
     }
     return terms.join(" + ").replace(/\+ -/g, "- ");
   }
@@ -19946,14 +21992,14 @@ ${indent(elseBranch)}`;
   // src/compiler/analyze.js
   function analyze(source) {
     try {
-      const ast = parse(source);
-      const typedAstRaw = inferProgram(ast);
+      const { ast, typed: typedAstRaw, subtyping, discretizationSafety } = prepareCheckedProgram(source);
       const elaboratedRaw = prettyTyped(typedAstRaw);
       defaultModes(typedAstRaw);
       const elaboratedDefaulted = prettyTyped(typedAstRaw);
-      const determinizedAst = determinize(typedAstRaw);
+      const intervals = collectIntervalConstraints(typedAstRaw, source);
+      const determinizedAst = determinize(typedAstRaw, discretizationSafety);
       const determinized = prettyExpr(determinizedAst);
-      const spans = collectSpans(typedAstRaw).filter((span) => span.from != null && span.to != null && span.to >= span.from).sort((a, b) => a.to - a.from - (b.to - b.from));
+      const spans = displaySpans(subtyping.spans, discretizationSafety.rho);
       return {
         ok: true,
         ast,
@@ -19966,7 +22012,10 @@ ${indent(elseBranch)}`;
           elaboratedDefaulted,
           determinized
         },
-        spans
+        spans,
+        intervals,
+        subtyping,
+        discretizationSafety
       };
     } catch (error) {
       if (error instanceof CompileError) {
@@ -19974,6 +22023,54 @@ ${indent(elseBranch)}`;
       }
       return { ok: false, diagnostics: [{ message: error?.message ?? String(error) }] };
     }
+  }
+  function displaySpans(spans, rho) {
+    return spans.map((span) => ({
+      ...span,
+      type: displayType(span.type, rho),
+      text: displayHoverText(span.text, rho),
+      interval: displayInterval(span.interval, rho),
+      refinedType: displayRefinedType(span.refinedType, rho)
+    }));
+  }
+  function displayHoverText(text, rho) {
+    if (!text) return text;
+    return displayIntervals(displayType(text, rho), rho);
+  }
+  function displayType(type, rho) {
+    if (!type) return type;
+    return type.replace(/float\[([^,\]]+),\s*([A-Za-z]\w*)\]/g, (_match, mode, intervalId) => {
+      const solved = rho?.intervals?.[intervalId];
+      return solved ? `float[${mode}, ${formatSolvedInterval(solved)}]` : `float[${mode}, ${intervalId}]`;
+    });
+  }
+  function displayIntervals(text, rho) {
+    return text.replace(/interval:\s*([A-Za-z]\w*)\s*=\s*\[[^\]]+\]/g, (_match, intervalId) => {
+      const solved = rho?.intervals?.[intervalId];
+      return solved ? `interval: [${formatSolvedInterval(solved)}]` : `interval: ${intervalId}`;
+    });
+  }
+  function displayInterval(interval, rho) {
+    if (!interval) return interval;
+    const match = interval.match(/^([A-Za-z]\w*)\s*=/);
+    const solved = match ? rho?.intervals?.[match[1]] : null;
+    return solved ? `[${formatSolvedInterval(solved)}]` : interval;
+  }
+  function displayRefinedType(refinedType, rho) {
+    if (!refinedType) return refinedType;
+    const match = refinedType.match(/^([^,]+),\s*([A-Za-z]\w*)$/);
+    const solved = match ? rho?.intervals?.[match[2]] : null;
+    return solved ? `${match[1]}, ${formatSolvedInterval(solved)}` : refinedType;
+  }
+  function formatSolvedInterval(interval) {
+    return `${formatBound2(interval.lower)}, ${formatBound2(interval.upper)}`;
+  }
+  function formatBound2(bound) {
+    if (!bound) return "?";
+    if (bound.kind === "rational") return bound.value.toString();
+    if (bound.kind === "inf") return "+inf";
+    if (bound.kind === "-inf") return "-inf";
+    return bound.kind ?? "?";
   }
 
   // src/diagnostics.js
@@ -20096,7 +22193,7 @@ ${indent(elseBranch)}`;
     },
     {
       name: "Mixed residual randomness",
-      source: "let u = uniform(0, 1) in\nlet b = beta(9, 1) in\nlet g = gamma(u, b) in\ng * 2 + 1"
+      source: "let u = uniform(0, 1) in\nlet b = beta(9, 1) in\nlet g = gamma(u + 1, b + 1) in\ng * 2 + 1"
     },
     {
       name: "Pairs",
@@ -20104,15 +22201,27 @@ ${indent(elseBranch)}`;
     },
     {
       name: "List sum",
-      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nsum (uniform(0, 1) :: uniform(1, 2) :: gamma(1, 2) :: [])"
+      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nsum (uniform(0, 1) :: uniform(1, 2) :: gamma(1, 2) :: [])",
+      allowRhoInfeasible: true
     },
     {
       name: "Random list sum",
-      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nlet draw = rec draw _ =>\n  if flip(0.5) then [] else uniform(0, 1) :: draw 0\nin\nsum (draw 0)"
+      source: "let sum = rec sum xs =>\n  match xs with [] => 0 | x :: rest => x + sum rest\nin\nlet draw = rec draw _ =>\n  if flip(0.5) then [] else uniform(0, 1) :: draw 0\nin\nsum (draw 0)",
+      allowRhoInfeasible: true
     },
     {
       name: "Observe",
       source: "let x = uniform(0, 1) in\nlet y = uniform(0, x) in\nlet _ = observe(x < 0.8) in\nx + y"
+    },
+    {
+      name: "Unsafe E gamma",
+      source: "let x = uniform[E](-10, 30) in\ngamma[E](x, 1)",
+      expectFailedObligations: true
+    },
+    {
+      name: "Unsafe E Bernoulli",
+      source: "let p = uniform[E](-1, 2) in\nbernoulli[E](p)",
+      expectFailedObligations: true
     },
     {
       name: "Bad E-branching",
@@ -20120,7 +22229,8 @@ ${indent(elseBranch)}`;
     },
     {
       name: "Recursive function",
-      source: "let f = rec f n =>\n  if n <= 0 then 1 else gamma(f (n - 1), uniform(1, 2))\nin\nf 4"
+      source: "let f = rec f n =>\n  if n <= 0 then 1 else gamma(f (n - 1), uniform(1, 2))\nin\nf 4",
+      allowRhoInfeasible: true
     }
   ];
 
@@ -20180,18 +22290,19 @@ ${indent(elseBranch)}`;
     "discrete"
   ]);
   var TypeHintWidget = class extends WidgetType {
-    constructor(type, from, to) {
+    constructor(type, from, to, className = "type-hint") {
       super();
       this.type = type;
       this.from = from;
       this.to = to;
+      this.className = className;
     }
     eq(other) {
-      return other.type === this.type && other.from === this.from && other.to === this.to;
+      return other.type === this.type && other.from === this.from && other.to === this.to && other.className === this.className;
     }
     toDOM(view) {
       const span = document.createElement("span");
-      span.className = "type-hint";
+      span.className = this.className;
       span.textContent = `: ${this.type}`;
       span.title = this.type;
       span.tabIndex = 0;
@@ -20214,18 +22325,19 @@ ${indent(elseBranch)}`;
     }
   };
   var ModeHintWidget = class extends WidgetType {
-    constructor(mode) {
+    constructor(mode, title = null) {
       super();
       this.mode = mode;
+      this.title = title;
     }
     eq(other) {
-      return other.mode === this.mode;
+      return other.mode === this.mode && other.title === this.title;
     }
     toDOM() {
       const span = document.createElement("span");
-      span.className = `mode-hint ${this.mode === "G" ? "g-mode" : "e-mode"}`;
+      span.className = `mode-hint ${this.mode === "G" ? "g-mode" : "e-mode"}${this.title ? " replacement-mode" : ""}`;
       span.textContent = `[${this.mode}]`;
-      span.title = `${this.mode}-mode distribution`;
+      span.title = this.title ?? `${this.mode}-mode distribution`;
       return span;
     }
     ignoreEvent() {
@@ -20233,6 +22345,7 @@ ${indent(elseBranch)}`;
     }
   };
   var setTypeHints = StateEffect.define();
+  var setAnalysisResult = StateEffect.define();
   var setHoveredTypeHint = StateEffect.define();
   var typeHintState = StateField.define({
     create() {
@@ -20242,6 +22355,18 @@ ${indent(elseBranch)}`;
       for (const effect of tr.effects) {
         if (effect.is(setTypeHints)) return effect.value;
       }
+      return value;
+    }
+  });
+  var analysisResultState = StateField.define({
+    create() {
+      return null;
+    },
+    update(value, tr) {
+      for (const effect of tr.effects) {
+        if (effect.is(setAnalysisResult)) return effect.value;
+      }
+      if (tr.docChanged) return null;
       return value;
     }
   });
@@ -20277,8 +22402,8 @@ ${indent(elseBranch)}`;
         this.decorations = buildModeHints(view);
       }
       update(update) {
-        const typeHintChanged = update.transactions.some((tr) => tr.effects.some((effect) => effect.is(setTypeHints)));
-        if (update.docChanged || update.selectionSet || update.viewportChanged || typeHintChanged) {
+        const hintStateChanged = update.transactions.some((tr) => tr.effects.some((effect) => effect.is(setTypeHints) || effect.is(setAnalysisResult)));
+        if (update.docChanged || update.selectionSet || update.viewportChanged || hintStateChanged) {
           this.decorations = buildModeHints(update.view);
         }
       }
@@ -20321,46 +22446,73 @@ ${indent(elseBranch)}`;
   }
   function buildModeHints(view) {
     const source = view.state.doc.toString();
-    const result = analyze(source);
+    const result = view.state.field(analysisResultState);
     const builder = new RangeSetBuilder();
-    if (!result.ok) return builder.finish();
+    if (!result?.ok) return builder.finish();
     const showTypeHints = view.state.field(typeHintState);
     const decorations2 = [];
     for (const span of result.spans) {
       if (span.kind !== "distribution" || span.mode !== "E" && span.mode !== "G") continue;
       const hint = hintPosition(source, span);
       if (!hint) continue;
-      if (cursorAtHintPosition(view, hint.pos)) continue;
-      decorations2.push({
-        pos: hint.pos,
-        decoration: Decoration.widget({
-          widget: new ModeHintWidget(span.mode),
-          side: 1
-        })
-      });
-    }
-    if (showTypeHints) {
-      const seen = /* @__PURE__ */ new Set();
-      for (const span of result.spans) {
-        if (!span.type || span.from === span.to) continue;
-        const key = `${span.from}:${span.to}:${span.type}`;
-        if (seen.has(key)) continue;
-        seen.add(key);
+      if (hint.kind === "explicit") {
+        if (hint.explicitMode === span.mode || selectionIntersectsRange(view, hint.from, hint.to)) continue;
         decorations2.push({
-          pos: span.to,
+          from: hint.from,
+          to: hint.to,
+          decoration: Decoration.replace({
+            widget: new ModeHintWidget(span.mode, `Checker inferred ${span.mode}-mode; source annotation is ${hint.explicitMode}-mode.`)
+          })
+        });
+      } else {
+        if (cursorAtHintPosition(view, hint.pos)) continue;
+        decorations2.push({
+          from: hint.pos,
+          to: hint.pos,
           decoration: Decoration.widget({
-            widget: new TypeHintWidget(span.type, span.from, span.to),
+            widget: new ModeHintWidget(span.mode),
             side: 1
           })
         });
       }
     }
-    decorations2.sort((a, b) => a.pos - b.pos);
-    for (const item of decorations2) builder.add(item.pos, item.pos, item.decoration);
+    if (showTypeHints) {
+      for (const hint of buildInferredTypeHints(result)) {
+        decorations2.push({
+          from: hint.to,
+          to: hint.to,
+          decoration: Decoration.widget({
+            widget: new TypeHintWidget(hint.type, hint.from, hint.to),
+            side: 1
+          })
+        });
+      }
+    }
+    decorations2.sort((a, b) => a.from - b.from || a.to - b.to);
+    for (const item of decorations2) builder.add(item.from, item.to, item.decoration);
     return builder.finish();
+  }
+  function buildInferredTypeHints(result) {
+    const hints = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const span of result.spans ?? []) {
+      if (!span.type || span.from === span.to) continue;
+      const key = `${span.from}:${span.to}:${span.type}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      hints.push({ from: span.from, to: span.to, type: span.type });
+    }
+    return hints.sort((a, b) => a.to - a.from - (b.to - b.from) || a.from - b.from);
   }
   function cursorAtHintPosition(view, pos) {
     return view.state.selection.ranges.some((range) => range.empty && Math.abs(range.head - pos) <= 1);
+  }
+  function selectionIntersectsRange(view, from, to) {
+    return view.state.selection.ranges.some((range) => {
+      const start = Math.min(range.from, range.to);
+      const end = Math.max(range.from, range.to);
+      return end >= from && start <= to;
+    });
   }
   function hintPosition(source, span) {
     const text = source.slice(span.from, span.to);
@@ -20370,8 +22522,13 @@ ${indent(elseBranch)}`;
     if (!distributionNames.has(name2)) return null;
     const pos = span.from + match[0].length;
     const afterName = source.slice(pos, span.to).trimStart();
-    if (afterName.startsWith("[E]") || afterName.startsWith("[G]")) return null;
-    return { pos };
+    const annotation = afterName.match(/^\[([EG])\]/);
+    if (annotation) {
+      const leadingWhitespace = source.slice(pos, span.to).match(/^\s*/)?.[0].length ?? 0;
+      const from = pos + leadingWhitespace;
+      return { kind: "explicit", from, to: from + annotation[0].length, explicitMode: annotation[1] };
+    }
+    return { kind: "inferred", pos };
   }
 
   // src/runtime/affine.js
@@ -20445,15 +22602,15 @@ ${indent(elseBranch)}`;
   }
   function prettyAffine2(a) {
     const parts = [];
-    if (Math.abs(a.constant) > EPS || Object.keys(a.terms).length === 0) parts.push(formatNumber3(a.constant));
+    if (Math.abs(a.constant) > EPS || Object.keys(a.terms).length === 0) parts.push(formatNumber5(a.constant));
     for (const [name2, coeff] of Object.entries(a.terms)) {
       if (Math.abs(coeff - 1) <= EPS) parts.push(name2);
       else if (Math.abs(coeff + 1) <= EPS) parts.push(`-${name2}`);
-      else parts.push(`${formatNumber3(coeff)}*${name2}`);
+      else parts.push(`${formatNumber5(coeff)}*${name2}`);
     }
     return parts.join(" + ").replace(/\+ -/g, "- ");
   }
-  function formatNumber3(value) {
+  function formatNumber5(value) {
     if (Object.is(value, -0) || Math.abs(value) <= EPS) return "0";
     if (Number.isInteger(value)) return String(value);
     return Number(value.toFixed(12)).toString();
@@ -20710,13 +22867,13 @@ ${indent(elseBranch)}`;
 
   // src/runtime/semantics.js
   function prepareRuntime(source) {
-    const ast = parse(source);
-    const typed2 = inferProgram(ast);
+    const { typed: typed2, discretizationSafety } = prepareCheckedProgram(source);
     defaultModes(typed2);
     return {
-      expr: runtimeFromTyped(typed2),
-      determinized: runtimeFromAst(determinize(typed2)),
-      typed: typed2
+      expr: runtimeFromTyped(typed2, discretizationSafety),
+      determinized: runtimeFromAst(determinize(typed2, discretizationSafety)),
+      typed: typed2,
+      discretizationSafety
     };
   }
   function prepareRuntimeUnchecked(source) {
@@ -20729,9 +22886,11 @@ ${indent(elseBranch)}`;
       unchecked: true
     };
   }
-  function runtimeFromTyped(te) {
+  function runtimeFromTyped(te, options = {}) {
     const distMode = () => {
       if (!floatDistributions.has(te.kind)) return "G";
+      if (options.blockedSites?.has(siteKey(te))) return "G";
+      if (options.modeBySite?.has(siteKey(te))) return options.modeBySite.get(siteKey(te));
       const ty = zonk(te.typ);
       return ty?.tag === "Float" ? ty.mode.mode ?? "E" : "G";
     };
@@ -20739,11 +22898,11 @@ ${indent(elseBranch)}`;
       case "Var":
         return n("Var", { name: te.name }, te);
       case "Lam":
-        return n("Lam", { param: te.param, body: runtimeFromTyped(te.body) }, te);
+        return n("Lam", { param: te.param, body: runtimeFromTyped(te.body, options) }, te);
       case "Rec":
-        return n("Rec", { name: te.name, param: te.param, body: runtimeFromTyped(te.body) }, te);
+        return n("Rec", { name: te.name, param: te.param, body: runtimeFromTyped(te.body, options) }, te);
       case "App":
-        return n("App", { fn: runtimeFromTyped(te.fn), arg: runtimeFromTyped(te.arg) }, te);
+        return n("App", { fn: runtimeFromTyped(te.fn, options), arg: runtimeFromTyped(te.arg, options) }, te);
       case "Unit":
       case "Nil":
         return n(te.kind, {}, te);
@@ -20754,25 +22913,25 @@ ${indent(elseBranch)}`;
       case "Div":
       case "Lt":
       case "Leq":
-        return n(te.kind, { left: runtimeFromTyped(te.left), right: runtimeFromTyped(te.right) }, te);
+        return n(te.kind, { left: runtimeFromTyped(te.left, options), right: runtimeFromTyped(te.right, options) }, te);
       case "Fst":
       case "Snd":
       case "Inl":
       case "Inr":
       case "Neg":
-        return n(te.kind, { expr: runtimeFromTyped(te.expr) }, te);
+        return n(te.kind, { expr: runtimeFromTyped(te.expr, options) }, te);
       case "Cons":
-        return n("Cons", { head: runtimeFromTyped(te.head), tail: runtimeFromTyped(te.tail) }, te);
+        return n("Cons", { head: runtimeFromTyped(te.head, options), tail: runtimeFromTyped(te.tail, options) }, te);
       case "Case":
-        return n("Case", { scrutinee: runtimeFromTyped(te.scrutinee), leftName: te.leftName, left: runtimeFromTyped(te.left), rightName: te.rightName, right: runtimeFromTyped(te.right) }, te);
+        return n("Case", { scrutinee: runtimeFromTyped(te.scrutinee, options), leftName: te.leftName, left: runtimeFromTyped(te.left, options), rightName: te.rightName, right: runtimeFromTyped(te.right, options) }, te);
       case "MatchList":
-        return n("MatchList", { scrutinee: runtimeFromTyped(te.scrutinee), nilBranch: runtimeFromTyped(te.nilBranch), headName: te.headName, tailName: te.tailName, consBranch: runtimeFromTyped(te.consBranch) }, te);
+        return n("MatchList", { scrutinee: runtimeFromTyped(te.scrutinee, options), nilBranch: runtimeFromTyped(te.nilBranch, options), headName: te.headName, tailName: te.tailName, consBranch: runtimeFromTyped(te.consBranch, options) }, te);
       case "Bool":
         return n("Bool", { value: te.value }, te);
       case "If":
-        return n("If", { cond: runtimeFromTyped(te.cond), thenBranch: runtimeFromTyped(te.thenBranch), elseBranch: runtimeFromTyped(te.elseBranch) }, te);
+        return n("If", { cond: runtimeFromTyped(te.cond, options), thenBranch: runtimeFromTyped(te.thenBranch, options), elseBranch: runtimeFromTyped(te.elseBranch, options) }, te);
       case "Let":
-        return n("Let", { name: te.name, value: runtimeFromTyped(te.value), body: runtimeFromTyped(te.body) }, te);
+        return n("Let", { name: te.name, value: runtimeFromTyped(te.value, options), body: runtimeFromTyped(te.body, options) }, te);
       case "Const":
         return n("Const", { value: te.value }, te);
       case "Uniform":
@@ -20783,11 +22942,11 @@ ${indent(elseBranch)}`;
       case "Flip":
       case "Bernoulli":
       case "Poisson":
-        return n(te.kind, { mode: distMode(), args: te.args.map(runtimeFromTyped) }, te);
+        return n(te.kind, { mode: distMode(), args: te.args.map((arg) => runtimeFromTyped(arg, options)) }, te);
       case "Discrete":
-        return n("Discrete", { mode: distMode(), choices: te.choices.map((choice) => ({ probability: choice.probability, value: runtimeFromTyped(choice.value) })) }, te);
+        return n("Discrete", { mode: distMode(), choices: te.choices.map((choice) => ({ probability: choice.probability, value: runtimeFromTyped(choice.value, options) })) }, te);
       case "Observe":
-        return n("Observe", { cond: runtimeFromTyped(te.cond) }, te);
+        return n("Observe", { cond: runtimeFromTyped(te.cond, options) }, te);
       default:
         throw new Error(`unsupported typed expression ${te.kind}`);
     }
@@ -21250,8 +23409,8 @@ ${indent(elseBranch)}`;
         return mapChildren(expr, determinizeResidual);
     }
   }
-  function meanNode2(distribution, args, source) {
-    return n("Mean", { distribution, args }, source);
+  function meanNode2(distribution2, args, source) {
+    return n("Mean", { distribution: distribution2, args }, source);
   }
   function arithmetic(kind, left, right, source) {
     const a = valueToAffine(left);
@@ -21590,8 +23749,8 @@ ${indent2(elseBranch)}`;
     const formula = meanFormula(expr.distribution, expr.args.map((arg) => prettyExpr(arg)));
     return `<span class="mean-form" title="one-step mean redex: ${escapeHtml(formula)}"><span class="tok-mean">mean_${plain(name2)}</span>(${args.join(", ")})</span>`;
   }
-  function meanFormula(distribution, args) {
-    switch (distribution) {
+  function meanFormula(distribution2, args) {
+    switch (distribution2) {
       case "Uniform":
         return `(${args[0]} + ${args[1]}) * 0.5`;
       case "Gauss":
@@ -21758,6 +23917,7 @@ ${indent2(elseBranch)}`;
   checkPopoverPortal.setAttribute("role", "tooltip");
   document.body.append(checkPopoverPortal);
   var latest = null;
+  var latestSource = null;
   var debounce = null;
   var couplingSeed = 2026;
   var sampleSource = "";
@@ -21776,8 +23936,9 @@ ${indent2(elseBranch)}`;
   window.addEventListener("hashchange", updateDebugVisibility);
   function typeHover() {
     return hoverTooltip((view, pos) => {
-      if (!latest?.ok) return null;
-      const span = latest.spans.find((candidate) => candidate.from <= pos && pos <= candidate.to);
+      const result = view.state.field(analysisResultState);
+      if (!result?.ok) return null;
+      const span = result.spans.find((candidate) => candidate.from <= pos && pos <= candidate.to);
       if (!span) return null;
       return {
         pos: span.from,
@@ -21825,6 +23986,7 @@ ${indent2(elseBranch)}`;
         highlightActiveLine(),
         detLanguage,
         detHighlighting,
+        analysisResultState,
         typeHintState,
         hoveredTypeHintState,
         diagnosticsState,
@@ -21853,11 +24015,13 @@ ${indent2(elseBranch)}`;
   manyButton.addEventListener("click", () => {
     const source = editor.state.doc.toString();
     if (source !== sampleSource) resetSamples(source);
+    const analysis = currentAnalysis(source);
+    const allowIllTyped = !analysis?.ok;
     let latestCoupled = null;
     for (let i = 0; i < 200; i++) {
       const seed = Math.floor(1 + Math.random() * 4294967295);
       try {
-        const coupled = runCoupling(source, seed);
+        const coupled = runCoupling(source, seed, { allowIllTyped });
         addSampleFromCoupling(coupled, source);
         couplingSeed = seed;
         latestCoupled = coupled;
@@ -21938,10 +24102,14 @@ ${indent2(elseBranch)}`;
     if (activeCheck) positionCheckPopover(activeCheck);
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") hideCheckPopover();
+    if (event.key === "Escape") {
+      hideCheckPopover();
+    }
   });
   function scheduleAnalyze() {
     clearTimeout(debounce);
+    latest = null;
+    latestSource = null;
     logDebug("schedule-analyze", { idleMs: ANALYZE_IDLE_MS, ...collectEditorDebugState("schedule") });
     debounce = setTimeout(runAnalyze, ANALYZE_IDLE_MS);
   }
@@ -21949,8 +24117,9 @@ ${indent2(elseBranch)}`;
     const source = editor.state.doc.toString();
     logDebug("run-analyze-start", collectEditorDebugState("before-analyze"));
     latest = analyze(source);
+    latestSource = source;
     const diagnostics = normalizeDiagnostics(latest, source);
-    editor.dispatch({ effects: setDiagnostics.of(diagnostics) });
+    editor.dispatch({ effects: [setDiagnostics.of(diagnostics), setAnalysisResult.of(latest)] });
     logDebug("run-analyze-result", {
       ok: latest.ok,
       diagnostics: diagnostics.map((diagnostic) => ({ from: diagnostic.from, to: diagnostic.to, message: diagnostic.message })),
@@ -22118,9 +24287,18 @@ ${indent2(elseBranch)}`;
     }
   }
   function runCoupling(source, seed, options = {}) {
+    const analysis = options.analysis ?? currentAnalysis(source);
     return runCoupledTrace(source, seed, 1e3, 200, {
-      allowIllTyped: Boolean(options.allowIllTyped || !latest?.ok)
+      allowIllTyped: Boolean(options.allowIllTyped || !analysis?.ok)
     });
+  }
+  function currentAnalysis(source) {
+    if (latestSource === source) return latest;
+    const result = analyze(source);
+    latest = result;
+    latestSource = source;
+    editor.dispatch({ effects: [setDiagnostics.of(normalizeDiagnostics(result, source)), setAnalysisResult.of(result)] });
+    return result;
   }
   function renderCoupling(coupled) {
     hideCheckPopover();
@@ -22282,7 +24460,7 @@ ${indent2(elseBranch)}`;
     if (error) {
       return `<span class="sigma-mean-error" title="${escapeHtml2(error)}">domain error</span>`;
     }
-    const value = formatNumber4(mean);
+    const value = formatNumber6(mean);
     return `<span class="corr-item sigma-mean-value" data-corr="${escapeHtml2(symbol)}" title="mean substituted for ${escapeHtml2(symbol)}">${escapeHtml2(value)}</span>`;
   }
   function resetSamples(source) {
@@ -22348,7 +24526,7 @@ ${indent2(elseBranch)}`;
   `;
   }
   function metricValue(value, suffix = "") {
-    return `<strong class="metric-value">${escapeHtml2(formatNumber4(value))}${suffix}</strong>`;
+    return `<strong class="metric-value">${escapeHtml2(formatNumber6(value))}${suffix}</strong>`;
   }
   function distributionCard(title, values, stats, domain, tone) {
     const width = 520;
@@ -22401,8 +24579,8 @@ ${indent2(elseBranch)}`;
         <path class="dist-curve cdf-curve" d="${cdfPath}"></path>
         <line class="dist-mean" x1="${meanX.toFixed(2)}" y1="${pdfBand.top}" x2="${meanX.toFixed(2)}" y2="${cdfBand.bottom}"></line>
         ${rugs}
-        <text class="dist-label" x="${margin.left}" y="${height - 6}">${formatNumber4(domain[0])}</text>
-        <text class="dist-label end" x="${width - margin.right}" y="${height - 6}">${formatNumber4(domain[1])}</text>
+        <text class="dist-label" x="${margin.left}" y="${height - 6}">${formatNumber6(domain[0])}</text>
+        <text class="dist-label end" x="${width - margin.right}" y="${height - 6}">${formatNumber6(domain[1])}</text>
         <text class="dist-label y" x="${margin.left - 7}" y="${yCdf(1) + 4}">1</text>
         <text class="dist-label y" x="${margin.left - 7}" y="${yCdf(0) + 4}">0</text>
       </svg>
@@ -22482,10 +24660,10 @@ ${indent2(elseBranch)}`;
     const ratio = originalVariance / determinizedVariance;
     return {
       value: ratio,
-      explanation: `For the same mean accuracy, the determinized program needs about ${formatNumber4(1 / ratio)}x as many samples, i.e. about ${formatNumber4(ratio)}x fewer samples.`
+      explanation: `For the same mean accuracy, the determinized program needs about ${formatNumber6(1 / ratio)}x as many samples, i.e. about ${formatNumber6(ratio)}x fewer samples.`
     };
   }
-  function formatNumber4(value) {
+  function formatNumber6(value) {
     if (value === Infinity) return "\u221E";
     if (value === -Infinity) return "-\u221E";
     if (!Number.isFinite(value)) return "n/a";
