@@ -1702,7 +1702,7 @@
             <p><code>fork_join2</code> returns an unboxed pair. Pattern matching uses <code>#(left, right)</code>; that <code>#</code> syntax is about the result representation, not about modes or parallelism.</p>
           </aside>
         </div>
-        <p class="example-signpost"><strong>Spawn:</strong> pass a unit function to <code>Concurrent.spawn</code>.</p>
+        <p class="example-signpost"><strong>Spawn:</strong> create a scope, then pass a task function to <code>Concurrent.spawn</code>.</p>
         <div class="code-with-figure">
           <oxcaml data-filename="spawn.ml" no-self-check>
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1716,11 +1716,15 @@
 
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
-              print_endline "The parent output is:";
-              let _ = Concurrent.spawn
-                (fun () -> ignore (bits_to_string [true; false; true; true]))
-                () in
-              print_endline (bits_to_string [false; true; false; false])
+              print_endline "The output is:";
+              Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
+                Concurrent.with_scope concurrent () ~f:(fun spawn ->
+                  let _ = Concurrent.spawn
+                    spawn
+                    ~f:(fun _scope _ctx _concurrent ->
+                      print_endline (bits_to_string [true; false; true; true]))
+                  in
+                  print_endline (bits_to_string [false; true; false; false])))
           </oxcaml>
           <figure class="course-figure">
             <img src="../assets/images/buffers-fresh.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people each working at their own computer, with separate code on separate screens.">
@@ -1751,10 +1755,14 @@
 
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
-              let _ = Concurrent.spawn
-                (fun () -> print_endline (bits_to_string_shared [true; false; true; true]))
-                () in
-              print_endline (bits_to_string_shared [false; true; false; false])
+              Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
+                Concurrent.with_scope concurrent () ~f:(fun spawn ->
+                  let _ = Concurrent.spawn
+                    spawn
+                    ~f:(fun _scope _ctx _concurrent ->
+                      print_endline (bits_to_string_shared [true; false; true; true]))
+                  in
+                  print_endline (bits_to_string_shared [false; true; false; false])))
           </oxcaml>
           <figure class="course-figure">
             <img src="../assets/images/buffers-shared.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people sharing one computer with scrambled code on the screen, looking confused.">
@@ -2113,8 +2121,14 @@ required by callee:      x @ uncontended</code></pre>
           let write_x v = x.hits <- v  (* a nonportable function *)
 
           let _ =
-            let _ = Concurrent.spawn (fun () -> write_x 1) () in
-            write_x 2
+            Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
+              Concurrent.with_scope concurrent () ~f:(fun spawn ->
+                let _ =
+                  Concurrent.spawn
+                    spawn
+                    ~f:(fun _scope _ctx _concurrent -> write_x 1)
+                in
+                write_x 2))
         </oxcaml>
         <h3>Moving access into helpers does not change the rule</h3>
         <p>OxCaml still catches the data race hiding behind the helper. The call <code>write_x 1</code> has no explicit <code>x</code> argument, so the relevant check is on the function value <code>write_x</code> itself. <code>write_x</code> is <code>nonportable</code> because it writes captured mutable state.</p>
@@ -2267,8 +2281,8 @@ let bits_to_string_shared bits =
         <p>Inside the implementation, <code>Buffer.clear buf</code> and <code>Buffer.add_char buf</code> require <code>buf @ uncontended</code>.</p>
         <p>Since <code>buf</code> is captured by <code>bits_to_string_shared</code>, the function value is not portable. A spawned function may only call portable-enough function values, so this use is rejected:</p>
         <pre><code>Concurrent.spawn
-  (fun () -&gt; bits_to_string_shared bits)
-  ()</code></pre>
+  spawn
+  ~f:(fun _scope _ctx _concurrent -&gt; bits_to_string_shared bits)</code></pre>
         <p>If the buffer were passed explicitly instead, the failure would be at the buffer argument:</p>
         <pre><code>let write_bits (buf @ uncontended) bits =
   Buffer.clear buf;
@@ -2299,8 +2313,14 @@ fun () -&gt; write_bits buf bits</code></pre>
             ignore (get_count x)
 
           let bad_spawn x =
-            let _ = Concurrent.spawn (read_count_later x) () in
-            ()
+            Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
+              Concurrent.with_scope concurrent () ~f:(fun spawn ->
+                let _ =
+                  Concurrent.spawn
+                    spawn
+                    ~f:(fun _scope _ctx _concurrent -> read_count_later x ())
+                in
+                ()))
         </oxcaml>
         <oxcaml check data-filename="fork_capture.ml" expect-error no-self-check>
           type t = { id : int; mutable count : int }
@@ -2531,7 +2551,7 @@ fun () -&gt; write_bits buf bits</code></pre>
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> worker ())</span>
+                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> spawn ~f:worker)</span>
                     <span class="capture-note good">spawn</span>
                   </div>
                   <div class="capture-line">
@@ -2621,10 +2641,22 @@ fun () -&gt; write_bits buf bits</code></pre>
   (Parallel.t @ local -&gt; 'a) @ shareable -&gt;
   (Parallel.t @ local -&gt; 'b) @ shareable -&gt;
   #('a * 'b)</code></pre>
-        <p>Schematic spawn type, specialized to the unit-argument shape used in the examples and omitting details such as <code>once</code>, <code>unique</code>, <code>unyielding</code>, and the native result handle:</p>
-        <pre><code>val spawn :
-  (unit -&gt; unit) @ portable -&gt;
-  unit -&gt; unit</code></pre>
+        <p>Schematic spawn type, specialized to the shape used in the examples and omitting details such as <code>once</code>, <code>local</code>, <code>unique</code>, and <code>unyielding</code>:</p>
+        <pre><code>val with_blocking :
+  Await.Terminator.t -&gt;
+  f:(unit Concurrent.t -&gt; 'r) -&gt;
+  'r
+
+val with_scope :
+  'ctx Concurrent.t -&gt;
+  'scope_ctx -&gt;
+  f:(('scope_ctx, 'ctx) spawn -&gt; 'r) -&gt;
+  'r
+
+val spawn :
+  ('scope_ctx, 'ctx) spawn -&gt;
+  f:('scope_ctx Concurrent.Scope.t -&gt; 'ctx -&gt; 'ctx Concurrent.t -&gt; unit) @ portable -&gt;
+  unit</code></pre>
         <p>Calling <code>fork_join2</code> requires shareable function arguments. That requirement causes captured mutable state inside each function to be available only with shared/read-only access. Therefore:</p>
         <ul>
           <li>direct writes to captured mutable state are rejected;</li>

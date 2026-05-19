@@ -28,7 +28,7 @@
           <ol class="route">
             <li><span>00</span><strong>Why OxCaml exists</strong><em>checked low-level intent</em></li>
             <li><span>01</span><strong>Parallelism</strong><em>contention and portability</em></li>
-            <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
+            <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_, zeroalloc</em></li>
             <li><span>03</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
           </ol>
           <aside class="notes">Each topic is a checked lever: race safety, lifetime/allocation, and runtime layout.</aside>
@@ -98,9 +98,9 @@ combine left right</code></pre>
             </article>
             <article>
               <h3>spawn</h3>
-              <pre><code>let _ = Concurrent.spawn
+              <pre><code>ignore (Multicore.spawn
   (fun () -> worker ())
-  () in
+  ());
 parent_side_effect ()</code></pre>
               <p>Spawned work may overlap later parent effects.</p>
             </article>
@@ -138,12 +138,11 @@ Parallel.fork_join2 parallel
 Parallel.fork_join2 parallel
   (fun _ -> x.hits <- x.hits + 1)
   (fun _ -> x.hits <- x.hits + 1)</code></pre><p>The callback body directly writes state captured from outside.</p></article>
-            <article class="ok-card"><h3>fresh mutable state</h3><pre><code>let _ = Concurrent.spawn
+            <article class="ok-card"><h3>fresh mutable state</h3><pre><code>ignore (Multicore.spawn
   (fun () ->
      let x = { hits = 0 } in
      x.hits <- x.hits + 1)
-  () in
-()</code></pre><p>Fresh state created inside the callback is owned by that callback body.</p></article>
+  ())</code></pre><p>Fresh state created inside the callback is owned by that callback body.</p></article>
           </div>
           <p class="takeaway">Useful simplification: the compiler appears to check callback bodies. It is not just scanning syntax.</p>
           <aside class="notes">This model predicts simple direct-access examples, then motivates modes.</aside>
@@ -169,9 +168,9 @@ let bits_to_string bits =
 
 let () =
   print_endline "The output is:";
-  let _ = Concurrent.spawn
+  ignore (Multicore.spawn
     (fun () -> print_endline (bits_to_string [true; false; true]))
-    () in
+    ());
   print_endline (bits_to_string [false; true; false])
               </oxcaml>
             </div>
@@ -324,7 +323,7 @@ let read_x () = x.hits
 let write_x v = x.hits <- v
 
 let _ =
-  let _ = Concurrent.spawn (fun () -> write_x 1) () in
+  ignore (Multicore.spawn (fun () -> write_x 1) ());
   write_x 2
               </oxcaml>
             </div>
@@ -354,10 +353,10 @@ let bits_to_string_shared bits =
 
 let () =
   print_endline "The output is:";
-  let _ = Concurrent.spawn
+  ignore (Multicore.spawn
     (fun () ->
        print_endline (bits_to_string_shared [true; false; true]))
-    () in
+    ());
   print_endline (bits_to_string_shared [false; true; false])
               </oxcaml>
             </div>
@@ -496,12 +495,12 @@ let rec parallel_map parallel f xs =
 
         <section class="slide section-slide" data-background-color="#101827">
           <p class="eyebrow">Module 02</p>
-          <h1>Locality and stack allocation</h1>
+          <h1>Locality, stack allocation, and zeroalloc</h1>
           <ul class="goal-list">
             <li>Explain why heap allocation matters in hot paths.</li>
             <li>Use local arguments and local returns.</li>
             <li>Predict stack escape errors.</li>
-            <li>Use modalities to preserve global fields inside local containers.</li>
+            <li>Read <code>[@zero_alloc]</code> as a checked contract.</li>
           </ul>
           <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
         </section>
@@ -510,7 +509,7 @@ let rec parallel_map parallel f xs =
           <h2>Why heap allocation matters</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>OCaml allocation is usually cheap. Some hot or low-latency paths still need explicit control over whether temporary values go on the GC heap or the allocation stack.</p>
+              <p>OCaml allocation is usually cheap. Some hot or low-latency paths need a checked no-GC-heap-allocation contract.</p>
               <p><code>Some n</code> is ordinary style, but the present case allocates.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -922,13 +921,28 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
+          <h2>zero_alloc checks heap allocation</h2>
+          <div class="three-up">
+            <article><h3>passes</h3><pre><code>let[@zero_alloc] add b x y =
+  if b then x + y else x</code></pre></article>
+            <article><h3>fails</h3><pre><code>let[@zero_alloc] pair x y =
+  (x, y)</code></pre><p>heap pair allocation</p></article>
+            <article><h3>passes</h3><pre><code>let[@zero_alloc] local_pair x y
+    : _ @ local =
+  exclave_ stack_ (x, y)</code></pre></article>
+          </div>
+          <aside class="notes">The annotation is a checker, not an optimization request. Native-check examples can be wired later.</aside>
+        </section>
+
+        <section class="slide concept-slide">
           <h2>Allocation recap</h2>
           <div class="checklist">
             <p><strong>local/global</strong> controls lifetime and escape.</p>
             <p><strong>stack_</strong> forces the next allocation onto the allocation stack.</p>
             <p><strong>exclave_</strong> builds a local result in the caller region.</p>
+            <p><strong>[@zero_alloc]</strong> checks no GC heap allocation.</p>
           </div>
-          <aside class="notes">Keep the focus on lifetime control and where temporary blocks live.</aside>
+          <aside class="notes">Separate lifetime control from heap allocation control.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -1201,7 +1215,7 @@ let rec map_product_list
           <h2>Choose the checked lever</h2>
           <div class="lever-grid">
             <article><h3>Race risk</h3><p>Use contention and portability requirements.</p></article>
-            <article><h3>Lifetime or heap allocation risk</h3><p>Use local, stack_, and exclave_.</p></article>
+            <article><h3>Lifetime or heap allocation risk</h3><p>Use local, stack_, exclave_, and zeroalloc summaries.</p></article>
             <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed values, or_null, kinds, and templates.</p></article>
           </div>
           <p class="takeaway">All three make performance-sensitive intent explicit and checked.</p>
