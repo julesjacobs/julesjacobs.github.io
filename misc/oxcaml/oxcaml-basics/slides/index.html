@@ -26,7 +26,7 @@
         <section class="slide route-slide">
           <h2>The route</h2>
           <ol class="route">
-            <li><span>00</span><strong>Why OxCaml exists</strong><em>checked low-level intent</em></li>
+            <li><span>00</span><strong>Why OxCaml exists</strong><em>safe, convenient, predictable control over performance-critical aspects of program behavior</em></li>
             <li><span>01</span><strong>Parallelism</strong><em>contention and portability</em></li>
             <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
             <li><span>03</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
@@ -35,21 +35,21 @@
         </section>
 
         <section class="slide concept-slide">
-          <h2>Why OxCaml exists</h2>
+          <h2>Why does OxCaml exist?</h2>
           <div class="lever-grid">
-            <article><h3>OCaml default</h3><p>Safe, high-level, uniform values, GC-managed allocation.</p></article>
-            <article><h3>OxCaml addition</h3><p>Explicit compiler-checked control when the default costs too much.</p></article>
-            <article><h3>The goal</h3><p>Checked low-level intent, not unsafe faster OCaml.</p></article>
+            <article><h3>Upstream OCaml</h3><p>Safe, high-level, uniform values, with GC-managed allocation.</p></article>
+            <article><h3>OxCaml</h3><p>Explicit control when the default costs too much, without sacrificing safety.</p></article>
+            <article><h3>The goal</h3><p>Safe, predictable control over performance-critical aspects of program behavior.</p></article>
           </div>
           <aside class="notes">Frame every feature as making a performance-relevant fact visible to the type checker.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three failure classes</h2>
+          <h2>Three classes of failure</h2>
           <div class="failure-grid">
             <article class="bad"><h3>Data race</h3><p>Overlapping mutable access when at least one access writes.</p></article>
             <article class="bad"><h3>Dangling stack pointer</h3><p>A local value escapes the region that owns it.</p></article>
-            <article class="bad"><h3>Representation mismatch</h3><p>Code expects one value word, but the caller has raw or product layout.</p></article>
+            <article class="bad"><h3>Representation mismatch</h3><p>Data has the wrong in-memory layout.</p></article>
           </div>
           <p class="takeaway fragment">In all three cases, OxCaml turns a runtime failure mode into a compile-time error.</p>
           <aside class="notes">This primes the lecture around error reading, not feature memorization.</aside>
@@ -435,7 +435,7 @@ let demo parallel =
               </oxcaml>
             </div>
             <div class="closure-captures-copy">
-              <p>OCaml must track portability of functions.</p>
+              <p>OxCaml must track portability of functions.</p>
             </div>
           </div>
           <aside class="notes">There is no explicit x argument here. The mutable access is hidden inside the function value write_x.</aside>
@@ -874,9 +874,8 @@ val spawn :  (* schematic *)
                 <li>Spawn can neither read nor write mutable fields.</li>
               </ul>
             </div>
-            <p><strong>2.</strong> Reads and writes are checked using contention access.</p>
-            <p><strong>3.</strong> Functions are checked using portability access.</p>
-            <p><strong>4.</strong> Ordinary function types create reusable parallel contracts.</p>
+            <p><strong>2.</strong> Reads and writes are checked using the contention axis.</p>
+            <p><strong>3.</strong> Functions are checked using the portability axis.</p>
           </div>
           <aside class="notes">This is the durable mental model for the parallelism section.</aside>
         </section>
@@ -893,232 +892,259 @@ val spawn :  (* schematic *)
           <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide concept-slide heap-allocation-sign-slide">
           <h2>Why heap allocation matters</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>OCaml allocation is usually cheap. Some hot or low-latency paths still need explicit control over whether temporary values go on the GC heap or the allocation stack.</p>
-              <p><code>Some n</code> is ordinary style, but the present case allocates.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_motivating_option_allocation.ml</div>
-              <oxcaml data-filename="Ex03_motivating_option_allocation.ml">
-let maybe_positive n =
-  if n >= 0 then Some n else None
-
-let () =
-  match maybe_positive 3 with
-  | None -> print_endline "none"
-  | Some n -> print_endline (string_of_int n)
-              </oxcaml>
-            </div>
+          <div class="heap-allocation-panels">
+            <article>
+              <p>OxCaml allocation is cheap, but GC is high latency.</p>
+            </article>
+            <article>
+              <span>Solution</span>
+              <p>stack allocation</p>
+            </article>
           </div>
-          <aside class="notes">The point is not that option is bad. The point is that some APIs need allocation behavior in the contract.</aside>
+          <aside class="notes">Set up the allocation section before showing the small option example.</aside>
         </section>
 
-        <section class="slide widget-slide">
-          <h2>Three storage places</h2>
-          <figure class="allocation-figure allocation-diagram-only" data-state-widget data-allocation-state="stack">
-            <div class="state-tabs" role="tablist" aria-label="Allocation states">
-              <button type="button" data-state="stack" aria-selected="true">stack list</button>
-              <button type="button" data-state="heap" aria-selected="false">heap list</button>
-              <button type="button" data-state="escape" aria-selected="false">bad escape</button>
-              <button type="button" data-state="exclave" aria-selected="false">exclave return</button>
-            </div>
-            <p class="diagram-caption">Compare ordinary heap allocation, stack allocation, rejected escape, and <code>exclave_</code> returns across the call stack, allocation stack, and GC heap.</p>
-            <div class="memory-map" data-current-state="stack" aria-label="Allocation model for summing a temporary local list">
-              <div class="memory-column call-column">
-                <div class="memory-title">Call stack<span class="memory-subtitle">function calls and returns</span></div>
-                <div class="memory-stack" data-visible-states="heap">
-                  <div class="call-frame callee exiting"><strong>make_heap_list frame</strong><span>popped after returning pointer</span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after <code>sum</code> returns</span></div>
-                </div>
-                <div class="memory-stack is-visible" data-visible-states="stack">
-                  <div class="call-frame callee"><strong>sum frame</strong><span>borrows <code>int list @ local</code></span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after local list is consumed</span></div>
-                </div>
-                <div class="memory-stack" data-visible-states="escape">
-                  <div class="call-frame callee exiting"><strong>bad frame</strong><span>return would pop this frame</span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>ordinary return would keep pointer</span></div>
-                </div>
-                <div class="memory-stack" data-visible-states="exclave">
-                  <div class="call-frame callee exiting"><strong>make_stack_list frame</strong><span>returns after <code>exclave_</code></span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after returned local list is consumed</span></div>
-                </div>
-              </div>
-              <div class="memory-column alloc-column">
-                <div class="memory-title">Allocation stack<span class="memory-subtitle">local OCaml blocks</span></div>
-                <div class="empty-space" data-visible-states="heap"><span>No stack allocation in the heap-list state.</span></div>
-                <div class="region-stack is-visible" data-visible-states="stack">
-                  <div class="region-row">
-                    <div class="region-frame callee-region empty-region allocation-gap"><span><code>sum</code> borrows; no local blocks</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="stack-pointer">caller region</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">local list spine consumed by <code>sum</code></div>
-                      <div class="list-cell stack-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame"><strong>caller region</strong><span>cells are reclaimed when this region ends</span></div>
-                  </div>
-                </div>
-                <div class="region-stack" data-visible-states="escape">
-                  <div class="region-row">
-                    <div class="stack-pointer"><code>bad</code> region mark</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">callee-local list spine</div>
-                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell invalid"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame callee-region exiting"><strong><code>bad</code> region</strong><span>reclaimed on return</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="memory-arrow rejected">caller pointer invalid</div>
-                  </div>
-                </div>
-                <div class="region-stack" data-visible-states="exclave">
-                  <div class="region-row">
-                    <div class="region-frame callee-region exiting"><strong>callee region</strong><span>temporary stack blocks reclaimed first</span></div>
-                    <div class="region-boundary"><strong><code>exclave_</code></strong><span>subsequent allocation happens in caller region</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="stack-pointer">caller region</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">returned list spine in caller region</div>
-                      <div class="list-cell stack-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-cell stack-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame parent"><strong>caller region</strong><span>result stays valid until this region ends</span></div>
-                  </div>
-                </div>
-              </div>
-              <div class="memory-column heap-column">
-                <div class="memory-title">GC heap<span class="memory-subtitle">ordinary OCaml allocation</span></div>
-                <div data-visible-states="heap">
-                  <div class="list-spine">
-                    <div class="list-spine-label">global list spine from <code>make_heap_list</code></div>
-                    <div class="list-cell"><span class="list-cell-head">1</span><span class="list-cell-tail">&rarr;</span></div>
-                    <div class="list-cell"><span class="list-cell-head">2</span><span class="list-cell-tail">&rarr;</span></div>
-                    <div class="list-cell result-block"><span class="list-cell-head">3</span><span class="list-cell-tail">&rarr;</span></div>
-                    <div class="list-nil">[]</div>
-                  </div>
-                  <div class="memory-arrow">caller receives pointer</div>
-                  <div class="memory-note">The list remains valid after <code>make_heap_list</code> returns.</div>
-                </div>
-                <div class="empty-space is-visible" data-visible-states="stack escape exclave"><span>No new heap list is needed in this state.</span></div>
-              </div>
-            </div>
-          </figure>
-          <aside class="notes">Use the tabs to compare ordinary heap allocation, stack allocation, rejected escape, and exclave_.</aside>
-        </section>
-
-        <section class="slide live-slide">
-          <h2>stack_ succeeds when consumed locally</h2>
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>A small stack allocation example</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>stack_</code> forces the following allocation onto the allocation stack.</p>
-              <p>The consumer matters: <code>sum</code> accepts <code>int list @ local</code>.</p>
+              <p>Stack allocate values with <code>stack_</code>.</p>
+              <p>The allocation stack gets cleared at the end of a function.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_list_used_inside_region.ml</div>
-              <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
-let rec sum_loop acc (xs : int list @ local) =
+              <div class="code-label">Ex03_stack_sum.ml</div>
+              <oxcaml data-filename="Ex03_stack_sum.ml" no-self-check>
+let rec sum xs =
   match xs with
-  | [] -> acc
-  | x :: xs -> sum_loop (acc + x) xs
+  | [] -> 0
+  | x::xs' -> x + sum xs'
 
-let sum (xs : int list @ local) =
-  sum_loop 0 xs
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  (* xs gets deallocated here *)
+  n
 
 let () =
-  print_endline (string_of_int (sum (stack_ [1; 2; 3])))
+  let n = sum3 1 2 3 in
+  print_endline (string_of_int n)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Explain that local is a promise by the callee: it will not retain the list.</aside>
+          <aside class="notes">The temporary list is allocated inside sum3, consumed there, and cleared when sum3 returns.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2>stack_ rejects escapes</h2>
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>Stack allocated values can escape their region 😨</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>stack_</code> is strict: it does not silently move an escaping allocation back to the heap.</p>
-              <p class="diagnostic-callout">Expected outcome: rejected escape.</p>
+              <p>A callee cannot secretly keep a stack-allocated value after the caller region is gone.</p>
+              <p class="diagnostic-callout">Expected outcome: the call to <code>sum</code> is rejected.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_list_escape_global_return.ml</div>
-              <oxcaml check data-filename="Ex03_stack_list_escape_global_return.ml" expect-error>
-let bad () =
-  stack_ [1; 2; 3]
+              <div class="code-label">Ex03_stack_sum_escape.ml</div>
+              <oxcaml check data-filename="Ex03_stack_sum_escape.ml" expect-error>
+let saved = ref []
+let rec sum xs =
+  match xs with
+  | [] -> 0
+  | x::xs' ->
+    saved := xs;
+    x + sum xs'
+
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  n
+
+let () =
+  let n = sum3 1 2 3 in
+  print_endline (string_of_int n)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Tie this to the dangling pointer diagram: the callee region would be reclaimed.</aside>
+          <aside class="notes">The ref is global, so assigning xs would keep a pointer into a stack region after the function returns.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2>Local arguments let APIs borrow values</h2>
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>Returning stack allocated values escapes their region 😨</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The restriction is on the function body, not on callers.</p>
-              <p>Callers may pass heap values or stack values.</p>
+              <p>The integer result can return, but the stack-allocated list cannot.</p>
+              <p class="diagnostic-callout">Expected outcome: returning <code>xs</code> is rejected.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_local_consumer.ml</div>
-              <oxcaml check data-filename="Ex03_local_consumer.ml">
-let inspect (x : int option @ local) =
-  match x with
-  | None -> 0
-  | Some n -> n
+              <div class="code-label">Ex03_stack_sum_return_escape.ml</div>
+              <oxcaml check data-filename="Ex03_stack_sum_return_escape.ml" expect-error>
+let rec sum (xs : int list @ local) =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
 
-let demo () =
-  inspect (stack_ (Some 42)) [@nontail]
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  n, xs
+
+let () =
+  let n, _xs = sum3 1 2 3 in
+  print_endline (string_of_int n)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Ask: who is restricted? Answer: inspect's implementation.</aside>
+          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2>Ordinary function slots cannot borrow stack state</h2>
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>But sometimes we want to return stack allocated values:<br><code>exclave_</code></h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>A parameter of type <code>scratch -> 'a</code> asks for a global scratch argument.</p>
-              <p>That is necessary because the function type would allow the function to retain its argument.</p>
-              <p class="diagnostic-callout">Expected outcome: rejected at <code>f s</code>; this API did not promise borrowing.</p>
+              <p><code>exclave_</code> builds the returned value in the caller's region.</p>
+              <p>The caller can use the returned list as a local value.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_with_scratch_escape.ml</div>
-              <oxcaml check data-filename="Ex03_with_scratch_escape.ml" expect-error>
-type scratch = { mutable total : int }
+              <div class="code-label">Ex03_stack_sum_exclave_return.ml</div>
+              <oxcaml data-filename="Ex03_stack_sum_exclave_return.ml">
+let rec sum (xs : int list @ local) =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
 
-let saved : scratch option ref = ref None
+let sum3 a b c =
+  exclave_
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  n, xs
 
-let with_scratch_bad (f : scratch -> 'a) =
-  let s = stack_ { total = 0 } in
-  f s [@nontail]
-
-let bad () =
-  with_scratch_bad (fun s -> saved := Some s)
+let () =
+  let n, xs = sum3 1 2 3 in
+  print_endline (string_of_int n);
+  print_endline (string_of_int (sum xs))
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The saved ref shows why the ordinary function type is unsafe for stack state, even though the type checker rejects at the call.</aside>
+          <aside class="notes">The returned list is not smuggled out of sum3's region; it is allocated in the caller's region after exclave_.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide">
+          <h2>How OxCaml manages the allocation stack</h2>
+          <div class="region-compile-grid">
+            <article class="region-source-card">
+              <h3>Normal function</h3>
+              <pre><code>let f x =
+  ...
+  result</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let f x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  result</code></pre>
+            </article>
+            <article class="region-source-card">
+              <h3><code>exclave_</code> result</h3>
+              <pre><code>let f x =
+  exclave_
+  ...
+  result</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card no-region-card">
+              <pre><code>let f x =
+  ...
+  result</code></pre>
+            </article>
+          </div>
+          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide">
+          <h2>How OxCaml manages the allocation stack: tail calls</h2>
+          <div class="region-compile-grid tail-call-region-grid">
+            <article class="region-source-card">
+              <h3>Tail-call function</h3>
+              <pre><code>let rec loop x =
+  ...
+  loop next_x</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let rec loop x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  tail call loop next_x</code></pre>
+            </article>
+            <article class="region-source-card">
+              <h3>Non-tail call</h3>
+              <pre><code>let f x =
+  ...
+  g x [@nontail]</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card no-region-card">
+              <pre><code>let f x =
+  start_new_region ();
+  ...
+  let result = g x in
+  end_current_region ();
+  result</code></pre>
+            </article>
+          </div>
+          <p class="takeaway"><code>[@nontail]</code> suppresses the tail call, so the region ends only after the call returns.</p>
+          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Use [@nontail] when a local value must stay alive during the call.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide">
+          <h2>How OxCaml manages the allocation stack: mid-function <code>exclave_</code></h2>
+          <div class="region-compile-grid mid-exclave-grid">
+            <article class="region-source-card">
+              <h3>Middle <code>exclave_</code></h3>
+              <pre><code>let f x =
+  let y = prepare x in
+  exclave_
+  build_result y</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let f x =
+  start_new_region ();
+  let y = prepare x in
+  end_current_region ();
+  build_result y</code></pre>
+            </article>
+            <article class="region-compile-note" aria-label="exclave at the beginning note">
+              <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately.</p>
+              <p>That has the same effect as not starting a region.</p>
+            </article>
+          </div>
+          <aside class="notes">The subtle case is not an entirely exclaved function. Work before exclave_ still belongs to the function's own region; the region ends at the exclave_ point.</aside>
+        </section>
+
+        <section class="slide concept-slide locality-axis-slide">
+          <h2>How OxCaml checks stack allocation safety: the locality axis</h2>
+          <div class="axis-strip">
+            <div class="mode-axis axis-strip-modes locality">
+              <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this view</li></ul></div></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>x @ regional</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape as global</li></ul></div></div>
+            </div>
+            <p class="axis-strip-note">Locality answers: how long does this value live?</p>
+          </div>
+          <aside class="notes">Regional is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
         </section>
 
         <section class="slide live-slide">
-          <h2>Local function parameters express borrowing</h2>
+          <h2>Idiom: borrowing</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>A function argument can use temporary state during the call, but cannot retain it.</p>
-              <p>The local parameter is the API contract.</p>
+              <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, forced by the <code>@ local</code> parameter.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_with_scratch_local_function.ml</div>
@@ -1194,19 +1220,6 @@ let () =
           <aside class="notes">Do not describe exclave_ as smuggling out an existing local value. It builds the result in the parent region.</aside>
         </section>
 
-        <section class="slide concept-slide modality-picture-slide">
-          <h2>Runtime placement and mode view are different facts</h2>
-          <figure class="modality-figure">
-            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
-          </figure>
-          <div class="three-up compact-cards">
-            <article><h3>stack data</h3><p>Must be viewed as <code>@ local</code>.</p></article>
-            <article><h3>heap data</h3><p>Can be viewed as <code>@ local</code> by submoding.</p></article>
-            <article><h3><code>@@ global</code></h3><p>Preserves the global view across a field boundary.</p></article>
-          </div>
-          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode view.</aside>
-        </section>
-
         <section class="slide live-slide">
           <h2>Submoding: use global data locally</h2>
           <div class="live-layout">
@@ -1246,6 +1259,10 @@ let () =
             <div class="live-copy">
               <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
               <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
+              <br>
+              <p>Reason: modes are deep.</p>
+              <br>
+              <p>Modes apply all the way down in a data structure.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
@@ -1272,12 +1289,14 @@ let demo () =
           <h2>Modalities preserve the global view</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>Modes.Global.t</code> has a field with modality <code>@@ global</code>.</p>
-              <p>The outer list can be local while <code>inner.global</code> is still known to be global.</p>
+              <p>The outer list is local, while the inner list is global.</p>
+              <p>A local list of global lists: the field modality preserves the global view.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_global_wrapper_preserves_inner_list_globality.ml</div>
               <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
+type 'a global = { global : 'a @@ global }
+
 let saved : int list option ref = ref None
 
 let escape xs =
@@ -1286,7 +1305,7 @@ let escape xs =
 let demo () =
   let inner = [1; 2; 3] in
   escape inner;
-  let outer = stack_ [{ Modes.Global.global = inner }] in
+  let outer = stack_ [{ global = inner }] in
   match outer with
   | [] -> ()
   | inner :: _ -> escape inner.global
@@ -1294,6 +1313,14 @@ let demo () =
             </div>
           </div>
           <aside class="notes">Phrase this as a field-boundary rule, not a cast. The wrapper can only be built from a global value.</aside>
+        </section>
+
+        <section class="slide concept-slide modality-picture-slide">
+          <h2>Locality: the heap and stack picture with modalities</h2>
+          <figure class="modality-figure">
+            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
+          </figure>
+          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode view.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -1327,17 +1354,17 @@ let demo () =
             <li>Choose the feature that removes a specific cost.</li>
             <li>Read layout and kind requirements in APIs.</li>
           </ul>
-          <aside class="notes">Start from the ordinary OCaml runtime invariant, then show where it costs.</aside>
+          <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Runtime invariant: one OCaml value word</h2>
+        <section class="slide concept-slide value-invariant-slide">
+          <h2>Runtime invariant:<br>every OxCaml value is one word</h2>
           <div class="value-model-figure">
             <div class="value-model-grid">
               <div class="value-model-panel">
                 <h3>Immediate value</h3>
                 <div class="value-word value-word-immediate"><span class="value-word-main">63 bits of immediate data</span><span class="value-word-tag">1</span></div>
-                <p>Small integers and constructors with no payload use this shape.</p>
+                <p><code>int</code>, <code>char</code>, <code>bool</code>, <code>unit</code>, etc. use this shape.</p>
               </div>
               <div class="value-model-panel">
                 <h3>Pointer value</h3>
@@ -1352,7 +1379,7 @@ let demo () =
                     <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
                   </div>
                 </div>
-                <p>The word points to a heap block with a header and payload words.</p>
+                <p>Records, tuples, arrays, etc. use this shape.</p>
               </div>
             </div>
           </div>
@@ -1370,7 +1397,7 @@ let demo () =
               <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
             </div>
           </div>
-          <p class="takeaway">The GC follows fields described as values. Raw data fields are not scanned as pointers.</p>
+          <p class="takeaway">The header describes which fields are values vs. raw data. The GC does not scan raw data.</p>
           <aside class="notes">This distinction matters for unboxed float fields and mixed blocks.</aside>
         </section>
 
@@ -1378,24 +1405,26 @@ let demo () =
           <h2>Uniform value representation is powerful</h2>
           <div class="two-up">
             <article><h3>Source</h3><pre><code>let plain_value_integer = 5
+
 let plain_value_tuple = (1, 2, 3)
+
 type quote =
   { symbol : string
   ; price : int
   ; mutable size : int
   }</code></pre></article>
-            <article><h3>Runtime model</h3><p>GC, polymorphism, tuples, records, variants, and libraries all agree on one value shape.</p></article>
+            <article><h3>Runtime model</h3><p>The runtime, GC, and libraries all agree on one value shape. Polymorphic functions are only compiled once.</p></article>
           </div>
           <aside class="notes">The uniform model is a strength before it is a cost.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Variants and recursive data are values too</h2>
+          <h2>Variants are values too</h2>
           <div class="two-up">
             <article><h3>Constant constructors</h3><p>Represented as immediates.</p></article>
             <article><h3>Payload constructors</h3><p>Allocate heap blocks; the header tag identifies the constructor.</p></article>
           </div>
-          <p class="takeaway">Recursive data is a graph of value words and heap blocks.</p>
+          <p class="takeaway">Recursive data is a graph of values: immediates or pointers to other heap blocks.</p>
           <aside class="notes">This is where the representation visualizer is strongest in the course page.</aside>
         </section>
 
@@ -1403,7 +1432,7 @@ type quote =
           <h2>Sharing: the heap is a graph</h2>
           <pre><code>let shared = "shared"
 let t = (shared, shared, "other")</code></pre>
-          <p class="takeaway">Two fields can point at the same heap object. Visualizations must preserve sharing.</p>
+          <p class="takeaway">Two fields can point at the same heap object.</p>
           <aside class="notes">Do not redraw shared heap graphs as trees.</aside>
         </section>
 
@@ -1411,18 +1440,18 @@ let t = (shared, shared, "other")</code></pre>
           <h2>Uniform model costs: boxes and pointers</h2>
           <div class="cost-ledger">
             <article><h3>boxed numeric values</h3><pre><code>let boxed_numeric_values =
-  (3.5, 456L)</code></pre><p>tuple block, boxed float, boxed int64</p></article>
+  (3.5, 456L)</code></pre><p>tuple block, boxed <code>float</code>, boxed <code>int64</code></p></article>
             <article><h3>ordinary option values</h3><pre><code>let ordinary_option_values =
-  (None, Some "found")</code></pre><p>Some wrapper block</p></article>
+  (None, Some "found")</code></pre><p><code>Some</code> constructor requires a block</p></article>
           </div>
           <aside class="notes">Boxes mean allocation, headers, pointer indirection, and future GC work.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Layouts remove specific boxes</h2>
+          <h2>Unboxed types remove specific boxes</h2>
           <div class="cost-ledger">
             <article><h3>ordinary tuple</h3><pre><code>(1, "one")</code></pre><p>one heap block for grouping</p></article>
-            <article class="ok-card"><h3>unboxed product</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
+            <article class="ok-card"><h3>unboxed tuple</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
           </div>
           <aside class="notes">Unboxing removes the specified box, not everything reachable.</aside>
         </section>
@@ -1449,7 +1478,7 @@ type sample =
         </section>
 
         <section class="slide live-slide">
-          <h2>or_null removes option wrapper allocation</h2>
+          <h2><code>or_null</code> removes option wrapper allocation</h2>
           <div class="live-layout">
             <div class="live-copy">
               <div class="repr-map">
@@ -1483,10 +1512,11 @@ let hd_or_null xs =
         </section>
 
         <section class="slide live-slide">
-          <h2>or_null answer</h2>
+          <h2><code>or_null</code> answer</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p><code>Null</code> replaces <code>None</code>.</p>
+              <br>
               <p><code>This x</code> replaces <code>Some x</code> without adding a wrapper block around <code>x</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1506,11 +1536,13 @@ let hd_or_null = function
         </section>
 
         <section class="slide live-slide or-null-error-slide">
-          <h2>The limit: or_null cannot be nested</h2>
+          <h2>The limit: <code>or_null</code> cannot be nested</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p><code>Null</code> is represented by the null machine word.</p>
+              <br>
               <p>If <code>string or_null or_null</code> were allowed, the same null word would need two meanings: the outer missing value and the inner missing value.</p>
+              <br>
               <p class="diagnostic-callout">The payload of <code>or_null</code> must be non-null. A value that is already <code>or_null</code> is maybe-null.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1527,7 +1559,8 @@ type nested = string or_null or_null
           <h2>Kinds record allowed representations</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>If an error says a type parameter expects <code>value</code>, the API expects ordinary one-word OCaml values.</p>
+              <p>If an error says a type parameter expects <code>value</code>, the API expects ordinary one-word OxCaml values.</p>
+              <br>
               <p>Edit the kind bound from <code>value</code> to <code>float64</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1559,18 +1592,18 @@ end</code></pre><p>representation remains abstract; kind is public</p></article>
         <section class="slide concept-slide">
           <h2>Polymorphic code still has a layout</h2>
           <div class="two-up">
-            <article><h3>ordinary map</h3><pre><code>let rec map_value
-  : ('a : value) ('b : value).
-    ('a -> 'b)
-    -> 'a list
-    -> 'b list</code></pre></article>
+            <article><h3>ordinary map</h3><pre><code>val map_value
+  :  ('a : value) ('b : value)
+  .  ('a -> 'b)
+  -> 'a list
+  -> 'b list</code></pre></article>
             <article><h3>product layout map</h3><pre><code>type ('a : value & value) product_list = ...
 
-let rec map_product_list
-  : ('a : value & value) ('b : value & value).
-    ('a -> 'b)
-    -> 'a product_list
-    -> 'b product_list</code></pre></article>
+val map_product_list
+  :  ('a : value & value) ('b : value & value)
+  .  ('a -> 'b)
+  -> 'a product_list
+  -> 'b product_list</code></pre></article>
           </div>
           <aside class="notes">Code must know how many components are passed, returned, stored, and scanned.</aside>
         </section>
@@ -1580,16 +1613,16 @@ let rec map_product_list
           <pre><code>let%template[@kind k = (value, value & value)] id
   : ('a : k). 'a -> 'a =
   fun x -> x</code></pre>
-          <p class="takeaway">One source pattern can generate related checked definitions with different calling conventions.</p>
+          <p class="takeaway">One source pattern can generate multiple definitions with different calling conventions.</p>
           <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson.</aside>
         </section>
 
         <section class="slide summary-slide">
-          <h2>Choose the checked lever</h2>
+          <h2>Choose the correct lever</h2>
           <div class="lever-grid">
-            <article><h3>Race risk</h3><p>Use contention and portability requirements.</p></article>
-            <article><h3>Lifetime or heap allocation risk</h3><p>Use local, stack_, and exclave_.</p></article>
-            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed values, or_null, kinds, and templates.</p></article>
+            <article><h3>Data race safety</h3><p>Use contention and portability requirements.</p></article>
+            <article><h3>Lifetime correctness or heap allocation cost</h3><p>Use <code>local</code>, <code>stack_</code>, and <code>exclave_</code>.</p></article>
+            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed types, and <code>or_null</code>.</p></article>
           </div>
           <p class="takeaway">All three make performance-sensitive intent explicit and checked.</p>
           <aside class="notes">This is the final durable takeaway.</aside>

@@ -458,6 +458,147 @@ body {
   --oxcaml-editor-max-height: 34rem;
 }
 
+.stack-sum-example-slide .oxcaml-embed {
+  --oxcaml-output-font-size: 0.82rem;
+}
+
+.reveal .stack-sum-example-slide {
+  padding-top: 42px;
+  padding-bottom: 42px;
+}
+
+.stack-sum-example-slide h2 {
+  margin-bottom: 10px;
+  line-height: 1.18;
+}
+
+.stack-sum-example-slide .oxcaml-embed__output {
+  flex: 0 0 14rem;
+  min-height: 14rem;
+}
+
+.stack-sum-example-slide .oxcaml-embed .transcript {
+  padding-right: 1.1rem;
+}
+
+.region-compile-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1.18fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.allocation-stack-management-slide h2 {
+  padding-bottom: 4px;
+  line-height: 1.2;
+}
+
+.region-compile-grid article {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.region-compile-grid h3 {
+  margin-bottom: 12px;
+}
+
+.region-compile-grid pre code {
+  padding: 14px 16px;
+  font-size: 18px;
+  line-height: 1.32;
+}
+
+.region-compile-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  color: var(--accent);
+  font-size: 22px;
+  font-weight: 760;
+  line-height: 1.22;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.region-lowered-card pre {
+  border-color: rgba(0, 109, 146, 0.34);
+  background: var(--accent-soft);
+}
+
+.no-region-card pre {
+  border-color: rgba(22, 114, 74, 0.34);
+  background: var(--green-bg);
+}
+
+.mid-exclave-grid {
+  grid-template-rows: auto auto;
+}
+
+.region-compile-note {
+  grid-column: 1 / -1;
+  padding: 20px 24px;
+  border: 1px solid rgba(154, 91, 0, 0.32);
+  border-radius: 8px;
+  background: var(--orange-bg);
+}
+
+.region-compile-note p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 23px;
+}
+
+.region-compile-note p + p {
+  margin-top: 8px;
+}
+
+.heap-allocation-sign-slide {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.heap-allocation-sign-slide h2 {
+  max-width: 880px;
+  margin-bottom: 42px;
+  font-size: 66px;
+  line-height: 1;
+}
+
+.heap-allocation-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.heap-allocation-panels article {
+  min-height: 260px;
+  padding: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.heap-allocation-panels p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 42px;
+  font-weight: 760;
+  line-height: 1.12;
+}
+
+.heap-allocation-panels span {
+  display: block;
+  margin-bottom: 22px;
+  color: var(--accent);
+  font-size: 24px;
+  font-weight: 780;
+  text-transform: uppercase;
+}
+
 .fresh-buffer-slide .oxcaml-embed,
 .buffer-bug-slide .oxcaml-embed {
   --oxcaml-editor-max-height: 36rem;
@@ -1511,6 +1652,16 @@ body {
   gap: 12px;
 }
 
+.locality-axis-slide h2 {
+  padding-bottom: 4px;
+  line-height: 1.18;
+}
+
+.locality-axis-slide .axis-context {
+  padding-bottom: 2px;
+  line-height: 1.18;
+}
+
 .axis-mode {
   min-width: 0;
   min-height: 220px;
@@ -1827,6 +1978,11 @@ body {
 .value-model-panel p {
   margin: 18px 0 0;
   color: var(--muted);
+}
+
+.value-invariant-slide h2 {
+  padding-bottom: 4px;
+  line-height: 1.18;
 }
 
 .value-word {
@@ -2286,9 +2442,56 @@ oxcaml,
 
 .diagram-caption {
   max-width: 1050px;
-  margin: 0 0 16px;
+  margin: 0 0 12px;
   color: var(--muted);
   font-size: 20px;
+}
+
+.allocation-slide-code {
+  min-width: 0;
+}
+
+.allocation-workspace {
+  display: grid;
+  grid-template-columns: minmax(400px, 0.54fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.allocation-workspace .memory-column {
+  height: 390px;
+}
+
+.allocation-slide-code [data-visible-states].is-visible {
+  display: block !important;
+}
+
+.allocation-slide-code-panel {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.allocation-slide-code-panel h3 {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.allocation-slide-code-panel pre {
+  margin: 0;
+}
+
+.allocation-slide-code-panel pre code {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 7px;
+  font-size: 14px;
+  line-height: 1.18;
 }
 
 .state-tabs,
@@ -2688,7 +2891,7 @@ oxcaml,
 .modality-figure img {
   display: block;
   width: 100%;
-  max-height: 500px;
+  max-height: 620px;
   object-fit: contain;
   border: 1px solid var(--line);
   border-radius: 8px;
