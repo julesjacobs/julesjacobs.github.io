@@ -944,13 +944,13 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
-          <h2>Runtime invariant: one OCaml value word</h2>
+          <h2>Runtime invariant: every OCaml value is one word</h2>
           <div class="value-model-figure">
             <div class="value-model-grid">
               <div class="value-model-panel">
                 <h3>Immediate value</h3>
                 <div class="value-word value-word-immediate"><span class="value-word-main">63 bits of immediate data</span><span class="value-word-tag">1</span></div>
-                <p>Small integers and constructors with no payload use this shape.</p>
+                <p><code>int</code>, <code>char</code>, <code>bool</code>, <code>unit</code>, etc. use this shape.</p>
               </div>
               <div class="value-model-panel">
                 <h3>Pointer value</h3>
@@ -965,7 +965,7 @@ let demo () =
                     <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
                   </div>
                 </div>
-                <p>The word points to a heap block with a header and payload words.</p>
+                <p>Records, tuples, arrays, etc. use this shape.</p>
               </div>
             </div>
           </div>
@@ -983,7 +983,7 @@ let demo () =
               <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
             </div>
           </div>
-          <p class="takeaway">The GC follows fields described as values. Raw data fields are not scanned as pointers.</p>
+          <p class="takeaway">The header describes which fields are values vs. raw data. The GC does not scan raw data.</p>
           <aside class="notes">This distinction matters for unboxed float fields and mixed blocks.</aside>
         </section>
 
@@ -991,24 +991,26 @@ let demo () =
           <h2>Uniform value representation is powerful</h2>
           <div class="two-up">
             <article><h3>Source</h3><pre><code>let plain_value_integer = 5
+
 let plain_value_tuple = (1, 2, 3)
+
 type quote =
   { symbol : string
   ; price : int
   ; mutable size : int
   }</code></pre></article>
-            <article><h3>Runtime model</h3><p>GC, polymorphism, tuples, records, variants, and libraries all agree on one value shape.</p></article>
+            <article><h3>Runtime model</h3><p>The runtime, GC, and libraries all agree on one value shape. Polymorphic functions are only compiled once.</p></article>
           </div>
           <aside class="notes">The uniform model is a strength before it is a cost.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Variants and recursive data are values too</h2>
+          <h2>Variants are values too</h2>
           <div class="two-up">
             <article><h3>Constant constructors</h3><p>Represented as immediates.</p></article>
             <article><h3>Payload constructors</h3><p>Allocate heap blocks; the header tag identifies the constructor.</p></article>
           </div>
-          <p class="takeaway">Recursive data is a graph of value words and heap blocks.</p>
+          <p class="takeaway">Recursive data is a graph of values: immediates or pointers to other heap blocks.</p>
           <aside class="notes">This is where the representation visualizer is strongest in the course page.</aside>
         </section>
 
@@ -1016,7 +1018,7 @@ type quote =
           <h2>Sharing: the heap is a graph</h2>
           <pre><code>let shared = "shared"
 let t = (shared, shared, "other")</code></pre>
-          <p class="takeaway">Two fields can point at the same heap object. Visualizations must preserve sharing.</p>
+          <p class="takeaway">Two fields can point at the same heap object.</p>
           <aside class="notes">Do not redraw shared heap graphs as trees.</aside>
         </section>
 
@@ -1024,18 +1026,18 @@ let t = (shared, shared, "other")</code></pre>
           <h2>Uniform model costs: boxes and pointers</h2>
           <div class="cost-ledger">
             <article><h3>boxed numeric values</h3><pre><code>let boxed_numeric_values =
-  (3.5, 456L)</code></pre><p>tuple block, boxed float, boxed int64</p></article>
+  (3.5, 456L)</code></pre><p>tuple block, boxed <code>float</code>, boxed <code>int64</code></p></article>
             <article><h3>ordinary option values</h3><pre><code>let ordinary_option_values =
-  (None, Some "found")</code></pre><p>Some wrapper block</p></article>
+  (None, Some "found")</code></pre><p><code>Some</code> constructor requires a block</p></article>
           </div>
           <aside class="notes">Boxes mean allocation, headers, pointer indirection, and future GC work.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Layouts remove specific boxes</h2>
+          <h2>Unboxed types remove specific boxes</h2>
           <div class="cost-ledger">
             <article><h3>ordinary tuple</h3><pre><code>(1, "one")</code></pre><p>one heap block for grouping</p></article>
-            <article class="ok-card"><h3>unboxed product</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
+            <article class="ok-card"><h3>unboxed tuple</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
           </div>
           <aside class="notes">Unboxing removes the specified box, not everything reachable.</aside>
         </section>
@@ -1062,7 +1064,7 @@ type sample =
         </section>
 
         <section class="slide live-slide">
-          <h2>or_null removes option wrapper allocation</h2>
+          <h2><code>or_null</code> removes option wrapper allocation</h2>
           <div class="live-layout">
             <div class="live-copy">
               <div class="repr-map">
@@ -1096,10 +1098,11 @@ let hd_or_null xs =
         </section>
 
         <section class="slide live-slide">
-          <h2>or_null answer</h2>
+          <h2><code>or_null</code> answer</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p><code>Null</code> replaces <code>None</code>.</p>
+              <br>
               <p><code>This x</code> replaces <code>Some x</code> without adding a wrapper block around <code>x</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1119,11 +1122,13 @@ let hd_or_null = function
         </section>
 
         <section class="slide live-slide or-null-error-slide">
-          <h2>The limit: or_null cannot be nested</h2>
+          <h2>The limit: <code>or_null</code> cannot be nested</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p><code>Null</code> is represented by the null machine word.</p>
+              <br>
               <p>If <code>string or_null or_null</code> were allowed, the same null word would need two meanings: the outer missing value and the inner missing value.</p>
+              <br>
               <p class="diagnostic-callout">The payload of <code>or_null</code> must be non-null. A value that is already <code>or_null</code> is maybe-null.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1141,6 +1146,7 @@ type nested = string or_null or_null
           <div class="live-layout">
             <div class="live-copy">
               <p>If an error says a type parameter expects <code>value</code>, the API expects ordinary one-word OCaml values.</p>
+              <br>
               <p>Edit the kind bound from <code>value</code> to <code>float64</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1172,18 +1178,18 @@ end</code></pre><p>representation remains abstract; kind is public</p></article>
         <section class="slide concept-slide">
           <h2>Polymorphic code still has a layout</h2>
           <div class="two-up">
-            <article><h3>ordinary map</h3><pre><code>let rec map_value
-  : ('a : value) ('b : value).
-    ('a -> 'b)
-    -> 'a list
-    -> 'b list</code></pre></article>
+            <article><h3>ordinary map</h3><pre><code>val map_value
+  :  ('a : value) ('b : value)
+  .  ('a -> 'b)
+  -> 'a list
+  -> 'b list</code></pre></article>
             <article><h3>product layout map</h3><pre><code>type ('a : value & value) product_list = ...
 
-let rec map_product_list
-  : ('a : value & value) ('b : value & value).
-    ('a -> 'b)
-    -> 'a product_list
-    -> 'b product_list</code></pre></article>
+val map_product_list
+  :  ('a : value & value) ('b : value & value)
+  .  ('a -> 'b)
+  -> 'a product_list
+  -> 'b product_list</code></pre></article>
           </div>
           <aside class="notes">Code must know how many components are passed, returned, stored, and scanned.</aside>
         </section>
@@ -1193,16 +1199,16 @@ let rec map_product_list
           <pre><code>let%template[@kind k = (value, value & value)] id
   : ('a : k). 'a -> 'a =
   fun x -> x</code></pre>
-          <p class="takeaway">One source pattern can generate related checked definitions with different calling conventions.</p>
+          <p class="takeaway">One source pattern can generate multiple definitions with different calling conventions.</p>
           <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson.</aside>
         </section>
 
         <section class="slide summary-slide">
-          <h2>Choose the checked lever</h2>
+          <h2>Choose the correct lever</h2>
           <div class="lever-grid">
-            <article><h3>Race risk</h3><p>Use contention and portability requirements.</p></article>
-            <article><h3>Lifetime or heap allocation risk</h3><p>Use local, stack_, and exclave_.</p></article>
-            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed values, or_null, kinds, and templates.</p></article>
+            <article><h3>Data race safety</h3><p>Use contention and portability requirements.</p></article>
+            <article><h3>Lifetime correctness or heap allocation cost</h3><p>Use <code>local</code>, <code>stack_</code>, and <code>exclave_</code>.</p></article>
+            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed types, and <code>or_null</code>.</p></article>
           </div>
           <p class="takeaway">All three make performance-sensitive intent explicit and checked.</p>
           <aside class="notes">This is the final durable takeaway.</aside>
