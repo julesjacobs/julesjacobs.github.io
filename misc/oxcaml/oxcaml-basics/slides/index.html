@@ -26,7 +26,7 @@
         <section class="slide route-slide">
           <h2>The route</h2>
           <ol class="route">
-            <li><span>00</span><strong>Why OxCaml exists</strong><em>checked low-level intent</em></li>
+            <li><span>00</span><strong>Why OxCaml exists</strong><em>safe, convenient, predictable control over performance-critical aspects of program behavior</em></li>
             <li><span>01</span><strong>Parallelism</strong><em>contention and portability</em></li>
             <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
             <li><span>03</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
@@ -35,21 +35,21 @@
         </section>
 
         <section class="slide concept-slide">
-          <h2>Why OxCaml exists</h2>
+          <h2>Why does OxCaml exist?</h2>
           <div class="lever-grid">
-            <article><h3>OCaml default</h3><p>Safe, high-level, uniform values, GC-managed allocation.</p></article>
-            <article><h3>OxCaml addition</h3><p>Explicit compiler-checked control when the default costs too much.</p></article>
-            <article><h3>The goal</h3><p>Checked low-level intent, not unsafe faster OCaml.</p></article>
+            <article><h3>Upstream OCaml</h3><p>Safe, high-level, uniform values, with GC-managed allocation.</p></article>
+            <article><h3>OxCaml</h3><p>Explicit control when the default costs too much, without sacrificing safety.</p></article>
+            <article><h3>The goal</h3><p>Safe, predictable control over performance-critical aspects of program behavior.</p></article>
           </div>
           <aside class="notes">Frame every feature as making a performance-relevant fact visible to the type checker.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three failure classes</h2>
+          <h2>Three classes of failure</h2>
           <div class="failure-grid">
             <article class="bad"><h3>Data race</h3><p>Overlapping mutable access when at least one access writes.</p></article>
             <article class="bad"><h3>Dangling stack pointer</h3><p>A local value escapes the region that owns it.</p></article>
-            <article class="bad"><h3>Representation mismatch</h3><p>Code expects one value word, but the caller has raw or product layout.</p></article>
+            <article class="bad"><h3>Representation mismatch</h3><p>Data has the wrong in-memory layout.</p></article>
           </div>
           <p class="takeaway fragment">In all three cases, OxCaml turns a runtime failure mode into a compile-time error.</p>
           <aside class="notes">This primes the lecture around error reading, not feature memorization.</aside>
