@@ -10,37 +10,37 @@
     <main class="overview-page">
       <header class="no-rule">
         <h1>Why OxCaml exists</h1>
-        <p class="lede">OxCaml starts from OCaml's safe, high-level programming model and adds explicit, compiler-checked control over low-level behavior needed for high-performance code: parallelism, allocation, and representation.</p>
+        <p class="lede">OxCaml starts from OCaml's safe, high-level programming model and adds explicit, compiler-checked control over low-level behavior needed for high-performance code: parallelism, allocation, and memory layout.</p>
+        <p>OxCaml is still under active development. New features and changes are driven by concrete developer demand, especially from performance-sensitive OCaml codebases.</p>
       </header>
 
       <section class="section-band">
         <div class="grid">
           <article class="card">
             <h3>Parallelism</h3>
-            <p>Parallel programs need to use multiple cores without introducing data races. OxCaml's type checker tracks which callbacks can run in parallel and how they may access captured mutable state.</p>
+            <p>Parallel programs must not introduce data races. OxCaml's type checker tracks which functions can run in parallel and how they may access captured mutable state.</p>
           </article>
 
           <article class="card">
             <h3>Allocation</h3>
-            <p>A GC pause at the wrong time is unacceptable in low-latency code. OxCaml adds stack allocation, with type checking to ensure stack-allocated values do not escape.</p>
+            <p>A GC pause at the wrong time is unacceptable in low-latency code. OxCaml adds stack allocation, with type checking to ensure stack-allocated values do not outlive the stack frame that allocated them.</p>
           </article>
 
           <article class="card">
-            <h3>Representation</h3>
-            <p>High-performance programs need cache locality, fewer pointer indirections, and fewer heap allocations. OxCaml uses types and layouts to give control over value representation.</p>
+            <h3>Memory layout</h3>
+            <p>High-performance programs need cache locality, fewer pointer indirections, and fewer heap allocations. OxCaml uses types and layouts to give control over memory layout.</p>
           </article>
         </div>
       </section>
 
       <section class="section-band">
         <h2>OxCaml language features</h2>
-        <p>In this course you'll learn about the following OxCaml features.</p>
+        <p>To allow this extra control safely, OxCaml adds several type system features.</p>
 
         <ul class="feature-list">
-          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>x @ shared</code>, <code>(unit -&gt; unit) @ portable</code>, <code>f @@ portable</code> — checked requirements on how a value may be used at a particular binder or type position, such as whether a parallel callback may read captured mutable state.</span></li>
+          <li><strong>Modes</strong><span class="feature-copy"><code>x @ local</code>, <code>x @ shared</code>, <code>(unit -&gt; unit) @ portable</code>, <code>f @@ portable</code> — checked requirements on how a value may be used, such as whether it may outlive its region or whether a parallel function may read captured mutable state.</span></li>
           <li><strong>Stack allocation</strong><span class="feature-copy"><code>stack_ expr</code>, <code>exclave_ expr</code> — allocate temporary values without putting them on the heap.</span></li>
-          <li><strong>Zero allocation checks</strong><span class="feature-copy"><code>let[@zero_alloc] f ...</code> — ask the compiler to check that a function does not allocate on normal paths.</span></li>
-          <li><strong>Layouts and unboxed values</strong><span class="feature-copy"><code>float#</code>, <code>#(x, y)</code>, <code>#{ x : float# }</code> — control value representation.</span></li>
+          <li><strong>Layouts and unboxed values</strong><span class="feature-copy"><code>float#</code>, <code>#(x, y)</code>, <code>#{ x : float# }</code> — control memory layout.</span></li>
           <li><strong>Kinds</strong><span class="feature-copy"><code>type t : value mod portable</code>, <code>('a : value & immediate)</code> — record what modes or layouts every value of a type can support.</span></li>
           <li><strong>Templates</strong><span class="feature-copy"><code>let%template</code>, <code>[@mode]</code>, <code>[@kind]</code> — generate related definitions across modes, kinds, and layouts.</span></li>
         </ul>
@@ -50,8 +50,8 @@
         <h2>Learning goals</h2>
         <p>By the end of the course, you should be able to:</p>
         <ul class="outcome-list">
-          <li>read small OxCaml examples that use parallelism, stack allocation, zero-allocation checks, and representation layouts;</li>
-          <li>recognize common annotations such as <code>@ local</code>, <code>@ contended</code>, <code>@ portable</code>, layout annotations, and <code>[@zero_alloc]</code> in real signatures;</li>
+          <li>read small OxCaml examples that use parallelism, stack allocation, and representation layouts;</li>
+          <li>recognize common annotations such as <code>@ local</code>, <code>@ contended</code>, <code>@ portable</code>, and layout annotations in real signatures;</li>
           <li>explain common compiler errors involving escaping values, unsafe mutable access, heap allocation, or representation mismatch;</li>
           <li>choose the relevant OxCaml feature for small performance-sensitive examples.</li>
         </ul>

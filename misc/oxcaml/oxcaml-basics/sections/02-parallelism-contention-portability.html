@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Parallelism, Contention, And Portability</title>
-    <link rel="stylesheet" href="../assets/course.css?v=exercise-freeform-20260512">
+    <link rel="stylesheet" href="../assets/course.css?v=aside-neutral-20260513">
     <style>
       :root {
         color-scheme: light dark;
@@ -1611,86 +1611,62 @@
         <p>In this section you will learn how to use parallelism in OxCaml, and how the OxCaml type checker helps prevent bugs like data races.</p>
         <p>By the end of this section, you should be able to:</p>
         <ul>
-          <li>run work with structured fork/join and detached spawn;</li>
+          <li>run work with structured fork/join and spawn;</li>
           <li>explain why overlapping reads and writes of shared mutable state can cause data races;</li>
           <li>use contention modes to predict which direct reads and writes are allowed;</li>
-          <li>read mode requirements at explicit argument positions, including calls such as <code>bump_hits x</code>;</li>
-          <li>understand why function values also need portability requirements, especially when they hide mutable state in a closure environment;</li>
-          <li>read callback types such as <code>('a @ shared -&gt; 'b) @ shareable</code> positionally;</li>
-          <li>explain that <code>fork_join2</code> and <code>spawn</code> are ordinary APIs whose types require <code>shareable</code> or <code>portable</code> callbacks;</li>
-          <li>choose whether a parallel API should require a <code>shareable</code> or <code>portable</code> callback.</li>
+          <li>read mode requirements on explicit function arguments;</li>
+          <li>understand why function values need portability requirements, especially when they hide mutable state in a closure environment;</li>
+          <li>read higher-order mode requirements such as <code>('a @ shared -&gt; 'b) @ shareable</code>;</li>
+          <li>explain that <code>fork_join2</code> and <code>spawn</code> are ordinary functions whose types require <code>shareable</code> or <code>portable</code> function arguments.</li>
         </ul>
       </section>
 
       <section>
-        <h2>The parallel APIs we will use</h2>
-        <p>Before we talk about modes, it helps to know the two API shapes that motivate them. OxCaml has structured fork/join APIs for work that must finish before the parent continues, and detached spawn APIs for work that may keep running after the parent returns from the call.</p>
+        <h2>The parallel functions we will use</h2>
+        <p>Before we talk about modes, it helps to know the two function shapes that motivate them. OxCaml has structured fork/join functions for work that must finish before the parent continues, and spawn functions for work that may keep running after the parent returns from the call.</p>
         <div class="comparison">
           <article class="diagram-card">
             <h3><code>Parallel.fork_join2</code></h3>
             <p class="diagram-caption">Run two pieces of work, wait for both to finish, and return both results.</p>
-            <svg class="parallel-shape" viewBox="0 0 320 154" role="img" aria-labelledby="fork-join-shape-title">
-              <title id="fork-join-shape-title">Fork/join computations form a connected tree.</title>
-              <line class="edge" x1="142" y1="42" x2="108" y2="64"></line>
-              <line class="edge" x1="178" y1="42" x2="212" y2="64"></line>
-              <line class="edge" x1="84" y1="94" x2="70" y2="108"></line>
-              <line class="edge" x1="108" y1="94" x2="122" y2="108"></line>
-              <line class="edge" x1="212" y1="94" x2="198" y2="108"></line>
-              <line class="edge" x1="236" y1="94" x2="250" y2="108"></line>
-              <rect class="node root" x="132" y="10" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="68" y="64" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="196" y="64" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="36" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="100" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="164" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node" x="228" y="108" width="56" height="32" rx="8"></rect>
-              <text x="160" y="26">A</text>
-              <text x="96" y="80">B</text>
-              <text x="224" y="80">C</text>
-              <text x="64" y="124">D</text>
-              <text x="128" y="124">E</text>
-              <text x="192" y="124">F</text>
-              <text x="256" y="124">G</text>
+            <svg class="parallel-shape" viewBox="0 0 320 170" role="img" aria-labelledby="fork-join-shape-title">
+              <title id="fork-join-shape-title">A fork/join call runs two workers and joins before returning.</title>
+              <line class="edge" x1="160" y1="42" x2="96" y2="70"></line>
+              <line class="edge" x1="160" y1="42" x2="224" y2="70"></line>
+              <line class="edge" x1="96" y1="102" x2="160" y2="124"></line>
+              <line class="edge" x1="224" y1="102" x2="160" y2="124"></line>
+              <rect class="node root" x="106" y="10" width="108" height="32" rx="8"></rect>
+              <rect class="node" x="50" y="70" width="92" height="32" rx="8"></rect>
+              <rect class="node" x="178" y="70" width="92" height="32" rx="8"></rect>
+              <rect class="node root" x="106" y="124" width="108" height="32" rx="8"></rect>
+              <text x="160" y="26">call</text>
+              <text x="96" y="86">left</text>
+              <text x="224" y="86">right</text>
+              <text x="160" y="140">join</text>
             </svg>
-            <ul>
-              <li>The computation starts inside a scheduler.</li>
-              <li>The scheduler provides a <code>Parallel.t</code> capability.</li>
-              <li>Each function receives a nested <code>Parallel.t</code>.</li>
-              <li>The parent resumes only after the join.</li>
-            </ul>
           </article>
 
           <article class="diagram-card">
-            <h3><code>Multicore.spawn</code></h3>
-            <p class="diagram-caption">Start detached work and let the parent continue immediately.</p>
-            <svg class="parallel-shape" viewBox="0 0 320 154" role="img" aria-labelledby="spawn-shape-title">
-              <title id="spawn-shape-title">Detached spawn computations are loose parallel computation nodes.</title>
-              <rect class="node loose root" x="132" y="10" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="68" y="64" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="196" y="64" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="36" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="100" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="164" y="108" width="56" height="32" rx="8"></rect>
-              <rect class="node loose" x="228" y="108" width="56" height="32" rx="8"></rect>
-              <text x="160" y="26">A</text>
-              <text x="96" y="80">B</text>
-              <text x="224" y="80">C</text>
-              <text x="64" y="124">D</text>
-              <text x="128" y="124">E</text>
-              <text x="192" y="124">F</text>
-              <text x="256" y="124">G</text>
+            <h3><code>Concurrent.spawn</code></h3>
+            <p class="diagram-caption">Start one piece of work and let the parent continue immediately.</p>
+            <svg class="parallel-shape" viewBox="0 0 320 170" role="img" aria-labelledby="spawn-shape-title">
+              <title id="spawn-shape-title">A spawn call starts worker work while the parent continues.</title>
+              <line class="edge" x1="82" y1="42" x2="82" y2="124"></line>
+              <line class="edge" x1="126" y1="42" x2="230" y2="70"></line>
+              <rect class="node root" x="28" y="10" width="108" height="32" rx="8"></rect>
+              <rect class="node root" x="28" y="124" width="108" height="32" rx="8"></rect>
+              <rect class="node loose" x="184" y="70" width="92" height="32" rx="8"></rect>
+              <text x="82" y="26">parent</text>
+              <text x="82" y="140">continues</text>
+              <text x="230" y="86">worker</text>
             </svg>
-            <ul>
-              <li>The spawned work may overlap with later parent-side effects.</li>
-              <li>That makes captured mutable state much more dangerous.</li>
-              <li>The spawned function is therefore checked more strictly.</li>
-              <li>In the browser page, a shim runs the function synchronously; native OxCaml can run it in parallel.</li>
-            </ul>
           </article>
         </div>
-        <p class="operational-contract">The important operational contract is: fork/join waits before returning; detached spawn may outlive the call.</p>
-        <p class="operational-contract">Browser note: these examples use the real scheduler and spawn API names, but the JavaScript playground runs them sequentially behind the scenes. That lets us type-check and experiment in the browser even though JavaScript is not running native OxCaml domains.</p>
-        <p class="example-signpost"><strong>Fork/join:</strong> run inside a scheduler; call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
+        <p class="operational-contract">The important operational contract is: fork/join waits before returning; spawn may outlive the call.</p>
+        <aside class="course-aside">
+          <h3>Aside: browser scheduler shim</h3>
+          <p>These examples use the real scheduler and spawn function names, but the JavaScript playground runs them sequentially behind the scenes. That lets us type-check and experiment in the browser even though JavaScript is not running native OxCaml domains.</p>
+        </aside>
+        <p class="example-signpost"><strong>Fork/join:</strong> create a scheduler, then call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
         <div class="code-with-figure">
           <oxcaml data-filename="fork_join.ml" no-self-check style="--oxcaml-editor-max-height: 40rem">
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1721,9 +1697,12 @@
               print_endline "The output is:";
               print_endline s
           </oxcaml>
-          <div aria-hidden="true"></div>
+          <aside class="course-aside">
+            <h3>Aside: unboxed pairs</h3>
+            <p><code>fork_join2</code> returns an unboxed pair. Pattern matching uses <code>#(left, right)</code>; that <code>#</code> syntax is about the result representation, not about modes or parallelism.</p>
+          </aside>
         </div>
-        <p class="example-signpost"><strong>Spawn:</strong> pass a unit function to <code>Multicore.spawn</code>. In the browser playground the shim runs it immediately; native OxCaml can run it in parallel.</p>
+        <p class="example-signpost"><strong>Spawn:</strong> pass a unit function to <code>Concurrent.spawn</code>.</p>
         <div class="code-with-figure">
           <oxcaml data-filename="spawn.ml" no-self-check>
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1737,10 +1716,10 @@
 
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
-              print_endline "The output is:";
-              ignore (Multicore.spawn
-                (fun () -> print_endline (bits_to_string [true; false; true; true]))
-                ());
+              print_endline "The parent output is:";
+              let _ = Concurrent.spawn
+                (fun () -> ignore (bits_to_string [true; false; true; true]))
+                () in
               print_endline (bits_to_string [false; true; false; false])
           </oxcaml>
           <figure class="course-figure">
@@ -1748,22 +1727,15 @@
             <figcaption>Fresh per-call buffers are like separate workspaces: each parallel call mutates only its own scratch state.</figcaption>
           </figure>
         </div>
-        <p>In both examples, <code>bits_to_string</code> creates its buffer inside the function. Each call gets a fresh buffer, so the compiler infers that this function is safe enough to call in parallel. We will name that safety promise precisely below.</p>
+        <p>In both examples, <code>bits_to_string</code> creates its buffer inside the function. Each call gets a fresh buffer, so the compiler infers that this function is safe enough to call in parallel. We will describe that safety promise below.</p>
       </section>
 
       <section>
         <h2>Parallelism plus mutation can cause bugs</h2>
-        <p>Parallelism means two pieces of work may make progress at overlapping times. Mutation means the order of steps can affect the result. Together, they make some ordinary-looking refactors unsafe.</p>
+        <p>Parallelism means two pieces of work may touch the same object at overlapping times. Mutation makes that overlap dangerous when one piece of work changes the object while another piece of work reads or changes it.</p>
         <p>The safe version above allocates a fresh buffer on every call. A tempting optimization is to move the buffer outside the function and reuse it. That changes the ownership story: there is no longer one buffer per call, but one buffer shared by every call.</p>
         <p>If two calls overlap, they may clear and append to that shared buffer in an interleaved order. That is a <em>data race</em>: the string one call returns may contain pieces of another call's work.</p>
-        <aside class="exercise">
-          <h3>Exercise: which object is shared?</h3>
-          <p>Compare this version with the earlier <code>bits_to_string</code>. Which binding moved, and which object would two overlapping calls now share?</p>
-          <details>
-            <summary>Answer</summary>
-            <p><code>buf</code> moved from inside <code>bits_to_string</code> to a top-level binding. Every call to <code>bits_to_string_shared</code> now clears and appends to that same buffer.</p>
-          </details>
-        </aside>
+        <p>In the version below, <code>buf</code> has moved from inside <code>bits_to_string</code> to a top-level binding. Every call to <code>bits_to_string_shared</code> now clears and appends to that same buffer.</p>
         <div class="code-with-figure">
           <oxcaml check data-filename="shared_buffer.ml" expect-error>
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1779,9 +1751,9 @@
 
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
-              ignore (Multicore.spawn
+              let _ = Concurrent.spawn
                 (fun () -> print_endline (bits_to_string_shared [true; false; true; true]))
-                ());
+                () in
               print_endline (bits_to_string_shared [false; true; false; false])
           </oxcaml>
           <figure class="course-figure">
@@ -1789,47 +1761,31 @@
             <figcaption>A shared buffer is one workspace used by overlapping calls, so their mutations can interfere.</figcaption>
           </figure>
         </div>
-        <p>OxCaml rejects this spawned use of the refactored function. The important fact for now is that the refactored function is not safe to call from spawned parallel work. Later, we will name that failure as a portability failure.</p>
+        <p>OxCaml rejects the call to <code>Concurrent.spawn</code> that invokes <code>bits_to_string_shared</code>. The important fact for now is that the refactored function is not safe to call from spawned parallel work. Below, we will name that failure a portability failure.</p>
         <h3>What counts as a data race?</h3>
-        <p>The bad case is overlapping access to the same mutable state when at least one access writes. Two parallel writes are bad because the final value can depend on which piece of work happens to write last. A read parallel with a write is also bad, because the read may see either the old value or the new value depending on scheduling.</p>
+        <p>A data race happens when two pieces of work access the same mutable state at overlapping times, and at least one access writes. Two parallel writes are bad because the final value can depend on which piece of work happens to write last. A read that overlaps with a write is also bad, because the read may see either the old value or the new value depending on scheduling.</p>
         <p>Two parallel reads are fine: neither read changes the state, so their order cannot affect the result. Reads and writes are also fine when the program gives them a defined order, either by ordinary program order or by synchronization. For example, <code>fork_join2</code> synchronizes after its children finish, so parent code after the fork/join runs after both child computations are done.</p>
         <h3>Why OxCaml tracks data races in the type system</h3>
-        <ul>
-          <li>Parallel code often calls existing libraries. The type checker tells you whether those calls are safe in a parallel context.</li>
-          <li>This matters especially for code that was not originally written with parallel callers in mind.</li>
-          <li>Whether a function is safe to call in parallel is recorded in checked module signatures, instead of living in comments you cannot fully trust or being rediscovered every time.</li>
-          <li>The type checker does part of the review for you, so you do not have to manually chase every function body for hidden mutable state.</li>
-        </ul>
-        <p>The rest of this lecture builds the checking model in stages. Each step answers a puzzle left by the previous one:</p>
-        <ol>
-          <li>Parallel mutation can race.</li>
-          <li>Parallel callback bodies appear to be checked.</li>
-          <li>Contention modes explain direct mutable reads and writes.</li>
-          <li>Closure boundaries explain why captures are weakened inside fork/join and spawn callbacks.</li>
-          <li>Explicit argument modes explain calls such as <code>bump_hits x</code>.</li>
-          <li>Portability explains function values that hide mutable captures.</li>
-          <li>Positional mode annotations explain how to read real higher-order types.</li>
-          <li>The API types of <code>fork_join2</code> and <code>spawn</code> impose these requirements without any compiler special case for those names.</li>
-          <li>API design is the same idea applied to helpers such as <code>parallel_map</code>.</li>
-        </ol>
+        <p>Parallel code often calls existing libraries, including large codebases that were not originally written with parallel callers in mind. The type checker records whether those calls are safe in checked module signatures, so the answer does not have to live in comments or be rediscovered by manually chasing every function body for hidden mutable state.</p>
       </section>
 
       <section>
-        <h2>First approximation: parallel callback bodies are checked</h2>
+        <h2>First approximation: functions passed to parallel work are checked</h2>
         <p>When a closure is passed to parallel work, OxCaml checks the closure body under restrictions that prevent data races.</p>
         <p>As a first approximation:</p>
         <ul>
-          <li>a fork/join callback may read captured mutable state, but may not write it;</li>
-          <li>a spawned callback may not even read mutable fields, because that read may overlap with a later write in the parent;</li>
-          <li>fresh mutable state created inside the callback is still owned by that callback body.</li>
+          <li>a fork/join function may read captured mutable state, but may not write it;</li>
+          <li>a spawned function may not even read mutable fields, because that read may overlap with a later write in the parent;</li>
+          <li>fresh mutable state created inside the function is still owned by that function body.</li>
         </ul>
-        <p>This approximation is useful, but incomplete. The compiler is not doing a syntactic scan for assignments, and it is not special-casing the names <code>Parallel.fork_join2</code> or <code>Multicore.spawn</code>. It type-checks ordinary function calls using mode requirements. The next sections make that precise.</p>
+        <p>This approximation is useful, but incomplete. The compiler is not doing a syntactic scan for assignments, and it is not special-casing the names <code>Parallel.fork_join2</code> or <code>Concurrent.spawn</code>. To make the check precise, we need a way to track where mutation can happen. OxCaml does that with mode requirements.</p>
       </section>
 
       <section>
-        <h2>Contention modes: mutable access at a use site</h2>
-        <p>OxCaml tracks several mode axes. One of them is the <strong>contention</strong> axis. Contention controls what kind of access a use site has to the mutable components of a value.</p>
-        <p>The same source variable can be available at different contention modes in different contexts. In the examples below, <code>x</code> is ordinary mutable state outside the callback. When <code>x</code> is captured by a fork/join or spawned callback, the callback receives weaker access to <code>x</code>.</p>
+        <h2>Contention modes: read and write access</h2>
+        <p>A <strong>mode</strong> is a checked requirement on how a value may be used. The <strong>contention</strong> axis controls whether the mutable fields reachable through an expression can be read or written.</p>
+        <p>On this axis, <code>uncontended</code> access is stronger than <code>shared</code> access, and <code>shared</code> access is stronger than <code>contended</code> access. Stronger access permits more operations. Weaker access permits fewer operations, which is what makes overlapping parallel work safe.</p>
+        <p>The same source variable can be available at different contention modes in different contexts. In the examples below, <code>x</code> is ordinary mutable state outside the function. When <code>x</code> is captured by a fork/join or spawned function, that function receives weaker access to <code>x</code>.</p>
         <div class="callback-boundary-grid">
           <article class="diagram-card callback-boundary-card">
             <h3>Ordinary closure</h3>
@@ -1895,7 +1851,7 @@
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Multicore.spawn</span></div>
+              <div class="callback-line indent-1"><span class="tok-fn">Concurrent.spawn</span></div>
               <div class="callback-closure-argument">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame contended">
@@ -1914,8 +1870,8 @@
             </div>
           </article>
         </div>
-        <p>The final line in each example is outside the passed function, so it can still mutate <code>x</code>. In the <code>spawn</code> case, that may look surprising because spawned work may still be running. The reason it is safe is that inside the spawned function, captured <code>x</code> is treated as <code>x @ contended</code>: the function can use immutable fields of <code>x</code>, but it cannot read or write <code>x.hits</code>.</p>
-        <p>This is the first closure-boundary rule: when a callback crosses into parallel work, captured values are seen with weaker contention modes inside that callback. Fork/join weakens ordinary mutable captures to <code>shared</code>; spawn weakens them to <code>contended</code>.</p>
+        <p>The final line in each example is outside the passed function, so it can still mutate <code>x</code>. In the <code>spawn</code> case, that may look surprising because spawned work may still be running. The parent-side write is allowed because inside the spawned function, captured <code>x</code> is treated as <code>x @ contended</code>: the function can use immutable fields of <code>x</code>, but it cannot read or write <code>x.hits</code>.</p>
+        <p>This is the first closure-boundary rule: when a function crosses into parallel work, captured values are seen with weaker contention modes inside that function. Fork/join weakens ordinary mutable captures to <code>shared</code>; spawn weakens them to <code>contended</code>.</p>
         <div class="axis-strip-grid">
           <article class="axis-strip">
             <div class="axis-strip-heading">
@@ -1947,20 +1903,20 @@
                 </ul>
               </div>
             </div>
-            <p class="axis-strip-note">The arrows mean “can be passed to” on the contention axis: if a call site has <code>x @ uncontended</code>, it may pass <code>x</code> to a parameter that only requires <code>x @ shared</code> or <code>x @ contended</code>.</p>
+            <p class="axis-strip-note">The arrows show the submode order on the contention axis: stronger modes can be passed where weaker modes are required. If a call site has <code>x @ uncontended</code>, it may pass <code>x</code> to a parameter that only requires <code>x @ shared</code> or <code>x @ contended</code>.</p>
             <div class="axis-invariant">
-              <strong>Invariant.</strong> For any mutable value <code>x</code>, at any given time OxCaml maintains one of two access patterns:
+              <strong>Invariant.</strong> For any value <code>x</code>, at any given time OxCaml maintains one of two access patterns for the mutable fields reachable through <code>x</code>:
               <ul>
-                <li><strong>Single writer:</strong> one user has write access (<code>x @ uncontended</code>), while any number of parallel users have no access to the mutable parts (<code>x @ contended</code>).</li>
-                <li><strong>Many readers:</strong> any number of users have read access (<code>x @ shared</code>).</li>
+                <li><strong>Single writer:</strong> one thread has write access (<code>x @ uncontended</code>), while any number of parallel threads have no access to the mutable parts (<code>x @ contended</code>).</li>
+                <li><strong>Many readers:</strong> any number of threads have read access (<code>x @ shared</code>).</li>
               </ul>
-              That rules out parallel writes and write/read races.
+              Parallel functions establish this invariant through their mode requirements. The invariant is what rules out parallel writes and write/read races.
             </div>
           </article>
         </div>
         <h2>Function calls check explicit argument mode requirements</h2>
-        <p>A function call is another operation with mode requirements.</p>
-        <p>The compiler does not need to inline a helper to know whether the call is allowed. The helper's type records the modes it requires for each explicit argument.</p>
+        <p>Field access is not the only place where modes matter. Function calls also have mode requirements.</p>
+        <p>The compiler does not try to rediscover hidden mutation by looking through every function body at every call site. Instead, the helper's type records the modes it requires for each explicit argument.</p>
         <p>The helper functions below make those argument requirements explicit. Reading the immutable field works with any contention mode, reading the mutable field needs <code>shared</code> or <code>uncontended</code>, and writing the mutable field needs <code>uncontended</code>:</p>
         <oxcaml interface data-filename="mode_access.ml" no-self-check>
           type t = { id : int; mutable hits : int }
@@ -1974,13 +1930,18 @@
           (* Mutable field writes need uncontended mode. *)
           let bump_hits (x @ uncontended) = x.hits <- x.hits + 1
         </oxcaml>
-        <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access. You may also see inferred function promises such as <code>@@ stateless</code> or <code>@@ observing</code>; those are stronger or more precise promises than this section needs.</p>
-        <p>So a call like <code>bump_hits x</code> can fail even when <code>bump_hits</code> itself has no hidden mutable capture. The failure is at the explicit argument position:</p>
+        <p>Try changing the annotations on these helper arguments. The inferred types and errors show which operations require which contention modes.</p>
+        <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access.</p>
+        <aside class="course-aside">
+          <h3>Aside: inferred function promises</h3>
+          <p>You may also see inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. Ignore those for now; they are not needed for the contention examples.</p>
+        </aside>
+        <p>So a call like <code>bump_hits x</code> can be rejected even when <code>bump_hits</code> itself has no hidden mutable capture. The rejected check is at the explicit argument position:</p>
         <pre><code>available at call site:  x @ shared
 required by callee:      x @ uncontended</code></pre>
-        <aside class="exercise helper-call-exercise" data-helper-call-exercise>
-          <h3>Exercise: captured <code>x</code> across the three contexts</h3>
-          <p>Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Parallel.fork_join2</code>, or <code>Multicore.spawn</code>. Which helper calls are allowed inside each function? Click each cell to choose <code>yes</code> or <code>no</code>.</p>
+        <aside class="course-aside">
+          <h3>Worked example: captured <code>x</code> across the three contexts</h3>
+          <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Parallel.fork_join2</code>, or <code>Concurrent.spawn</code>. Then the helper calls are allowed as follows:</p>
           <div class="exercise-table-wrap">
             <table class="exercise-table">
               <thead>
@@ -1994,67 +1955,26 @@ required by callee:      x @ uncontended</code></pre>
               <tbody>
                 <tr>
                   <td><code>get_id x</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in List.iter">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in fork_join2">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_id x in spawn">?</button></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
                 </tr>
                 <tr>
                   <td><code>get_hits x</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_hits x in List.iter">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="get_hits x in fork_join2">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="get_hits x in spawn">?</button></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
+                  <td><span class="exercise-answer-pill">no</span></td>
                 </tr>
                 <tr>
                   <td><code>bump_hits x</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="bump_hits x in List.iter">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="bump_hits x in fork_join2">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="bump_hits x in spawn">?</button></td>
+                  <td><span class="exercise-answer-pill">yes</span></td>
+                  <td><span class="exercise-answer-pill">no</span></td>
+                  <td><span class="exercise-answer-pill">no</span></td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <div class="exercise-controls">
-            <button type="button" class="exercise-button" data-check-helper-table>Check table</button>
-            <button type="button" class="exercise-button" data-reset-helper-table>Reset</button>
-            <span class="exercise-feedback" data-helper-table-feedback aria-live="polite"></span>
-          </div>
-          <details data-helper-table-answer>
-            <summary>Answer</summary>
-            <p>For captured <code>x</code>, the answer is:</p>
-            <div class="exercise-table-wrap">
-              <table class="exercise-table">
-                <thead>
-                  <tr>
-                    <th>Call on captured <code>x</code></th>
-                    <th><code>List.iter</code></th>
-                    <th><code>fork_join2</code></th>
-                    <th><code>spawn</code></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><code>get_id x</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                  </tr>
-                  <tr>
-                    <td><code>get_hits x</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                  </tr>
-                  <tr>
-                    <td><code>bump_hits x</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p><code>List.iter</code> uses an ordinary function, so captured <code>x</code> stays uncontended. In a function passed to <code>fork_join2</code>, captured <code>x</code> becomes shared: mutable reads are allowed, mutable writes are not. In a function passed to <code>spawn</code>, captured <code>x</code> becomes contended: immutable-field reads are allowed, but mutable reads and writes are not.</p>
-          </details>
+          <p><code>List.iter</code> uses an ordinary function, so captured <code>x</code> stays uncontended. In a function passed to <code>fork_join2</code>, captured <code>x</code> becomes shared: mutable reads are allowed, mutable writes are not. In a function passed to <code>spawn</code>, captured <code>x</code> becomes contended: immutable-field reads are allowed, but mutable reads and writes are not.</p>
         </aside>
         <aside class="exercise">
           <h3>Exercise: <code>x</code> created inside the passed function</h3>
@@ -2141,12 +2061,6 @@ required by callee:      x @ uncontended</code></pre>
             <p>Immutable field reads work in any mode. Mutable field reads need <code>x @ shared</code> or <code>x @ uncontended</code>. Mutable field writes need <code>x @ uncontended</code>.</p>
           </details>
         </aside>
-        <h3>Buffer operations have argument-mode requirements</h3>
-        <p><code>Buffer.clear</code> and <code>Buffer.add_char</code> are mutating operations. They require the same kind of access as <code>bump_hits</code>: uncontended access to the buffer.</p>
-        <pre><code>val clear : Buffer.t @ uncontended -&gt; unit
-val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
-        <p>This explains the local requirement of the buffer operations: wherever these functions are called, their buffer argument must be available at <code>@ uncontended</code>.</p>
-        <p>The earlier <code>bits_to_string_shared</code> example has one more layer. The buffer is not passed explicitly to the spawned callback. Instead, the function <code>bits_to_string_shared</code> closes over the shared buffer. That means the spawned callback is not just checking an explicit buffer argument; it is also checking whether the function value <code>bits_to_string_shared</code> is portable enough to call from spawned work. We return to that after introducing portability.</p>
       </section>
 
       <section>
@@ -2164,7 +2078,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
               <div class="axis-mode good">
                 <code>portable</code>
                 <ul>
-                  <li>can be used in detached parallel work</li>
+                  <li>can be used in spawned parallel work</li>
                   <li>for closures: only immutable-field access to ordinary mutable captures</li>
                 </ul>
               </div>
@@ -2199,7 +2113,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
           let write_x v = x.hits <- v  (* a nonportable function *)
 
           let _ =
-            ignore (Multicore.spawn (fun () -> write_x 1) ());
+            let _ = Concurrent.spawn (fun () -> write_x 1) () in
             write_x 2
         </oxcaml>
         <h3>Moving access into helpers does not change the rule</h3>
@@ -2270,7 +2184,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
-            <h3><code>Multicore.spawn</code></h3>
+            <h3><code>Concurrent.spawn</code></h3>
             <div class="callback-boundary-code" aria-label="Spawned helper calls cross a portable boundary">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
@@ -2279,7 +2193,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
               <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
               <div class="callback-line"></div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Multicore.spawn</span></div>
+              <div class="callback-line indent-1"><span class="tok-fn">Concurrent.spawn</span></div>
               <div class="callback-closure-argument wide">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame contended">
@@ -2307,7 +2221,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
           let (read_x @ shareable) () = x.hits
           let (write_x @ nonportable) v = x.hits <- v
         </oxcaml>
-        <p>For now, focus on the source annotations rather than inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. <code>id_x</code> is portable because it only uses the immutable field. <code>read_x</code> is shareable because it reads mutable state. <code>write_x</code> is nonportable because it writes mutable state.</p>
+        <p>Read the source annotations first. <code>id_x</code> is portable because it only uses the immutable field. <code>read_x</code> is shareable because it reads mutable state. <code>write_x</code> is nonportable because it writes mutable state.</p>
         <aside class="exercise">
           <h3>Exercise: where can each helper be used?</h3>
           <p>Using the annotations in the block above, decide which helpers can be used from an ordinary function, fork/join work, and spawned work.</p>
@@ -2331,7 +2245,7 @@ val add_char : Buffer.t @ uncontended -&gt; char -&gt; unit</code></pre>
   x.hits &lt;- x.hits + 1
 
 fun _parallel -&gt; bump_hits x</code></pre>
-        <p>The captured value <code>x</code> is passed explicitly. The call is checked against <code>bump_hits</code>'s parameter mode. In a fork/join callback, captured <code>x</code> is available only as <code>shared</code>, but <code>bump_hits</code> requires <code>uncontended</code>.</p>
+        <p>The captured value <code>x</code> is passed explicitly. The call is checked against <code>bump_hits</code>'s parameter mode. In a fork/join function, captured <code>x</code> is available only as <code>shared</code>, but <code>bump_hits</code> requires <code>uncontended</code>.</p>
         <p><strong>Hidden capture:</strong></p>
         <pre><code>let write_x v =
   x.hits &lt;- v
@@ -2351,8 +2265,8 @@ let bits_to_string_shared bits =
   Buffer.clear buf;
   ...</code></pre>
         <p>Inside the implementation, <code>Buffer.clear buf</code> and <code>Buffer.add_char buf</code> require <code>buf @ uncontended</code>.</p>
-        <p>Since <code>buf</code> is captured by <code>bits_to_string_shared</code>, the function value is not portable. A spawned callback may only call portable-enough function values, so this use is rejected:</p>
-        <pre><code>Multicore.spawn
+        <p>Since <code>buf</code> is captured by <code>bits_to_string_shared</code>, the function value is not portable. A spawned function may only call portable-enough function values, so this use is rejected:</p>
+        <pre><code>Concurrent.spawn
   (fun () -&gt; bits_to_string_shared bits)
   ()</code></pre>
         <p>If the buffer were passed explicitly instead, the failure would be at the buffer argument:</p>
@@ -2361,7 +2275,7 @@ let bits_to_string_shared bits =
   ...
 
 fun () -&gt; write_bits buf bits</code></pre>
-        <p>In that version, the callback has a weakened <code>buf</code>, but <code>write_bits</code> requires an uncontended buffer argument.</p>
+        <p>In that version, the spawned function has a weakened <code>buf</code>, but <code>write_bits</code> requires an uncontended buffer argument.</p>
       </section>
 
       <section>
@@ -2385,7 +2299,8 @@ fun () -&gt; write_bits buf bits</code></pre>
             ignore (get_count x)
 
           let bad_spawn x =
-            ignore (Multicore.spawn (read_count_later x) ())
+            let _ = Concurrent.spawn (read_count_later x) () in
+            ()
         </oxcaml>
         <oxcaml check data-filename="fork_capture.ml" expect-error no-self-check>
           type t = { id : int; mutable count : int }
@@ -2416,7 +2331,7 @@ fun () -&gt; write_bits buf bits</code></pre>
           <li>calling a captured function value that hides mutable state.</li>
         </ul>
         <p>All three are consequences of the same boundary rule. When a value from the outer scope is used inside a closure with a parallel-safety promise, the value crosses a closure boundary. The closure's required portability mode determines which modes the captured value is available at inside the body.</p>
-        <p>The diagrams below summarize that boundary behavior. They are not special rules for <code>fork_join2</code> or <code>spawn</code>; those APIs merely require callback modes that trigger these checks. In the fork/join diagram, assume <code>parallel : Parallel.t @ local</code> is already in scope.</p>
+        <p>The diagrams below summarize that boundary behavior. They are not special rules for <code>fork_join2</code> or <code>spawn</code>; those functions merely require function-argument modes that trigger these checks. In the fork/join diagram, assume <code>parallel : Parallel.t @ local</code> is already in scope.</p>
         <aside class="checkpoint">
           <h3>Checkpoint: predict the boundary effect</h3>
           <p>Look for <code>b @ uncontended</code> in both diagrams. Predict whether the closure body still gets <code>uncontended</code> mode, a weaker mode, or an error.</p>
@@ -2531,7 +2446,7 @@ fun () -&gt; write_bits buf bits</code></pre>
           <article class="diagram-card capture-card portable-card">
             <div class="capture-card-header">
               <h3><code>portable</code> closure</h3>
-              <p class="capture-legend">A detached-spawn closure is checked even more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
+              <p class="capture-legend">A spawned closure is checked even more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
             </div>
             <div class="capture-code">
               <svg class="capture-overlay" aria-hidden="true"></svg>
@@ -2616,7 +2531,7 @@ fun () -&gt; write_bits buf bits</code></pre>
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src">ignore (<span class="tok-fn">Multicore.spawn</span> worker ())</span>
+                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> worker ())</span>
                     <span class="capture-note good">spawn</span>
                   </div>
                   <div class="capture-line">
@@ -2688,7 +2603,7 @@ fun () -&gt; write_bits buf bits</code></pre>
 
       <section>
         <h2>Mode annotations are positional</h2>
-        <p>Before reading the API types directly, it helps to separate two ideas. A mode annotation belongs to the type position where it appears, and the mode axis tells you what property that position requires.</p>
+        <p>Before reading the function types directly, it helps to separate two ideas. A mode annotation belongs to the type position where it appears, and the mode axis tells you what property that position requires.</p>
         <pre><code>('a @ shared -> 'b) @ shareable</code></pre>
         <p>This type has two separate requirements. The function value itself must be <code>shareable</code>, and each explicit argument is provided to the function as <code>'a @ shared</code>. Do not read this as a distinction between “functions” and “values”: function values are values, and modes attach to positions.</p>
         <pre><code>((unit -> unit) @ portable -> unit) @ shareable</code></pre>
@@ -2696,9 +2611,10 @@ fun () -&gt; write_bits buf bits</code></pre>
       </section>
 
       <section>
-        <h2>Parallel APIs are ordinary typed APIs</h2>
-        <p>So far we have talked as though the compiler recognizes <code>Parallel.fork_join2</code> and <code>Multicore.spawn</code> specially. That is only a teaching approximation.</p>
-        <p>The real rule is that these are ordinary APIs whose types require particular modes on callback arguments.</p>
+        <h2>Parallel functions are ordinary typed functions</h2>
+        <p>So far we have talked as though the compiler recognizes <code>Parallel.fork_join2</code> and <code>Concurrent.spawn</code> specially. That is only a teaching approximation.</p>
+        <p>The real rule is that these are ordinary functions whose types require particular modes on function arguments.</p>
+        <p>The practical difference between the two examples comes from those types. Fork/join's API can ask for <code>shareable</code> worker functions, while spawn's API asks for a <code>portable</code> worker function. That is a design choice in this mode system, not a separate hard-coded rule about the words “fork” and “spawn”.</p>
         <p>Schematic fork/join type, omitting details such as <code>once</code>, <code>local</code>, and <code>forkable</code>:</p>
         <pre><code>val fork_join2 :
   Parallel.t @ local -&gt;
@@ -2709,19 +2625,19 @@ fun () -&gt; write_bits buf bits</code></pre>
         <pre><code>val spawn :
   (unit -&gt; unit) @ portable -&gt;
   unit -&gt; unit</code></pre>
-        <p>Calling <code>fork_join2</code> requires shareable callbacks. That requirement causes captured mutable state inside each callback to be available only with shared/read-only access. Therefore:</p>
+        <p>Calling <code>fork_join2</code> requires shareable function arguments. That requirement causes captured mutable state inside each function to be available only with shared/read-only access. Therefore:</p>
         <ul>
           <li>direct writes to captured mutable state are rejected;</li>
           <li>calls like <code>bump_hits x</code> are rejected if <code>bump_hits</code> requires <code>x @ uncontended</code>;</li>
           <li>calls like <code>write_x 1</code> are rejected if <code>write_x</code> is not shareable.</li>
         </ul>
-        <p>Calling <code>spawn</code> requires a portable callback. That requirement is stricter. Therefore:</p>
+        <p>Calling <code>spawn</code> requires a portable function argument. That requirement is stricter. Therefore:</p>
         <ul>
           <li>direct reads and writes of captured mutable fields are rejected;</li>
-          <li>calls fail if their explicit arguments require stronger modes than the callback has;</li>
+          <li>calls are rejected if their explicit arguments require stronger modes than the function has;</li>
           <li>called function values must themselves be portable enough.</li>
         </ul>
-        <p>This is the point of the mode system: parallel APIs express their safety requirements in ordinary types, and the compiler checks those requirements compositionally.</p>
+        <p>This is the point of the mode system: parallel functions express their safety requirements in ordinary types, and the compiler checks those requirements compositionally.</p>
       </section>
 
       <section>
@@ -2792,8 +2708,8 @@ let () =
             <p>Read the type as a contract for moving work into a fork/join tree.</p>
             <ul>
               <li><code>Parallel.t @ local</code> is checked against the implementation of <code>parallel_map</code>. It promises that <code>parallel_map</code> only borrows the scheduler capability while it runs; it will not store it, return it, or let it escape.</li>
-              <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit callback argument. <code>parallel_map</code> is going to use that callback inside fork/join branches, so the callback value must be available as <code>shareable</code>. This matters most when the callback closes over mutable state, functions, or other portability-sensitive values.</li>
-              <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the callback. If an element contains mutable state, the callback may read that state but may not mutate it. This is why a callback such as <code>fun x -&gt; bump_hits x</code> fails when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
+              <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit function argument. <code>parallel_map</code> is going to use that function inside fork/join branches, so the function value must be available as <code>shareable</code>. This matters most when the function closes over mutable state, functions, or other portability-sensitive values.</li>
+              <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the function argument. If an element contains mutable state, the function may read that state but may not mutate it. This is why a function such as <code>fun x -&gt; bump_hits x</code> is rejected when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
               <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a portability requirement at the input-list position. Pieces of the list flow into the fork/join tree, so the input must be usable in that context. This matters when the element type contains functions or other portability-sensitive values.</li>
               <li>The <code>@ shared</code> on <code>'a list @ shareable shared</code> is a contention requirement at the same input-list position. <code>parallel_map</code> only gets read-capable access to the list and to the elements it extracts from it. This matters when elements contain mutable state.</li>
               <li>Together, <code>@ shareable shared</code> shows that one type position can carry requirements from multiple mode axes.</li>
@@ -2810,11 +2726,11 @@ let () =
         <pre><code>x : t @ shared</code></pre>
         <p>The value at this position must be available with shared contention.</p>
         <pre><code>f : (unit -&gt; unit) @ portable</code></pre>
-        <p>The function value at this position must be available with portable portability.</p>
+        <p>The function value at this position must be available at the <code>portable</code> mode on the portability axis.</p>
         <pre><code>run : ((unit -&gt; unit) @ portable -&gt; unit) @@ portable</code></pre>
         <p>The explicit argument to <code>run</code> must be a portable function value, and the value <code>run</code> itself is declared portable at the module boundary.</p>
         <pre><code>map : ('a @ shared -&gt; 'b) @ shareable -&gt; 'a list @ shareable shared -&gt; 'b list</code></pre>
-        <p>The callback value is shareable; the callback receives each element as shared; the input list position carries both portability and contention requirements.</p>
+        <p>The function argument is shareable; the function receives each element as shared; the input list position carries both portability and contention requirements.</p>
         <aside class="mode-syntax">
           <h3>Mode annotation syntax</h3>
           <p>OxCaml can often infer modes. We write them explicitly when we want to document an API boundary or make an error point closer to the relevant value.</p>
@@ -2912,7 +2828,7 @@ let () =
           <p>Why is the previous immutable capture accepted while this reference capture is rejected?</p>
           <details>
             <summary>Answer</summary>
-            <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a detached parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
+            <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a spawned parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
           </details>
         </aside>
         <oxcaml check data-filename="bad_ref.ml" expect-error>
@@ -2931,8 +2847,143 @@ let () =
 
           let () = print_endline (string_of_int (fresh_ref ()))
         </oxcaml>
+      </section>
 
-        <h3>Library boundary: interface annotations for portable APIs</h3>
+      <section>
+        <h2>Mode crossing is a property of a type</h2>
+        <p>So far, modes have described how a particular value may be used at a particular program point. Mode crossing is a different idea: it is a property of a type. A type crosses a mode axis when values of that type do not care about that axis.</p>
+        <p>The simplest example is <code>int</code>. An integer has no mutable field, no closure environment, and no heap object whose thread access matters. That is why an <code>int @ contended</code> can still be used where an <code>int @ uncontended</code> is expected, and an <code>int @ nonportable</code> can still be used where an <code>int @ portable</code> is expected.</p>
+        <oxcaml check data-filename="mode_cross_int.ml">
+          let int_crosses_contention
+                (x : int @ contended)
+                : int @ uncontended =
+            x
+
+          let int_crosses_portability
+                (x : int @ nonportable)
+                : int @ portable =
+            x
+        </oxcaml>
+        <p>Kinds are how an interface records this fact for user-defined types. For parallelism, the most useful kinds say whether a type can ignore portability, contention, or both.</p>
+        <ul>
+          <li><code>mutable_data</code> means ordinary data that contains no functions deeply. It may contain mutable fields, so contention still matters, but portability does not. The axis-specific form of that portability promise is <code>value mod portable</code>.</li>
+          <li><code>value mod contended</code> means the type can ignore contention. In basic code, think "no ordinary mutable state"; function values may still appear, so this is not a portability promise.</li>
+          <li><code>immutable_data</code> means plain immutable data: no functions and no ordinary mutable fields deeply. It crosses both portability and contention.</li>
+        </ul>
+        <oxcaml check data-filename="mode_cross_kinds.ml">
+          type immutable_pair : immutable_data =
+            { id : int; name : string }
+
+          let immutable_pair_crosses
+                (x : immutable_pair @ nonportable contended)
+                : immutable_pair @ portable uncontended =
+            x
+
+          type mutable_counter : value mod portable =
+            { id : int; mutable count : int }
+
+          let counter_crosses_portability
+                (x : mutable_counter @ nonportable)
+                : mutable_counter @ portable =
+            x
+
+          type callback_box : value mod contended =
+            { f : int -> int }
+
+          let callback_box_crosses_contention
+                (x : callback_box @ contended)
+                : callback_box @ uncontended =
+            x
+        </oxcaml>
+
+        <h3>Parameterized types cross an axis only when their contents do</h3>
+        <p>Parameterized types need one more piece. A list or box may be immutable itself, but it contains values of some element type. The kind uses <code>with 'a</code> to say: this container can cross an axis only when the stored <code>'a</code> values can cross that axis too.</p>
+        <oxcaml check data-filename="mode_cross_with.ml">
+          type 'a box : immutable_data with 'a = Box of 'a
+
+          let int_box_crosses
+                (x : int box @ nonportable contended)
+                : int box @ portable uncontended =
+            x
+
+          let function_box_crosses_contention
+                (x : (unit -> unit) box @ contended)
+                : (unit -> unit) box @ uncontended =
+            x
+        </oxcaml>
+        <p>The <code>int box</code> example crosses both axes because <code>int</code> crosses both axes. The function box crosses contention because the box and the function value are immutable for this purpose, but it does not automatically cross portability: a function value may close over nonportable state.</p>
+        <oxcaml check data-filename="mode_cross_with_bad.ml" expect-error>
+          type 'a box : immutable_data with 'a = Box of 'a
+
+          let function_box_does_not_cross_portability
+                (x : (unit -> unit) box @ nonportable)
+                : (unit -> unit) box @ portable =
+            x
+        </oxcaml>
+
+        <h3>Maps also carry comparator evidence</h3>
+        <p>Real library types often have one more dependency hidden in their definition. A <code>Map</code> stores keys and values, but it also stores comparator evidence. For a map with a custom key type to cross portability, the key type and the comparator evidence must both carry the right mode information.</p>
+        <oxcaml check data-filename="custom_key_map_crosses.ml">
+          open Base
+
+          type key =
+            { id : int
+            ; name : string
+            }
+          [@@deriving compare, sexp_of]
+
+          module Key = struct
+            type t = key
+
+            let compare = compare_key
+            let sexp_of_t = sexp_of_key
+
+            include Comparator.Make [@modality portable] (struct
+              type nonrec t = t
+
+              let compare = compare
+              let sexp_of_t = sexp_of_t
+            end)
+          end
+
+          type ('a : value mod portable) require_portable
+          type ('a : value mod contended) require_contended
+
+          type map = int Map.M(Key).t
+          type portable_ok = map require_portable
+          type contended_ok = map require_contended
+        </oxcaml>
+        <p>The <code>[@@deriving compare, sexp_of]</code> line generates the ordinary comparison and sexp functions for the key type. The important OxCaml-specific part is <code>Comparator.Make [@modality portable]</code>: it checks that those functions are portable and exposes <code>comparator_witness</code> with a portable kind, so the map can cross the portability axis when its keys and values can.</p>
+        <oxcaml check data-filename="custom_key_map_plain_comparator.ml" expect-error>
+          open Base
+
+          type key = { id : int }
+          [@@deriving compare, sexp_of]
+
+          module Key = struct
+            type t = key
+
+            let compare = compare_key
+            let sexp_of_t = sexp_of_key
+
+            include Comparator.Make (struct
+              type nonrec t = t
+
+              let compare = compare
+              let sexp_of_t = sexp_of_t
+            end)
+          end
+
+          type ('a : value mod portable) require_portable
+
+          type does_not_cross =
+            int Map.M(Key).t require_portable
+        </oxcaml>
+        <p>The plain <code>Comparator.Make</code> version uses the same derived functions, but it does not export the comparator witness as portable. The map is therefore stuck with an abstract comparator dependency that the type checker cannot ignore.</p>
+      </section>
+
+      <section>
+        <h2>Interface annotations make portable APIs reusable</h2>
         <p>When these ideas become part of a library boundary, the modes belong in the interface. The implementation can use local mutation internally, but the exposed API should say which values are portable and which operations can be called from portable code.</p>
         <p>Here, <code>create</code> promises to produce a portable value, and <code>price</code> promises to work from portable code while only requiring the value in <code>contended</code> mode.</p>
         <oxcaml check data-filename="portable_api.ml">
@@ -2944,7 +2995,7 @@ let () =
           end
         </oxcaml>
 
-        <h3>Reference: portabilizing whole API signatures</h3>
+        <h3>Portabilizing whole API signatures</h3>
         <p>Portabilizing an API means changing its <code>.mli</code> so parallel callers can see the right checked promises. If most values in an interface should be callable from portable code, put <code>@@ portable</code> at the top of the <code>.mli</code>. Inside a module type, write <code>sig @@ portable</code>. Individual declarations can opt out with <code>@@ nonportable</code>.</p>
         <pre><code>@@ portable
 
@@ -3018,46 +3069,15 @@ end</code></pre>
             let reset_for_tests () = all_created := []
           end
         </oxcaml>
-        <p>Kinds are the other half of portabilizing signatures. They tell the compiler when values of a type do not need ordinary portability or contention tracking.</p>
-        <ul>
-          <li><code>immutable_data</code>: no function values and no ordinary mutable state, so the type crosses both portability and contention.</li>
-          <li><code>value mod portable</code>: crosses portability. In basic code, think “ordinary data, possibly mutable, but not containing nonportable functions.”</li>
-          <li><code>value mod contended</code>: crosses contention. In basic code, think “no ordinary mutable state,” but function values can still appear, so this is not a portability promise.</li>
-        </ul>
-        <oxcaml check data-filename="kind_mode.ml">
-          type immutable_pair : immutable_data =
-            { id : int; name : string }
-
-          let both
-                (x : immutable_pair @ nonportable uncontended)
-                : immutable_pair @ portable contended =
-            x
-
-          type mutable_counter : value mod portable =
-            { id : int; mutable count : int }
-
-          let portable_counter
-                (x : mutable_counter @ nonportable)
-                : mutable_counter @ portable =
-            x
-
-          type callback_box : value mod contended =
-            { f : int -> int }
-
-          let contended_callback
-                (x : callback_box @ uncontended)
-                : callback_box @ contended =
-            x
-        </oxcaml>
       </section>
       <nav class="page-nav" aria-label="Page navigation">
         <a class="prev" href="01-why-oxcaml-exists.html">
           <span>Previous</span>
           <strong>Why OxCaml Exists</strong>
         </a>
-        <a class="next" href="03-locality-stack-zeroalloc.html">
+        <a class="next" href="03-locality-stack-allocation.html">
           <span>Next</span>
-          <strong>Locality And Zeroalloc</strong>
+          <strong>Locality And Stack Allocation</strong>
         </a>
       </nav>
     </main>

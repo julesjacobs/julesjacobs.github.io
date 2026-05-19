@@ -30,9 +30,9 @@
     {
       key: "allocation",
       number: "02",
-      title: "Allocation",
-      navTitle: "Allocation",
-      path: "sections/03-locality-stack-zeroalloc.html",
+      title: "Locality And Stack Allocation",
+      navTitle: "Locality",
+      path: "sections/03-locality-stack-allocation.html",
     },
     {
       key: "representation",

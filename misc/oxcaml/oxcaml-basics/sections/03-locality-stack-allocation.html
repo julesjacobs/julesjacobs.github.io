@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>OxCaml Examples: Locality, Stack Allocation, And Zeroalloc</title>
-    <link rel="stylesheet" href="../assets/course.css?v=exercise-freeform-20260512">
+    <title>OxCaml Examples: Locality And Stack Allocation</title>
+    <link rel="stylesheet" href="../assets/course.css?v=aside-neutral-20260513">
     <style>
       .allocation-figure {
         --lifetime-caller-row: 152px;
@@ -607,7 +607,7 @@
   </head>
   <body>
     <main class="lecture-page">
-      <h1>Locality, stack allocation, and zeroalloc</h1>
+      <h1>Locality and stack allocation</h1>
 
       <section class="lecture-intro">
         <p>This lecture is about allocation lifetime. OxCaml can put short-lived values on a stack instead of the GC heap, but only when the type checker can prove that no pointer to those values survives after their stack region ends.</p>
@@ -617,9 +617,8 @@
           <li>describe the basic stack-region model behind <code>local</code> and <code>global</code>;</li>
           <li>use <code>stack_</code>, local arguments, and local returns in small examples;</li>
           <li>explain what <code>exclave_</code> changes about the result's region;</li>
-          <li>explain why submoding lets global values be used locally;</li>
-          <li>use modalities such as <code>@@ global</code> to preserve global fields inside local containers;</li>
-          <li>understand how stack allocation helps satisfy <code>[@zero_alloc]</code> contracts.</li>
+          <li>explain submoding: why global values can be used where local values are required;</li>
+          <li>use modalities such as <code>@@ global</code> to preserve global fields inside local containers.</li>
         </ul>
       </section>
 
@@ -627,6 +626,10 @@
         <h2>Why heap allocation matters</h2>
         <p>OCaml allocation is usually cheap. The problem in this section is narrower: some hot paths and low-latency paths should avoid allocating on the GC heap, because heap allocation creates future GC work and can be the point where a GC pause happens.</p>
         <p>Start with a harmless-looking helper. Returning <code>Some n</code> is ordinary OCaml style, but it creates an allocated value for the result when the branch is taken.</p>
+        <aside class="course-aside">
+          <h3>Aside: <code>Some</code> and <code>None</code></h3>
+          <p>For the ordinary option values in this example, <code>Some n</code> is a small allocated wrapper around <code>n</code>. <code>None</code> is a constant, so the negative branch does not allocate an option block.</p>
+        </aside>
         <oxcaml data-filename="Ex03_motivating_option_allocation.ml">
           let maybe_positive n =
             if n >= 0 then Some n else None
@@ -839,7 +842,10 @@ let use_stack_list () =
         <h2><code>stack_</code> forces stack allocation</h2>
         <p>The expression <code>stack_ expr</code> tells the compiler that the immediately following allocation should be placed on the stack. If the value can be used entirely inside the current region, this works as expected.</p>
         <p>Here the consumer matters. The list is passed to <code>sum</code>, whose argument is <code>int list @ local</code>. That promise lets callers pass a stack-allocated temporary list. The <code>let total = ...</code> binding also keeps the call to <code>sum</code> out of tail position without using an annotation.</p>
-        <p>Tail position matters because a tail call ends the current call's region before control moves to the callee. If a stack-allocated value from the current region is passed to that tail call, the callee would receive a value whose region has already ended. A local <code>let</code> binding, or an explicit <code>[@nontail]</code> annotation in later examples, keeps the caller's region alive until the local-consuming call returns.</p>
+        <aside class="course-aside">
+          <h3>Aside: tail position and <code>[@nontail]</code></h3>
+          <p>A tail call ends the current call's region before control moves to the callee. If a stack-allocated value from the current region is passed to that tail call, the callee would receive a value whose region has already ended. A local <code>let</code> binding, or an explicit <code>[@nontail]</code> annotation in later examples, keeps the caller's region alive until the local-consuming call returns.</p>
+        </aside>
         <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
           let rec sum_loop acc (xs : int list @ local) =
             match xs with
@@ -1106,103 +1112,6 @@ let use_stack_list () =
         <p>The later kinds and representation sections explain this more systematically. For now, remember the practical rule: locality tracks whether there may be a pointer whose lifetime matters.</p>
       </section>
 
-      <section>
-        <h2>Zeroalloc checks heap allocation</h2>
-        <p>Stack allocation controls where temporary values live. <code>[@zero_alloc]</code> checks a related but distinct contract: this function should not allocate on the GC heap on normal executions.</p>
-        <p>The annotation is a checker, not an optimization request. If the compiler can prove the contract, the function typechecks.</p>
-        <template data-native-check-source>
-          <oxcaml native-check data-filename="Ex03_zeroalloc_add.ml">
-            let[@zero_alloc] add b x y =
-              if b then x + y else x
-          </oxcaml>
-        </template>
-        <div class="native-check-example">
-          <pre class="code-sketch"><code>let[@zero_alloc] add b x y =
-  if b then x + y else x</code></pre>
-          <p class="native-check-result">Native zeroalloc check: passes.</p>
-        </div>
-        <p>A boxed pair is an ordinary heap allocation, so returning a pair from a zeroalloc function fails.</p>
-        <template data-native-check-source>
-          <oxcaml native-check data-filename="Ex03_zeroalloc_heap_pair_fails.ml" expect-error>
-            let[@zero_alloc] pair x y =
-              (x, y)
-          </oxcaml>
-        </template>
-        <div class="native-check-example">
-          <pre class="code-sketch"><code>let[@zero_alloc] pair x y =
-  (x, y)</code></pre>
-          <pre class="native-diagnostic"><code>Native compiler diagnostic:
-Error: allocation of 24 bytes</code></pre>
-        </div>
-        <p>Local stack allocation is allowed by the zeroalloc checker because it does not allocate on the GC heap and will not trigger a GC.</p>
-        <template data-native-check-source>
-          <oxcaml native-check data-filename="Ex03_zeroalloc_local_pair.ml">
-            let[@zero_alloc] local_pair x y : _ @ local =
-              exclave_ stack_ (x, y)
-          </oxcaml>
-        </template>
-        <div class="native-check-example">
-          <pre class="code-sketch"><code>let[@zero_alloc] local_pair x y : _ @ local =
-  exclave_ stack_ (x, y)</code></pre>
-          <p class="native-check-result">Native zeroalloc check: passes.</p>
-        </div>
-      </section>
-
-      <section>
-        <h2>Zeroalloc across API boundaries</h2>
-        <p>When callers rely on non-allocation, put the contract in the signature. A <code>val[@zero_alloc]</code> declaration does two things: it checks the implementation, and it gives callers a summary they can use without relying on inlining.</p>
-        <template data-native-check-source>
-          <oxcaml native-check data-filename="Ex03_zeroalloc_signature_contract.ml">
-            module M : sig
-              val[@zero_alloc] f : int -> int
-            end = struct
-              let f x = x + 1
-            end
-          </oxcaml>
-        </template>
-        <div class="native-check-example">
-          <pre class="code-sketch"><code>module M : sig
-  val[@zero_alloc] f : int -> int
-end = struct
-  let f x = x + 1
-end</code></pre>
-          <p class="native-check-result">Native zeroalloc check: passes.</p>
-        </div>
-        <p>The checker is conservative when it cannot see a callee's allocation behavior. A call through an ordinary function argument may allocate, so this zeroalloc function is rejected.</p>
-        <template data-native-check-source>
-          <oxcaml native-check data-filename="Ex03_zeroalloc_indirect_call_fails.ml" expect-error>
-            let[@zero_alloc] apply f x =
-              f x
-          </oxcaml>
-        </template>
-        <div class="native-check-example">
-          <pre class="code-sketch"><code>let[@zero_alloc] apply f x =
-  f x</code></pre>
-          <pre class="native-diagnostic"><code>Native compiler diagnostic:
-Error: called function may allocate (indirect tailcall)</code></pre>
-        </div>
-        <aside class="exercise">
-          <h3>Exercise: read the zeroalloc failure</h3>
-          <p>In the previous block, is the checker saying that this particular function argument definitely allocates, or that the caller has no checked summary proving it does not allocate?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>It is the second. The checker is conservative around an unknown function value. To make a caller rely on non-allocation, the callee needs a zeroalloc summary in its interface or an explicit checked assumption at the call site.</p>
-          </details>
-        </aside>
-      </section>
-
-      <section>
-        <h2>Additional syntax to recognize later</h2>
-        <p>The basic course path is <code>local</code>, <code>stack_</code>, <code>exclave_</code>, and <code>[@zero_alloc]</code>. Real code also contains stronger or more specialized forms. We should recognize these without making them the main lecture.</p>
-        <ul>
-          <li><code>[@zero_alloc strict]</code>: a stronger zeroalloc contract.</li>
-          <li><code>[@zero_alloc opt]</code>: a contract checked in optimized/all-check builds.</li>
-          <li><code>[@zero_alloc assume]</code>: a way to give the checker a trusted summary.</li>
-          <li><code>[@@@zero_alloc all]</code>: a file-level setting for mostly non-allocating code.</li>
-          <li><code>[@local_opt]</code>: used in low-level external declarations to support local and global variants.</li>
-          <li>Template helpers such as <code>[@exclave_if_stack]</code> and <code>[@@zero_alloc_if_stack]</code>, which we will revisit in the what-else lecture.</li>
-        </ul>
-      </section>
       <nav class="page-nav" aria-label="Page navigation">
         <a class="prev" href="02-parallelism-contention-portability.html">
           <span>Previous</span>
