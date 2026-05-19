@@ -62,29 +62,13 @@
             <li>Run structured fork/join and detached spawn.</li>
             <li>Predict mutable reads and writes from modes.</li>
             <li>Distinguish explicit arguments from hidden closure captures.</li>
-            <li>Read callback API types positionally.</li>
+            <li>See how fork/join and spawn express their requirements in types.</li>
           </ul>
           <aside class="notes">Start from operational shapes before introducing the two mode axes.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Parallelism understanding ladder</h2>
-          <div class="level-ladder">
-            <article><span>0</span><strong>Problem</strong><p>Parallel mutation can race.</p></article>
-            <article><span>1</span><strong>Surface behavior</strong><p>Callback bodies appear to be checked.</p></article>
-            <article><span>2</span><strong>Contention</strong><p>Direct field access requires a mode.</p></article>
-            <article><span>3</span><strong>Closure boundary</strong><p>Parallel closures weaken captured values.</p></article>
-            <article><span>4</span><strong>Explicit arguments</strong><p>Calls check parameter-mode requirements.</p></article>
-            <article><span>5</span><strong>Hidden captures</strong><p>Function values carry portability.</p></article>
-            <article><span>6</span><strong>Positional modes</strong><p>Read each annotation where it appears.</p></article>
-            <article><span>7</span><strong>Ordinary APIs</strong><p>Fork and spawn are not magic names.</p></article>
-            <article><span>8</span><strong>API design</strong><p>Use modes to design parallel helpers.</p></article>
-          </div>
-          <aside class="notes">Each level should answer a puzzle created by the previous level.</aside>
-        </section>
-
         <section class="slide split-slide">
-          <h2><span class="level-mark">Level 0</span> Parallel work can overlap</h2>
+          <h2>Using parallelism to speed up your code</h2>
           <div class="two-up">
             <article>
               <h3>fork_join2</h3>
@@ -94,28 +78,102 @@
     (fun _parallel -> right_work ())
 in
 combine left right</code></pre>
-              <p>Children may overlap; parent resumes after both finish.</p>
+              <p>Children run in parallel; parent resumes after both finish.</p>
             </article>
             <article>
               <h3>spawn</h3>
-              <pre><code>let _ = Concurrent.spawn
-  (fun () -> worker ())
-  () in
+              <pre><code>let _ =
+  Concurrent.spawn spawn
+    ~f:(fun _scope _ctx _conc -> worker ())
+in
 parent_side_effect ()</code></pre>
-              <p>Spawned work may overlap later parent effects.</p>
+              <p>Spawned worker runs in parallel; parent continues immediately.</p>
             </article>
           </div>
-          <aside class="notes">The operational shape motivates the different callback requirements later.</aside>
+          <aside class="notes">The operational shape motivates the different function requirements later.</aside>
+        </section>
+
+        <section class="slide live-slide visual-live fresh-buffer-slide">
+          <h2>Example: Doing work in parallel</h2>
+          <div class="live-layout">
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">fork_join_fresh_buffer.ml</div>
+              <oxcaml data-filename="fork_join_fresh_buffer.ml" no-self-check>
+let bits_to_string bits =
+  let buf = Buffer.create 0 in
+  List.iter
+    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let strings_in_parallel parallel =
+  let #(left, right) = Parallel.fork_join2 parallel
+      (fun _parallel -> bits_to_string [true; false; true])
+      (fun _parallel -> bits_to_string [false; true; false])
+  in
+  left ^ "\n" ^ right
+
+let () =
+  let scheduler = Parallel.Scheduler.Sequential.create () in
+  let s = Parallel.Scheduler.Sequential.parallel scheduler ~f:strings_in_parallel in
+  print_endline "The output is:";
+  print_endline s
+              </oxcaml>
+            </div>
+            <div class="illustration-only">
+              <img class="side-image" src="../assets/images/buffers-fresh.avif" alt="Separate workspaces for fresh buffers">
+            </div>
+          </div>
+          <aside class="notes">Ask where the mutable object is allocated. The answer is inside each call.</aside>
+        </section>
+
+        <section class="slide live-slide visual-live buffer-bug-slide">
+          <h2>Unsafe optimization: pull the buffer allocation to the top level</h2>
+          <div class="live-layout">
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">fork_join_shared_buffer.ml</div>
+              <oxcaml check data-filename="fork_join_shared_buffer.ml" expect-error>
+let buf = Buffer.create 0
+let bits_to_string bits =
+  Buffer.clear buf;
+  List.iter
+    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let strings_in_parallel parallel =
+  let #(left, right) = Parallel.fork_join2 parallel
+      (fun _parallel -> bits_to_string [true; false; true])
+      (fun _parallel -> bits_to_string [false; true; false])
+  in
+  left ^ "\n" ^ right
+              </oxcaml>
+            </div>
+            <div class="illustration-only">
+              <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
+            </div>
+          </div>
+          <aside class="notes">This is the same program shape, but moving the allocation changes one-buffer-per-call into one shared buffer.</aside>
+        </section>
+
+        <section class="slide concept-slide data-race-explainer-slide">
+          <h2>What went wrong: data race!</h2>
+          <p class="big-explanation">Bad: two parallel writes to the same buffer.</p>
         </section>
 
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 0</span> Parallel mutation can race</h2>
+          <h2>What is a data race?</h2>
           <div class="two-up">
-            <article><h3>danger shape</h3><pre><code>let r = ref 0
+            <article><h3>danger shape 1: two writes</h3><pre><code>let r = ref 0
 
 Parallel.fork_join2 parallel
   (fun _ -> incr r)
-  (fun _ -> incr r)</code></pre><p>Both callbacks may touch the same mutable cell at the same time.</p></article>
+  (fun _ -> incr r)</code></pre>
+              <h3>danger shape 2: one write and one read</h3><pre><code>let r = ref 0
+
+Parallel.fork_join2 parallel
+  (fun _ -> incr r)
+  (fun _ -> !r)</code></pre></article>
             <article><h3>overlap rule</h3>
               <table class="matrix compact-matrix">
                 <thead><tr><th></th><th>read</th><th>write</th></tr></thead>
@@ -124,70 +182,89 @@ Parallel.fork_join2 parallel
                   <tr><th>write</th><td class="bad">race</td><td class="bad">race</td></tr>
                 </tbody>
               </table>
-              <p>Two reads are fine. Anything overlapping a write needs ownership or synchronization.</p>
+              <p class="matrix-note">Two parallel reads are fine. Two racing writes are not allowed. A racing read and write is not allowed either.</p>
             </article>
           </div>
           <aside class="notes">No modes yet. Students only need the programming problem.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 1</span> Direct body check is a first model</h2>
+        <section class="slide concept-slide compiler-race-slide">
+          <h2>The OxCaml compiler checks for data races</h2>
           <div class="two-up">
-            <article class="bad-card"><h3>captured mutable state</h3><pre><code>let x = { hits = 0 }
-
-Parallel.fork_join2 parallel
-  (fun _ -> x.hits <- x.hits + 1)
-  (fun _ -> x.hits <- x.hits + 1)</code></pre><p>The callback body directly writes state captured from outside.</p></article>
-            <article class="ok-card"><h3>fresh mutable state</h3><pre><code>let _ = Concurrent.spawn
-  (fun () ->
-     let x = { hits = 0 } in
-     x.hits <- x.hits + 1)
-  () in
-()</code></pre><p>Fresh state created inside the callback is owned by that callback body.</p></article>
-          </div>
-          <p class="takeaway">Useful simplification: the compiler appears to check callback bodies. It is not just scanning syntax.</p>
-          <aside class="notes">This model predicts simple direct-access examples, then motivates modes.</aside>
-        </section>
-
-        <section class="slide live-slide visual-live">
-          <h2><span class="level-mark">Level 1</span> Fresh per-call buffer</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>Each call owns its buffer. Parallel calls mutate separate scratch state.</p>
-              <p class="browser-note">Browser playground note: the API names are real, but JavaScript runs the scheduler and spawn shim sequentially.</p>
-              <img class="side-image" src="../assets/images/buffers-fresh.avif" alt="Separate workspaces for fresh buffers">
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">danger shape 1: two writes</div>
+              <oxcaml check data-filename="two_writes.ml" expect-error>
+let bad_two_writes parallel =
+  let r = ref 0 in
+  Parallel.fork_join2 parallel
+    (fun _parallel -> incr r)
+    (fun _parallel -> incr r)
+              </oxcaml>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">spawn_fresh_buffer.ml</div>
-              <oxcaml data-filename="spawn_fresh_buffer.ml" no-self-check>
-let bits_to_string bits =
-  let buf = Buffer.create 0 in
-  List.iter
-    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
-    bits;
-  Buffer.contents buf
-
-let () =
-  print_endline "The output is:";
-  let _ = Concurrent.spawn
-    (fun () -> print_endline (bits_to_string [true; false; true]))
-    () in
-  print_endline (bits_to_string [false; true; false])
+              <div class="code-label">danger shape 2: one write and one read</div>
+              <oxcaml check data-filename="read_and_write.ml" expect-error>
+let bad_read_and_write parallel =
+  let r = ref 0 in
+  Parallel.fork_join2 parallel
+    (fun _parallel -> incr r)
+    (fun _parallel -> !r)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Ask where the mutable object is allocated. The answer is inside each call.</aside>
+          <aside class="notes">The examples take parallel as an argument so the slide can focus on the checked worker functions, not scheduler setup.</aside>
+        </section>
+
+        <section class="slide concept-slide race-check-summary-slide">
+          <h2>How the OxCaml compiler checks for data races</h2>
+          <div class="two-up">
+            <article>
+              <h3>fork/join</h3>
+              <div class="annotated-code">
+                <pre><code><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }
+
+Parallel.fork_join2 parallel
+  (<span class="tok-keyword">fun</span> _parallel -&gt;
+     x.id          <span class="tok-comment">(* &#10003; immutable read *)</span>
+     x.hits        <span class="tok-comment">(* &#10003; mutable read *)</span>
+     x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)
+  right_work</code></pre>
+              </div>
+              <ul class="rule-summary">
+                <li><span>✅</span> immutable read allowed</li>
+                <li><span>✅</span> mutable read allowed</li>
+                <li><span>❌</span> mutable write disallowed</li>
+              </ul>
+            </article>
+            <article>
+              <h3>spawn</h3>
+              <div class="annotated-code">
+                <pre><code><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }
+
+Concurrent.spawn spawn
+  ~f:(<span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;
+        x.id          <span class="tok-comment">(* &#10003; immutable read *)</span>
+        x.hits        <span class="tok-comment">(* &#10005; mutable read *)</span>
+        x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)</code></pre>
+              </div>
+              <ul class="rule-summary">
+                <li><span>✅</span> immutable read allowed</li>
+                <li><span>❌</span> mutable read disallowed</li>
+                <li><span>❌</span> mutable write disallowed</li>
+              </ul>
+            </article>
+          </div>
         </section>
 
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 2</span> Contention modes describe mutable access</h2>
+          <h2>Contention modes describe mutable access</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes">
-              <div class="axis-mode good"><code>x @ uncontended</code><ul><li>read and write mutable fields</li><li>ordinary single-owner access</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">sequential context</div><div class="axis-mode good"><code>x @ uncontended</code><ul><li>read and write mutable fields</li><li>ordinary single-owner access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode note"><code>x @ shared</code><ul><li>read mutable fields</li><li>no mutable writes</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">inside fork/join</div><div class="axis-mode note"><code>x @ shared</code><ul><li>read mutable fields</li><li>no mutable writes</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>some other user may write</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">inside spawn</div><div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>some other user may write</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
           </div>
@@ -195,75 +272,124 @@ let () =
         </section>
 
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 2</span> Field access has mode requirements</h2>
+          <h2>Field access has mode requirements</h2>
           <div class="three-up">
             <article><h3>immutable field</h3><pre><code>x.id</code></pre><p>works even when <code>x</code> is <code>contended</code></p></article>
             <article><h3>mutable read</h3><pre><code>x.hits</code></pre><p>needs <code>x</code> at least <code>shared</code></p></article>
             <article><h3>mutable write</h3><pre><code>x.hits <- x.hits + 1</code></pre><p>needs <code>x @ uncontended</code></p></article>
           </div>
-          <p class="takeaway">A direct field operation succeeds or fails according to the available contention mode.</p>
+          <p class="takeaway">A direct field operation succeeds or fails according to the variable's contention mode.</p>
           <aside class="notes">This is the precise replacement for the direct body scan model.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 3</span> Closure boundaries weaken captures</h2>
-          <div class="boundary-grid">
-            <article class="boundary-card shareable-boundary">
-              <h3>fork/join callback boundary</h3>
-              <p class="boundary-signature">structured parallel callback</p>
-              <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ shared</code></div>
-              <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ shared</code></div>
-              <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
-              <p>Mutable reads can survive; mutable writes cannot.</p>
+        <section class="slide concept-slide contention-boundary-slide">
+          <h2>The contention closure boundary</h2>
+          <div class="boundary-code-grid">
+            <article>
+              <h3>fork/join body sees captured <code>x @ shared</code></h3>
+              <div class="closure-boundary-code" aria-label="Fork join contention closure boundary example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
+                <div class="code-line indent-1">Parallel.fork_join2 parallel</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">(</span>
+                  <div class="closure-frame shared">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> _parallel -&gt;<span class="closure-title shared">x @ shared</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line indent-1">right_work</div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
+              </div>
             </article>
-            <article class="boundary-card portable-boundary">
-              <h3>spawn callback boundary</h3>
-              <p class="boundary-signature">detached parallel callback</p>
-              <div class="boundary-flow"><code>b @ uncontended</code><span>→</span><code>b @ contended</code></div>
-              <div class="boundary-flow"><code>a @ shared</code><span>→</span><code>a @ contended</code></div>
-              <div class="boundary-flow"><code>c @ contended</code><span>→</span><code>c @ contended</code></div>
-              <p>Captured mutable reads and writes are both unavailable.</p>
+            <article>
+              <h3>spawn body sees captured <code>x @ contended</code></h3>
+              <div class="closure-boundary-code" aria-label="Spawn contention closure boundary example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
+                <div class="code-line indent-1">Concurrent.spawn spawn</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">~f:(</span>
+                  <div class="closure-frame contended">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;<span class="closure-title contended">x @ contended</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
+              </div>
             </article>
           </div>
-          <p class="takeaway">The callback boundary controls how captured values are seen inside the body.</p>
-          <aside class="notes">Outside the closure, the original binding still has its original mode.</aside>
+          <p class="takeaway">The boundary weakens captured values inside the closure; the original variable keeps its mode outside the closure.</p>
+          <aside class="notes">Use this to connect field requirements to closure capture weakening.</aside>
         </section>
 
-        <section class="slide split-slide">
-          <h2><span class="level-mark">Level 3</span> Captured <code>x</code> in three contexts</h2>
-          <div class="three-up">
-            <article><h3>ordinary</h3><p><code>x @ uncontended</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> ok</li><li><code>x.hits &lt;- ...</code> ok</li></ul></article>
-            <article><h3>fork/join</h3><p><code>x @ shared</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> ok</li><li><code>x.hits &lt;- ...</code> rejected</li></ul></article>
-            <article><h3>spawn</h3><p><code>x @ contended</code></p><ul><li><code>x.id</code> ok</li><li><code>x.hits</code> rejected</li><li><code>x.hits &lt;- ...</code> rejected</li></ul></article>
+        <section class="slide concept-slide contention-boundary-slide list-iter-boundary-slide">
+          <h2>The contention closure boundary: ordinary closures</h2>
+          <div class="single-boundary-code">
+            <article>
+              <h3>List.iter body sees captured <code>x @ uncontended</code></h3>
+              <div class="closure-boundary-code" aria-label="List iter ordinary closure boundary example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
+                <div class="code-line indent-1">List.iter</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">(</span>
+                  <div class="closure-frame uncontended">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> _ -&gt;<span class="closure-title uncontended">x @ uncontended</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use uncontended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use uncontended">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="mode-use uncontended">x</span>.hits &lt;- n + 1 <span class="tok-comment">(* ok *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line indent-1">[1; 2; 3]</div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok *)</span></div>
+              </div>
+            </article>
           </div>
-          <aside class="notes">This resolves why fork/join and spawn differ before API types are introduced.</aside>
+          <p class="takeaway">An ordinary closure does not need a parallel-safety promise, so the captured variable keeps ordinary write access.</p>
+          <aside class="notes">This is the contrast case before the key point: not every closure boundary weakens modes; the closure's required mode determines the effect.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2><span class="level-mark">Level 4</span> Explicit argument requirements</h2>
+        <section class="slide big-key-slide">
+          <p>Key point: a variable's type never changes, but a variable's mode can change when it crosses a closure boundary.</p>
+        </section>
+
+        <section class="slide live-slide function-arguments-slide">
+          <h2>Function arguments have modes</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>A helper’s type records what mode each explicit argument requires.</p>
-              <p>The compiler does not need to inline the helper body.</p>
-              <p>In inferred interfaces, plain <code>t</code> means the default requirement: <code>t @ uncontended</code>.</p>
-              <p class="diagnostic-callout">Inside fork/join, <code>x</code> may be only <code>shared</code>; <code>bump_hits</code> requires <code>uncontended</code>.</p>
+              <p>Function argument modes record what level of access the function needs.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">mode_access.ml</div>
-              <oxcaml interface data-show-interface data-filename="mode_access.ml" no-self-check>
+              <div class="code-label">function_argument_modes.ml</div>
+              <oxcaml check data-filename="function_argument_modes.ml" expect-error no-self-check>
 type t = { id : int; mutable hits : int }
 
-let get_id (x @ contended) = x.id
 let get_hits (x @ shared) = x.hits
 let bump_hits (x @ uncontended) = x.hits <- x.hits + 1
+
+let demo parallel x =
+  Parallel.fork_join2 parallel
+    (fun _parallel -> get_hits x)
+    (fun _parallel -> bump_hits x)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Highlight immutable read, mutable read, mutable write.</aside>
+          <aside class="notes">The first function can call get_hits because captured x is shared inside fork/join. The second function cannot call bump_hits because bump_hits requires uncontended access.</aside>
         </section>
 
-        <section class="slide exercise-slide">
-          <h2><span class="level-mark">Level 4</span> Exercise: helper calls on captured <code>x</code></h2>
+        <section class="slide exercise-slide helper-calls-exercise-slide">
+          <h2>Exercise: helper calls on captured <code>x</code></h2>
           <p>Suppose <code>x</code> is captured from outside the function being passed. Which helper calls are allowed?</p>
           <div class="exercise-with-reference">
             <article class="exercise-reference">
@@ -290,83 +416,48 @@ let bump_hits (x @ uncontended) =
           <aside class="notes">The table should be answered after the boundary rule and explicit argument rule.</aside>
         </section>
 
+        <section class="slide live-slide closure-captures-slide">
+          <h2>What about closure captures?</h2>
+          <div class="closure-captures-layout">
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">closure_captures.ml</div>
+              <oxcaml check data-filename="closure_captures.ml" expect-error no-self-check>
+type t = { id : int; mutable hits : int }
+let x = { id = 1; hits = 0 }
+
+let write_x () =
+  x.hits <- x.hits + 1
+
+let demo parallel =
+  Parallel.fork_join2 parallel
+    (fun _parallel -> write_x ())
+    (fun _parallel -> write_x ())
+              </oxcaml>
+            </div>
+            <div class="closure-captures-copy">
+              <p>OCaml must track portability of functions.</p>
+            </div>
+          </div>
+          <aside class="notes">There is no explicit x argument here. The mutable access is hidden inside the function value write_x.</aside>
+        </section>
+
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 5</span> Portability axis</h2>
+          <h2>Portability axis</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes portability">
-              <div class="axis-mode good"><code>portable</code><ul><li>detached parallel work</li><li>closures keep no mutable access</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in spawn context</div><div class="axis-mode good"><code>portable</code><ul><li>detached parallel work</li><li>closures keep no mutable access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode note"><code>shareable</code><ul><li>structured fork/join work</li><li>closures keep read-only access</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in fork/join context</div><div class="axis-mode note"><code>shareable</code><ul><li>structured fork/join work</li><li>closures keep read-only access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>closures may keep read/write access</li></ul></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in sequential context</div><div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>closures may keep read/write access</li></ul></div></div>
             </div>
-            <p class="axis-strip-note">Portability answers: can this value be used in this parallel context? These are the names for the callback-boundary behaviors from Level 3.</p>
+            <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
           </div>
           <aside class="notes">For closures, portability mostly summarizes what the closure captured and how it may use those captures.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2><span class="level-mark">Level 5</span> Hidden captures travel with function values</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>write_x 1</code> has no explicit <code>x</code> argument.</p>
-              <p>The mutable access is hidden in the function value <code>write_x</code>.</p>
-              <p>So the call checks whether <code>write_x</code> is portable enough.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">hidden_helpers.ml</div>
-              <oxcaml check data-filename="hidden_helpers.ml" expect-error>
-type t = { id : int; mutable hits : int }
-let x = { id = 1; hits = 0 }
-
-let id_x () = x.id
-let read_x () = x.hits
-let write_x v = x.hits <- v
-
-let _ =
-  let _ = Concurrent.spawn (fun () -> write_x 1) () in
-  write_x 2
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">There is no explicit x argument in write_x 1. The danger is inside the closure value write_x.</aside>
-        </section>
-
-        <section class="slide live-slide visual-live">
-          <h2><span class="level-mark">Level 5</span> Shared buffer revisited</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>Moving <code>buf</code> to the top level makes <code>bits_to_string_shared</code> carry hidden mutable state.</p>
-              <p class="diagnostic-callout">Failure chain: captured <code>buf</code> → nonportable function value → spawn requires portable callback.</p>
-              <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">shared_buffer.ml</div>
-              <oxcaml check data-filename="shared_buffer.ml" expect-error>
-let buf = Buffer.create 0
-
-let bits_to_string_shared bits =
-  Buffer.clear buf;
-  List.iter
-    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
-    bits;
-  Buffer.contents buf
-
-let () =
-  print_endline "The output is:";
-  let _ = Concurrent.spawn
-    (fun () ->
-       print_endline (bits_to_string_shared [true; false; true]))
-    () in
-  print_endline (bits_to_string_shared [false; true; false])
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">This is the concrete buffer example after students have the portability rule.</aside>
-        </section>
-
         <section class="slide exercise-slide">
-          <h2><span class="level-mark">Level 5</span> Exercise: hidden-capture helpers</h2>
+          <h2>Exercise: hidden-capture helpers</h2>
           <p>Where can each helper be used?</p>
           <div class="exercise-with-reference">
             <article class="exercise-reference">
@@ -393,8 +484,37 @@ let write_x v = x.hits &lt;- v</code></pre>
           <aside class="notes">Map rows to portable, shareable, nonportable.</aside>
         </section>
 
+        <section class="slide live-slide visual-live buffer-bug-slide">
+          <h2>Shared Buffer revisited</h2>
+          <div class="live-layout">
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">fork_join_shared_buffer.ml</div>
+              <oxcaml check data-filename="fork_join_shared_buffer.ml" expect-error>
+let buf = Buffer.create 0
+let bits_to_string bits =
+  Buffer.clear buf;
+  List.iter
+    (fun bit -> Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let strings_in_parallel parallel =
+  let #(left, right) = Parallel.fork_join2 parallel
+      (fun _parallel -> bits_to_string [true; false; true])
+      (fun _parallel -> bits_to_string [false; true; false])
+  in
+  left ^ "\n" ^ right
+              </oxcaml>
+            </div>
+            <div class="illustration-only">
+              <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
+            </div>
+          </div>
+          <aside class="notes">This is the same program shape, but moving the allocation changes one-buffer-per-call into one shared buffer.</aside>
+        </section>
+
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 5</span> Two questions per call</h2>
+          <h2>Two questions per call</h2>
           <div class="two-up">
             <article><h3>explicit argument failure</h3><pre><code>let bump_hits (x @ uncontended) =
   x.hits <- x.hits + 1
@@ -409,19 +529,7 @@ fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareab
         </section>
 
         <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 6</span> Modes are positional</h2>
-          <div class="position-grid">
-            <article><code>t @ shared</code><p>this value position requires shared contention</p></article>
-            <article><code>(unit -> unit) @ portable</code><p>this function value must be portable</p></article>
-            <article><code>('a @ shared -> 'b) @ shareable</code><p>callback value is shareable; its argument is provided as shared</p></article>
-            <article><code>((unit -> unit) @ portable -> unit) @ shareable</code><p>outer function is shareable; its argument must be a portable function</p></article>
-          </div>
-          <p class="takeaway">Do not split “values vs functions.” Function values are values; read the annotation at its type position.</p>
-          <aside class="notes">This prepares students for real signatures.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 7</span> Parallel APIs are ordinary typed APIs</h2>
+          <h2>The type of fork_join2 and spawn</h2>
           <div class="signature-card">
             <pre><code>val fork_join2 :
   Parallel.t @ local ->
@@ -430,66 +538,345 @@ fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareab
   #('a * 'b)
 
 val spawn :  (* schematic *)
-  (unit -> unit) @ portable ->
-  unit -> unit</code></pre>
+  ('scope_ctx, 'ctx) spawn ->
+  f:('scope_ctx Concurrent.Scope.t -> 'ctx -> 'ctx Concurrent.t -> unit) @ portable ->
+  unit</code></pre>
           </div>
-          <p class="takeaway">The callback argument types trigger the earlier rules. The real spawn API also tracks once/unique/unyielding details and returns a spawn_result.</p>
-          <aside class="notes">No compiler magic for these names. The callback slots impose the modal requirements.</aside>
+          <aside class="notes">No compiler magic for these names. The function argument slots impose the modal requirements.</aside>
         </section>
 
-        <section class="slide live-slide exercise-slide">
-          <h2><span class="level-mark">Level 8</span> Exercise: parallel_map shape</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The callback mode propagates through higher-order helper APIs.</p>
-              <p>Predict the inferred promise on <code>f</code>: both fork/join callbacks must be allowed to call it.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">parallel_map.ml</div>
-              <oxcaml data-show-interface data-filename="parallel_map.ml" no-self-check>
-let rec parallel_map parallel f xs =
-  match xs with
-  | [] -> []
-  | x :: xs ->
-    let #(y, ys) =
-      Parallel.fork_join2 parallel
-        (fun _parallel -> f x)
-        (fun parallel -> parallel_map parallel f xs)
-    in
-    y :: ys
-              </oxcaml>
-            </div>
+        <section class="slide concept-slide contention-boundary-slide">
+          <h2>How the compiler knows which closure boundary to apply</h2>
+          <div class="boundary-code-grid">
+            <article>
+              <div class="closure-boundary-code" aria-label="Fork join contention closure boundary revisited example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
+                <div class="code-line indent-1">Parallel.fork_join2 parallel</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">(</span>
+                  <div class="closure-frame shared">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> _parallel -&gt;<span class="closure-title shared">x @ shared</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line indent-1">right_work</div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
+              </div>
+              <p class="boundary-reason"><code>x</code> becomes <code>@ shared</code> because <code>fork_join2</code> takes the worker at <code>@ shareable</code>.</p>
+            </article>
+            <article>
+              <div class="closure-boundary-code" aria-label="Spawn contention closure boundary revisited example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
+                <div class="code-line indent-1">Concurrent.spawn spawn</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">~f:(</span>
+                  <div class="closure-frame contended">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;<span class="closure-title contended">x @ contended</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
+              </div>
+              <p class="boundary-reason"><code>x</code> becomes <code>@ contended</code> because <code>spawn</code> takes the worker at <code>@ portable</code>.</p>
+            </article>
           </div>
-          <aside class="notes">This is intentionally a mode-reading exercise, not a long coding exercise.</aside>
+          <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the closure argument mode.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2><span class="level-mark">Level 8</span> Read the capstone type positionally</h2>
-          <div class="signature-card capstone-signature">
-            <pre><code>val parallel_map :
-  Parallel.t @ local ->
-  ('a @ shared -> 'b) @ shareable ->
-  'a list @ shareable shared ->
-  'b list @@ stateless</code></pre>
+        <section class="slide concept-slide shareable-capture-slide">
+          <h2>Closure Boundaries: Shareable</h2>
+          <article class="capture-card shareable-card">
+            <div class="capture-card-header">
+              <h3><code>shareable</code> closure</h3>
+              <p class="capture-legend">A structured fork/join closure may still use captures in shared/read-only mode, but not in uncontended/write-capable mode.</p>
+            </div>
+            <div class="capture-code">
+              <svg class="capture-overlay" aria-hidden="true"></svg>
+              <div class="capture-code-body">
+                <div class="capture-code-block outer">
+                  <div class="capture-line" data-capture-link="shareable-factor">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">n</span> = <span class="tok-num">10</span></span>
+                    <span class="capture-note good">immutable data</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-r">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">b</span> @ <span class="tok-mode">uncontended</span> = (...)</span>
+                    <span class="capture-note good">uncontended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-img">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">a</span> @ <span class="tok-mode">shared</span> = (...)</span>
+                    <span class="capture-note good">shared</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-q">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">c</span> @ <span class="tok-mode">contended</span> = (...)</span>
+                    <span class="capture-note good">contended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-p">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">f</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">portable</span> = (...)</span>
+                    <span class="capture-note good">portable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-g">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">g</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">shareable</span> = (...)</span>
+                    <span class="capture-note good">shareable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="shareable-n">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">h</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">nonportable</span> = (...)</span>
+                    <span class="capture-note good">nonportable</span>
+                  </div>
+                </div>
+                <div class="capture-code-block">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">Parallel.t</span> @ <span class="tok-mode">local</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
+                  </div>
+                </div>
+                <div class="capture-closure-box shareable" data-boundary-link="shareable">
+                  <div class="capture-closure-title shareable" data-boundary-link="shareable">shareable Closure Boundary</div>
+                  <div class="capture-closure-content">
+                    <div class="capture-code-block">
+                      <div class="capture-line">
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _parallel -&gt;</span>
+                      </div>
+                      <div class="capture-import-list">
+                        <div class="capture-import-row" data-capture-link="shareable-factor">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">n'</span> = n <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">stays unchanged</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="shareable-r">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">b'</span> @ <span class="tok-mode">shared</span> = b <span class="tok-kw">in</span></span>
+                          <span class="capture-note warn">uncontended becomes shared</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="shareable-img">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">a'</span> @ <span class="tok-mode">shared</span> = a <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">shared stays shared</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="shareable-q">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">c'</span> @ <span class="tok-mode">contended</span> = c <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">contended stays contended</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="shareable-p">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">f</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">can use portable</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="shareable-g">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">g</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">can use shareable</span>
+                        </div>
+                        <div class="capture-import-row invalid" data-capture-link="shareable-n">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">h</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note bad">cannot use nonportable</span>
+                        </div>
+                      </div>
+                      <div class="capture-line">
+                        <span class="capture-src indent-2">...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="capture-code-block api-call">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> #(_left, _right) =</span>
+                    <span class="capture-note good">fork/join</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel worker worker</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">in</span></span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> b'' @ <span class="tok-mode">uncontended</span> = b</span>
+                    <span class="capture-note good">outside: still uncontended</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+          <aside class="notes">This is copied from the course's shareable closure-boundary diagram and trimmed to the single boundary case for slide use.</aside>
+        </section>
+
+        <section class="slide concept-slide shareable-capture-slide portable-capture-slide">
+          <h2>Closure Boundaries: Portable</h2>
+          <article class="capture-card portable-card">
+            <div class="capture-card-header">
+              <h3><code>portable</code> closure</h3>
+              <p class="capture-legend">A spawned closure is checked more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
+            </div>
+            <div class="capture-code">
+              <svg class="capture-overlay" aria-hidden="true"></svg>
+              <div class="capture-code-body">
+                <div class="capture-code-block outer">
+                  <div class="capture-line" data-capture-link="portable-factor">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">n</span> = <span class="tok-num">10</span></span>
+                    <span class="capture-note good">immutable data</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-r">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">b</span> @ <span class="tok-mode">uncontended</span> = (...)</span>
+                    <span class="capture-note good">uncontended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-img">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">a</span> @ <span class="tok-mode">shared</span> = (...)</span>
+                    <span class="capture-note good">shared</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-q">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">c</span> @ <span class="tok-mode">contended</span> = (...)</span>
+                    <span class="capture-note good">contended</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-p">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">f</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">portable</span> = (...)</span>
+                    <span class="capture-note good">portable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-g">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">g</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">shareable</span> = (...)</span>
+                    <span class="capture-note good">shareable</span>
+                  </div>
+                  <div class="capture-line" data-capture-link="portable-n">
+                    <span class="capture-src"><span class="tok-kw">let</span> <span class="capture-link-source">h</span> : (<span class="tok-type">int</span> -&gt; <span class="tok-type">int</span>) @ <span class="tok-mode">nonportable</span> = (...)</span>
+                    <span class="capture-note good">nonportable</span>
+                  </div>
+                </div>
+                <div class="capture-code-block">
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">unit</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-portable" data-boundary-link="portable">portable</span> =</span>
+                  </div>
+                </div>
+                <div class="capture-closure-box portable" data-boundary-link="portable">
+                  <div class="capture-closure-title portable" data-boundary-link="portable">portable Closure Boundary</div>
+                  <div class="capture-closure-content">
+                    <div class="capture-code-block">
+                      <div class="capture-line">
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
+                      </div>
+                      <div class="capture-import-list">
+                        <div class="capture-import-row" data-capture-link="portable-factor">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">n'</span> = n <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">stays unchanged</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="portable-r">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">b'</span> @ <span class="tok-mode">contended</span> = b <span class="tok-kw">in</span></span>
+                          <span class="capture-note warn">uncontended becomes contended</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="portable-img">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">a'</span> @ <span class="tok-mode">contended</span> = a <span class="tok-kw">in</span></span>
+                          <span class="capture-note warn">shared becomes contended</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="portable-q">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> <span class="capture-link-target">c'</span> @ <span class="tok-mode">contended</span> = c <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">contended stays contended</span>
+                        </div>
+                        <div class="capture-import-row" data-capture-link="portable-p">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">f</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note good">can use portable</span>
+                        </div>
+                        <div class="capture-import-row invalid" data-capture-link="portable-g">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">g</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note bad">cannot use shareable</span>
+                        </div>
+                        <div class="capture-import-row invalid" data-capture-link="portable-n">
+                          <span class="capture-src capture-target indent-2"><span class="tok-kw">let</span> _ = <span class="capture-link-target">h</span> <span class="tok-num">0</span> <span class="tok-kw">in</span></span>
+                          <span class="capture-note bad">cannot use nonportable</span>
+                        </div>
+                      </div>
+                      <div class="capture-line">
+                        <span class="capture-src indent-2">...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="capture-code-block api-call">
+                  <div class="capture-line">
+                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> spawn ~f:worker)</span>
+                    <span class="capture-note good">spawn</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> a'' @ <span class="tok-mode">shared</span> = a</span>
+                    <span class="capture-note good">outside: still shared</span>
+                  </div>
+                  <div class="capture-line">
+                    <span class="capture-src"><span class="tok-kw">let</span> b'' @ <span class="tok-mode">uncontended</span> = b</span>
+                    <span class="capture-note good">outside: still uncontended</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+          <aside class="notes">This is the portable counterpart to the shareable closure-boundary diagram.</aside>
+        </section>
+
+        <section class="slide concept-slide capture-matrix-slide">
+          <h2>Closure boundaries summary</h2>
+          <div class="capture-matrix">
+            <div class="capture-matrix-transposed">
+              <div class="capture-matrix-transposed-grid">
+                <div class="capture-matrix-transposed-rowheads">
+                  <div class="capture-matrix-transposed-rowhead"><code>@ uncontended</code></div>
+                  <div class="capture-matrix-transposed-rowhead"><code>@ shared</code></div>
+                  <div class="capture-matrix-transposed-rowhead"><code>@ contended</code></div>
+                  <div class="capture-matrix-transposed-rowhead"><code>@ portable</code></div>
+                  <div class="capture-matrix-transposed-rowhead"><code>@ shareable</code></div>
+                  <div class="capture-matrix-transposed-rowhead"><code>@ nonportable</code></div>
+                </div>
+                <div class="capture-matrix-transposed-box portable">
+                  <div class="capture-matrix-transposed-boxhead portable">in portable closure</div>
+                  <div class="capture-matrix-transposed-values">
+                    <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
+                    <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                    <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                    <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                    <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                  </div>
+                </div>
+                <div class="capture-matrix-transposed-box shareable">
+                  <div class="capture-matrix-transposed-boxhead shareable">in shareable closure</div>
+                  <div class="capture-matrix-transposed-values">
+                    <div class="capture-matrix-transposed-cell warn"><code>shared</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                    <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>shareable</code></div>
+                    <div class="capture-matrix-transposed-cell bad"><code>error</code></div>
+                  </div>
+                </div>
+                <div class="capture-matrix-transposed-box nonportable">
+                  <div class="capture-matrix-transposed-boxhead nonportable">in nonportable closure</div>
+                  <div class="capture-matrix-transposed-values">
+                    <div class="capture-matrix-transposed-cell good"><code>uncontended</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>contended</code></div>
+                    <div class="capture-matrix-transposed-cell good boundary-sep"><code>portable</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>shareable</code></div>
+                    <div class="capture-matrix-transposed-cell good"><code>nonportable</code></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="type-callouts">
-            <p><strong>callback:</strong> shareable value; receives each element as shared</p>
-            <p><strong>input list:</strong> may flow into fork/join work; read-only access</p>
-            <p><strong>implementation:</strong> inferred stateless, which implies portable</p>
-          </div>
-          <aside class="notes">Use this as API-design discussion: what should be shareable, portable, shared, or local?</aside>
+          <aside class="notes">The fork/join function is shareable. The spawned function is portable. Nonportable is ordinary closure behavior.</aside>
         </section>
 
         <section class="slide concept-slide">
           <h2>Parallelism recap</h2>
           <div class="checklist">
             <p><strong>0.</strong> Parallel mutation can race.</p>
-            <p><strong>1.</strong> Surface model: callback bodies appear to be checked.</p>
-            <p><strong>2.</strong> Direct reads/writes require contention modes.</p>
-            <p><strong>3.</strong> Shareable and portable closure boundaries weaken captured values.</p>
-            <p><strong>4.</strong> Function calls check explicit argument-mode requirements.</p>
-            <p><strong>5.</strong> Function values carry portability, catching hidden captures.</p>
-            <p><strong>6-8.</strong> Modes are positional; ordinary API types create reusable parallel contracts.</p>
+            <div class="checklist-item">
+              <p><strong>1.</strong> Simple model: functions passed to parallel work are checked.</p>
+              <ul>
+                <li>Fork/join can read but not write mutable fields.</li>
+                <li>Spawn can neither read nor write mutable fields.</li>
+              </ul>
+            </div>
+            <p><strong>2.</strong> Reads and writes are checked using contention access.</p>
+            <p><strong>3.</strong> Functions are checked using portability access.</p>
+            <p><strong>4.</strong> Ordinary function types create reusable parallel contracts.</p>
           </div>
           <aside class="notes">This is the durable mental model for the parallelism section.</aside>
         </section>
@@ -700,11 +1087,11 @@ let demo () =
         </section>
 
         <section class="slide live-slide">
-          <h2>Ordinary callback slots cannot borrow stack state</h2>
+          <h2>Ordinary function slots cannot borrow stack state</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>A parameter of type <code>scratch -> 'a</code> asks for a global scratch argument.</p>
-              <p>That is necessary because the callback type would allow the function to retain its argument.</p>
+              <p>That is necessary because the function type would allow the function to retain its argument.</p>
               <p class="diagnostic-callout">Expected outcome: rejected at <code>f s</code>; this API did not promise borrowing.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -723,19 +1110,19 @@ let bad () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The saved ref shows why the ordinary callback type is unsafe for stack state, even though the type checker rejects at the call.</aside>
+          <aside class="notes">The saved ref shows why the ordinary function type is unsafe for stack state, even though the type checker rejects at the call.</aside>
         </section>
 
         <section class="slide live-slide">
-          <h2>Local callback parameters express borrowing</h2>
+          <h2>Local function parameters express borrowing</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>A callback can use temporary state during the call, but cannot retain it.</p>
+              <p>A function argument can use temporary state during the call, but cannot retain it.</p>
               <p>The local parameter is the API contract.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_with_scratch_local_callback.ml</div>
-              <oxcaml check data-filename="Ex03_with_scratch_local_callback.ml">
+              <div class="code-label">Ex03_with_scratch_local_function.ml</div>
+              <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
 type scratch = { mutable total : int }
 
 let with_scratch (f : scratch @ local -> 'a) =
@@ -753,18 +1140,18 @@ let add_with_scratch x y =
         </section>
 
         <section class="slide live-slide">
-          <h2>Local closures need local callback slots</h2>
+          <h2>Local closures need local function slots</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>If a closure captures a local value, the closure itself is local.</p>
               <p>An ordinary <code>unit -> unit</code> slot is too global for that closure.</p>
               <pre><code>let call_now_bad (f : unit -> unit) =
   f ()</code></pre>
-              <p>Immediate-call APIs should accept local callback values.</p>
+              <p>Immediate-call functions should accept local function values.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_local_callback_slot.ml</div>
-              <oxcaml check data-filename="Ex03_local_callback_slot.ml">
+              <div class="code-label">Ex03_local_function_slot.ml</div>
+              <oxcaml check data-filename="Ex03_local_function_slot.ml">
 let bump (r : int ref @ local) =
   r := !r + 1
 
@@ -778,7 +1165,7 @@ let good () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Contrast with an ordinary callback slot, which would allow the closure to escape.</aside>
+          <aside class="notes">Contrast with an ordinary function slot, which would allow the closure to escape.</aside>
         </section>
 
         <section class="slide live-slide">
