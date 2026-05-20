@@ -34,24 +34,37 @@
           <aside class="notes">Each topic is a checked lever: race safety, lifetime/allocation, and runtime layout.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Why does OxCaml exist?</h2>
-          <div class="lever-grid">
-            <article><h3>Upstream OCaml</h3><p>Safe, high-level, uniform values, with GC-managed allocation.</p></article>
-            <article><h3>OxCaml</h3><p>Explicit control when the default costs too much, without sacrificing safety.</p></article>
-            <article><h3>The goal</h3><p>Safe, predictable control over performance-critical aspects of program behavior.</p></article>
+        <section class="slide concept-slide ocaml-great-slide">
+          <h2>What makes OCaml great?</h2>
+          <div class="ocaml-great-layout">
+            <article class="ocaml-strength-card">
+              <h3>OCaml gives us</h3>
+              <p>Safe, high-level programming with GC-managed allocation.</p>
+            </article>
+            <article class="ocaml-more-card fragment">
+              <h3>But we want more</h3>
+              <p>We want to solve two problems with OCaml.</p>
+              <ol>
+                <li>Parallelism in OCaml is unsafe because of data races.</li>
+                <li>We want to write faster code with low latency.</li>
+              </ol>
+            </article>
           </div>
-          <aside class="notes">Frame every feature as making a performance-relevant fact visible to the type checker.</aside>
+          <aside class="notes">Start with why OCaml is attractive before motivating OxCaml. OxCaml keeps the high-level, safe programming model, then makes the relevant performance facts visible to the type checker.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three classes of optimization in OxCaml</h2>
+          <h2>Three classes of safe optimization in OxCaml</h2>
           <div class="lever-grid">
             <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
             <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
             <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
           </div>
-          <p class="takeaway fragment">Each optimization has a matching safety check, so bugs become a compile-time error.</p>
+          <div class="optimization-module-row">
+            <p>Module 1 today</p>
+            <p>Module 2 today</p>
+            <p>Module 3 today</p>
+          </div>
           <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch.</aside>
         </section>
 
@@ -281,6 +294,40 @@ Concurrent.spawn spawn
           </div>
           <p class="takeaway">A direct field operation succeeds or fails according to the variable's contention mode.</p>
           <aside class="notes">This is the precise replacement for the direct body scan model.</aside>
+        </section>
+
+        <section class="slide concept-slide mode-rules-slide">
+          <h2>How modes propagate</h2>
+          <div class="mode-rules-grid">
+            <article class="mode-rule-card">
+              <h3>Every expression</h3>
+              <p>Variables and sub-expressions have modes, just as they have types.</p>
+              <pre><code>x : a @ M
+f x : b @ N</code></pre>
+            </article>
+            <article class="mode-rule-card">
+              <h3>Function calls</h3>
+              <pre><code>f : a @ M -> b @ N
+x : a @ M
+
+f x : b @ N</code></pre>
+            </article>
+            <article class="mode-rule-card">
+              <h3>Modes are deep</h3>
+              <pre><code>r : { field : a } @ M
+
+r.field : a @ M</code></pre>
+              <p>Projection uses the mode of the record value.</p>
+              <p>* Modalities can preserve the inner mode.</p>
+            </article>
+            <article class="mode-rule-card mode-rule-focus">
+              <h3>Closure expressions</h3>
+              <p><code>fun ... -&gt; ...</code> is the main complex rule.</p>
+              <p>It depends on what the closure captures.</p>
+            </article>
+          </div>
+          <p class="takeaway">Most mode propagation is local; closure formation is where the interesting step happens.</p>
+          <aside class="notes">Function calls: the caller must provide the input at the parameter mode, and receives the result at the result mode. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field mode usually comes from the current mode of the record expression. The asterisk is for modalities, which can preserve the inner mode and are introduced later.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide">
@@ -1027,7 +1074,7 @@ let () =
               <oxcaml data-filename="Ex03_stack_sum_exclave_return.ml">
 (* Stack allocation example. *)
 
-let rec sum xs =
+let rec sum (xs : int list @ local) =
   match xs with
   | [] -> 0
   | x::xs' -> x + sum xs'
@@ -1158,7 +1205,38 @@ let () =
             </div>
             <p class="axis-strip-note">Locality answers: how long does this value live?</p>
           </div>
-          <aside class="notes">Regional is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
+          <aside class="notes">Outer-local is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Locality rules for <code>stack_</code> and <code>exclave_</code></h2>
+          <div class="comparison three-up">
+            <article class="diagram-card">
+              <h3><code>stack_ expr</code></h3>
+              <p>The result is at <code>@ local</code>.</p>
+              <pre><code>let xs = stack_ [1; 2; 3]
+(* xs : int list @ local *)</code></pre>
+            </article>
+            <article class="diagram-card">
+              <h3><code>exclave_ expr</code></h3>
+              <p>Makes the function return at <code>@ local</code>.</p>
+              <pre><code>let f () : int list @ local =
+  exclave_
+  stack_ [1; 2; 3]</code></pre>
+            </article>
+            <article class="diagram-card">
+              <h3>after <code>exclave_</code></h3>
+              <p>Makes <code>@ local</code> variables unavailable.</p>
+              <pre><code>let f (x : int list @ local) =
+  let y = stack_ [1] in
+  exclave_
+  let z = stack_ [2] in
+  (* ok: x, z *)
+  (* not ok: y *)</code></pre>
+              <p>But outer-local values (function arguments) are available.</p>
+            </article>
+          </div>
+          <aside class="notes">State these as mode-checking rules before the x/y/z example. stack_ produces a local value. exclave_ makes the result local to the caller's region. At a mid-function exclave_, an @ local argument may be outer-local, so it can still be used; a value allocated in the function's old current region cannot be used after the region ends.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide">
@@ -1257,7 +1335,7 @@ let () =
         </section>
 
         <section class="slide live-slide local-container-slide">
-          <h2>Plain local containers lose the global mode</h2>
+          <h2>Problem: plain local containers lose the global mode</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
@@ -1284,6 +1362,37 @@ let demo () =
             </div>
           </div>
           <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap list became unsafe at runtime.</aside>
+        </section>
+
+        <section class="slide concept-slide mode-rules-slide modality-solution-slide">
+          <h2>Solution: modalities</h2>
+          <div class="mode-rules-grid">
+            <article class="mode-rule-card">
+              <h3>Default colon modes are deep</h3>
+              <pre><code>r : { field : 'a } @ local
+
+r.field : 'a @ local</code></pre>
+              <p>Ordinary field access uses the mode of the record value.</p>
+            </article>
+            <article class="mode-rule-card mode-rule-focus">
+              <h3><code>@@ global</code> field</h3>
+              <pre><code>type 'a global =
+  { global : 'a @@ global }
+
+r.global : 'a @ global</code></pre>
+              <p>The field is global even when the record is local.</p>
+            </article>
+            <article class="mode-rule-card">
+              <h3>construction</h3>
+              <pre><code>{ global = inner }
+
+requires:
+inner : 'a @ global</code></pre>
+              <p>The field value must be global, even if the record itself is built at <code>@ local</code>.</p>
+            </article>
+          </div>
+          <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
+          <aside class="notes">Repeat the earlier rule: projection normally uses the outer mode. The @@ global modality changes the field rule in both directions. Reading the field gives the global mode. Constructing the record requires the field value at global mode, even when the container is local.</aside>
         </section>
 
         <section class="slide live-slide">
@@ -1358,6 +1467,40 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
+          <h2>Quiz: which field modality is allowed?</h2>
+          <div class="three-up">
+            <article>
+              <h3>Locality</h3>
+              <pre><code>record r @ global
+field r.x @ local
+
+record r @ local
+field r.x @ global</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+            <article>
+              <h3>Portability</h3>
+              <pre><code>record r @ nonportable
+field r.x @ portable
+
+record r @ portable
+field r.x @ nonportable</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+            <article>
+              <h3>Contention</h3>
+              <pre><code>record r @ uncontended
+field r.x @ contended
+
+record r @ contended
+field r.x @ uncontended</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+          </div>
+          <aside class="notes">Answer: a field modality can preserve a stronger field mode inside a weaker outer record value. So the allowed cases are: global field in a local record, portable field in a nonportable record, and uncontended field in a contended record. The reverse directions are rejected because they would let the outer value promise more than the field can provide.</aside>
+        </section>
+
+        <section class="slide concept-slide">
           <h2>Allocation recap</h2>
           <div class="checklist">
             <p><strong>local/global</strong> controls lifetime and escape.</p>
@@ -1411,13 +1554,13 @@ let demo () =
         <section class="slide concept-slide">
           <h2>Uniform value representation is powerful</h2>
           <div class="two-up">
-            <article><h3>Source</h3><pre><code>let id x = x
+            <article><h3>Source</h3><pre><code>let duplicate x = (x, x)
 
 let plain_value_integer =
-  id 5
+  duplicate 5
 
 let plain_value_tuple =
-  id (1, 2, 3)
+  duplicate (1, 2, 3)
 
 type quote =
   { symbol : string
@@ -1426,7 +1569,7 @@ type quote =
   }
 
 let plain_value_record =
-  id { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
+  duplicate { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
             <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value representation. Polymorphic functions are only compiled once.</p></article>
           </div>
           <aside class="notes">The uniform model is a strength before it is a cost.</aside>

@@ -274,6 +274,7 @@
         <h2>Use <code>exclave_</code> to build a returned local value</h2>
         <p>Sometimes we do want to return a stack-allocated value. The keyword <code>exclave_</code> ends the current region and evaluates the following expression in the caller's region.</p>
         <p>That means the returned value is not smuggled out of the old region. It is built in the caller's region.</p>
+        <p>The function result is still at <code>@ local</code>. It is local to the caller's region, not global.</p>
         <oxcaml run data-filename="Ex03_stack_sum_exclave_return.ml">
           let rec sum (xs : int list @ local) =
             match xs with
@@ -291,39 +292,6 @@
             print_endline (string_of_int n);
             print_endline (string_of_int (sum xs))
         </oxcaml>
-        <aside class="exercise">
-          <h3>Exercise: implement stack-allocated range</h3>
-          <p>Write <code>range n</code> so it returns a stack-allocated list of the integers from <code>n</code> down to <code>1</code>. The tempting version below is rejected. Explain why the recursive tail is local, then move the returned cons allocation into the caller's region.</p>
-        </aside>
-        <oxcaml check data-filename="Ex03_stack_range_missing_exclave.ml" expect-error>
-          let rec sum (xs : int list @ local) =
-            match xs with
-            | [] -> 0
-            | x :: xs -> x + sum xs
-
-          let rec range (n : int) : int list @ local =
-            if n <= 0 then []
-            else stack_ (n :: range (n - 1))
-
-          let () =
-            print_endline (string_of_int (sum (range 4)))
-        </oxcaml>
-        <details>
-          <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_stack_range_with_exclave.ml">
-            let rec sum (xs : int list @ local) =
-              match xs with
-              | [] -> 0
-              | x :: xs -> x + sum xs
-
-            let rec range (n : int) : int list @ local =
-              if n <= 0 then []
-              else exclave_ stack_ (n :: range (n - 1))
-
-            let () =
-              print_endline (string_of_int (sum (range 4)))
-          </oxcaml>
-        </details>
         <p>The next sections explain <code>exclave_</code> in terms of regions. That region model is also what explains tail calls and mid-function <code>exclave_</code>.</p>
       </section>
 
@@ -365,11 +333,45 @@
           </article>
         </div>
         <p>When <code>exclave_</code> is at the beginning, the function region starts and ends immediately. The result is then built in the caller's region.</p>
+        <aside class="exercise">
+          <h3>Exercise: implement stack-allocated range</h3>
+          <p>Write <code>range n</code> so it returns a stack-allocated list of the integers from <code>n</code> down to <code>1</code>. The tempting version below is rejected. Explain why the recursive tail is local, then move the returned cons allocation into the caller's region.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_stack_range_missing_exclave.ml" expect-error>
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let rec range (n : int) : int list @ local =
+            if n <= 0 then []
+            else stack_ (n :: range (n - 1))
+
+          let () =
+            print_endline (string_of_int (sum (range 4)))
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_stack_range_with_exclave.ml">
+            let rec sum (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | x :: xs -> x + sum xs
+
+            let rec range (n : int) : int list @ local =
+              if n <= 0 then []
+              else exclave_ stack_ (n :: range (n - 1))
+
+            let () =
+              print_endline (string_of_int (sum (range 4)))
+          </oxcaml>
+        </details>
       </section>
 
       <section>
         <h2>Regions end before tail calls</h2>
         <p>A tail call transfers control to another function instead of returning a value. So the current region ends before the tail call.</p>
+        <p>This choice keeps tail-recursive loops from accumulating allocation-stack space as the loop runs.</p>
         <div class="compile-grid">
           <article class="compile-card">
             <div class="card-label">Tail call</div>
@@ -584,15 +586,21 @@
               print_endline (string_of_int (good [10]))
           </oxcaml>
         </details>
-        <aside class="checkpoint">
-          <h3>What can survive <code>exclave_</code>?</h3>
-          <p>Several kinds of values can still be used after <code>exclave_</code>:</p>
-          <ul>
-            <li>Arguments from the caller can survive. A <code>@ local</code> argument is outer-local in the function body: it may be local to the caller's region, but it was not allocated in the current function region.</li>
-            <li>Immediate data can survive. For example, if an integer or boolean is bound before <code>exclave_</code>, it can still be used after <code>exclave_</code>.</li>
-            <li>Values at global mode can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
-          </ul>
-        </aside>
+        <h3>What can survive <code>exclave_</code>?</h3>
+        <p>Several kinds of values can still be used after <code>exclave_</code>:</p>
+        <ul>
+          <li>Arguments from the caller can survive. A <code>@ local</code> argument is outer-local in the function body: it may be local to the caller's region, but it was not allocated in the current function region.</li>
+          <li>Immediate data can survive. For example, if an integer or boolean is bound before <code>exclave_</code>, it can still be used after <code>exclave_</code>.</li>
+          <li>Values at global mode can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
+        </ul>
+        <h3>Summary: locality and stack allocation rules</h3>
+        <ul>
+          <li><code>stack_ expr</code> allocates new blocks in the current region. The result is at <code>@ local</code>.</li>
+          <li>A stack-allocated value cannot escape its region.</li>
+          <li><code>exclave_ expr</code> ends the current region and builds the function result in the caller's region.</li>
+          <li>After <code>exclave_</code>, local values from the old current region are unavailable.</li>
+          <li>Outer-local values, such as function arguments from the caller, are still available after <code>exclave_</code>.</li>
+        </ul>
         <aside class="exercise">
           <h3>Exercise: find the too-early <code>exclave_</code></h3>
           <p>The function below type-checks, but its <code>exclave_</code> is too early. Explain why <code>range n</code> now builds the temporary list in the caller's region. Then move <code>exclave_</code> down so the temporary list is cleared before the function returns. You only need <code>exclave_</code> on the <code>Some</code> branch, because <code>None</code> is immediate data.</p>
@@ -847,11 +855,10 @@
       <section>
         <h2>Modalities preserve the global mode</h2>
         <p>Sometimes losing the global mode through a local container is too weak. A field modality can keep a field stronger than the container around it.</p>
+        <p>A field modality is an annotation on a record field, written like <code>@@ global</code>, that preserves a mode for that field.</p>
         <p>The outer list is local, while the inner list is global. This is a local list of global lists.</p>
-        <aside class="course-aside">
-          <h3>Worked repair: preserve the global mode</h3>
-          <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger mode of the inner list.</p>
-        </aside>
+        <h3>Worked repair: preserve the global mode</h3>
+        <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger mode of the inner list.</p>
         <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
           type 'a global = { global : 'a @@ global }
 
@@ -868,7 +875,7 @@
             | [] -> ()
             | inner :: _ -> escape inner.global
         </oxcaml>
-        <p>This is not a cast. The record can only be built from a value that is actually global. The modality records that promise.</p>
+        <p>Constructing <code>{ global = inner }</code> requires <code>inner</code> at <code>@ global</code>. Reading <code>inner.global</code> gives the field back at <code>@ global</code>, even when the record itself is used at <code>@ local</code>.</p>
         <figure class="course-figure">
           <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
           <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different facts.</figcaption>

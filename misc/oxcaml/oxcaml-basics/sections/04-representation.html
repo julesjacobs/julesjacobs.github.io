@@ -60,7 +60,7 @@
           </div>
         </figure>
 
-        <p>The payload words are interpreted according to the block kind. Some payload words are themselves OCaml <code>value</code>s, so the GC follows them as pointers when needed. Other payload words are raw data, such as float bits or string bytes, so the GC must not treat them as pointers.</p>
+        <p>The payload words are interpreted according to the block format. Some payload words are themselves OCaml <code>value</code>s, so the GC follows them as pointers when needed. Other payload words are raw data, such as float bits or string bytes, so the GC must not treat them as pointers.</p>
         <p>The header word tells the runtime how large the block is and how the payload should be scanned. For ordinary blocks, the payload is usually either all values or all raw data. For algebraic data types, the header tag also identifies which constructor with payload a block represents. Constructors with no payload are the simpler case: they are immediate integers, so they do not need a heap block at all.</p>
         <p>In the visualizations below, ordinary numeric and pointer words are shown in the same left-to-right order as the printed raw word. For example, a raw word such as <code>0x03020100</code> appears as bytes <code>03 02 01 00</code>. String payloads are the exception: they are shown in memory order so the characters read naturally.</p>
       </section>
@@ -305,7 +305,7 @@
           <p>This has the same branch shape as <code>hd_option</code>. The missing case uses the null word, and the present case uses <code>This x</code>, which has the same runtime representation as <code>x</code> instead of allocating a separate <code>Some</code> wrapper.</p>
         </details>
 
-        <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The kind system catches this: <code>or_null</code> expects a non-null payload representation, but <code>string or_null</code> is already nullable.</p>
+        <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The payload type must have room for the null word; it must not already use the null word itself.</p>
         <p>This is the first place where we need to name which representations a type may have. The next section calls those representation requirements <em>kinds</em>.</p>
 
         <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
@@ -462,26 +462,19 @@
 
         <p>The ppx syntax looks like this:</p>
 
-        <pre class="code-sketch"><code>let%template[@kind k = (value, value &amp; value)] id
+        <oxcaml utop data-filename="template_id_kind.ml" no-self-check>
+let%template[@kind k = (value, value & value)] id
   : ('a : k). 'a -> 'a
   =
   fun x -> x
-;;</code></pre>
+;;
+
+let x = (id [@kind value & value]) #("left", "right");;
+        </oxcaml>
 
         <p>The <code>[@kind k = ...]</code> attribute says: generate one copy where <code>k</code> is ordinary <code>value</code>, and another copy where <code>k</code> is the product layout <code>value &amp; value</code>. The source body is the same, but the generated functions can have different calling conventions.</p>
 
-        <pre class="code-sketch"><code>(* Semantic expansion: two checked instances. *)
-let id_value
-  : ('a : value). 'a -> 'a
-  =
-  fun x -> x
-
-let id_product
-  : ('a : value &amp; value). 'a -> 'a
-  =
-  fun x -> x</code></pre>
-
-        <p>The generated names exist, but callers should not rely on those implementation details. At call sites, code selects the intended instance with a mono-attribute such as <code>id [@kind value &amp; value]</code>; <code>id [@kind value]</code> is the default instance and can be written simply as <code>id</code>.</p>
+        <p>The playground output shows the generated instances. The generated names exist, but callers should not rely on those implementation details. At call sites, code selects the intended instance with a mono-attribute such as <code>(id [@kind value &amp; value])</code>; <code>id [@kind value]</code> is the default instance and can be written simply as <code>id</code>.</p>
 
         <p>For a map-shaped API, the input element layout and output element layout should be separate variables. Base and Core use this pattern for map-like functions: the input can have one kind and the mapped result can have another.</p>
 
