@@ -13,7 +13,7 @@ import {
   runString as backendRunString,
   typeAtString as backendTypeAtString,
   utopString as backendUtopString,
-} from "./backend.js?v=20260507-webkit-worker-fallback";
+} from "./backend.js?v=20260520-playground-shim-v2";
 import {
   EditorState,
   RangeSetBuilder,

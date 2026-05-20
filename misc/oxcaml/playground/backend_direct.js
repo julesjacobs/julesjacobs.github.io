@@ -2,10 +2,10 @@ import {
   playgroundPreludeOffset,
   stripPlaygroundPreludeInterface,
   withPlaygroundPrelude,
-} from "./playground_prelude.js?v=20260507-parallel-shim";
+} from "./playground_prelude.js?v=20260520-playground-shim-v2";
 
 const buildBase = "./build";
-const compilerAssetVersion = "20260506-ppx-driver";
+const compilerAssetVersion = "20260520-playground-shim-v2";
 
 const loadedScriptUrls = new Map();
 let browserFsManifestPromise = null;
