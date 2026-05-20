@@ -795,12 +795,12 @@ body {
 
 .ocaml-great-slide .ocaml-great-layout {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   max-width: 980px;
 }
 
 .ocaml-great-slide .ocaml-great-layout article {
-  padding: 28px;
+  padding: 22px 24px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
@@ -808,20 +808,22 @@ body {
 
 .ocaml-great-slide .ocaml-great-layout p {
   color: var(--muted);
-  font-size: 24px;
+  font-size: 22px;
 }
 
+.ocaml-great-slide .ocaml-hardware-card ul,
 .ocaml-great-slide .ocaml-more-card ol {
   display: grid;
-  gap: 12px;
-  margin: 16px 0 0;
+  gap: 8px;
+  margin: 12px 0 0;
   padding-left: 1.45em;
 }
 
+.ocaml-great-slide .ocaml-hardware-card li,
 .ocaml-great-slide .ocaml-more-card li {
   padding-left: 0.2em;
   color: var(--ink);
-  font-size: 24px;
+  font-size: 21px;
 }
 
 .optimization-module-row {
@@ -2167,6 +2169,14 @@ body {
   font-size: 20px !important;
 }
 
+.axis-strip-note + .axis-strip-note {
+  margin-top: -8px;
+}
+
+.axis-strip-star {
+  color: var(--ink);
+}
+
 .boundary-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2383,6 +2393,37 @@ body {
 
 .checklist li {
   margin: 4px 0;
+}
+
+.parallelism-recap-layout {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  max-width: 1120px;
+}
+
+.recap-highlight-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 28px;
+}
+
+.recap-highlight-card h3 {
+  margin: 0 0 16px;
+}
+
+.recap-highlight-card ul {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding-left: 1.35em;
+  color: var(--muted);
+  font-size: 23px;
+}
+
+.recap-highlight-card li {
+  padding-left: 0.2em;
 }
 
 .value-model-figure {

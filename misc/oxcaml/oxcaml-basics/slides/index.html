@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=repr-or-null-one-line-20260519">
+    <link rel="stylesheet" href="slides.css?v=hardware-context-20260520">
   </head>
   <body>
     <div class="reveal">
@@ -41,12 +41,20 @@
               <h3>OCaml gives us</h3>
               <p>Safe, high-level programming with GC-managed allocation.</p>
             </article>
+            <article class="ocaml-hardware-card fragment">
+              <h3>Hardware changed</h3>
+              <p>OCaml was developed in 1996. Since then, memory became much more expensive relative to basic operations, and multicore machines became normal.</p>
+              <ul>
+                <li>integer addition: about 1 cycle, roughly 0.3 ns</li>
+                <li>cache miss to main memory: roughly 100 ns, hundreds of cycles</li>
+                <li>modern servers and laptops have multiple cores</li>
+              </ul>
+            </article>
             <article class="ocaml-more-card fragment">
-              <h3>But we want more</h3>
-              <p>We want to solve two problems with OCaml.</p>
+              <p>OxCaml solves two problems with OCaml.</p>
               <ol>
                 <li>Parallelism in OCaml is unsafe because of data races.</li>
-                <li>We want to write faster code with low latency.</li>
+                <li>We want to write faster code (→ fewer pointer indirections) with low latency (→ no GC pauses).</li>
               </ol>
             </article>
           </div>
@@ -275,13 +283,14 @@ Concurrent.spawn spawn
           <h2>Contention modes describe mutable access</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes">
-              <div class="axis-mode-wrap"><div class="axis-context">sequential context</div><div class="axis-mode good"><code>x @ uncontended</code><ul><li>read and write mutable fields</li><li>ordinary single-owner access</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">sequential context</div><div class="axis-mode good"><code>x @ uncontended</code><ul><li>owned by us</li><li>read and write mutable fields</li><li>ordinary single-owner access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">inside fork/join</div><div class="axis-mode note"><code>x @ shared</code><ul><li>read mutable fields</li><li>no mutable writes</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">inside fork/join</div><div class="axis-mode note"><code>x @ shared</code><ul><li>shared ownership</li><li>read mutable fields</li><li>no mutable writes</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">inside spawn</div><div class="axis-mode warn"><code>x @ contended</code><ul><li>immutable fields only</li><li>some other user may write</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">inside spawn</div><div class="axis-mode warn"><code>x @ contended</code><ul><li>owned by another</li><li>immutable fields only</li><li>some other user may write</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
+            <p class="axis-strip-note axis-strip-star">★ In OxCaml, contention ownership is per thread of execution, unlike in Rust, where ownership is per variable.</p>
           </div>
           <aside class="notes">Use the single-writer or many-readers invariant. Do not conflate shared with shareable.</aside>
         </section>
@@ -923,19 +932,30 @@ val spawn :
           <aside class="notes">The fork/join function is shareable. The spawned function is portable. Nonportable is ordinary closure behavior.</aside>
         </section>
 
-        <section class="slide concept-slide">
+        <section class="slide concept-slide parallelism-recap-slide">
           <h2>Parallelism recap</h2>
-          <div class="checklist">
-            <p><strong>0.</strong> Parallel mutation can race.</p>
-            <div class="checklist-item">
-              <p><strong>1.</strong> Simple model: functions passed to parallel work are checked.</p>
-              <ul>
-                <li>Fork/join can read but not write captured mutable fields.</li>
-                <li>Spawn can neither read nor write captured mutable fields.</li>
-              </ul>
+          <div class="parallelism-recap-layout">
+            <div class="checklist">
+              <p><strong>0.</strong> Parallel mutation can race.</p>
+              <div class="checklist-item">
+                <p><strong>1.</strong> Simple model: functions passed to parallel work are checked.</p>
+                <ul>
+                  <li>Fork/join can read but not write captured mutable fields.</li>
+                  <li>Spawn can neither read nor write captured mutable fields.</li>
+                </ul>
+              </div>
+              <p><strong>2.</strong> Reads and writes are checked using the contention axis.</p>
+              <p><strong>3.</strong> Functions are checked using the portability axis.</p>
             </div>
-            <p><strong>2.</strong> Reads and writes are checked using the contention axis.</p>
-            <p><strong>3.</strong> Functions are checked using the portability axis.</p>
+            <article class="recap-highlight-card">
+              <h3>What makes OxCaml great</h3>
+              <ul>
+                <li>Ordinary sequential code does not change.</li>
+                <li>Purely functional code can be parallelized without restrictions.</li>
+                <li>Code that uses mutation internally can still be parallelized.</li>
+                <li>Only code that uses shared mutation is restricted.</li>
+              </ul>
+            </article>
           </div>
           <aside class="notes">This is the durable mental model for the parallelism section.</aside>
         </section>
