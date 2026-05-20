@@ -2290,48 +2290,140 @@ fun () -&gt; write_bits buf bits</code></pre>
         <p>Returning a function does not bypass the checks. The returned closure still records what it captured and where it may be used.</p>
         <aside class="exercise">
           <h3>Exercise: returned closures keep captured access</h3>
-          <p>Each helper below builds a closure that remembers <code>x</code>. For each block, identify whether the returned closure reads or writes <code>x.count</code>, then predict which parallel context rejects it: detached <code>spawn</code> or structured <code>fork_join2</code>.</p>
+          <p>Each helper below receives <code>x</code> and returns a function that remembers <code>x</code>. The <code>require_*</code> helpers stand in for the function-value requirements imposed by ordinary code, fork/join work, and spawned work.</p>
+          <p>For each returned function, decide what access it keeps to <code>x</code>, then predict where that returned function can be used.</p>
+          <div class="exercise-table-wrap">
+            <table class="exercise-table">
+              <thead>
+                <tr>
+                  <th>Returned function</th>
+                  <th>Captured access</th>
+                  <th>ordinary</th>
+                  <th>fork/join</th>
+                  <th>spawn</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>read_id_later x</code></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><code>read_count_later x</code></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><code>bump_count_later x</code></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <oxcaml check data-filename="returned_closure_modes_ok.ml">
+            type t = { id : int; mutable count : int }
+
+            let read_id_later x =
+              fun () -> ignore x.id
+
+            let read_count_later x =
+              fun () -> ignore x.count
+
+            let bump_count_later x =
+              fun () -> x.count <- x.count + 1
+
+            let require_ordinary (f : (unit -> unit) @ nonportable) = f ()
+            let require_fork_join (f : (unit -> unit) @ shareable) = f ()
+            let require_spawn (f : (unit -> unit) @ portable) = f ()
+
+            let accepted_uses x =
+              let id = read_id_later x in
+              require_spawn id;
+              require_fork_join id;
+              require_ordinary id;
+
+              let read = read_count_later x in
+              require_fork_join read;
+              require_ordinary read;
+
+              let bump = bump_count_later x in
+              require_ordinary bump
+          </oxcaml>
+          <p>The next two blocks show the rejected uses from the same table. In both cases, the helper call has already happened; the value being checked is the returned function.</p>
+          <oxcaml check data-filename="returned_closure_spawn_rejects_read.ml" expect-error no-self-check>
+            type t = { id : int; mutable count : int }
+
+            let read_count_later x =
+              fun () -> ignore x.count
+
+            let require_spawn (f : (unit -> unit) @ portable) = f ()
+
+            let rejected_spawn x =
+              let read = read_count_later x in
+              require_spawn read
+          </oxcaml>
+          <oxcaml check data-filename="returned_closure_fork_rejects_write.ml" expect-error no-self-check>
+            type t = { id : int; mutable count : int }
+
+            let bump_count_later x =
+              fun () -> x.count <- x.count + 1
+
+            let require_fork_join (f : (unit -> unit) @ shareable) = f ()
+
+            let rejected_fork_join x =
+              let bump = bump_count_later x in
+              require_fork_join bump
+          </oxcaml>
           <details>
             <summary>Answer</summary>
-            <p>Both returned closures capture <code>x</code>. <code>read_count_later</code> returns a closure that reads a mutable field, so it is not portable enough for <code>spawn</code>. <code>bump_count_later</code> returns a closure that writes a mutable field, so it is not shareable enough for <code>fork_join2</code>. Returning the closure does not hide the capture; the function value carries the same restriction as a closure written directly at the call site.</p>
+            <div class="exercise-table-wrap">
+              <table class="exercise-table">
+                <thead>
+                  <tr>
+                    <th>Returned function</th>
+                    <th>Captured access</th>
+                    <th>ordinary</th>
+                    <th>fork/join</th>
+                    <th>spawn</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>read_id_later x</code></td>
+                    <td>reads immutable field</td>
+                    <td>yes</td>
+                    <td>yes</td>
+                    <td>yes</td>
+                  </tr>
+                  <tr>
+                    <td><code>read_count_later x</code></td>
+                    <td>reads mutable field</td>
+                    <td>yes</td>
+                    <td>yes</td>
+                    <td>no</td>
+                  </tr>
+                  <tr>
+                    <td><code>bump_count_later x</code></td>
+                    <td>writes mutable field</td>
+                    <td>yes</td>
+                    <td>no</td>
+                    <td>no</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p><code>read_id_later x</code> returns a portable function because it only reads an immutable field. <code>read_count_later x</code> returns a shareable function because it reads a mutable field, so it can be used in ordinary code and fork/join work, but not spawned work. <code>bump_count_later x</code> returns a nonportable function because it writes a mutable field, so it can only be used in ordinary code.</p>
+            <p>The helper call does not erase the capture. After <code>read_count_later x</code> or <code>bump_count_later x</code> returns, the function value still carries the access it will need when it runs.</p>
           </details>
         </aside>
-        <oxcaml check data-filename="spawn_capture.ml" expect-error no-self-check>
-          type t = { id : int; mutable count : int }
-
-          let get_count (x @ shared) = x.count
-
-          let read_count_later x () =
-            ignore (get_count x)
-
-          let bad_spawn x =
-            Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
-              Concurrent.with_scope concurrent () ~f:(fun spawn ->
-                let _ =
-                  Concurrent.spawn
-                    spawn
-                    ~f:(fun _scope _ctx _concurrent -> read_count_later x ())
-                in
-                ()))
-        </oxcaml>
-        <oxcaml check data-filename="fork_capture.ml" expect-error no-self-check>
-          type t = { id : int; mutable count : int }
-
-          let bump_count (x @ uncontended) =
-            x.count <- x.count + 1
-
-          let bump_count_later x _parallel =
-            bump_count x
-
-          let bad_fork_join (parallel : Parallel.t @ local) x =
-            let #(_left, _right) =
-              Parallel.fork_join2
-                parallel
-                (bump_count_later x)
-                (bump_count_later x)
-            in
-            x.count
-        </oxcaml>
       </section>
 
       <section>
@@ -2646,7 +2738,7 @@ fun () -&gt; write_bits buf bits</code></pre>
           <li>calls are rejected if their explicit arguments require stronger modes than the function has;</li>
           <li>called function values must themselves be portable enough.</li>
         </ul>
-        <p>This is the point of the mode system: parallel functions express their safety requirements in ordinary types, and the compiler checks those requirements compositionally.</p>
+        <p>This is the point of the mode system: parallel functions express their safety requirements in modes and types, and the compiler checks those requirements compositionally.</p>
       </section>
 
       <section>
