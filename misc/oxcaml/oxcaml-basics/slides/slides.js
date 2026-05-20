@@ -269,6 +269,104 @@
     });
   }
 
+  function setupCaptureBoundaryLinks() {
+    const linked = Array.from(document.querySelectorAll("[data-boundary-link]"));
+    const captureLinked = Array.from(document.querySelectorAll("[data-capture-link]"));
+    const overlays = Array.from(document.querySelectorAll(".capture-overlay"));
+    let markerIdCounter = 0;
+
+    function clearOverlays() {
+      overlays.forEach((overlay) => {
+        overlay.innerHTML = "";
+      });
+    }
+
+    function drawCaptureOverlay(scope, key) {
+      if (!scope) return;
+      const overlay = scope.querySelector(".capture-overlay");
+      const source = scope.querySelector(`.capture-code-block.outer .capture-line[data-capture-link="${key}"]`);
+      const target = scope.querySelector(`.capture-import-row[data-capture-link="${key}"] .capture-target`);
+      if (!overlay || !source || !target) return;
+
+      const overlayRect = overlay.getBoundingClientRect();
+      if (overlayRect.width === 0 || overlayRect.height === 0) return;
+      overlay.setAttribute("viewBox", `0 0 ${overlayRect.width} ${overlayRect.height}`);
+
+      const sourceAnchor = source.querySelector(".capture-link-source") || source.querySelector(".capture-src");
+      const targetAnchor = target.querySelector(".capture-link-target") || target;
+      if (!sourceAnchor || !targetAnchor) return;
+
+      const sourceRect = sourceAnchor.getBoundingClientRect();
+      const targetRect = targetAnchor.getBoundingClientRect();
+      const toneEl = source.querySelector(".capture-note");
+      const stroke = toneEl ? getComputedStyle(toneEl).color : "currentColor";
+      const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+      const marker = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+      const markerId = `slide-capture-arrowhead-${markerIdCounter++}`;
+      marker.setAttribute("id", markerId);
+      marker.setAttribute("markerWidth", "8");
+      marker.setAttribute("markerHeight", "8");
+      marker.setAttribute("refX", "6");
+      marker.setAttribute("refY", "3");
+      marker.setAttribute("orient", "auto");
+
+      const tip = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      tip.setAttribute("d", "M0,0 L6,3 L0,6");
+      tip.setAttribute("fill", stroke);
+      marker.appendChild(tip);
+      defs.appendChild(marker);
+      overlay.appendChild(defs);
+
+      const startX = sourceRect.right - overlayRect.left + 8;
+      const startY = sourceRect.top + sourceRect.height / 2 - overlayRect.top;
+      const endX = targetRect.left - overlayRect.left - 8;
+      const endY = targetRect.top + targetRect.height / 2 - overlayRect.top;
+      const bend = Math.max(34, (endX - startX) * 0.4);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute(
+        "d",
+        `M ${startX} ${startY} C ${startX + bend} ${startY}, ${endX - bend} ${endY}, ${endX} ${endY}`
+      );
+      path.setAttribute("stroke", stroke);
+      path.setAttribute("marker-end", `url(#${markerId})`);
+      overlay.appendChild(path);
+    }
+
+    function clear() {
+      linked.forEach((el) => el.classList.remove("is-linked-hover"));
+      captureLinked.forEach((el) => el.classList.remove("is-capture-hover"));
+      clearOverlays();
+    }
+
+    linked.forEach((el) => {
+      const key = el.getAttribute("data-boundary-link");
+      el.addEventListener("mouseenter", () => {
+        clear();
+        document
+          .querySelectorAll(`[data-boundary-link="${key}"]`)
+          .forEach((match) => match.classList.add("is-linked-hover"));
+      });
+      el.addEventListener("mouseleave", clear);
+    });
+
+    captureLinked.forEach((el) => {
+      const key = el.getAttribute("data-capture-link");
+      el.addEventListener("mouseenter", () => {
+        clear();
+        document
+          .querySelectorAll(`[data-capture-link="${key}"]`)
+          .forEach((match) => match.classList.add("is-capture-hover"));
+        drawCaptureOverlay(el.closest(".capture-code"), key);
+      });
+      el.addEventListener("mouseleave", clear);
+    });
+
+    window.addEventListener("resize", clear);
+    if (window.Reveal?.on) {
+      Reveal.on("slidechanged", clear);
+    }
+  }
+
   function keepRevealOutOfInteractiveControls() {
     const selector = [
       "button",
@@ -403,6 +501,7 @@
   normalizeCodeIndentation();
   highlightStaticCode();
   setupDelegatedInteractions();
+  setupCaptureBoundaryLinks();
   keepRevealOutOfInteractiveControls();
 
   loadNativeReprExamples().finally(() => Reveal.initialize({

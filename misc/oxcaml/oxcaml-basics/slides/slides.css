@@ -1205,6 +1205,14 @@ body {
   z-index: 0;
 }
 
+.shareable-capture-slide .capture-overlay path {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  opacity: 0.95;
+}
+
 .shareable-capture-slide .capture-code-body {
   position: relative;
   z-index: 1;
@@ -1231,6 +1239,17 @@ body {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 8px;
   align-items: baseline;
+}
+
+.shareable-capture-slide .capture-line.is-capture-hover,
+.shareable-capture-slide .capture-import-row.is-capture-hover {
+  background: color-mix(in srgb, var(--panel-soft) 86%, transparent);
+  border-radius: 6px;
+}
+
+.shareable-capture-slide .capture-line.is-capture-hover .capture-src,
+.shareable-capture-slide .capture-import-row.is-capture-hover .capture-src {
+  font-weight: 650;
 }
 
 .shareable-capture-slide .capture-src {
@@ -1278,6 +1297,12 @@ body {
   border-color: color-mix(in srgb, var(--bad) 35%, var(--line));
 }
 
+.shareable-capture-slide .capture-line.is-capture-hover .capture-note,
+.shareable-capture-slide .capture-import-row.is-capture-hover .capture-note {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 24%, transparent);
+  filter: brightness(0.98);
+}
+
 .shareable-capture-slide .capture-closure-box {
   position: relative;
   margin-left: 2ch;
@@ -1292,6 +1317,10 @@ body {
 
 .shareable-capture-slide .capture-closure-box.portable {
   border-color: var(--portable-border);
+}
+
+.shareable-capture-slide .capture-closure-box.is-linked-hover {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 28%, transparent);
 }
 
 .shareable-capture-slide .capture-closure-title {
@@ -1325,6 +1354,10 @@ body {
   background: var(--portable-soft);
   color: var(--portable);
   border-color: var(--portable-border);
+}
+
+.shareable-capture-slide .capture-closure-title.is-linked-hover {
+  filter: brightness(0.96);
 }
 
 .shareable-capture-slide .capture-closure-content {
@@ -1375,6 +1408,12 @@ body {
 .shareable-capture-slide .tok-mode.link-portable {
   color: var(--portable, var(--shareable));
   font-weight: 700;
+}
+
+.shareable-capture-slide .tok-mode.is-linked-hover {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
 }
 
 .shareable-capture-slide .tok-fn {
