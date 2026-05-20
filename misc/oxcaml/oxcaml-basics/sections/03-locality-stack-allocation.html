@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Locality And Stack Allocation</title>
-    <link rel="stylesheet" href="../assets/course.css?v=aside-neutral-20260513">
+    <link rel="stylesheet" href="../assets/course.css?v=answer-key-spacing-20260520">
     <style>
       .compile-grid {
         display: grid;
@@ -174,8 +174,8 @@
 
       <section class="lecture-intro">
         <p>This section is about lifetime. A value has a lifetime: the time when it is valid to use that value.</p>
-        <p>OxCaml can put short-lived values on the allocation stack instead of the GC heap. Despite the name, this is not the function call stack: OxCaml uses a separate allocation stack.</p>
-        <p>Regions describe when parts of the allocation stack can be reclaimed. Stack allocation is useful only if the compiler can check that no one uses a value after its region ends.</p>
+        <p>OxCaml can put short-lived values on the allocation stack instead of the GC heap (in OxCaml, the allocation stack is separate from the call stack).</p>
+        <p>Regions describe when parts of the allocation stack can be reclaimed. To ensure stack allocation is safe, the compiler checks that no one uses a value after its region ends.</p>
         <p>By the end of this section, you should be able to:</p>
         <ul>
           <li>explain why stack allocation matters for latency-sensitive code;</li>
@@ -189,7 +189,7 @@
 
       <section>
         <h2>Why stack allocation matters</h2>
-        <p>OxCaml allocation is cheap, but GC is high latency. Heap allocation creates work for the GC. In low-latency code, that future GC work can be the problem.</p>
+        <p>OxCaml allocation is cheap, but GC is high latency. Heap allocation creates work for the GC. In low-latency code, that future GC work can be a problem.</p>
         <p>Stack allocation is one way to avoid that heap work. The tradeoff is lifetime: a stack-allocated value must not be used after its region ends.</p>
       </section>
 
@@ -197,7 +197,7 @@
         <h2>A small stack allocation example</h2>
         <p>Use <code>stack_</code> to put new allocations on the allocation stack. In this example, the list <code>xs</code> is used inside <code>sum3</code>. Then <code>sum3</code> returns only the integer result.</p>
         <p>OxCaml can often infer stack allocation without <code>stack_</code>. We write <code>stack_</code> when we want to require stack allocation: if the value would have to escape to the heap, the compiler reports an error.</p>
-        <p><code>stack_</code> is shallow. It does not copy values that are already reachable. For example, in <code>stack_ (x, y)</code>, the pair can be stack allocated, but <code>x</code> and <code>y</code> keep their existing lifetimes.</p>
+        <p><code>stack_</code> is shallow and attaches to an allocation construct. It does not copy values that are already available. For example, in <code>stack_ (x, y)</code>, the pair is stack allocated, but <code>x</code> and <code>y</code> are not copied to the stack.</p>
         <oxcaml run data-filename="Ex03_stack_sum.ml">
           let rec sum (xs : int list @ local) =
             match xs with
@@ -215,7 +215,6 @@
             print_endline (string_of_int n)
         </oxcaml>
         <p>The important fact is simple: <code>xs</code> is temporary. For this first example, think of the function body as the region. The allocation stack is cleared when that region ends, so <code>xs</code> cannot be used after <code>sum3</code> returns.</p>
-        <p>The annotation on <code>sum</code> matters. It says <code>sum</code> may receive a local list, and it will not keep that list.</p>
       </section>
 
       <section>
@@ -227,7 +226,7 @@
             match xs with
             | [] -> 0
             | x::xs' ->
-              saved := xs;
+              saved := xs :: !saved;
               x + sum xs'
 
           let sum3 a b c =
@@ -239,7 +238,7 @@
             let n = sum3 1 2 3 in
             print_endline (string_of_int n)
         </oxcaml>
-        <p>The bug would be a dangling pointer: <code>saved</code> would point into a region that has already been cleared.</p>
+        <p>The bug would be a dangling pointer: <code>saved</code> would contain a list that points into a region that has already been cleared.</p>
       </section>
 
       <section>
@@ -486,7 +485,6 @@
               <p>May live in the current region. It cannot be used as a global value.</p>
             </article>
           </div>
-          <figcaption>The names are lifetime facts. They are not different runtime representations.</figcaption>
         </figure>
       </section>
 
@@ -506,7 +504,6 @@
 
       <section>
         <h2>Functions and <code>exclave_</code></h2>
-        <p>The locality axis gives names to the lifetime facts. Now apply those facts to a function body with an <code>exclave_</code> boundary.</p>
         <p>After <code>exclave_</code>, values from the old current region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
         <div class="compile-grid">
           <article class="compile-card">
@@ -760,14 +757,14 @@
         <oxcaml check data-filename="Ex03_with_scratch_cannot_store.ml" expect-error>
           type scratch = { mutable total : int }
 
-          let saved : scratch option ref = ref None
+          let saved : scratch list ref = ref []
 
           let with_scratch (f : scratch @ local -> 'a) =
             let s = stack_ { total = 0 } in
             f s [@nontail]
 
           let bad () =
-            with_scratch (fun s -> saved := Some s)
+            with_scratch (fun s -> saved := s :: !saved)
         </oxcaml>
         <details>
           <summary>Answer key</summary>
@@ -793,7 +790,7 @@
         <h2>Submoding: use global data locally</h2>
         <p>A local parameter lets a function accept temporary values. The reverse direction is also useful: a long-lived value can be used where only local mode is required.</p>
         <p>A value at global mode can be used at local mode. This is called submoding.</p>
-        <p>In this example, <code>escape xs</code> stores the list in a global reference. The same list can still be passed to <code>sum</code>, because <code>sum</code> only requires local mode.</p>
+        <p>In this example, <code>escape xs</code> records the list in a global history. The same list can still be passed to <code>sum</code>, because <code>sum</code> only requires local mode.</p>
         <aside class="exercise">
           <h3>Exercise: predict the mode change</h3>
           <p>Before running the code, predict whether <code>demo</code> is accepted. If it is accepted, explain why storing <code>xs</code> globally does not conflict with passing it to <code>sum</code>.</p>
@@ -803,10 +800,10 @@
           </details>
         </aside>
         <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
-          let saved : int list option ref = ref None
+          let saved : int list list ref = ref []
 
           let escape xs =
-            saved := Some xs
+            saved := xs :: !saved
 
           let rec sum (xs : int list @ local) =
             match xs with
@@ -824,23 +821,14 @@
       </section>
 
       <section>
-        <h2>Plain local containers lose the global mode</h2>
-        <p>The inner list starts global. The first <code>escape inner</code> type-checks.</p>
+        <h2>Problem: plain local containers lose the global mode</h2>
+        <p>In the following example, the inner list starts global. The first <code>escape inner</code> type-checks.</p>
         <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-        <p>The reason is that modes are deep. Using the outer list at local mode also uses the elements inside that list at local mode.</p>
-        <aside class="exercise">
-          <h3>Exercise: explain the lost mode</h3>
-          <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global mode after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
-          </details>
-        </aside>
         <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-          let saved : int list option ref = ref None
+          let saved : int list list ref = ref []
 
           let escape xs =
-            saved := Some xs
+            saved := xs :: !saved
 
           let demo () =
             let inner = [1; 2; 3] in
@@ -850,22 +838,27 @@
             | [] -> ()
             | inner :: _ -> escape inner
         </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise: explain the lost mode</h3>
+          <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global mode after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
+          </details>
+        </aside>
       </section>
 
       <section>
         <h2>Modalities preserve the global mode</h2>
-        <p>Sometimes losing the global mode through a local container is too weak. A field modality can keep a field stronger than the container around it.</p>
-        <p>A field modality is an annotation on a record field, written like <code>@@ global</code>, that preserves a mode for that field.</p>
-        <p>The outer list is local, while the inner list is global. This is a local list of global lists.</p>
-        <h3>Worked repair: preserve the global mode</h3>
-        <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger mode of the inner list.</p>
+        <p>Sometimes we want to place global data into a local container without losing the information that the inner data was global. The solution is <em>modalities</em>.</p>
+        <p>Modalities wrap the inner data in a record field annotated with the stronger mode <code>global</code>, which preserves the information that the inner data is global.</p>
         <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
           type 'a global = { global : 'a @@ global }
 
-          let saved : int list option ref = ref None
+          let saved : int list list ref = ref []
 
           let escape xs =
-            saved := Some xs
+            saved := xs :: !saved
 
           let demo () =
             let inner = [1; 2; 3] in
@@ -878,7 +871,7 @@
         <p>Constructing <code>{ global = inner }</code> requires <code>inner</code> at <code>@ global</code>. Reading <code>inner.global</code> gives the field back at <code>@ global</code>, even when the record itself is used at <code>@ local</code>.</p>
         <figure class="course-figure">
           <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
-          <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different facts.</figcaption>
+          <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different aspects.</figcaption>
         </figure>
       </section>
 

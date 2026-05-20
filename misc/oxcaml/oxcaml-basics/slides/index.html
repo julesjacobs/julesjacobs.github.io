@@ -65,7 +65,7 @@
             <p>Module 2 today</p>
             <p>Module 3 today</p>
           </div>
-          <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch.</aside>
+          <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch. These features are pay-as-you-go: ordinary OCaml code still works, and you only encounter these features when you need them, ideally. Contrast with Rust, where all programs need to know about its ownership model.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -103,7 +103,8 @@ parent_side_effect ()</code></pre>
               <p>Spawned worker runs in parallel; parent continues immediately.</p>
             </article>
           </div>
-          <aside class="notes">The operational shape motivates the different function requirements later.</aside>
+          <p class="takeaway">Prefer fork/join and structured concurrency whenever possible.</p>
+          <aside class="notes">The operational shape motivates the different function requirements later. State the API guidance explicitly: structured concurrency is usually the right default; spawn is included to teach the broader mode-checking story.</aside>
         </section>
 
         <section class="slide live-slide visual-live fresh-buffer-slide">
@@ -1013,7 +1014,7 @@ let saved = ref []
 let rec sum xs =
   match xs with
   | [] -> 0
-  | x::xs' -> saved := xs; x + sum xs'
+  | x::xs' -> saved := xs :: !saved; x + sum xs'
 
 let sum3 a b c =
   let xs = stack_ [a;b;c] in
@@ -1127,7 +1128,7 @@ let () =
   result</code></pre>
             </article>
           </div>
-          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead. Despite the name, this is not the function call stack: OxCaml uses a separate allocation stack, and regions describe when parts of that allocation stack can be reclaimed.</aside>
+          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead. In OxCaml, the allocation stack is separate from the call stack, and regions describe when parts of that allocation stack can be reclaimed.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide">
@@ -1311,10 +1312,10 @@ let add_with_scratch x y =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_submoding_global_inner_used_locally.ml</div>
               <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
-let saved : int list option ref = ref None
+let saved : int list list ref = ref []
 
 let escape xs =
-  saved := Some xs
+  saved := xs :: !saved
 
 let rec sum (xs : int list @ local) =
   match xs with
@@ -1346,10 +1347,10 @@ let () =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
               <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-let saved : int list option ref = ref None
+let saved : int list list ref = ref []
 
 let escape xs =
-  saved := Some xs
+  saved := xs :: !saved
 
 let demo () =
   let inner = [1; 2; 3] in
@@ -1407,10 +1408,10 @@ inner : 'a @ global</code></pre>
               <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
 type 'a global = { global : 'a @@ global }
 
-let saved : int list option ref = ref None
+let saved : int list list ref = ref []
 
 let escape xs =
-  saved := Some xs
+  saved := xs :: !saved
 
 let demo () =
   let inner = [1; 2; 3] in

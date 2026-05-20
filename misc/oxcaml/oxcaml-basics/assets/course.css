@@ -1395,6 +1395,10 @@ oxcaml .transcript-line.file,
   margin-bottom: 2px;
 }
 
+main details:not([open]) {
+  margin-bottom: 18px;
+}
+
 code {
   background: var(--panel-alt);
   border-radius: 5px;

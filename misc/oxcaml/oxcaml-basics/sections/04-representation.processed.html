@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics: Value Layouts And Unboxing</title>
-    <link rel="stylesheet" href="../assets/course.css?v=exercise-freeform-20260512">
+    <link rel="stylesheet" href="../assets/course.css?v=answer-key-spacing-20260520">
   </head>
   <body>
     <main class="lecture-page">
@@ -16,8 +16,8 @@
       </section>
 
       <section>
-        <h2>The runtime picture</h2>
-        <p>Start with the one invariant that ordinary OCaml code relies on: an OCaml <code>value</code> is one machine word. On a 64-bit runtime, the low bit of that word tells the runtime how to interpret the rest of the word.</p>
+        <h2>Plain OCaml has a uniform <code>value</code> representation</h2>
+        <p>An OCaml <code>value</code> is one machine word. On a 64-bit runtime, the low bit of that word tells the runtime how to interpret the rest of the word.</p>
 
         <figure class="value-model-figure">
           <div class="value-model-grid">
@@ -61,14 +61,12 @@
         </figure>
 
         <p>The payload words are interpreted according to the block format. Some payload words are themselves OCaml <code>value</code>s, so the GC follows them as pointers when needed. Other payload words are raw data, such as float bits or string bytes, so the GC must not treat them as pointers.</p>
-        <p>The header word tells the runtime how large the block is and how the payload should be scanned. For ordinary blocks, the payload is usually either all values or all raw data. For algebraic data types, the header tag also identifies which constructor with payload a block represents. Constructors with no payload are the simpler case: they are immediate integers, so they do not need a heap block at all.</p>
-        <p>In the visualizations below, ordinary numeric and pointer words are shown in the same left-to-right order as the printed raw word. For example, a raw word such as <code>0x03020100</code> appears as bytes <code>03 02 01 00</code>. String payloads are the exception: they are shown in memory order so the characters read naturally.</p>
+        <p>The header word tells the runtime how large the block is and how the payload should be scanned. For algebraic data types, the header tag also identifies which constructor with payload a block represents. Constructors with no payload are the simpler case: they are immediate integers, so they do not need a heap block at all.</p>
+        <p>This uniform model is a strength of OCaml. The GC, polymorphic functions, tuples, records, variants, and many library data structures can all talk about values without knowing the exact source type.</p>
       </section>
 
       <section>
-        <h2>Plain OCaml has a uniform <code>value</code> representation</h2>
-        <p>Most ordinary OCaml expressions produce this same runtime shape: one <code>value</code> word, either immediate data or a pointer to a heap block.</p>
-        <p>This uniform model is a strength of OCaml. The GC, polymorphic functions, tuples, records, variants, and many library data structures can all talk about values without knowing the exact source type.</p>
+        <h2>Examples</h2>
 
 
 <style>
@@ -1640,7 +1638,7 @@ least-significant byte on this little-endian machine'>c8</span><span class='nati
 </div>
 
         <p>Boxing creates heap allocation and pointer indirection. That is often fine. It becomes a problem in code where the cost of many small allocations, cache misses, or GC work matters.</p>
-        <p>Option values show the same issue. <code>None</code> is an immediate, but <code>Some payload</code> normally allocates a block to hold the payload. These diagrams show the two cases separately, so there is no surrounding tuple block.</p>
+        <p>Option values show the same issue. <code>None</code> is an immediate, but <code>Some payload</code> normally allocates a block to hold the payload.</p>
 
         <div class='native-repr-example'>
   <div class='native-repr-source'>
@@ -1853,15 +1851,15 @@ least-significant byte on this little-endian machine'>00</span><span class='nati
 
 </div>
 
-        <p>One representation cannot be optimal for every performance-sensitive path. OxCaml adds ways to express a different representation when the programmer knows which cost matters.</p>
+        <p>One representation cannot be optimal for every performance-sensitive path. OxCaml adds ways to express a different representation when cost matters.</p>
       </section>
 
       <section>
         <h2>OxCaml layouts remove specific boxes</h2>
-        <p>OxCaml layouts remove specific boxes from the uniform <code>value</code> model. They do not make every heap object disappear; they say which parts of a value should stop being ordinary boxed data.</p>
+        <p>OxCaml layouts remove specific boxes from the uniform <code>value</code> model.</p>
 
         <h3>Tuple block</h3>
-        <p><strong>Uniform cost:</strong> an ordinary tuple allocates a heap block just to group its fields. <strong>Layout version:</strong> an unboxed product carries the components directly. The string is still a heap object; the removed box is the tuple block itself.</p>
+        <p><strong>Uniform cost:</strong> an ordinary tuple allocates a heap block just to group its fields. <strong>Layout version:</strong> an unboxed product carries the components directly.</p>
         <p>Unlike an ordinary tuple, the unboxed product is not represented by one pointer to a tuple block. Its representation is just its components: here, the immediate integer and the string pointer. Those components can live in separate registers or stack slots.</p>
 
         <div class='native-repr-example'>
@@ -2170,20 +2168,14 @@ least-significant byte on this little-endian machine'>0f</span><span class='nati
         <h2>Kinds record which representations are allowed</h2>
         <p>Once values can have different layouts, APIs need a way to say which layouts they accept. That is what representation kinds are for. Ordinary polymorphism usually assumes <code>value</code>. Unboxed values require signatures that mention layouts such as <code>float64</code>, <code>bits32</code>, <code>bits64</code>, <code>word</code>, or product layouts.</p>
         <p>If a compiler error says a type parameter expects <code>value</code>, read that as: this API expects ordinary one-word OCaml values, not arbitrary unboxed layouts.</p>
-
-        <aside class="exercise">
-          <h3>Exercise: predict the kind bound</h3>
-          <p>The first block says that <code>box</code> only accepts ordinary <code>value</code>-layout types, so <code>float#</code> is rejected. Predict which kind bound is needed, then compare with the fixed block below.</p>
-          <details>
-            <summary>Answer</summary>
-            <p>Use <code>float64</code> for <code>float#</code>. The fixed block below changes the bound to <code>('a : float64)</code>. For an unboxed pair such as <code>#(string * float#)</code>, use the product layout <code>value &amp; float64</code>.</p>
-          </details>
-        </aside>
+        <p>Here is an example.</p>
 
         <oxcaml check data-filename="exercise_value_kind_rejects_float.ml" expect-error>
           type ('a : value) box
           type bad = float# box
         </oxcaml>
+
+        <p>To fix this, we have to specify the kind.</p>
 
         <oxcaml check data-filename="exercise_float64_kind_accepts_float.ml">
           type ('a : float64) box
@@ -2194,61 +2186,61 @@ least-significant byte on this little-endian machine'>0f</span><span class='nati
         </oxcaml>
 
         <aside class="exercise">
-          <h3>Exercise: predict the product layout</h3>
-          <p>The first block says that <code>slot</code> only accepts ordinary <code>value</code>-layout types. Predict which product layout accepts an unboxed pair of a string and an unboxed float, then compare with the fixed block below.</p>
+          <h3>Exercise: fix the product layout</h3>
+          <p>Explain which annotation has to be fixed, then fix it.</p>
+
+          <oxcaml check data-filename="exercise_product_kind_rejects_value_slot.ml" expect-error no-self-check>
+            type ('a : value) slot = Slot of 'a
+
+            type bad = #(string * float#) slot
+          </oxcaml>
+
           <details>
-            <summary>Answer</summary>
-            <p>The product <code>#(string * float#)</code> has layout <code>value &amp; float64</code>. The string component is one ordinary value word, and the unboxed float component is one raw <code>float64</code>. The fixed block below uses <code>('a : value &amp; float64)</code>.</p>
+            <summary>Answer key</summary>
+            <p>The product <code>#(string * float#)</code> has layout <code>value &amp; float64</code>. The annotation on <code>slot</code> should be <code>('a : value &amp; float64)</code>.</p>
+            <oxcaml check data-filename="exercise_product_kind_accepts_product_slot.ml">
+              type ('a : value & float64) slot = Slot of 'a
+
+              type ok = #(string * float#) slot
+            </oxcaml>
           </details>
         </aside>
-
-        <oxcaml check data-filename="exercise_product_kind_rejects_value_slot.ml" expect-error no-self-check>
-          type ('a : value) slot = Slot of 'a
-
-          type bad = #(string * float#) slot
-        </oxcaml>
-
-        <oxcaml check data-filename="exercise_product_kind_accepts_product_slot.ml">
-          type ('a : value & float64) slot = Slot of 'a
-
-          type ok = #(string * float#) slot
-        </oxcaml>
 
         <h3>Abstract types need kinds too</h3>
         <p>The same issue appears at module boundaries. In a signature, a plain abstract <code>type t</code> defaults to kind <code>value</code>. That is fine for ordinary OCaml values, but it does not match an implementation where <code>t</code> has product layout.</p>
 
         <aside class="exercise">
-          <h3>Exercise: predict the abstract kind</h3>
-          <p>The implementation below keeps a string and an unboxed float in an unboxed product. Explain why the first signature does not match, then predict the abstract kind used by the fixed signature below.</p>
+          <h3>Exercise: fix the abstract kind</h3>
+          <p>Explain which annotation has to be added to the signature, then fix it.</p>
+
+          <oxcaml check data-filename="abstract_type_value_default_rejects_unboxed_product.ml" expect-error no-self-check>
+            module type Pair = sig
+              type t
+              val make : string -> float# -> t
+            end
+
+            module Bad : Pair = struct
+              type t = #(string * float#)
+              let make name score = #(name, score)
+            end
+          </oxcaml>
+
           <details>
-            <summary>Answer</summary>
+            <summary>Answer key</summary>
             <p>Clients still do not know that <code>t</code> is an unboxed product. They do need to know that values of type <code>t</code> use layout <code>value &amp; float64</code>, because that layout is part of the calling convention. The fixed signature says <code>type t : value &amp; float64</code>.</p>
+            <oxcaml check data-filename="abstract_type_unboxed_product_kind.ml">
+              module type Pair = sig
+                type t : value & float64
+                val make : string -> float# -> t
+              end
+
+              module Good : Pair = struct
+                type t = #(string * float#)
+                let make name score = #(name, score)
+              end
+            </oxcaml>
           </details>
         </aside>
-
-        <oxcaml check data-filename="abstract_type_value_default_rejects_unboxed_product.ml" expect-error no-self-check>
-          module type Pair = sig
-            type t
-            val make : string -> float# -> t
-          end
-
-          module Bad : Pair = struct
-            type t = #(string * float#)
-            let make name score = #(name, score)
-          end
-        </oxcaml>
-
-        <oxcaml check data-filename="abstract_type_unboxed_product_kind.ml">
-          module type Pair = sig
-            type t : value & float64
-            val make : string -> float# -> t
-          end
-
-          module Good : Pair = struct
-            type t = #(string * float#)
-            let make name score = #(name, score)
-          end
-        </oxcaml>
       </section>
 
       <section>
@@ -2305,7 +2297,7 @@ least-significant byte on this little-endian machine'>0f</span><span class='nati
           let () = print_product_list swapped
         </oxcaml>
 
-        <p>The implementation pattern still looks like ordinary <code>map</code>, but the generated machine code is different. It must know how many registers or stack slots carry an element, which fields the GC should scan, and how to store the result back into the container. That is why real libraries often need separate definitions for different layouts rather than one ordinary polymorphic function.</p>
+        <p>The implementation pattern still looks like ordinary <code>map</code>, but the generated machine code is different. It must know how many registers or stack slots carry an element, which fields the GC should scan, and how to store the result back into the container.</p>
       </section>
 
       <section>
@@ -2343,13 +2335,13 @@ let x = (id [@kind value & value]) #("left", "right");;
     <span class='tok-operator'>-&gt;</span> <span class='tok-operator'>(</span><span class='tok-type'>&#39;a</span> vec<span class='tok-operator'>[</span><span class='tok-operator'>@</span><span class='tok-annotation'>kind</span> ki<span class='tok-operator'>]</span><span class='tok-operator'>)</span>
     <span class='tok-operator'>-&gt;</span> <span class='tok-operator'>(</span><span class='tok-type'>&#39;b</span> vec<span class='tok-operator'>[</span><span class='tok-operator'>@</span><span class='tok-annotation'>kind</span> ko<span class='tok-operator'>]</span><span class='tok-operator'>)</span><span class='tok-operator'>]</span></code></pre>
 
-        <p>This is recognition material, not the final design goal. OxCaml is a work in progress, and layout polymorphism is intended to replace this template pattern over time.</p>
+        <p>Syntax expansion templates are temporary. OxCaml is a work in progress, and in the future, proper layout polymorphism will replace templates.</p>
 
       </section>
 
       <section>
         <h2>Summary</h2>
-        <p>Plain OCaml gives most data the uniform <code>value</code> representation: a word that is either an immediate or a pointer to a heap block. OxCaml keeps that model as the default, but lets performance-sensitive code use more precise layouts when a box, pointer indirection, or option allocation is the cost we need to remove.</p>
+        <p>Plain OCaml uses a uniform <code>value</code> representation: a word that is either an immediate or a pointer to a heap block. OxCaml keeps that model as the default, but lets performance-sensitive code use more precise layouts when a box, pointer indirection, or option allocation is the cost we need to remove.</p>
         <p>Kinds record which representations an API accepts. Templates are the current way to repeat one source pattern across several kinds; layout polymorphism is intended to replace that template pattern over time.</p>
       </section>
 
