@@ -1,5 +1,5 @@
 (function () {
-  const version = "20260511-embed-margin";
+  const version = "20260520-playground-shim-v2";
   const script = document.currentScript;
   const localHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
   const baseUrl = localHostnames.has(window.location.hostname)
