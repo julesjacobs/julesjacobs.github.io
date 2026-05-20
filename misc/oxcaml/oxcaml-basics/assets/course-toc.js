@@ -100,6 +100,10 @@
       ? []
       : Array.from(document.querySelectorAll("main h1, main h2, main h3"))
           .filter((heading) => heading.textContent.trim().length > 0)
+          .filter((heading) => {
+            if (heading.closest(".exercise, .checkpoint")) return true;
+            return !heading.closest(".card, .diagram-card, .axis-strip, .value-model-panel");
+          })
           .map((heading) => {
             if (!heading.id) heading.id = uniqueId(slugBase(heading.textContent));
             const exerciseContainer = heading.closest(".exercise");

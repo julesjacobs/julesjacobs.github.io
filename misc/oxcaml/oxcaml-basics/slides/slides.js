@@ -293,12 +293,101 @@
     );
   }
 
+  function clearNativeReprHighlights(graph) {
+    graph.classList.remove("native-repr-hovering");
+    graph
+      .querySelectorAll(".native-repr-is-target, .native-repr-is-ref")
+      .forEach((element) => {
+        element.classList.remove("native-repr-is-target", "native-repr-is-ref");
+      });
+  }
+
+  function showNativeReprTarget(graph, targetId) {
+    clearNativeReprHighlights(graph);
+    if (!targetId) return;
+    graph.classList.add("native-repr-hovering");
+
+    const target = graph.querySelector(`#${targetId}`);
+    if (target) target.classList.add("native-repr-is-target");
+
+    graph.querySelectorAll(".native-repr-edge[href]").forEach((edge) => {
+      if (edge.getAttribute("href") === `#${targetId}`) {
+        edge.classList.add("native-repr-is-ref");
+      }
+    });
+  }
+
+  function setupNativeReprGraph(graph) {
+    graph.addEventListener("mouseleave", () => clearNativeReprHighlights(graph));
+    graph.querySelectorAll(".native-repr-edge[href]").forEach((edge) => {
+      edge.addEventListener("mouseenter", () => {
+        showNativeReprTarget(graph, edge.getAttribute("href").slice(1));
+      });
+      edge.addEventListener("click", (event) => event.preventDefault());
+    });
+    graph.querySelectorAll(".native-repr-block[id]").forEach((block) => {
+      block.addEventListener("mouseenter", () => showNativeReprTarget(graph, block.id));
+    });
+  }
+
+  function loadNativeReprExamples() {
+    const slots = Array.from(document.querySelectorAll("[data-native-repr]"));
+    if (!slots.length) return Promise.resolve();
+
+    return fetch("../examples/04-representation.processed.html", { cache: "no-store" })
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.text();
+      })
+      .then((html) => {
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const style = Array.from(doc.querySelectorAll("style")).find((candidate) =>
+          candidate.textContent.includes(".native-repr-example")
+        );
+        if (style && !document.querySelector("style[data-native-repr-style]")) {
+          const copy = document.createElement("style");
+          copy.dataset.nativeReprStyle = "true";
+          copy.textContent = style.textContent;
+          document.head.append(copy);
+        }
+
+        slots.forEach((slot) => {
+          const name = slot.dataset.nativeRepr;
+          const graph = Array.from(doc.querySelectorAll(".native-repr-graph")).find(
+            (candidate) => candidate.dataset.name === name
+          );
+          const example = graph?.closest(".native-repr-example");
+          const part = slot.dataset.nativeReprPart || "example";
+          const source = part === "graph" ? graph : example;
+
+          if (!source) {
+            slot.textContent = `Missing generated representation: ${name}`;
+            slot.classList.add("native-repr-missing");
+            return;
+          }
+
+          const copy = source.cloneNode(true);
+          slot.replaceChildren(copy);
+          const graphs = copy.matches(".native-repr-graph")
+            ? [copy]
+            : Array.from(copy.querySelectorAll(".native-repr-graph"));
+          graphs.forEach(setupNativeReprGraph);
+        });
+      })
+      .catch((error) => {
+        slots.forEach((slot) => {
+          slot.textContent = `Could not load generated representation examples: ${error.message}`;
+          slot.classList.add("native-repr-missing");
+        });
+      });
+  }
+
   normalizeCodeIndentation();
   highlightStaticCode();
   setupDelegatedInteractions();
   keepRevealOutOfInteractiveControls();
 
-  Reveal.initialize({
+  loadNativeReprExamples().finally(() => Reveal.initialize({
     width: 1366,
     height: 768,
     margin: 0,
@@ -312,7 +401,7 @@
     transition: "none",
     backgroundTransition: "none",
     plugins: [RevealNotes]
-  }).then(() => {
+  })).then(() => {
     setupStateWidgets();
   });
 }());

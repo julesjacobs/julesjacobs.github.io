@@ -6,601 +6,146 @@
     <title>OxCaml Examples: Locality And Stack Allocation</title>
     <link rel="stylesheet" href="../assets/course.css?v=aside-neutral-20260513">
     <style>
-      .allocation-figure {
-        --lifetime-caller-row: 152px;
-        --lifetime-current-row: 152px;
-        --lifetime-row-gap: 8px;
-        --allocation-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.58));
-        --allocation-memory-panel: rgba(255, 255, 255, 0.72);
-        --allocation-heap-accent: #8b5cf6;
-        --allocation-call-accent: #d97706;
-        --allocation-call-bg: #fffbeb;
-        --allocation-call-border: #fbbf24;
-        --allocation-callee-bg: #fff7ed;
-        --allocation-callee-border: #fdba74;
-        --allocation-region-bg: #f0fdfa;
-        --allocation-region-border: rgba(15, 118, 110, 0.34);
-        --allocation-parent-region-bg: #ecfdf5;
-        --allocation-callee-region-bg: #f8fafc;
-        --allocation-callee-region-border: #cbd5e1;
-        --allocation-empty-region-bg: rgba(248, 250, 252, 0.62);
-        --allocation-empty-region-border: rgba(148, 163, 184, 0.45);
-        --allocation-boundary-bg: #fef3c7;
-        --allocation-boundary-border: #d97706;
-        --allocation-boundary-ring: rgba(217, 119, 6, 0.18);
-        --allocation-current-row-bg: rgba(217, 119, 6, 0.045);
-        --allocation-caller-row-bg: rgba(15, 118, 110, 0.045);
-        --allocation-heap-empty-bg: rgba(248, 250, 252, 0.4);
-        --allocation-heap-empty-border: rgba(148, 163, 184, 0.32);
-        --allocation-heap-empty-ink: rgba(100, 116, 139, 0.82);
-        --allocation-list-bg: #f5f3ff;
-        --allocation-list-border: #c4b5fd;
-        --allocation-invalid-bg: #fff1f2;
-        --allocation-invalid-border: #fb7185;
-        --allocation-invalid-ink: #9f1239;
-        --allocation-rejected: #be123c;
-        background: var(--allocation-surface);
+      .compile-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        margin: 18px 0;
+      }
+
+      .compile-card {
+        background: var(--panel);
         border: 1px solid var(--rule);
         border-radius: 8px;
-        box-sizing: border-box;
-        margin: 24px 0 20px;
-        max-width: 1020px;
-        padding: 18px;
+        padding: 16px;
       }
 
-      @media (prefers-color-scheme: dark) {
-        .allocation-figure {
-          --allocation-surface: linear-gradient(180deg, rgba(28, 34, 30, 0.92), rgba(22, 27, 24, 0.82));
-          --allocation-memory-panel: rgba(23, 28, 25, 0.78);
-          --allocation-heap-accent: #c4a7ff;
-          --allocation-call-accent: #f2b66d;
-          --allocation-call-bg: rgba(242, 182, 109, 0.16);
-          --allocation-call-border: rgba(242, 182, 109, 0.42);
-          --allocation-callee-bg: rgba(255, 176, 106, 0.14);
-          --allocation-callee-border: rgba(255, 176, 106, 0.38);
-          --allocation-region-bg: rgba(103, 214, 201, 0.14);
-          --allocation-region-border: rgba(103, 214, 201, 0.36);
-          --allocation-parent-region-bg: rgba(123, 217, 155, 0.13);
-          --allocation-callee-region-bg: rgba(168, 181, 174, 0.11);
-          --allocation-callee-region-border: rgba(168, 181, 174, 0.34);
-          --allocation-empty-region-bg: rgba(168, 181, 174, 0.09);
-          --allocation-empty-region-border: rgba(168, 181, 174, 0.28);
-          --allocation-boundary-bg: rgba(242, 182, 109, 0.17);
-          --allocation-boundary-border: rgba(242, 182, 109, 0.55);
-          --allocation-boundary-ring: rgba(242, 182, 109, 0.2);
-          --allocation-current-row-bg: rgba(242, 182, 109, 0.08);
-          --allocation-caller-row-bg: rgba(103, 214, 201, 0.08);
-          --allocation-heap-empty-bg: rgba(168, 181, 174, 0.08);
-          --allocation-heap-empty-border: rgba(168, 181, 174, 0.26);
-          --allocation-heap-empty-ink: rgba(168, 181, 174, 0.82);
-          --allocation-list-bg: rgba(196, 167, 255, 0.15);
-          --allocation-list-border: rgba(196, 167, 255, 0.42);
-          --allocation-invalid-bg: rgba(255, 154, 163, 0.14);
-          --allocation-invalid-border: rgba(255, 154, 163, 0.48);
-          --allocation-invalid-ink: #ffb3bb;
-          --allocation-rejected: #ff8f9a;
-        }
-      }
-
-      .allocation-figure h3 {
-        font-size: 1.08rem;
+      .card-label {
+        color: var(--ink);
+        font-size: 0.95rem;
+        font-weight: 750;
         margin: 0 0 8px;
       }
 
-      .allocation-figure p {
+      .locality-axis {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 18px 0;
+      }
+
+      .locality-axis article {
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .locality-axis p {
+        margin-bottom: 0;
+      }
+
+      .checkpoint,
+      .exercise {
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-left-width: 4px;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px var(--shadow-soft);
+        margin: 14px 0;
+        max-width: 820px;
+        padding: 12px 14px;
+      }
+
+      .checkpoint {
+        border-left-color: #7a56d8;
+      }
+
+      .exercise {
+        border-left-color: #c96a00;
+      }
+
+      .checkpoint h3,
+      .exercise h3 {
+        font-size: 0.95rem;
+        margin: 0 0 6px;
+      }
+
+      .checkpoint p,
+      .exercise p {
         margin: 0;
       }
 
-      .allocation-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 16px 0;
+      .checkpoint details,
+      .exercise details {
+        margin-top: 8px;
       }
 
-      .allocation-step-button {
-        background: var(--panel);
-        border: 1px solid var(--rule);
-        border-radius: 7px;
-        color: var(--ink);
+      .checkpoint summary,
+      .exercise summary {
         cursor: pointer;
-        font: inherit;
-        font-size: 0.88rem;
-        font-weight: 700;
-        min-height: 36px;
-        padding: 7px 10px;
+        font-weight: 600;
       }
 
-      .allocation-step-button[aria-selected="true"] {
-        background: var(--accent-soft);
-        border-color: var(--accent);
-        color: var(--accent);
+      .checkpoint details p,
+      .exercise details p {
+        margin-top: 8px;
       }
 
-      .allocation-copy {
-        min-width: 0;
-      }
-
-      .allocation-copy-panel {
-        display: grid;
-        gap: 10px;
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: 18px 26px 142px 62px;
-        height: 278px;
-        overflow: hidden;
-      }
-
-      .allocation-copy-panel > p:not(.allocation-kicker) {
-        color: var(--muted);
-        font-size: 0.92rem;
-        line-height: 1.36;
-      }
-
-      .allocation-kicker {
-        color: var(--accent);
-        font-size: 0.76rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        line-height: 1.2;
-        margin-bottom: 0;
-        text-transform: uppercase;
-      }
-
-      .allocation-code {
+      .exclave-boundary-code {
         background: #20252b;
         border-radius: 8px;
         color: #f8fafc;
+        display: grid;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 0.83rem;
-        height: 142px;
-        line-height: 1.45;
-        margin: 0;
-        overflow-x: auto;
-        overflow-y: auto;
-        padding: 12px;
-      }
-
-      .allocation-code code {
-        background: transparent;
-        padding: 0;
-        white-space: pre;
-      }
-
-      .memory-map {
-        display: grid;
-        gap: 8px;
-        grid-template-columns: repeat(3, minmax(128px, 1fr));
-        min-width: 0;
-      }
-
-      .memory-column {
-        background: var(--allocation-memory-panel);
-        border: 1px solid var(--rule);
-        border-radius: 8px;
-        box-sizing: border-box;
-        height: 382px;
-        min-width: 0;
-        padding: 10px;
-        position: relative;
-      }
-
-      .memory-column.heap-column {
-        border-top: 5px solid var(--allocation-heap-accent);
-      }
-
-      .memory-column.call-column {
-        border-top: 5px solid var(--allocation-call-accent);
-      }
-
-      .memory-column.alloc-column {
-        border-top: 5px solid var(--accent);
-      }
-
-      .memory-title {
-        color: var(--ink);
-        font-size: 0.82rem;
-        font-weight: 800;
-        line-height: 1.15;
-        margin-bottom: 10px;
-      }
-
-      .memory-subtitle {
-        color: var(--muted);
-        display: block;
-        font-size: 0.72rem;
-        font-weight: 600;
-        line-height: 1.25;
-        margin-top: 3px;
-      }
-
-      .memory-stack,
-      .region-stack {
-        align-content: start;
-        display: grid;
-        gap: var(--lifetime-row-gap);
-        grid-template-rows: var(--lifetime-current-row) var(--lifetime-caller-row);
-        isolation: isolate;
-        min-height: calc(var(--lifetime-current-row) + var(--lifetime-row-gap) + var(--lifetime-caller-row));
-        position: relative;
-      }
-
-      .region-row {
-        min-width: 0;
-      }
-
-      .memory-stack > *,
-      .region-stack > * {
-        position: relative;
-        z-index: 1;
-      }
-
-      .allocation-figure:not([data-allocation-state="heap"]) .memory-stack::before,
-      .allocation-figure:not([data-allocation-state="heap"]) .region-stack::before {
-        background: linear-gradient(
-          180deg,
-          var(--allocation-current-row-bg) 0 var(--lifetime-current-row),
-          transparent var(--lifetime-current-row) calc(var(--lifetime-current-row) + var(--lifetime-row-gap)),
-          var(--allocation-caller-row-bg) calc(var(--lifetime-current-row) + var(--lifetime-row-gap)) 100%
-        );
-        border-radius: 8px;
-        content: "";
-        inset: -4px -6px;
-        pointer-events: none;
-        position: absolute;
-        z-index: 0;
-      }
-
-      .region-row > :first-child {
-        margin-top: 0;
-      }
-
-      .region-row > :last-child {
-        margin-bottom: 0;
-      }
-
-      .call-frame,
-      .region-frame,
-      .region-boundary,
-      .empty-space {
-        border-radius: 7px;
-        font-size: 0.82rem;
-        line-height: 1.25;
-        min-height: 54px;
-        padding: 9px 10px;
-      }
-
-      .call-frame strong,
-      .region-frame strong,
-      .region-boundary strong {
-        display: block;
-      }
-
-      .call-frame span,
-      .region-frame span,
-      .region-boundary span,
-      .empty-space span {
-        color: var(--muted);
-        display: block;
-        font-size: 0.74rem;
-        margin-top: 3px;
-      }
-
-      .call-frame {
-        background: var(--allocation-call-bg);
-        border: 1px solid var(--allocation-call-border);
-      }
-
-      .call-frame.callee {
-        background: var(--allocation-callee-bg);
-        border-color: var(--allocation-callee-border);
-      }
-
-      .call-frame.exiting,
-      .region-frame.exiting {
-        opacity: 0.64;
-      }
-
-      .region-frame {
-        background: var(--allocation-region-bg);
-        border: 1px solid var(--allocation-region-border);
-        position: relative;
-      }
-
-      .region-frame.parent {
-        background: var(--allocation-parent-region-bg);
-      }
-
-      .region-frame.callee-region {
-        background: var(--allocation-callee-region-bg);
-        border-color: var(--allocation-callee-region-border);
-      }
-
-      .region-frame.empty-region {
-        background: var(--allocation-empty-region-bg);
-        border-color: var(--allocation-empty-region-border);
-        border-style: dashed;
-        color: var(--muted);
-      }
-
-      .region-frame.empty-region.allocation-gap {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-        min-height: 46px;
-        opacity: 0.76;
-        padding: 8px;
-        text-align: center;
-      }
-
-      .region-frame.empty-region.allocation-gap span {
-        margin-top: 0;
-      }
-
-      .region-boundary {
-        background: var(--allocation-boundary-bg);
-        border: 1px dashed var(--allocation-boundary-border);
-        box-shadow: inset 0 0 0 1px var(--allocation-boundary-ring);
-        text-align: center;
-      }
-
-      .empty-space {
-        align-items: center;
-        border: 1px dashed var(--rule);
-        color: var(--muted);
-        display: flex;
-        justify-content: center;
-        min-height: 104px;
-        text-align: center;
-      }
-
-      .heap-column .empty-space {
-        background: var(--allocation-heap-empty-bg);
-        border-color: var(--allocation-heap-empty-border);
-        color: var(--allocation-heap-empty-ink);
-        min-height: 88px;
-      }
-
-      .stack-pointer {
-        border-bottom: 3px solid currentColor;
-        border-top: 3px solid currentColor;
-        color: var(--accent);
-        display: block;
-        font-size: 0.72rem;
-        font-weight: 800;
-        line-height: 1.15;
-        margin: 8px 0 10px;
-        padding: 4px 0;
-        text-align: center;
-        text-transform: uppercase;
-      }
-
-      .memory-note {
-        background: var(--panel-alt);
-        border-radius: 7px;
-        color: var(--muted);
-        font-size: 0.78rem;
-        line-height: 1.3;
-        margin-top: 10px;
-        padding: 8px;
-      }
-
-      .allocation-figure figcaption {
-        color: var(--muted);
         font-size: 0.9rem;
-        margin-top: 14px;
-      }
-
-      .allocation-stage {
-        display: grid;
-        gap: 18px;
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .allocation-copy-panel[hidden],
-      [data-visible-states][hidden] {
-        display: none !important;
-      }
-
-      .allocation-what-changed {
-        background: var(--panel-alt);
-        border-radius: 7px;
-        color: var(--muted);
-        font-size: 0.9rem;
-        height: 62px;
-        line-height: 1.35;
-        margin-top: 0;
-        overflow-y: auto;
-        padding: 9px 11px;
-      }
-
-      .list-spine {
-        align-items: center;
-        display: flex;
-        flex-wrap: wrap;
         gap: 6px;
-        min-width: 0;
+        line-height: 1.45;
+        margin: 12px 0;
+        overflow-x: auto;
+        padding: 14px;
       }
 
-      .list-cell {
-        background: var(--allocation-list-bg);
-        border: 1px solid var(--allocation-list-border);
-        border-radius: 7px;
+      .exclave-boundary-code .indent {
+        padding-left: 2ch;
+      }
+
+      .exclave-boundary-box {
+        background: rgba(254, 243, 199, 0.18);
+        border: 1px dashed #d97706;
+        border-radius: 8px;
         display: grid;
-        font-size: 0.78rem;
-        grid-template-columns: 24px 18px;
-        min-height: 30px;
-        overflow: hidden;
+        gap: 6px;
+        margin-top: 4px;
+        padding: 22px 12px 10px;
         position: relative;
       }
 
-      .list-cell.stack-cell {
-        background: var(--allocation-parent-region-bg);
-        border-color: var(--allocation-region-border);
-      }
-
-      .list-cell.invalid {
-        background: var(--allocation-invalid-bg);
-        border-color: var(--allocation-invalid-border);
-        color: var(--allocation-invalid-ink);
-      }
-
-      .list-cell.result-block {
-        animation: allocation-pulse 1600ms ease-in-out infinite;
-      }
-
-      .list-cell-head,
-      .list-cell-tail {
-        align-items: center;
-        display: flex;
-        justify-content: center;
-        min-width: 0;
-        padding: 4px;
-      }
-
-      .list-cell-head {
-        border-right: 1px solid currentColor;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      .exclave-boundary-label {
+        background: #20252b;
+        border: 1px solid #d97706;
+        border-radius: 999px;
+        color: #fbbf24;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-size: 0.72rem;
         font-weight: 800;
-      }
-
-      .list-cell-tail {
-        color: currentColor;
-        font-weight: 800;
-        opacity: 0.72;
-      }
-
-      .list-nil {
-        background: var(--panel-alt);
-        border: 1px dashed var(--rule);
-        border-radius: 7px;
-        color: var(--muted);
-        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        font-size: 0.78rem;
-        font-weight: 800;
-        padding: 6px 8px;
-        text-align: center;
-      }
-
-      .list-spine-label {
-        flex-basis: 100%;
-        color: var(--muted);
-        font-size: 0.74rem;
-        font-weight: 650;
-        line-height: 1.25;
-      }
-
-      .memory-arrow {
-        align-items: center;
-        color: var(--accent);
-        display: grid;
-        font-size: 0.74rem;
-        font-weight: 800;
-        gap: 5px;
-        grid-template-columns: max-content minmax(26px, 1fr);
-        margin: 8px 0;
-      }
-
-      .memory-arrow::after {
-        background: currentColor;
-        content: "";
-        height: 2px;
-      }
-
-      .memory-arrow.rejected {
-        color: var(--allocation-rejected);
-        text-decoration: none;
-      }
-
-      .memory-arrow.rejected::after {
-        background: repeating-linear-gradient(
-          90deg,
-          currentColor 0 8px,
-          transparent 8px 12px
-        );
-      }
-
-      .allocation-figure[data-allocation-state="exclave"] .region-boundary {
-        animation: allocation-pulse 1600ms ease-in-out infinite;
-      }
-
-      .allocation-figure[data-allocation-state="escape"] .list-cell.invalid {
-        animation: allocation-pulse 1600ms ease-in-out infinite;
-      }
-
-      .allocation-figure[data-allocation-state="escape"] .list-cell.invalid::after,
-      .allocation-figure[data-allocation-state="escape"] .region-frame.exiting::after {
-        background: var(--allocation-rejected);
-        content: "";
-        height: 2px;
-        left: 8px;
+        left: 12px;
+        letter-spacing: 0;
+        padding: 3px 8px;
         position: absolute;
-        right: 8px;
-        top: 50%;
-        transform: rotate(-4deg);
+        text-transform: uppercase;
+        top: -12px;
       }
 
-      @keyframes allocation-pulse {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-4px);
-        }
+      .code-comment {
+        color: #a7b3c2;
+        font-style: italic;
       }
 
-      @media (prefers-reduced-motion: reduce) {
-        .list-cell.result-block,
-        .allocation-figure[data-allocation-state="exclave"] .region-boundary,
-        .allocation-figure[data-allocation-state="escape"] .list-cell.invalid {
-          animation: none;
-        }
-      }
-
-      @media (max-width: 560px) {
-        .allocation-figure {
-          padding: 14px;
-        }
-
-        .allocation-copy-panel {
-          height: auto;
-          grid-template-rows: none;
-          overflow-y: visible;
-        }
-
-        .allocation-code {
-          height: auto;
-        }
-
-        .allocation-controls {
-          display: grid;
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .allocation-step-button {
-          min-width: 0;
-          white-space: normal;
-          width: 100%;
-        }
-
-        .memory-map {
+      @media (max-width: 720px) {
+        .compile-grid,
+        .locality-axis {
           grid-template-columns: 1fr;
-        }
-
-        .memory-column {
-          height: auto;
-          min-height: auto;
-        }
-
-        .memory-stack,
-        .region-stack {
-          grid-template-rows: auto auto;
-          min-height: auto;
-        }
-
-        .allocation-figure:not([data-allocation-state="heap"]) .memory-stack::before,
-        .allocation-figure:not([data-allocation-state="heap"]) .region-stack::before {
-          display: none;
         }
       }
     </style>
@@ -610,296 +155,304 @@
       <h1>Locality and stack allocation</h1>
 
       <section class="lecture-intro">
-        <p>This lecture is about allocation lifetime. OxCaml can put short-lived values on a stack instead of the GC heap, but only when the type checker can prove that no pointer to those values survives after their stack region ends.</p>
+        <p>This section is about lifetime. A value has a lifetime: the time when it is valid to use that value.</p>
+        <p>OxCaml can put short-lived values on the allocation stack instead of the GC heap. That is useful only if the compiler can check that no one uses the value after its region ends.</p>
         <p>By the end of this section, you should be able to:</p>
         <ul>
-          <li>explain why heap allocation matters for latency-sensitive code;</li>
-          <li>describe the basic stack-region model behind <code>local</code> and <code>global</code>;</li>
-          <li>use <code>stack_</code>, local arguments, and local returns in small examples;</li>
-          <li>explain what <code>exclave_</code> changes about the result's region;</li>
-          <li>explain submoding: why global values can be used where local values are required;</li>
-          <li>use modalities such as <code>@@ global</code> to preserve global fields inside local containers.</li>
+          <li>explain why stack allocation matters for latency-sensitive code;</li>
+          <li>use <code>stack_</code> and <code>exclave_</code> in small examples;</li>
+          <li>explain what the locality axis records;</li>
+          <li>explain why borrowing uses <code>@ local</code> parameters;</li>
+          <li>explain why modes are deep in data structures;</li>
+          <li>use a field modality such as <code>@@ global</code> to keep a global view through a local container.</li>
         </ul>
       </section>
 
       <section>
-        <h2>Why heap allocation matters</h2>
-        <p>OCaml allocation is usually cheap. The problem in this section is narrower: some hot paths and low-latency paths should avoid allocating on the GC heap, because heap allocation creates future GC work and can be the point where a GC pause happens.</p>
-        <p>Start with a harmless-looking helper. Returning <code>Some n</code> is ordinary OCaml style, but it creates an allocated value for the result when the branch is taken.</p>
-        <aside class="course-aside">
-          <h3>Aside: <code>Some</code> and <code>None</code></h3>
-          <p>For the ordinary option values in this example, <code>Some n</code> is a small allocated wrapper around <code>n</code>. <code>None</code> is a constant, so the negative branch does not allocate an option block.</p>
-        </aside>
-        <oxcaml data-filename="Ex03_motivating_option_allocation.ml">
-          let maybe_positive n =
-            if n >= 0 then Some n else None
-
-          let () =
-            match maybe_positive 3 with
-            | None -> print_endline "none"
-            | Some n -> print_endline (string_of_int n)
-        </oxcaml>
-        <p>The point is not that this code is bad. In most code, it is exactly the right style. OxCaml gives us extra tools for the places where allocation behavior is part of the performance contract.</p>
+        <h2>Why stack allocation matters</h2>
+        <p>OxCaml allocation is cheap, but GC is high latency. Heap allocation creates work for the GC. In low-latency code, that future GC work can be the problem.</p>
+        <p>Stack allocation is one way to avoid that heap work. The tradeoff is lifetime: a stack-allocated value must not be used after its region ends.</p>
       </section>
 
       <section>
-        <h2>Stack regions</h2>
-        <p>A stack region is a lifetime zone. A value allocated in a region is reclaimed when that region ends, so it must not be used after the region ends. For the first mental model, think of a function body as the region.</p>
-        <p>The locality mode records this lifetime fact. A <code>local</code> value must not escape the region it belongs to. A <code>global</code> value may escape. Stack-allocated values are local because they would become invalid after the stack region is reclaimed.</p>
-        <p>At runtime, OxCaml stack allocations are not placed inside ordinary function call frames. They go on a separate allocation stack. The call stack still tracks which functions are active; the allocation stack tracks local blocks and the region marks used to reclaim them.</p>
-        <p>The <code>sum</code> helper used in the diagram takes its list <code>@ local</code>, so it may inspect a stack-allocated list but cannot retain it. The full definition appears after the diagram.</p>
-        <figure class="allocation-figure" data-allocation-state="heap" aria-labelledby="allocation-figure-title">
-          <h3 id="allocation-figure-title">Call stack, allocation stack, GC heap</h3>
-          <p>This diagram follows the same temporary list through ordinary heap allocation, local stack allocation, a rejected escape, and an <code>exclave_</code> local return.</p>
-          <div class="allocation-controls" role="tablist" aria-label="Allocation diagram steps">
-            <button class="allocation-step-button" type="button" role="tab" aria-selected="true" aria-controls="allocation-visual" id="allocation-tab-heap" data-allocation-step="heap">Heap list</button>
-            <button class="allocation-step-button" type="button" role="tab" aria-selected="false" aria-controls="allocation-visual" id="allocation-tab-stack" data-allocation-step="stack">Stack list + <code>sum</code></button>
-            <button class="allocation-step-button" type="button" role="tab" aria-selected="false" aria-controls="allocation-visual" id="allocation-tab-escape" data-allocation-step="escape">Rejected escape</button>
-            <button class="allocation-step-button" type="button" role="tab" aria-selected="false" aria-controls="allocation-visual" id="allocation-tab-exclave" data-allocation-step="exclave">Local return with <code>exclave_</code></button>
-          </div>
-
-          <div class="allocation-stage" id="allocation-visual" role="tabpanel" aria-labelledby="allocation-tab-heap">
-            <div class="allocation-copy">
-              <article class="allocation-copy-panel" data-allocation-copy="heap">
-                <p class="allocation-kicker">Ordinary helper</p>
-                <p>The helper returns a list that stays valid after it returns.</p>
-                <pre class="allocation-code"><code>let make_heap_list () =
-  [1; 2; 3]
-
-let heap_sum () =
-  let total = sum (make_heap_list ()) in
-  print_endline (string_of_int total)</code></pre>
-                <p class="allocation-what-changed">What changed: the list spine is global, so the caller can keep and pass it around normally. After <code>sum</code> returns, only the integer total is printed.</p>
-              </article>
-
-              <article class="allocation-copy-panel" data-allocation-copy="stack" hidden>
-                <p class="allocation-kicker">Current region</p>
-                <p>The caller builds a temporary list and immediately passes it to <code>sum</code>.</p>
-                <pre class="allocation-code"><code>let sum_stack_list () =
-  let total = sum (stack_ [1; 2; 3]) in
-  print_endline (string_of_int total)</code></pre>
-                <p class="allocation-what-changed">What changed: the list spine lives in the caller's current stack region. The <code>let</code> binding keeps the call to <code>sum</code> out of tail position, then the code prints the integer result.</p>
-              </article>
-
-              <article class="allocation-copy-panel" data-allocation-copy="escape" hidden>
-                <p class="allocation-kicker">Escape rejected</p>
-                <p>A normal return would leave the caller pointing into a reclaimed region.</p>
-                <pre class="allocation-code"><code>let bad () =
-  stack_ [1; 2; 3]</code></pre>
-                <p class="allocation-what-changed">What changed: the type checker rejects the dangling pointer before the program can run.</p>
-              </article>
-
-              <article class="allocation-copy-panel" data-allocation-copy="exclave" hidden>
-                <p class="allocation-kicker">Local return</p>
-                <p><code>exclave_</code> builds the returned list in the caller's region.</p>
-                <pre class="allocation-code"><code>let make_stack_list () : _ @ local =
-  exclave_ stack_ [1; 2; 3]
-
-let use_stack_list () =
-  let total = sum (make_stack_list ()) in
-  print_endline (string_of_int total)</code></pre>
-                <p class="allocation-what-changed">What changed: the returned list is local to the caller, not global, so the caller consumes it with the same <code>sum</code> pattern before printing the total.</p>
-              </article>
-            </div>
-
-            <div class="memory-map" aria-label="Allocation model for summing a temporary local list">
-              <section class="memory-column call-column">
-                <div class="memory-title">Call stack<span class="memory-subtitle">function calls and returns</span></div>
-                <div class="memory-stack" data-visible-states="heap">
-                  <div class="call-frame callee exiting"><strong>make_heap_list frame</strong><span>popped after returning pointer</span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after <code>sum</code> returns</span></div>
-                </div>
-                <div class="memory-stack" data-visible-states="stack" hidden>
-                  <div class="call-frame callee"><strong>sum frame</strong><span>borrows <code>int list @ local</code></span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after local list is consumed</span></div>
-                </div>
-                <div class="memory-stack" data-visible-states="escape" hidden>
-                  <div class="call-frame callee exiting"><strong>bad frame</strong><span>return would pop this frame</span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>ordinary return would keep pointer</span></div>
-                </div>
-                <div class="memory-stack" data-visible-states="exclave" hidden>
-                  <div class="call-frame callee exiting"><strong>make_stack_list frame</strong><span>returns after <code>exclave_</code></span></div>
-                  <div class="call-frame"><strong>caller frame</strong><span>prints total after returned local list is consumed</span></div>
-                </div>
-              </section>
-
-              <section class="memory-column alloc-column">
-                <div class="memory-title">Allocation stack<span class="memory-subtitle">local OCaml blocks</span></div>
-                <div class="empty-space" data-visible-states="heap"><span>No stack allocation in the heap-list state.</span></div>
-                <div class="region-stack" data-visible-states="stack" hidden>
-                  <div class="region-row">
-                    <div class="region-frame callee-region empty-region allocation-gap"><span><code>sum</code> borrows; no local blocks</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="stack-pointer">caller region</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">local list spine consumed by <code>sum</code></div>
-                      <div class="list-cell stack-cell">
-                        <span class="list-cell-head">1</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell">
-                        <span class="list-cell-head">2</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell result-block">
-                        <span class="list-cell-head">3</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame"><strong>caller region</strong><span>cells are reclaimed when this region ends</span></div>
-                  </div>
-                </div>
-                <div class="region-stack" data-visible-states="escape" hidden>
-                  <div class="region-row">
-                    <div class="stack-pointer"><code>bad</code> region mark</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">callee-local list spine</div>
-                      <div class="list-cell stack-cell invalid">
-                        <span class="list-cell-head">1</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell invalid">
-                        <span class="list-cell-head">2</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell invalid">
-                        <span class="list-cell-head">3</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame callee-region exiting"><strong><code>bad</code> region</strong><span>reclaimed on return</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="memory-arrow rejected">caller pointer invalid</div>
-                  </div>
-                </div>
-                <div class="region-stack" data-visible-states="exclave" hidden>
-                  <div class="region-row">
-                    <div class="region-frame callee-region exiting"><strong>callee region</strong><span>temporary stack blocks reclaimed first</span></div>
-                    <div class="region-boundary"><strong><code>exclave_</code></strong><span>subsequent allocation happens in caller region</span></div>
-                  </div>
-                  <div class="region-row">
-                    <div class="stack-pointer">caller region</div>
-                    <div class="list-spine">
-                      <div class="list-spine-label">returned list spine in caller region</div>
-                      <div class="list-cell stack-cell">
-                        <span class="list-cell-head">1</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell">
-                        <span class="list-cell-head">2</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-cell stack-cell result-block">
-                        <span class="list-cell-head">3</span>
-                        <span class="list-cell-tail">&rarr;</span>
-                      </div>
-                      <div class="list-nil">[]</div>
-                    </div>
-                    <div class="region-frame parent"><strong>caller region</strong><span>result stays valid until this region ends</span></div>
-                  </div>
-                </div>
-              </section>
-
-              <section class="memory-column heap-column">
-                <div class="memory-title">GC heap<span class="memory-subtitle">ordinary OCaml allocation</span></div>
-                <div data-visible-states="heap">
-                  <div class="list-spine">
-                    <div class="list-spine-label">global list spine from <code>make_heap_list</code></div>
-                    <div class="list-cell">
-                      <span class="list-cell-head">1</span>
-                      <span class="list-cell-tail">&rarr;</span>
-                    </div>
-                    <div class="list-cell">
-                      <span class="list-cell-head">2</span>
-                      <span class="list-cell-tail">&rarr;</span>
-                    </div>
-                    <div class="list-cell result-block">
-                      <span class="list-cell-head">3</span>
-                      <span class="list-cell-tail">&rarr;</span>
-                    </div>
-                    <div class="list-nil">[]</div>
-                  </div>
-                  <div class="memory-arrow">caller receives pointer</div>
-                  <div class="memory-note">The list remains valid after <code>make_heap_list</code> returns.</div>
-                </div>
-                <div class="empty-space" data-visible-states="stack escape exclave" hidden><span>No new heap list is needed in this state.</span></div>
-              </section>
-            </div>
-          </div>
-          <figcaption>The allocation stack uses OCaml block layout, but its lifetime is region-based: entering a region records a pointer, and leaving the region resets that pointer.</figcaption>
-        </figure>
-        <aside class="checkpoint">
-          <h3>Checkpoint: predict whether the list escapes</h3>
-          <p>If a stack-allocated list is built inside a helper and returned as an ordinary result, which region would end too early?</p>
-        </aside>
-      </section>
-
-      <section>
-        <h2><code>stack_</code> forces stack allocation</h2>
-        <p>The expression <code>stack_ expr</code> tells the compiler that the immediately following allocation should be placed on the stack. If the value can be used entirely inside the current region, this works as expected.</p>
-        <p>Here the consumer matters. The list is passed to <code>sum</code>, whose argument is <code>int list @ local</code>. That promise lets callers pass a stack-allocated temporary list. The <code>let total = ...</code> binding also keeps the call to <code>sum</code> out of tail position without using an annotation.</p>
-        <aside class="course-aside">
-          <h3>Aside: tail position and <code>[@nontail]</code></h3>
-          <p>A tail call ends the current call's region before control moves to the callee. If a stack-allocated value from the current region is passed to that tail call, the callee would receive a value whose region has already ended. A local <code>let</code> binding, or an explicit <code>[@nontail]</code> annotation in later examples, keeps the caller's region alive until the local-consuming call returns.</p>
-        </aside>
-        <oxcaml run data-filename="Ex03_stack_list_used_inside_region.ml">
-          let rec sum_loop acc (xs : int list @ local) =
+        <h2>A small stack allocation example</h2>
+        <p>Use <code>stack_</code> to put new allocations on the allocation stack. In this example, the list <code>xs</code> is used inside <code>sum3</code>. Then <code>sum3</code> returns only the integer result.</p>
+        <p><code>stack_</code> is shallow. It does not copy values that are already reachable. For example, in <code>stack_ (x, y)</code>, the pair can be stack allocated, but <code>x</code> and <code>y</code> keep their existing lifetimes.</p>
+        <oxcaml run data-filename="Ex03_stack_sum.ml">
+          let rec sum (xs : int list @ local) =
             match xs with
-            | [] -> acc
-            | x :: xs -> sum_loop (acc + x) xs
+            | [] -> 0
+            | x::xs' -> x + sum xs'
 
-          let sum (xs : int list @ local) =
-            sum_loop 0 xs
-
-          let sum_stack_list () =
-            let total = sum (stack_ [1; 2; 3]) in
-            print_endline (string_of_int total)
+          let sum3 a b c =
+            let xs = stack_ [a;b;c] in
+            let n = sum xs in
+            (* xs gets deallocated here *)
+            n
 
           let () =
-            sum_stack_list ()
+            let n = sum3 1 2 3 in
+            print_endline (string_of_int n)
         </oxcaml>
-        <p>By contrast, <code>List.length (stack_ [1; 2; 3])</code> is not the intended example here: the standard <code>List.length</code> interface expects a global list. APIs that consume stack values need local arguments.</p>
-        <p><code>stack_</code> is deliberately strict. If the allocation would have to escape, the compiler rejects the program instead of silently moving that allocation back to the heap.</p>
-        <oxcaml check data-filename="Ex03_stack_list_escape_global_return.ml" expect-error>
-          let bad () =
-            stack_ [1; 2; 3]
-        </oxcaml>
-        <p>The compiler can also infer local values and stack-allocate automatically. The reason to write <code>stack_</code> is to make the intended allocation placement explicit: if a later refactor would force a heap allocation, you get a compile-time error.</p>
-        <p>One important detail: <code>stack_</code> is shallow. In <code>stack_ (x, y)</code>, the pair cell is the allocation being forced onto the stack; this does not recursively stack-allocate every value reachable from <code>x</code> and <code>y</code>. A list literal is a compact way to write several nearby cons-cell allocations.</p>
+        <p>The important fact is simple: <code>xs</code> is temporary. The allocation stack gets cleared at the end of a function, so <code>xs</code> cannot be used after <code>sum3</code> returns.</p>
+        <p>The annotation on <code>sum</code> matters. It says <code>sum</code> may receive a local list, and it will not keep that list.</p>
       </section>
 
       <section>
-        <h2>Local arguments let APIs borrow values</h2>
-        <p>A function argument annotated <code>@ local</code> is an API promise made by the callee. It says: this function may be passed a local value, and it will not store, return, or otherwise let that argument escape.</p>
-        <p>This promise is useful because callers may pass either heap values or stack values. The annotation restricts the function implementation, not the caller.</p>
-        <oxcaml check data-filename="Ex03_local_consumer.ml">
-          let inspect (x : int option @ local) =
-            match x with
-            | None -> 0
-            | Some n -> n
+        <h2>Stack allocated values cannot escape their region</h2>
+        <p>A stack-allocated value cannot be stored somewhere that may outlive its region. A global reference may outlive the function call, so the code below is rejected.</p>
+        <oxcaml check data-filename="Ex03_stack_sum_escape.ml" expect-error>
+          let saved = ref []
+          let rec sum xs =
+            match xs with
+            | [] -> 0
+            | x::xs' ->
+              saved := xs;
+              x + sum xs'
 
-          let demo () =
-            inspect (stack_ (Some 42)) [@nontail]
+          let sum3 a b c =
+            let xs = stack_ [a;b;c] in
+            let n = sum xs in
+            n
+
+          let () =
+            let n = sum3 1 2 3 in
+            print_endline (string_of_int n)
         </oxcaml>
-        <aside class="exercise">
-          <h3>Exercise: who is restricted?</h3>
-          <p>In <code>let inspect (x : int option @ local) = ...</code>, is the restriction on callers of <code>inspect</code>, or on the body of <code>inspect</code>?</p>
+        <p>The bug would be a dangling pointer: <code>saved</code> would point into a region that has already been cleared.</p>
+      </section>
+
+      <section>
+        <h2>Returning a stack allocated value is also an escape</h2>
+        <p>Returning the integer <code>n</code> is fine. Returning <code>xs</code> is not fine, because <code>xs</code> points into the current region.</p>
+        <oxcaml check data-filename="Ex03_stack_sum_return_escape.ml" expect-error>
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x::xs' -> x + sum xs'
+
+          let sum3 a b c =
+            let xs = stack_ [a;b;c] in
+            let n = sum xs in
+            n, xs
+
+          let () =
+            let n, _xs = sum3 1 2 3 in
+            print_endline (string_of_int n)
+        </oxcaml>
+        <aside class="checkpoint">
+          <h3>Checkpoint: what escapes?</h3>
+          <p>In <code>n, xs</code>, which part is safe to return, and which part is rejected?</p>
           <details>
             <summary>Answer</summary>
-            <p>The restriction is on the body of <code>inspect</code>. Callers may pass a normal heap option or a stack-allocated option. The callee promises not to let its argument escape.</p>
+            <p><code>n</code> is safe. It is an integer result. <code>xs</code> is rejected because it points into the current stack region.</p>
           </details>
         </aside>
       </section>
 
       <section>
-        <h2>Callback APIs can lend temporary state</h2>
-        <p>Local arguments are useful even when performance is not the first concern. They let an API lend a temporary value to user code without allowing that user code to retain it.</p>
-        <p>Here <code>with_scratch</code> creates a temporary mutable record and gives it to a callback. The callback can use the scratch object during the call, but its parameter is local, so it cannot store the scratch object for later.</p>
-        <oxcaml check data-filename="Ex03_with_scratch_local_callback.ml">
+        <h2>Use <code>exclave_</code> to build a returned local value</h2>
+        <p>Sometimes we do want to return a stack-allocated value. The keyword <code>exclave_</code> ends the current region and evaluates the following expression in the caller's region.</p>
+        <p>That means the returned value is not smuggled out of the old region. It is built in the caller's region.</p>
+        <oxcaml run data-filename="Ex03_stack_sum_exclave_return.ml">
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x::xs' -> x + sum xs'
+
+          let sum3 a b c =
+            exclave_
+            let xs = stack_ [a;b;c] in
+            let n = sum xs in
+            n, xs
+
+          let () =
+            let n, xs = sum3 1 2 3 in
+            print_endline (string_of_int n);
+            print_endline (string_of_int (sum xs))
+        </oxcaml>
+      </section>
+
+      <section>
+        <h2>How OxCaml manages the allocation stack</h2>
+        <p>The compiler can be explained with two simple operations. A normal function starts a new region. Before the function returns, the current region ends.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label">Normal function</div>
+            <pre><code>let f x =
+  ...
+  result</code></pre>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <pre><code>let f x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  result</code></pre>
+          </article>
+        </div>
+        <p>An <code>exclave_</code> result is different. It moves result construction to the parent region.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label"><code>exclave_</code> result</div>
+            <pre><code>let f x =
+  exclave_
+  ...
+  result</code></pre>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <pre><code>let f x =
+  start_new_region ();
+  end_current_region ();
+  ...
+  result</code></pre>
+          </article>
+        </div>
+        <p>When <code>exclave_</code> is at the beginning, the function region starts and ends immediately. The result is then built in the caller's region.</p>
+      </section>
+
+      <section>
+        <h2>Regions end before tail calls</h2>
+        <p>A tail call transfers control to another function instead of returning a value. So the current region ends before the tail call.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label">Tail call</div>
+            <pre><code>let rec loop x =
+  ...
+  loop next_x</code></pre>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <pre><code>let rec loop x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  tail call loop next_x</code></pre>
+          </article>
+        </div>
+        <p>The attribute <code>[@nontail]</code> suppresses the tail call. Then the region stays alive during the call and ends only after the call returns.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label">Non-tail call</div>
+            <pre><code>let f x =
+  ...
+  g x [@nontail]</code></pre>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <pre><code>let f x =
+  start_new_region ();
+  ...
+  let result = g x in
+  end_current_region ();
+  result</code></pre>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2><code>exclave_</code> in the middle of a function</h2>
+        <p>If <code>exclave_</code> appears after some work, the early work still belongs to the function's region. The region ends at the <code>exclave_</code> point.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label">Source</div>
+            <pre><code>let f x =
+  let y = stack_ [1; 2; 3] in
+  consume y;
+  exclave_
+  build_result x</code></pre>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <pre><code>let f x =
+  start_new_region ();
+  let y = stack_ [1; 2; 3] in
+  consume y;
+  end_current_region ();
+  build_result x</code></pre>
+          </article>
+        </div>
+        <p>The result cannot use <code>y</code>, because <code>y</code> was allocated in the region that just ended. The result can use <code>x</code>, because <code>x</code> came from the caller.</p>
+        <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately. The result expression still runs in the caller's region.</p>
+      </section>
+
+      <section>
+        <h2>The locality axis</h2>
+        <p>The locality axis records how long a value may live. It answers this question: how long does this value live?</p>
+        <figure class="course-figure">
+          <div class="locality-axis" role="list" aria-label="Locality axis">
+            <article role="listitem">
+              <div class="card-label"><code>x @ global</code></div>
+              <p>May outlive the current region. It is safe to store or return.</p>
+            </article>
+            <article role="listitem">
+              <div class="card-label">regional view</div>
+              <p>May live in an outer region. It can live past the current <code>end_current_region ()</code>.</p>
+            </article>
+            <article role="listitem">
+              <div class="card-label"><code>x @ local</code></div>
+              <p>May live in the current region. It cannot be used as a global value.</p>
+            </article>
+          </div>
+          <figcaption>The names are lifetime facts. They are not different runtime representations.</figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <h2>Functions and <code>exclave_</code></h2>
+        <p>After <code>exclave_</code>, values from the old current region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
+        <div class="compile-grid">
+          <article class="compile-card">
+            <div class="card-label">Source</div>
+            <div class="exclave-boundary-code" aria-label="Source code with exclave boundary">
+              <div>let f (x : int list @ local) =</div>
+              <div class="indent">let y = stack_ [1; 2; 3] in</div>
+              <div class="indent">ignore (sum y);</div>
+              <div class="indent">exclave_</div>
+              <div class="exclave-boundary-box">
+                <div class="exclave-boundary-label">after exclave_</div>
+                <div class="indent">let z = stack_ [4; 5; 6] in</div>
+                <div class="indent">sum x + sum z</div>
+                <div class="indent code-comment">(* not allowed here: sum y *)</div>
+              </div>
+            </div>
+          </article>
+          <article class="compile-card">
+            <div class="card-label">Region view</div>
+            <div class="exclave-boundary-code" aria-label="Lowered region view with exclave boundary">
+              <div>let f x =</div>
+              <div class="indent">start_new_region ();</div>
+              <div class="indent">let y = stack_ [1; 2; 3] in</div>
+              <div class="indent">ignore (sum y);</div>
+              <div class="indent">end_current_region ();</div>
+              <div class="indent code-comment">(* y dies here *)</div>
+              <div class="exclave-boundary-box">
+                <div class="exclave-boundary-label">after exclave_</div>
+                <div class="indent">let z = stack_ [4; 5; 6] in</div>
+                <div class="indent">sum x + sum z</div>
+                <div class="indent code-comment">(* x came from caller *)</div>
+                <div class="indent code-comment">(* z is after exclave_ *)</div>
+              </div>
+            </div>
+          </article>
+        </div>
+        <aside class="checkpoint">
+          <h3>Checkpoint: which values are alive?</h3>
+          <p>After <code>exclave_</code>, can the function use <code>x</code>, <code>y</code>, and <code>z</code>?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>It can use <code>x</code> because <code>x</code> came from the caller. It cannot use <code>y</code> because <code>y</code> was allocated before <code>exclave_</code>. It can use <code>z</code> because <code>z</code> is allocated after <code>exclave_</code>.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <h2>Idiom: borrowing</h2>
+        <p>Borrowing means this: a function may use a temporary value during a call, but it may not retain that value.</p>
+        <p>The function passed to <code>with_scratch</code> can use the temporary state during the call, but cannot retain it. This is forced by the <code>@ local</code> parameter.</p>
+        <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
           type scratch = { mutable total : int }
 
           let with_scratch (f : scratch @ local -> 'a) =
@@ -911,129 +464,20 @@ let use_stack_list () =
               s.total <- x + y;
               s.total)
         </oxcaml>
-        <p>If the callback could store <code>s</code> in a global reference, the reference would point at stack storage after <code>with_scratch</code> returns. OxCaml rejects that escape.</p>
-        <oxcaml check data-filename="Ex03_with_scratch_escape.ml" expect-error>
-          type scratch = { mutable total : int }
-
-          let with_scratch (f : scratch @ local -> 'a) =
-            let s = stack_ { total = 0 } in
-            f s [@nontail]
-
-          let saved : scratch option ref = ref None
-
-          let bad () =
-            with_scratch (fun s -> saved := Some s)
-        </oxcaml>
-      </section>
-
-      <section>
-        <h2>Local closures need local callback slots</h2>
-        <p>A closure can also be local. If a closure captures a local stack value, the closure itself must not escape beyond that value's region. Higher-order APIs should mark callback arguments as local when they call the callback immediately and do not store it.</p>
-        <p>This matters most at an interface boundary. If the public signature says the callback is an ordinary function value, callers must provide a callback that can escape. A closure that captures a stack-allocated counter cannot make that promise:</p>
-        <oxcaml check data-filename="Ex03_ordinary_callback_rejects_local_closure.ml" expect-error>
-          let bump (r : int ref @ local) =
-            r := !r + 1
-
-          module type Runner = sig
-            val call_now : (unit -> unit) -> unit
-          end
-
-          module Runner : Runner = struct
-            let call_now f = f ()
-          end
-
-          let bad () =
-            let count = stack_ (ref 0) in
-            Runner.call_now (fun () -> bump count) [@nontail]
-        </oxcaml>
-        <p>Now the API says what it actually does: it only borrows the callback. That lets callers pass local closures.</p>
-        <oxcaml check data-filename="Ex03_local_callback_slot.ml">
-          let bump (r : int ref @ local) =
-            r := !r + 1
-
-          module type Runner = sig
-            val call_now : (unit -> unit) @ local -> unit
-          end
-
-          module Runner : Runner = struct
-            let call_now f = f ()
-          end
-
-          let good () =
-            let count = stack_ (ref 0) in
-            Runner.call_now (fun () -> bump count) [@nontail];
-            !count
-        </oxcaml>
-      </section>
-
-      <section>
-        <h2>Local returns and <code>exclave_</code></h2>
-        <p>An ordinary return must be valid after the callee's region has ended. A local return is different: a result type like <code>t @ local</code> says the returned value may be local to the caller's region.</p>
-        <p>The <code>exclave_</code> keyword is how we write this. It ends the current region and evaluates the following result-producing expression in the parent region. That is why this helper can return a stack-allocated list as a local result.</p>
-        <oxcaml run data-filename="Ex03_exclave_return.ml">
-          let make_stack_list () : _ @ local =
-            exclave_ stack_ [1; 2; 3]
-
-          let rec sum_loop acc (xs : int list @ local) =
-            match xs with
-            | [] -> acc
-            | x :: xs -> sum_loop (acc + x) xs
-
-          let sum (xs : int list @ local) =
-            sum_loop 0 xs
-
-          let use_result () =
-            let total = sum (make_stack_list ()) in
-            print_endline (string_of_int total)
-
-          let () =
-            use_result ()
-        </oxcaml>
-        <p>Because <code>exclave_</code> exits the current region, values local to the callee's region cannot be used inside the <code>exclave_</code>. The result has to be built in the parent region, not by smuggling out a value from the region that is ending.</p>
-        <oxcaml check data-filename="Ex03_exclave_cannot_use_inner_local.ml" expect-error>
-          let bad () : _ @ local =
-            let xs = stack_ [1; 2; 3] in
-            exclave_ xs
-        </oxcaml>
-      </section>
-
-      <section>
-        <h2>Locality crosses API boundaries</h2>
-        <p>Locality is not only a local implementation detail. If a helper allocates a temporary value and returns it, the helper's signature must say whether the result is local. Otherwise callers cannot rely on the value living in their region.</p>
-        <p>This counter module exposes a local-returning constructor. The allocation in <code>make</code> is placed in the caller's region, so the caller can use the counter as a temporary local value.</p>
-        <oxcaml check data-filename="Ex03_counter_local_return.ml">
-          module Counter = struct
-            type t = int ref
-
-            let make () : t @ local =
-              exclave_ stack_ (ref 0)
-
-            let bump (t : t @ local) =
-              t := !t + 1
-
-            let get (t : t @ local) =
-              !t
-          end
-
-          let demo () =
-            let c = Counter.make () in
-            Counter.bump c;
-            Counter.get c [@nontail]
-        </oxcaml>
         <aside class="exercise">
-          <h3>Exercise: choose the boundary</h3>
-          <p>If a module has <code>val make : unit -> t</code> and callers want to use the result as a stack-local temporary, where should the signature change go?</p>
+          <h3>Exercise: who is restricted?</h3>
+          <p>In <code>scratch @ local -> 'a</code>, is the restriction on callers of <code>with_scratch</code>, or on the function body that receives <code>scratch</code>?</p>
           <details>
             <summary>Answer</summary>
-            <p>The constructor should expose a local result, for example <code>val make : unit -> t @ local</code>. Adding local annotations only at the call site cannot move an allocation that already happened inside the callee's region.</p>
+            <p>The restriction is on the body that receives <code>scratch</code>. It may use <code>scratch</code> during the call, but it may not store or return it.</p>
           </details>
         </aside>
       </section>
 
       <section>
-        <h2>Submoding lets global values be used locally</h2>
-        <p>A local argument does not mean the caller must pass stack data. It means the callee promises not to let that argument escape. So an ordinary heap value can be used where an API asks for <code>@ local</code>. This safe weakening is called submoding.</p>
-        <p>The list below is ordinary heap data: <code>escape xs</code> stores it in a ref. The same list can still be passed to <code>sum</code>, because <code>sum</code> only needs a local view of the list.</p>
+        <h2>Submoding: use global data locally</h2>
+        <p>A global value can be used through a local view. This is called submoding.</p>
+        <p>In this example, <code>escape xs</code> stores the list in a global reference. The same list can still be passed to <code>sum</code>, because <code>sum</code> only needs a local view.</p>
         <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
           let saved : int list option ref = ref None
 
@@ -1053,13 +497,13 @@ let use_stack_list () =
           let () =
             print_endline (string_of_int (demo ()))
         </oxcaml>
-        <p>Submoding is enough when the later operation only needs <code>@ local</code>. It is not enough when we later need to recover the global view after passing through a local container.</p>
       </section>
 
       <section>
-        <h2>Modalities preserve global fields inside local containers</h2>
-        <p>Submoding has a limit: after a value passes through a local container, ordinary field access gives back only the local view. That is fine when the next consumer accepts <code>@ local</code>, but it loses the information needed by a consumer that requires <code>@ global</code>.</p>
-        <p>We can expose the limit with a ref cell. The contents of an ordinary ref must be global, because the ref cell may outlive the current stack region. The helper <code>escape</code> therefore requires a global list, even though its inferred type does not mention modes explicitly.</p>
+        <h2>Plain local containers lose the global view</h2>
+        <p>The inner list starts global. The first <code>escape inner</code> type-checks.</p>
+        <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
+        <p>Reason: modes are deep. A local view of the outer list gives a local view of the elements inside that list.</p>
         <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
           let saved : int list option ref = ref None
 
@@ -1074,13 +518,16 @@ let use_stack_list () =
             | [] -> ()
             | inner :: _ -> escape inner
         </oxcaml>
-        <p>The first <code>escape inner</code> succeeds, so <code>inner</code> starts out usable globally. The failure happens only after <code>inner</code> has been extracted through <code>outer : int list list @ local</code>. Since ordinary list fields carry no stronger promise, the extracted <code>inner</code> is now only available as local.</p>
-        <p>A modality keeps a field stronger than the container around it. <code>Modes.Global.t</code> is an unboxed wrapper whose field is marked <code>@@ global</code>. Even when the wrapper sits inside a local outer list, projecting <code>.global</code> recovers a global value.</p>
-        <figure class="course-figure">
-          <img src="../assets/images/locality-modality-regions-v3.png" width="1692" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces showing stack data at local, heap data viewed as local by submoding, and a global heap field preserved by an @@ global modality. A rejected arrow shows that heap data cannot point to stack data.">
-          <figcaption>Runtime placement and compile-time mode are separate facts. A heap value can be viewed as <code>@ local</code> by submoding, while a field with <code>@@ global</code> preserves the knowledge that its contents remain <code>@ global</code>.</figcaption>
-        </figure>
+        <p>The original heap list did not become unsafe at runtime. The problem is the view. After going through a local list, the extracted value is viewed as local.</p>
+      </section>
+
+      <section>
+        <h2>Modalities preserve the global view</h2>
+        <p>A field modality can keep a field stronger than the container around it.</p>
+        <p>The outer list is local, while the inner list is global. This is a local list of global lists.</p>
         <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
+          type 'a global = { global : 'a @@ global }
+
           let saved : int list option ref = ref None
 
           let escape xs =
@@ -1089,27 +536,41 @@ let use_stack_list () =
           let demo () =
             let inner = [1; 2; 3] in
             escape inner;
-            let outer = stack_ [{ Modes.Global.global = inner }] in
+            let outer = stack_ [{ global = inner }] in
             match outer with
             | [] -> ()
             | inner :: _ -> escape inner.global
         </oxcaml>
-        <p>This is not a cast. The wrapper can only be built from a value that is actually global. The modality records that promise, so a local temporary structure can point at longer-lived data without losing the fact that the pointed-to data may still escape.</p>
+        <p>This is not a cast. The record can only be built from a value that is actually global. The modality records that promise.</p>
+        <figure class="course-figure">
+          <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
+          <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different facts.</figcaption>
+        </figure>
       </section>
 
       <section>
         <h2>Some values cross locality</h2>
-        <p>Locality only matters when there is a lifetime-sensitive heap object involved. An immediate value such as an <code>int</code> has no heap block whose lifetime can become invalid, so it can cross from local to global.</p>
+        <p>Locality matters when there may be a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
         <oxcaml check data-filename="Ex03_local_int_crosses.ml">
           let id_local_int (x : int @ local) : int =
             x
         </oxcaml>
-        <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as a global result would allow it to outlive the region it belongs to.</p>
+        <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as global would let it outlive its region.</p>
         <oxcaml check data-filename="Ex03_local_string_does_not_cross.ml" expect-error>
           let id_local_string (x : string @ local) : string @ global =
             x
         </oxcaml>
-        <p>The later kinds and representation sections explain this more systematically. For now, remember the practical rule: locality tracks whether there may be a pointer whose lifetime matters.</p>
+      </section>
+
+      <section>
+        <h2>Allocation recap</h2>
+        <ul>
+          <li><code>local</code> and <code>global</code> control lifetime and escape.</li>
+          <li><code>stack_</code> forces an allocation onto the allocation stack.</li>
+          <li><code>exclave_</code> builds a local result in the caller region.</li>
+          <li><code>@ local</code> parameters express borrowing.</li>
+          <li><code>@@ global</code> fields preserve the global view through local containers.</li>
+        </ul>
       </section>
 
       <nav class="page-nav" aria-label="Page navigation">
@@ -1123,62 +584,6 @@ let use_stack_list () =
         </a>
       </nav>
     </main>
-    <script>
-      (() => {
-        const figure = document.querySelector(".allocation-figure");
-        if (!figure) return;
-
-        const buttons = Array.from(figure.querySelectorAll("[data-allocation-step]"));
-        const steps = buttons.map((button) => button.dataset.allocationStep);
-        const copyPanels = Array.from(figure.querySelectorAll("[data-allocation-copy]"));
-        const visibleByState = Array.from(figure.querySelectorAll("[data-visible-states]"));
-        const visual = figure.querySelector("#allocation-visual");
-        let currentIndex = 0;
-
-        const showStep = (step) => {
-          const nextIndex = steps.indexOf(step);
-          if (nextIndex === -1) return;
-          currentIndex = nextIndex;
-          figure.dataset.allocationState = step;
-
-          buttons.forEach((button) => {
-            const isActive = button.dataset.allocationStep === step;
-            button.setAttribute("aria-selected", String(isActive));
-            button.tabIndex = isActive ? 0 : -1;
-          });
-
-          copyPanels.forEach((panel) => {
-            panel.hidden = panel.dataset.allocationCopy !== step;
-          });
-
-          visibleByState.forEach((node) => {
-            const states = node.dataset.visibleStates.split(/\s+/);
-            node.hidden = !states.includes(step);
-          });
-
-          if (visual) {
-            const activeButton = buttons[currentIndex];
-            visual.setAttribute("aria-labelledby", activeButton.id);
-          }
-        };
-
-        buttons.forEach((button) => {
-          button.addEventListener("click", () => {
-            showStep(button.dataset.allocationStep);
-          });
-          button.addEventListener("keydown", (event) => {
-            if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
-            event.preventDefault();
-            const direction = event.key === "ArrowRight" ? 1 : -1;
-            const nextIndex = (currentIndex + direction + steps.length) % steps.length;
-            showStep(steps[nextIndex]);
-            buttons[nextIndex].focus();
-          });
-        });
-
-        showStep(steps[0]);
-      })();
-    </script>
     <script src="../assets/course-toc.js?v=exercise-freeform-20260512" defer></script>
     <script src="../assets/oxcaml-embed-loader.js?v=embed-margin-20260511"></script>
   </body>

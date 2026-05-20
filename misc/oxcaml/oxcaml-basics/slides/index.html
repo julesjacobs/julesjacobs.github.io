@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=exercise-target-20260511">
+    <link rel="stylesheet" href="slides.css?v=repr-kinds-20260519">
   </head>
   <body>
     <div class="reveal">
@@ -45,14 +45,14 @@
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three classes of failure</h2>
-          <div class="failure-grid">
-            <article class="bad"><h3>Data race</h3><p>Overlapping mutable access when at least one access writes.</p></article>
-            <article class="bad"><h3>Dangling stack pointer</h3><p>A local value escapes the region that owns it.</p></article>
-            <article class="bad"><h3>Representation mismatch</h3><p>Data has the wrong in-memory layout.</p></article>
+          <h2>Three classes of optimization</h2>
+          <div class="lever-grid">
+            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
+            <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
+            <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
           </div>
-          <p class="takeaway fragment">In all three cases, OxCaml turns a runtime failure mode into a compile-time error.</p>
-          <aside class="notes">This primes the lecture around error reading, not feature memorization.</aside>
+          <p class="takeaway fragment">Each optimization has a matching safety check, so the risky version becomes a compile-time error.</p>
+          <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -568,6 +568,11 @@ val spawn :  (* schematic *)
                 <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
               </div>
               <p class="boundary-reason"><code>x</code> becomes <code>@ shared</code> because <code>fork_join2</code> takes the worker at <code>@ shareable</code>.</p>
+              <pre class="boundary-signature"><code>val fork_join2 :
+  ... ->
+  (... -> 'a) @ shareable ->
+  (... -> 'b) @ shareable ->
+  ...</code></pre>
             </article>
             <article>
               <div class="closure-boundary-code" aria-label="Spawn contention closure boundary revisited example">
@@ -585,9 +590,14 @@ val spawn :  (* schematic *)
                   </div>
                   <span class="closure-paren close">)</span>
                 </div>
+                <div class="code-line indent-1">&nbsp;</div>
                 <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
               </div>
               <p class="boundary-reason"><code>x</code> becomes <code>@ contended</code> because <code>spawn</code> takes the worker at <code>@ portable</code>.</p>
+              <pre class="boundary-signature"><code>val spawn :
+  ... ->
+  f:(... -> unit) @ portable ->
+  unit</code></pre>
             </article>
           </div>
           <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the closure argument mode.</aside>
@@ -893,7 +903,7 @@ val spawn :  (* schematic *)
         </section>
 
         <section class="slide concept-slide heap-allocation-sign-slide">
-          <h2>Why heap allocation matters</h2>
+          <h2>Why stack allocation matters</h2>
           <div class="heap-allocation-panels">
             <article>
               <p>OxCaml allocation is cheap, but GC is high latency.</p>
@@ -1140,11 +1150,53 @@ let () =
           <aside class="notes">Regional is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide">
+          <h2>How OxCaml checks stack allocation safety:<br>functions and <code>exclave_</code></h2>
+          <div class="region-compile-grid function-exclave-grid">
+            <article class="region-source-card">
+              <h3>Source</h3>
+              <div class="exclave-boundary-code" aria-label="Source code with exclave boundary">
+                <div class="code-line">let f (x : int list @ local) =</div>
+                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
+                <div class="code-line indent-1">ignore (sum y);</div>
+                <div class="code-line indent-1 exclave-keyword-line">exclave_</div>
+                <div class="exclave-boundary-box">
+                  <div class="exclave-boundary-label">after exclave_</div>
+                  <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                  <div class="code-line indent-1">sum x + sum z</div>
+                  <div class="code-line indent-1 tok-comment">(* not allowed here: sum y *)</div>
+                </div>
+              </div>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <h3>Region view</h3>
+              <div class="exclave-boundary-code" aria-label="Lowered region view with exclave boundary">
+                <div class="code-line">let f x =</div>
+                <div class="code-line indent-1">start_new_region ();</div>
+                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
+                <div class="code-line indent-1">ignore (sum y);</div>
+                <div class="code-line indent-1">end_current_region ();</div>
+                <div class="code-line indent-1 tok-comment">(* y dies here *)</div>
+                <div class="exclave-boundary-box">
+                  <div class="exclave-boundary-label">after exclave_</div>
+                  <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                  <div class="code-line indent-1">sum x + sum z</div>
+                  <div class="code-line indent-1 tok-comment">(* x came from caller *)</div>
+                  <div class="code-line indent-1 tok-comment">(* z is after exclave_ *)</div>
+                </div>
+              </div>
+            </article>
+          </div>
+          <p class="takeaway"><code>exclave_</code> ends the function's current region. Arguments from the caller can still be used; values allocated before <code>exclave_</code> cannot.</p>
+          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z is allocated after exclave_, so it belongs to the parent region.</aside>
+        </section>
+
+        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
           <h2>Idiom: borrowing</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, forced by the <code>@ local</code> parameter.</p>
+              <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, and this is forced by the <code>@ local</code> parameter.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_with_scratch_local_function.ml</div>
@@ -1165,62 +1217,7 @@ let add_with_scratch x y =
           <aside class="notes">This is borrowing, not just allocation optimization.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2>Local closures need local function slots</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>If a closure captures a local value, the closure itself is local.</p>
-              <p>An ordinary <code>unit -> unit</code> slot is too global for that closure.</p>
-              <pre><code>let call_now_bad (f : unit -> unit) =
-  f ()</code></pre>
-              <p>Immediate-call functions should accept local function values.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_local_function_slot.ml</div>
-              <oxcaml check data-filename="Ex03_local_function_slot.ml">
-let bump (r : int ref @ local) =
-  r := !r + 1
-
-let call_now (f : (unit -> unit) @ local) =
-  f ()
-
-let good () =
-  let count = stack_ (ref 0) in
-  call_now (fun () -> bump count);
-  !count
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Contrast with an ordinary function slot, which would allow the closure to escape.</aside>
-        </section>
-
-        <section class="slide live-slide">
-          <h2>Local returns and exclave_</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>exclave_</code> exits the current region and evaluates the result expression in the parent region.</p>
-              <p>The result may be local to the caller.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_exclave_return.ml</div>
-              <oxcaml run data-filename="Ex03_exclave_return.ml">
-let make_stack_list () : _ @ local =
-  exclave_ stack_ [1; 2; 3]
-
-let rec sum acc (xs : int list @ local) =
-  match xs with
-  | [] -> acc
-  | x :: xs -> sum (acc + x) xs
-
-let () =
-  print_endline (string_of_int (sum 0 (make_stack_list ())))
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Do not describe exclave_ as smuggling out an existing local value. It builds the result in the parent region.</aside>
-        </section>
-
-        <section class="slide live-slide">
+        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-ok-slide">
           <h2>Submoding: use global data locally</h2>
           <div class="live-layout">
             <div class="live-copy">
@@ -1267,6 +1264,8 @@ let () =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
               <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
+
+
 let saved : int list option ref = ref None
 
 let escape xs =
@@ -1350,15 +1349,15 @@ let demo () =
           <h1>Value layouts and unboxing</h1>
           <ul class="goal-list">
             <li>Explain immediate words vs heap-block pointers.</li>
-            <li>Spot boxes, headers, pointers, and raw fields.</li>
-            <li>Choose the feature that removes a specific cost.</li>
-            <li>Read layout and kind requirements in APIs.</li>
+            <li>Read heap blocks from the generated layouts.</li>
+            <li>Spot boxes, pointer hops, and wrapper allocations.</li>
+            <li>Use unboxed layouts when a specific representation cost matters.</li>
           </ul>
           <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
         </section>
 
         <section class="slide concept-slide value-invariant-slide">
-          <h2>Runtime invariant:<br>every OxCaml value is one word</h2>
+          <h2>Runtime invariant:<br>every OCaml value is one word</h2>
           <div class="value-model-figure">
             <div class="value-model-grid">
               <div class="value-model-panel">
@@ -1387,163 +1386,223 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
-          <h2>Heap block anatomy</h2>
-          <div class="heap-block-model heap-block-slide">
-            <div class="heap-block-label">heap block</div>
-            <div class="heap-model">
-              <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
-              <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
-              <div class="heap-model-word"><strong>payload 1</strong><span>value or raw data</span></div>
-              <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
-            </div>
-          </div>
-          <p class="takeaway">The header describes which fields are values vs. raw data. The GC does not scan raw data.</p>
-          <aside class="notes">This distinction matters for unboxed float fields and mixed blocks.</aside>
-        </section>
-
-        <section class="slide concept-slide">
           <h2>Uniform value representation is powerful</h2>
           <div class="two-up">
-            <article><h3>Source</h3><pre><code>let plain_value_integer = 5
+            <article><h3>Source</h3><pre><code>let id x = x
 
-let plain_value_tuple = (1, 2, 3)
+let plain_value_integer =
+  id 5
+
+let plain_value_tuple =
+  id (1, 2, 3)
 
 type quote =
   { symbol : string
   ; price : int
   ; mutable size : int
-  }</code></pre></article>
-            <article><h3>Runtime model</h3><p>The runtime, GC, and libraries all agree on one value shape. Polymorphic functions are only compiled once.</p></article>
+  }
+
+let plain_value_record =
+  id { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
+            <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value shape. Polymorphic functions are only compiled once.</p></article>
           </div>
           <aside class="notes">The uniform model is a strength before it is a cost.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Variants are values too</h2>
-          <div class="two-up">
-            <article><h3>Constant constructors</h3><p>Represented as immediates.</p></article>
-            <article><h3>Payload constructors</h3><p>Allocate heap blocks; the header tag identifies the constructor.</p></article>
-          </div>
-          <p class="takeaway">Recursive data is a graph of values: immediates or pointers to other heap blocks.</p>
-          <aside class="notes">This is where the representation visualizer is strongest in the course page.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Sharing: the heap is a graph</h2>
-          <pre><code>let shared = "shared"
-let t = (shared, shared, "other")</code></pre>
-          <p class="takeaway">Two fields can point at the same heap object.</p>
-          <aside class="notes">Do not redraw shared heap graphs as trees.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Uniform model costs: boxes and pointers</h2>
-          <div class="cost-ledger">
-            <article><h3>boxed numeric values</h3><pre><code>let boxed_numeric_values =
-  (3.5, 456L)</code></pre><p>tuple block, boxed <code>float</code>, boxed <code>int64</code></p></article>
-            <article><h3>ordinary option values</h3><pre><code>let ordinary_option_values =
-  (None, Some "found")</code></pre><p><code>Some</code> constructor requires a block</p></article>
-          </div>
-          <aside class="notes">Boxes mean allocation, headers, pointer indirection, and future GC work.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Unboxed types remove specific boxes</h2>
-          <div class="cost-ledger">
-            <article><h3>ordinary tuple</h3><pre><code>(1, "one")</code></pre><p>one heap block for grouping</p></article>
-            <article class="ok-card"><h3>unboxed tuple</h3><pre><code>#(1, "one")</code></pre><p>tuple block removed; string heap object remains</p></article>
-          </div>
-          <aside class="notes">Unboxing removes the specified box, not everything reachable.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Unboxed records inline nested fields</h2>
-          <div class="cost-ledger">
-            <article><h3>mixed boxed point</h3><pre><code>type boxed_point =
-  { x : float; y : float; label : string }
-
-type sample =
-  { point : boxed_point
-  ; count : int
-  }</code></pre><p>mixed ordinary record: float fields are boxed value fields</p></article>
-            <article class="ok-card"><h3>mixed unboxed point</h3><pre><code>type unboxed_point =
-  #{ x : float#; y : float#; label : string }
-
-type sample =
-  { point : unboxed_point
-  ; count : int
-  }</code></pre><p>raw float fields and the label pointer are stored inline</p></article>
-          </div>
-          <aside class="notes">This is the most concrete representation win in the lecture.</aside>
-        </section>
-
-        <section class="slide live-slide">
-          <h2><code>or_null</code> removes option wrapper allocation</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <div class="repr-map">
-                <div class="repr-row">
-                  <code>None</code>
-                  <span class="repr-arrow">→</span>
-                  <code>Null</code>
-                  <span>missing value</span>
-                </div>
-                <div class="repr-row">
-                  <code>Some payload</code>
-                  <span class="repr-arrow">→</span>
-                  <code>This payload</code>
-                  <span>same representation as the payload</span>
-                </div>
+        <section class="slide concept-slide repr-slide repr-dual-graph-slide">
+          <h2>Plain values: immediate word or pointer word</h2>
+          <div class="repr-stack-examples">
+            <article class="repr-row-example">
+              <div class="repr-code-panel">
+                <h3>Integer source</h3>
+                <pre><code>let plain_value_integer = 5</code></pre>
               </div>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">exercise_hd_or_null.ml</div>
-              <oxcaml check data-filename="exercise_hd_or_null.ml">
-let hd_option = function
-  | [] -> None
-  | x :: _ -> Some x
-
-let hd_or_null xs =
-  failwith "implement this"
-              </oxcaml>
-            </div>
+              <div class="repr-graph-panel">
+                <h3>Generated representation</h3>
+                <div class="native-repr-slot" data-native-repr="plain_value_integer" data-native-repr-part="graph"></div>
+              </div>
+            </article>
+            <article class="repr-row-example">
+              <div class="repr-code-panel">
+                <h3>Tuple source</h3>
+                <pre><code>let plain_value_tuple = (1, 2, 3)</code></pre>
+              </div>
+              <div class="repr-graph-panel">
+                <h3>Generated representation</h3>
+                <div class="native-repr-slot" data-native-repr="plain_value_tuple" data-native-repr-part="graph"></div>
+              </div>
+            </article>
           </div>
-          <aside class="notes">Ask students to rewrite option first, then discuss representation.</aside>
+          <p class="takeaway">A tuple is still one OCaml value, but that value word points to a heap block.</p>
+          <aside class="notes">These examples come from the representation generator in the lecture notes.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Records have the same heap-block shape</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>type quote =
+  { symbol : string
+  ; price : int
+  ; mutable size : int
+  }
+
+let plain_value_record =
+  { symbol = "OX"; price = 101; size = 7 }</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Generated heap shape</h3>
+              <div class="native-repr-slot" data-native-repr="plain_value_record" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <aside class="notes">Mutability changes allowed operations; it does not create a different block shape.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Too many boxes!</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>let boxed_numeric_values =
+  (3.5, 456L)</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Generated heap shape</h3>
+              <div class="native-repr-slot" data-native-repr="boxed_numeric_values" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">The tuple points to separate blocks for the boxed numeric payloads.</p>
+          <aside class="notes">This is the concrete cost: extra blocks and pointer hops.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Solution: unboxed types</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>let unboxed_numeric_values =
+  #(#3.5, #456L)</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Generated heap shape</h3>
+              <div class="native-repr-slot" data-native-repr="unboxed_numeric_values" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">The product components are carried directly as raw words.</p>
+          <aside class="notes">Contrast this with the previous boxed numeric example.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Unboxed records can inline raw fields</h2>
+          <div class="repr-slide-layout repr-wide-code-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>type unboxed_point =
+  #{ x : float#; y : float# }
+
+type sample =
+  { label : string
+  ; point : unboxed_point
+  ; count : int
+  }
+
+let outer_record_with_unboxed_point =
+  { label = "p"
+  ; point = #{ x = #1.0; y = #2.5 }
+  ; count = 7
+  }</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Generated heap shape</h3>
+              <div class="native-repr-slot" data-native-repr="outer_record_with_unboxed_point" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <aside class="notes">Point out the mixed block: scanned value fields first, raw float words after.</aside>
         </section>
 
         <section class="slide live-slide">
-          <h2><code>or_null</code> answer</h2>
+          <h2>Ordinary polymorphic functions expect values</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>Null</code> replaces <code>None</code>.</p>
+              <p><code>duplicate</code> is inferred for ordinary one-word values.</p>
               <br>
-              <p><code>This x</code> replaces <code>Some x</code> without adding a wrapper block around <code>x</code>.</p>
+              <p>An unboxed point has layout <code>float64 &amp; float64</code>, so it is not accepted as that argument.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">exercise_hd_or_null.ml</div>
-              <oxcaml check data-filename="exercise_hd_or_null_answer.ml">
-let hd_option = function
-  | [] -> None
-  | x :: _ -> Some x
+              <div class="code-label">ordinary_duplicate_rejects_unboxed_point.ml</div>
+              <oxcaml check data-filename="ordinary_duplicate_rejects_unboxed_point.ml" expect-error no-self-check>
+type point = #{ x : float#; y : float# }
 
-let hd_or_null = function
-  | [] -> Null
-  | x :: _ -> This x
+let duplicate x = (x, x)
+
+let bad =
+  duplicate #{ x = #1.0; y = #2.0 }
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The important representation fact is that This x has x's representation, while Some x normally allocates an option block.</aside>
+          <aside class="notes">The point is the argument kind. Do not frame this as an unboxed return problem.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Kinds say which representation a type parameter accepts</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The result is still a boxed record.</p>
+              <br>
+              <p>The kind annotation says the argument may have the unboxed point layout.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">kinded_duplicate_accepts_unboxed_point.ml</div>
+              <oxcaml check data-filename="kinded_duplicate_accepts_unboxed_point.ml">
+type point = #{ x : float#; y : float# }
+
+type ('a : float64 & float64) duplicated =
+  { first : 'a
+  ; second : 'a
+  }
+
+let duplicate_unboxed
+  : ('a : float64 & float64). 'a -> 'a duplicated =
+  fun x -> { first = x; second = x }
+
+let ok =
+  duplicate_unboxed #{ x = #1.0; y = #2.0 }
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This keeps a boxed result while changing what representation the type parameter can range over.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2><code>or_null</code> uses null or the payload representation</h2>
+          <div class="repr-pair-grid">
+            <article class="repr-mini-example">
+              <h3>Missing value</h3>
+              <pre><code>let or_null_null_value =
+  (Null : int or_null)</code></pre>
+              <div class="native-repr-slot" data-native-repr="or_null_null_value" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Present value</h3>
+              <pre><code>let or_null_this_int =
+  (This 7 : int or_null)</code></pre>
+              <div class="native-repr-slot" data-native-repr="or_null_this_int" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway"><code>Null</code> is the null word; <code>This 7</code> is represented like the integer payload.</p>
+          <aside class="notes">Do not go into nested or_null here unless someone asks.</aside>
         </section>
 
         <section class="slide live-slide or-null-error-slide">
-          <h2>The limit: <code>or_null</code> cannot be nested</h2>
+          <h2><code>or_null</code> cannot be nested</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>Null</code> is represented by the null machine word.</p>
+              <p><code>Null</code> already uses the all-zero word.</p>
               <br>
-              <p>If <code>string or_null or_null</code> were allowed, the same null word would need two meanings: the outer missing value and the inner missing value.</p>
+              <p>If the inner type is <code>string or_null</code>, it already may be null. The outer <code>or_null</code> would need the same null word for a second missing case.</p>
               <br>
-              <p class="diagnostic-callout">The payload of <code>or_null</code> must be non-null. A value that is already <code>or_null</code> is maybe-null.</p>
+              <p>The kind tracks this: <code>or_null</code> needs a payload of kind <code>value</code>, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">or_null_cannot_be_nested.ml</div>
@@ -1552,80 +1611,54 @@ type nested = string or_null or_null
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Put this after the allocation win: first teach the useful representation, then show the boundary condition.</aside>
+          <aside class="notes">Explain this as representation ambiguity first, then as the kind distinction value vs value_or_null.</aside>
         </section>
 
-        <section class="slide live-slide">
-          <h2>Kinds record allowed representations</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>If an error says a type parameter expects <code>value</code>, the API expects ordinary one-word OxCaml values.</p>
-              <br>
-              <p>Edit the kind bound from <code>value</code> to <code>float64</code>.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">exercise_value_kind_rejects_float.ml</div>
-              <oxcaml check data-filename="exercise_value_kind_rejects_float.ml" expect-error>
-type ('a : value) box
-type bad = float# box
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The fix is float64. For an unboxed product, use product layouts such as value & float64.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Abstract types need public kinds</h2>
+        <section class="slide concept-slide template-expansion-slide">
+          <h2>Templates reduce repetition</h2>
           <div class="two-up">
-            <article><h3>bad for an unboxed point</h3><pre><code>module type Point = sig
-  type t
-  val make : float# -> float# -> t
-end</code></pre><p>plain abstract type defaults to value, losing the product layout</p></article>
-            <article><h3>fixed signature</h3><pre><code>module type Point = sig
-  type t : float64 & float64
-  val make : float# -> float# -> t
-end</code></pre><p>representation remains abstract; kind is public</p></article>
-          </div>
-          <aside class="notes">Kinds are part of the calling convention even when fields remain hidden.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Polymorphic code still has a layout</h2>
-          <div class="two-up">
-            <article><h3>ordinary map</h3><pre><code>val map_value
-  :  ('a : value) ('b : value)
-  .  ('a -> 'b)
-  -> 'a list
-  -> 'b list</code></pre></article>
-            <article><h3>product layout map</h3><pre><code>type ('a : value & value) product_list = ...
-
-val map_product_list
-  :  ('a : value & value) ('b : value & value)
-  .  ('a -> 'b)
-  -> 'a product_list
-  -> 'b product_list</code></pre></article>
-          </div>
-          <aside class="notes">Code must know how many components are passed, returned, stored, and scanned.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Templates reduce layout-specific repetition</h2>
-          <pre><code>let%template[@kind k = (value, value & value)] id
+            <article>
+              <h3>Template source</h3>
+              <pre><code>let%template[@kind k = (value, value &amp; value)] id
   : ('a : k). 'a -> 'a =
   fun x -> x</code></pre>
-          <p class="takeaway">One source pattern can generate multiple definitions with different calling conventions.</p>
-          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson.</aside>
+            </article>
+            <article>
+              <h3>Schematic expansion</h3>
+              <pre><code>let id_value
+  : ('a : value). 'a -> 'a =
+  fun x -> x
+
+let id_product
+  : ('a : value &amp; value). 'a -> 'a =
+  fun x -> x</code></pre>
+            </article>
+          </div>
+          <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
+          <p class="takeaway">OxCaml is a work in progress. Layout polymorphism is intended to replace this template pattern.</p>
+          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is layout polymorphism.</aside>
         </section>
 
         <section class="slide summary-slide">
-          <h2>Choose the correct lever</h2>
+          <h2>Representation recap</h2>
           <div class="lever-grid">
-            <article><h3>Data race safety</h3><p>Use contention and portability requirements.</p></article>
-            <article><h3>Lifetime correctness or heap allocation cost</h3><p>Use <code>local</code>, <code>stack_</code>, and <code>exclave_</code>.</p></article>
-            <article><h3>Box or pointer cost</h3><p>Use layouts, unboxed types, and <code>or_null</code>.</p></article>
+            <article><h3>Ordinary values</h3><p>One word: immediate data or pointer to a heap block.</p></article>
+            <article><h3>Unboxed layouts</h3><p>Records and tuples without allocation and indirection.</p></article>
+            <article><h3><code>or_null</code></h3><p>Like option, but does not allocate.</p></article>
           </div>
-          <p class="takeaway">All three make performance-sensitive intent explicit and checked.</p>
-          <aside class="notes">This is the final durable takeaway.</aside>
+          <aside class="notes">Keep this as the final mental model before the course-level recap.</aside>
+        </section>
+
+        <section class="slide summary-slide oxcaml-closing-slide">
+          <h2>OxCaml</h2>
+          <p class="closing-tagline">Safe high-performance programming.</p>
+          <div class="lever-grid">
+            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
+            <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
+            <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
+          </div>
+          <img class="closing-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
+          <aside class="notes">End with the same positive framing as the opening: performance control with the relevant safety facts checked.</aside>
         </section>
 
         <section class="slide appendix-slide">
@@ -1642,7 +1675,7 @@ val map_product_list
 
     <script src="vendor/reveal/reveal.js"></script>
     <script src="vendor/reveal/plugin/notes.js"></script>
-    <script src="slides.js?v=exercise-target-20260511"></script>
+    <script src="slides.js?v=repr-or-null-split-20260519"></script>
     <script src="../assets/oxcaml-embed-loader.js?v=embed-margin-20260511"></script>
   </body>
 </html>

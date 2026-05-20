@@ -232,11 +232,18 @@
         <h3>Option payload allocation</h3>
         <p><strong>Uniform cost:</strong> <code>Some payload</code> normally allocates a wrapper block. <strong>Layout version:</strong> <code>or_null</code> uses <code>Null</code> for the missing case, and <code>This v</code> has the same representation as <code>v</code>, so the present case does not need an extra option wrapper.</p>
 
-        <oxcaml-repr filename="or_null_values.ml">
-          let or_null_values =
-            ( (Null : string or_null)
-            , (This "found" : string or_null)
-            )
+        <p>The missing case is represented by the null machine word.</p>
+
+        <oxcaml-repr filename="or_null_null_value.ml">
+          let or_null_null_value =
+            (Null : int or_null)
+        </oxcaml-repr>
+
+        <p>The present case is represented like the payload itself. Here the payload is an immediate integer, so there is no string block or option wrapper to distract from the point.</p>
+
+        <oxcaml-repr filename="or_null_this_int.ml">
+          let or_null_this_int =
+            (This 7 : int or_null)
         </oxcaml-repr>
 
         <aside class="exercise">
