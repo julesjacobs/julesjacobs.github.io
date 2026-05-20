@@ -923,6 +923,7 @@ val spawn :
           <div class="live-layout">
             <div class="live-copy">
               <p>Stack allocate values with <code>stack_</code>.</p>
+              <p>OxCaml can often infer stack allocation; <code>stack_</code> makes it a requirement.</p>
               <p>The current allocation region is cleared before the function returns.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1143,9 +1144,9 @@ let () =
           <h2>How OxCaml checks stack allocation safety: the locality axis</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes locality">
-              <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this view</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this mode</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>regional view</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
               <b class="axis-arrow">→</b>
               <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape as global</li></ul></div></div>
             </div>
@@ -1190,7 +1191,7 @@ let () =
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
-          <h2>Idiom: borrowing</h2>
+          <h2>Local parameters prevent retention</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, and this is forced by the <code>@ local</code> parameter.</p>
@@ -1211,15 +1212,15 @@ let add_with_scratch x y =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">This is borrowing, not just allocation optimization.</aside>
+          <aside class="notes">This is a local-parameter API contract, not just allocation optimization.</aside>
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-ok-slide">
           <h2>Submoding: use global data locally</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>escape xs</code> type-checks because <code>xs</code> already has a global view.</p>
-              <p><code>sum xs</code> then uses the same value through the more restrictive <code>@ local</code> view.</p>
+              <p><code>escape xs</code> type-checks because <code>xs</code> already has global mode.</p>
+              <p><code>sum xs</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_submoding_global_inner_used_locally.ml</div>
@@ -1248,13 +1249,13 @@ let () =
         </section>
 
         <section class="slide live-slide local-container-slide">
-          <h2>Plain local containers lose the global view</h2>
+          <h2>Plain local containers lose the global mode</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
               <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
               <br>
-              <p>An ordinary list node does not remember that its element was global. The local outer list gives a local view of everything reached through it.</p>
+              <p>An ordinary list node does not remember that its element was global. Using the outer list at local mode also uses everything reached through it at local mode.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
@@ -1278,11 +1279,11 @@ let demo () =
         </section>
 
         <section class="slide live-slide">
-          <h2>Modalities preserve the global view</h2>
+          <h2>Modalities preserve the global mode</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The outer list is local, while the inner list is global.</p>
-              <p>A local list of global lists: the field modality preserves the global view.</p>
+              <p>A local list of global lists: the field modality preserves the global mode.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_global_wrapper_preserves_inner_list_globality.ml</div>
@@ -1310,9 +1311,9 @@ let demo () =
         <section class="slide concept-slide modality-picture-slide">
           <h2>Locality: the heap and stack picture with modalities</h2>
           <figure class="modality-figure">
-            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
+            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
           </figure>
-          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode view.</aside>
+          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode.</aside>
         </section>
 
         <section class="slide concept-slide">

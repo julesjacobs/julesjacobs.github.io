@@ -181,9 +181,9 @@
           <li>explain why stack allocation matters for latency-sensitive code;</li>
           <li>use <code>stack_</code> and <code>exclave_</code> in small examples;</li>
           <li>explain what the locality axis records;</li>
-          <li>explain why borrowing uses <code>@ local</code> parameters;</li>
+          <li>explain how <code>@ local</code> parameters prevent temporary values from being retained;</li>
           <li>explain why modes are deep in data structures;</li>
-          <li>use a field modality such as <code>@@ global</code> to keep a global view through a local container.</li>
+          <li>use a field modality such as <code>@@ global</code> to keep a global mode through a local container.</li>
         </ul>
       </section>
 
@@ -196,6 +196,7 @@
       <section>
         <h2>A small stack allocation example</h2>
         <p>Use <code>stack_</code> to put new allocations on the allocation stack. In this example, the list <code>xs</code> is used inside <code>sum3</code>. Then <code>sum3</code> returns only the integer result.</p>
+        <p>OxCaml can often infer stack allocation without <code>stack_</code>. We write <code>stack_</code> when we want to require stack allocation: if the value would have to escape to the heap, the compiler reports an error.</p>
         <p><code>stack_</code> is shallow. It does not copy values that are already reachable. For example, in <code>stack_ (x, y)</code>, the pair can be stack allocated, but <code>x</code> and <code>y</code> keep their existing lifetimes.</p>
         <oxcaml run data-filename="Ex03_stack_sum.ml">
           let rec sum (xs : int list @ local) =
@@ -475,7 +476,7 @@
               <p>May outlive the current region. It is safe to store or return.</p>
             </article>
             <article role="listitem">
-              <div class="card-label">regional view</div>
+              <div class="card-label">outer-local</div>
               <p>May live in an outer region. It can live past the current <code>end_current_region ()</code>.</p>
             </article>
             <article role="listitem">
@@ -589,12 +590,68 @@
           <ul>
             <li>Arguments from the caller can survive. A <code>@ local</code> argument is outer-local in the function body: it may be local to the caller's region, but it was not allocated in the current function region.</li>
             <li>Immediate data can survive. For example, if an integer or boolean is bound before <code>exclave_</code>, it can still be used after <code>exclave_</code>.</li>
-            <li>Values with a global view can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
+            <li>Values at global mode can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
           </ul>
         </aside>
         <aside class="exercise">
-          <h3>Exercise: copy the result across <code>exclave_</code></h3>
-          <p><code>expensive_search</code> builds a temporary stack-allocated list of size <code>n</code>, consumes it, then clears that temporary list with its own <code>exclave_</code>. Implement <code>expensive_search'</code> so it also clears its current region before returning a stack-allocated result. Hint: inspect the option before <code>exclave_</code>, keep only the integers, and reconstruct the option after <code>exclave_</code>.</p>
+          <h3>Exercise: find the too-early <code>exclave_</code></h3>
+          <p>The function below type-checks, but its <code>exclave_</code> is too early. Explain why <code>range n</code> now builds the temporary list in the caller's region. Then move <code>exclave_</code> down so the temporary list is cleared before the function returns. You only need <code>exclave_</code> on the <code>Some</code> branch, because <code>None</code> is immediate data.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_expensive_search_early_exclave.ml">
+          let rec range (n : int) : int list @ local =
+            if n <= 0 then []
+            else exclave_ stack_ (n :: range (n - 1))
+
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let expensive_search n =
+            exclave_
+            let scratch = range n in
+            let total = sum scratch in
+            if total mod 2 = 0 then
+              stack_ (Some (total, n))
+            else
+              None
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <p>The first <code>exclave_</code> ends <code>expensive_search</code>'s own region before <code>range n</code> runs, so the recursive list cells produced by <code>range</code> are allocated in the parent region. Move <code>exclave_</code> after the list has been consumed, and only use it before allocating the returned <code>Some</code>.</p>
+          <oxcaml run data-filename="Ex03_expensive_search_moves_exclave_down.ml">
+            let rec range (n : int) : int list @ local =
+              if n <= 0 then []
+              else exclave_ stack_ (n :: range (n - 1))
+
+            let rec sum (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | x :: xs -> x + sum xs
+
+            let expensive_search n =
+              let scratch = range n in
+              let total = sum scratch in
+              if total mod 2 = 0 then
+                exclave_
+                stack_ (Some (total, n))
+              else
+                None
+
+            let print_result n =
+              match expensive_search n with
+              | None -> print_endline "None"
+              | Some (total, original_n) ->
+                Printf.printf "Some (%d, %d)\n" total original_n
+
+            let () =
+              print_result 3;
+              print_result 4
+          </oxcaml>
+        </details>
+        <aside class="exercise">
+          <h3>Exercise: wrap the unoptimized search</h3>
+          <p>Now assume <code>expensive_search</code> comes from another module and you cannot move its early <code>exclave_</code>. The early <code>exclave_</code> means its temporary list is built in the current region of <code>expensive_search'</code>. Can <code>expensive_search'</code> clear that region and still return the result as stack-allocated data, without using the heap? Hint: inspect the option before <code>exclave_</code>, keep only the integers, and reconstruct the option after <code>exclave_</code>.</p>
         </aside>
         <oxcaml check data-filename="Ex03_exclave_returns_old_local_option.ml" expect-error>
           let rec range (n : int) : int list @ local =
@@ -607,13 +664,12 @@
             | x :: xs -> x + sum xs
 
           let expensive_search n =
+            exclave_
             let scratch = range n in
             let total = sum scratch in
             if total mod 2 = 0 then
-              exclave_
               stack_ (Some (total, n))
             else
-              exclave_
               None
 
           let expensive_search' n =
@@ -634,13 +690,12 @@
               | x :: xs -> x + sum xs
 
             let expensive_search n =
+              exclave_
               let scratch = range n in
               let total = sum scratch in
               if total mod 2 = 0 then
-                exclave_
                 stack_ (Some (total, n))
               else
-                exclave_
                 None
 
             let expensive_search' n =
@@ -666,9 +721,9 @@
       </section>
 
       <section>
-        <h2>Idiom: borrowing</h2>
+        <h2>Use local parameters to prevent retention</h2>
         <p>So far, locality has controlled returned values. The same lifetime check also controls function parameters.</p>
-        <p>Borrowing means this: a function may use a temporary value during a call, but it may not retain that value.</p>
+        <p>A local parameter means this: a function may use a temporary value during a call, but it may not retain that value.</p>
         <p>The function passed to <code>with_scratch</code> can use the temporary state during the call, but cannot retain it. This is forced by the <code>@ local</code> parameter.</p>
         <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
           type scratch = { mutable total : int }
@@ -691,8 +746,8 @@
           </details>
         </aside>
         <aside class="exercise">
-          <h3>Exercise: do not store the borrowed value</h3>
-          <p>The function argument below tries to keep the borrowed scratch record in a global reference. Explain the error, then rewrite the function so it only computes a result.</p>
+          <h3>Exercise: do not store the local parameter</h3>
+          <p>The function argument below tries to keep the temporary scratch record in a global reference. Explain the error, then rewrite the function so it only computes a result.</p>
         </aside>
         <oxcaml check data-filename="Ex03_with_scratch_cannot_store.ml" expect-error>
           type scratch = { mutable total : int }
@@ -728,15 +783,15 @@
 
       <section>
         <h2>Submoding: use global data locally</h2>
-        <p>Borrowing lets a function accept temporary values. The reverse direction is also useful: a long-lived value can be used where only a short-lived view is needed.</p>
-        <p>A global value can be used through a local view. This is called submoding.</p>
-        <p>In this example, <code>escape xs</code> stores the list in a global reference. The same list can still be passed to <code>sum</code>, because <code>sum</code> only needs a local view.</p>
+        <p>A local parameter lets a function accept temporary values. The reverse direction is also useful: a long-lived value can be used where only local mode is required.</p>
+        <p>A value at global mode can be used at local mode. This is called submoding.</p>
+        <p>In this example, <code>escape xs</code> stores the list in a global reference. The same list can still be passed to <code>sum</code>, because <code>sum</code> only requires local mode.</p>
         <aside class="exercise">
           <h3>Exercise: predict the mode change</h3>
           <p>Before running the code, predict whether <code>demo</code> is accepted. If it is accepted, explain why storing <code>xs</code> globally does not conflict with passing it to <code>sum</code>.</p>
           <details>
             <summary>Answer</summary>
-            <p><code>xs</code> is a global heap list. Passing it to <code>sum</code> only uses a local view of that list. The view is weaker, but the list's actual lifetime has not changed.</p>
+            <p><code>xs</code> is a global heap list. Passing it to <code>sum</code> only uses that list at local mode. The mode is weaker, but the list's actual lifetime has not changed.</p>
           </details>
         </aside>
         <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
@@ -761,16 +816,16 @@
       </section>
 
       <section>
-        <h2>Plain local containers lose the global view</h2>
+        <h2>Plain local containers lose the global mode</h2>
         <p>The inner list starts global. The first <code>escape inner</code> type-checks.</p>
         <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-        <p>The reason is that modes are deep. A local view of the outer list gives a local view of the elements inside that list.</p>
+        <p>The reason is that modes are deep. Using the outer list at local mode also uses the elements inside that list at local mode.</p>
         <aside class="exercise">
-          <h3>Exercise: explain the lost view</h3>
+          <h3>Exercise: explain the lost mode</h3>
           <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
           <details>
             <summary>Answer</summary>
-            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global view after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
+            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global mode after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
           </details>
         </aside>
         <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
@@ -790,12 +845,12 @@
       </section>
 
       <section>
-        <h2>Modalities preserve the global view</h2>
-        <p>Sometimes losing the global view through a local container is too weak. A field modality can keep a field stronger than the container around it.</p>
+        <h2>Modalities preserve the global mode</h2>
+        <p>Sometimes losing the global mode through a local container is too weak. A field modality can keep a field stronger than the container around it.</p>
         <p>The outer list is local, while the inner list is global. This is a local list of global lists.</p>
         <aside class="course-aside">
-          <h3>Worked repair: preserve the global view</h3>
-          <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger view of the inner list.</p>
+          <h3>Worked repair: preserve the global mode</h3>
+          <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger mode of the inner list.</p>
         </aside>
         <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
           type 'a global = { global : 'a @@ global }
@@ -815,7 +870,7 @@
         </oxcaml>
         <p>This is not a cast. The record can only be built from a value that is actually global. The modality records that promise.</p>
         <figure class="course-figure">
-          <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
+          <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
           <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different facts.</figcaption>
         </figure>
       </section>
@@ -826,8 +881,8 @@
           <li><code>local</code> and <code>global</code> control lifetime and escape.</li>
           <li><code>stack_</code> forces an allocation onto the allocation stack.</li>
           <li><code>exclave_</code> builds a local result in the caller region.</li>
-          <li><code>@ local</code> parameters express borrowing.</li>
-          <li><code>@@ global</code> fields preserve the global view through local containers.</li>
+          <li><code>@ local</code> parameters let functions accept temporary values without retaining them.</li>
+          <li><code>@@ global</code> fields preserve the global mode through local containers.</li>
         </ul>
       </section>
 

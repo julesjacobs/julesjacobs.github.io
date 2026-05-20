@@ -2244,14 +2244,6 @@ required by callee:      x @ uncontended</code></pre>
             <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in ordinary and fork/join work, but not spawned work. <code>write_x</code> can only be used in ordinary code.</p>
           </details>
         </aside>
-        <aside class="exercise">
-          <h3>Exercise: make a helper more portable</h3>
-          <p>What would have to change before <code>read_x</code> could be annotated <code>@ portable</code>? What would have to change before <code>write_x</code> could be annotated <code>@ shareable</code>?</p>
-          <details>
-            <summary>Answer</summary>
-            <p><code>read_x</code> would have to stop reading the mutable field; reading <code>x.id</code> would be fine. <code>write_x</code> would have to stop writing the mutable field; a shareable function may read mutable captures, but it may not mutate them.</p>
-          </details>
-        </aside>
         <h3>Explicit argument vs hidden capture</h3>
         <p>These two failures look similar but are checked for different reasons.</p>
         <p><strong>Explicit argument:</strong></p>
@@ -2297,11 +2289,11 @@ fun () -&gt; write_bits buf bits</code></pre>
         <p>A helper can also receive mutable state explicitly and then return a closure that captures it. That combines both ideas above: the helper call has explicit argument requirements, and the returned function value has its own portability mode.</p>
         <p>Returning a function does not bypass the checks. The returned closure still records what it captured and where it may be used.</p>
         <aside class="exercise">
-          <h3>Exercise: which returned function captures <code>x</code>?</h3>
-          <p>In the next two blocks, which returned function captures <code>x</code>, and what access does that returned function need?</p>
+          <h3>Exercise: returned closures keep captured access</h3>
+          <p>Each helper below builds a closure that remembers <code>x</code>. For each block, identify whether the returned closure reads or writes <code>x.count</code>, then predict which parallel context rejects it: detached <code>spawn</code> or structured <code>fork_join2</code>.</p>
           <details>
             <summary>Answer</summary>
-            <p><code>read_count_later</code> returns a function that captures <code>x</code> and reads a mutable field, so it cannot be used with spawn. <code>bump_count_later</code> returns functions that capture <code>x</code> and write a mutable field, so they cannot be used with fork/join.</p>
+            <p>Both returned closures capture <code>x</code>. <code>read_count_later</code> returns a closure that reads a mutable field, so it is not portable enough for <code>spawn</code>. <code>bump_count_later</code> returns a closure that writes a mutable field, so it is not shareable enough for <code>fork_join2</code>. Returning the closure does not hide the capture; the function value carries the same restriction as a closure written directly at the call site.</p>
           </details>
         </aside>
         <oxcaml check data-filename="spawn_capture.ml" expect-error no-self-check>
@@ -2641,22 +2633,7 @@ fun () -&gt; write_bits buf bits</code></pre>
   (Parallel.t @ local -&gt; 'a) @ shareable -&gt;
   (Parallel.t @ local -&gt; 'b) @ shareable -&gt;
   #('a * 'b)</code></pre>
-        <p>Schematic spawn type, specialized to the shape used in the examples and omitting details such as <code>once</code>, <code>local</code>, <code>unique</code>, and <code>unyielding</code>:</p>
-        <pre><code>val with_blocking :
-  Await.Terminator.t -&gt;
-  f:(unit Concurrent.t -&gt; 'r) -&gt;
-  'r
-
-val with_scope :
-  'ctx Concurrent.t -&gt;
-  'scope_ctx -&gt;
-  f:(('scope_ctx, 'ctx) spawn -&gt; 'r) -&gt;
-  'r
-
-val spawn :
-  ('scope_ctx, 'ctx) spawn -&gt;
-  f:('scope_ctx Concurrent.Scope.t -&gt; 'ctx -&gt; 'ctx Concurrent.t -&gt; unit) @ portable -&gt;
-  unit</code></pre>
+        <p>The corresponding <code>spawn</code> type has more surrounding machinery for scopes and concurrent contexts, but the relevant part is the same kind of function-argument requirement: <code>spawn</code> takes its worker function at mode <code>@ portable</code>.</p>
         <p>Calling <code>fork_join2</code> requires shareable function arguments. That requirement causes captured mutable state inside each function to be available only with shared/read-only access. Therefore:</p>
         <ul>
           <li>direct writes to captured mutable state are rejected;</li>
@@ -2675,6 +2652,7 @@ val spawn :
       <section>
         <h2>Exercise: implement general <code>parallel_map</code></h2>
         <p>Now apply the mode-requirement rules in a real helper. Write a polymorphic <code>parallel_map</code>, then use it on the bit-list worker from the start of the lecture.</p>
+        <p>This exercise is about inferred modes, not efficient parallel mapping. The answer below forks one tiny head task against the tail of the list, which is fine for exposing the type but too fine-grained and unbalanced for production code.</p>
         <aside class="exercise">
           <h3>Exercise: implement <code>parallel_map</code></h3>
           <p>Write a polymorphic <code>parallel_map</code> using <code>Parallel.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Fill in the recursive fork/join implementation.</p>
@@ -2713,7 +2691,7 @@ let () =
   print_endline (String.concat "\n" strings)</oxcaml>
         <details>
           <summary>Answer key</summary>
-          <p>The recursive case forks one branch for the head and one branch for the tail, then reconstructs the list after both branches finish.</p>
+          <p>The recursive case forks one branch for the head and one branch for the tail, then reconstructs the list after both branches finish. This is intentionally simple so that the inferred type is easy to inspect; it is not a canonical implementation strategy for a real <code>parallel_map</code>.</p>
           <pre><code>let rec parallel_map parallel f xs =
   match xs with
   | [] -> []
@@ -2739,7 +2717,7 @@ let () =
             <summary>Answer</summary>
             <p>Read the type as a contract for moving work into a fork/join tree.</p>
             <ul>
-              <li><code>Parallel.t @ local</code> is checked against the implementation of <code>parallel_map</code>. It promises that <code>parallel_map</code> only borrows the scheduler capability while it runs; it will not store it, return it, or let it escape.</li>
+              <li><code>Parallel.t @ local</code> is checked against the implementation of <code>parallel_map</code>. It promises that <code>parallel_map</code> only uses the scheduler capability while it runs; it will not store it, return it, or let it escape.</li>
               <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit function argument. <code>parallel_map</code> is going to use that function inside fork/join branches, so the function value must be available as <code>shareable</code>. This matters most when the function closes over mutable state, functions, or other portability-sensitive values.</li>
               <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the function argument. If an element contains mutable state, the function may read that state but may not mutate it. This is why a function such as <code>fun x -&gt; bump_hits x</code> is rejected when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
               <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a portability requirement at the input-list position. Pieces of the list flow into the fork/join tree, so the input must be usable in that context. This matters when the element type contains functions or other portability-sensitive values.</li>
@@ -2779,7 +2757,7 @@ let () =
         </aside>
         <aside class="exercise">
           <h3>Exercise: where does <code>@ portable</code> attach?</h3>
-          <p>The next two blocks differ only by parentheses around the function type. The function body increments a captured reference, so it should fail if <code>worker</code> itself is being checked as portable. Predict which block is accepted.</p>
+          <p>The next two blocks differ only by parentheses around the function type. The function body increments a captured reference, so it should fail if <code>worker</code> itself is being checked as portable. Predict which block is accepted, then explain why the first block is accepted and the second block is rejected.</p>
           <details>
             <summary>Answer</summary>
             <p>The first block is accepted: <code>unit -&gt; unit @ portable</code> parses like <code>unit -&gt; (unit @ portable)</code>, so <code>portable</code> is on the result, not on the whole function value <code>worker</code>. The second block fails because <code>(unit -&gt; unit) @ portable</code> does check <code>worker</code> as portable. When the mode belongs to a function value, put that function type in parentheses.</p>
@@ -2985,6 +2963,11 @@ let () =
           type portable_ok = map require_portable
           type contended_ok = map require_contended
         </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise: make the map stop crossing a mode axis</h3>
+          <p>In the editor above, change the key type or the value type so that the map no longer crosses portability, then re-run the block and observe where <code>portable_ok</code> fails. Then make a different change so that the map no longer crosses contention, and observe where <code>contended_ok</code> fails.</p>
+          <p>Keep <code>Comparator.Make [@modality portable]</code> the same while you experiment. That way the failure comes from the key or value type, not from the comparator witness.</p>
+        </aside>
         <p>The <code>[@@deriving compare, sexp_of]</code> line generates the ordinary comparison and sexp functions for the key type. The important OxCaml-specific part is <code>Comparator.Make [@modality portable]</code>: it checks that those functions are portable and exposes <code>comparator_witness</code> with a portable kind, so the map can cross the portability axis when its keys and values can.</p>
         <oxcaml check data-filename="custom_key_map_plain_comparator.ml" expect-error no-self-check>
           open Base
@@ -3011,7 +2994,7 @@ let () =
           type does_not_cross =
             int Map.M(Key).t require_portable
         </oxcaml>
-        <p>The plain <code>Comparator.Make</code> version uses the same derived functions, but it does not export the comparator witness as portable. The map is therefore stuck with an abstract comparator dependency that the type checker cannot ignore.</p>
+        <p>The plain <code>Comparator.Make</code> version uses the same derived functions, but it does not export the comparator witness as portable. Due to the way the <code>Map</code> signature works, this results in <code>Map</code> no longer mode crossing, even if its key and value types do.</p>
       </section>
 
       <section>
@@ -3058,18 +3041,18 @@ val debug_global_counter : unit -> unit @@ nonportable</code></pre>
           end
         </oxcaml>
         <aside class="exercise">
-          <h3>Exercise: portabilize a signature</h3>
-          <p>This module has one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type says as much as it safely can.</p>
+          <h3>Exercise: portabilize the Counter signature</h3>
+          <p>The editor below defines a <code>Counter</code> module with one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type says as much as it safely can.</p>
           <details>
             <summary>Answer</summary>
             <p>Put <code>@@ portable</code> on the whole <code>sig</code>, because most of the API should be usable from portable code. Give <code>t</code> the kind <code>value mod portable</code>: the representation has mutable state, so it is not contention-independent, but it does not contain nonportable functions. The immutable field reader can accept <code>t @ contended</code>; the mutable field reader needs <code>t @ shared</code>; the global reset operation must be <code>@@ nonportable</code>.</p>
             <pre><code>module Counter : sig @@ portable
   type t : value mod portable
 
-  val create : int -> t
-  val id : t @ contended -> int
-  val count : t @ shared -> int
-  val reset_for_tests : unit -> unit @@ nonportable
+  val create : int -&gt; t
+  val id : t @ contended -&gt; int
+  val count : t @ shared -&gt; int
+  val reset_for_tests : unit -&gt; unit @@ nonportable
 end = struct
   type t : value mod portable = { id : int; mutable count : int }
 
