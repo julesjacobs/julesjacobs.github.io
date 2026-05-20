@@ -13,7 +13,6 @@
       <section class="lecture-intro">
         <p>This lecture is about how OCaml values are represented at runtime, why that representation is a good default, and where high-performance code needs more control. We first build the plain OCaml <code>value</code> model, then look at the costs of boxing and indirection, and then introduce the OxCaml features that change the representation.</p>
         <p>By the end, students should be able to look at a small value and explain which parts are immediate words, which parts are heap blocks, where pointers and headers appear, and which OxCaml feature would remove a particular box or allocation.</p>
-        <p>For ordinary numeric and pointer words, the byte cells are shown in the same left-to-right order as the printed raw word. For example, a raw word such as <code>0x03020100</code> appears as bytes <code>03 02 01 00</code>. String payloads are the exception: they are shown in memory order so the characters read naturally.</p>
       </section>
 
       <section>
@@ -63,6 +62,7 @@
 
         <p>The payload words are interpreted according to the block kind. Some payload words are themselves OCaml <code>value</code>s, so the GC follows them as pointers when needed. Other payload words are raw data, such as float bits or string bytes, so the GC must not treat them as pointers.</p>
         <p>The header word tells the runtime how large the block is and how the payload should be scanned. For ordinary blocks, the payload is usually either all values or all raw data. For algebraic data types, the header tag also identifies which constructor with payload a block represents. Constructors with no payload are the simpler case: they are immediate integers, so they do not need a heap block at all.</p>
+        <p>In the visualizations below, ordinary numeric and pointer words are shown in the same left-to-right order as the printed raw word. For example, a raw word such as <code>0x03020100</code> appears as bytes <code>03 02 01 00</code>. String payloads are the exception: they are shown in memory order so the characters read naturally.</p>
       </section>
 
       <section>
@@ -140,7 +140,7 @@
 
       <section>
         <h2>Heap blocks can be shared</h2>
-        <p>The runtime representation is a graph, not a tree. If two fields point to the same heap object, there is one heap block with two incoming references.</p>
+        <p>The recursive tree example has many blocks. The next point is about how those blocks connect to each other: the runtime representation is a graph, not a tree. If two fields point to the same heap object, there is one heap block with two incoming references.</p>
 
         <oxcaml-repr filename="shared_string_tuple.ml">
           let shared = "shared"
@@ -306,6 +306,7 @@
         </details>
 
         <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The kind system catches this: <code>or_null</code> expects a non-null payload representation, but <code>string or_null</code> is already nullable.</p>
+        <p>This is the first place where we need to name which representations a type may have. The next section calls those representation requirements <em>kinds</em>.</p>
 
         <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
           type nested = string or_null or_null
@@ -496,6 +497,8 @@ val map
     ('a -> 'b)
     -> ('a vec[@kind ki])
     -> ('b vec[@kind ko])]</code></pre>
+
+        <p>This is recognition material, not the final design goal. OxCaml is a work in progress, and layout polymorphism is intended to replace this template pattern over time.</p>
 
       </section>
 
