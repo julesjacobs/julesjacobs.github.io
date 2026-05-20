@@ -11,6 +11,7 @@ import {
   ready as backendReady,
   runFile as backendRunFile,
   runString as backendRunString,
+  typeAtString as backendTypeAtString,
   utopString as backendUtopString,
 } from "./backend.js?v=20260507-webkit-worker-fallback";
 import {
@@ -378,6 +379,79 @@ const diagnosticHover = hoverTooltip((view, pos) => {
     },
   };
 });
+
+function hoverTokenRange(doc, pos) {
+  const source = doc.toString();
+  let cursor = Math.max(0, Math.min(pos, source.length));
+  const char = source[cursor] ?? "";
+  const previous = source[cursor - 1] ?? "";
+  const isIdentifierToken = (tokenChar) =>
+    isIdentifierChar(tokenChar) || tokenChar === ".";
+  const isHoverChar = (tokenChar) =>
+    isIdentifierToken(tokenChar) || isOperatorChar(tokenChar);
+  if (!isHoverChar(char) && isHoverChar(previous)) {
+    cursor -= 1;
+  }
+  const current = source[cursor] ?? "";
+  if (!isHoverChar(current)) {
+    return null;
+  }
+  const predicate = isIdentifierToken(current) ? isIdentifierToken : isOperatorChar;
+  let from = cursor;
+  let to = cursor + 1;
+  while (from > 0 && predicate(source[from - 1])) {
+    from -= 1;
+  }
+  while (to < source.length && predicate(source[to])) {
+    to += 1;
+  }
+  const text = source.slice(from, to);
+  if (!text || keywordTokens.has(text) || oxcamlIdentifierNames.has(text)) {
+    return null;
+  }
+  return { from, to };
+}
+
+function typeHoverTooltip() {
+  return hoverTooltip(async (view, pos) => {
+    if (markerAtPosition(view, pos)) {
+      return null;
+    }
+    const range = hoverTokenRange(view.state.doc, pos);
+    if (!range) {
+      return null;
+    }
+    const source = view.state.doc.toString();
+    const revision = currentSourceRevision();
+    let info = null;
+    try {
+      info = await typeAtString(currentFilename, source, pos);
+    } catch (error) {
+      console.warn("OxCaml type hover failed", error);
+      return null;
+    }
+    if (!info || revision !== currentSourceRevision() || source !== sourceText()) {
+      return null;
+    }
+    return {
+      pos: Math.max(range.from, info.from ?? range.from),
+      end: Math.min(range.to, info.to ?? range.to),
+      above: true,
+      create() {
+        const dom = document.createElement("div");
+        dom.className = "cm-type-tooltip";
+        const label = document.createElement("div");
+        label.className = "cm-type-tooltip__label";
+        label.textContent = info.kind || "type";
+        const body = document.createElement("pre");
+        body.className = "cm-type-tooltip__body";
+        body.textContent = info.text || "";
+        dom.append(label, body);
+        return { dom };
+      },
+    };
+  });
+}
 
 function collectSupplementalSyntaxRanges(source) {
   const ranges = [];
@@ -839,6 +913,7 @@ function createEditor() {
         diagnosticField,
         syntaxField,
         diagnosticHover,
+        typeHoverTooltip(),
         EditorView.updateListener.of((update) => {
           if (!update.docChanged || suppressEditorChanges) {
             return;
@@ -1069,6 +1144,10 @@ export async function utopString(filename, source) {
   return backendUtopString(filename, source);
 }
 
+export async function typeAtString(filename, source, offset) {
+  return backendTypeAtString(filename, source, offset);
+}
+
 export async function checkFile(file) {
   return backendCheckFile(file);
 }
@@ -1082,6 +1161,7 @@ window.webBytecode = {
   interfaceString,
   runString,
   utopString,
+  typeAtString,
   checkFile,
   runFile,
 };

@@ -5,6 +5,7 @@ import {
   ready,
   readyForOptions,
   runString,
+  typeAtString,
   utopString,
 } from "./backend.js?v=20260507-webkit-worker-fallback";
 import {
@@ -283,6 +284,79 @@ function diagnosticHover(editor) {
         const dom = document.createElement("div");
         dom.className = `cm-diagnostic-tooltip ${match.marker.severity}`;
         dom.textContent = match.marker.message || "Diagnostic";
+        return { dom };
+      },
+    };
+  });
+}
+
+function hoverTokenRange(doc, pos) {
+  const source = doc.toString();
+  let cursor = Math.max(0, Math.min(pos, source.length));
+  const char = source[cursor] ?? "";
+  const previous = source[cursor - 1] ?? "";
+  const isIdentifierToken = (tokenChar) =>
+    isIdentifierChar(tokenChar) || tokenChar === ".";
+  const isHoverChar = (tokenChar) =>
+    isIdentifierToken(tokenChar) || isOperatorChar(tokenChar);
+  if (!isHoverChar(char) && isHoverChar(previous)) {
+    cursor -= 1;
+  }
+  const current = source[cursor] ?? "";
+  if (!isHoverChar(current)) {
+    return null;
+  }
+  const predicate = isIdentifierToken(current) ? isIdentifierToken : isOperatorChar;
+  let from = cursor;
+  let to = cursor + 1;
+  while (from > 0 && predicate(source[from - 1])) {
+    from -= 1;
+  }
+  while (to < source.length && predicate(source[to])) {
+    to += 1;
+  }
+  const text = source.slice(from, to);
+  if (!text || keywordTokens.has(text) || oxcamlIdentifierNames.has(text)) {
+    return null;
+  }
+  return { from, to };
+}
+
+function typeHover(editor) {
+  return hoverTooltip(async (view, pos) => {
+    if (markerAtPosition(editor, view, pos)) {
+      return null;
+    }
+    const range = hoverTokenRange(view.state.doc, pos);
+    if (!range) {
+      return null;
+    }
+    const source = view.state.doc.toString();
+    const revision = editor.revision;
+    let info = null;
+    try {
+      info = await typeAtString(editor.filename, source, pos);
+    } catch (error) {
+      console.warn("OxCaml type hover failed", error);
+      return null;
+    }
+    if (!info || revision !== editor.revision || source !== sourceText(editor)) {
+      return null;
+    }
+    return {
+      pos: Math.max(range.from, info.from ?? range.from),
+      end: Math.min(range.to, info.to ?? range.to),
+      above: true,
+      create() {
+        const dom = document.createElement("div");
+        dom.className = "cm-type-tooltip";
+        const label = document.createElement("div");
+        label.className = "cm-type-tooltip__label";
+        label.textContent = info.kind || "type";
+        const body = document.createElement("pre");
+        body.className = "cm-type-tooltip__body";
+        body.textContent = info.text || "";
+        dom.append(label, body);
         return { dom };
       },
     };
@@ -1173,7 +1247,8 @@ function injectStyles() {
       --_oxcaml-margin-block: var(--oxcaml-margin-block, 1rem);
       container-name: oxcaml-embed;
       font-family: var(--oxcaml-font-family, Avenir Next, Segoe UI, system-ui, sans-serif);
-      margin: var(--_oxcaml-margin-block) 0;
+      margin-block: var(--_oxcaml-margin-block);
+      margin-inline: 0;
     }
 
     .oxcaml-embed__surface {
@@ -1541,6 +1616,20 @@ function injectStyles() {
 
     .cm-diagnostic-tooltip.error {
       border-color: rgba(178, 59, 44, 0.34);
+    }
+
+    .cm-type-tooltip__label {
+      margin-bottom: 0.35rem;
+      color: var(--_oxcaml-muted);
+      font: 700 0.66rem/1 var(--_oxcaml-font-family);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .cm-type-tooltip__body {
+      margin: 0;
+      white-space: pre-wrap;
+      font: inherit;
     }
 
     .oxcaml-embed__output {
@@ -1957,6 +2046,7 @@ function createEditorView(editor, source) {
         diagnosticField,
         syntaxField,
         diagnosticHover(editor),
+        typeHover(editor),
         EditorView.updateListener.of((update) => {
           if (!update.docChanged || editor.suppressEditorChanges) {
             return;

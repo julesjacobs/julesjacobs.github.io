@@ -1,4 +1,5 @@
 import {
+  playgroundPreludeOffset,
   stripPlaygroundPreludeInterface,
   withPlaygroundPrelude,
 } from "./playground_prelude.js?v=20260507-parallel-shim";
@@ -406,6 +407,65 @@ async function runBackendWithLazyFs(methodName, filename, source) {
   throw new Error(`lazy filesystem retry limit exceeded for ${filename}`);
 }
 
+function parseTypeAtResult(output, prefixLength) {
+  if (typeof output !== "string" || output.trim() === "") {
+    return null;
+  }
+  if (!output.trimStart().startsWith("{")) {
+    return null;
+  }
+  const result = JSON.parse(output);
+  if (
+    !result ||
+    typeof result !== "object" ||
+    typeof result.from !== "number" ||
+    typeof result.to !== "number" ||
+    typeof result.text !== "string"
+  ) {
+    return null;
+  }
+  if (result.to <= prefixLength) {
+    return null;
+  }
+  return {
+    ...result,
+    from: Math.max(0, result.from - prefixLength),
+    to: Math.max(0, result.to - prefixLength),
+  };
+}
+
+async function runTypeAtWithLazyFs(filename, source, offset) {
+  const backend = await ready;
+  if (typeof backend.typeAtString !== "function") {
+    return null;
+  }
+  const prefixLength = playgroundPreludeOffset(filename);
+  const effectiveSource = withPlaygroundPrelude(filename, source);
+  const effectiveOffset = prefixLength + offset;
+  let previousMissingFilename = null;
+  for (let attempt = 0; attempt < browserFsRetryLimit; attempt += 1) {
+    const result = await normalizeBackendResult(
+      backend.typeAtString(filename, effectiveSource, String(effectiveOffset)),
+    );
+    if (!result || result.kind === "ok") {
+      return parseTypeAtResult(result?.output ?? "", prefixLength);
+    }
+    if (result.kind !== "missing_cmi" || typeof result.filename !== "string") {
+      throw new Error("unexpected backend result from typeAtString");
+    }
+    if (result.filename === previousMissingFilename) {
+      throw new Error(`lazy filesystem stalled while loading ${result.filename}`);
+    }
+    previousMissingFilename = result.filename;
+    emitStatus("loading", `loading ${result.filename}`);
+    const loaded = await ensureBrowserFsForMissingFilename(result.filename);
+    if (!loaded) {
+      throw new Error(`missing browser filesystem asset for ${result.filename}`);
+    }
+  }
+  throw new Error(`lazy filesystem retry limit exceeded for ${filename}`);
+}
+
 export const ready = (async () => {
   emitStatus("loading", "loading runtime");
   await loadScript(new URL("./runtime_shims.js", import.meta.url));
@@ -447,6 +507,10 @@ export async function utopString(filename, source) {
   return runBackendWithLazyFs("utopString", filename, source);
 }
 
+export async function typeAtString(filename, source, offset) {
+  return runTypeAtWithLazyFs(filename, source, offset);
+}
+
 export async function checkFile(file) {
   const source = await file.text();
   return checkString(file.name, source);
@@ -463,6 +527,7 @@ if (typeof window !== "undefined") {
     interfaceString,
     runString,
     utopString,
+    typeAtString,
     checkFile,
     runFile,
   };

@@ -213,6 +213,10 @@ export async function utopString(filename, source, options = {}) {
   return callWorker("utopString", [filename, source]);
 }
 
+export async function typeAtString(filename, source, offset, options = {}) {
+  return callWorker("typeAtString", [filename, source, offset]);
+}
+
 export async function checkFile(file) {
   const source = await file.text();
   return checkString(file.name, source);
@@ -230,6 +234,7 @@ if (typeof window !== "undefined") {
     readyForOptions,
     runString,
     utopString,
+    typeAtString,
     checkFile,
     runFile,
   };

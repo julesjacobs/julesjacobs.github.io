@@ -10,6 +10,7 @@ const backendPromise = import("./backend_direct.js?v=20260507-webkit-worker-fall
     checkString: backend.checkString,
     interfaceString: backend.interfaceString,
     runString: backend.runString,
+    typeAtString: backend.typeAtString,
     utopString: backend.utopString,
   };
 });
