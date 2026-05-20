@@ -45,13 +45,13 @@
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three classes of optimization</h2>
+          <h2>Three classes of optimization in OxCaml</h2>
           <div class="lever-grid">
             <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
             <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
             <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
           </div>
-          <p class="takeaway fragment">Each optimization has a matching safety check, so the risky version becomes a compile-time error.</p>
+          <p class="takeaway fragment">Each optimization has a matching safety check, so bugs become a compile-time error.</p>
           <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch.</aside>
         </section>
 
@@ -60,8 +60,8 @@
           <h1>Parallelism: contention and portability</h1>
           <ul class="goal-list">
             <li>Run structured fork/join and detached spawn.</li>
-            <li>Predict mutable reads and writes from modes.</li>
-            <li>Distinguish explicit arguments from hidden closure captures.</li>
+            <li>Understand what a data race is.</li>
+            <li>Understand how OxCaml prevents data races with modes.</li>
             <li>See how fork/join and spawn express their requirements in types.</li>
           </ul>
           <aside class="notes">Start from operational shapes before introducing the two mode axes.</aside>
@@ -896,9 +896,9 @@ val spawn :
           <p class="eyebrow">Module 02</p>
           <h1>Locality and stack allocation</h1>
           <ul class="goal-list">
-            <li>Explain why heap allocation matters in hot paths.</li>
-            <li>Use local arguments and local returns.</li>
-            <li>Predict stack escape errors.</li>
+            <li>Understand why heap allocation can be problematic.</li>
+            <li>Use stack allocation safely with locality modes.</li>
+            <li>Understand and fix locality errors.</li>
             <li>Use modalities to preserve global fields inside local containers.</li>
           </ul>
           <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
@@ -929,6 +929,8 @@ val spawn :
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_stack_sum.ml</div>
               <oxcaml data-filename="Ex03_stack_sum.ml" no-self-check>
+(* Stack allocation example. *)
+
 let rec sum xs =
   match xs with
   | [] -> 0
@@ -959,17 +961,17 @@ let () =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_stack_sum_escape.ml</div>
               <oxcaml check data-filename="Ex03_stack_sum_escape.ml" expect-error>
+(* Stack allocation example. *)
 let saved = ref []
 let rec sum xs =
   match xs with
   | [] -> 0
-  | x::xs' ->
-    saved := xs;
-    x + sum xs'
+  | x::xs' -> saved := xs; x + sum xs'
 
 let sum3 a b c =
   let xs = stack_ [a;b;c] in
   let n = sum xs in
+  (* xs gets deallocated here *)
   n
 
 let () =
@@ -991,7 +993,9 @@ let () =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_stack_sum_return_escape.ml</div>
               <oxcaml check data-filename="Ex03_stack_sum_return_escape.ml" expect-error>
-let rec sum (xs : int list @ local) =
+(* Stack allocation example. *)
+
+let rec sum xs =
   match xs with
   | [] -> 0
   | x::xs' -> x + sum xs'
@@ -999,6 +1003,7 @@ let rec sum (xs : int list @ local) =
 let sum3 a b c =
   let xs = stack_ [a;b;c] in
   let n = sum xs in
+  (* xs gets deallocated here *)
   n, xs
 
 let () =
@@ -1011,7 +1016,7 @@ let () =
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
-          <h2>But sometimes we want to return stack allocated values:<br><code>exclave_</code></h2>
+          <h2>But sometimes we want to return stack allocated values</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p><code>exclave_</code> builds the returned value in the caller's region.</p>
@@ -1020,7 +1025,9 @@ let () =
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_stack_sum_exclave_return.ml</div>
               <oxcaml data-filename="Ex03_stack_sum_exclave_return.ml">
-let rec sum (xs : int list @ local) =
+(* Stack allocation example. *)
+
+let rec sum xs =
   match xs with
   | [] -> 0
   | x::xs' -> x + sum xs'
@@ -1056,9 +1063,8 @@ let () =
               <pre><code>let f x =
   start_new_region ();
   ...
-  let return_value = result in
   end_current_region ();
-  return_value</code></pre>
+  result</code></pre>
             </article>
             <article class="region-source-card">
               <h3><code>exclave_</code> result</h3>
@@ -1111,7 +1117,7 @@ let () =
             </article>
           </div>
           <p class="takeaway"><code>[@nontail]</code> suppresses the tail call, so the region ends only after the call returns.</p>
-          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Use [@nontail] when a local value must stay alive during the call.</aside>
+          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Explain why OxCaml made this choice: tail-recursive loops should not accumulate allocation-stack space as they go. Use [@nontail] when a local value must stay alive during the call.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide">
@@ -1146,9 +1152,9 @@ let () =
             <div class="mode-axis axis-strip-modes locality">
               <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this mode</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li><li>cannot escape as global</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape as global</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape this region</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Locality answers: how long does this value live?</p>
           </div>
@@ -1191,7 +1197,7 @@ let () =
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
-          <h2>Local parameters prevent retention</h2>
+          <h2>Local parameters prevent escape</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, and this is forced by the <code>@ local</code> parameter.</p>
@@ -1221,6 +1227,8 @@ let add_with_scratch x y =
             <div class="live-copy">
               <p><code>escape xs</code> type-checks because <code>xs</code> already has global mode.</p>
               <p><code>sum xs</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
+              <br>
+              <p><code>@ local</code> data is not always on the allocation stack. Heap data can be used locally too. Stack data cannot be used as global.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_submoding_global_inner_used_locally.ml</div>
@@ -1279,7 +1287,7 @@ let demo () =
         </section>
 
         <section class="slide live-slide">
-          <h2>Modalities preserve the global mode</h2>
+          <h2>Modalities preserve the global mode for inner data</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The outer list is local, while the inner list is global.</p>
@@ -1317,7 +1325,7 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
-          <h2>Some values cross locality</h2>
+          <h2>Some types do not care about locality: mode crossing</h2>
           <div class="two-up">
             <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int =
   x</code></pre><p>No lifetime-sensitive heap block.</p></article>
@@ -1326,6 +1334,27 @@ let demo () =
   x</code></pre><p>Rejected: the string may point into a local region.</p></article>
           </div>
           <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Quiz: requirements or promises?</h2>
+          <div class="two-up">
+            <article>
+              <h3>Argument position</h3>
+              <pre><code>'a @ local -> 'b
+'a @ portable -> 'b
+'a @ contended -> 'b</code></pre>
+              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
+            </article>
+            <article>
+              <h3>Result position</h3>
+              <pre><code>'a -> 'b @ local
+'a -> 'b @ portable
+'a -> 'b @ contended</code></pre>
+              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
+            </article>
+          </div>
+          <aside class="notes">Answer: before the arrow, the caller must be able to provide the argument at that mode. After the arrow, the function promises that the result is available at that mode. For locality, an argument at @ local is an easy requirement that also tells the caller the function will not make the argument escape.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -1342,16 +1371,16 @@ let demo () =
           <p class="eyebrow">Module 03</p>
           <h1>Value layouts and unboxing</h1>
           <ul class="goal-list">
-            <li>Explain immediate words vs heap-block pointers.</li>
-            <li>Read heap blocks from the generated layouts.</li>
-            <li>Spot boxes, pointer hops, and wrapper allocations.</li>
-            <li>Use unboxed layouts when a specific representation cost matters.</li>
+            <li>Understand immediate words vs heap-block pointers.</li>
+            <li>Understand run-time heap structure.</li>
+            <li>Spot allocation and indirection in OxCaml types.</li>
+            <li>Use unboxed layouts to avoid pointer indirection and allocation.</li>
           </ul>
           <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
         </section>
 
         <section class="slide concept-slide value-invariant-slide">
-          <h2>Runtime invariant:<br>ordinary OCaml <code>value</code> is one word</h2>
+          <h2>Uniform value representation:<br>every ordinary OCaml value is one word</h2>
           <div class="value-model-figure">
             <div class="value-model-grid">
               <div class="value-model-panel">
@@ -1398,7 +1427,7 @@ type quote =
 
 let plain_value_record =
   id { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
-            <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value shape. Polymorphic functions are only compiled once.</p></article>
+            <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value representation. Polymorphic functions are only compiled once.</p></article>
           </div>
           <aside class="notes">The uniform model is a strength before it is a cost.</aside>
         </section>
@@ -1412,7 +1441,7 @@ let plain_value_record =
                 <pre><code>let plain_value_integer = 5</code></pre>
               </div>
               <div class="repr-graph-panel">
-                <h3>Generated representation</h3>
+                <h3>Run-time layout</h3>
                 <div class="native-repr-slot" data-native-repr="plain_value_integer" data-native-repr-part="graph"></div>
               </div>
             </article>
@@ -1422,7 +1451,7 @@ let plain_value_record =
                 <pre><code>let plain_value_tuple = (1, 2, 3)</code></pre>
               </div>
               <div class="repr-graph-panel">
-                <h3>Generated representation</h3>
+                <h3>Run-time layout</h3>
                 <div class="native-repr-slot" data-native-repr="plain_value_tuple" data-native-repr-part="graph"></div>
               </div>
             </article>
@@ -1446,7 +1475,7 @@ let plain_value_record =
   { symbol = "OX"; price = 101; size = 7 }</code></pre>
             </article>
             <article class="repr-graph-panel">
-              <h3>Generated heap shape</h3>
+              <h3>Run-time layout</h3>
               <div class="native-repr-slot" data-native-repr="plain_value_record" data-native-repr-part="graph"></div>
             </article>
           </div>
@@ -1462,7 +1491,7 @@ let plain_value_record =
   (3.5, 456L)</code></pre>
             </article>
             <article class="repr-graph-panel">
-              <h3>Generated heap shape</h3>
+              <h3>Run-time layout</h3>
               <div class="native-repr-slot" data-native-repr="boxed_numeric_values" data-native-repr-part="graph"></div>
             </article>
           </div>
@@ -1479,7 +1508,7 @@ let plain_value_record =
   #(#3.5, #456L)</code></pre>
             </article>
             <article class="repr-graph-panel">
-              <h3>Generated heap shape</h3>
+              <h3>Run-time layout</h3>
               <div class="native-repr-slot" data-native-repr="unboxed_numeric_values" data-native-repr-part="graph"></div>
             </article>
           </div>
@@ -1488,7 +1517,7 @@ let plain_value_record =
         </section>
 
         <section class="slide concept-slide repr-slide">
-          <h2>Unboxed records can inline raw fields</h2>
+          <h2>Unboxed records can inline their fields</h2>
           <div class="repr-slide-layout repr-wide-code-layout">
             <article class="repr-code-panel">
               <h3>Source</h3>
@@ -1508,7 +1537,7 @@ let outer_record_with_unboxed_point =
   }</code></pre>
             </article>
             <article class="repr-graph-panel">
-              <h3>Generated heap shape</h3>
+              <h3>Run-time layout</h3>
               <div class="native-repr-slot" data-native-repr="outer_record_with_unboxed_point" data-native-repr-part="graph"></div>
             </article>
           </div>
@@ -1590,9 +1619,9 @@ let bad =
           <h2>Kinds say which representation a type parameter accepts</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The result is still a boxed record.</p>
-              <br>
               <p>The kind annotation says the argument may have the unboxed point layout.</p>
+              <br>
+              <p>(The result is still a boxed record in this example.)</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">kinded_duplicate_accepts_unboxed_point.ml</div>
