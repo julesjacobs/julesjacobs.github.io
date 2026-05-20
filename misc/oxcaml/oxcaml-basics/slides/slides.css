@@ -1011,14 +1011,24 @@ body {
   font-weight: 650;
 }
 
-.data-race-explainer-slide .big-explanation {
-  max-width: 980px;
-  margin: 110px auto 0;
-  color: var(--bad);
-  font-size: 78px;
-  font-weight: 800;
-  line-height: 1.08;
+.data-race-explainer-slide {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.data-race-explainer-slide .data-race-intro {
+  max-width: 1060px;
+  margin-inline: auto;
+  color: var(--ink);
+  font-size: 54px;
+  font-weight: 750;
+  line-height: 1.16;
   text-align: center;
+}
+
+.data-race-explainer-slide .data-race-intro em {
+  font-style: italic;
 }
 
 .compiler-race-slide .oxcaml-embed {
