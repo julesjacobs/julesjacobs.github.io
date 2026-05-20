@@ -601,34 +601,6 @@ body {
   font-style: italic;
 }
 
-.function-exclave-slide .exclave-boundary-box {
-  position: relative;
-  display: grid;
-  gap: 6px;
-  margin-top: 4px;
-  padding: 22px 12px 10px;
-  border: 1px dashed var(--allocation-boundary-border);
-  border-radius: 8px;
-  background: var(--allocation-boundary-bg);
-  box-shadow: inset 0 0 0 1px var(--allocation-boundary-ring);
-}
-
-.function-exclave-slide .exclave-boundary-label {
-  position: absolute;
-  top: -12px;
-  left: 12px;
-  padding: 3px 9px;
-  border: 1px solid var(--allocation-boundary-border);
-  border-radius: 999px;
-  background: var(--surface);
-  color: var(--allocation-boundary-border);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
 .heap-allocation-sign-slide {
   display: flex !important;
   flex-direction: column;
@@ -681,6 +653,19 @@ body {
 .fresh-buffer-slide .live-layout,
 .buffer-bug-slide .live-layout {
   grid-template-columns: minmax(0, 1.18fr) minmax(0, 0.82fr);
+}
+
+.hidden-capture-slide .live-layout {
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1.38fr);
+}
+
+.hidden-capture-slide .live-copy {
+  padding: 22px;
+}
+
+.hidden-capture-slide .live-copy p {
+  font-size: 21px;
+  line-height: 1.25;
 }
 
 .buffer-bug-slide .oxcaml-embed__output {
@@ -1837,6 +1822,48 @@ body {
   min-height: 0;
 }
 
+.or-null-contrast-grid {
+  display: grid;
+  grid-template-rows: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 14px;
+  min-height: 0;
+}
+
+.or-null-four-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 16px 20px;
+  min-height: 0;
+}
+
+.ordinary-option-example {
+  grid-template-columns: minmax(0, 0.64fr) minmax(0, 1.36fr);
+}
+
+.reveal .or-null-contrast-slide .native-repr-graph {
+  max-height: 190px;
+}
+
+.reveal .or-null-contrast-slide .repr-mini-example .native-repr-graph {
+  max-height: 150px;
+}
+
+.or-null-contrast-slide .repr-mini-example {
+  grid-template-rows: 22px 58px minmax(0, 1fr);
+}
+
+.or-null-contrast-slide .repr-mini-example h3,
+.or-null-contrast-slide .repr-code-panel h3,
+.or-null-contrast-slide .repr-graph-panel h3 {
+  font-size: 16px;
+}
+
+.or-null-contrast-slide .repr-mini-example pre,
+.or-null-contrast-slide .repr-code-panel pre {
+  font-size: 14px;
+}
+
 .repr-mini-example {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
@@ -2424,6 +2451,40 @@ body {
 
 .kind-polymorphism-slide .live-layout {
   grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+}
+
+.local-container-slide .live-layout,
+.ordinary-polymorphic-slide .live-layout {
+  grid-template-columns: minmax(0, 0.5fr) minmax(0, 1.5fr);
+}
+
+.local-container-slide .live-copy,
+.ordinary-polymorphic-slide .live-copy {
+  padding: 20px;
+}
+
+.local-container-slide .live-copy p,
+.ordinary-polymorphic-slide .live-copy p {
+  font-size: 20px;
+  line-height: 1.22;
+}
+
+.local-container-slide .oxcaml-embed,
+.ordinary-polymorphic-slide .oxcaml-embed {
+  --oxcaml-editor-font-size: 0.7rem;
+  --oxcaml-output-font-size: 0.58rem;
+  --oxcaml-editor-max-height: 12rem;
+}
+
+.local-container-slide .oxcaml-embed__editor-host,
+.ordinary-polymorphic-slide .oxcaml-embed__editor-host {
+  flex: 0 0 auto;
+}
+
+.local-container-slide .oxcaml-embed__output,
+.ordinary-polymorphic-slide .oxcaml-embed__output {
+  flex: 1 1 13rem;
+  min-height: 13rem;
 }
 
 .kind-polymorphism-slide .live-copy {

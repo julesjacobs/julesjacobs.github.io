@@ -2297,8 +2297,8 @@ fun () -&gt; write_bits buf bits</code></pre>
         <p>A helper can also receive mutable state explicitly and then return a closure that captures it. That combines both ideas above: the helper call has explicit argument requirements, and the returned function value has its own portability mode.</p>
         <p>Returning a function does not bypass the checks. The returned closure still records what it captured and where it may be used.</p>
         <aside class="exercise">
-          <h3>Exercise: which helper captures <code>x</code>?</h3>
-          <p>In the next two blocks, which helper creates the returned function that captures <code>x</code>?</p>
+          <h3>Exercise: which returned function captures <code>x</code>?</h3>
+          <p>In the next two blocks, which returned function captures <code>x</code>, and what access does that returned function need?</p>
           <details>
             <summary>Answer</summary>
             <p><code>read_count_later</code> returns a function that captures <code>x</code> and reads a mutable field, so it cannot be used with spawn. <code>bump_count_later</code> returns functions that capture <code>x</code> and write a mutable field, so they cannot be used with fork/join.</p>
@@ -2802,7 +2802,7 @@ let () =
           <p>Run the same experiment for a function that returns another function. Does <code>let make : int -&gt; unit -&gt; unit @ portable = ...</code> check the returned function as portable, or do you need <code>int -&gt; (unit -&gt; unit) @ portable</code>?</p>
           <details>
             <summary>Answer</summary>
-            <p>The unparenthesized nested form is accepted, but the parenthesized returned-function form fails. So the same rule of thumb applies: if the mode belongs to a function value, put that function type in parentheses.</p>
+            <p><code>int -&gt; unit -&gt; unit @ portable</code> puts <code>@ portable</code> on the final result, not on the returned function value. To require the returned function itself to be portable, write <code>int -&gt; (unit -&gt; unit) @ portable</code>. That second form fails here because the returned function captures <code>r</code>.</p>
           </details>
         </aside>
         <oxcaml check data-filename="nested_prec_a.ml">

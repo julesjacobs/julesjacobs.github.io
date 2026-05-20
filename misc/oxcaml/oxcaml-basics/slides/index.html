@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=repr-kinds-20260519">
+    <link rel="stylesheet" href="slides.css?v=repr-or-null-one-line-20260519">
   </head>
   <body>
     <div class="reveal">
@@ -157,8 +157,8 @@ let strings_in_parallel parallel =
         </section>
 
         <section class="slide concept-slide data-race-explainer-slide">
-          <h2>What went wrong: data race!</h2>
-          <p class="big-explanation">Bad: two parallel writes to the same buffer.</p>
+          <h2>The shared buffer creates a data race</h2>
+          <p class="big-explanation">Two parallel writes target the same buffer.</p>
         </section>
 
         <section class="slide concept-slide">
@@ -245,7 +245,8 @@ Concurrent.spawn spawn
   ~f:(<span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;
         x.id          <span class="tok-comment">(* &#10003; immutable read *)</span>
         x.hits        <span class="tok-comment">(* &#10005; mutable read *)</span>
-        x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)</code></pre>
+        x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)
+        &#8203;</code></pre>
               </div>
               <ul class="rule-summary">
                 <li><span>✅</span> immutable read allowed</li>
@@ -332,7 +333,7 @@ Concurrent.spawn spawn
         </section>
 
         <section class="slide concept-slide contention-boundary-slide list-iter-boundary-slide">
-          <h2>The contention closure boundary: ordinary closures</h2>
+          <h2>Ordinary closures keep ordinary access</h2>
           <div class="single-boundary-code">
             <article>
               <h3>List.iter body sees captured <code>x @ uncontended</code></h3>
@@ -357,11 +358,11 @@ Concurrent.spawn spawn
             </article>
           </div>
           <p class="takeaway">An ordinary closure does not need a parallel-safety promise, so the captured variable keeps ordinary write access.</p>
-          <aside class="notes">This is the contrast case before the key point: not every closure boundary weakens modes; the closure's required mode determines the effect.</aside>
+          <aside class="notes">This is the contrast case before the key point: closure formation alone does not weaken modes; the closure's required mode determines the effect.</aside>
         </section>
 
         <section class="slide big-key-slide">
-          <p>Key point: a variable's type never changes, but a variable's mode can change when it crosses a closure boundary.</p>
+          <p>Key point: a variable's type never changes, but a variable's mode can change when it is captured by a closure.</p>
         </section>
 
         <section class="slide live-slide function-arguments-slide">
@@ -484,9 +485,13 @@ let write_x v = x.hits &lt;- v</code></pre>
           <aside class="notes">Map rows to portable, shareable, nonportable.</aside>
         </section>
 
-        <section class="slide live-slide visual-live buffer-bug-slide">
+        <section class="slide live-slide visual-live buffer-bug-slide hidden-capture-slide">
           <h2>Shared Buffer revisited</h2>
           <div class="live-layout">
+            <div class="live-copy">
+              <p><code>bits_to_string</code> now closes over the top-level <code>buf</code>.</p>
+              <p>Passing that function to fork/join asks whether the function value is <code>@ shareable</code>. It is not, because its hidden capture needs write access.</p>
+            </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">fork_join_shared_buffer.ml</div>
               <oxcaml check data-filename="fork_join_shared_buffer.ml" expect-error>
@@ -505,9 +510,6 @@ let strings_in_parallel parallel =
   in
   left ^ "\n" ^ right
               </oxcaml>
-            </div>
-            <div class="illustration-only">
-              <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
             </div>
           </div>
           <aside class="notes">This is the same program shape, but moving the allocation changes one-buffer-per-call into one shared buffer.</aside>
@@ -529,7 +531,7 @@ fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareab
         </section>
 
         <section class="slide concept-slide">
-          <h2>The type of fork_join2 and spawn</h2>
+          <h2>Schematic types of fork_join2 and spawn</h2>
           <div class="signature-card">
             <pre><code>val fork_join2 :
   Parallel.t @ local ->
@@ -537,7 +539,7 @@ fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareab
   (Parallel.t @ local -> 'b) @ shareable ->
   #('a * 'b)
 
-val spawn :  (* schematic *)
+val spawn :
   ('scope_ctx, 'ctx) spawn ->
   f:('scope_ctx Concurrent.Scope.t -> 'ctx -> 'ctx Concurrent.t -> unit) @ portable ->
   unit</code></pre>
@@ -755,7 +757,7 @@ val spawn :  (* schematic *)
                 </div>
                 <div class="capture-code-block">
                   <div class="capture-line">
-                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">unit</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-portable" data-boundary-link="portable">portable</span> =</span>
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (... -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-portable" data-boundary-link="portable">portable</span> =</span>
                   </div>
                 </div>
                 <div class="capture-closure-box portable" data-boundary-link="portable">
@@ -763,7 +765,7 @@ val spawn :  (* schematic *)
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
-                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _scope _ctx _conc -&gt;</span>
                       </div>
                       <div class="capture-import-list">
                         <div class="capture-import-row" data-capture-link="portable-factor">
@@ -880,8 +882,8 @@ val spawn :  (* schematic *)
             <div class="checklist-item">
               <p><strong>1.</strong> Simple model: functions passed to parallel work are checked.</p>
               <ul>
-                <li>Fork/join can read but not write mutable fields.</li>
-                <li>Spawn can neither read nor write mutable fields.</li>
+                <li>Fork/join can read but not write captured mutable fields.</li>
+                <li>Spawn can neither read nor write captured mutable fields.</li>
               </ul>
             </div>
             <p><strong>2.</strong> Reads and writes are checked using the contention axis.</p>
@@ -921,7 +923,7 @@ val spawn :  (* schematic *)
           <div class="live-layout">
             <div class="live-copy">
               <p>Stack allocate values with <code>stack_</code>.</p>
-              <p>The allocation stack gets cleared at the end of a function.</p>
+              <p>The current allocation region is cleared before the function returns.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_stack_sum.ml</div>
@@ -947,7 +949,7 @@ let () =
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
-          <h2>Stack allocated values can escape their region 😨</h2>
+          <h2>Stack allocated values cannot escape their region</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>A callee cannot secretly keep a stack-allocated value after the caller region is gone.</p>
@@ -979,7 +981,7 @@ let () =
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
-          <h2>Returning stack allocated values escapes their region 😨</h2>
+          <h2>Returning stack allocated values can escape their region</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The integer result can return, but the stack-allocated list cannot.</p>
@@ -1035,7 +1037,7 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The returned list is not smuggled out of sum3's region; it is allocated in the caller's region after exclave_.</aside>
+          <aside class="notes">The returned list is not smuggled out of sum3's region; the result construction belongs to the caller's region.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide">
@@ -1052,8 +1054,9 @@ let () =
               <pre><code>let f x =
   start_new_region ();
   ...
+  let return_value = result in
   end_current_region ();
-  result</code></pre>
+  return_value</code></pre>
             </article>
             <article class="region-source-card">
               <h3><code>exclave_</code> result</h3>
@@ -1115,17 +1118,17 @@ let () =
             <article class="region-source-card">
               <h3>Middle <code>exclave_</code></h3>
               <pre><code>let f x =
-  let y = prepare x in
+  let n = compute_count x in
   exclave_
-  build_result y</code></pre>
+  build_result n</code></pre>
             </article>
             <div class="region-compile-arrow">compiles to</div>
             <article class="region-lowered-card">
               <pre><code>let f x =
   start_new_region ();
-  let y = prepare x in
+  let n = compute_count x in
   end_current_region ();
-  build_result y</code></pre>
+  build_result n</code></pre>
             </article>
             <article class="region-compile-note" aria-label="exclave at the beginning note">
               <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately.</p>
@@ -1141,7 +1144,7 @@ let () =
             <div class="mode-axis axis-strip-modes locality">
               <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this view</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>x @ regional</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>regional view</code><ul><li>can outlive this region</li><li>may still be region-owned</li></ul></div></div>
               <b class="axis-arrow">→</b>
               <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape as global</li></ul></div></div>
             </div>
@@ -1155,41 +1158,34 @@ let () =
           <div class="region-compile-grid function-exclave-grid">
             <article class="region-source-card">
               <h3>Source</h3>
-              <div class="exclave-boundary-code" aria-label="Source code with exclave boundary">
+              <div class="exclave-boundary-code" aria-label="Source code with exclave">
                 <div class="code-line">let f (x : int list @ local) =</div>
                 <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
                 <div class="code-line indent-1">ignore (sum y);</div>
                 <div class="code-line indent-1 exclave-keyword-line">exclave_</div>
-                <div class="exclave-boundary-box">
-                  <div class="exclave-boundary-label">after exclave_</div>
-                  <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
-                  <div class="code-line indent-1">sum x + sum z</div>
-                  <div class="code-line indent-1 tok-comment">(* not allowed here: sum y *)</div>
-                </div>
+                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                <div class="code-line indent-1">sum x + sum z</div>
+                <div class="code-line indent-1 tok-comment">(* not allowed here: sum y *)</div>
               </div>
             </article>
             <div class="region-compile-arrow">compiles to</div>
             <article class="region-lowered-card">
               <h3>Region view</h3>
-              <div class="exclave-boundary-code" aria-label="Lowered region view with exclave boundary">
+              <div class="exclave-boundary-code" aria-label="Lowered region view with exclave">
                 <div class="code-line">let f x =</div>
                 <div class="code-line indent-1">start_new_region ();</div>
                 <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
                 <div class="code-line indent-1">ignore (sum y);</div>
                 <div class="code-line indent-1">end_current_region ();</div>
                 <div class="code-line indent-1 tok-comment">(* y dies here *)</div>
-                <div class="exclave-boundary-box">
-                  <div class="exclave-boundary-label">after exclave_</div>
-                  <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
-                  <div class="code-line indent-1">sum x + sum z</div>
-                  <div class="code-line indent-1 tok-comment">(* x came from caller *)</div>
-                  <div class="code-line indent-1 tok-comment">(* z is after exclave_ *)</div>
-                </div>
+                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                <div class="code-line indent-1">sum x + sum z</div>
+                <div class="code-line indent-1 tok-comment">(* x came from caller *)</div>
               </div>
             </article>
           </div>
           <p class="takeaway"><code>exclave_</code> ends the function's current region. Arguments from the caller can still be used; values allocated before <code>exclave_</code> cannot.</p>
-          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z is allocated after exclave_, so it belongs to the parent region.</aside>
+          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z belongs to the parent region.</aside>
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
@@ -1221,7 +1217,7 @@ let add_with_scratch x y =
           <h2>Submoding: use global data locally</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>escape xs</code> stores the list in a global ref, so <code>xs</code> is usable globally.</p>
+              <p><code>escape xs</code> type-checks because <code>xs</code> already has a global view.</p>
               <p><code>sum xs</code> then uses the same value through the more restrictive <code>@ local</code> view.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
@@ -1250,22 +1246,18 @@ let () =
           <aside class="notes">Submoding is safe weakening: a global value can be used by an API that only promises local use.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide live-slide local-container-slide">
           <h2>Plain local containers lose the global view</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
               <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
               <br>
-              <p>Reason: modes are deep.</p>
-              <br>
-              <p>Modes apply all the way down in a data structure.</p>
+              <p>An ordinary list node does not remember that its element was global. The local outer list gives a local view of everything reached through it.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
               <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-
-
 let saved : int list option ref = ref None
 
 let escape xs =
@@ -1357,7 +1349,7 @@ let demo () =
         </section>
 
         <section class="slide concept-slide value-invariant-slide">
-          <h2>Runtime invariant:<br>every OCaml value is one word</h2>
+          <h2>Runtime invariant:<br>ordinary OCaml <code>value</code> is one word</h2>
           <div class="value-model-figure">
             <div class="value-model-grid">
               <div class="value-model-panel">
@@ -1460,7 +1452,7 @@ let plain_value_record =
         </section>
 
         <section class="slide concept-slide repr-slide">
-          <h2>Too many boxes!</h2>
+          <h2>Boxed numeric values add allocation</h2>
           <div class="repr-slide-layout">
             <article class="repr-code-panel">
               <h3>Source</h3>
@@ -1477,7 +1469,7 @@ let plain_value_record =
         </section>
 
         <section class="slide concept-slide repr-slide">
-          <h2>Solution: unboxed types</h2>
+          <h2>Unboxed types remove specific boxes</h2>
           <div class="repr-slide-layout">
             <article class="repr-code-panel">
               <h3>Source</h3>
@@ -1521,7 +1513,7 @@ let outer_record_with_unboxed_point =
           <aside class="notes">Point out the mixed block: scanned value fields first, raw float words after.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide live-slide ordinary-polymorphic-slide">
           <h2>Ordinary polymorphic functions expect values</h2>
           <div class="live-layout">
             <div class="live-copy">
@@ -1574,23 +1566,31 @@ let ok =
           <aside class="notes">This keeps a boxed result while changing what representation the type parameter can range over.</aside>
         </section>
 
-        <section class="slide concept-slide repr-slide">
+        <section class="slide concept-slide repr-slide or-null-contrast-slide">
           <h2><code>or_null</code> uses null or the payload representation</h2>
-          <div class="repr-pair-grid">
+          <div class="or-null-four-grid">
             <article class="repr-mini-example">
-              <h3>Missing value</h3>
-              <pre><code>let or_null_null_value =
-  (Null : int or_null)</code></pre>
+              <h3>Missing ordinary option</h3>
+              <pre><code>let ordinary_none_int_option = (None : int option)</code></pre>
+              <div class="native-repr-slot" data-native-repr="ordinary_none_int_option" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Present ordinary option</h3>
+              <pre><code>let ordinary_some_int_option = Some 7</code></pre>
+              <div class="native-repr-slot" data-native-repr="ordinary_some_int_option" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Missing <code>or_null</code></h3>
+              <pre><code>let or_null_null_value = (Null : int or_null)</code></pre>
               <div class="native-repr-slot" data-native-repr="or_null_null_value" data-native-repr-part="graph"></div>
             </article>
             <article class="repr-mini-example">
-              <h3>Present value</h3>
-              <pre><code>let or_null_this_int =
-  (This 7 : int or_null)</code></pre>
+              <h3>Present <code>or_null</code></h3>
+              <pre><code>let or_null_this_int = (This 7 : int or_null)</code></pre>
               <div class="native-repr-slot" data-native-repr="or_null_this_int" data-native-repr-part="graph"></div>
             </article>
           </div>
-          <p class="takeaway"><code>Null</code> is the null word; <code>This 7</code> is represented like the integer payload.</p>
+          <p class="takeaway">Each diagram is one root value. <code>Some 7</code> allocates a wrapper block; <code>This 7</code> is represented like the integer payload.</p>
           <aside class="notes">Do not go into nested or_null here unless someone asks.</aside>
         </section>
 
@@ -1602,7 +1602,7 @@ let ok =
               <br>
               <p>If the inner type is <code>string or_null</code>, it already may be null. The outer <code>or_null</code> would need the same null word for a second missing case.</p>
               <br>
-              <p>The kind tracks this: <code>or_null</code> needs a payload of kind <code>value</code>, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
+              <p>The kind tracks this: <code>or_null</code> needs a non-null <code>value</code> payload, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">or_null_cannot_be_nested.ml</div>
@@ -1635,15 +1635,15 @@ let id_product
             </article>
           </div>
           <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
-          <p class="takeaway">OxCaml is a work in progress. Layout polymorphism is intended to replace this template pattern.</p>
-          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is layout polymorphism.</aside>
+          <p class="takeaway">OxCaml is a work in progress. Future kind-polymorphic definitions are intended to reduce this template pattern.</p>
+          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general kind polymorphism.</aside>
         </section>
 
         <section class="slide summary-slide">
           <h2>Representation recap</h2>
           <div class="lever-grid">
             <article><h3>Ordinary values</h3><p>One word: immediate data or pointer to a heap block.</p></article>
-            <article><h3>Unboxed layouts</h3><p>Records and tuples without allocation and indirection.</p></article>
+            <article><h3>Unboxed layouts</h3><p>Remove selected product or record boxes where the layout is used.</p></article>
             <article><h3><code>or_null</code></h3><p>Like option, but does not allocate.</p></article>
           </div>
           <aside class="notes">Keep this as the final mental model before the course-level recap.</aside>

@@ -93,9 +93,10 @@
       }
 
       .exclave-boundary-code {
-        background: #20252b;
+        background: #fbfcfe;
+        border: 1px solid var(--rule);
         border-radius: 8px;
-        color: #f8fafc;
+        color: var(--ink);
         display: grid;
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         font-size: 0.9rem;
@@ -111,7 +112,7 @@
       }
 
       .exclave-boundary-box {
-        background: rgba(254, 243, 199, 0.18);
+        background: #fef3c7;
         border: 1px dashed #d97706;
         border-radius: 8px;
         display: grid;
@@ -122,23 +123,23 @@
       }
 
       .exclave-boundary-label {
-        background: #20252b;
+        background: #fffaf0;
         border: 1px solid #d97706;
         border-radius: 999px;
-        color: #fbbf24;
+        color: #9a4d00;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         font-size: 0.72rem;
         font-weight: 800;
-        left: 12px;
         letter-spacing: 0;
         padding: 3px 8px;
         position: absolute;
+        right: 12px;
         text-transform: uppercase;
         top: -12px;
       }
 
       .code-comment {
-        color: #a7b3c2;
+        color: #6a7787;
         font-style: italic;
       }
 
@@ -194,7 +195,7 @@
             let n = sum3 1 2 3 in
             print_endline (string_of_int n)
         </oxcaml>
-        <p>The important fact is simple: <code>xs</code> is temporary. The allocation stack gets cleared at the end of a function, so <code>xs</code> cannot be used after <code>sum3</code> returns.</p>
+        <p>The important fact is simple: <code>xs</code> is temporary. For this first example, think of the function body as the region. The allocation stack is cleared when that region ends, so <code>xs</code> cannot be used after <code>sum3</code> returns.</p>
         <p>The annotation on <code>sum</code> matters. It says <code>sum</code> may receive a local list, and it will not keep that list.</p>
       </section>
 
@@ -241,11 +242,16 @@
             print_endline (string_of_int n)
         </oxcaml>
         <aside class="checkpoint">
-          <h3>Checkpoint: what escapes?</h3>
-          <p>In <code>n, xs</code>, which part is safe to return, and which part is rejected?</p>
+          <h3>Checkpoint: repair the return</h3>
+          <p>In <code>n, xs</code>, which part is safe to return, and which part is rejected? Where should <code>exclave_</code> go to make the returned list safe?</p>
           <details>
             <summary>Answer</summary>
-            <p><code>n</code> is safe. It is an integer result. <code>xs</code> is rejected because it points into the current stack region.</p>
+            <p><code>n</code> is safe. It is an integer result. <code>xs</code> is rejected because it points into the current stack region. The repair is to put <code>exclave_</code> before the allocation that builds the returned pair:</p>
+            <pre><code>let sum3 a b c =
+  exclave_
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  n, xs</code></pre>
           </details>
         </aside>
       </section>
@@ -271,11 +277,12 @@
             print_endline (string_of_int n);
             print_endline (string_of_int (sum xs))
         </oxcaml>
+        <p>The next sections explain that repair in terms of regions. That region model is also what explains tail calls and mid-function <code>exclave_</code>.</p>
       </section>
 
       <section>
         <h2>How OxCaml manages the allocation stack</h2>
-        <p>The compiler can be explained with two simple operations. A normal function starts a new region. Before the function returns, the current region ends.</p>
+        <p>The compiler can be explained with two simple operations. A normal function starts a new region. Before the function returns, the current region ends. The diagrams below are a model for where the region boundary is.</p>
         <div class="compile-grid">
           <article class="compile-card">
             <div class="card-label">Normal function</div>
@@ -350,6 +357,40 @@
   result</code></pre>
           </article>
         </div>
+        <aside class="exercise">
+          <h3>Exercise: make the call non-tail</h3>
+          <p>The call to <code>use</code> below is in tail position. Explain why the stack-allocated list cannot be passed there, then repair the call with <code>[@nontail]</code>.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_tail_call_region_ends.ml" expect-error>
+          let rec length (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | _ :: xs -> 1 + length xs
+
+          let use (xs : int list @ local) = length xs
+
+          let bad () =
+            let xs = stack_ [1; 2; 3] in
+            use xs
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_tail_call_region_nontail.ml">
+            let rec length (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | _ :: xs -> 1 + length xs
+
+            let use (xs : int list @ local) = length xs
+
+            let good () =
+              let xs = stack_ [1; 2; 3] in
+              use xs [@nontail]
+
+            let () =
+              print_endline (string_of_int (good ()))
+          </oxcaml>
+        </details>
       </section>
 
       <section>
@@ -375,7 +416,7 @@
           </article>
         </div>
         <p>The result cannot use <code>y</code>, because <code>y</code> was allocated in the region that just ended. The result can use <code>x</code>, because <code>x</code> came from the caller.</p>
-        <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately. The result expression still runs in the caller's region.</p>
+        <p>This is the same rule as before, but the boundary is later in the function. Code before the boundary belongs to the function's region; code after the boundary builds the result in the caller's region.</p>
       </section>
 
       <section>
@@ -402,6 +443,7 @@
 
       <section>
         <h2>Functions and <code>exclave_</code></h2>
+        <p>The locality axis gives names to the lifetime facts. Now apply those facts to a function body with an <code>exclave_</code> boundary.</p>
         <p>After <code>exclave_</code>, values from the old current region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
         <div class="compile-grid">
           <article class="compile-card">
@@ -446,10 +488,55 @@
             <p>It can use <code>x</code> because <code>x</code> came from the caller. It cannot use <code>y</code> because <code>y</code> was allocated before <code>exclave_</code>. It can use <code>z</code> because <code>z</code> is allocated after <code>exclave_</code>.</p>
           </details>
         </aside>
+        <aside class="exercise">
+          <h3>Exercise: move the allocation</h3>
+          <p>The rejected version tries to use <code>y</code> after its region has ended. Rewrite it so that the second temporary list is allocated after <code>exclave_</code>.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_exclave_middle_uses_old_region.ml" expect-error>
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let bad (x : int list @ local) =
+            let y = stack_ [1; 2; 3] in
+            ignore (sum y);
+            exclave_
+            sum x + sum y
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_exclave_middle_allocates_after.ml">
+            let rec sum (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | x :: xs -> x + sum xs
+
+            let good (x : int list @ local) =
+              let y = stack_ [1; 2; 3] in
+              ignore (sum y);
+              exclave_
+              let z = stack_ [4; 5; 6] in
+              sum x + sum z
+
+            let () =
+              print_endline (string_of_int (good [10]))
+          </oxcaml>
+        </details>
+        <aside class="checkpoint">
+          <h3>What can survive <code>exclave_</code>?</h3>
+          <p>Several kinds of values can still be used after <code>exclave_</code>:</p>
+          <ul>
+            <li>Arguments from the caller can survive. A <code>@ local</code> argument is outer-local in the function body: it may be local to the caller's region, but it was not allocated in the current function region.</li>
+            <li>Immediate data can survive. For example, if an integer or boolean is bound before <code>exclave_</code>, it can still be used after <code>exclave_</code>.</li>
+            <li>Values with a global view can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
+          </ul>
+        </aside>
       </section>
 
       <section>
         <h2>Idiom: borrowing</h2>
+        <p>So far, locality has controlled returned values. The same lifetime check also controls function parameters.</p>
         <p>Borrowing means this: a function may use a temporary value during a call, but it may not retain that value.</p>
         <p>The function passed to <code>with_scratch</code> can use the temporary state during the call, but cannot retain it. This is forced by the <code>@ local</code> parameter.</p>
         <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
@@ -472,12 +559,55 @@
             <p>The restriction is on the body that receives <code>scratch</code>. It may use <code>scratch</code> during the call, but it may not store or return it.</p>
           </details>
         </aside>
+        <aside class="exercise">
+          <h3>Exercise: do not store the borrowed value</h3>
+          <p>The function argument below tries to keep the borrowed scratch record in a global reference. Explain the error, then rewrite the function so it only computes a result.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_with_scratch_cannot_store.ml" expect-error>
+          type scratch = { mutable total : int }
+
+          let saved : scratch option ref = ref None
+
+          let with_scratch (f : scratch @ local -> 'a) =
+            let s = stack_ { total = 0 } in
+            f s [@nontail]
+
+          let bad () =
+            with_scratch (fun s -> saved := Some s)
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_with_scratch_compute_result.ml">
+            type scratch = { mutable total : int }
+
+            let with_scratch (f : scratch @ local -> 'a) =
+              let s = stack_ { total = 0 } in
+              f s [@nontail]
+
+            let good () =
+              with_scratch (fun s ->
+                s.total <- 42;
+                s.total)
+
+            let () =
+              print_endline (string_of_int (good ()))
+          </oxcaml>
+        </details>
       </section>
 
       <section>
         <h2>Submoding: use global data locally</h2>
+        <p>Borrowing lets a function accept temporary values. The reverse direction is also useful: a long-lived value can be used where only a short-lived view is needed.</p>
         <p>A global value can be used through a local view. This is called submoding.</p>
         <p>In this example, <code>escape xs</code> stores the list in a global reference. The same list can still be passed to <code>sum</code>, because <code>sum</code> only needs a local view.</p>
+        <aside class="exercise">
+          <h3>Exercise: predict the mode change</h3>
+          <p>Before running the code, predict whether <code>demo</code> is accepted. If it is accepted, explain why storing <code>xs</code> globally does not conflict with passing it to <code>sum</code>.</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>xs</code> is a global heap list. Passing it to <code>sum</code> only uses a local view of that list. The view is weaker, but the list's actual lifetime has not changed.</p>
+          </details>
+        </aside>
         <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
           let saved : int list option ref = ref None
 
@@ -503,7 +633,15 @@
         <h2>Plain local containers lose the global view</h2>
         <p>The inner list starts global. The first <code>escape inner</code> type-checks.</p>
         <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-        <p>Reason: modes are deep. A local view of the outer list gives a local view of the elements inside that list.</p>
+        <p>The reason is that modes are deep. A local view of the outer list gives a local view of the elements inside that list.</p>
+        <aside class="exercise">
+          <h3>Exercise: explain the lost view</h3>
+          <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Modes are deep. A local view of the outer list gives a local view of the elements inside that list. The original heap list did not become unsafe at runtime; the compiler has lost the global view after looking through a local container.</p>
+          </details>
+        </aside>
         <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
           let saved : int list option ref = ref None
 
@@ -518,13 +656,16 @@
             | [] -> ()
             | inner :: _ -> escape inner
         </oxcaml>
-        <p>The original heap list did not become unsafe at runtime. The problem is the view. After going through a local list, the extracted value is viewed as local.</p>
       </section>
 
       <section>
         <h2>Modalities preserve the global view</h2>
-        <p>A field modality can keep a field stronger than the container around it.</p>
+        <p>Sometimes losing the global view through a local container is too weak. A field modality can keep a field stronger than the container around it.</p>
         <p>The outer list is local, while the inner list is global. This is a local list of global lists.</p>
+        <aside class="course-aside">
+          <h3>Worked repair: preserve the global view</h3>
+          <p>The repaired version wraps the inner list in a record field marked <code>@@ global</code>. The outer list may still be local, but the field keeps the stronger view of the inner list.</p>
+        </aside>
         <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
           type 'a global = { global : 'a @@ global }
 
@@ -550,7 +691,7 @@
 
       <section>
         <h2>Some values cross locality</h2>
-        <p>Locality matters when there may be a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
+        <p>One last case explains why locality is about lifetimes, not just syntax. Locality matters when there may be a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
         <oxcaml check data-filename="Ex03_local_int_crosses.ml">
           let id_local_int (x : int @ local) : int =
             x
