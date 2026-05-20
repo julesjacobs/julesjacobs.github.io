@@ -330,11 +330,28 @@
     });
   }
 
+  function removeNativeReprDarkModeRules(styleElement) {
+    const sheet =
+      styleElement.sheet ||
+      Array.from(document.styleSheets).find((candidate) => candidate.ownerNode === styleElement);
+    if (!sheet) return;
+
+    for (let index = sheet.cssRules.length - 1; index >= 0; index -= 1) {
+      const rule = sheet.cssRules[index];
+      if (
+        rule.type === CSSRule.MEDIA_RULE &&
+        rule.conditionText.includes("prefers-color-scheme: dark")
+      ) {
+        sheet.deleteRule(index);
+      }
+    }
+  }
+
   function loadNativeReprExamples() {
     const slots = Array.from(document.querySelectorAll("[data-native-repr]"));
     if (!slots.length) return Promise.resolve();
 
-    return fetch("../sections/04-representation.processed.html", { cache: "no-store" })
+    return fetch("../examples/04-representation.processed.html", { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.text();
@@ -349,6 +366,7 @@
           copy.dataset.nativeReprStyle = "true";
           copy.textContent = style.textContent;
           document.head.append(copy);
+          removeNativeReprDarkModeRules(copy);
         }
 
         slots.forEach((slot) => {

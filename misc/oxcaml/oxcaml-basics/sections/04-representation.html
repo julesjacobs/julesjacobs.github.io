@@ -505,6 +505,7 @@ val map
       <section>
         <h2>Summary</h2>
         <p>Plain OCaml gives most data the uniform <code>value</code> representation: a word that is either an immediate or a pointer to a heap block. OxCaml keeps that model as the default, but lets performance-sensitive code use more precise layouts when a box, pointer indirection, or option allocation is the cost we need to remove.</p>
+        <p>Kinds record which representations an API accepts. Templates are the current way to repeat one source pattern across several kinds; layout polymorphism is intended to replace that template pattern over time.</p>
       </section>
 
       <nav class="page-nav" aria-label="Page navigation">

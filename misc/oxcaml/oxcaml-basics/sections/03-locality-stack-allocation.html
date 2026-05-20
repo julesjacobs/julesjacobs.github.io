@@ -93,7 +93,13 @@
       }
 
       .exclave-boundary-code {
-        background: #fbfcfe;
+        --exclave-code-bg: #fbfcfe;
+        --exclave-box-bg: #fef3c7;
+        --exclave-box-border: #d97706;
+        --exclave-label-bg: #fffaf0;
+        --exclave-label-ink: #9a4d00;
+        --exclave-comment: #6a7787;
+        background: var(--exclave-code-bg);
         border: 1px solid var(--rule);
         border-radius: 8px;
         color: var(--ink);
@@ -112,8 +118,8 @@
       }
 
       .exclave-boundary-box {
-        background: #fef3c7;
-        border: 1px dashed #d97706;
+        background: var(--exclave-box-bg);
+        border: 1px dashed var(--exclave-box-border);
         border-radius: 8px;
         display: grid;
         gap: 6px;
@@ -123,10 +129,10 @@
       }
 
       .exclave-boundary-label {
-        background: #fffaf0;
-        border: 1px solid #d97706;
+        background: var(--exclave-label-bg);
+        border: 1px solid var(--exclave-box-border);
         border-radius: 999px;
-        color: #9a4d00;
+        color: var(--exclave-label-ink);
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         font-size: 0.72rem;
         font-weight: 800;
@@ -139,8 +145,19 @@
       }
 
       .code-comment {
-        color: #6a7787;
+        color: var(--exclave-comment);
         font-style: italic;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .exclave-boundary-code {
+          --exclave-code-bg: #101511;
+          --exclave-box-bg: rgba(242, 182, 109, 0.14);
+          --exclave-box-border: rgba(242, 182, 109, 0.62);
+          --exclave-label-bg: #251d10;
+          --exclave-label-ink: #ffd39c;
+          --exclave-comment: #9aa7b5;
+        }
       }
 
       @media (max-width: 720px) {
@@ -157,7 +174,8 @@
 
       <section class="lecture-intro">
         <p>This section is about lifetime. A value has a lifetime: the time when it is valid to use that value.</p>
-        <p>OxCaml can put short-lived values on the allocation stack instead of the GC heap. That is useful only if the compiler can check that no one uses the value after its region ends.</p>
+        <p>OxCaml can put short-lived values on the allocation stack instead of the GC heap. Despite the name, this is not the function call stack: OxCaml uses a separate allocation stack.</p>
+        <p>Regions describe when parts of the allocation stack can be reclaimed. Stack allocation is useful only if the compiler can check that no one uses a value after its region ends.</p>
         <p>By the end of this section, you should be able to:</p>
         <ul>
           <li>explain why stack allocation matters for latency-sensitive code;</li>
@@ -242,16 +260,11 @@
             print_endline (string_of_int n)
         </oxcaml>
         <aside class="checkpoint">
-          <h3>Checkpoint: repair the return</h3>
-          <p>In <code>n, xs</code>, which part is safe to return, and which part is rejected? Where should <code>exclave_</code> go to make the returned list safe?</p>
+          <h3>Checkpoint: identify the escape</h3>
+          <p>In <code>n, xs</code>, which part is safe to return, and which part is rejected?</p>
           <details>
             <summary>Answer</summary>
-            <p><code>n</code> is safe. It is an integer result. <code>xs</code> is rejected because it points into the current stack region. The repair is to put <code>exclave_</code> before the allocation that builds the returned pair:</p>
-            <pre><code>let sum3 a b c =
-  exclave_
-  let xs = stack_ [a;b;c] in
-  let n = sum xs in
-  n, xs</code></pre>
+            <p><code>n</code> is safe. It is an integer result. <code>xs</code> is rejected because it points into the current stack region. The next section introduces the repair.</p>
           </details>
         </aside>
       </section>
@@ -277,7 +290,40 @@
             print_endline (string_of_int n);
             print_endline (string_of_int (sum xs))
         </oxcaml>
-        <p>The next sections explain that repair in terms of regions. That region model is also what explains tail calls and mid-function <code>exclave_</code>.</p>
+        <aside class="exercise">
+          <h3>Exercise: implement stack-allocated range</h3>
+          <p>Write <code>range n</code> so it returns a stack-allocated list of the integers from <code>n</code> down to <code>1</code>. The tempting version below is rejected. Explain why the recursive tail is local, then move the returned cons allocation into the caller's region.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_stack_range_missing_exclave.ml" expect-error>
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let rec range (n : int) : int list @ local =
+            if n <= 0 then []
+            else stack_ (n :: range (n - 1))
+
+          let () =
+            print_endline (string_of_int (sum (range 4)))
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_stack_range_with_exclave.ml">
+            let rec sum (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | x :: xs -> x + sum xs
+
+            let rec range (n : int) : int list @ local =
+              if n <= 0 then []
+              else exclave_ stack_ (n :: range (n - 1))
+
+            let () =
+              print_endline (string_of_int (sum (range 4)))
+          </oxcaml>
+        </details>
+        <p>The next sections explain <code>exclave_</code> in terms of regions. That region model is also what explains tail calls and mid-function <code>exclave_</code>.</p>
       </section>
 
       <section>
@@ -442,6 +488,20 @@
       </section>
 
       <section>
+        <h2>Immediate values can cross locality</h2>
+        <p>Locality matters when a value may contain a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
+        <oxcaml check data-filename="Ex03_local_int_crosses.ml">
+          let id_local_int (x : int @ local) : int =
+            x
+        </oxcaml>
+        <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as global would let it outlive its region.</p>
+        <oxcaml check data-filename="Ex03_local_string_does_not_cross.ml" expect-error>
+          let id_local_string (x : string @ local) : string @ global =
+            x
+        </oxcaml>
+      </section>
+
+      <section>
         <h2>Functions and <code>exclave_</code></h2>
         <p>The locality axis gives names to the lifetime facts. Now apply those facts to a function body with an <code>exclave_</code> boundary.</p>
         <p>After <code>exclave_</code>, values from the old current region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
@@ -532,6 +592,77 @@
             <li>Values with a global view can survive. They do not belong to the current allocation-stack region. But a normal source allocation is not automatically global; if it is stack-allocated, it cannot be used after <code>exclave_</code>.</li>
           </ul>
         </aside>
+        <aside class="exercise">
+          <h3>Exercise: copy the result across <code>exclave_</code></h3>
+          <p><code>expensive_search</code> builds a temporary stack-allocated list of size <code>n</code>, consumes it, then clears that temporary list with its own <code>exclave_</code>. Implement <code>expensive_search'</code> so it also clears its current region before returning a stack-allocated result. Hint: inspect the option before <code>exclave_</code>, keep only the integers, and reconstruct the option after <code>exclave_</code>.</p>
+        </aside>
+        <oxcaml check data-filename="Ex03_exclave_returns_old_local_option.ml" expect-error>
+          let rec range (n : int) : int list @ local =
+            if n <= 0 then []
+            else exclave_ stack_ (n :: range (n - 1))
+
+          let rec sum (xs : int list @ local) =
+            match xs with
+            | [] -> 0
+            | x :: xs -> x + sum xs
+
+          let expensive_search n =
+            let scratch = range n in
+            let total = sum scratch in
+            if total mod 2 = 0 then
+              exclave_
+              stack_ (Some (total, n))
+            else
+              exclave_
+              None
+
+          let expensive_search' n =
+            let result = expensive_search n in
+            exclave_
+            result
+        </oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <oxcaml run data-filename="Ex03_exclave_copies_option_result.ml">
+            let rec range (n : int) : int list @ local =
+              if n <= 0 then []
+              else exclave_ stack_ (n :: range (n - 1))
+
+            let rec sum (xs : int list @ local) =
+              match xs with
+              | [] -> 0
+              | x :: xs -> x + sum xs
+
+            let expensive_search n =
+              let scratch = range n in
+              let total = sum scratch in
+              if total mod 2 = 0 then
+                exclave_
+                stack_ (Some (total, n))
+              else
+                exclave_
+                None
+
+            let expensive_search' n =
+              match expensive_search n with
+              | None ->
+                exclave_
+                None
+              | Some (total, original_n) ->
+                exclave_
+                stack_ (Some (total, original_n))
+
+            let print_result n =
+              match expensive_search' n with
+              | None -> print_endline "None"
+              | Some (total, original_n) ->
+                Printf.printf "Some (%d, %d)\n" total original_n
+
+            let () =
+              print_result 3;
+              print_result 4
+          </oxcaml>
+        </details>
       </section>
 
       <section>
@@ -639,7 +770,7 @@
           <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
           <details>
             <summary>Answer</summary>
-            <p>Modes are deep. A local view of the outer list gives a local view of the elements inside that list. The original heap list did not become unsafe at runtime; the compiler has lost the global view after looking through a local container.</p>
+            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global view after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
           </details>
         </aside>
         <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
@@ -687,20 +818,6 @@
           <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" loading="lazy" decoding="async" alt="Runtime stack and GC heap regions with compile-time braces for local views, submoded heap data, and global data preserved by an @@ global modality.">
           <figcaption>Locality: the heap and stack picture with modalities. Runtime placement and compile-time mode are different facts.</figcaption>
         </figure>
-      </section>
-
-      <section>
-        <h2>Some values cross locality</h2>
-        <p>One last case explains why locality is about lifetimes, not just syntax. Locality matters when there may be a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
-        <oxcaml check data-filename="Ex03_local_int_crosses.ml">
-          let id_local_int (x : int @ local) : int =
-            x
-        </oxcaml>
-        <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as global would let it outlive its region.</p>
-        <oxcaml check data-filename="Ex03_local_string_does_not_cross.ml" expect-error>
-          let id_local_string (x : string @ local) : string @ global =
-            x
-        </oxcaml>
       </section>
 
       <section>

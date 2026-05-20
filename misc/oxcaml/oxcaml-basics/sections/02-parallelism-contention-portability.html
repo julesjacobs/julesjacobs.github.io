@@ -1741,7 +1741,7 @@
         <p>If two calls overlap, they may clear and append to that shared buffer in an interleaved order. That is a <em>data race</em>: the string one call returns may contain pieces of another call's work.</p>
         <p>In the version below, <code>buf</code> has moved from inside <code>bits_to_string</code> to a top-level binding. Every call to <code>bits_to_string_shared</code> now clears and appends to that same buffer.</p>
         <div class="code-with-figure">
-          <oxcaml check data-filename="shared_buffer.ml" expect-error>
+          <oxcaml check data-filename="shared_buffer.ml" expect-error no-self-check>
             (* Worker code: ordinary code we want to run in parallel. *)
             let buf = Buffer.create 0
 
@@ -2111,7 +2111,7 @@ required by callee:      x @ uncontended</code></pre>
           </article>
         </div>
         <p>If we define <code>id_x</code>, <code>read_x</code>, and <code>write_x</code> first, then call them later, those helpers still carry their captured <code>x</code> with them:</p>
-        <oxcaml check data-filename="hidden_helpers.ml" expect-error>
+        <oxcaml check data-filename="hidden_helpers.ml" expect-error no-self-check>
           type t = { id : int; mutable hits : int }
 
           let x = { id = 1; hits = 0 }
@@ -2304,7 +2304,7 @@ fun () -&gt; write_bits buf bits</code></pre>
             <p><code>read_count_later</code> returns a function that captures <code>x</code> and reads a mutable field, so it cannot be used with spawn. <code>bump_count_later</code> returns functions that capture <code>x</code> and write a mutable field, so they cannot be used with fork/join.</p>
           </details>
         </aside>
-        <oxcaml check data-filename="spawn_capture.ml" expect-error>
+        <oxcaml check data-filename="spawn_capture.ml" expect-error no-self-check>
           type t = { id : int; mutable count : int }
 
           let get_count (x @ shared) = x.count
@@ -2955,7 +2955,7 @@ let () =
 
         <h3>Maps also carry comparator evidence</h3>
         <p>Real library types often have one more dependency hidden in their definition. A <code>Map</code> stores keys and values, but it also stores comparator evidence. For a map with a custom key type to cross portability, the key type and the comparator evidence must both carry the right mode information.</p>
-        <oxcaml check data-filename="custom_key_map_crosses.ml">
+        <oxcaml check data-filename="custom_key_map_crosses.ml" no-self-check>
           open Base
 
           type key =
@@ -2986,7 +2986,7 @@ let () =
           type contended_ok = map require_contended
         </oxcaml>
         <p>The <code>[@@deriving compare, sexp_of]</code> line generates the ordinary comparison and sexp functions for the key type. The important OxCaml-specific part is <code>Comparator.Make [@modality portable]</code>: it checks that those functions are portable and exposes <code>comparator_witness</code> with a portable kind, so the map can cross the portability axis when its keys and values can.</p>
-        <oxcaml check data-filename="custom_key_map_plain_comparator.ml" expect-error>
+        <oxcaml check data-filename="custom_key_map_plain_comparator.ml" expect-error no-self-check>
           open Base
 
           type key = { id : int }
