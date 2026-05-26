@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Parallelism, Contention, And Portability</title>
-    <link rel="stylesheet" href="../assets/course.css?v=answer-key-spacing-20260520">
+    <link rel="stylesheet" href="../assets/course.css?v=course-order-20260526">
     <style>
       :root {
         color-scheme: light dark;
@@ -1930,7 +1930,7 @@ f x : b @ N</code></pre>
 r.field : a @ M</code></pre>
         <aside class="mode-syntax">
           <h3>Modalities are the exception</h3>
-          <p>A field modality can preserve the inner mode instead of using the record's current mode. We will use that idea later in the locality section; for now, read ordinary record fields as following the deep mode rule.</p>
+          <p>A field modality can preserve the inner mode instead of using the record's current mode. We used that idea in the locality section; for now, read ordinary record fields as following the deep mode rule.</p>
         </aside>
         <p>Those rules explain most mode propagation: variables carry modes, function calls check parameter and result modes, and ordinary data access propagates modes through the value. The one complex rule is closure formation. A <code>fun ... -&gt; ...</code> expression can carry values from its environment, so the compiler also checks what modes those captured values have inside the closure.</p>
         <h2>Function calls check explicit argument mode requirements</h2>
@@ -3027,13 +3027,9 @@ end</code></pre>
         </oxcaml>
       </section>
       <nav class="page-nav" aria-label="Page navigation">
-        <a class="prev" href="01-why-oxcaml-exists.html">
+        <a class="prev" href="02-value-layouts-unboxing.processed.html">
           <span>Previous</span>
-          <strong>Why OxCaml Exists</strong>
-        </a>
-        <a class="next" href="03-locality-stack-allocation.html">
-          <span>Next</span>
-          <strong>Locality And Stack Allocation</strong>
+          <strong>Value Layouts And Unboxing</strong>
         </a>
       </nav>
     </main>

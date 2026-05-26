@@ -449,7 +449,7 @@
     const slots = Array.from(document.querySelectorAll("[data-native-repr]"));
     if (!slots.length) return Promise.resolve();
 
-    return fetch("../sections/04-representation.processed.html", { cache: "no-store" })
+    return fetch("../sections/02-value-layouts-unboxing.processed.html", { cache: "no-store" })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.text();

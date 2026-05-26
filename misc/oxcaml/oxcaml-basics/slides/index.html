@@ -15,7 +15,7 @@
           <div class="title-lockup">
             <div>
               <p class="eyebrow">OxCaml Basics</p>
-              <h1>Checked control over parallelism, allocation, and representation</h1>
+              <h1>Checked control over allocation, representation, and parallelism</h1>
               <p class="lede">A three-hour technical course for OCaml engineers learning OxCaml's performance-oriented type system.</p>
             </div>
             <img class="title-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
@@ -27,11 +27,11 @@
           <h2>The route</h2>
           <ol class="route">
             <li><span>00</span><strong>Why OxCaml exists</strong><em>safe, convenient, predictable control over performance-critical aspects of program behavior</em></li>
-            <li><span>01</span><strong>Parallelism</strong><em>contention and portability</em></li>
-            <li><span>02</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
-            <li><span>03</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
+            <li><span>01</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
+            <li><span>02</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
+            <li><span>03</span><strong>Parallelism</strong><em>contention and portability</em></li>
           </ol>
-          <aside class="notes">Each topic is a checked lever: race safety, lifetime/allocation, and runtime layout.</aside>
+          <aside class="notes">Each topic is a checked lever: lifetime/allocation, runtime layout, and race safety.</aside>
         </section>
 
         <section class="slide concept-slide ocaml-great-slide">
@@ -64,9 +64,9 @@
         <section class="slide concept-slide">
           <h2>Three classes of safe optimization in OxCaml</h2>
           <div class="lever-grid">
-            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
             <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
             <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
+            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
           </div>
           <div class="optimization-module-row">
             <p>Module 1 today</p>
@@ -78,6 +78,890 @@
 
         <section class="slide section-slide" data-background-color="#101827">
           <p class="eyebrow">Module 01</p>
+          <h1>Locality and stack allocation</h1>
+          <ul class="goal-list">
+            <li>Understand why heap allocation can be problematic.</li>
+            <li>Use stack allocation safely with locality modes.</li>
+            <li>Understand and fix locality errors.</li>
+            <li>Use modalities to preserve global fields inside local containers.</li>
+          </ul>
+          <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
+        </section>
+
+        <section class="slide concept-slide heap-allocation-sign-slide">
+          <h2>Why stack allocation matters</h2>
+          <div class="heap-allocation-panels">
+            <article>
+              <p>OxCaml allocation is cheap, but GC is high latency.</p>
+            </article>
+            <article>
+              <span>Solution</span>
+              <p>stack allocation</p>
+            </article>
+          </div>
+          <aside class="notes">Set up the allocation section before showing the small option example.</aside>
+        </section>
+
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>A small stack allocation example</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>Stack allocate values with <code>stack_</code>.</p>
+              <p>OxCaml can often infer stack allocation; <code>stack_</code> makes it a requirement.</p>
+              <p>The current allocation region is cleared before the function returns.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_stack_sum.ml</div>
+              <oxcaml data-filename="Ex01_stack_sum.ml" no-self-check>
+(* Stack allocation example. *)
+
+let rec sum xs =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
+
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  (* xs gets deallocated here *)
+  n
+
+let () =
+  let n = sum3 1 2 3 in
+  print_endline (string_of_int n)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The temporary list is allocated inside sum3, consumed there, and cleared when sum3 returns.</aside>
+        </section>
+
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>Stack allocated values cannot escape their region</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>A callee cannot secretly keep a stack-allocated value after the caller region is gone.</p>
+              <p class="diagnostic-callout">Expected outcome: the call to <code>sum</code> is rejected.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_stack_sum_escape.ml</div>
+              <oxcaml check data-filename="Ex01_stack_sum_escape.ml" expect-error>
+(* Stack allocation example. *)
+let saved = ref []
+let rec sum xs =
+  match xs with
+  | [] -> 0
+  | x::xs' -> saved := xs :: !saved; x + sum xs'
+
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  (* xs gets deallocated here *)
+  n
+
+let () =
+  let n = sum3 1 2 3 in
+  print_endline (string_of_int n)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The ref is global, so assigning xs would keep a pointer into a stack region after the function returns.</aside>
+        </section>
+
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>Returning stack allocated values can escape their region</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The integer result can return, but the stack-allocated list cannot.</p>
+              <p class="diagnostic-callout">Expected outcome: returning <code>xs</code> is rejected.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_stack_sum_return_escape.ml</div>
+              <oxcaml check data-filename="Ex01_stack_sum_return_escape.ml" expect-error>
+(* Stack allocation example. *)
+
+let rec sum xs =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
+
+let sum3 a b c =
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  (* xs gets deallocated here *)
+  n, xs
+
+let () =
+  let n, _xs = sum3 1 2 3 in
+  print_endline (string_of_int n)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
+        </section>
+
+        <section class="slide live-slide stack-sum-example-slide">
+          <h2>But sometimes we want to return stack allocated values</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>exclave_</code> builds the returned value in the caller's region.</p>
+              <p>The caller can use the returned list as a local value.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_stack_sum_exclave_return.ml</div>
+              <oxcaml data-filename="Ex01_stack_sum_exclave_return.ml">
+(* Stack allocation example. *)
+
+let rec sum (xs : int list @ local) =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
+
+let sum3 a b c =
+  exclave_
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  n, xs
+
+let () =
+  let n, xs = sum3 1 2 3 in
+  print_endline (string_of_int n);
+  print_endline (string_of_int (sum xs))
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The returned list is not smuggled out of sum3's region; the result construction belongs to the caller's region.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide allocation-stack-overview-slide">
+          <h2>How OxCaml manages the allocation stack</h2>
+          <p class="allocation-stack-subtitle">OxCaml stack allocations use a separate allocation stack, reclaimed at region boundaries.</p>
+          <div class="region-compile-grid">
+            <article class="region-source-card">
+              <h3>Normal function</h3>
+              <pre><code>let f x =
+  ...
+  result</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let f x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  result</code></pre>
+            </article>
+            <article class="region-source-card">
+              <h3><code>exclave_</code> result</h3>
+              <pre><code>let f x =
+  exclave_
+  ...
+  result</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card no-region-card">
+              <pre><code>let f x =
+  ...
+  result</code></pre>
+            </article>
+          </div>
+          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead. In OxCaml, the allocation stack is separate from the call stack, and regions describe when parts of that allocation stack can be reclaimed.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide">
+          <h2>How OxCaml manages the allocation stack: tail calls</h2>
+          <div class="region-compile-grid tail-call-region-grid">
+            <article class="region-source-card">
+              <h3>Tail-call function</h3>
+              <pre><code>let rec loop x =
+  ...
+  loop next_x</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let rec loop x =
+  start_new_region ();
+  ...
+  end_current_region ();
+  tail call loop next_x</code></pre>
+            </article>
+            <article class="region-source-card">
+              <h3>Non-tail call</h3>
+              <pre><code>let f x =
+  ...
+  g x [@nontail]</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card no-region-card">
+              <pre><code>let f x =
+  start_new_region ();
+  ...
+  let result = g x in
+  end_current_region ();
+  result</code></pre>
+            </article>
+          </div>
+          <p class="takeaway"><code>[@nontail]</code> suppresses the tail call, so the region ends only after the call returns.</p>
+          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Explain why OxCaml made this choice: tail-recursive loops should not accumulate allocation-stack space as they go. Use [@nontail] when a local value must stay alive during the call.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide">
+          <h2>How OxCaml manages the allocation stack: mid-function <code>exclave_</code></h2>
+          <div class="region-compile-grid mid-exclave-grid">
+            <article class="region-source-card">
+              <h3>Middle <code>exclave_</code></h3>
+              <pre><code>let f x =
+  let n = compute_count x in
+  exclave_
+  build_result n</code></pre>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <pre><code>let f x =
+  start_new_region ();
+  let n = compute_count x in
+  end_current_region ();
+  build_result n</code></pre>
+            </article>
+            <article class="region-compile-note" aria-label="exclave at the beginning note">
+              <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately.</p>
+              <p>That has the same effect as not starting a region.</p>
+            </article>
+          </div>
+          <aside class="notes">The subtle case is not an entirely exclaved function. Work before exclave_ still belongs to the function's own region; the region ends at the exclave_ point.</aside>
+        </section>
+
+        <section class="slide concept-slide locality-axis-slide">
+          <h2>How OxCaml checks stack allocation safety: the locality axis</h2>
+          <div class="axis-strip">
+            <div class="mode-axis axis-strip-modes locality">
+              <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this mode</li></ul></div></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li><li>cannot escape as global</li></ul></div></div>
+              <b class="axis-arrow">→</b>
+              <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape this region</li></ul></div></div>
+            </div>
+            <p class="axis-strip-note">Locality answers: how long does this value live?</p>
+          </div>
+          <aside class="notes">Outer-local is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Locality rules for <code>stack_</code> and <code>exclave_</code></h2>
+          <div class="comparison three-up">
+            <article class="diagram-card">
+              <h3><code>stack_ expr</code></h3>
+              <p>The result is at <code>@ local</code>.</p>
+              <pre><code>let xs = stack_ [1; 2; 3]
+(* xs : int list @ local *)</code></pre>
+            </article>
+            <article class="diagram-card">
+              <h3><code>exclave_ expr</code></h3>
+              <p>Makes the function return at <code>@ local</code>.</p>
+              <pre><code>let f () : int list @ local =
+  exclave_
+  stack_ [1; 2; 3]</code></pre>
+            </article>
+            <article class="diagram-card">
+              <h3>after <code>exclave_</code></h3>
+              <p>Makes <code>@ local</code> variables unavailable.</p>
+              <pre><code>let f (x : int list @ local) =
+  let y = stack_ [1] in
+  exclave_
+  let z = stack_ [2] in
+  (* ok: x, z *)
+  (* not ok: y *)</code></pre>
+              <p>But outer-local values (function arguments) are available.</p>
+            </article>
+          </div>
+          <aside class="notes">State these as mode-checking rules before the x/y/z example. stack_ produces a local value. exclave_ makes the result local to the caller's region. At a mid-function exclave_, an @ local argument may be outer-local, so it can still be used; a value allocated in the function's old current region cannot be used after the region ends.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide">
+          <h2>How OxCaml checks stack allocation safety:<br>functions and <code>exclave_</code></h2>
+          <div class="region-compile-grid function-exclave-grid">
+            <article class="region-source-card">
+              <h3>Source</h3>
+              <div class="exclave-boundary-code" aria-label="Source code with exclave">
+                <div class="code-line">let f (x : int list @ local) =</div>
+                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
+                <div class="code-line indent-1">ignore (sum y);</div>
+                <div class="code-line indent-1 exclave-keyword-line">exclave_</div>
+                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                <div class="code-line indent-1">sum x + sum z</div>
+                <div class="code-line indent-1 tok-comment">(* not allowed here: sum y *)</div>
+              </div>
+            </article>
+            <div class="region-compile-arrow">compiles to</div>
+            <article class="region-lowered-card">
+              <h3>Region view</h3>
+              <div class="exclave-boundary-code" aria-label="Lowered region view with exclave">
+                <div class="code-line">let f x =</div>
+                <div class="code-line indent-1">start_new_region ();</div>
+                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
+                <div class="code-line indent-1">ignore (sum y);</div>
+                <div class="code-line indent-1">end_current_region ();</div>
+                <div class="code-line indent-1 tok-comment">(* y dies here *)</div>
+                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
+                <div class="code-line indent-1">sum x + sum z</div>
+                <div class="code-line indent-1 tok-comment">(* x came from caller *)</div>
+              </div>
+            </article>
+          </div>
+          <p class="takeaway"><code>exclave_</code> ends the function's current region. Arguments from the caller can still be used; values allocated before <code>exclave_</code> cannot.</p>
+          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z belongs to the parent region.</aside>
+        </section>
+
+        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
+          <h2>Local parameters prevent escape</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, and this is forced by the <code>@ local</code> parameter.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_with_scratch_local_function.ml</div>
+              <oxcaml check data-filename="Ex01_with_scratch_local_function.ml">
+type scratch = { mutable total : int }
+
+let with_scratch (f : scratch @ local -> 'a) =
+  let s = stack_ { total = 0 } in
+  f s [@nontail]
+
+let add_with_scratch x y =
+  with_scratch (fun s ->
+    s.total <- x + y;
+    s.total)
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This is a local-parameter API contract, not just allocation optimization.</aside>
+        </section>
+
+        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-ok-slide">
+          <h2>Submoding: use global data locally</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>escape xs</code> type-checks because <code>xs</code> already has global mode.</p>
+              <p><code>sum xs</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
+              <br>
+              <p><code>@ local</code> data is not always on the allocation stack. Heap data can be used locally too. Stack data cannot be used as global.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_submoding_global_inner_used_locally.ml</div>
+              <oxcaml run data-filename="Ex01_submoding_global_inner_used_locally.ml">
+let saved : int list list ref = ref []
+
+let escape xs =
+  saved := xs :: !saved
+
+let rec sum (xs : int list @ local) =
+  match xs with
+  | [] -> 0
+  | x :: xs -> x + sum xs
+
+let demo () =
+  let xs = [1; 2; 3] in
+  escape xs;
+  sum xs
+
+let () =
+  print_endline (string_of_int (demo ()))
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Submoding is safe weakening: a global value can be used by an API that only promises local use.</aside>
+        </section>
+
+        <section class="slide live-slide local-container-slide">
+          <h2>Problem: plain local containers lose the global mode</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
+              <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
+              <br>
+              <p>An ordinary list node does not remember that its element was global. Using the outer list at local mode also uses everything reached through it at local mode.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_plain_local_outer_list_forgets_global_inner.ml</div>
+              <oxcaml check data-filename="Ex01_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
+let saved : int list list ref = ref []
+
+let escape xs =
+  saved := xs :: !saved
+
+let demo () =
+  let inner = [1; 2; 3] in
+  escape inner;
+  let outer = stack_ [inner] in
+  match outer with
+  | [] -> ()
+  | inner :: _ -> escape inner
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap list became unsafe at runtime.</aside>
+        </section>
+
+        <section class="slide concept-slide mode-rules-slide modality-solution-slide">
+          <h2>Solution: modalities</h2>
+          <div class="mode-rules-grid">
+            <article class="mode-rule-card">
+              <h3>Default colon modes are deep</h3>
+              <pre><code>r : { field : 'a } @ local
+
+r.field : 'a @ local</code></pre>
+              <p>Ordinary field access uses the mode of the record value.</p>
+            </article>
+            <article class="mode-rule-card mode-rule-focus">
+              <h3><code>@@ global</code> field</h3>
+              <pre><code>type 'a global =
+  { global : 'a @@ global }
+
+r.global : 'a @ global</code></pre>
+              <p>The field is global even when the record is local.</p>
+            </article>
+            <article class="mode-rule-card">
+              <h3>construction</h3>
+              <pre><code>{ global = inner }
+
+requires:
+inner : 'a @ global</code></pre>
+              <p>The field value must be global, even if the record itself is built at <code>@ local</code>.</p>
+            </article>
+          </div>
+          <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
+          <aside class="notes">Repeat the earlier rule: projection normally uses the outer mode. The @@ global modality changes the field rule in both directions. Reading the field gives the global mode. Constructing the record requires the field value at global mode, even when the container is local.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Modalities preserve the global mode for inner data</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The outer list is local, while the inner list is global.</p>
+              <p>A local list of global lists: the field modality preserves the global mode.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">Ex01_global_wrapper_preserves_inner_list_globality.ml</div>
+              <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_list_globality.ml">
+type 'a global = { global : 'a @@ global }
+
+let saved : int list list ref = ref []
+
+let escape xs =
+  saved := xs :: !saved
+
+let demo () =
+  let inner = [1; 2; 3] in
+  escape inner;
+  let outer = stack_ [{ global = inner }] in
+  match outer with
+  | [] -> ()
+  | inner :: _ -> escape inner.global
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Phrase this as a field-boundary rule, not a cast. The wrapper can only be built from a global value.</aside>
+        </section>
+
+        <section class="slide concept-slide modality-picture-slide">
+          <h2>Locality: the heap and stack picture with modalities</h2>
+          <figure class="modality-figure">
+            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
+          </figure>
+          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Some types do not care about locality: mode crossing</h2>
+          <div class="two-up">
+            <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int =
+  x</code></pre><p>No lifetime-sensitive heap block.</p></article>
+            <article><h3>Pointer</h3><pre><code>let id_local_string
+  (x : string @ local) : string @ global =
+  x</code></pre><p>Rejected: the string may point into a local region.</p></article>
+          </div>
+          <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Quiz: requirements or promises?</h2>
+          <div class="two-up">
+            <article>
+              <h3>Argument position</h3>
+              <pre><code>'a @ local -> 'b
+'a @ portable -> 'b
+'a @ contended -> 'b</code></pre>
+              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
+            </article>
+            <article>
+              <h3>Result position</h3>
+              <pre><code>'a -> 'b @ local
+'a -> 'b @ portable
+'a -> 'b @ contended</code></pre>
+              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
+            </article>
+          </div>
+          <aside class="notes">Answer: before the arrow, the caller must be able to provide the argument at that mode. After the arrow, the function promises that the result is available at that mode. For locality, an argument at @ local is an easy requirement that also tells the caller the function will not make the argument escape.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Quiz: which field modality is allowed?</h2>
+          <div class="three-up">
+            <article>
+              <h3>Locality</h3>
+              <pre><code>record r @ global
+field r.x @ local
+
+record r @ local
+field r.x @ global</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+            <article>
+              <h3>Portability</h3>
+              <pre><code>record r @ nonportable
+field r.x @ portable
+
+record r @ portable
+field r.x @ nonportable</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+            <article>
+              <h3>Contention</h3>
+              <pre><code>record r @ uncontended
+field r.x @ contended
+
+record r @ contended
+field r.x @ uncontended</code></pre>
+              <p>Which one is allowed?</p>
+            </article>
+          </div>
+          <aside class="notes">Answer: a field modality can preserve a stronger field mode inside a weaker outer record value. So the allowed cases are: global field in a local record, portable field in a nonportable record, and uncontended field in a contended record. The reverse directions are rejected because they would let the outer value promise more than the field can provide.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Allocation recap</h2>
+          <div class="checklist">
+            <p><strong>local/global</strong> controls lifetime and escape.</p>
+            <p><strong>stack_</strong> forces the next allocation onto the allocation stack.</p>
+            <p><strong>exclave_</strong> builds a local result in the caller region.</p>
+          </div>
+          <aside class="notes">Keep the focus on lifetime control and where temporary blocks live.</aside>
+        </section>
+
+        <section class="slide section-slide" data-background-color="#101827">
+          <p class="eyebrow">Module 02</p>
+          <h1>Value layouts and unboxing</h1>
+          <ul class="goal-list">
+            <li>Understand immediate words vs heap-block pointers.</li>
+            <li>Understand run-time heap structure.</li>
+            <li>Spot allocation and indirection in OxCaml types.</li>
+            <li>Use unboxed layouts to avoid pointer indirection and allocation.</li>
+          </ul>
+          <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
+        </section>
+
+        <section class="slide concept-slide value-invariant-slide">
+          <h2>Uniform value representation:<br>every ordinary OCaml value is one word</h2>
+          <div class="value-model-figure">
+            <div class="value-model-grid">
+              <div class="value-model-panel">
+                <h3>Immediate value</h3>
+                <div class="value-word value-word-immediate"><span class="value-word-main">63 bits of immediate data</span><span class="value-word-tag">1</span></div>
+                <p><code>int</code>, <code>char</code>, <code>bool</code>, <code>unit</code>, etc. use this shape.</p>
+              </div>
+              <div class="value-model-panel">
+                <h3>Pointer value</h3>
+                <div class="value-word value-word-pointer"><span class="value-word-main">aligned heap address</span><span class="value-word-tag">0</span></div>
+                <div class="value-pointer-line" aria-hidden="true"></div>
+                <div class="heap-block-model">
+                  <div class="heap-block-label">heap block</div>
+                  <div class="heap-model">
+                    <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
+                    <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
+                    <div class="heap-model-ellipsis">...</div>
+                    <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
+                  </div>
+                </div>
+                <p>Records, tuples, arrays, etc. use this shape.</p>
+              </div>
+            </div>
+          </div>
+          <aside class="notes">Avoid over-detailing endianness. The key fact is low-bit interpretation.</aside>
+        </section>
+
+        <section class="slide concept-slide">
+          <h2>Uniform value representation is powerful</h2>
+          <div class="two-up">
+            <article><h3>Source</h3><pre><code>let duplicate x = (x, x)
+
+let plain_value_integer =
+  duplicate 5
+
+let plain_value_tuple =
+  duplicate (1, 2, 3)
+
+type quote =
+  { symbol : string
+  ; price : int
+  ; mutable size : int
+  }
+
+let plain_value_record =
+  duplicate { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
+            <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value representation. Polymorphic functions are only compiled once.</p></article>
+          </div>
+          <aside class="notes">The uniform model is a strength before it is a cost.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide repr-dual-graph-slide">
+          <h2>Plain values: immediate word or pointer word</h2>
+          <div class="repr-stack-examples">
+            <article class="repr-row-example">
+              <div class="repr-code-panel">
+                <h3>Integer source</h3>
+                <pre><code>let plain_value_integer = 5</code></pre>
+              </div>
+              <div class="repr-graph-panel">
+                <h3>Run-time layout</h3>
+                <div class="native-repr-slot" data-native-repr="plain_value_integer" data-native-repr-part="graph"></div>
+              </div>
+            </article>
+            <article class="repr-row-example">
+              <div class="repr-code-panel">
+                <h3>Tuple source</h3>
+                <pre><code>let plain_value_tuple = (1, 2, 3)</code></pre>
+              </div>
+              <div class="repr-graph-panel">
+                <h3>Run-time layout</h3>
+                <div class="native-repr-slot" data-native-repr="plain_value_tuple" data-native-repr-part="graph"></div>
+              </div>
+            </article>
+          </div>
+          <p class="takeaway">A tuple is still one OCaml value, but that value word points to a heap block.</p>
+          <aside class="notes">These examples come from the representation generator in the lecture notes.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Records have the same heap-block shape</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>type quote =
+  { symbol : string
+  ; price : int
+  ; mutable size : int
+  }
+
+let plain_value_record =
+  { symbol = "OX"; price = 101; size = 7 }</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Run-time layout</h3>
+              <div class="native-repr-slot" data-native-repr="plain_value_record" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <aside class="notes">Mutability changes allowed operations; it does not create a different block shape.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Boxed numeric values add allocation</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>let boxed_numeric_values =
+  (3.5, 456L)</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Run-time layout</h3>
+              <div class="native-repr-slot" data-native-repr="boxed_numeric_values" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">The tuple points to separate blocks for the boxed numeric payloads.</p>
+          <aside class="notes">This is the concrete cost: extra blocks and pointer hops.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Unboxed types remove specific boxes</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>let unboxed_numeric_values =
+  #(#3.5, #456L)</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Run-time layout</h3>
+              <div class="native-repr-slot" data-native-repr="unboxed_numeric_values" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">The product components are carried directly as raw words.</p>
+          <aside class="notes">Contrast this with the previous boxed numeric example.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide">
+          <h2>Unboxed records can inline their fields</h2>
+          <div class="repr-slide-layout repr-wide-code-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>type unboxed_point =
+  #{ x : float#; y : float# }
+
+type sample =
+  { label : string
+  ; point : unboxed_point
+  ; count : int
+  }
+
+let outer_record_with_unboxed_point =
+  { label = "p"
+  ; point = #{ x = #1.0; y = #2.5 }
+  ; count = 7
+  }</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Run-time layout</h3>
+              <div class="native-repr-slot" data-native-repr="outer_record_with_unboxed_point" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <aside class="notes">Point out the mixed block: scanned value fields first, raw float words after.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide or-null-contrast-slide">
+          <h2><code>or_null</code> uses null or the payload representation</h2>
+          <div class="or-null-four-grid">
+            <article class="repr-mini-example">
+              <h3>Missing ordinary option</h3>
+              <pre><code>let ordinary_none_int_option = (None : int option)</code></pre>
+              <div class="native-repr-slot" data-native-repr="ordinary_none_int_option" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Present ordinary option</h3>
+              <pre><code>let ordinary_some_int_option = Some 7</code></pre>
+              <div class="native-repr-slot" data-native-repr="ordinary_some_int_option" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Missing <code>or_null</code></h3>
+              <pre><code>let or_null_null_value = (Null : int or_null)</code></pre>
+              <div class="native-repr-slot" data-native-repr="or_null_null_value" data-native-repr-part="graph"></div>
+            </article>
+            <article class="repr-mini-example">
+              <h3>Present <code>or_null</code></h3>
+              <pre><code>let or_null_this_int = (This 7 : int or_null)</code></pre>
+              <div class="native-repr-slot" data-native-repr="or_null_this_int" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">Each diagram is one root value. <code>Some 7</code> allocates a wrapper block; <code>This 7</code> is represented like the integer payload.</p>
+          <aside class="notes">Do not go into nested or_null here unless someone asks.</aside>
+        </section>
+
+        <section class="slide live-slide or-null-error-slide">
+          <h2><code>or_null</code> cannot be nested</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>Null</code> already uses the all-zero word.</p>
+              <br>
+              <p>If the inner type is <code>string or_null</code>, it already may be null. The outer <code>or_null</code> would need the same null word for a second missing case.</p>
+              <br>
+              <p>The kind tracks this: <code>or_null</code> needs a non-null <code>value</code> payload, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">or_null_cannot_be_nested.ml</div>
+              <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
+type nested = string or_null or_null
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">Explain this as representation ambiguity first, then as the kind distinction value vs value_or_null.</aside>
+        </section>
+
+        <section class="slide live-slide ordinary-polymorphic-slide">
+          <h2>Ordinary polymorphic functions expect values</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p><code>duplicate</code> is inferred for ordinary one-word values.</p>
+              <br>
+              <p>An unboxed point has layout <code>float64 &amp; float64</code>, so it is not accepted as that argument.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">ordinary_duplicate_rejects_unboxed_point.ml</div>
+              <oxcaml check data-filename="ordinary_duplicate_rejects_unboxed_point.ml" expect-error no-self-check>
+type point = #{ x : float#; y : float# }
+
+let duplicate x = (x, x)
+
+let bad =
+  duplicate #{ x = #1.0; y = #2.0 }
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">The point is the argument kind. Do not frame this as an unboxed return problem.</aside>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>Kinds say which representation a type parameter accepts</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The kind annotation says the argument may have the unboxed point layout.</p>
+              <br>
+              <p>(The result is still a boxed record in this example.)</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">kinded_duplicate_accepts_unboxed_point.ml</div>
+              <oxcaml check data-filename="kinded_duplicate_accepts_unboxed_point.ml">
+type point = #{ x : float#; y : float# }
+
+type ('a : float64 & float64) duplicated =
+  { first : 'a
+  ; second : 'a
+  }
+
+let duplicate_unboxed
+  : ('a : float64 & float64). 'a -> 'a duplicated =
+  fun x -> { first = x; second = x }
+
+let ok =
+  duplicate_unboxed #{ x = #1.0; y = #2.0 }
+              </oxcaml>
+            </div>
+          </div>
+          <aside class="notes">This keeps a boxed result while changing what representation the type parameter can range over.</aside>
+        </section>
+
+        <section class="slide concept-slide template-expansion-slide">
+          <h2>Templates reduce repetition</h2>
+          <div class="two-up">
+            <article>
+              <h3>Template source</h3>
+              <pre><code>let%template[@kind k = (value, value &amp; value)] id
+  : ('a : k). 'a -> 'a =
+  fun x -> x</code></pre>
+            </article>
+            <article>
+              <h3>Schematic expansion</h3>
+              <pre><code>let id_value
+  : ('a : value). 'a -> 'a =
+  fun x -> x
+
+let id_product
+  : ('a : value &amp; value). 'a -> 'a =
+  fun x -> x</code></pre>
+            </article>
+          </div>
+          <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
+          <p class="takeaway">OxCaml is a work in progress. Future kind-polymorphic definitions are intended to reduce this template pattern.</p>
+          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general kind polymorphism.</aside>
+        </section>
+
+        <section class="slide summary-slide">
+          <h2>Representation recap</h2>
+          <div class="lever-grid">
+            <article><h3>Ordinary values</h3><p>One word: immediate data or pointer to a heap block.</p></article>
+            <article><h3>Unboxed layouts</h3><p>Remove selected product or record boxes where the layout is used.</p></article>
+            <article><h3><code>or_null</code></h3><p>Like option, but does not allocate.</p></article>
+          </div>
+          <aside class="notes">Keep this as the final mental model before the course-level recap.</aside>
+        </section>
+
+        <section class="slide section-slide" data-background-color="#101827">
+          <p class="eyebrow">Module 03</p>
           <h1>Parallelism: contention and portability</h1>
           <ul class="goal-list">
             <li>Run structured fork/join and detached spawn.</li>
@@ -959,897 +1843,13 @@ val spawn :
           <aside class="notes">This is the durable mental model for the parallelism section.</aside>
         </section>
 
-        <section class="slide section-slide" data-background-color="#101827">
-          <p class="eyebrow">Module 02</p>
-          <h1>Locality and stack allocation</h1>
-          <ul class="goal-list">
-            <li>Understand why heap allocation can be problematic.</li>
-            <li>Use stack allocation safely with locality modes.</li>
-            <li>Understand and fix locality errors.</li>
-            <li>Use modalities to preserve global fields inside local containers.</li>
-          </ul>
-          <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
-        </section>
-
-        <section class="slide concept-slide heap-allocation-sign-slide">
-          <h2>Why stack allocation matters</h2>
-          <div class="heap-allocation-panels">
-            <article>
-              <p>OxCaml allocation is cheap, but GC is high latency.</p>
-            </article>
-            <article>
-              <span>Solution</span>
-              <p>stack allocation</p>
-            </article>
-          </div>
-          <aside class="notes">Set up the allocation section before showing the small option example.</aside>
-        </section>
-
-        <section class="slide live-slide stack-sum-example-slide">
-          <h2>A small stack allocation example</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>Stack allocate values with <code>stack_</code>.</p>
-              <p>OxCaml can often infer stack allocation; <code>stack_</code> makes it a requirement.</p>
-              <p>The current allocation region is cleared before the function returns.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_sum.ml</div>
-              <oxcaml data-filename="Ex03_stack_sum.ml" no-self-check>
-(* Stack allocation example. *)
-
-let rec sum xs =
-  match xs with
-  | [] -> 0
-  | x::xs' -> x + sum xs'
-
-let sum3 a b c =
-  let xs = stack_ [a;b;c] in
-  let n = sum xs in
-  (* xs gets deallocated here *)
-  n
-
-let () =
-  let n = sum3 1 2 3 in
-  print_endline (string_of_int n)
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The temporary list is allocated inside sum3, consumed there, and cleared when sum3 returns.</aside>
-        </section>
-
-        <section class="slide live-slide stack-sum-example-slide">
-          <h2>Stack allocated values cannot escape their region</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>A callee cannot secretly keep a stack-allocated value after the caller region is gone.</p>
-              <p class="diagnostic-callout">Expected outcome: the call to <code>sum</code> is rejected.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_sum_escape.ml</div>
-              <oxcaml check data-filename="Ex03_stack_sum_escape.ml" expect-error>
-(* Stack allocation example. *)
-let saved = ref []
-let rec sum xs =
-  match xs with
-  | [] -> 0
-  | x::xs' -> saved := xs :: !saved; x + sum xs'
-
-let sum3 a b c =
-  let xs = stack_ [a;b;c] in
-  let n = sum xs in
-  (* xs gets deallocated here *)
-  n
-
-let () =
-  let n = sum3 1 2 3 in
-  print_endline (string_of_int n)
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The ref is global, so assigning xs would keep a pointer into a stack region after the function returns.</aside>
-        </section>
-
-        <section class="slide live-slide stack-sum-example-slide">
-          <h2>Returning stack allocated values can escape their region</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The integer result can return, but the stack-allocated list cannot.</p>
-              <p class="diagnostic-callout">Expected outcome: returning <code>xs</code> is rejected.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_sum_return_escape.ml</div>
-              <oxcaml check data-filename="Ex03_stack_sum_return_escape.ml" expect-error>
-(* Stack allocation example. *)
-
-let rec sum xs =
-  match xs with
-  | [] -> 0
-  | x::xs' -> x + sum xs'
-
-let sum3 a b c =
-  let xs = stack_ [a;b;c] in
-  let n = sum xs in
-  (* xs gets deallocated here *)
-  n, xs
-
-let () =
-  let n, _xs = sum3 1 2 3 in
-  print_endline (string_of_int n)
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
-        </section>
-
-        <section class="slide live-slide stack-sum-example-slide">
-          <h2>But sometimes we want to return stack allocated values</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>exclave_</code> builds the returned value in the caller's region.</p>
-              <p>The caller can use the returned list as a local value.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_stack_sum_exclave_return.ml</div>
-              <oxcaml data-filename="Ex03_stack_sum_exclave_return.ml">
-(* Stack allocation example. *)
-
-let rec sum (xs : int list @ local) =
-  match xs with
-  | [] -> 0
-  | x::xs' -> x + sum xs'
-
-let sum3 a b c =
-  exclave_
-  let xs = stack_ [a;b;c] in
-  let n = sum xs in
-  n, xs
-
-let () =
-  let n, xs = sum3 1 2 3 in
-  print_endline (string_of_int n);
-  print_endline (string_of_int (sum xs))
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The returned list is not smuggled out of sum3's region; the result construction belongs to the caller's region.</aside>
-        </section>
-
-        <section class="slide concept-slide allocation-stack-management-slide allocation-stack-overview-slide">
-          <h2>How OxCaml manages the allocation stack</h2>
-          <p class="allocation-stack-subtitle">OxCaml stack allocations use a separate allocation stack, reclaimed at region boundaries.</p>
-          <div class="region-compile-grid">
-            <article class="region-source-card">
-              <h3>Normal function</h3>
-              <pre><code>let f x =
-  ...
-  result</code></pre>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card">
-              <pre><code>let f x =
-  start_new_region ();
-  ...
-  end_current_region ();
-  result</code></pre>
-            </article>
-            <article class="region-source-card">
-              <h3><code>exclave_</code> result</h3>
-              <pre><code>let f x =
-  exclave_
-  ...
-  result</code></pre>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card no-region-card">
-              <pre><code>let f x =
-  ...
-  result</code></pre>
-            </article>
-          </div>
-          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead. In OxCaml, the allocation stack is separate from the call stack, and regions describe when parts of that allocation stack can be reclaimed.</aside>
-        </section>
-
-        <section class="slide concept-slide allocation-stack-management-slide">
-          <h2>How OxCaml manages the allocation stack: tail calls</h2>
-          <div class="region-compile-grid tail-call-region-grid">
-            <article class="region-source-card">
-              <h3>Tail-call function</h3>
-              <pre><code>let rec loop x =
-  ...
-  loop next_x</code></pre>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card">
-              <pre><code>let rec loop x =
-  start_new_region ();
-  ...
-  end_current_region ();
-  tail call loop next_x</code></pre>
-            </article>
-            <article class="region-source-card">
-              <h3>Non-tail call</h3>
-              <pre><code>let f x =
-  ...
-  g x [@nontail]</code></pre>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card no-region-card">
-              <pre><code>let f x =
-  start_new_region ();
-  ...
-  let result = g x in
-  end_current_region ();
-  result</code></pre>
-            </article>
-          </div>
-          <p class="takeaway"><code>[@nontail]</code> suppresses the tail call, so the region ends only after the call returns.</p>
-          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Explain why OxCaml made this choice: tail-recursive loops should not accumulate allocation-stack space as they go. Use [@nontail] when a local value must stay alive during the call.</aside>
-        </section>
-
-        <section class="slide concept-slide allocation-stack-management-slide">
-          <h2>How OxCaml manages the allocation stack: mid-function <code>exclave_</code></h2>
-          <div class="region-compile-grid mid-exclave-grid">
-            <article class="region-source-card">
-              <h3>Middle <code>exclave_</code></h3>
-              <pre><code>let f x =
-  let n = compute_count x in
-  exclave_
-  build_result n</code></pre>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card">
-              <pre><code>let f x =
-  start_new_region ();
-  let n = compute_count x in
-  end_current_region ();
-  build_result n</code></pre>
-            </article>
-            <article class="region-compile-note" aria-label="exclave at the beginning note">
-              <p>If <code>exclave_</code> is at the beginning, OxCaml starts the region and ends it immediately.</p>
-              <p>That has the same effect as not starting a region.</p>
-            </article>
-          </div>
-          <aside class="notes">The subtle case is not an entirely exclaved function. Work before exclave_ still belongs to the function's own region; the region ends at the exclave_ point.</aside>
-        </section>
-
-        <section class="slide concept-slide locality-axis-slide">
-          <h2>How OxCaml checks stack allocation safety: the locality axis</h2>
-          <div class="axis-strip">
-            <div class="mode-axis axis-strip-modes locality">
-              <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this mode</li></ul></div></div>
-              <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li><li>cannot escape as global</li></ul></div></div>
-              <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape this region</li></ul></div></div>
-            </div>
-            <p class="axis-strip-note">Locality answers: how long does this value live?</p>
-          </div>
-          <aside class="notes">Outer-local is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Locality rules for <code>stack_</code> and <code>exclave_</code></h2>
-          <div class="comparison three-up">
-            <article class="diagram-card">
-              <h3><code>stack_ expr</code></h3>
-              <p>The result is at <code>@ local</code>.</p>
-              <pre><code>let xs = stack_ [1; 2; 3]
-(* xs : int list @ local *)</code></pre>
-            </article>
-            <article class="diagram-card">
-              <h3><code>exclave_ expr</code></h3>
-              <p>Makes the function return at <code>@ local</code>.</p>
-              <pre><code>let f () : int list @ local =
-  exclave_
-  stack_ [1; 2; 3]</code></pre>
-            </article>
-            <article class="diagram-card">
-              <h3>after <code>exclave_</code></h3>
-              <p>Makes <code>@ local</code> variables unavailable.</p>
-              <pre><code>let f (x : int list @ local) =
-  let y = stack_ [1] in
-  exclave_
-  let z = stack_ [2] in
-  (* ok: x, z *)
-  (* not ok: y *)</code></pre>
-              <p>But outer-local values (function arguments) are available.</p>
-            </article>
-          </div>
-          <aside class="notes">State these as mode-checking rules before the x/y/z example. stack_ produces a local value. exclave_ makes the result local to the caller's region. At a mid-function exclave_, an @ local argument may be outer-local, so it can still be used; a value allocated in the function's old current region cannot be used after the region ends.</aside>
-        </section>
-
-        <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide">
-          <h2>How OxCaml checks stack allocation safety:<br>functions and <code>exclave_</code></h2>
-          <div class="region-compile-grid function-exclave-grid">
-            <article class="region-source-card">
-              <h3>Source</h3>
-              <div class="exclave-boundary-code" aria-label="Source code with exclave">
-                <div class="code-line">let f (x : int list @ local) =</div>
-                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
-                <div class="code-line indent-1">ignore (sum y);</div>
-                <div class="code-line indent-1 exclave-keyword-line">exclave_</div>
-                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
-                <div class="code-line indent-1">sum x + sum z</div>
-                <div class="code-line indent-1 tok-comment">(* not allowed here: sum y *)</div>
-              </div>
-            </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card">
-              <h3>Region view</h3>
-              <div class="exclave-boundary-code" aria-label="Lowered region view with exclave">
-                <div class="code-line">let f x =</div>
-                <div class="code-line indent-1">start_new_region ();</div>
-                <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
-                <div class="code-line indent-1">ignore (sum y);</div>
-                <div class="code-line indent-1">end_current_region ();</div>
-                <div class="code-line indent-1 tok-comment">(* y dies here *)</div>
-                <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
-                <div class="code-line indent-1">sum x + sum z</div>
-                <div class="code-line indent-1 tok-comment">(* x came from caller *)</div>
-              </div>
-            </article>
-          </div>
-          <p class="takeaway"><code>exclave_</code> ends the function's current region. Arguments from the caller can still be used; values allocated before <code>exclave_</code> cannot.</p>
-          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z belongs to the parent region.</aside>
-        </section>
-
-        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
-          <h2>Local parameters prevent escape</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The <code>with_scratch</code> body can use the temporary state during the call, but cannot retain it, and this is forced by the <code>@ local</code> parameter.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_with_scratch_local_function.ml</div>
-              <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
-type scratch = { mutable total : int }
-
-let with_scratch (f : scratch @ local -> 'a) =
-  let s = stack_ { total = 0 } in
-  f s [@nontail]
-
-let add_with_scratch x y =
-  with_scratch (fun s ->
-    s.total <- x + y;
-    s.total)
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">This is a local-parameter API contract, not just allocation optimization.</aside>
-        </section>
-
-        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-ok-slide">
-          <h2>Submoding: use global data locally</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>escape xs</code> type-checks because <code>xs</code> already has global mode.</p>
-              <p><code>sum xs</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
-              <br>
-              <p><code>@ local</code> data is not always on the allocation stack. Heap data can be used locally too. Stack data cannot be used as global.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_submoding_global_inner_used_locally.ml</div>
-              <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
-let saved : int list list ref = ref []
-
-let escape xs =
-  saved := xs :: !saved
-
-let rec sum (xs : int list @ local) =
-  match xs with
-  | [] -> 0
-  | x :: xs -> x + sum xs
-
-let demo () =
-  let xs = [1; 2; 3] in
-  escape xs;
-  sum xs
-
-let () =
-  print_endline (string_of_int (demo ()))
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Submoding is safe weakening: a global value can be used by an API that only promises local use.</aside>
-        </section>
-
-        <section class="slide live-slide local-container-slide">
-          <h2>Problem: plain local containers lose the global mode</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
-              <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-              <br>
-              <p>An ordinary list node does not remember that its element was global. Using the outer list at local mode also uses everything reached through it at local mode.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_plain_local_outer_list_forgets_global_inner.ml</div>
-              <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-let saved : int list list ref = ref []
-
-let escape xs =
-  saved := xs :: !saved
-
-let demo () =
-  let inner = [1; 2; 3] in
-  escape inner;
-  let outer = stack_ [inner] in
-  match outer with
-  | [] -> ()
-  | inner :: _ -> escape inner
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap list became unsafe at runtime.</aside>
-        </section>
-
-        <section class="slide concept-slide mode-rules-slide modality-solution-slide">
-          <h2>Solution: modalities</h2>
-          <div class="mode-rules-grid">
-            <article class="mode-rule-card">
-              <h3>Default colon modes are deep</h3>
-              <pre><code>r : { field : 'a } @ local
-
-r.field : 'a @ local</code></pre>
-              <p>Ordinary field access uses the mode of the record value.</p>
-            </article>
-            <article class="mode-rule-card mode-rule-focus">
-              <h3><code>@@ global</code> field</h3>
-              <pre><code>type 'a global =
-  { global : 'a @@ global }
-
-r.global : 'a @ global</code></pre>
-              <p>The field is global even when the record is local.</p>
-            </article>
-            <article class="mode-rule-card">
-              <h3>construction</h3>
-              <pre><code>{ global = inner }
-
-requires:
-inner : 'a @ global</code></pre>
-              <p>The field value must be global, even if the record itself is built at <code>@ local</code>.</p>
-            </article>
-          </div>
-          <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
-          <aside class="notes">Repeat the earlier rule: projection normally uses the outer mode. The @@ global modality changes the field rule in both directions. Reading the field gives the global mode. Constructing the record requires the field value at global mode, even when the container is local.</aside>
-        </section>
-
-        <section class="slide live-slide">
-          <h2>Modalities preserve the global mode for inner data</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The outer list is local, while the inner list is global.</p>
-              <p>A local list of global lists: the field modality preserves the global mode.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex03_global_wrapper_preserves_inner_list_globality.ml</div>
-              <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
-type 'a global = { global : 'a @@ global }
-
-let saved : int list list ref = ref []
-
-let escape xs =
-  saved := xs :: !saved
-
-let demo () =
-  let inner = [1; 2; 3] in
-  escape inner;
-  let outer = stack_ [{ global = inner }] in
-  match outer with
-  | [] -> ()
-  | inner :: _ -> escape inner.global
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Phrase this as a field-boundary rule, not a cast. The wrapper can only be built from a global value.</aside>
-        </section>
-
-        <section class="slide concept-slide modality-picture-slide">
-          <h2>Locality: the heap and stack picture with modalities</h2>
-          <figure class="modality-figure">
-            <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
-          </figure>
-          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Some types do not care about locality: mode crossing</h2>
-          <div class="two-up">
-            <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int =
-  x</code></pre><p>No lifetime-sensitive heap block.</p></article>
-            <article><h3>Pointer</h3><pre><code>let id_local_string
-  (x : string @ local) : string @ global =
-  x</code></pre><p>Rejected: the string may point into a local region.</p></article>
-          </div>
-          <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Quiz: requirements or promises?</h2>
-          <div class="two-up">
-            <article>
-              <h3>Argument position</h3>
-              <pre><code>'a @ local -> 'b
-'a @ portable -> 'b
-'a @ contended -> 'b</code></pre>
-              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
-            </article>
-            <article>
-              <h3>Result position</h3>
-              <pre><code>'a -> 'b @ local
-'a -> 'b @ portable
-'a -> 'b @ contended</code></pre>
-              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
-            </article>
-          </div>
-          <aside class="notes">Answer: before the arrow, the caller must be able to provide the argument at that mode. After the arrow, the function promises that the result is available at that mode. For locality, an argument at @ local is an easy requirement that also tells the caller the function will not make the argument escape.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Quiz: which field modality is allowed?</h2>
-          <div class="three-up">
-            <article>
-              <h3>Locality</h3>
-              <pre><code>record r @ global
-field r.x @ local
-
-record r @ local
-field r.x @ global</code></pre>
-              <p>Which one is allowed?</p>
-            </article>
-            <article>
-              <h3>Portability</h3>
-              <pre><code>record r @ nonportable
-field r.x @ portable
-
-record r @ portable
-field r.x @ nonportable</code></pre>
-              <p>Which one is allowed?</p>
-            </article>
-            <article>
-              <h3>Contention</h3>
-              <pre><code>record r @ uncontended
-field r.x @ contended
-
-record r @ contended
-field r.x @ uncontended</code></pre>
-              <p>Which one is allowed?</p>
-            </article>
-          </div>
-          <aside class="notes">Answer: a field modality can preserve a stronger field mode inside a weaker outer record value. So the allowed cases are: global field in a local record, portable field in a nonportable record, and uncontended field in a contended record. The reverse directions are rejected because they would let the outer value promise more than the field can provide.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Allocation recap</h2>
-          <div class="checklist">
-            <p><strong>local/global</strong> controls lifetime and escape.</p>
-            <p><strong>stack_</strong> forces the next allocation onto the allocation stack.</p>
-            <p><strong>exclave_</strong> builds a local result in the caller region.</p>
-          </div>
-          <aside class="notes">Keep the focus on lifetime control and where temporary blocks live.</aside>
-        </section>
-
-        <section class="slide section-slide" data-background-color="#101827">
-          <p class="eyebrow">Module 03</p>
-          <h1>Value layouts and unboxing</h1>
-          <ul class="goal-list">
-            <li>Understand immediate words vs heap-block pointers.</li>
-            <li>Understand run-time heap structure.</li>
-            <li>Spot allocation and indirection in OxCaml types.</li>
-            <li>Use unboxed layouts to avoid pointer indirection and allocation.</li>
-          </ul>
-          <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
-        </section>
-
-        <section class="slide concept-slide value-invariant-slide">
-          <h2>Uniform value representation:<br>every ordinary OCaml value is one word</h2>
-          <div class="value-model-figure">
-            <div class="value-model-grid">
-              <div class="value-model-panel">
-                <h3>Immediate value</h3>
-                <div class="value-word value-word-immediate"><span class="value-word-main">63 bits of immediate data</span><span class="value-word-tag">1</span></div>
-                <p><code>int</code>, <code>char</code>, <code>bool</code>, <code>unit</code>, etc. use this shape.</p>
-              </div>
-              <div class="value-model-panel">
-                <h3>Pointer value</h3>
-                <div class="value-word value-word-pointer"><span class="value-word-main">aligned heap address</span><span class="value-word-tag">0</span></div>
-                <div class="value-pointer-line" aria-hidden="true"></div>
-                <div class="heap-block-model">
-                  <div class="heap-block-label">heap block</div>
-                  <div class="heap-model">
-                    <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
-                    <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
-                    <div class="heap-model-ellipsis">...</div>
-                    <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
-                  </div>
-                </div>
-                <p>Records, tuples, arrays, etc. use this shape.</p>
-              </div>
-            </div>
-          </div>
-          <aside class="notes">Avoid over-detailing endianness. The key fact is low-bit interpretation.</aside>
-        </section>
-
-        <section class="slide concept-slide">
-          <h2>Uniform value representation is powerful</h2>
-          <div class="two-up">
-            <article><h3>Source</h3><pre><code>let duplicate x = (x, x)
-
-let plain_value_integer =
-  duplicate 5
-
-let plain_value_tuple =
-  duplicate (1, 2, 3)
-
-type quote =
-  { symbol : string
-  ; price : int
-  ; mutable size : int
-  }
-
-let plain_value_record =
-  duplicate { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
-            <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value representation. Polymorphic functions are only compiled once.</p></article>
-          </div>
-          <aside class="notes">The uniform model is a strength before it is a cost.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide repr-dual-graph-slide">
-          <h2>Plain values: immediate word or pointer word</h2>
-          <div class="repr-stack-examples">
-            <article class="repr-row-example">
-              <div class="repr-code-panel">
-                <h3>Integer source</h3>
-                <pre><code>let plain_value_integer = 5</code></pre>
-              </div>
-              <div class="repr-graph-panel">
-                <h3>Run-time layout</h3>
-                <div class="native-repr-slot" data-native-repr="plain_value_integer" data-native-repr-part="graph"></div>
-              </div>
-            </article>
-            <article class="repr-row-example">
-              <div class="repr-code-panel">
-                <h3>Tuple source</h3>
-                <pre><code>let plain_value_tuple = (1, 2, 3)</code></pre>
-              </div>
-              <div class="repr-graph-panel">
-                <h3>Run-time layout</h3>
-                <div class="native-repr-slot" data-native-repr="plain_value_tuple" data-native-repr-part="graph"></div>
-              </div>
-            </article>
-          </div>
-          <p class="takeaway">A tuple is still one OCaml value, but that value word points to a heap block.</p>
-          <aside class="notes">These examples come from the representation generator in the lecture notes.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide">
-          <h2>Records have the same heap-block shape</h2>
-          <div class="repr-slide-layout">
-            <article class="repr-code-panel">
-              <h3>Source</h3>
-              <pre><code>type quote =
-  { symbol : string
-  ; price : int
-  ; mutable size : int
-  }
-
-let plain_value_record =
-  { symbol = "OX"; price = 101; size = 7 }</code></pre>
-            </article>
-            <article class="repr-graph-panel">
-              <h3>Run-time layout</h3>
-              <div class="native-repr-slot" data-native-repr="plain_value_record" data-native-repr-part="graph"></div>
-            </article>
-          </div>
-          <aside class="notes">Mutability changes allowed operations; it does not create a different block shape.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide">
-          <h2>Boxed numeric values add allocation</h2>
-          <div class="repr-slide-layout">
-            <article class="repr-code-panel">
-              <h3>Source</h3>
-              <pre><code>let boxed_numeric_values =
-  (3.5, 456L)</code></pre>
-            </article>
-            <article class="repr-graph-panel">
-              <h3>Run-time layout</h3>
-              <div class="native-repr-slot" data-native-repr="boxed_numeric_values" data-native-repr-part="graph"></div>
-            </article>
-          </div>
-          <p class="takeaway">The tuple points to separate blocks for the boxed numeric payloads.</p>
-          <aside class="notes">This is the concrete cost: extra blocks and pointer hops.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide">
-          <h2>Unboxed types remove specific boxes</h2>
-          <div class="repr-slide-layout">
-            <article class="repr-code-panel">
-              <h3>Source</h3>
-              <pre><code>let unboxed_numeric_values =
-  #(#3.5, #456L)</code></pre>
-            </article>
-            <article class="repr-graph-panel">
-              <h3>Run-time layout</h3>
-              <div class="native-repr-slot" data-native-repr="unboxed_numeric_values" data-native-repr-part="graph"></div>
-            </article>
-          </div>
-          <p class="takeaway">The product components are carried directly as raw words.</p>
-          <aside class="notes">Contrast this with the previous boxed numeric example.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide">
-          <h2>Unboxed records can inline their fields</h2>
-          <div class="repr-slide-layout repr-wide-code-layout">
-            <article class="repr-code-panel">
-              <h3>Source</h3>
-              <pre><code>type unboxed_point =
-  #{ x : float#; y : float# }
-
-type sample =
-  { label : string
-  ; point : unboxed_point
-  ; count : int
-  }
-
-let outer_record_with_unboxed_point =
-  { label = "p"
-  ; point = #{ x = #1.0; y = #2.5 }
-  ; count = 7
-  }</code></pre>
-            </article>
-            <article class="repr-graph-panel">
-              <h3>Run-time layout</h3>
-              <div class="native-repr-slot" data-native-repr="outer_record_with_unboxed_point" data-native-repr-part="graph"></div>
-            </article>
-          </div>
-          <aside class="notes">Point out the mixed block: scanned value fields first, raw float words after.</aside>
-        </section>
-
-        <section class="slide concept-slide repr-slide or-null-contrast-slide">
-          <h2><code>or_null</code> uses null or the payload representation</h2>
-          <div class="or-null-four-grid">
-            <article class="repr-mini-example">
-              <h3>Missing ordinary option</h3>
-              <pre><code>let ordinary_none_int_option = (None : int option)</code></pre>
-              <div class="native-repr-slot" data-native-repr="ordinary_none_int_option" data-native-repr-part="graph"></div>
-            </article>
-            <article class="repr-mini-example">
-              <h3>Present ordinary option</h3>
-              <pre><code>let ordinary_some_int_option = Some 7</code></pre>
-              <div class="native-repr-slot" data-native-repr="ordinary_some_int_option" data-native-repr-part="graph"></div>
-            </article>
-            <article class="repr-mini-example">
-              <h3>Missing <code>or_null</code></h3>
-              <pre><code>let or_null_null_value = (Null : int or_null)</code></pre>
-              <div class="native-repr-slot" data-native-repr="or_null_null_value" data-native-repr-part="graph"></div>
-            </article>
-            <article class="repr-mini-example">
-              <h3>Present <code>or_null</code></h3>
-              <pre><code>let or_null_this_int = (This 7 : int or_null)</code></pre>
-              <div class="native-repr-slot" data-native-repr="or_null_this_int" data-native-repr-part="graph"></div>
-            </article>
-          </div>
-          <p class="takeaway">Each diagram is one root value. <code>Some 7</code> allocates a wrapper block; <code>This 7</code> is represented like the integer payload.</p>
-          <aside class="notes">Do not go into nested or_null here unless someone asks.</aside>
-        </section>
-
-        <section class="slide live-slide or-null-error-slide">
-          <h2><code>or_null</code> cannot be nested</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>Null</code> already uses the all-zero word.</p>
-              <br>
-              <p>If the inner type is <code>string or_null</code>, it already may be null. The outer <code>or_null</code> would need the same null word for a second missing case.</p>
-              <br>
-              <p>The kind tracks this: <code>or_null</code> needs a non-null <code>value</code> payload, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">or_null_cannot_be_nested.ml</div>
-              <oxcaml check data-filename="or_null_cannot_be_nested.ml" expect-error no-self-check>
-type nested = string or_null or_null
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">Explain this as representation ambiguity first, then as the kind distinction value vs value_or_null.</aside>
-        </section>
-
-        <section class="slide live-slide ordinary-polymorphic-slide">
-          <h2>Ordinary polymorphic functions expect values</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p><code>duplicate</code> is inferred for ordinary one-word values.</p>
-              <br>
-              <p>An unboxed point has layout <code>float64 &amp; float64</code>, so it is not accepted as that argument.</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">ordinary_duplicate_rejects_unboxed_point.ml</div>
-              <oxcaml check data-filename="ordinary_duplicate_rejects_unboxed_point.ml" expect-error no-self-check>
-type point = #{ x : float#; y : float# }
-
-let duplicate x = (x, x)
-
-let bad =
-  duplicate #{ x = #1.0; y = #2.0 }
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">The point is the argument kind. Do not frame this as an unboxed return problem.</aside>
-        </section>
-
-        <section class="slide live-slide">
-          <h2>Kinds say which representation a type parameter accepts</h2>
-          <div class="live-layout">
-            <div class="live-copy">
-              <p>The kind annotation says the argument may have the unboxed point layout.</p>
-              <br>
-              <p>(The result is still a boxed record in this example.)</p>
-            </div>
-            <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">kinded_duplicate_accepts_unboxed_point.ml</div>
-              <oxcaml check data-filename="kinded_duplicate_accepts_unboxed_point.ml">
-type point = #{ x : float#; y : float# }
-
-type ('a : float64 & float64) duplicated =
-  { first : 'a
-  ; second : 'a
-  }
-
-let duplicate_unboxed
-  : ('a : float64 & float64). 'a -> 'a duplicated =
-  fun x -> { first = x; second = x }
-
-let ok =
-  duplicate_unboxed #{ x = #1.0; y = #2.0 }
-              </oxcaml>
-            </div>
-          </div>
-          <aside class="notes">This keeps a boxed result while changing what representation the type parameter can range over.</aside>
-        </section>
-
-        <section class="slide concept-slide template-expansion-slide">
-          <h2>Templates reduce repetition</h2>
-          <div class="two-up">
-            <article>
-              <h3>Template source</h3>
-              <pre><code>let%template[@kind k = (value, value &amp; value)] id
-  : ('a : k). 'a -> 'a =
-  fun x -> x</code></pre>
-            </article>
-            <article>
-              <h3>Schematic expansion</h3>
-              <pre><code>let id_value
-  : ('a : value). 'a -> 'a =
-  fun x -> x
-
-let id_product
-  : ('a : value &amp; value). 'a -> 'a =
-  fun x -> x</code></pre>
-            </article>
-          </div>
-          <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
-          <p class="takeaway">OxCaml is a work in progress. Future kind-polymorphic definitions are intended to reduce this template pattern.</p>
-          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general kind polymorphism.</aside>
-        </section>
-
-        <section class="slide summary-slide">
-          <h2>Representation recap</h2>
-          <div class="lever-grid">
-            <article><h3>Ordinary values</h3><p>One word: immediate data or pointer to a heap block.</p></article>
-            <article><h3>Unboxed layouts</h3><p>Remove selected product or record boxes where the layout is used.</p></article>
-            <article><h3><code>or_null</code></h3><p>Like option, but does not allocate.</p></article>
-          </div>
-          <aside class="notes">Keep this as the final mental model before the course-level recap.</aside>
-        </section>
-
         <section class="slide summary-slide oxcaml-closing-slide">
           <h2>OxCaml</h2>
           <p class="closing-tagline">Safe high-performance programming.</p>
           <div class="lever-grid">
-            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
             <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
             <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
+            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
           </div>
           <img class="closing-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
           <aside class="notes">End with the same positive framing as the opening: performance control with the relevant safety facts checked.</aside>

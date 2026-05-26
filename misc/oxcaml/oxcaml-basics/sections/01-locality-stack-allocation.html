@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Locality And Stack Allocation</title>
-    <link rel="stylesheet" href="../assets/course.css?v=answer-key-spacing-20260520">
+    <link rel="stylesheet" href="../assets/course.css?v=course-order-20260526">
     <style>
       .compile-grid {
         display: grid;
@@ -198,7 +198,7 @@
         <p>Use <code>stack_</code> to put new allocations on the allocation stack. In this example, the list <code>xs</code> is used inside <code>sum3</code>. Then <code>sum3</code> returns only the integer result.</p>
         <p>OxCaml can often infer stack allocation without <code>stack_</code>. We write <code>stack_</code> when we want to require stack allocation: if the value would have to escape to the heap, the compiler reports an error.</p>
         <p><code>stack_</code> is shallow and attaches to an allocation construct. It does not copy values that are already available. For example, in <code>stack_ (x, y)</code>, the pair is stack allocated, but <code>x</code> and <code>y</code> are not copied to the stack.</p>
-        <oxcaml run data-filename="Ex03_stack_sum.ml">
+        <oxcaml run data-filename="Ex01_stack_sum.ml">
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -220,7 +220,7 @@
       <section>
         <h2>Stack allocated values cannot escape their region</h2>
         <p>A stack-allocated value cannot be stored somewhere that may outlive its region. A global reference may outlive the function call, so the code below is rejected.</p>
-        <oxcaml check data-filename="Ex03_stack_sum_escape.ml" expect-error>
+        <oxcaml check data-filename="Ex01_stack_sum_escape.ml" expect-error>
           let saved = ref []
           let rec sum xs =
             match xs with
@@ -244,7 +244,7 @@
       <section>
         <h2>Returning a stack allocated value is also an escape</h2>
         <p>Returning the integer <code>n</code> is fine. Returning <code>xs</code> is not fine, because <code>xs</code> points into the current region.</p>
-        <oxcaml check data-filename="Ex03_stack_sum_return_escape.ml" expect-error>
+        <oxcaml check data-filename="Ex01_stack_sum_return_escape.ml" expect-error>
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -274,7 +274,7 @@
         <p>Sometimes we do want to return a stack-allocated value. The keyword <code>exclave_</code> ends the current region and evaluates the following expression in the caller's region.</p>
         <p>That means the returned value is not smuggled out of the old region. It is built in the caller's region.</p>
         <p>The function result is still at <code>@ local</code>. It is local to the caller's region, not global.</p>
-        <oxcaml run data-filename="Ex03_stack_sum_exclave_return.ml">
+        <oxcaml run data-filename="Ex01_stack_sum_exclave_return.ml">
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -336,7 +336,7 @@
           <h3>Exercise: implement stack-allocated range</h3>
           <p>Write <code>range n</code> so it returns a stack-allocated list of the integers from <code>n</code> down to <code>1</code>. The tempting version below is rejected. Explain why the recursive tail is local, then move the returned cons allocation into the caller's region.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_stack_range_missing_exclave.ml" expect-error>
+        <oxcaml check data-filename="Ex01_stack_range_missing_exclave.ml" expect-error>
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -351,7 +351,7 @@
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_stack_range_with_exclave.ml">
+          <oxcaml run data-filename="Ex01_stack_range_with_exclave.ml">
             let rec sum (xs : int list @ local) =
               match xs with
               | [] -> 0
@@ -409,7 +409,7 @@
           <h3>Exercise: make the call non-tail</h3>
           <p>The call to <code>use</code> below is in tail position. Explain why the stack-allocated list cannot be passed there, then repair the call with <code>[@nontail]</code>.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_tail_call_region_ends.ml" expect-error>
+        <oxcaml check data-filename="Ex01_tail_call_region_ends.ml" expect-error>
           let rec length (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -423,7 +423,7 @@
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_tail_call_region_nontail.ml">
+          <oxcaml run data-filename="Ex01_tail_call_region_nontail.ml">
             let rec length (xs : int list @ local) =
               match xs with
               | [] -> 0
@@ -491,12 +491,12 @@
       <section>
         <h2>Immediate values can cross locality</h2>
         <p>Locality matters when a value may contain a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
-        <oxcaml check data-filename="Ex03_local_int_crosses.ml">
+        <oxcaml check data-filename="Ex01_local_int_crosses.ml">
           let id_local_int (x : int @ local) : int =
             x
         </oxcaml>
         <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as global would let it outlive its region.</p>
-        <oxcaml check data-filename="Ex03_local_string_does_not_cross.ml" expect-error>
+        <oxcaml check data-filename="Ex01_local_string_does_not_cross.ml" expect-error>
           let id_local_string (x : string @ local) : string @ global =
             x
         </oxcaml>
@@ -552,7 +552,7 @@
           <h3>Exercise: move the allocation</h3>
           <p>The rejected version tries to use <code>y</code> after its region has ended. Rewrite it so that the second temporary list is allocated after <code>exclave_</code>.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_exclave_middle_uses_old_region.ml" expect-error>
+        <oxcaml check data-filename="Ex01_exclave_middle_uses_old_region.ml" expect-error>
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -566,7 +566,7 @@
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_exclave_middle_allocates_after.ml">
+          <oxcaml run data-filename="Ex01_exclave_middle_allocates_after.ml">
             let rec sum (xs : int list @ local) =
               match xs with
               | [] -> 0
@@ -602,7 +602,7 @@
           <h3>Exercise: find the too-early <code>exclave_</code></h3>
           <p>The function below type-checks, but its <code>exclave_</code> is too early. Explain why <code>range n</code> now builds the temporary list in the caller's region. Then move <code>exclave_</code> down so the temporary list is cleared before the function returns. You only need <code>exclave_</code> on the <code>Some</code> branch, because <code>None</code> is immediate data.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_expensive_search_early_exclave.ml">
+        <oxcaml check data-filename="Ex01_expensive_search_early_exclave.ml">
           let rec range (n : int) : int list @ local =
             if n <= 0 then []
             else exclave_ stack_ (n :: range (n - 1))
@@ -624,7 +624,7 @@
         <details>
           <summary>Answer key</summary>
           <p>The first <code>exclave_</code> ends <code>expensive_search</code>'s own region before <code>range n</code> runs, so the recursive list cells produced by <code>range</code> are allocated in the parent region. Move <code>exclave_</code> after the list has been consumed, and only use it before allocating the returned <code>Some</code>.</p>
-          <oxcaml run data-filename="Ex03_expensive_search_moves_exclave_down.ml">
+          <oxcaml run data-filename="Ex01_expensive_search_moves_exclave_down.ml">
             let rec range (n : int) : int list @ local =
               if n <= 0 then []
               else exclave_ stack_ (n :: range (n - 1))
@@ -658,7 +658,7 @@
           <h3>Exercise: wrap the unoptimized search</h3>
           <p>Now assume <code>expensive_search</code> comes from another module and you cannot move its early <code>exclave_</code>. The early <code>exclave_</code> means its temporary list is built in the current region of <code>expensive_search'</code>. Can <code>expensive_search'</code> clear that region and still return the result as stack-allocated data, without using the heap? Hint: inspect the option before <code>exclave_</code>, keep only the integers, and reconstruct the option after <code>exclave_</code>.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_exclave_returns_old_local_option.ml" expect-error>
+        <oxcaml check data-filename="Ex01_exclave_returns_old_local_option.ml" expect-error>
           let rec range (n : int) : int list @ local =
             if n <= 0 then []
             else exclave_ stack_ (n :: range (n - 1))
@@ -684,7 +684,7 @@
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_exclave_copies_option_result.ml">
+          <oxcaml run data-filename="Ex01_exclave_copies_option_result.ml">
             let rec range (n : int) : int list @ local =
               if n <= 0 then []
               else exclave_ stack_ (n :: range (n - 1))
@@ -730,7 +730,7 @@
         <p>So far, locality has controlled returned values. The same lifetime check also controls function parameters.</p>
         <p>A local parameter means this: a function may use a temporary value during a call, but it may not retain that value.</p>
         <p>The function passed to <code>with_scratch</code> can use the temporary state during the call, but cannot retain it. This is forced by the <code>@ local</code> parameter.</p>
-        <oxcaml check data-filename="Ex03_with_scratch_local_function.ml">
+        <oxcaml check data-filename="Ex01_with_scratch_local_function.ml">
           type scratch = { mutable total : int }
 
           let with_scratch (f : scratch @ local -> 'a) =
@@ -754,7 +754,7 @@
           <h3>Exercise: do not store the local parameter</h3>
           <p>The function argument below tries to keep the temporary scratch record in a global reference. Explain the error, then rewrite the function so it only computes a result.</p>
         </aside>
-        <oxcaml check data-filename="Ex03_with_scratch_cannot_store.ml" expect-error>
+        <oxcaml check data-filename="Ex01_with_scratch_cannot_store.ml" expect-error>
           type scratch = { mutable total : int }
 
           let saved : scratch list ref = ref []
@@ -768,7 +768,7 @@
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex03_with_scratch_compute_result.ml">
+          <oxcaml run data-filename="Ex01_with_scratch_compute_result.ml">
             type scratch = { mutable total : int }
 
             let with_scratch (f : scratch @ local -> 'a) =
@@ -799,7 +799,7 @@
             <p><code>xs</code> is a global heap list. Passing it to <code>sum</code> only uses that list at local mode. The mode is weaker, but the list's actual lifetime has not changed.</p>
           </details>
         </aside>
-        <oxcaml run data-filename="Ex03_submoding_global_inner_used_locally.ml">
+        <oxcaml run data-filename="Ex01_submoding_global_inner_used_locally.ml">
           let saved : int list list ref = ref []
 
           let escape xs =
@@ -824,7 +824,7 @@
         <h2>Problem: plain local containers lose the global mode</h2>
         <p>In the following example, the inner list starts global. The first <code>escape inner</code> type-checks.</p>
         <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-        <oxcaml check data-filename="Ex03_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
+        <oxcaml check data-filename="Ex01_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
           let saved : int list list ref = ref []
 
           let escape xs =
@@ -852,7 +852,7 @@
         <h2>Modalities preserve the global mode</h2>
         <p>Sometimes we want to place global data into a local container without losing the information that the inner data was global. The solution is <em>modalities</em>.</p>
         <p>Modalities wrap the inner data in a record field annotated with the stronger mode <code>global</code>, which preserves the information that the inner data is global.</p>
-        <oxcaml check data-filename="Ex03_global_wrapper_preserves_inner_list_globality.ml">
+        <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_list_globality.ml">
           type 'a global = { global : 'a @@ global }
 
           let saved : int list list ref = ref []
@@ -887,11 +887,11 @@
       </section>
 
       <nav class="page-nav" aria-label="Page navigation">
-        <a class="prev" href="02-parallelism-contention-portability.html">
+        <a class="prev" href="00-why-oxcaml-exists.html">
           <span>Previous</span>
-          <strong>Parallelism</strong>
+          <strong>Why OxCaml Exists</strong>
         </a>
-        <a class="next" href="04-representation.processed.html">
+        <a class="next" href="02-value-layouts-unboxing.processed.html">
           <span>Next</span>
           <strong>Value Layouts And Unboxing</strong>
         </a>

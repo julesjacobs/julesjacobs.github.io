@@ -4,13 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics: Why OxCaml Exists</title>
-    <link rel="stylesheet" href="../assets/course.css?v=answer-key-spacing-20260520">
+    <link rel="stylesheet" href="../assets/course.css?v=course-order-20260526">
   </head>
   <body>
     <main class="overview-page">
       <header class="no-rule">
         <h1>Why OxCaml exists</h1>
-        <p class="lede">OxCaml starts from OCaml's safe, high-level programming model and adds explicit, compiler-checked control over low-level behavior needed for high-performance code: parallelism, allocation, and memory layout.</p>
+        <p class="lede">OxCaml starts from OCaml's safe, high-level programming model and adds explicit, compiler-checked control over low-level behavior needed for high-performance code: allocation, memory layout, and parallelism.</p>
         <p>OxCaml is still under active development. New features and changes are driven by concrete developer demand, especially from performance-sensitive applications.</p>
       </header>
 
@@ -50,7 +50,7 @@
         <h2>Learning goals</h2>
         <p>By the end of the course, you should be able to:</p>
         <ul class="outcome-list">
-          <li>read small OxCaml examples that use parallelism, stack allocation, and representation layouts;</li>
+          <li>read small OxCaml examples that use stack allocation, representation layouts, and parallelism;</li>
           <li>recognize common annotations such as <code>@ local</code>, <code>@ contended</code>, <code>@ portable</code>, and layout annotations in real signatures;</li>
           <li>explain common compiler errors involving escaping values, unsafe mutable access, heap allocation, or representation mismatch;</li>
           <li>choose the relevant OxCaml feature for small performance-sensitive examples.</li>
@@ -62,9 +62,9 @@
           <span>Previous</span>
           <strong>Course Index</strong>
         </a>
-        <a class="next" href="02-parallelism-contention-portability.html">
+        <a class="next" href="01-locality-stack-allocation.html">
           <span>Next</span>
-          <strong>Parallelism</strong>
+          <strong>Locality And Stack Allocation</strong>
         </a>
       </nav>
 

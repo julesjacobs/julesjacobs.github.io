@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics Course</title>
-    <link rel="stylesheet" href="assets/course.css?v=answer-key-spacing-20260520">
+    <link rel="stylesheet" href="assets/course.css?v=course-order-20260526">
   </head>
   <body>
     <main class="course-index">
@@ -18,7 +18,7 @@
           </figure>
           <div class="course-header-copy">
             <h1>OxCaml Basics</h1>
-            <p class="lede">A three-hour course for Jane Street interns and engineers about safe high-performance Okskaml: checked parallelism, stack allocation, and control over runtime representation.</p>
+            <p class="lede">A three-hour course for Jane Street interns and engineers about safe high-performance Okskaml: checked stack allocation, control over runtime representation, and parallelism.</p>
           </div>
         </div>
       </header>
@@ -28,7 +28,7 @@
           <li>
             <span class="sequence-number">00</span>
             <div class="sequence-main">
-              <h3><a href="sections/01-why-oxcaml-exists.html">Why OxCaml exists</a></h3>
+              <h3><a href="sections/00-why-oxcaml-exists.html">Why OxCaml exists</a></h3>
               <p>Why ordinary OCaml is not always enough for high-performance code, and which OxCaml features this course will cover.</p>
               <p class="sequence-meta">10 min · motivation</p>
             </div>
@@ -37,27 +37,27 @@
           <li>
             <span class="sequence-number">01</span>
             <div class="sequence-main">
-              <h3><a href="sections/02-parallelism-contention-portability.html">Parallelism: contention and portability</a></h3>
-              <p>How to run callbacks in parallel without data races when they receive explicit arguments or close over mutable state.</p>
-              <p class="sequence-meta">80 min · parallelism</p>
-            </div>
-          </li>
-
-          <li>
-            <span class="sequence-number">02</span>
-            <div class="sequence-main">
-              <h3><a href="sections/03-locality-stack-allocation.html">Locality and stack allocation</a></h3>
+              <h3><a href="sections/01-locality-stack-allocation.html">Locality and stack allocation</a></h3>
               <p>How local values, <code>stack_</code>, and <code>exclave_</code> help control heap allocation and lifetime.</p>
               <p class="sequence-meta">45 min · allocation</p>
             </div>
           </li>
 
           <li>
-            <span class="sequence-number">03</span>
+            <span class="sequence-number">02</span>
             <div class="sequence-main">
-              <h3><a href="sections/04-representation.processed.html">Value layouts and unboxing</a></h3>
+              <h3><a href="sections/02-value-layouts-unboxing.processed.html">Value layouts and unboxing</a></h3>
               <p>Uniform OCaml values first, then the costs of boxes and pointers, then layouts, unboxed values, <code>or_null</code>, and a short note on templates.</p>
               <p class="sequence-meta">45 min · representation</p>
+            </div>
+          </li>
+
+          <li>
+            <span class="sequence-number">03</span>
+            <div class="sequence-main">
+              <h3><a href="sections/03-parallelism-contention-portability.html">Parallelism: contention and portability</a></h3>
+              <p>How to run callbacks in parallel without data races when they receive explicit arguments or close over mutable state.</p>
+              <p class="sequence-meta">80 min · parallelism</p>
             </div>
           </li>
 

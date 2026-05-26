@@ -1061,7 +1061,8 @@ oxcaml .transcript-line.file,
     white-space: normal;
   }
 
-  .course-header-lockup {
+  .course-header-lockup,
+  .course-index .course-header-lockup {
     align-items: start;
     gap: 20px;
     grid-template-columns: 1fr;
@@ -1069,6 +1070,14 @@ oxcaml .transcript-line.file,
 
   .course-mark img {
     max-width: min(230px, 62vw);
+  }
+
+  .course-header-copy .lede {
+    max-width: 100%;
+  }
+
+  main.course-index ~ .course-compact-toc {
+    display: none;
   }
 
   .course-compact-current {
