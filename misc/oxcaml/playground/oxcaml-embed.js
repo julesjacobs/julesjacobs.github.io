@@ -1,5 +1,5 @@
 (function () {
-  const assetVersion = "20260527-diagnostic-sort";
+  const assetVersion = "20260527-warning-state";
   const script = document.currentScript;
   const moduleUrl = script?.dataset.moduleSrc
     ? new URL(script.dataset.moduleSrc, script.src || document.baseURI).href

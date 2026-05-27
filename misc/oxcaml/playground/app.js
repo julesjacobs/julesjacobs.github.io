@@ -13,7 +13,7 @@ import {
   runString as backendRunString,
   typeAtString as backendTypeAtString,
   utopString as backendUtopString,
-} from "./backend.js?v=20260520-playground-shim-v2";
+} from "./backend.js?v=20260527-warning-state";
 import {
   EditorState,
   RangeSetBuilder,

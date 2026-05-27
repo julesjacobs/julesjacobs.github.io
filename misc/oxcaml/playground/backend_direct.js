@@ -5,7 +5,7 @@ import {
 } from "./playground_prelude.js?v=20260520-playground-shim-v2";
 
 const buildBase = "./build";
-const compilerAssetVersion = "20260520-playground-shim-v2";
+const compilerAssetVersion = "20260527-warning-state";
 
 const loadedScriptUrls = new Map();
 let browserFsManifestPromise = null;

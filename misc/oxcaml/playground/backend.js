@@ -7,7 +7,7 @@ let directBackendPromise = null;
 let workerFailed = false;
 
 const backendWorkerUrl = new URL(
-  "./backend_worker.js?v=20260520-playground-shim-v2",
+  "./backend_worker.js?v=20260527-warning-state",
   import.meta.url,
 ).href;
 
@@ -154,7 +154,7 @@ function getBackendWorker() {
 
 async function directBackend() {
   if (!directBackendPromise) {
-    directBackendPromise = import("./backend_direct.js?v=20260520-playground-shim-v2");
+    directBackendPromise = import("./backend_direct.js?v=20260527-warning-state");
   }
   return directBackendPromise;
 }

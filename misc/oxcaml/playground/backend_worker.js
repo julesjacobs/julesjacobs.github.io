@@ -1,4 +1,4 @@
-const backendPromise = import("./backend_direct.js?v=20260520-playground-shim-v2").then((backend) => {
+const backendPromise = import("./backend_direct.js?v=20260527-warning-state").then((backend) => {
   backend.addBackendStatusListener(({ state, text }) => {
     globalThis.postMessage({ type: "status", state, text });
   });

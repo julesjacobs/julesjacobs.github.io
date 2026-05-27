@@ -7,7 +7,7 @@ import {
   runString,
   typeAtString,
   utopString,
-} from "./backend.js?v=20260520-playground-shim-v2";
+} from "./backend.js?v=20260527-warning-state";
 import {
   EditorState,
   RangeSetBuilder,
