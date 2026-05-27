@@ -166,6 +166,7 @@ body {
   border-radius: 8px;
   background: var(--code-bg);
   box-shadow: none;
+  overflow: hidden;
 }
 
 .reveal pre code {
@@ -1890,13 +1891,13 @@ body {
 
 .repr-slide-layout {
   display: grid;
-  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
-  gap: 18px;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
+  gap: 16px;
   min-height: 0;
 }
 
 .repr-wide-code-layout {
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
 }
 
 .repr-code-panel,
@@ -1916,12 +1917,13 @@ body {
 
 .repr-code-panel pre {
   margin: 0;
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.23;
 }
 
 .repr-wide-code-layout .repr-code-panel pre {
-  font-size: 15px;
+  font-size: 13.5px;
+  line-height: 1.18;
 }
 
 .repr-graph-panel {
@@ -1949,7 +1951,7 @@ body {
 
 .repr-row-example {
   display: grid;
-  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  grid-template-columns: minmax(0, 0.52fr) minmax(0, 1.48fr);
   gap: 16px;
   min-width: 0;
   min-height: 0;
@@ -1963,7 +1965,7 @@ body {
 
 .repr-row-example .repr-code-panel pre {
   align-self: start;
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .repr-row-example .native-repr-graph {
@@ -2074,7 +2076,7 @@ body {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
-  font-size: 10px;
+  font-size: 16px;
 }
 
 .reveal .repr-slide .native-repr-region {
@@ -2082,7 +2084,7 @@ body {
 }
 
 .reveal .repr-slide .native-repr-root-name {
-  max-width: 180px;
+  max-width: 300px;
 }
 
 .reveal .repr-slide .native-repr-block-title {
@@ -2090,25 +2092,55 @@ body {
 }
 
 .reveal .repr-slide .native-repr-size {
-  font-size: 9px;
+  font-size: 13.5px;
 }
 
 .reveal .repr-slide .native-repr-word {
-  grid-template-columns: repeat(var(--bytes), 12px);
+  grid-template-columns: repeat(var(--bytes), 22px);
 }
 
 .reveal .repr-slide .native-repr-header-word {
-  grid-template-columns: 30px 24px 50px 30px;
-  width: 134px;
+  grid-template-columns: 54px 44px 90px 54px;
+  width: 242px;
 }
 
 .reveal .repr-slide .native-repr-byte {
-  min-width: 12px;
-  font-size: 7px;
+  min-width: 22px;
+  font-size: 12px;
 }
 
 .reveal .repr-slide .native-repr-label {
-  font-size: 8px;
+  font-size: 13px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-graph {
+  font-size: 13px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-root-name {
+  max-width: 250px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-size {
+  font-size: 11px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-word {
+  grid-template-columns: repeat(var(--bytes), 16px);
+}
+
+.reveal .repr-wide-code-layout .native-repr-header-word {
+  grid-template-columns: 40px 32px 66px 40px;
+  width: 178px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-byte {
+  min-width: 16px;
+  font-size: 9px;
+}
+
+.reveal .repr-wide-code-layout .native-repr-label {
+  font-size: 10.5px;
 }
 
 .axis-strip {
@@ -2138,6 +2170,16 @@ body {
 .locality-axis-slide .axis-context {
   padding-bottom: 2px;
   line-height: 1.18;
+}
+
+.locality-axis-slide .axis-strip-modes.locality {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.locality-axis-slide .axis-strip-note {
+  text-align: center;
 }
 
 .axis-mode {
@@ -2789,12 +2831,27 @@ oxcaml,
 }
 
 .reveal .oxcaml-embed .cm-gutters {
-  display: none;
+  display: flex;
+  flex-shrink: 0;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  border-right: 1px solid var(--oxcaml-editor-gutter-border);
+  background: var(--oxcaml-editor-gutter);
+  color: var(--oxcaml-editor-gutter-ink);
+}
+
+.reveal .oxcaml-embed .cm-lineNumbers .cm-gutterElement {
+  min-width: 2ch;
+  padding: 0 0.45rem 0 0.35rem;
+  text-align: right;
+  user-select: none;
 }
 
 .reveal .oxcaml-embed .cm-content {
-  padding-left: 0.7rem;
+  padding-top: 0.45rem;
+  padding-left: 0.55rem;
   padding-right: 0.9rem;
+  padding-bottom: 0.45rem;
 }
 
 .reveal .oxcaml-embed .cm-line {
@@ -3529,6 +3586,46 @@ oxcaml,
 
 .summary-slide ul {
   max-width: 980px;
+}
+
+/* Keep static numbered code visually aligned with the CodeMirror editors. */
+.reveal pre code[data-line-numbers="true"] {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
+  overflow-x: auto;
+}
+
+.reveal pre code[data-line-numbers="true"] .code-line-row {
+  display: flex;
+  align-items: stretch;
+  min-width: max-content;
+}
+
+.reveal pre code[data-line-numbers="true"] .code-line-number {
+  min-width: 2ch;
+  padding: 0 0.45rem 0 0.35rem;
+  border-right: 1px solid var(--oxcaml-editor-gutter-border);
+  background: var(--oxcaml-editor-gutter);
+  color: var(--oxcaml-editor-gutter-ink);
+  text-align: right;
+  user-select: none;
+}
+
+.reveal pre code[data-line-numbers="true"] .code-line-source {
+  min-width: max-content;
+  padding: 0 0.9rem 0 0.55rem;
+}
+
+.reveal pre code[data-line-numbers="true"] .code-line-row:first-child .code-line-number,
+.reveal pre code[data-line-numbers="true"] .code-line-row:first-child .code-line-source {
+  padding-top: 0.45rem;
+}
+
+.reveal pre code[data-line-numbers="true"] .code-line-row:last-child .code-line-number,
+.reveal pre code[data-line-numbers="true"] .code-line-row:last-child .code-line-source {
+  padding-bottom: 0.45rem;
 }
 
 kbd {

@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=hardware-context-20260520">
+    <link rel="stylesheet" href="slides.css?v=larger-repr-diagrams-2-20260527">
   </head>
   <body>
     <div class="reveal">
@@ -336,13 +336,11 @@ let () =
             <div class="mode-axis axis-strip-modes locality">
               <div class="axis-mode-wrap"><div class="axis-context">lives on the GC heap</div><div class="axis-mode good"><code>x @ global</code><ul><li>safe to store or return</li><li>ordinary heap values have this mode</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">may live in an outer region</div><div class="axis-mode note"><code>outer-local</code><ul><li>can outlive this region</li><li>may still be region-owned</li><li>cannot escape as global</li></ul></div></div>
-              <b class="axis-arrow">→</b>
               <div class="axis-mode-wrap"><div class="axis-context">may live in the current region</div><div class="axis-mode warn"><code>x @ local</code><ul><li>may point into current region</li><li>cannot escape this region</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Locality answers: how long does this value live?</p>
           </div>
-          <aside class="notes">Outer-local is the middle lifetime fact: the value can survive the current region ending, but may still belong to some higher-up region.</aside>
+          <aside class="notes">For the live deck, keep the axis to the two facts students need first: global values can escape; local values may point into the current region and cannot escape it.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -505,7 +503,7 @@ let demo () =
           <h2>Solution: modalities</h2>
           <div class="mode-rules-grid">
             <article class="mode-rule-card">
-              <h3>Default colon modes are deep</h3>
+              <h3>Default: modes are deep</h3>
               <pre><code>r : { field : 'a } @ local
 
 r.field : 'a @ local</code></pre>
@@ -718,7 +716,8 @@ let plain_value_record =
             <article class="repr-row-example">
               <div class="repr-code-panel">
                 <h3>Integer source</h3>
-                <pre><code>let plain_value_integer = 5</code></pre>
+                <pre><code>let plain_value_integer =
+  5</code></pre>
               </div>
               <div class="repr-graph-panel">
                 <h3>Run-time layout</h3>
@@ -728,7 +727,8 @@ let plain_value_record =
             <article class="repr-row-example">
               <div class="repr-code-panel">
                 <h3>Tuple source</h3>
-                <pre><code>let plain_value_tuple = (1, 2, 3)</code></pre>
+                <pre><code>let plain_value_tuple =
+  (1, 2, 3)</code></pre>
               </div>
               <div class="repr-graph-panel">
                 <h3>Run-time layout</h3>
@@ -752,7 +752,10 @@ let plain_value_record =
   }
 
 let plain_value_record =
-  { symbol = "OX"; price = 101; size = 7 }</code></pre>
+  { symbol = "OX"
+  ; price = 101
+  ; size = 7
+  }</code></pre>
             </article>
             <article class="repr-graph-panel">
               <h3>Run-time layout</h3>
@@ -802,7 +805,8 @@ let plain_value_record =
             <article class="repr-code-panel">
               <h3>Source</h3>
               <pre><code>type unboxed_point =
-  #{ x : float#; y : float# }
+  #{ x : float#
+   ; y : float# }
 
 type sample =
   { label : string
@@ -812,7 +816,9 @@ type sample =
 
 let outer_record_with_unboxed_point =
   { label = "p"
-  ; point = #{ x = #1.0; y = #2.5 }
+  ; point =
+      #{ x = #1.0
+       ; y = #2.5 }
   ; count = 7
   }</code></pre>
             </article>
@@ -995,7 +1001,6 @@ parent_side_effect ()</code></pre>
               <p>Spawned worker runs in parallel; parent continues immediately.</p>
             </article>
           </div>
-          <p class="takeaway">Prefer fork/join and structured concurrency whenever possible.</p>
           <aside class="notes">The operational shape motivates the different function requirements later. State the API guidance explicitly: structured concurrency is usually the right default; spawn is included to teach the broader mode-checking story.</aside>
         </section>
 
@@ -1456,21 +1461,6 @@ let strings_in_parallel parallel =
         </section>
 
         <section class="slide concept-slide">
-          <h2>Two questions per call</h2>
-          <div class="two-up">
-            <article><h3>explicit argument failure</h3><pre><code>let bump_hits (x @ uncontended) =
-  x.hits <- x.hits + 1
-
-fun _parallel -> bump_hits x</code></pre><p>Is <code>x</code> available at the parameter mode?</p></article>
-            <article><h3>function-value failure</h3><pre><code>let write_x v =
-  x.hits <- v
-
-fun _parallel -> write_x 1</code></pre><p>Is <code>write_x</code> itself shareable or portable enough?</p></article>
-          </div>
-          <aside class="notes">For any call inside parallel work, ask both questions: arguments and callee value.</aside>
-        </section>
-
-        <section class="slide concept-slide">
           <h2>Schematic types of fork_join2 and spawn</h2>
           <div class="signature-card">
             <pre><code>val fork_join2 :
@@ -1545,7 +1535,7 @@ val spawn :
           <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the closure argument mode.</aside>
         </section>
 
-        <section class="slide concept-slide shareable-capture-slide">
+        <section class="slide concept-slide shareable-capture-slide" data-visibility="hidden">
           <h2>Closure Boundaries: Shareable</h2>
           <article class="capture-card shareable-card">
             <div class="capture-card-header">
@@ -1655,7 +1645,7 @@ val spawn :
           <aside class="notes">This is copied from the course's shareable closure-boundary diagram and trimmed to the single boundary case for slide use.</aside>
         </section>
 
-        <section class="slide concept-slide shareable-capture-slide portable-capture-slide">
+        <section class="slide concept-slide shareable-capture-slide portable-capture-slide" data-visibility="hidden">
           <h2>Closure Boundaries: Portable</h2>
           <article class="capture-card portable-card">
             <div class="capture-card-header">
@@ -1763,7 +1753,7 @@ val spawn :
           <aside class="notes">This is the portable counterpart to the shareable closure-boundary diagram.</aside>
         </section>
 
-        <section class="slide concept-slide capture-matrix-slide">
+        <section class="slide concept-slide capture-matrix-slide" data-visibility="hidden">
           <h2>Closure boundaries summary</h2>
           <div class="capture-matrix">
             <div class="capture-matrix-transposed">
@@ -1869,7 +1859,7 @@ val spawn :
 
     <script src="vendor/reveal/reveal.js"></script>
     <script src="vendor/reveal/plugin/notes.js"></script>
-    <script src="slides.js?v=native-repr-light-20260520"></script>
+    <script src="slides.js?v=line-numbers-20260527"></script>
     <script src="../assets/oxcaml-embed-loader.js?v=embed-margin-20260511"></script>
   </body>
 </html>

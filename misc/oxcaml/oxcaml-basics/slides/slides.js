@@ -124,8 +124,17 @@
   function highlightStaticCode() {
     document.querySelectorAll("pre code").forEach((block) => {
       if (block.closest(".oxcaml-embed")) return;
-      block.innerHTML = highlightOcaml(block.textContent);
+      const lines = block.textContent.split("\n");
+      block.innerHTML = lines
+        .map((line, index) => (
+          `<span class="code-line-row">` +
+          `<span class="code-line-number" aria-hidden="true">${index + 1}</span>` +
+          `<span class="code-line-source">${highlightOcaml(line) || " "}</span>` +
+          `</span>`
+        ))
+        .join("");
       block.dataset.highlighted = "true";
+      block.dataset.lineNumbers = "true";
     });
   }
 
