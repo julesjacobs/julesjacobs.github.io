@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=larger-repr-diagrams-2-20260527">
+    <link rel="stylesheet" href="slides.css?v=locality-propagation-3-20260529">
   </head>
   <body>
     <div class="reveal">
@@ -28,7 +28,7 @@
           <ol class="route">
             <li><span>00</span><strong>Why OxCaml exists</strong><em>safe, convenient, predictable control over performance-critical aspects of program behavior</em></li>
             <li><span>01</span><strong>Allocation</strong><em>locality, stack_, exclave_</em></li>
-            <li><span>02</span><strong>Representation</strong><em>layouts, unboxing, or_null, kinds</em></li>
+            <li><span>02</span><strong>Representation</strong><em>layouts, unboxing, or_null</em></li>
             <li><span>03</span><strong>Parallelism</strong><em>contention and portability</em></li>
           </ol>
           <aside class="notes">Each topic is a checked lever: lifetime/allocation, runtime layout, and race safety.</aside>
@@ -37,36 +37,79 @@
         <section class="slide concept-slide ocaml-great-slide">
           <h2>What makes OCaml great?</h2>
           <div class="ocaml-great-layout">
-            <article class="ocaml-strength-card">
-              <h3>OCaml gives us</h3>
-              <p>Safe, high-level programming with GC-managed allocation.</p>
+            <article>
+              <h3>Functional programming</h3>
+              <p>You write programs in terms of values, functions, algebraic data types, and pattern matching.</p>
             </article>
-            <article class="ocaml-hardware-card fragment">
-              <h3>Hardware changed</h3>
-              <p>OCaml was developed in 1996. Since then, memory became much more expensive relative to basic operations, and multicore machines became normal.</p>
-              <ul>
-                <li>integer addition: about 1 cycle, roughly 0.3 ns</li>
-                <li>cache miss to main memory: roughly 100 ns, hundreds of cycles</li>
-                <li>modern servers and laptops have multiple cores</li>
-              </ul>
+            <article>
+              <h3>Module system</h3>
+              <p>Modules and functors let large codebases define clear interfaces and reusable components.</p>
             </article>
-            <article class="ocaml-more-card fragment">
-              <p>OxCaml solves two problems with OCaml.</p>
-              <ol>
-                <li>Parallelism in OCaml is unsafe because of data races.</li>
-                <li>We want to write faster code (→ fewer pointer indirections) with low latency (→ no GC pauses).</li>
-              </ol>
+            <article>
+              <h3>Practical runtime</h3>
+              <p>Automatic memory management and native-code compilation make OCaml productive.</p>
             </article>
           </div>
-          <aside class="notes">Start with why OCaml is attractive before motivating OxCaml. OxCaml keeps the high-level, safe programming model, then makes the relevant performance facts visible to the type checker.</aside>
+          <aside class="notes">Start with why OCaml is attractive before motivating OxCaml. The point is that OCaml is already a good programming model: safe, high-level, functional, modular, and practical. OxCaml should feel like extending those strengths, not replacing them.</aside>
+        </section>
+
+        <section class="slide concept-slide ocaml-limitations-slide">
+          <h2>Limitations of OCaml</h2>
+          <div class="ocaml-limitations-layout">
+            <article>
+              <h3>GC pauses</h3>
+              <p>Low-latency code needs to avoid GC pauses.</p>
+            </article>
+            <article>
+              <h3>Value representation</h3>
+              <p>Uniform value representation can force inefficient layouts.</p>
+            </article>
+            <article>
+              <h3>Unsafe parallelism</h3>
+              <p>OCaml 5 parallelism can introduce subtle data races.</p>
+            </article>
+          </div>
+          <aside class="notes">These are limitations of ordinary OCaml for Jane Street's use cases. Low-latency code needs control over allocation and GC pauses. Fast systems code sometimes needs control over layout instead of always using OCaml's uniform value representation. Parallelism in OCaml 5 is great, but blindly running existing code or new code in parallel is scary if the code can race. The worry is subtle production bugs caused by shared mutable state.</aside>
+        </section>
+
+        <section class="slide concept-slide language-map-slide">
+          <h2>Where OxCaml fits</h2>
+          <div class="language-map">
+            <div class="language-map-corner" aria-hidden="true"></div>
+            <div class="language-map-axis managed-axis">High-level runtime<span>runtime handles lifetimes and layout</span></div>
+            <div class="language-map-axis systems-axis">Systems control<span>programmer controls lifetimes and layout</span></div>
+            <div class="language-map-axis unsafe-axis">Unsafe<span>mistakes crash program</span></div>
+            <div class="language-cell unsafe-managed">
+              <strong>JavaScript</strong>
+              <span>high-level runtime, unchecked</span>
+            </div>
+            <div class="language-cell unsafe-systems">
+              <strong>C++</strong>
+              <span>systems control, unchecked</span>
+            </div>
+            <div class="language-map-axis safe-axis">Safe<span>compiler catches mistakes</span></div>
+            <div class="language-cell safe-managed ocaml-cell">
+              <strong>OCaml</strong>
+              <span>safe high-level runtime</span>
+            </div>
+            <div class="language-cell safe-systems rust-cell">
+              <strong>Rust</strong>
+              <span>safe systems control</span>
+            </div>
+            <div class="oxcaml-expansion fragment">
+              <strong>OxCaml</strong>
+              <span>expands OCaml into safe systems control</span>
+            </div>
+          </div>
+          <aside class="notes">Frame this as a rough motivation map, not a precise taxonomy. Safe versus unsafe is about when the relevant mistakes are caught: while the program runs, or before it runs. High-level runtime versus systems control is about what the programmer has to think about: whether lifetimes, layout, and parallel access are mostly hidden by the runtime, or exposed as things the programmer can control. OCaml already sits in the safe high-level-runtime cell. OxCaml extends that programming model toward the safe systems-control cell: stack allocation, unboxed layouts, and parallelism become checked rather than unchecked.</aside>
         </section>
 
         <section class="slide concept-slide">
-          <h2>Three classes of safe optimization in OxCaml</h2>
+          <h2>How OxCaml addresses these limitations</h2>
           <div class="lever-grid">
             <article><h3>Stack allocation</h3><p>Avoid heap allocation without creating dangling stack pointers.</p></article>
-            <article><h3>Unboxed representation</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
-            <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
+            <article><h3>Data layout</h3><p>Remove boxes and pointer hops without representation mismatches.</p></article>
+            <article><h3>Safe parallelism</h3><p>Use more cores without introducing data races.</p></article>
           </div>
           <div class="optimization-module-row">
             <p>Module 1 today</p>
@@ -100,6 +143,70 @@
             </article>
           </div>
           <aside class="notes">Set up the allocation section before showing the small option example.</aside>
+        </section>
+
+        <section class="slide concept-slide value-location-slide">
+          <h2>Where values can live</h2>
+          <div class="value-location-diagram">
+            <article class="value-location-zone gc-heap-zone">
+              <h3>GC heap</h3>
+              <div class="heap-field" aria-hidden="true">
+                <span class="heap-object is-live fragment" data-fragment-index="1">object</span>
+                <span class="heap-object is-garbage fragment" data-fragment-index="2">record</span>
+                <span class="heap-object is-live fragment" data-fragment-index="3">array</span>
+                <span class="heap-object is-garbage fragment" data-fragment-index="4">closure</span>
+                <span class="heap-object is-live fragment" data-fragment-index="5">tuple</span>
+                <span class="heap-object is-garbage fragment" data-fragment-index="6">string</span>
+                <span class="gc-scan-trigger fragment" data-fragment-index="8" aria-hidden="true"></span>
+                <span class="gc-sweep-trigger fragment" data-fragment-index="9" aria-hidden="true"></span>
+              </div>
+              <div class="gc-phase-copy">
+                <p>ordinary OCaml allocations</p>
+                <p class="fragment fade-in-then-out" data-fragment-index="7">the heap fills up</p>
+                <p class="fragment fade-in-then-out" data-fragment-index="8">the GC scans and marks live objects</p>
+                <p class="fragment fade-in-then-out" data-fragment-index="9">the GC removes unreachable objects</p>
+                <p class="gc-pause-message fragment" data-fragment-index="10">GC pauses can be slow</p>
+              </div>
+            </article>
+            <article class="value-location-zone allocation-stack-zone fragment" data-fragment-index="11">
+              <div class="value-location-card">
+                <h3>Allocation stack</h3>
+                <p class="value-location-badge">new in OxCaml</p>
+                <div class="region-tower" aria-hidden="true">
+                  <div class="allocation-region fragment" data-fragment-index="12" data-region="region A">
+                    <span class="fragment" data-fragment-index="13">list cell</span>
+                    <span class="fragment" data-fragment-index="14">tuple</span>
+                  </div>
+                  <div class="allocation-region fragment" data-fragment-index="15" data-region="region B">
+                    <span class="fragment" data-fragment-index="16">record</span>
+                    <span class="fragment" data-fragment-index="17">array</span>
+                  </div>
+                  <div class="allocation-region fragment" data-fragment-index="18" data-region="region C">
+                    <span class="fragment" data-fragment-index="19">closure</span>
+                    <span class="fragment" data-fragment-index="20">option</span>
+                  </div>
+                  <span class="region-drop-c-trigger fragment" data-fragment-index="21" aria-hidden="true"></span>
+                  <span class="region-drop-b-trigger fragment" data-fragment-index="22" aria-hidden="true"></span>
+                </div>
+                <div class="allocation-phase-copy">
+                  <p>empty allocation stack</p>
+                  <p class="allocation-stack-note">separate from the call stack</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="12">start a region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="13">allocate into the current region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="14">allocate into the current region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="15">start a new region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="16">allocate into the current region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="17">allocate into the current region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="18">start a new region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="19">allocate into the current region</p>
+                  <p class="fragment fade-in-then-out" data-fragment-index="20">allocate into the current region</p>
+                  <p class="region-dealloc-message fragment fade-in-then-out" data-fragment-index="21">deallocation drops region C</p>
+                  <p class="region-dealloc-message fragment" data-fragment-index="22">then deallocation drops region B</p>
+                </div>
+              </div>
+            </article>
+          </div>
+          <aside class="notes">Set up the operational model before the lowering slides. Ordinary OCaml allocations go on the GC heap. OxCaml adds a separate allocation stack, split into regions that can be reclaimed together.</aside>
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
@@ -168,7 +275,7 @@ let () =
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
-          <h2>Returning stack allocated values can escape their region</h2>
+          <h2>Returning stack allocated values cannot escape their region</h2>
           <div class="live-layout">
             <div class="live-copy">
               <p>The integer result can return, but the stack-allocated list cannot.</p>
@@ -234,8 +341,8 @@ let () =
 
         <section class="slide concept-slide allocation-stack-management-slide allocation-stack-overview-slide">
           <h2>How OxCaml manages the allocation stack</h2>
-          <p class="allocation-stack-subtitle">OxCaml stack allocations use a separate allocation stack, reclaimed at region boundaries.</p>
           <div class="region-compile-grid">
+            <p class="region-tail-message">Normal functions get their own region.</p>
             <article class="region-source-card">
               <h3>Normal function</h3>
               <pre><code>let f x =
@@ -245,20 +352,25 @@ let () =
             <div class="region-compile-arrow">compiles to</div>
             <article class="region-lowered-card">
               <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   ...
-  end_current_region ();
+  end_region region;
   result</code></pre>
             </article>
-            <article class="region-source-card">
+            <div class="region-pointer-note">
+              <p><code>start_region ()</code> returns the current allocation stack pointer.</p>
+              <p><code>end_region region</code> resets the allocation stack pointer to that saved pointer.</p>
+            </div>
+            <p class="region-tail-message fragment" data-fragment-index="1"><code>exclave_</code> uses the parent region.</p>
+            <article class="region-source-card fragment" data-fragment-index="1">
               <h3><code>exclave_</code> result</h3>
               <pre><code>let f x =
   exclave_
   ...
   result</code></pre>
             </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card no-region-card">
+            <div class="region-compile-arrow fragment" data-fragment-index="1">compiles to</div>
+            <article class="region-lowered-card no-region-card fragment" data-fragment-index="1">
               <pre><code>let f x =
   ...
   result</code></pre>
@@ -270,6 +382,7 @@ let () =
         <section class="slide concept-slide allocation-stack-management-slide">
           <h2>How OxCaml manages the allocation stack: tail calls</h2>
           <div class="region-compile-grid tail-call-region-grid">
+            <p class="region-tail-message">Region ends before tail calls.</p>
             <article class="region-source-card">
               <h3>Tail-call function</h3>
               <pre><code>let rec loop x =
@@ -279,28 +392,28 @@ let () =
             <div class="region-compile-arrow">compiles to</div>
             <article class="region-lowered-card">
               <pre><code>let rec loop x =
-  start_new_region ();
+  let region = start_region () in
   ...
-  end_current_region ();
+  end_region region;
   tail call loop next_x</code></pre>
             </article>
-            <article class="region-source-card">
+            <p class="region-tail-message fragment" data-fragment-index="1"><code>[@nontail]</code> keeps the region open, so stack values can be passed to the call.</p>
+            <article class="region-source-card fragment" data-fragment-index="1">
               <h3>Non-tail call</h3>
               <pre><code>let f x =
   ...
   g x [@nontail]</code></pre>
             </article>
-            <div class="region-compile-arrow">compiles to</div>
-            <article class="region-lowered-card no-region-card">
+            <div class="region-compile-arrow fragment" data-fragment-index="1">compiles to</div>
+            <article class="region-lowered-card no-region-card fragment" data-fragment-index="1">
               <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   ...
   let result = g x in
-  end_current_region ();
+  end_region region;
   result</code></pre>
             </article>
           </div>
-          <p class="takeaway"><code>[@nontail]</code> suppresses the tail call, so the region ends only after the call returns.</p>
           <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Explain why OxCaml made this choice: tail-recursive loops should not accumulate allocation-stack space as they go. Use [@nontail] when a local value must stay alive during the call.</aside>
         </section>
 
@@ -317,9 +430,9 @@ let () =
             <div class="region-compile-arrow">compiles to</div>
             <article class="region-lowered-card">
               <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   let n = compute_count x in
-  end_current_region ();
+  end_region region;
   build_result n</code></pre>
             </article>
             <article class="region-compile-note" aria-label="exclave at the beginning note">
@@ -343,7 +456,40 @@ let () =
           <aside class="notes">For the live deck, keep the axis to the two facts students need first: global values can escape; local values may point into the current region and cannot escape it.</aside>
         </section>
 
-        <section class="slide concept-slide">
+        <section class="slide concept-slide mode-rules-slide locality-propagation-slide">
+          <h2>How OxCaml tracks locality</h2>
+          <div class="mode-rules-grid">
+            <article class="mode-rule-card">
+              <h3>Every value</h3>
+              <pre><code>x : a @ global
+x : a @ local</code></pre>
+              <p>Values have locality, just as they have types. OxCaml tracks the locality of every variable and expression.</p>
+            </article>
+            <article class="mode-rule-card">
+              <h3>Functions</h3>
+              <pre><code>f : a @ global -> b @ global
+f : a @ global -> b @ local
+f : a @ local  -> b @ global
+f : a @ local  -> b @ local</code></pre>
+              <p>Function signatures specify locality.</p>
+            </article>
+            <article class="mode-rule-card">
+              <h3>Locality is deep</h3>
+              <pre><code>type r = { field : a }
+
+x : r @ global
+x.field : a @ global
+
+x : r @ local
+x.field : a @ local</code></pre>
+              <p>Projection uses the locality of the record value.</p>
+            </article>
+          </div>
+          <p class="takeaway fragment">OxCaml has other mode axes besides locality. We will see that later.</p>
+          <aside class="notes">Function calls: the caller must provide the input at the parameter locality, and receives the result at the result locality. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field locality usually comes from the current locality of the record expression.</aside>
+        </section>
+
+        <section class="slide concept-slide locality-rules-slide">
           <h2>Locality rules for <code>stack_</code> and <code>exclave_</code></h2>
           <div class="comparison three-up">
             <article class="diagram-card">
@@ -354,27 +500,53 @@ let () =
             </article>
             <article class="diagram-card">
               <h3><code>exclave_ expr</code></h3>
-              <p>Makes the function return at <code>@ local</code>.</p>
+              <p>Allows <code>@ local</code> return.</p>
               <pre><code>let f () : int list @ local =
   exclave_
   stack_ [1; 2; 3]</code></pre>
             </article>
             <article class="diagram-card">
               <h3>after <code>exclave_</code></h3>
-              <p>Makes <code>@ local</code> variables unavailable.</p>
-              <pre><code>let f (x : int list @ local) =
+              <p>Deletes <code>@ local</code> variables.</p>
+              <pre><code>let f () =
   let y = stack_ [1] in
   exclave_
   let z = stack_ [2] in
-  (* ok: x, z *)
-  (* not ok: y *)</code></pre>
-              <p>But outer-local values (function arguments) are available.</p>
+  (* z ok *)
+  (* y bad *)</code></pre>
             </article>
           </div>
           <aside class="notes">State these as mode-checking rules before the x/y/z example. stack_ produces a local value. exclave_ makes the result local to the caller's region. At a mid-function exclave_, an @ local argument may be outer-local, so it can still be used; a value allocated in the function's old current region cannot be used after the region ends.</aside>
         </section>
 
-        <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide">
+        <section class="slide live-slide locality-in-action-slide">
+          <h2>Locality in action</h2>
+          <div class="live-editor-frame" tabindex="-1">
+            <div class="code-label">Ex01_locality_in_action.ml</div>
+            <oxcaml run data-filename="Ex01_locality_in_action.ml">
+(* Stack allocation example. *)
+
+let rec sum xs =
+  match xs with
+  | [] -> 0
+  | x::xs' -> x + sum xs'
+
+let sum3 a b c =
+  exclave_
+  let xs = stack_ [a;b;c] in
+  let n = sum xs in
+  (* xs gets deallocated here *)
+  n, xs
+
+let () =
+  let n, _xs = sum3 1 2 3 in
+  print_endline (string_of_int n)
+            </oxcaml>
+          </div>
+          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
+        </section>
+
+        <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide" data-visibility="hidden">
           <h2>How OxCaml checks stack allocation safety:<br>functions and <code>exclave_</code></h2>
           <div class="region-compile-grid function-exclave-grid">
             <article class="region-source-card">
@@ -394,10 +566,10 @@ let () =
               <h3>Region view</h3>
               <div class="exclave-boundary-code" aria-label="Lowered region view with exclave">
                 <div class="code-line">let f x =</div>
-                <div class="code-line indent-1">start_new_region ();</div>
+                <div class="code-line indent-1">let region = start_region () in</div>
                 <div class="code-line indent-1">let y = stack_ [1; 2; 3] in</div>
                 <div class="code-line indent-1">ignore (sum y);</div>
-                <div class="code-line indent-1">end_current_region ();</div>
+                <div class="code-line indent-1">end_region region;</div>
                 <div class="code-line indent-1 tok-comment">(* y dies here *)</div>
                 <div class="code-line indent-1">let z = stack_ [4; 5; 6] in</div>
                 <div class="code-line indent-1">sum x + sum z</div>
@@ -409,7 +581,7 @@ let () =
           <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z belongs to the parent region.</aside>
         </section>
 
-        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide">
+        <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide" data-visibility="hidden">
           <h2>Local parameters prevent escape</h2>
           <div class="live-layout">
             <div class="live-copy">
@@ -503,27 +675,36 @@ let demo () =
           <h2>Solution: modalities</h2>
           <div class="mode-rules-grid">
             <article class="mode-rule-card">
-              <h3>Default: modes are deep</h3>
-              <pre><code>r : { field : 'a } @ local
+              <h3>Default: locality is deep</h3>
+              <pre><code>type 'a box = { field : 'a }
 
+r : 'a box @ global
+r.field : 'a @ global
+
+r : 'a box @ local
 r.field : 'a @ local</code></pre>
-              <p>Ordinary field access uses the mode of the record value.</p>
+              <p>Ordinary field projection uses the locality of the record value.</p>
             </article>
             <article class="mode-rule-card mode-rule-focus">
               <h3><code>@@ global</code> field</h3>
-              <pre><code>type 'a global =
-  { global : 'a @@ global }
+              <pre><code>type 'a box =
+  { field : 'a @@ global }
 
-r.global : 'a @ global</code></pre>
-              <p>The field is global even when the record is local.</p>
+r : 'a box @ global
+r.field : 'a @ global
+
+r : 'a box @ local
+r.field : 'a @ global</code></pre>
+              <p>The field stays global even when the record value is local.</p>
             </article>
             <article class="mode-rule-card">
-              <h3>construction</h3>
-              <pre><code>{ global = inner }
+              <h3>Construction</h3>
+              <pre><code>type 'a box =
+  { field : 'a @@ global }
 
-requires:
+{ field = inner }
 inner : 'a @ global</code></pre>
-              <p>The field value must be global, even if the record itself is built at <code>@ local</code>.</p>
+              <p>Constructing the record requires the field value at <code>@ global</code>.</p>
             </article>
           </div>
           <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
@@ -580,28 +761,7 @@ let demo () =
           <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Quiz: requirements or promises?</h2>
-          <div class="two-up">
-            <article>
-              <h3>Argument position</h3>
-              <pre><code>'a @ local -> 'b
-'a @ portable -> 'b
-'a @ contended -> 'b</code></pre>
-              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
-            </article>
-            <article>
-              <h3>Result position</h3>
-              <pre><code>'a -> 'b @ local
-'a -> 'b @ portable
-'a -> 'b @ contended</code></pre>
-              <p>Which ones are promises to the caller, and which ones are requirements on the caller?</p>
-            </article>
-          </div>
-          <aside class="notes">Answer: before the arrow, the caller must be able to provide the argument at that mode. After the arrow, the function promises that the result is available at that mode. For locality, an argument at @ local is an easy requirement that also tells the caller the function will not make the argument escape.</aside>
-        </section>
-
-        <section class="slide concept-slide">
+        <section class="slide concept-slide" data-visibility="hidden">
           <h2>Quiz: which field modality is allowed?</h2>
           <div class="three-up">
             <article>
@@ -866,7 +1026,7 @@ let outer_record_with_unboxed_point =
               <br>
               <p>If the inner type is <code>string or_null</code>, it already may be null. The outer <code>or_null</code> would need the same null word for a second missing case.</p>
               <br>
-              <p>The kind tracks this: <code>or_null</code> needs a non-null <code>value</code> payload, but <code>string or_null</code> has kind <code>value_or_null</code>.</p>
+              <p>The layout tracks this: <code>or_null</code> needs a non-null <code>value</code> payload, but <code>string or_null</code> has layout <code>value_or_null</code>.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">or_null_cannot_be_nested.ml</div>
@@ -875,7 +1035,7 @@ type nested = string or_null or_null
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Explain this as representation ambiguity first, then as the kind distinction value vs value_or_null.</aside>
+          <aside class="notes">Explain this as representation ambiguity first, then as the layout distinction value vs value_or_null.</aside>
         </section>
 
         <section class="slide live-slide ordinary-polymorphic-slide">
@@ -898,14 +1058,14 @@ let bad =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The point is the argument kind. Do not frame this as an unboxed return problem.</aside>
+          <aside class="notes">The point is the argument layout. Do not frame this as an unboxed return problem.</aside>
         </section>
 
         <section class="slide live-slide">
-          <h2>Kinds say which representation a type parameter accepts</h2>
+          <h2>Kinds say which layout a type has</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The kind annotation says the argument may have the unboxed point layout.</p>
+              <p>The layout annotation says the argument may have the unboxed point layout.</p>
               <br>
               <p>(The result is still a boxed record in this example.)</p>
             </div>
@@ -928,7 +1088,7 @@ let ok =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">This keeps a boxed result while changing what representation the type parameter can range over.</aside>
+          <aside class="notes">This keeps a boxed result while changing what layout the type parameter can range over.</aside>
         </section>
 
         <section class="slide concept-slide template-expansion-slide">
@@ -952,8 +1112,8 @@ let id_product
             </article>
           </div>
           <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
-          <p class="takeaway">OxCaml is a work in progress. Future kind-polymorphic definitions are intended to reduce this template pattern.</p>
-          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general kind polymorphism.</aside>
+          <p class="takeaway">OxCaml is a work in progress. Future layout-polymorphic definitions are intended to reduce this template pattern.</p>
+          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general layout polymorphism.</aside>
         </section>
 
         <section class="slide summary-slide">
@@ -1085,11 +1245,11 @@ Parallel.fork_join2 parallel
   (fun _ -> incr r)
   (fun _ -> !r)</code></pre></article>
             <article><h3>overlap rule</h3>
-              <table class="matrix compact-matrix">
-                <thead><tr><th></th><th>read</th><th>write</th></tr></thead>
+              <table class="matrix compact-matrix overlap-matrix">
+                <thead><tr><th class="axis-label">overlapping operation</th><th scope="col">read</th><th scope="col">write</th></tr></thead>
                 <tbody>
-                  <tr><th>read</th><td class="ok">safe</td><td class="bad">race</td></tr>
-                  <tr><th>write</th><td class="bad">race</td><td class="bad">race</td></tr>
+                  <tr><th scope="row">read</th><td class="safe-cell">safe</td><td class="race-cell">race</td></tr>
+                  <tr><th scope="row">write</th><td class="race-cell">race</td><td class="race-cell">race</td></tr>
                 </tbody>
               </table>
               <p class="matrix-note">Two parallel reads are fine. Two racing writes are not allowed. A racing read and write is not allowed either.</p>
@@ -1178,7 +1338,6 @@ Concurrent.spawn spawn
               <div class="axis-mode-wrap"><div class="axis-context">inside spawn</div><div class="axis-mode warn"><code>x @ contended</code><ul><li>owned by another</li><li>immutable fields only</li><li>some other user may write</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
-            <p class="axis-strip-note axis-strip-star">★ In OxCaml, contention ownership is per thread of execution, unlike in Rust, where ownership is per variable.</p>
           </div>
           <aside class="notes">Use the single-writer or many-readers invariant. Do not conflate shared with shareable.</aside>
         </section>
@@ -1198,42 +1357,41 @@ Concurrent.spawn spawn
           <h2>How modes propagate</h2>
           <div class="mode-rules-grid">
             <article class="mode-rule-card">
-              <h3>Every expression</h3>
-              <p>Variables and sub-expressions have modes, just as they have types.</p>
-              <pre><code>x : a @ M
-f x : b @ N</code></pre>
+              <h3>Every value</h3>
+              <pre><code>x : a @ M</code></pre>
+              <p>Values have modes, just as they have types. OxCaml tracks the mode of every variable and expression.</p>
             </article>
             <article class="mode-rule-card">
-              <h3>Function calls</h3>
+              <h3>Functions</h3>
               <pre><code>f : a @ M -> b @ N
-x : a @ M
-
 f x : b @ N</code></pre>
+              <p>Function signatures specify modes.</p>
             </article>
             <article class="mode-rule-card">
               <h3>Modes are deep</h3>
-              <pre><code>r : { field : a } @ M
+              <pre><code>type r =
+  { field : a }
 
+x : r @ M
 r.field : a @ M</code></pre>
               <p>Projection uses the mode of the record value.</p>
-              <p>* Modalities can preserve the inner mode.</p>
             </article>
             <article class="mode-rule-card mode-rule-focus">
-              <h3>Closure expressions</h3>
-              <p><code>fun ... -&gt; ...</code> is the main complex rule.</p>
-              <p>It depends on what the closure captures.</p>
+              <h3>Function expressions</h3>
+              <pre><code>fun x -> expr</code></pre>
+              <p>Function values also get modes based on what they capture.</p>
             </article>
           </div>
-          <p class="takeaway">Most mode propagation is local; closure formation is where the interesting step happens.</p>
-          <aside class="notes">Function calls: the caller must provide the input at the parameter mode, and receives the result at the result mode. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field mode usually comes from the current mode of the record expression. The asterisk is for modalities, which can preserve the inner mode and are introduced later.</aside>
+          <p class="takeaway">Most mode propagation is local; function formation is where the interesting step happens.</p>
+          <aside class="notes">Function calls: the caller must provide the input at the parameter mode, and receives the result at the result mode. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field mode usually comes from the current mode of the record expression.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide">
-          <h2>The contention closure boundary</h2>
+          <h2>The contention function boundary</h2>
           <div class="boundary-code-grid">
             <article>
               <h3>fork/join body sees captured <code>x @ shared</code></h3>
-              <div class="closure-boundary-code" aria-label="Fork join contention closure boundary example">
+              <div class="closure-boundary-code" aria-label="Fork join contention function boundary example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
@@ -1254,7 +1412,7 @@ r.field : a @ M</code></pre>
             </article>
             <article>
               <h3>spawn body sees captured <code>x @ contended</code></h3>
-              <div class="closure-boundary-code" aria-label="Spawn contention closure boundary example">
+              <div class="closure-boundary-code" aria-label="Spawn contention function boundary example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
@@ -1273,16 +1431,16 @@ r.field : a @ M</code></pre>
               </div>
             </article>
           </div>
-          <p class="takeaway">The boundary weakens captured values inside the closure; the original variable keeps its mode outside the closure.</p>
-          <aside class="notes">Use this to connect field requirements to closure capture weakening.</aside>
+          <p class="takeaway">The boundary weakens captured values inside the function; the original variable keeps its mode outside the function.</p>
+          <aside class="notes">Use this to connect field requirements to function capture weakening.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide list-iter-boundary-slide">
-          <h2>Ordinary closures keep ordinary access</h2>
+          <h2>Ordinary functions keep ordinary access</h2>
           <div class="single-boundary-code">
             <article>
               <h3>List.iter body sees captured <code>x @ uncontended</code></h3>
-              <div class="closure-boundary-code" aria-label="List iter ordinary closure boundary example">
+              <div class="closure-boundary-code" aria-label="List iter ordinary function boundary example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
@@ -1302,12 +1460,12 @@ r.field : a @ M</code></pre>
               </div>
             </article>
           </div>
-          <p class="takeaway">An ordinary closure does not need a parallel-safety promise, so the captured variable keeps ordinary write access.</p>
-          <aside class="notes">This is the contrast case before the key point: closure formation alone does not weaken modes; the closure's required mode determines the effect.</aside>
+          <p class="takeaway">An ordinary function does not need a parallel-safety promise, so the captured variable keeps ordinary write access.</p>
+          <aside class="notes">This is the contrast case before the key point: function formation alone does not weaken modes; the function's required mode determines the effect.</aside>
         </section>
 
         <section class="slide big-key-slide">
-          <p>Key point: a variable's type never changes, but a variable's mode can change when it is captured by a closure.</p>
+          <p>Key point: a variable's type never changes, but a variable's mode can change when it is captured by a function.</p>
         </section>
 
         <section class="slide live-slide function-arguments-slide">
@@ -1363,11 +1521,11 @@ let bump_hits (x @ uncontended) =
         </section>
 
         <section class="slide live-slide closure-captures-slide">
-          <h2>What about closure captures?</h2>
+          <h2>What about function captures?</h2>
           <div class="closure-captures-layout">
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">closure_captures.ml</div>
-              <oxcaml check data-filename="closure_captures.ml" expect-error no-self-check>
+              <div class="code-label">function_captures.ml</div>
+              <oxcaml check data-filename="function_captures.ml" expect-error no-self-check>
 type t = { id : int; mutable hits : int }
 let x = { id = 1; hits = 0 }
 
@@ -1391,15 +1549,15 @@ let demo parallel =
           <h2>Portability axis</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes portability">
-              <div class="axis-mode-wrap"><div class="axis-context">callable in spawn context</div><div class="axis-mode good"><code>portable</code><ul><li>detached parallel work</li><li>closures keep no mutable access</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in spawn context</div><div class="axis-mode good"><code>portable</code><ul><li>detached parallel work</li><li>functions keep no mutable access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">callable in fork/join context</div><div class="axis-mode note"><code>shareable</code><ul><li>structured fork/join work</li><li>closures keep read-only access</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in fork/join context</div><div class="axis-mode note"><code>shareable</code><ul><li>structured fork/join work</li><li>functions keep read-only access</li></ul></div></div>
               <b class="axis-arrow">→</b>
-              <div class="axis-mode-wrap"><div class="axis-context">callable in sequential context</div><div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>closures may keep read/write access</li></ul></div></div>
+              <div class="axis-mode-wrap"><div class="axis-context">callable in sequential context</div><div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>functions may keep read/write access</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
           </div>
-          <aside class="notes">For closures, portability mostly summarizes what the closure captured and how it may use those captures.</aside>
+          <aside class="notes">For functions, portability mostly summarizes what the function captured and how it may use those captures.</aside>
         </section>
 
         <section class="slide exercise-slide">
@@ -1478,10 +1636,10 @@ val spawn :
         </section>
 
         <section class="slide concept-slide contention-boundary-slide">
-          <h2>How the compiler knows which closure boundary to apply</h2>
+          <h2>How the compiler knows which function boundary to apply</h2>
           <div class="boundary-code-grid">
             <article>
-              <div class="closure-boundary-code" aria-label="Fork join contention closure boundary revisited example">
+              <div class="closure-boundary-code" aria-label="Fork join contention function boundary revisited example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
@@ -1507,7 +1665,7 @@ val spawn :
   ...</code></pre>
             </article>
             <article>
-              <div class="closure-boundary-code" aria-label="Spawn contention closure boundary revisited example">
+              <div class="closure-boundary-code" aria-label="Spawn contention function boundary revisited example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
@@ -1532,15 +1690,15 @@ val spawn :
   unit</code></pre>
             </article>
           </div>
-          <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the closure argument mode.</aside>
+          <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the function argument mode.</aside>
         </section>
 
         <section class="slide concept-slide shareable-capture-slide" data-visibility="hidden">
-          <h2>Closure Boundaries: Shareable</h2>
+          <h2>Function Boundaries: Shareable</h2>
           <article class="capture-card shareable-card">
             <div class="capture-card-header">
-              <h3><code>shareable</code> closure</h3>
-              <p class="capture-legend">A structured fork/join closure may still use captures in shared/read-only mode, but not in uncontended/write-capable mode.</p>
+              <h3><code>shareable</code> function</h3>
+              <p class="capture-legend">A structured fork/join function may still use captures in shared/read-only mode, but not in uncontended/write-capable mode.</p>
             </div>
             <div class="capture-code">
               <svg class="capture-overlay" aria-hidden="true"></svg>
@@ -1581,7 +1739,7 @@ val spawn :
                   </div>
                 </div>
                 <div class="capture-closure-box shareable" data-boundary-link="shareable">
-                  <div class="capture-closure-title shareable" data-boundary-link="shareable">shareable Closure Boundary</div>
+                  <div class="capture-closure-title shareable" data-boundary-link="shareable">shareable Function Boundary</div>
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
@@ -1642,15 +1800,15 @@ val spawn :
               </div>
             </div>
           </article>
-          <aside class="notes">This is copied from the course's shareable closure-boundary diagram and trimmed to the single boundary case for slide use.</aside>
+          <aside class="notes">This is copied from the course's shareable function-boundary diagram and trimmed to the single boundary case for slide use.</aside>
         </section>
 
         <section class="slide concept-slide shareable-capture-slide portable-capture-slide" data-visibility="hidden">
-          <h2>Closure Boundaries: Portable</h2>
+          <h2>Function Boundaries: Portable</h2>
           <article class="capture-card portable-card">
             <div class="capture-card-header">
-              <h3><code>portable</code> closure</h3>
-              <p class="capture-legend">A spawned closure is checked more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
+              <h3><code>portable</code> function</h3>
+              <p class="capture-legend">A spawned function is checked more conservatively: shared/read-only mutable access no longer survives the boundary.</p>
             </div>
             <div class="capture-code">
               <svg class="capture-overlay" aria-hidden="true"></svg>
@@ -1691,7 +1849,7 @@ val spawn :
                   </div>
                 </div>
                 <div class="capture-closure-box portable" data-boundary-link="portable">
-                  <div class="capture-closure-title portable" data-boundary-link="portable">portable Closure Boundary</div>
+                  <div class="capture-closure-title portable" data-boundary-link="portable">portable Function Boundary</div>
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
@@ -1750,11 +1908,11 @@ val spawn :
               </div>
             </div>
           </article>
-          <aside class="notes">This is the portable counterpart to the shareable closure-boundary diagram.</aside>
+          <aside class="notes">This is the portable counterpart to the shareable function-boundary diagram.</aside>
         </section>
 
         <section class="slide concept-slide capture-matrix-slide" data-visibility="hidden">
-          <h2>Closure boundaries summary</h2>
+          <h2>Function boundaries summary</h2>
           <div class="capture-matrix">
             <div class="capture-matrix-transposed">
               <div class="capture-matrix-transposed-grid">
@@ -1767,7 +1925,7 @@ val spawn :
                   <div class="capture-matrix-transposed-rowhead"><code>@ nonportable</code></div>
                 </div>
                 <div class="capture-matrix-transposed-box portable">
-                  <div class="capture-matrix-transposed-boxhead portable">in portable closure</div>
+                  <div class="capture-matrix-transposed-boxhead portable">in portable function</div>
                   <div class="capture-matrix-transposed-values">
                     <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
                     <div class="capture-matrix-transposed-cell warn"><code>contended</code></div>
@@ -1778,7 +1936,7 @@ val spawn :
                   </div>
                 </div>
                 <div class="capture-matrix-transposed-box shareable">
-                  <div class="capture-matrix-transposed-boxhead shareable">in shareable closure</div>
+                  <div class="capture-matrix-transposed-boxhead shareable">in shareable function</div>
                   <div class="capture-matrix-transposed-values">
                     <div class="capture-matrix-transposed-cell warn"><code>shared</code></div>
                     <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
@@ -1789,7 +1947,7 @@ val spawn :
                   </div>
                 </div>
                 <div class="capture-matrix-transposed-box nonportable">
-                  <div class="capture-matrix-transposed-boxhead nonportable">in nonportable closure</div>
+                  <div class="capture-matrix-transposed-boxhead nonportable">in nonportable function</div>
                   <div class="capture-matrix-transposed-values">
                     <div class="capture-matrix-transposed-cell good"><code>uncontended</code></div>
                     <div class="capture-matrix-transposed-cell good"><code>shared</code></div>
@@ -1802,7 +1960,7 @@ val spawn :
               </div>
             </div>
           </div>
-          <aside class="notes">The fork/join function is shareable. The spawned function is portable. Nonportable is ordinary closure behavior.</aside>
+          <aside class="notes">The fork/join function is shareable. The spawned function is portable. Nonportable is ordinary function behavior.</aside>
         </section>
 
         <section class="slide concept-slide parallelism-recap-slide">
