@@ -6,7 +6,7 @@
     <title>OxCaml Basics Slides</title>
     <link rel="stylesheet" href="vendor/reveal/reset.css">
     <link rel="stylesheet" href="vendor/reveal/reveal.css">
-    <link rel="stylesheet" href="slides.css?v=locality-propagation-3-20260529">
+    <link rel="stylesheet" href="slides.css?v=or-null-row-gap-3-20260529">
   </head>
   <body>
     <div class="reveal">
@@ -423,7 +423,8 @@ let () =
             <article class="region-source-card">
               <h3>Middle <code>exclave_</code></h3>
               <pre><code>let f x =
-  let n = compute_count x in
+  let xs = compute_list x in
+  let n = sum xs in
   exclave_
   build_result n</code></pre>
             </article>
@@ -431,7 +432,8 @@ let () =
             <article class="region-lowered-card">
               <pre><code>let f x =
   let region = start_region () in
-  let n = compute_count x in
+  let xs = compute_list x in
+  let n = sum xs in
   end_region region;
   build_result n</code></pre>
             </article>
@@ -610,28 +612,27 @@ let add_with_scratch x y =
           <h2>Submoding: use global data locally</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>escape xs</code> type-checks because <code>xs</code> already has global mode.</p>
-              <p><code>sum xs</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
+              <p><code>escape s</code> type-checks because <code>s</code> already has global mode.</p>
+              <p><code>length s</code> then uses the same value at the more restrictive <code>@ local</code> mode.</p>
               <br>
               <p><code>@ local</code> data is not always on the allocation stack. Heap data can be used locally too. Stack data cannot be used as global.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex01_submoding_global_inner_used_locally.ml</div>
-              <oxcaml run data-filename="Ex01_submoding_global_inner_used_locally.ml">
-let saved : int list list ref = ref []
+              <div class="code-label">Ex01_submoding_global_string_used_locally.ml</div>
+              <oxcaml run data-filename="Ex01_submoding_global_string_used_locally.ml">
+let saved : string list ref = ref []
 
-let escape xs =
-  saved := xs :: !saved
+let escape (s : string @ global) =
+  saved := s :: !saved
 
-let rec sum (xs : int list @ local) =
-  match xs with
-  | [] -> 0
-  | x :: xs -> x + sum xs
+let length (s : string @ local) =
+  String.length s
+
+let global_string @ global = "hello"     (* the string is global *)
 
 let demo () =
-  let xs = [1; 2; 3] in
-  escape xs;
-  sum xs
+  escape global_string;                  (* allowed because global_string is global *)
+  length global_string                   (* global_string is submoded to local *)
 
 let () =
   print_endline (string_of_int (demo ()))
@@ -645,30 +646,34 @@ let () =
           <h2>Problem: plain local containers lose the global mode</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The inner list starts global: the first <code>escape inner</code> type-checks.</p>
-              <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
+              <p>The top-level string starts at <code>@ global</code>.</p>
+              <p>After matching through <code>outer : string list @ local</code>, the extracted <code>inner</code> is only local.</p>
               <br>
               <p>An ordinary list node does not remember that its element was global. Using the outer list at local mode also uses everything reached through it at local mode.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex01_plain_local_outer_list_forgets_global_inner.ml</div>
-              <oxcaml check data-filename="Ex01_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-let saved : int list list ref = ref []
+              <div class="code-label">Ex01_plain_local_container_forgets_global_string.ml</div>
+              <oxcaml check data-filename="Ex01_plain_local_container_forgets_global_string.ml" expect-error no-self-check>
+let saved : string list ref = ref []
 
-let escape xs =
-  saved := xs :: !saved
+let escape (s : string @ global) =
+  saved := s :: !saved
+
+let length (s : string @ local) =
+  String.length s
+
+let global_string @ global = "hello"     (* the string is global *)
 
 let demo () =
-  let inner = [1; 2; 3] in
-  escape inner;
-  let outer = stack_ [inner] in
+  escape global_string;                  (* allowed because global_string is global *)
+  let outer = stack_ [global_string] in  (* global_string is submoded to local *)
   match outer with
   | [] -> ()
-  | inner :: _ -> escape inner
+  | inner :: _ -> escape inner           (* we lost the information that the list elements are @ local *)
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap list became unsafe at runtime.</aside>
+          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap string became unsafe at runtime.</aside>
         </section>
 
         <section class="slide concept-slide mode-rules-slide modality-solution-slide">
@@ -702,39 +707,43 @@ r.field : 'a @ global</code></pre>
               <pre><code>type 'a box =
   { field : 'a @@ global }
 
-{ field = inner }
+let r =
+  stack_ { field = inner }
+
+r : 'a box @ local
 inner : 'a @ global</code></pre>
-              <p>Constructing the record requires the field value at <code>@ global</code>.</p>
+              <p>Even a local record requires the field value at <code>@ global</code>.</p>
             </article>
           </div>
           <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
           <aside class="notes">Repeat the earlier rule: projection normally uses the outer mode. The @@ global modality changes the field rule in both directions. Reading the field gives the global mode. Constructing the record requires the field value at global mode, even when the container is local.</aside>
         </section>
 
-        <section class="slide live-slide">
+        <section class="slide live-slide modality-preserve-slide">
           <h2>Modalities preserve the global mode for inner data</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The outer list is local, while the inner list is global.</p>
-              <p>A local list of global lists: the field modality preserves the global mode.</p>
+              <p>The outer list is local, while the inner string is global.</p>
+              <p>A local list of global strings: the field modality preserves the global mode.</p>
             </div>
             <div class="live-editor-frame" tabindex="-1">
-              <div class="code-label">Ex01_global_wrapper_preserves_inner_list_globality.ml</div>
-              <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_list_globality.ml">
+              <div class="code-label">Ex01_global_wrapper_preserves_inner_string_globality.ml</div>
+              <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_string_globality.ml">
 type 'a global = { global : 'a @@ global }
 
-let saved : int list list ref = ref []
+let saved : string list ref = ref []
 
-let escape xs =
-  saved := xs :: !saved
+let escape (s : string @ global) =
+  saved := s :: !saved
 
 let demo () =
-  let inner = [1; 2; 3] in
-  escape inner;
+  let inner @ global = "hello" in
+  escape inner;                          (* allowed because inner @ global *)
   let outer = stack_ [{ global = inner }] in
+                                         (* modality preserves @ global *)
   match outer with
   | [] -> ()
-  | inner :: _ -> escape inner.global
+  | inner :: _ -> escape inner.global    (* allowed because inner.global @ global *)
               </oxcaml>
             </div>
           </div>
@@ -833,7 +842,7 @@ field r.x @ uncontended</code></pre>
                 <div class="heap-block-model">
                   <div class="heap-block-label">heap block</div>
                   <div class="heap-model">
-                    <div class="heap-model-word heap-model-header"><strong>header word</strong><span>size, tag, scan info</span></div>
+                    <div class="heap-model-word heap-model-header"><strong>header word</strong><span>tag, size, scan info</span></div>
                     <div class="heap-model-word"><strong>payload 0</strong><span>value or raw data</span></div>
                     <div class="heap-model-ellipsis">...</div>
                     <div class="heap-model-word"><strong>payload N</strong><span>value or raw data</span></div>
@@ -912,7 +921,7 @@ let plain_value_record =
   }
 
 let plain_value_record =
-  { symbol = "OX"
+  { symbol = "OxCaml rocks"
   ; price = 101
   ; size = 7
   }</code></pre>
@@ -923,6 +932,30 @@ let plain_value_record =
             </article>
           </div>
           <aside class="notes">Mutability changes allowed operations; it does not create a different block shape.</aside>
+        </section>
+
+        <section class="slide concept-slide repr-slide tree-constructor-slide">
+          <h2>Variant constructors use header tags</h2>
+          <div class="repr-slide-layout">
+            <article class="repr-code-panel">
+              <h3>Source</h3>
+              <pre><code>type tree =
+  | Zero
+  | One of tree
+  | Two of tree * tree
+
+let simple_tree =
+  Two
+    (One (One Zero),
+     Zero)</code></pre>
+            </article>
+            <article class="repr-graph-panel">
+              <h3>Run-time layout</h3>
+              <div class="native-repr-slot" data-native-repr="simple_tree" data-native-repr-part="graph"></div>
+            </article>
+          </div>
+          <p class="takeaway">Constructors with payload allocate blocks; the header tag distinguishes the constructor.</p>
+          <aside class="notes">Zero is an immediate value. One and Two allocate blocks with different header tags.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide">
@@ -1093,23 +1126,39 @@ let ok =
 
         <section class="slide concept-slide template-expansion-slide">
           <h2>Templates reduce repetition</h2>
-          <div class="two-up">
-            <article>
-              <h3>Template source</h3>
-              <pre><code>let%template[@kind k = (value, value &amp; value)] id
+          <div class="template-expansion-grid">
+            <div class="two-up">
+              <article>
+                <h3>Template source</h3>
+                <pre><code>let%template[@kind k = (value, value &amp; value)] id
   : ('a : k). 'a -> 'a =
   fun x -> x</code></pre>
-            </article>
-            <article>
-              <h3>Schematic expansion</h3>
-              <pre><code>let id_value
+              </article>
+              <article>
+                <h3>Schematic expansion</h3>
+                <pre><code>let id
   : ('a : value). 'a -> 'a =
   fun x -> x
 
-let id_product
+let id__'value_value'
   : ('a : value &amp; value). 'a -> 'a =
   fun x -> x</code></pre>
-            </article>
+              </article>
+            </div>
+            <div class="two-up template-call-row">
+              <article>
+                <h3>Calls in source</h3>
+                <pre><code>let a = id 5
+
+let b = (id [@kind value &amp; value]) #(1, 2)</code></pre>
+              </article>
+              <article>
+                <h3>Expanded calls</h3>
+                <pre><code>let a = id 5
+
+let b = id__'value_value' #(1, 2)</code></pre>
+              </article>
+            </div>
           </div>
           <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
           <p class="takeaway">OxCaml is a work in progress. Future layout-polymorphic definitions are intended to reduce this template pattern.</p>
@@ -1382,7 +1431,7 @@ r.field : a @ M</code></pre>
               <p>Function values also get modes based on what they capture.</p>
             </article>
           </div>
-          <p class="takeaway">Most mode propagation is local; function formation is where the interesting step happens.</p>
+          <p class="takeaway">Most mode propagation is simple, but functions is where something more complex happens.</p>
           <aside class="notes">Function calls: the caller must provide the input at the parameter mode, and receives the result at the result mode. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field mode usually comes from the current mode of the record expression.</aside>
         </section>
 
@@ -2017,7 +2066,7 @@ val spawn :
 
     <script src="vendor/reveal/reveal.js"></script>
     <script src="vendor/reveal/plugin/notes.js"></script>
-    <script src="slides.js?v=line-numbers-20260527"></script>
+    <script src="slides.js?v=arrow-proportions-20260529"></script>
     <script src="../assets/oxcaml-embed-loader.js?v=embed-margin-20260511"></script>
   </body>
 </html>

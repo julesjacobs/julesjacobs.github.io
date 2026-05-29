@@ -42,7 +42,7 @@
                 <div class="heap-model">
                   <div class="heap-model-word heap-model-header">
                     <strong>header word</strong>
-                    <span>size, tag, scan info</span>
+                    <span>tag, size, scan info</span>
                   </div>
                   <div class="heap-model-word">
                     <strong>payload 0</strong>
@@ -68,19 +68,19 @@
       <section>
         <h2>Examples</h2>
 
-        <oxcaml-repr filename="plain_value_integer.ml">
+        <oxcaml-repr mode="uniform-tags" filename="plain_value_integer.ml">
           let plain_value_integer = 5
         </oxcaml-repr>
 
         <p>A tuple is not stored directly in the root word. The root word points to a heap block. The heap block has a header and then one payload word per tuple field.</p>
 
-        <oxcaml-repr filename="plain_value_tuple.ml">
+        <oxcaml-repr mode="uniform-tags" filename="plain_value_tuple.ml">
           let plain_value_tuple = (1, 2, 3)
         </oxcaml-repr>
 
         <p>Records have the same basic shape as tuples: a header followed by payload words. Immutable and mutable fields are both fields in the block; mutability is a property of what the program may do with the field, not a different block shape.</p>
 
-        <oxcaml-repr filename="plain_value_record.ml">
+        <oxcaml-repr mode="uniform-tags" filename="plain_value_record.ml">
           type quote =
             { symbol : string
             ; price : int
@@ -88,7 +88,7 @@
             }
 
           let plain_value_record =
-            { symbol = "OX"; price = 101; size = 7 }
+            { symbol = "OxCaml rocks"; price = 101; size = 7 }
         </oxcaml-repr>
 
         <aside class="exercise">
@@ -105,13 +105,13 @@
         <h2>Variants are also values</h2>
         <p>Algebraic data types use the same runtime model. A constructor with no payload is an immediate integer. A constructor with payload is a heap block; the header tag tells the runtime which constructor with payload it is.</p>
 
-        <oxcaml-repr filename="constant_constructors.ml">
+        <oxcaml-repr mode="uniform-tags" filename="constant_constructors.ml">
           type color = Red | Green | Blue
 
           let constant_constructors = (Red, Green, Blue)
         </oxcaml-repr>
 
-        <oxcaml-repr filename="variant_payloads.ml">
+        <oxcaml-repr mode="uniform-tags" filename="variant_payloads.ml">
           type order =
             | Market
             | Limit of string * int
@@ -126,13 +126,14 @@
 
         <p>Recursive data is a graph of these same values. Each constructor with payload allocates a block. Its fields point at other values, which may themselves be immediates or pointers to blocks.</p>
 
-        <oxcaml-repr filename="recursive_tree.ml">
+        <oxcaml-repr mode="uniform-tags" filename="recursive_tree.ml">
           type tree =
-            | Leaf of string
-            | Node of tree * tree
+            | Zero
+            | One of tree
+            | Two of tree * tree
 
-          let recursive_tree =
-            Node (Leaf "left", Node (Leaf "middle", Leaf "right"))
+          let simple_tree =
+            Two (One (One Zero), Zero)
         </oxcaml-repr>
       </section>
 
@@ -140,7 +141,7 @@
         <h2>Heap blocks can be shared</h2>
         <p>The recursive tree example has many blocks. The next point is about how those blocks connect to each other: the runtime representation is a graph, not a tree. If two fields point to the same heap object, there is one heap block with two incoming references.</p>
 
-        <oxcaml-repr filename="shared_string_tuple.ml">
+        <oxcaml-repr mode="uniform-tags" filename="shared_string_tuple.ml">
           let shared = "shared"
 
           let shared_string_tuple = (shared, shared, "other")
@@ -151,7 +152,7 @@
         <h2>The uniform model has costs</h2>
         <p>The uniform <code>value</code> model is convenient, but it has costs. Some data cannot fit directly in one immediate word. A standalone <code>float</code> or <code>int64</code> is boxed: the value word points to a heap block containing the raw bits.</p>
 
-        <oxcaml-repr filename="boxed_numeric_values.ml">
+        <oxcaml-repr mode="uniform-tags" filename="boxed_numeric_values.ml">
           let boxed_numeric_values =
             (3.5, 456L)
         </oxcaml-repr>
@@ -159,12 +160,12 @@
         <p>Boxing creates heap allocation and pointer indirection. That is often fine. It becomes a problem in code where the cost of many small allocations, cache misses, or GC work matters.</p>
         <p>Option values show the same issue. <code>None</code> is an immediate, but <code>Some payload</code> normally allocates a block to hold the payload.</p>
 
-        <oxcaml-repr filename="ordinary_none_int_option.ml">
+        <oxcaml-repr mode="uniform-tags" filename="ordinary_none_int_option.ml">
           let ordinary_none_int_option =
             (None : int option)
         </oxcaml-repr>
 
-        <oxcaml-repr filename="ordinary_some_int_option.ml">
+        <oxcaml-repr mode="uniform-tags" filename="ordinary_some_int_option.ml">
           let ordinary_some_int_option =
             Some 7
         </oxcaml-repr>
@@ -174,7 +175,7 @@
         <h2>Indirection shows up in nested data</h2>
         <p>Nested boxed data creates chains of pointers. Here the outer record points to a separate point block. Because the point contains only floats, OCaml uses its specialized all-float-record representation: the point block stores raw float payload words, not pointers to separate boxed float objects.</p>
 
-        <oxcaml-repr filename="outer_record_with_boxed_point.ml">
+        <oxcaml-repr mode="uniform-tags" filename="outer_record_with_boxed_point.ml">
           type boxed_point = { x : float; y : float }
 
           type sample =
@@ -201,14 +202,14 @@
         <p><strong>Uniform cost:</strong> an ordinary tuple allocates a heap block just to group its fields. <strong>Layout version:</strong> an unboxed product carries the components directly.</p>
         <p>Unlike an ordinary tuple, the unboxed product is not represented by one pointer to a tuple block. Its representation is just its components: here, the immediate integer and the string pointer. Those components can live in separate registers or stack slots.</p>
 
-        <oxcaml-repr filename="unboxed_pair_of_values.ml" layout="value,value">
+        <oxcaml-repr mode="uniform-tags" filename="unboxed_pair_of_values.ml" layout="value,value">
           let unboxed_pair_of_values = #(1, "one")
         </oxcaml-repr>
 
         <h3>Numeric boxes</h3>
         <p><strong>Uniform cost:</strong> the boxed numeric example had a tuple block, a boxed float, and a custom block for the <code>int64</code>. <strong>Layout version:</strong> raw <code>float#</code> and <code>int64#</code> components store the bits directly in the product.</p>
 
-        <oxcaml-repr filename="unboxed_numeric_values.ml" layout="float64,int64">
+        <oxcaml-repr mode="uniform-tags" filename="unboxed_numeric_values.ml" layout="float64,int64">
           let unboxed_numeric_values = #(#3.5, #456L)
         </oxcaml-repr>
 
@@ -216,7 +217,7 @@
         <p><strong>Uniform cost:</strong> the boxed-point example had an outer record pointing to a separate all-float point block. <strong>Layout version:</strong> the point is an unboxed record, so the outer record stores the two raw float fields inline and removes the separate point block.</p>
         <p>That outer record is a mixed block: the runtime records which leading payload words are ordinary values that the GC should scan, and which remaining words are raw numeric data. Mixed-block layout may group the scannable value words before the raw numeric words, so the memory order need not match the source field order exactly.</p>
 
-        <oxcaml-repr filename="outer_record_with_unboxed_point.ml">
+        <oxcaml-repr mode="uniform-tags" filename="outer_record_with_unboxed_point.ml">
           type unboxed_point = #{ x : float#; y : float# }
 
           type sample =
@@ -262,14 +263,14 @@
 
         <p>The missing case is represented by the null machine word. Compare this with <code>None</code> above, which is also a single immediate word but uses OCaml's ordinary constructor encoding rather than null.</p>
 
-        <oxcaml-repr filename="or_null_null_value.ml">
+        <oxcaml-repr mode="uniform-tags" filename="or_null_null_value.ml">
           let or_null_null_value =
             (Null : int or_null)
         </oxcaml-repr>
 
         <p>The present case is represented like the payload itself. Here the payload is an immediate integer, so the diagram has no wrapper block around it. Compare this with <code>Some 7</code> above, where the present case allocates a block.</p>
 
-        <oxcaml-repr filename="or_null_this_int.ml">
+        <oxcaml-repr mode="uniform-tags" filename="or_null_this_int.ml">
           let or_null_this_int =
             (This 7 : int or_null)
         </oxcaml-repr>

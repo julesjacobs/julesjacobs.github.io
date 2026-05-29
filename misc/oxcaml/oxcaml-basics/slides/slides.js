@@ -424,7 +424,100 @@
     });
   }
 
+  function nativeReprPointerOverlay(graph) {
+    if (graph.__nativeReprPointerOverlay?.isConnected) {
+      return graph.__nativeReprPointerOverlay;
+    }
+
+    const overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    overlay.classList.add("native-repr-pointer-overlay");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.append(overlay);
+    graph.__nativeReprPointerOverlay = overlay;
+    return overlay;
+  }
+
+  function nativeReprArrowHeadPoints(startX, startY, endX, endY) {
+    const angle = Math.atan2(endY - startY, endX - startX);
+    const length = 11;
+    const width = 8;
+    const baseX = endX - Math.cos(angle) * length;
+    const baseY = endY - Math.sin(angle) * length;
+    const perpX = Math.sin(angle) * width / 2;
+    const perpY = -Math.cos(angle) * width / 2;
+    return `${endX},${endY} ${baseX + perpX},${baseY + perpY} ${baseX - perpX},${baseY - perpY}`;
+  }
+
+  function drawNativeReprPointerArrows(graph) {
+    if (!graph.classList.contains("native-repr-graph-uniform-tags")) return;
+
+    const overlay = nativeReprPointerOverlay(graph);
+    overlay
+      .querySelectorAll(".native-repr-pointer-line, .native-repr-pointer-tail, .native-repr-pointer-head")
+      .forEach((element) => element.remove());
+
+    overlay.setAttribute("width", window.innerWidth);
+    overlay.setAttribute("height", window.innerHeight);
+    overlay.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+
+    const slide = graph.closest("section");
+    const slideIsCurrent = !slide || slide.classList.contains("present");
+    const graphRect = graph.getBoundingClientRect();
+    const graphVisible =
+      slideIsCurrent &&
+      graphRect.width > 0 &&
+      graphRect.height > 0 &&
+      graphRect.bottom >= 0 &&
+      graphRect.right >= 0 &&
+      graphRect.top <= window.innerHeight &&
+      graphRect.left <= window.innerWidth;
+    overlay.style.display = graphVisible ? "block" : "none";
+    if (!graphVisible) return;
+
+    graph.querySelectorAll(".native-repr-edge[href]").forEach((edge) => {
+      const targetId = edge.getAttribute("href")?.slice(1);
+      if (!targetId) return;
+
+      const target = graph.querySelector(`#${targetId}`);
+      const header = target?.querySelector(".native-repr-header-word") || target;
+      if (!header) return;
+
+      const label = edge.querySelector(".native-repr-label") || edge;
+      const labelRect = label.getBoundingClientRect();
+      const headerRect = header.getBoundingClientRect();
+      const startX = labelRect.left + labelRect.width / 2;
+      const startY = labelRect.top + labelRect.height / 2;
+      const endX = headerRect.left + 10.5;
+      const endY = headerRect.top + 10.5;
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      line.classList.add("native-repr-pointer-line");
+      line.setAttribute("d", `M ${startX} ${startY} L ${endX} ${endY}`);
+      overlay.append(line);
+
+      const head = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      head.classList.add("native-repr-pointer-head");
+      head.setAttribute("points", nativeReprArrowHeadPoints(startX, startY, endX, endY));
+      overlay.append(head);
+
+      const tail = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      tail.classList.add("native-repr-pointer-tail");
+      tail.setAttribute("cx", startX);
+      tail.setAttribute("cy", startY);
+      tail.setAttribute("r", "3.5");
+      overlay.append(tail);
+    });
+  }
+
   function setupNativeReprGraph(graph) {
+    drawNativeReprPointerArrows(graph);
+    if (graph.classList.contains("native-repr-graph-uniform-tags")) {
+      graph.addEventListener("scroll", () => drawNativeReprPointerArrows(graph));
+      window.addEventListener("resize", () => drawNativeReprPointerArrows(graph));
+      if (window.ResizeObserver) {
+        new ResizeObserver(() => drawNativeReprPointerArrows(graph)).observe(graph);
+      }
+    }
     graph.addEventListener("mouseleave", () => clearNativeReprHighlights(graph));
     graph.querySelectorAll(".native-repr-edge[href]").forEach((edge) => {
       edge.addEventListener("mouseenter", () => {
@@ -529,5 +622,10 @@
     plugins: [RevealNotes]
   })).then(() => {
     setupStateWidgets();
+    const redrawNativeReprArrows = () => {
+      document.querySelectorAll(".native-repr-graph").forEach(drawNativeReprPointerArrows);
+    };
+    redrawNativeReprArrows();
+    Reveal.on("slidechanged", redrawNativeReprArrows);
   });
 }());

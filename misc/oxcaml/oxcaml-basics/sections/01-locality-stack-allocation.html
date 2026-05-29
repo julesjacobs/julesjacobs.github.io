@@ -790,30 +790,29 @@
         <h2>Submoding: use global data locally</h2>
         <p>A local parameter lets a function accept temporary values. The reverse direction is also useful: a long-lived value can be used where only local mode is required.</p>
         <p>A value at global mode can be used at local mode. This is called submoding.</p>
-        <p>In this example, <code>escape xs</code> records the list in a global history. The same list can still be passed to <code>sum</code>, because <code>sum</code> only requires local mode.</p>
+        <p>In this example, <code>escape s</code> records the string in a global history. The same string can still be passed to <code>length</code>, because <code>length</code> only requires local mode.</p>
         <aside class="exercise">
           <h3>Exercise: predict the mode change</h3>
-          <p>Before running the code, predict whether <code>demo</code> is accepted. If it is accepted, explain why storing <code>xs</code> globally does not conflict with passing it to <code>sum</code>.</p>
+          <p>Before running the code, predict whether <code>demo</code> is accepted. If it is accepted, explain why storing <code>s</code> globally does not conflict with passing it to <code>length</code>.</p>
           <details>
             <summary>Answer</summary>
-            <p><code>xs</code> is a global heap list. Passing it to <code>sum</code> only uses that list at local mode. The mode is weaker, but the list's actual lifetime has not changed.</p>
+            <p><code>s</code> is a global heap string. Passing it to <code>length</code> only uses that string at local mode. The mode is weaker, but the string's actual lifetime has not changed.</p>
           </details>
         </aside>
-        <oxcaml run data-filename="Ex01_submoding_global_inner_used_locally.ml">
-          let saved : int list list ref = ref []
+        <oxcaml run data-filename="Ex01_submoding_global_string_used_locally.ml">
+          let saved : string list ref = ref []
 
-          let escape xs =
-            saved := xs :: !saved
+          let escape (s : string @ global) =
+            saved := s :: !saved
 
-          let rec sum (xs : int list @ local) =
-            match xs with
-            | [] -> 0
-            | x :: xs -> x + sum xs
+          let length (s : string @ local) =
+            String.length s
+
+          let global_string @ global = "hello"     (* the string is global *)
 
           let demo () =
-            let xs = [1; 2; 3] in
-            escape xs;
-            sum xs
+            escape global_string;                  (* allowed because global_string is global *)
+            length global_string                   (* global_string is submoded to local *)
 
           let () =
             print_endline (string_of_int (demo ()))
@@ -822,28 +821,32 @@
 
       <section>
         <h2>Problem: plain local containers lose the global mode</h2>
-        <p>In the following example, the inner list starts global. The first <code>escape inner</code> type-checks.</p>
-        <p>After matching through <code>outer : int list list @ local</code>, the extracted <code>inner</code> is only local.</p>
-        <oxcaml check data-filename="Ex01_plain_local_outer_list_forgets_global_inner.ml" expect-error no-self-check>
-          let saved : int list list ref = ref []
+        <p>In the following example, the top-level string starts at <code>@ global</code>.</p>
+        <p>After matching through <code>outer : string list @ local</code>, the extracted <code>inner</code> is only local.</p>
+        <oxcaml check data-filename="Ex01_plain_local_container_forgets_global_string.ml" expect-error no-self-check>
+          let saved : string list ref = ref []
 
-          let escape xs =
-            saved := xs :: !saved
+          let escape (s : string @ global) =
+            saved := s :: !saved
+
+          let length (s : string @ local) =
+            String.length s
+
+          let global_string @ global = "hello"     (* the string is global *)
 
           let demo () =
-            let inner = [1; 2; 3] in
-            escape inner;
-            let outer = stack_ [inner] in
+            escape global_string;                  (* allowed because global_string is global *)
+            let outer = stack_ [global_string] in  (* global_string is submoded to local *)
             match outer with
             | [] -> ()
-            | inner :: _ -> escape inner
+            | inner :: _ -> escape inner           (* we lost the information that the list elements are @ local *)
         </oxcaml>
         <aside class="exercise">
           <h3>Exercise: explain the lost mode</h3>
-          <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> list was global?</p>
+          <p>Why does the second <code>escape inner</code> fail even though the original <code>inner</code> string was global?</p>
           <details>
             <summary>Answer</summary>
-            <p>The original heap list did not become unsafe at runtime. The compiler has lost the global mode after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
+            <p>The original heap string did not become unsafe at runtime. The compiler has lost the global mode after looking through a local container, so the extracted value can no longer be passed to <code>escape</code>.</p>
           </details>
         </aside>
       </section>
@@ -852,21 +855,22 @@
         <h2>Modalities preserve the global mode</h2>
         <p>Sometimes we want to place global data into a local container without losing the information that the inner data was global. The solution is <em>modalities</em>.</p>
         <p>Modalities wrap the inner data in a record field annotated with the stronger mode <code>global</code>, which preserves the information that the inner data is global.</p>
-        <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_list_globality.ml">
+        <oxcaml check data-filename="Ex01_global_wrapper_preserves_inner_string_globality.ml">
           type 'a global = { global : 'a @@ global }
 
-          let saved : int list list ref = ref []
+          let saved : string list ref = ref []
 
-          let escape xs =
-            saved := xs :: !saved
+          let escape (s : string @ global) =
+            saved := s :: !saved
 
           let demo () =
-            let inner = [1; 2; 3] in
-            escape inner;
+            let inner @ global = "hello" in
+            escape inner;                          (* allowed because inner @ global *)
             let outer = stack_ [{ global = inner }] in
+                                                   (* modality preserves @ global *)
             match outer with
             | [] -> ()
-            | inner :: _ -> escape inner.global
+            | inner :: _ -> escape inner.global    (* allowed because inner.global @ global *)
         </oxcaml>
         <p>Constructing <code>{ global = inner }</code> requires <code>inner</code> at <code>@ global</code>. Reading <code>inner.global</code> gives the field back at <code>@ global</code>, even when the record itself is used at <code>@ local</code>.</p>
         <figure class="course-figure">
