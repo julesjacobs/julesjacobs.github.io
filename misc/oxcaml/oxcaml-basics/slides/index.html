@@ -20,7 +20,6 @@
             </div>
             <img class="title-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
           </div>
-          <aside class="notes">Keep this minimal. The slides are the live teaching path; the course pages are the reference material.</aside>
         </section>
 
         <section class="slide route-slide">
@@ -31,26 +30,24 @@
             <li><span>02</span><strong>Representation</strong><em>layouts, unboxing, or_null</em></li>
             <li><span>03</span><strong>Parallelism</strong><em>contention and portability</em></li>
           </ol>
-          <aside class="notes">Each topic is a checked lever: lifetime/allocation, runtime layout, and race safety.</aside>
         </section>
 
         <section class="slide concept-slide ocaml-great-slide">
           <h2>What makes OCaml great?</h2>
           <div class="ocaml-great-layout">
             <article>
-              <h3>Functional programming</h3>
-              <p>You write programs in terms of values, functions, algebraic data types, and pattern matching.</p>
+              <h3>Safety</h3>
+              <p>The type system catches many mistakes at compile time before your code runs.</p>
             </article>
             <article>
-              <h3>Module system</h3>
-              <p>Modules and functors let large codebases define clear interfaces and reusable components.</p>
+              <h3>Agility</h3>
+              <p>Algebraic data types, first-class functions, and modules make OCaml expressive and scalable.</p>
             </article>
             <article>
-              <h3>Practical runtime</h3>
-              <p>Automatic memory management and native-code compilation make OCaml productive.</p>
+              <h3>Speed</h3>
+              <p>Native-code compilation gives OCaml strong and predictable performance.</p>
             </article>
           </div>
-          <aside class="notes">Start with why OCaml is attractive before motivating OxCaml. The point is that OCaml is already a good programming model: safe, high-level, functional, modular, and practical. OxCaml should feel like extending those strengths, not replacing them.</aside>
         </section>
 
         <section class="slide concept-slide ocaml-limitations-slide">
@@ -69,7 +66,6 @@
               <p>OCaml 5 parallelism can introduce subtle data races.</p>
             </article>
           </div>
-          <aside class="notes">These are limitations of ordinary OCaml for Jane Street's use cases. Low-latency code needs control over allocation and GC pauses. Fast systems code sometimes needs control over layout instead of always using OCaml's uniform value representation. Parallelism in OCaml 5 is great, but blindly running existing code or new code in parallel is scary if the code can race. The worry is subtle production bugs caused by shared mutable state.</aside>
         </section>
 
         <section class="slide concept-slide language-map-slide">
@@ -101,7 +97,6 @@
               <span>expands OCaml into safe systems control</span>
             </div>
           </div>
-          <aside class="notes">Frame this as a rough motivation map, not a precise taxonomy. Safe versus unsafe is about when the relevant mistakes are caught: while the program runs, or before it runs. High-level runtime versus systems control is about what the programmer has to think about: whether lifetimes, layout, and parallel access are mostly hidden by the runtime, or exposed as things the programmer can control. OCaml already sits in the safe high-level-runtime cell. OxCaml extends that programming model toward the safe systems-control cell: stack allocation, unboxed layouts, and parallelism become checked rather than unchecked.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -116,7 +111,6 @@
             <p>Module 2 today</p>
             <p>Module 3 today</p>
           </div>
-          <aside class="notes">Start from what programmers want to optimize. Then explain that each optimization has a matching failure mode: data race, dangling stack pointer, or representation mismatch. These features are pay-as-you-go: ordinary OCaml code still works, and you only encounter these features when you need them, ideally. Contrast with Rust, where all programs need to know about its ownership model.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -128,7 +122,6 @@
             <li>Understand and fix locality errors.</li>
             <li>Use modalities to preserve global fields inside local containers.</li>
           </ul>
-          <aside class="notes">Shift from race safety to lifetime and heap allocation.</aside>
         </section>
 
         <section class="slide concept-slide heap-allocation-sign-slide">
@@ -142,7 +135,6 @@
               <p>stack allocation</p>
             </article>
           </div>
-          <aside class="notes">Set up the allocation section before showing the small option example.</aside>
         </section>
 
         <section class="slide concept-slide value-location-slide">
@@ -206,7 +198,6 @@
               </div>
             </article>
           </div>
-          <aside class="notes">Set up the operational model before the lowering slides. Ordinary OCaml allocations go on the GC heap. OxCaml adds a separate allocation stack, split into regions that can be reclaimed together.</aside>
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
@@ -239,7 +230,6 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The temporary list is allocated inside sum3, consumed there, and cleared when sum3 returns.</aside>
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
@@ -271,7 +261,6 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The ref is global, so assigning xs would keep a pointer into a stack region after the function returns.</aside>
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
@@ -303,7 +292,6 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
         </section>
 
         <section class="slide live-slide stack-sum-example-slide">
@@ -336,7 +324,6 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The returned list is not smuggled out of sum3's region; the result construction belongs to the caller's region.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide allocation-stack-overview-slide">
@@ -376,7 +363,6 @@ let () =
   result</code></pre>
             </article>
           </div>
-          <aside class="notes">The point is operational: ordinary calls get a fresh allocation-stack region; exclave_ moves result construction to the parent region instead. In OxCaml, the allocation stack is separate from the call stack, and regions describe when parts of that allocation stack can be reclaimed.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide">
@@ -414,7 +400,6 @@ let () =
   result</code></pre>
             </article>
           </div>
-          <aside class="notes">A tail call is not a normal return of a variable. The current region must be cleared before control transfers to the next call. Explain why OxCaml made this choice: tail-recursive loops should not accumulate allocation-stack space as they go. Use [@nontail] when a local value must stay alive during the call.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide">
@@ -442,7 +427,6 @@ let () =
               <p>That has the same effect as not starting a region.</p>
             </article>
           </div>
-          <aside class="notes">The subtle case is not an entirely exclaved function. Work before exclave_ still belongs to the function's own region; the region ends at the exclave_ point.</aside>
         </section>
 
         <section class="slide concept-slide locality-axis-slide">
@@ -455,7 +439,6 @@ let () =
             </div>
             <p class="axis-strip-note">Locality answers: how long does this value live?</p>
           </div>
-          <aside class="notes">For the live deck, keep the axis to the two facts students need first: global values can escape; local values may point into the current region and cannot escape it.</aside>
         </section>
 
         <section class="slide concept-slide mode-rules-slide locality-propagation-slide">
@@ -488,7 +471,6 @@ x.field : a @ local</code></pre>
             </article>
           </div>
           <p class="takeaway fragment">OxCaml has other mode axes besides locality. We will see that later.</p>
-          <aside class="notes">Function calls: the caller must provide the input at the parameter locality, and receives the result at the result locality. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field locality usually comes from the current locality of the record expression.</aside>
         </section>
 
         <section class="slide concept-slide locality-rules-slide">
@@ -518,7 +500,6 @@ x.field : a @ local</code></pre>
   (* y bad *)</code></pre>
             </article>
           </div>
-          <aside class="notes">State these as mode-checking rules before the x/y/z example. stack_ produces a local value. exclave_ makes the result local to the caller's region. At a mid-function exclave_, an @ local argument may be outer-local, so it can still be used; a value allocated in the function's old current region cannot be used after the region ends.</aside>
         </section>
 
         <section class="slide live-slide locality-in-action-slide">
@@ -545,7 +526,6 @@ let () =
   print_endline (string_of_int n)
             </oxcaml>
           </div>
-          <aside class="notes">Returning the pair would keep xs alive after sum3's allocation stack region is cleared.</aside>
         </section>
 
         <section class="slide concept-slide allocation-stack-management-slide function-exclave-slide" data-visibility="hidden">
@@ -580,7 +560,6 @@ let () =
             </article>
           </div>
           <p class="takeaway"><code>exclave_</code> ends the function's current region. Arguments from the caller can still be used; values allocated before <code>exclave_</code> cannot.</p>
-          <aside class="notes">The key distinction is provenance. x is an argument from the caller. y was allocated in f's region and dies at exclave_. z belongs to the parent region.</aside>
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-error-slide" data-visibility="hidden">
@@ -605,7 +584,6 @@ let add_with_scratch x y =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">This is a local-parameter API contract, not just allocation optimization.</aside>
         </section>
 
         <section class="slide live-slide kind-polymorphism-slide kind-polymorphism-ok-slide">
@@ -639,7 +617,6 @@ let () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Submoding is safe weakening: a global value can be used by an API that only promises local use.</aside>
         </section>
 
         <section class="slide live-slide local-container-slide">
@@ -673,7 +650,6 @@ let demo () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The point is precision loss through an ordinary constructor field, not that the original heap string became unsafe at runtime.</aside>
         </section>
 
         <section class="slide concept-slide mode-rules-slide modality-solution-slide">
@@ -716,7 +692,6 @@ inner : 'a @ global</code></pre>
             </article>
           </div>
           <p class="takeaway">A field modality is an exception to ordinary deep mode propagation.</p>
-          <aside class="notes">Repeat the earlier rule: projection normally uses the outer mode. The @@ global modality changes the field rule in both directions. Reading the field gives the global mode. Constructing the record requires the field value at global mode, even when the container is local.</aside>
         </section>
 
         <section class="slide live-slide modality-preserve-slide">
@@ -747,7 +722,6 @@ let demo () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Phrase this as a field-boundary rule, not a cast. The wrapper can only be built from a global value.</aside>
         </section>
 
         <section class="slide concept-slide modality-picture-slide">
@@ -755,7 +729,6 @@ let demo () =
           <figure class="modality-figure">
             <img src="../assets/images/locality-modality-regions.png" width="1693" height="929" alt="Runtime stack and GC heap regions with compile-time braces for local modes, submoded heap data, and global data preserved by an @@ global modality.">
           </figure>
-          <aside class="notes">Make the distinction explicit: runtime heap placement is not the same thing as the current compile-time mode.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -767,7 +740,6 @@ let demo () =
   (x : string @ local) : string @ global =
   x</code></pre><p>Rejected: the string may point into a local region.</p></article>
           </div>
-          <aside class="notes">This prepares the representation section: locality depends on whether there may be a pointer whose lifetime matters.</aside>
         </section>
 
         <section class="slide concept-slide" data-visibility="hidden">
@@ -801,7 +773,6 @@ field r.x @ uncontended</code></pre>
               <p>Which one is allowed?</p>
             </article>
           </div>
-          <aside class="notes">Answer: a field modality can preserve a stronger field mode inside a weaker outer record value. So the allowed cases are: global field in a local record, portable field in a nonportable record, and uncontended field in a contended record. The reverse directions are rejected because they would let the outer value promise more than the field can provide.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -811,7 +782,6 @@ field r.x @ uncontended</code></pre>
             <p><strong>stack_</strong> forces the next allocation onto the allocation stack.</p>
             <p><strong>exclave_</strong> builds a local result in the caller region.</p>
           </div>
-          <aside class="notes">Keep the focus on lifetime control and where temporary blocks live.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -823,7 +793,6 @@ field r.x @ uncontended</code></pre>
             <li>Spot allocation and indirection in OxCaml types.</li>
             <li>Use unboxed layouts to avoid pointer indirection and allocation.</li>
           </ul>
-          <aside class="notes">Start from the ordinary OxCaml runtime invariant, then show where it costs.</aside>
         </section>
 
         <section class="slide concept-slide value-invariant-slide">
@@ -852,7 +821,6 @@ field r.x @ uncontended</code></pre>
               </div>
             </div>
           </div>
-          <aside class="notes">Avoid over-detailing endianness. The key fact is low-bit interpretation.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -876,7 +844,6 @@ let plain_value_record =
   duplicate { symbol = "ABC"; price = 10; size = 100 }</code></pre></article>
             <article><h3>Runtime model</h3><p>The runtime, GC, and compiler all agree on one value representation. Polymorphic functions are only compiled once.</p></article>
           </div>
-          <aside class="notes">The uniform model is a strength before it is a cost.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide repr-dual-graph-slide">
@@ -906,7 +873,6 @@ let plain_value_record =
             </article>
           </div>
           <p class="takeaway">A tuple is still one OCaml value, but that value word points to a heap block.</p>
-          <aside class="notes">These examples come from the representation generator in the lecture notes.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide">
@@ -931,7 +897,6 @@ let plain_value_record =
               <div class="native-repr-slot" data-native-repr="plain_value_record" data-native-repr-part="graph"></div>
             </article>
           </div>
-          <aside class="notes">Mutability changes allowed operations; it does not create a different block shape.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide tree-constructor-slide">
@@ -955,7 +920,6 @@ let simple_tree =
             </article>
           </div>
           <p class="takeaway">Constructors with payload allocate blocks; the header tag distinguishes the constructor.</p>
-          <aside class="notes">Zero is an immediate value. One and Two allocate blocks with different header tags.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide">
@@ -972,7 +936,6 @@ let simple_tree =
             </article>
           </div>
           <p class="takeaway">The tuple points to separate blocks for the boxed numeric payloads.</p>
-          <aside class="notes">This is the concrete cost: extra blocks and pointer hops.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide">
@@ -989,7 +952,6 @@ let simple_tree =
             </article>
           </div>
           <p class="takeaway">The product components are carried directly as raw words.</p>
-          <aside class="notes">Contrast this with the previous boxed numeric example.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide">
@@ -1020,7 +982,6 @@ let outer_record_with_unboxed_point =
               <div class="native-repr-slot" data-native-repr="outer_record_with_unboxed_point" data-native-repr-part="graph"></div>
             </article>
           </div>
-          <aside class="notes">Point out the mixed block: scanned value fields first, raw float words after.</aside>
         </section>
 
         <section class="slide concept-slide repr-slide or-null-contrast-slide">
@@ -1048,7 +1009,6 @@ let outer_record_with_unboxed_point =
             </article>
           </div>
           <p class="takeaway">Each diagram is one root value. <code>Some 7</code> allocates a wrapper block; <code>This 7</code> is represented like the integer payload.</p>
-          <aside class="notes">Do not go into nested or_null here unless someone asks.</aside>
         </section>
 
         <section class="slide live-slide or-null-error-slide">
@@ -1068,7 +1028,6 @@ type nested = string or_null or_null
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">Explain this as representation ambiguity first, then as the layout distinction value vs value_or_null.</aside>
         </section>
 
         <section class="slide live-slide ordinary-polymorphic-slide">
@@ -1091,7 +1050,6 @@ let bad =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The point is the argument layout. Do not frame this as an unboxed return problem.</aside>
         </section>
 
         <section class="slide live-slide">
@@ -1121,7 +1079,6 @@ let ok =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">This keeps a boxed result while changing what layout the type parameter can range over.</aside>
         </section>
 
         <section class="slide concept-slide template-expansion-slide">
@@ -1162,7 +1119,6 @@ let b = id__'value_value' #(1, 2)</code></pre>
           </div>
           <p class="takeaway">One source pattern can generate multiple checked definitions with different calling conventions.</p>
           <p class="takeaway">OxCaml is a work in progress. Future layout-polymorphic definitions are intended to reduce this template pattern.</p>
-          <aside class="notes">Keep this as recognition material, not a deep ppx_template lesson. The current library pattern uses templates, but the long-term design direction is more general layout polymorphism.</aside>
         </section>
 
         <section class="slide summary-slide">
@@ -1172,7 +1128,6 @@ let b = id__'value_value' #(1, 2)</code></pre>
             <article><h3>Unboxed layouts</h3><p>Remove selected product or record boxes where the layout is used.</p></article>
             <article><h3><code>or_null</code></h3><p>Like option, but does not allocate.</p></article>
           </div>
-          <aside class="notes">Keep this as the final mental model before the course-level recap.</aside>
         </section>
 
         <section class="slide section-slide" data-background-color="#101827">
@@ -1184,7 +1139,6 @@ let b = id__'value_value' #(1, 2)</code></pre>
             <li>Understand how OxCaml prevents data races with modes.</li>
             <li>See how fork/join and spawn express their requirements in types.</li>
           </ul>
-          <aside class="notes">Start from operational shapes before introducing the two mode axes.</aside>
         </section>
 
         <section class="slide split-slide">
@@ -1209,7 +1163,6 @@ parent_side_effect ()</code></pre>
               <p>Spawned worker runs in parallel; parent continues immediately.</p>
             </article>
           </div>
-          <aside class="notes">The operational shape motivates the different function requirements later. State the API guidance explicitly: structured concurrency is usually the right default; spawn is included to teach the broader mode-checking story.</aside>
         </section>
 
         <section class="slide live-slide visual-live fresh-buffer-slide">
@@ -1241,7 +1194,6 @@ let () =
               <img class="side-image" src="../assets/images/buffers-fresh.avif" alt="Separate workspaces for fresh buffers">
             </div>
           </div>
-          <aside class="notes">Ask where the mutable object is allocated. The answer is inside each call.</aside>
         </section>
 
         <section class="slide live-slide visual-live buffer-bug-slide">
@@ -1270,7 +1222,6 @@ let strings_in_parallel () =
               <img class="side-image" src="../assets/images/buffers-shared.avif" alt="Shared workspace for one top-level buffer">
             </div>
           </div>
-          <aside class="notes">This is the same program shape, but moving the allocation changes one-buffer-per-call into one shared buffer.</aside>
         </section>
 
         <section class="slide concept-slide data-race-explainer-slide">
@@ -1301,7 +1252,6 @@ Toy.fork_join2
               <p class="matrix-note">Two parallel reads are fine. Two racing writes are not allowed. A racing read and write is not allowed either.</p>
             </article>
           </div>
-          <aside class="notes">No modes yet. Students only need the programming problem.</aside>
         </section>
 
         <section class="slide concept-slide compiler-race-slide">
@@ -1328,7 +1278,6 @@ let bad_read_and_write () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The examples take parallel as an argument so the slide can focus on the checked worker functions, not scheduler setup.</aside>
         </section>
 
         <section class="slide concept-slide race-check-summary-slide">
@@ -1384,7 +1333,6 @@ Toy.spawn (<span class="tok-keyword">fun</span> () -&gt;
             </div>
             <p class="axis-strip-note">Contention answers: at this use site, what access do I have to mutable components?</p>
           </div>
-          <aside class="notes">Use the single-writer or many-readers invariant. Do not conflate shared with shareable.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -1395,7 +1343,6 @@ Toy.spawn (<span class="tok-keyword">fun</span> () -&gt;
             <article><h3>mutable write</h3><pre><code>x.hits <- x.hits + 1</code></pre><p>needs <code>x @ uncontended</code></p></article>
           </div>
           <p class="takeaway">A direct field operation succeeds or fails according to the variable's contention mode.</p>
-          <aside class="notes">This is the precise replacement for the direct body scan model.</aside>
         </section>
 
         <section class="slide concept-slide mode-rules-slide">
@@ -1428,7 +1375,6 @@ r.field : a @ M</code></pre>
             </article>
           </div>
           <p class="takeaway">Most mode propagation is simple, but functions is where something more complex happens.</p>
-          <aside class="notes">Function calls: the caller must provide the input at the parameter mode, and receives the result at the result mode. Projection is unlike ordinary type projection: the field type comes from the record declaration, but the field mode usually comes from the current mode of the record expression.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide">
@@ -1477,7 +1423,6 @@ r.field : a @ M</code></pre>
             </article>
           </div>
           <p class="takeaway">The boundary weakens captured values inside the function; the original variable keeps its mode outside the function.</p>
-          <aside class="notes">Use this to connect field requirements to function capture weakening.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide list-iter-boundary-slide">
@@ -1506,7 +1451,6 @@ r.field : a @ M</code></pre>
             </article>
           </div>
           <p class="takeaway">An ordinary function does not need a parallel-safety promise, so the captured variable keeps ordinary write access.</p>
-          <aside class="notes">This is the contrast case before the key point: function formation alone does not weaken modes; the function's required mode determines the effect.</aside>
         </section>
 
         <section class="slide big-key-slide">
@@ -1534,7 +1478,6 @@ let demo x =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">The first function can call get_hits because captured x is shared inside fork/join. The second function cannot call bump_hits because bump_hits requires uncontended access.</aside>
         </section>
 
         <section class="slide exercise-slide helper-calls-exercise-slide">
@@ -1562,7 +1505,6 @@ let bump_hits (x @ uncontended) =
               <div class="exercise-controls"><button type="button" data-check-table>Check</button><button type="button" data-reset-table>Reset</button><span data-table-feedback aria-live="polite"></span></div>
             </div>
           </div>
-          <aside class="notes">The table should be answered after the boundary rule and explicit argument rule.</aside>
         </section>
 
         <section class="slide live-slide closure-captures-slide">
@@ -1587,7 +1529,6 @@ let demo () =
               <p>OxCaml must track portability of functions.</p>
             </div>
           </div>
-          <aside class="notes">There is no explicit x argument here. The mutable access is hidden inside the function value write_x.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -1602,7 +1543,6 @@ let demo () =
             </div>
             <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
           </div>
-          <aside class="notes">For functions, portability mostly summarizes what the function captured and how it may use those captures.</aside>
         </section>
 
         <section class="slide exercise-slide">
@@ -1630,7 +1570,6 @@ let write_x v = x.hits &lt;- v</code></pre>
               <div class="exercise-controls"><button type="button" data-check-table>Check</button><button type="button" data-reset-table>Reset</button><span data-table-feedback aria-live="polite"></span></div>
             </div>
           </div>
-          <aside class="notes">Map rows to portable, shareable, nonportable.</aside>
         </section>
 
         <section class="slide live-slide visual-live buffer-bug-slide hidden-capture-slide">
@@ -1660,7 +1599,6 @@ let strings_in_parallel () =
               </oxcaml>
             </div>
           </div>
-          <aside class="notes">This is the same program shape, but moving the allocation changes one-buffer-per-call into one shared buffer.</aside>
         </section>
 
         <section class="slide concept-slide">
@@ -1675,7 +1613,6 @@ val Toy.spawn :
   (unit -> unit) @ portable ->
   unit</code></pre>
           </div>
-          <aside class="notes">No compiler magic for these names. The function argument slots impose the modal requirements.</aside>
         </section>
 
         <section class="slide concept-slide contention-boundary-slide">
@@ -1731,7 +1668,6 @@ val Toy.spawn :
   unit</code></pre>
             </article>
           </div>
-          <aside class="notes">The type slide gives the cause. This slide revisits the earlier boundary behavior as a consequence of the function argument mode.</aside>
         </section>
 
         <section class="slide concept-slide shareable-capture-slide" data-visibility="hidden">
@@ -1841,7 +1777,6 @@ val Toy.spawn :
               </div>
             </div>
           </article>
-          <aside class="notes">This is copied from the course's shareable function-boundary diagram and trimmed to the single boundary case for slide use.</aside>
         </section>
 
         <section class="slide concept-slide shareable-capture-slide portable-capture-slide" data-visibility="hidden">
@@ -1949,7 +1884,6 @@ val Toy.spawn :
               </div>
             </div>
           </article>
-          <aside class="notes">This is the portable counterpart to the shareable function-boundary diagram.</aside>
         </section>
 
         <section class="slide concept-slide capture-matrix-slide" data-visibility="hidden">
@@ -2001,7 +1935,6 @@ val Toy.spawn :
               </div>
             </div>
           </div>
-          <aside class="notes">The fork/join function is shareable. The spawned function is portable. Nonportable is ordinary function behavior.</aside>
         </section>
 
         <section class="slide concept-slide parallelism-recap-slide">
@@ -2029,7 +1962,6 @@ val Toy.spawn :
               </ul>
             </article>
           </div>
-          <aside class="notes">This is the durable mental model for the parallelism section.</aside>
         </section>
 
         <section class="slide summary-slide oxcaml-closing-slide">
@@ -2041,17 +1973,15 @@ val Toy.spawn :
             <article><h3>Parallel work</h3><p>Use more cores without introducing data races.</p></article>
           </div>
           <img class="closing-mark" src="../assets/images/oxcaml-basics.avif" alt="OxCaml Basics mark">
-          <aside class="notes">End with the same positive framing as the opening: performance control with the relevant safety facts checked.</aside>
         </section>
 
         <section class="slide appendix-slide" data-visibility="hidden">
           <h2>Presenter controls</h2>
           <ul>
-            <li>Press <kbd>S</kbd> for speaker view with notes, timer, current slide, and next slide preview.</li>
+            <li>Press <kbd>S</kbd> for speaker view with timer, current slide, and next slide preview.</li>
             <li>Use arrow keys for slides and fragments.</li>
             <li>When focus is inside an editor or widget, keyboard events stay with the interactive element.</li>
           </ul>
-          <aside class="notes">This slide can be removed for the final delivered lecture deck.</aside>
         </section>
       </div>
     </div>
