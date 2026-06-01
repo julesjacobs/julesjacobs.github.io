@@ -734,7 +734,7 @@ let demo () =
         <section class="slide concept-slide">
           <h2>Some types do not care about locality: mode crossing</h2>
           <div class="two-up">
-            <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int =
+            <article><h3>Immediate</h3><pre><code>let id_local_int (x : int @ local) : int @ global =
   x</code></pre><p>No lifetime-sensitive heap block.</p></article>
             <article><h3>Pointer</h3><pre><code>let id_local_string
   (x : string @ local) : string @ global =

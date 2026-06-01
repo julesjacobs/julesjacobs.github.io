@@ -492,7 +492,7 @@
         <h2>Immediate values can cross locality</h2>
         <p>Locality matters when a value may contain a pointer whose lifetime matters. An immediate value such as an <code>int</code> has no heap block, so it can cross from local to global.</p>
         <oxcaml check data-filename="Ex01_local_int_crosses.ml">
-          let id_local_int (x : int @ local) : int =
+          let id_local_int (x : int @ local) : int @ global =
             x
         </oxcaml>
         <p>A heap value such as a string does not cross locality by default. If the value is local, returning it as global would let it outlive its region.</p>

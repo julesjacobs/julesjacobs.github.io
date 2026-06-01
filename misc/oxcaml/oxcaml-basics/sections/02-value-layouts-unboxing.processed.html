@@ -150,12 +150,12 @@
 	    position: relative;
 	  }
 	  .native-repr-pointer-overlay {
-	    height: 100vh;
+	    height: 100%;
 	    inset: 0;
 	    overflow: visible;
 	    pointer-events: none;
-	    position: fixed;
-	    width: 100vw;
+	    position: absolute;
+	    width: 100%;
 	    z-index: 4;
 	  }
 	  .native-repr-pointer-line {
@@ -772,7 +772,7 @@
     overlay = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     overlay.classList.add("native-repr-pointer-overlay");
     overlay.setAttribute("aria-hidden", "true");
-    document.body.append(overlay);
+    graph.append(overlay);
     graph.__nativeReprPointerOverlay = overlay;
     return overlay;
   }
@@ -795,9 +795,13 @@
     overlay
       .querySelectorAll(".native-repr-pointer-line, .native-repr-pointer-tail, .native-repr-pointer-head")
       .forEach((element) => element.remove());
-    overlay.setAttribute("width", window.innerWidth);
-    overlay.setAttribute("height", window.innerHeight);
-    overlay.setAttribute("viewBox", `0 0 ${window.innerWidth} ${window.innerHeight}`);
+    const overlayWidth = Math.max(graph.scrollWidth, graph.clientWidth);
+    const overlayHeight = Math.max(graph.scrollHeight, graph.clientHeight);
+    overlay.setAttribute("width", overlayWidth);
+    overlay.setAttribute("height", overlayHeight);
+    overlay.setAttribute("viewBox", `0 0 ${overlayWidth} ${overlayHeight}`);
+    overlay.style.width = `${overlayWidth}px`;
+    overlay.style.height = `${overlayHeight}px`;
 
     const reveal = document.querySelector(".reveal");
     const slide = graph.closest("section");
@@ -825,10 +829,10 @@
       const label = edge.querySelector(".native-repr-label") || edge;
       const labelRect = label.getBoundingClientRect();
       const headerRect = header.getBoundingClientRect();
-      const startX = labelRect.left + labelRect.width / 2;
-      const startY = labelRect.top + labelRect.height / 2;
-      const endX = headerRect.left + 7;
-      const endY = headerRect.top + 7;
+      const startX = labelRect.left - graphRect.left + graph.scrollLeft + labelRect.width / 2;
+      const startY = labelRect.top - graphRect.top + graph.scrollTop + labelRect.height / 2;
+      const endX = headerRect.left - graphRect.left + graph.scrollLeft + 7;
+      const endY = headerRect.top - graphRect.top + graph.scrollTop + 7;
 
       const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
       line.classList.add("native-repr-pointer-line");
@@ -847,6 +851,18 @@
       tail.setAttribute("r", "4");
       overlay.append(tail);
     });
+  }
+
+  function schedulePointerArrows(graph) {
+    if (graph.__nativeReprPointerArrowFrame) return;
+    graph.__nativeReprPointerArrowFrame = window.requestAnimationFrame(() => {
+      graph.__nativeReprPointerArrowFrame = 0;
+      drawPointerArrows(graph);
+    });
+  }
+
+  function scheduleAllPointerArrows() {
+    document.querySelectorAll(".native-repr-graph").forEach(schedulePointerArrows);
   }
 
   function pointerTargetId(graph, event) {
@@ -868,10 +884,10 @@
       graph.querySelectorAll(".native-repr-edge[href]").forEach((edge) => {
         edge.addEventListener("click", (event) => event.preventDefault());
       });
-      graph.addEventListener("scroll", () => drawPointerArrows(graph));
-      window.addEventListener("resize", () => drawPointerArrows(graph));
+      graph.addEventListener("scroll", () => schedulePointerArrows(graph), { passive: true });
+      window.addEventListener("resize", () => schedulePointerArrows(graph));
       if (window.ResizeObserver) {
-        new ResizeObserver(() => drawPointerArrows(graph)).observe(graph);
+        new ResizeObserver(() => schedulePointerArrows(graph)).observe(graph);
       }
     }
 
@@ -900,8 +916,11 @@
 
   document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".native-repr-graph").forEach(initGraph);
+    window.addEventListener("scroll", scheduleAllPointerArrows, { passive: true });
+    window.visualViewport?.addEventListener("scroll", scheduleAllPointerArrows, { passive: true });
+    window.visualViewport?.addEventListener("resize", scheduleAllPointerArrows);
     document.addEventListener("slidechanged", () => {
-      document.querySelectorAll(".native-repr-graph").forEach(drawPointerArrows);
+      document.querySelectorAll(".native-repr-graph").forEach(schedulePointerArrows);
     });
   });
 })();
@@ -931,7 +950,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_tuple
 This labels the root value word, not a heap block.'>plain_value_tuple</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-plain_value_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001028530a0
+raw address word: 0x000000010473f0a0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -977,7 +996,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: plain_value_record
 This labels the root value word, not a heap block.'>plain_value_record</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-plain_value_record-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000562800bc0
+raw address word: 0x0000000506800bc0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -993,7 +1012,7 @@ allocated payload words: 3
 tag: 0 (constructor/block kind)
 GC color/status bits: 0
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 3</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-plain_value_record-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104c7b0b0
+raw address word: 0x0000000104f730b0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 101
@@ -1048,7 +1067,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: constant_constructors
 This labels the root value word, not a heap block.'>constant_constructors</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-constant_constructors-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000100b530a8
+raw address word: 0x0000000102a970a8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1086,7 +1105,7 @@ compact mode: showing the low-bit tag instead of raw bytes'><span class='native-
 <span class='tok-keyword'>let</span> <span class='tok-function'>variant_payloads</span> <span class='tok-operator'>=</span>
   <span class='tok-operator'>(</span> <span class='tok-constructor'>Market</span>
   <span class='tok-operator'>,</span> <span class='tok-constructor'>Limit</span> <span class='tok-operator'>(</span><span class='tok-string'>&quot;ABC&quot;</span><span class='tok-operator'>,</span> <span class='tok-number'>100</span><span class='tok-operator'>)</span>
-  <span class='tok-operator'>,</span> <span class='tok-constructor'>Stop</span> <span class='tok-operator'>(</span><span class='tok-string'>&quot;ABC&quot;</span><span class='tok-operator'>,</span> <span class='tok-number'>95</span><span class='tok-operator'>)</span>
+  <span class='tok-operator'>,</span> <span class='tok-constructor'>Stop</span> <span class='tok-operator'>(</span><span class='tok-string'>&quot;XYZ&quot;</span><span class='tok-operator'>,</span> <span class='tok-number'>95</span><span class='tok-operator'>)</span>
   <span class='tok-operator'>)</span></code></pre>
   </div>
   <div class='native-repr-graph native-repr-graph-uniform-tags' data-name='variant_payloads'><div class='native-repr-region native-repr-root-region' title='root region
@@ -1094,7 +1113,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: variant_payloads
 This labels the root value word, not a heap block.'>variant_payloads</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x000000010232f0a0
+raw address word: 0x00000001021c30a0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1113,11 +1132,11 @@ reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 3</span></span><s
 raw word: 0x0000000000000001
 encoded as (n &lt;&lt; 1) | 1
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>1</span><span class='native-repr-label'>int 0</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-2' title='pointer to heap block @2
-raw address word: 0x000000010232f0d8
+raw address word: 0x00000001021c30e8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-3' title='pointer to heap block @3
-raw address word: 0x000000010232f0c0
+raw address word: 0x00000001021c30c0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-2'><div class='native-repr-block-title' title='heap block @2
@@ -1132,7 +1151,7 @@ allocated payload words: 2
 tag: 0 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x000000010232f0f0
+raw address word: 0x00000001021c3100
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 100
@@ -1149,8 +1168,8 @@ total block size: 24 bytes
 allocated payload words: 2
 tag: 1 (constructor/block kind)
 GC color/status bits: 3
-reserved byte: 0'><span class='native-repr-label'>tag: 1 size: 2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-4' title='pointer to heap block @4
-raw address word: 0x000000010232f0f0
+reserved byte: 0'><span class='native-repr-label'>tag: 1 size: 2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-variant_payloads-8-node-5' title='pointer to heap block @5
+raw address word: 0x00000001021c30d8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 95
@@ -1170,7 +1189,21 @@ GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>string, len 3</span></span><span class='native-repr-word native-repr-raw native-repr-uniform-tags-word native-repr-no-low-bit-marker' style='--bytes:8' title='string payload word 0
 shown as bytes and printable characters when possible
 raw word: 0x0400000000434241
-compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-label'>&quot;ABC&quot;</span></span></div></div></div></div></div>
+compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-label'>&quot;ABC&quot;</span></span></div></div><div class='native-repr-block' id='native-repr-variant_payloads-8-node-5'><div class='native-repr-block-title' title='heap block @5
+Hover this block to highlight every pointer word that refers to it.'><span class='native-repr-id' title='heap block id @5
+Pointer words labeled -&gt; @5 refer to this block.'>@5</span><span class='native-repr-size' title='total heap block size: 16 bytes
+This includes the runtime header word plus 1 payload word.'>16 bytes</span></div><div class='native-repr-mem' title='block memory
+Header word first, then payload words.'><span class='native-repr-word native-repr-header native-repr-header-word native-repr-simple-header-word' title='runtime header word
+string, len 3
+raw header: 0x00000000000007fc
+total block size: 16 bytes
+allocated payload words: 1
+tag: 252 (constructor/block kind)
+GC color/status bits: 3
+reserved byte: 0'><span class='native-repr-label'>string, len 3</span></span><span class='native-repr-word native-repr-raw native-repr-uniform-tags-word native-repr-no-low-bit-marker' style='--bytes:8' title='string payload word 0
+shown as bytes and printable characters when possible
+raw word: 0x04000000005a5958
+compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-label'>&quot;XYZ&quot;</span></span></div></div></div></div></div>
 
 </div>
 
@@ -1191,7 +1224,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: simple_tree
 This labels the root value word, not a heap block.'>simple_tree</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-simple_tree-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104bff0a0
+raw address word: 0x00000001008fb0a0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1207,7 +1240,7 @@ allocated payload words: 2
 tag: 1 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 1 size: 2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-simple_tree-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104bff0b8
+raw address word: 0x00000001008fb0b8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 0
@@ -1225,7 +1258,7 @@ allocated payload words: 1
 tag: 0 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 1</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-simple_tree-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000104c01c18
+raw address word: 0x00000001008fdc18
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div><div class='native-repr-block' id='native-repr-simple_tree-8-node-3'><div class='native-repr-block-title' title='heap block @3
@@ -1262,7 +1295,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: shared_string_tuple
 This labels the root value word, not a heap block.'>shared_string_tuple</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000104f030b0
+raw address word: 0x00000001047fb0b0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1278,15 +1311,15 @@ allocated payload words: 3
 tag: 0 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 3</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104f030e0
+raw address word: 0x00000001047fb0e0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000104f030e0
+raw address word: 0x00000001047fb0e0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-shared_string_tuple-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000104f030d0
+raw address word: 0x00000001047fb0d0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div><div class='native-repr-block' id='native-repr-shared_string_tuple-8-node-2'><div class='native-repr-block-title' title='heap block @2
@@ -1336,7 +1369,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: boxed_numeric_values
 This labels the root value word, not a heap block.'>boxed_numeric_values</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000102cff0a8
+raw address word: 0x000000010103f0a8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1352,11 +1385,11 @@ allocated payload words: 2
 tag: 0 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000102cff0d8
+raw address word: 0x000000010103f0d8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-boxed_numeric_values-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000102cff0c0
+raw address word: 0x000000010103f0c0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div><div class='native-repr-block' id='native-repr-boxed_numeric_values-8-node-2'><div class='native-repr-block-title' title='heap block @2
@@ -1386,7 +1419,7 @@ allocated payload words: 2
 tag: 255 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 255 size: 0+2</span></span><span class='native-repr-word native-repr-raw native-repr-uniform-tags-word native-repr-no-low-bit-marker' style='--bytes:8' title='custom block raw payload word 0
-raw word: 0x0000000102d51240
+raw word: 0x0000000101091240
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-label'>0x00..40</span></span><span class='native-repr-word native-repr-raw native-repr-uniform-tags-word native-repr-no-low-bit-marker' style='--bytes:8' title='custom block raw payload word 1
 raw word: 0x00000000000001c8
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-label'>0x00..c8</span></span></div></div></div></div></div>
@@ -1421,7 +1454,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: ordinary_some_int_option
 This labels the root value word, not a heap block.'>ordinary_some_int_option</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-ordinary_some_int_option-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x000000010088b0b0
+raw address word: 0x00000001042470b0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1469,7 +1502,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_boxed_point
 This labels the root value word, not a heap block.'>outer_record_with_boxed_point</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x0000000100e9f0c0
+raw address word: 0x00000001040e70c0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1485,11 +1518,11 @@ allocated payload words: 3
 tag: 0 (constructor/block kind)
 GC color/status bits: 3
 reserved byte: 0'><span class='native-repr-label'>tag: 0 size: 3</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x0000000100e9f0f8
+raw address word: 0x00000001040e70f8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-outer_record_with_boxed_point-8-node-3' title='pointer to heap block @3
-raw address word: 0x0000000100e9f0e0
+raw address word: 0x00000001040e70e0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 7
@@ -1555,7 +1588,7 @@ Each word block is a separate component of the unboxed product layout.'><span cl
 raw word: 0x0000000000000003
 encoded as (n &lt;&lt; 1) | 1
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>1</span><span class='native-repr-label'>int 1</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-unboxed_pair_of_values-8-node-1' title='pointer value
-raw address word: 0x000000010031b108
+raw address word: 0x0000000101027108
 points to heap block @1
 Hover to highlight the target and all refs to it.
 Click to jump to the target block.
@@ -1623,7 +1656,7 @@ This value word is not a heap block. At runtime it can live in a register, stack
 This is a top-level value word, not a heap block. At runtime it may live in a register, stack slot, global, or other GC root.'>roots</div><div class='native-repr-region-content'><div class='native-repr-root-value'><div class='native-repr-root-name' title='binding name: outer_record_with_unboxed_point
 This labels the root value word, not a heap block.'>outer_record_with_unboxed_point</div><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-1' title='root value word
 pointer to heap block @1
-raw address word: 0x00000001025bf0c0
+raw address word: 0x00000001008b70c0
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a></div></div></div><div class='native-repr-region native-repr-heap-region' title='heap region
@@ -1641,7 +1674,7 @@ GC color/status bits: 3
 reserved byte: 3
 scannable pointer words: 2
 raw words: 2'><span class='native-repr-label'>tag: 0 size: 2+2</span></span><a class='native-repr-word native-repr-edge native-repr-uniform-tags-word' style='--bytes:8' href='#native-repr-outer_record_with_unboxed_point-8-node-2' title='pointer to heap block @2
-raw address word: 0x00000001025bf0e8
+raw address word: 0x00000001008b70e8
 Hover to highlight this target block and all other pointer words to it.
 Click to jump to the target block.
 compact mode: showing the low-bit tag instead of raw bytes'><span class='native-repr-low-bit-marker' title='low-bit tag in OCaml&#39;s uniform value representation'>0</span><span class='native-repr-label'></span></a><span class='native-repr-word native-repr-imm native-repr-uniform-tags-word' style='--bytes:8' title='immediate integer 7
