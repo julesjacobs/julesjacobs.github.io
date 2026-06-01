@@ -1627,7 +1627,7 @@
         <p>Before we talk about modes, it helps to know the two functions that motivate them: fork/join for work that must finish before the parent continues, and spawn for work that may keep running after the parent returns from the call.</p>
         <div class="comparison">
           <article class="diagram-card">
-            <h3><code>Parallel.fork_join2</code></h3>
+            <h3><code>Toy.fork_join2</code></h3>
             <p class="diagram-caption">Run two pieces of work, wait for both to finish, and return both results.</p>
             <svg class="parallel-shape" viewBox="0 0 320 170" role="img" aria-labelledby="fork-join-shape-title">
               <title id="fork-join-shape-title">A fork/join call runs two workers and joins before returning.</title>
@@ -1647,7 +1647,7 @@
           </article>
 
           <article class="diagram-card">
-            <h3><code>Concurrent.spawn</code></h3>
+            <h3><code>Toy.spawn</code></h3>
             <p class="diagram-caption">Start one piece of work and let the parent continue immediately.</p>
             <svg class="parallel-shape" viewBox="0 0 320 170" role="img" aria-labelledby="spawn-shape-title">
               <title id="spawn-shape-title">A spawn call starts worker work while the parent continues.</title>
@@ -1663,8 +1663,8 @@
           </article>
         </div>
         <p class="operational-contract">Fork/join returns after both child computations finish; spawn may return while its worker is still running.</p>
-        <p>These examples use the real scheduler and spawn function names, but the JavaScript playground runs them sequentially. That lets us type-check and experiment in the browser even though JavaScript is not running native OxCaml domains.</p>
-        <p class="example-signpost"><strong>Fork/join:</strong> create a scheduler, then call <code>Parallel.fork_join2</code> with the provided <code>Parallel.t</code>.</p>
+        <p>The examples below use a toy API with the same mode requirements as the real parallel APIs, but without scheduler and scope arguments.</p>
+        <p class="example-signpost"><strong>Fork/join:</strong> pass two worker functions to <code>Toy.fork_join2</code>.</p>
         <div class="code-with-figure">
           <oxcaml data-filename="fork_join.ml" no-self-check style="--oxcaml-editor-max-height: 40rem">
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1677,27 +1677,21 @@
               Buffer.contents buf
 
             (* Parallel computation: fork two workers and join their results. *)
-            let strings_in_parallel parallel =
-              let #(left, right) =
-                Parallel.fork_join2
-                  parallel
-                  (fun _parallel -> bits_to_string [true; false; true; true])
-                  (fun _parallel -> bits_to_string [false; true; false; false])
+            let strings_in_parallel () =
+              let (left, right) =
+                Toy.fork_join2
+                  (fun () -> bits_to_string [true; false; true; true])
+                  (fun () -> bits_to_string [false; true; false; false])
               in
               left ^ "\n" ^ right
 
-            (* Scheduler entry point: start the fork/join computation. *)
             let () =
-              let scheduler = Parallel.Scheduler.Sequential.create () in
-              let s =
-                Parallel.Scheduler.Sequential.parallel scheduler ~f:strings_in_parallel
-              in
               print_endline "The output is:";
-              print_endline s
+              print_endline (strings_in_parallel ())
           </oxcaml>
-          <p><code>fork_join2</code> returns an unboxed pair. Pattern matching uses <code>#(left, right)</code>; that <code>#</code> syntax is about the result representation, not about modes or parallelism.</p>
+          <p><code>Toy.fork_join2</code> returns an ordinary pair. The mode story is in the function arguments: both workers must be available as <code>@ shareable</code>.</p>
         </div>
-        <p class="example-signpost"><strong>Spawn:</strong> create a scope, then pass a task function to <code>Concurrent.spawn</code>.</p>
+        <p class="example-signpost"><strong>Spawn:</strong> pass one worker function to <code>Toy.spawn</code>.</p>
         <div class="code-with-figure">
           <oxcaml data-filename="spawn.ml" no-self-check>
             (* Worker code: ordinary code we want to run in parallel. *)
@@ -1712,14 +1706,9 @@
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
               print_endline "The output is:";
-              Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
-                Concurrent.with_scope concurrent () ~f:(fun spawn ->
-                  let _ = Concurrent.spawn
-                    spawn
-                    ~f:(fun _scope _ctx _concurrent ->
-                      print_endline (bits_to_string [true; false; true; true]))
-                  in
-                  print_endline (bits_to_string [false; true; false; false])))
+              Toy.spawn (fun () ->
+                print_endline (bits_to_string [true; false; true; true]));
+              print_endline (bits_to_string [false; true; false; false])
           </oxcaml>
           <figure class="course-figure">
             <img src="../assets/images/buffers-fresh.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people each working at their own computer, with separate code on separate screens.">
@@ -1750,21 +1739,16 @@
 
             (* Spawn: start the worker function and let the parent continue. *)
             let () =
-              Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
-                Concurrent.with_scope concurrent () ~f:(fun spawn ->
-                  let _ = Concurrent.spawn
-                    spawn
-                    ~f:(fun _scope _ctx _concurrent ->
-                      print_endline (bits_to_string_shared [true; false; true; true]))
-                  in
-                  print_endline (bits_to_string_shared [false; true; false; false])))
+              Toy.spawn (fun () ->
+                print_endline (bits_to_string_shared [true; false; true; true]));
+              print_endline (bits_to_string_shared [false; true; false; false])
           </oxcaml>
           <figure class="course-figure">
             <img src="../assets/images/buffers-shared.avif" width="760" height="840" loading="lazy" decoding="async" alt="Two people sharing one computer with scrambled code on the screen, looking confused.">
             <figcaption>A shared buffer is one mutable object used by overlapping calls, so their writes can interfere.</figcaption>
           </figure>
         </div>
-        <p>OxCaml rejects the call to <code>Concurrent.spawn</code> that invokes <code>bits_to_string_shared</code>. The failed check is on the function value: the spawned worker would call a function that closes over the shared buffer.</p>
+        <p>OxCaml rejects the call to <code>Toy.spawn</code> that invokes <code>bits_to_string_shared</code>. The failed check is on the function value: the spawned worker would call a function that closes over the shared buffer.</p>
         <h3>What counts as a data race?</h3>
         <p>A data race happens when two pieces of work access the same mutable state at overlapping times, and at least one access writes. Two parallel writes are bad because the final value can depend on which piece of work happens to write last. A read that overlaps with a write is also bad, because the read may see either the old value or the new value depending on scheduling.</p>
         <p>Two parallel reads are fine: neither read changes the state, so their order cannot affect the result. Reads and writes are also fine when the program gives them a defined order, either by ordinary program order or by synchronization. For example, <code>fork_join2</code> synchronizes after its children finish, so parent code after the fork/join runs after both child computations are done.</p>
@@ -1781,7 +1765,7 @@
           <li>a spawned function may not even read mutable fields, because that read may overlap with a later write in the parent;</li>
           <li>fresh mutable state created inside the function is still owned by that function body.</li>
         </ul>
-        <p>The real check is type-based. The compiler checks mode requirements, not assignments or the names <code>Parallel.fork_join2</code> and <code>Concurrent.spawn</code>.</p>
+        <p>The real check is type-based. The compiler checks mode requirements, not assignments or the names <code>Toy.fork_join2</code> and <code>Toy.spawn</code>.</p>
       </section>
 
       <section>
@@ -1820,12 +1804,12 @@
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _result =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Toy.fork_join2</span></div>
               <div class="callback-closure-argument wide">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame shared">
                   <div class="callback-closure-header">
-                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
                   <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ shared" aria-label="x : t @ shared">x</span>.id <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
@@ -1838,7 +1822,7 @@
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame shared">
                   <div class="callback-closure-header">
-                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
                   <div class="callback-line indent-1">...</div>
@@ -1854,7 +1838,7 @@
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> <span class="callback-mode-use" tabindex="0" data-mode-label="x : t @ uncontended" aria-label="x : t @ uncontended">x</span> = { id = 1; hits = 0 }</div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Concurrent.spawn</span></div>
+              <div class="callback-line indent-1"><span class="tok-fn">Toy.spawn</span></div>
               <div class="callback-closure-argument">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame contended">
@@ -1952,7 +1936,7 @@ r.field : a @ M</code></pre>
         <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access.</p>
         <p>You may also see inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. Ignore those for now; they are not needed for the contention examples.</p>
         <h3>Worked example: captured <code>x</code> across the three contexts</h3>
-        <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Parallel.fork_join2</code>, or <code>Concurrent.spawn</code>. Then the helper calls are allowed as follows:</p>
+        <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Toy.fork_join2</code>, or <code>Toy.spawn</code>. Then the helper calls are allowed as follows:</p>
         <div class="exercise-table-wrap">
           <table class="exercise-table">
             <thead>
@@ -2087,14 +2071,8 @@ r.field : a @ M</code></pre>
           let write_x v = x.hits <- v  (* a nonportable function *)
 
           let _ =
-            Concurrent_in_thread.with_blocking Await.Terminator.unkillable ~f:(fun concurrent ->
-              Concurrent.with_scope concurrent () ~f:(fun spawn ->
-                let _ =
-                  Concurrent.spawn
-                    spawn
-                    ~f:(fun _scope _ctx _concurrent -> write_x 1)
-                in
-                write_x 2))
+            Toy.spawn (fun () -> write_x 1);
+            write_x 2
         </oxcaml>
         <h3>Moving access into helpers does not change the rule</h3>
         <p>OxCaml rejects the call that would let spawned work run <code>write_x 1</code> while the parent can also use <code>write_x</code>. The call has no explicit <code>x</code> argument, so the relevant check is on the function value <code>write_x</code> itself. <code>write_x</code> is <code>nonportable</code> because it writes captured mutable state.</p>
@@ -2162,7 +2140,7 @@ r.field : a @ M</code></pre>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
-            <h3><code>Parallel.fork_join2</code></h3>
+            <h3><code>Toy.fork_join2</code></h3>
             <div class="callback-boundary-code" aria-label="Fork join helper calls cross shareable boundaries">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
@@ -2171,12 +2149,12 @@ r.field : a @ M</code></pre>
               <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
               <div class="callback-line"></div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel</div>
+              <div class="callback-line indent-1"><span class="tok-fn">Toy.fork_join2</span></div>
               <div class="callback-closure-argument wide">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame shared">
                   <div class="callback-closure-header">
-                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
                   <div class="callback-line indent-1"><span class="tok-kw">let</span> _id = id_x () <span class="tok-kw">in</span> <span class="tok-comment">(* ok *)</span></div>
@@ -2189,7 +2167,7 @@ r.field : a @ M</code></pre>
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame shared">
                   <div class="callback-closure-header">
-                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> _parallel -&gt;</div>
+                    <div class="callback-closure-fun"><span class="tok-kw">fun</span> () -&gt;</div>
                     <div class="callback-closure-title shared">shared</div>
                   </div>
                   <div class="callback-line indent-1">...</div>
@@ -2199,7 +2177,7 @@ r.field : a @ M</code></pre>
             </div>
           </article>
           <article class="diagram-card callback-boundary-card">
-            <h3><code>Concurrent.spawn</code></h3>
+            <h3><code>Toy.spawn</code></h3>
             <div class="callback-boundary-code" aria-label="Spawned helper calls cross a portable boundary">
               <div class="callback-line"><span class="tok-kw">type</span> t = { id : int; <span class="tok-kw">mutable</span> hits : int }</div>
               <div class="callback-line"><span class="tok-kw">let</span> x = { id = 1; hits = 0 }</div>
@@ -2208,7 +2186,7 @@ r.field : a @ M</code></pre>
               <div class="callback-line"><span class="tok-kw">let</span> write_x v = x.hits &lt;- v</div>
               <div class="callback-line"></div>
               <div class="callback-line"><span class="tok-kw">let</span> _ =</div>
-              <div class="callback-line indent-1"><span class="tok-fn">Concurrent.spawn</span></div>
+              <div class="callback-line indent-1"><span class="tok-fn">Toy.spawn</span></div>
               <div class="callback-closure-argument wide">
                 <span class="callback-paren">(</span>
                 <div class="callback-closure-frame contended">
@@ -2251,13 +2229,13 @@ r.field : a @ M</code></pre>
         <pre><code>let bump_hits (x @ uncontended) =
   x.hits &lt;- x.hits + 1
 
-fun _parallel -&gt; bump_hits x</code></pre>
+fun () -&gt; bump_hits x</code></pre>
         <p>The captured value <code>x</code> is passed explicitly. The call is checked against <code>bump_hits</code>'s parameter mode. In a fork/join function, captured <code>x</code> is available only as <code>shared</code>, but <code>bump_hits</code> requires <code>uncontended</code>.</p>
         <p><strong>Hidden capture:</strong></p>
         <pre><code>let write_x v =
   x.hits &lt;- v
 
-fun _parallel -&gt; write_x 1</code></pre>
+fun () -&gt; write_x 1</code></pre>
         <p>Here <code>x</code> is not passed explicitly. The mutable access comes from the closure environment of <code>write_x</code>. The call is checked against the portability mode of the function value <code>write_x</code>.</p>
         <p>For any call inside parallel work, ask two questions:</p>
         <ul>
@@ -2273,9 +2251,8 @@ let bits_to_string_shared bits =
   ...</code></pre>
         <p>Inside the implementation, <code>Buffer.clear buf</code> and <code>Buffer.add_char buf</code> require <code>buf @ uncontended</code>.</p>
         <p>Since <code>buf</code> is captured by <code>bits_to_string_shared</code>, the function value is not portable. A spawned function may only call portable-enough function values, so this use is rejected:</p>
-        <pre><code>Concurrent.spawn
-  spawn
-  ~f:(fun _scope _ctx _concurrent -&gt; bits_to_string_shared bits)</code></pre>
+        <pre><code>Toy.spawn
+  (fun () -&gt; bits_to_string_shared bits)</code></pre>
         <p>If the buffer were passed explicitly instead, the failure would be at the buffer argument:</p>
         <pre><code>let write_bits (buf @ uncontended) bits =
   Buffer.clear buf;
@@ -2294,7 +2271,7 @@ fun () -&gt; write_bits buf bits</code></pre>
           <li>calling a captured function value that hides mutable state.</li>
         </ul>
         <p>The same rule explains all three cases. When a value from the outer scope is used inside a closure with a parallel-safety promise, the value crosses a closure boundary. The closure's required portability mode determines which modes the captured value is available at inside the body.</p>
-        <p>The diagrams below summarize that boundary behavior. They are not special rules for <code>fork_join2</code> or <code>spawn</code>; those functions merely require function-argument modes that trigger these checks. In the fork/join diagram, assume <code>parallel : Parallel.t @ local</code> is already in scope.</p>
+        <p>The diagrams below summarize that boundary behavior. They are not special rules for <code>fork_join2</code> or <code>spawn</code>; those functions merely require function-argument modes that trigger these checks.</p>
         <aside class="checkpoint">
           <h3>Checkpoint: predict the boundary effect</h3>
           <p>Look for <code>b @ uncontended</code> in both diagrams. Predict whether the closure body still gets <code>uncontended</code> mode, a weaker mode, or an error.</p>
@@ -2340,7 +2317,7 @@ fun () -&gt; write_bits buf bits</code></pre>
                 </div>
                 <div class="capture-code-block">
                   <div class="capture-line">
-                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">Parallel.t</span> @ <span class="tok-mode">local</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">unit</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
                   </div>
                 </div>
                 <div class="capture-closure-box shareable" data-boundary-link="shareable">
@@ -2348,7 +2325,7 @@ fun () -&gt; write_bits buf bits</code></pre>
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
-                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _parallel -&gt;</span>
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
                       </div>
                       <div class="capture-import-list">
                       <div class="capture-import-row" data-capture-link="shareable-factor">
@@ -2388,11 +2365,11 @@ fun () -&gt; write_bits buf bits</code></pre>
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src"><span class="tok-kw">let</span> #(_left, _right) =</span>
+                    <span class="capture-src"><span class="tok-kw">let</span> (_left, _right) =</span>
                     <span class="capture-note good">fork/join</span>
                   </div>
                   <div class="capture-line">
-                    <span class="capture-src indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel worker worker</span>
+                    <span class="capture-src indent-1"><span class="tok-fn">Toy.fork_join2</span> worker worker</span>
                   </div>
                   <div class="capture-line">
                     <span class="capture-src"><span class="tok-kw">in</span></span>
@@ -2494,7 +2471,7 @@ fun () -&gt; write_bits buf bits</code></pre>
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> spawn ~f:worker)</span>
+                    <span class="capture-src">ignore (<span class="tok-fn">Toy.spawn</span> worker)</span>
                     <span class="capture-note good">spawn</span>
                   </div>
                   <div class="capture-line">
@@ -2566,15 +2543,17 @@ fun () -&gt; write_bits buf bits</code></pre>
 
       <section>
         <h2>Parallel functions are ordinary typed functions</h2>
-        <p>The compiler does not recognize <code>Parallel.fork_join2</code> or <code>Concurrent.spawn</code> by name. They are ordinary functions whose types require particular modes on function arguments.</p>
+        <p>The compiler does not recognize <code>Toy.fork_join2</code> or <code>Toy.spawn</code> by name. They are ordinary functions whose types require particular modes on function arguments.</p>
         <p>Fork/join's API can ask for <code>shareable</code> worker functions, while spawn's API asks for a <code>portable</code> worker function.</p>
-        <p>Schematic fork/join type, omitting details such as <code>once</code>, <code>local</code>, and <code>forkable</code>:</p>
-        <pre><code>val fork_join2 :
-  Parallel.t @ local -&gt;
-  (Parallel.t @ local -&gt; 'a) @ shareable -&gt;
-  (Parallel.t @ local -&gt; 'b) @ shareable -&gt;
-  #('a * 'b)</code></pre>
-        <p>The corresponding <code>spawn</code> type has extra scope and concurrent-context arguments, but the relevant part is the same kind of function-argument requirement: <code>spawn</code> takes its worker function at mode <code>@ portable</code>.</p>
+        <p>The toy API puts only the relevant function-argument modes in the type:</p>
+        <pre><code>val Toy.fork_join2 :
+  (unit -&gt; 'a) @ shareable -&gt;
+  (unit -&gt; 'b) @ shareable -&gt;
+  'a * 'b
+
+val Toy.spawn :
+  (unit -&gt; unit) @ portable -&gt;
+  unit</code></pre>
         <p>From <code>fork_join2</code>'s <code>shareable</code> worker requirement, captured mutable state is read-only inside each worker:</p>
         <ul>
           <li>direct writes to captured mutable state are rejected;</li>
@@ -2596,15 +2575,14 @@ fun () -&gt; write_bits buf bits</code></pre>
         <p>This exercise is about inferred modes, not efficient parallel mapping. The answer below forks one tiny head task against the tail of the list, which is fine for exposing the type but too fine-grained and unbalanced for production code.</p>
         <aside class="exercise">
           <h3>Exercise: implement <code>parallel_map</code></h3>
-          <p>Write a polymorphic <code>parallel_map</code> using <code>Parallel.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Fill in the recursive fork/join implementation.</p>
-          <p>The starter leaves the modes off on purpose. After the implementation mentions <code>Parallel.fork_join2</code>, the compiler can infer the relevant modes from how the function argument and list flow through the fork/join tree.</p>
+          <p>Write a polymorphic <code>parallel_map</code> using <code>Toy.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Fill in the recursive fork/join implementation.</p>
+          <p>The starter leaves the modes off on purpose. After the implementation mentions <code>Toy.fork_join2</code>, the compiler can infer the relevant modes from how the function argument and list flow through the fork/join tree.</p>
           <details>
             <summary>Hint</summary>
             <p>Handle the empty list directly. For a nonempty list, fork one branch for the head and one branch for the tail, then combine the mapped head with the mapped tail.</p>
           </details>
         </aside>
         <oxcaml data-filename="parallel_map.ml" data-oxcaml-run-trigger="manual" expect-error no-self-check>(* Parallel map exercise *)
-
 let bits_to_string bits =
   let buf = Buffer.create 0 in
   List.iter
@@ -2613,34 +2591,30 @@ let bits_to_string bits =
     bits;
   Buffer.contents buf
 
-let rec parallel_map parallel f xs =
+let rec parallel_map f xs =
   failwith "implement this"
 
-let bits_to_strings (parallel : Parallel.t @ local) rows =
-  parallel_map parallel bits_to_string rows
+let bits_to_strings rows =
+  parallel_map bits_to_string rows
 
 let () =
   let rows =
     [[true; false; true; true]; [false; true; false; false]]
   in
-  let scheduler = Parallel.Scheduler.Sequential.create () in
-  let strings =
-    Parallel.Scheduler.Sequential.parallel scheduler
-      ~f:(fun parallel -> bits_to_strings parallel rows)
-  in
+  let strings = bits_to_strings rows in
   print_endline "The output is:";
   print_endline (String.concat "\n" strings)</oxcaml>
         <details>
           <summary>Answer key</summary>
           <p>The recursive case forks one branch for the head and one branch for the tail, then reconstructs the list after both branches finish. This is intentionally simple so that the inferred type is easy to inspect; it is not how you would usually implement <code>parallel_map</code> in production.</p>
-          <pre><code>let rec parallel_map parallel f xs =
+          <pre><code>let rec parallel_map f xs =
   match xs with
   | [] -> []
   | x :: xs ->
-    let #(y, ys) =
-      Parallel.fork_join2 parallel
-        (fun _parallel -> f x)
-        (fun parallel -> parallel_map parallel f xs)
+    let (y, ys) =
+      Toy.fork_join2
+        (fun () -> f x)
+        (fun () -> parallel_map f xs)
     in
     y :: ys</code></pre>
         </details>
@@ -2648,17 +2622,14 @@ let () =
           <h3>Exercise: read the inferred type of <code>parallel_map</code></h3>
           <p>Using the answer-key implementation above, ask for inferred types. You should see a signature shaped like this:</p>
           <pre><code>val parallel_map :
-  Parallel.t @ local ->
   ('a @ shared -> 'b) @ shareable ->
   'a list @ shareable shared ->
   'b list @@ stateless</code></pre>
-          <p>For each mode annotation, decide whether it is a requirement on callers or a promise checked against the implementation of <code>parallel_map</code>. Then say what concrete restriction it creates. In <code>('a @ shared -&gt; 'b) @ shareable</code>, the inner annotation controls how <code>parallel_map</code> provides each element to <code>f</code>; the outer annotation controls where <code>f</code> itself may be used. The annotations on <code>'a list @ shareable shared</code> are also requirements at that specific input-list position.</p>
           <p><code>stateless</code> is a stronger promise on another mode axis. Here we only need one consequence: <code>stateless</code> implies <code>portable</code>, so this implementation can be called from portable code.</p>
           <details>
             <summary>Answer</summary>
             <p>Read the type as a contract for moving work into a fork/join tree.</p>
             <ul>
-              <li><code>Parallel.t @ local</code> is checked against the implementation of <code>parallel_map</code>. It promises that <code>parallel_map</code> only uses the scheduler capability while it runs; it will not store it, return it, or let it escape.</li>
               <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit function argument. <code>parallel_map</code> uses that function inside fork/join branches, so the function value must be available as <code>shareable</code>. This restricts functions that close over mutable state, functions, or other portability-sensitive values.</li>
               <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the function argument. If an element contains mutable state, the function may read that state but may not mutate it. This is why a function such as <code>fun x -&gt; bump_hits x</code> is rejected when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
               <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a portability requirement at the input-list position. Pieces of the list flow into the fork/join tree, so the input must be usable in that context. This restricts element types that contain functions or other portability-sensitive values.</li>

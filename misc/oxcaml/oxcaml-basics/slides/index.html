@@ -1192,10 +1192,10 @@ let b = id__'value_value' #(1, 2)</code></pre>
           <div class="two-up">
             <article>
               <h3>fork_join2</h3>
-              <pre><code>let #(left, right) =
-  Parallel.fork_join2 parallel
-    (fun _parallel -> left_work ())
-    (fun _parallel -> right_work ())
+              <pre><code>let (left, right) =
+  Toy.fork_join2
+    (fun () -> left_work ())
+    (fun () -> right_work ())
 in
 combine left right</code></pre>
               <p>Children run in parallel; parent resumes after both finish.</p>
@@ -1203,8 +1203,7 @@ combine left right</code></pre>
             <article>
               <h3>spawn</h3>
               <pre><code>let _ =
-  Concurrent.spawn spawn
-    ~f:(fun _scope _ctx _conc -> worker ())
+  Toy.spawn (fun () -> worker ())
 in
 parent_side_effect ()</code></pre>
               <p>Spawned worker runs in parallel; parent continues immediately.</p>
@@ -1226,18 +1225,16 @@ let bits_to_string bits =
     bits;
   Buffer.contents buf
 
-let strings_in_parallel parallel =
-  let #(left, right) = Parallel.fork_join2 parallel
-      (fun _parallel -> bits_to_string [true; false; true])
-      (fun _parallel -> bits_to_string [false; true; false])
+let strings_in_parallel () =
+  let (left, right) = Toy.fork_join2
+      (fun () -> bits_to_string [true; false; true])
+      (fun () -> bits_to_string [false; true; false])
   in
   left ^ "\n" ^ right
 
 let () =
-  let scheduler = Parallel.Scheduler.Sequential.create () in
-  let s = Parallel.Scheduler.Sequential.parallel scheduler ~f:strings_in_parallel in
   print_endline "The output is:";
-  print_endline s
+  print_endline (strings_in_parallel ())
               </oxcaml>
             </div>
             <div class="illustration-only">
@@ -1261,10 +1258,10 @@ let bits_to_string bits =
     bits;
   Buffer.contents buf
 
-let strings_in_parallel parallel =
-  let #(left, right) = Parallel.fork_join2 parallel
-      (fun _parallel -> bits_to_string [true; false; true])
-      (fun _parallel -> bits_to_string [false; true; false])
+let strings_in_parallel () =
+  let (left, right) = Toy.fork_join2
+      (fun () -> bits_to_string [true; false; true])
+      (fun () -> bits_to_string [false; true; false])
   in
   left ^ "\n" ^ right
               </oxcaml>
@@ -1285,12 +1282,12 @@ let strings_in_parallel parallel =
           <div class="two-up">
             <article><h3>danger shape 1: two writes</h3><pre><code>let r = ref 0
 
-Parallel.fork_join2 parallel
+Toy.fork_join2
   (fun _ -> incr r)
   (fun _ -> incr r)</code></pre>
               <h3>danger shape 2: one write and one read</h3><pre><code>let r = ref 0
 
-Parallel.fork_join2 parallel
+Toy.fork_join2
   (fun _ -> incr r)
   (fun _ -> !r)</code></pre></article>
             <article><h3>overlap rule</h3>
@@ -1313,21 +1310,21 @@ Parallel.fork_join2 parallel
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">danger shape 1: two writes</div>
               <oxcaml check data-filename="two_writes.ml" expect-error>
-let bad_two_writes parallel =
+let bad_two_writes () =
   let r = ref 0 in
-  Parallel.fork_join2 parallel
-    (fun _parallel -> incr r)
-    (fun _parallel -> incr r)
+  Toy.fork_join2
+    (fun () -> incr r)
+    (fun () -> incr r)
               </oxcaml>
             </div>
             <div class="live-editor-frame" tabindex="-1">
               <div class="code-label">danger shape 2: one write and one read</div>
               <oxcaml check data-filename="read_and_write.ml" expect-error>
-let bad_read_and_write parallel =
+let bad_read_and_write () =
   let r = ref 0 in
-  Parallel.fork_join2 parallel
-    (fun _parallel -> incr r)
-    (fun _parallel -> !r)
+  Toy.fork_join2
+    (fun () -> incr r)
+    (fun () -> !r)
               </oxcaml>
             </div>
           </div>
@@ -1342,12 +1339,12 @@ let bad_read_and_write parallel =
               <div class="annotated-code">
                 <pre><code><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }
 
-Parallel.fork_join2 parallel
-  (<span class="tok-keyword">fun</span> _parallel -&gt;
+Toy.fork_join2
+  (<span class="tok-keyword">fun</span> () -&gt;
      x.id          <span class="tok-comment">(* &#10003; immutable read *)</span>
      x.hits        <span class="tok-comment">(* &#10003; mutable read *)</span>
      x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)
-  right_work</code></pre>
+  (fun () -> right_work ())</code></pre>
               </div>
               <ul class="rule-summary">
                 <li><span>✅</span> immutable read allowed</li>
@@ -1360,8 +1357,7 @@ Parallel.fork_join2 parallel
               <div class="annotated-code">
                 <pre><code><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }
 
-Concurrent.spawn spawn
-  ~f:(<span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;
+Toy.spawn (<span class="tok-keyword">fun</span> () -&gt;
         x.id          <span class="tok-comment">(* &#10003; immutable read *)</span>
         x.hits        <span class="tok-comment">(* &#10005; mutable read *)</span>
         x.hits &lt;- n   <span class="tok-comment">(* &#10005; mutable write *)</span>)
@@ -1444,18 +1440,18 @@ r.field : a @ M</code></pre>
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
-                <div class="code-line indent-1">Parallel.fork_join2 parallel</div>
+                <div class="code-line indent-1">Toy.fork_join2</div>
                 <div class="closure-argument">
                   <span class="closure-paren">(</span>
                   <div class="closure-frame shared">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> _parallel -&gt;<span class="closure-title shared">x @ shared</span></div>
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title shared">x @ shared</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                   </div>
                   <span class="closure-paren close">)</span>
                 </div>
-                <div class="code-line indent-1">right_work</div>
+                <div class="code-line indent-1">(fun () -&gt; right_work ())</div>
                 <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
               </div>
             </article>
@@ -1465,11 +1461,11 @@ r.field : a @ M</code></pre>
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
-                <div class="code-line indent-1">Concurrent.spawn spawn</div>
+                <div class="code-line indent-1">Toy.spawn</div>
                 <div class="closure-argument">
-                  <span class="closure-paren">~f:(</span>
+                  <span class="closure-paren">(</span>
                   <div class="closure-frame contended">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;<span class="closure-title contended">x @ contended</span></div>
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title contended">x @ contended</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
                     <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
@@ -1531,10 +1527,10 @@ type t = { id : int; mutable hits : int }
 let get_hits (x @ shared) = x.hits
 let bump_hits (x @ uncontended) = x.hits <- x.hits + 1
 
-let demo parallel x =
-  Parallel.fork_join2 parallel
-    (fun _parallel -> get_hits x)
-    (fun _parallel -> bump_hits x)
+let demo x =
+  Toy.fork_join2
+    (fun () -> get_hits x)
+    (fun () -> bump_hits x)
               </oxcaml>
             </div>
           </div>
@@ -1581,10 +1577,10 @@ let x = { id = 1; hits = 0 }
 let write_x () =
   x.hits <- x.hits + 1
 
-let demo parallel =
-  Parallel.fork_join2 parallel
-    (fun _parallel -> write_x ())
-    (fun _parallel -> write_x ())
+let demo () =
+  Toy.fork_join2
+    (fun () -> write_x ())
+    (fun () -> write_x ())
               </oxcaml>
             </div>
             <div class="closure-captures-copy">
@@ -1655,10 +1651,10 @@ let bits_to_string bits =
     bits;
   Buffer.contents buf
 
-let strings_in_parallel parallel =
-  let #(left, right) = Parallel.fork_join2 parallel
-      (fun _parallel -> bits_to_string [true; false; true])
-      (fun _parallel -> bits_to_string [false; true; false])
+let strings_in_parallel () =
+  let (left, right) = Toy.fork_join2
+      (fun () -> bits_to_string [true; false; true])
+      (fun () -> bits_to_string [false; true; false])
   in
   left ^ "\n" ^ right
               </oxcaml>
@@ -1670,15 +1666,13 @@ let strings_in_parallel parallel =
         <section class="slide concept-slide">
           <h2>Schematic types of fork_join2 and spawn</h2>
           <div class="signature-card">
-            <pre><code>val fork_join2 :
-  Parallel.t @ local ->
-  (Parallel.t @ local -> 'a) @ shareable ->
-  (Parallel.t @ local -> 'b) @ shareable ->
-  #('a * 'b)
+            <pre><code>val Toy.fork_join2 :
+  (unit -> 'a) @ shareable ->
+  (unit -> 'b) @ shareable ->
+  'a * 'b
 
-val spawn :
-  ('scope_ctx, 'ctx) spawn ->
-  f:('scope_ctx Concurrent.Scope.t -> 'ctx -> 'ctx Concurrent.t -> unit) @ portable ->
+val Toy.spawn :
+  (unit -> unit) @ portable ->
   unit</code></pre>
           </div>
           <aside class="notes">No compiler magic for these names. The function argument slots impose the modal requirements.</aside>
@@ -1692,37 +1686,36 @@ val spawn :
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
-                <div class="code-line indent-1">Parallel.fork_join2 parallel</div>
+                <div class="code-line indent-1">Toy.fork_join2</div>
                 <div class="closure-argument">
                   <span class="closure-paren">(</span>
                   <div class="closure-frame shared">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> _parallel -&gt;<span class="closure-title shared">x @ shared</span></div>
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title shared">x @ shared</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
                   </div>
                   <span class="closure-paren close">)</span>
                 </div>
-                <div class="code-line indent-1">right_work</div>
+                <div class="code-line indent-1">(fun () -&gt; right_work ())</div>
                 <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
               </div>
               <p class="boundary-reason"><code>x</code> becomes <code>@ shared</code> because <code>fork_join2</code> takes the worker at <code>@ shareable</code>.</p>
-              <pre class="boundary-signature"><code>val fork_join2 :
-  ... ->
-  (... -> 'a) @ shareable ->
-  (... -> 'b) @ shareable ->
-  ...</code></pre>
+              <pre class="boundary-signature"><code>val Toy.fork_join2 :
+  (unit -> 'a) @ shareable ->
+  (unit -> 'b) @ shareable ->
+  'a * 'b</code></pre>
             </article>
             <article>
               <div class="closure-boundary-code" aria-label="Spawn contention function boundary revisited example">
                 <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
                 <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
                 <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
-                <div class="code-line indent-1">Concurrent.spawn spawn</div>
+                <div class="code-line indent-1">Toy.spawn</div>
                 <div class="closure-argument">
-                  <span class="closure-paren">~f:(</span>
+                  <span class="closure-paren">(</span>
                   <div class="closure-frame contended">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> _scope _ctx _conc -&gt;<span class="closure-title contended">x @ contended</span></div>
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title contended">x @ contended</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
                     <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
                     <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
@@ -1733,9 +1726,8 @@ val spawn :
                 <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
               </div>
               <p class="boundary-reason"><code>x</code> becomes <code>@ contended</code> because <code>spawn</code> takes the worker at <code>@ portable</code>.</p>
-              <pre class="boundary-signature"><code>val spawn :
-  ... ->
-  f:(... -> unit) @ portable ->
+              <pre class="boundary-signature"><code>val Toy.spawn :
+  (unit -> unit) @ portable ->
   unit</code></pre>
             </article>
           </div>
@@ -1784,7 +1776,7 @@ val spawn :
                 </div>
                 <div class="capture-code-block">
                   <div class="capture-line">
-                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">Parallel.t</span> @ <span class="tok-mode">local</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
+                    <span class="capture-src"><span class="tok-kw">let</span> worker : (<span class="tok-type">unit</span> -&gt; <span class="tok-type">unit</span>) @ <span class="tok-mode link-shareable" data-boundary-link="shareable">shareable</span> =</span>
                   </div>
                 </div>
                 <div class="capture-closure-box shareable" data-boundary-link="shareable">
@@ -1792,7 +1784,7 @@ val spawn :
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
-                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _parallel -&gt;</span>
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
                       </div>
                       <div class="capture-import-list">
                         <div class="capture-import-row" data-capture-link="shareable-factor">
@@ -1832,11 +1824,11 @@ val spawn :
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src"><span class="tok-kw">let</span> #(_left, _right) =</span>
+                    <span class="capture-src"><span class="tok-kw">let</span> (_left, _right) =</span>
                     <span class="capture-note good">fork/join</span>
                   </div>
                   <div class="capture-line">
-                    <span class="capture-src indent-1"><span class="tok-fn">Parallel.fork_join2</span> parallel worker worker</span>
+                    <span class="capture-src indent-1"><span class="tok-fn">Toy.fork_join2</span> worker worker</span>
                   </div>
                   <div class="capture-line">
                     <span class="capture-src"><span class="tok-kw">in</span></span>
@@ -1902,7 +1894,7 @@ val spawn :
                   <div class="capture-closure-content">
                     <div class="capture-code-block">
                       <div class="capture-line">
-                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> _scope _ctx _conc -&gt;</span>
+                        <span class="capture-src indent-1"><span class="tok-kw">fun</span> () -&gt;</span>
                       </div>
                       <div class="capture-import-list">
                         <div class="capture-import-row" data-capture-link="portable-factor">
@@ -1942,7 +1934,7 @@ val spawn :
                 </div>
                 <div class="capture-code-block api-call">
                   <div class="capture-line">
-                    <span class="capture-src">ignore (<span class="tok-fn">Concurrent.spawn</span> spawn ~f:worker)</span>
+                    <span class="capture-src">ignore (<span class="tok-fn">Toy.spawn</span> worker)</span>
                     <span class="capture-note good">spawn</span>
                   </div>
                   <div class="capture-line">
