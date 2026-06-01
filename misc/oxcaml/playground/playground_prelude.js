@@ -200,6 +200,19 @@ end = struct
   end
 end
 
+module Toy : sig
+  val fork_join2
+    :  (unit -> 'a) @ shareable
+    -> (unit -> 'b) @ shareable
+    -> 'a * 'b
+  val spawn : (unit -> unit) @ portable -> unit
+end = struct
+  let fork_join2 left right =
+    (left (), right ())
+  let spawn f =
+    f ()
+end
+
 `;
 
 function escapedStringLiteral(text) {
@@ -254,6 +267,7 @@ export function stripPlaygroundPreludeInterface(output) {
     "Await",
     "Concurrent_in_thread",
     "Parallel",
+    "Toy",
   ]) {
     stripped = stripTopLevelModuleInterface(stripped, moduleName);
   }
