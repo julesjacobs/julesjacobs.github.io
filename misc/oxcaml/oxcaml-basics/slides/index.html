@@ -1481,8 +1481,8 @@ let demo x =
         </section>
 
         <section class="slide exercise-slide helper-calls-exercise-slide">
-          <h2>Exercise: helper calls on captured <code>x</code></h2>
-          <p>Suppose <code>x</code> is captured from outside the function being passed. Which helper calls are allowed?</p>
+          <h2>Exercise: function calls on parent variable <code>x</code></h2>
+          <p>Suppose <code>x</code> is defined outside the <code>List.iter</code>/<code>fork_join2</code>/<code>spawn</code>. Which function calls are allowed?</p>
           <div class="exercise-with-reference">
             <article class="exercise-reference">
               <h3>Helpers</h3>
@@ -1560,8 +1560,8 @@ let demo () =
         </section>
 
         <section class="slide exercise-slide">
-          <h2>Exercise: hidden-capture helpers</h2>
-          <p>Where can each helper be used?</p>
+          <h2>Exercise: functions that capture a parent variable</h2>
+          <p>Where can each function be used?</p>
           <div class="exercise-with-reference">
             <article class="exercise-reference">
               <h3>Helpers</h3>
@@ -1588,7 +1588,7 @@ Toy.spawn (fun () ->
             </article>
             <div class="exercise-table-panel">
               <table class="prediction-table compact-prediction" data-prediction-table>
-                <thead><tr><th>Helper</th><th>ordinary</th><th>fork/join</th><th>spawn</th></tr></thead>
+                <thead><tr><th>Function</th><th>List.iter</th><th>fork_join2</th><th>spawn</th></tr></thead>
                 <tbody>
                   <tr><th><code>id_x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td></tr>
                   <tr><th><code>read_x</code></th><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="yes">?</button></td><td><button type="button" data-answer="no">?</button></td></tr>

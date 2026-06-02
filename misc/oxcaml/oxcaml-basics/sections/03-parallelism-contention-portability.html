@@ -1935,8 +1935,8 @@ r.field : a @ M</code></pre>
         <p>Try changing the annotations on these helper arguments. The inferred types and errors show which operations require which contention modes.</p>
         <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access.</p>
         <p>You may also see inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. Ignore those for now; they are not needed for the contention examples.</p>
-        <h3>Worked example: captured <code>x</code> across the three contexts</h3>
-        <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Toy.fork_join2</code>, or <code>Toy.spawn</code>. Then the helper calls are allowed as follows:</p>
+        <h3>Worked example: function calls on parent variable <code>x</code></h3>
+        <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the <code>List.iter</code>/<code>fork_join2</code>/<code>spawn</code>. Then the function calls are allowed as follows:</p>
         <pre><code>List.iter (fun _ ->
   ignore (get_id x);
   ignore (get_hits x);
@@ -1955,7 +1955,7 @@ Toy.spawn (fun () ->
           <table class="exercise-table">
             <thead>
               <tr>
-                <th>Call on captured <code>x</code></th>
+                <th>Call on parent variable <code>x</code></th>
                 <th><code>List.iter</code></th>
                 <th><code>fork_join2</code></th>
                 <th><code>spawn</code></th>
@@ -2244,11 +2244,11 @@ Toy.spawn (fun () ->
   ignore (read_x ());
   write_x 1)</code></pre>
         <aside class="exercise">
-          <h3>Exercise: where can each helper be used?</h3>
-          <p>Using the annotations in the block above, decide which helpers can be used from an ordinary function, fork/join work, and spawned work.</p>
+          <h3>Exercise: functions that capture a parent variable</h3>
+          <p>Using the annotations in the block above, decide which functions can be used from <code>List.iter</code>, <code>fork_join2</code>, and <code>spawn</code>.</p>
           <details>
             <summary>Answer</summary>
-            <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in ordinary and fork/join work, but not spawned work. <code>write_x</code> can only be used in ordinary code.</p>
+            <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in <code>List.iter</code> and <code>fork_join2</code>, but not <code>spawn</code>. <code>write_x</code> can only be used in <code>List.iter</code>.</p>
           </details>
         </aside>
         <h3>Explicit argument vs hidden capture</h3>
