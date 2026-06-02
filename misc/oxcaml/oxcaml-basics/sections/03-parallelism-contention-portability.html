@@ -1937,6 +1937,20 @@ r.field : a @ M</code></pre>
         <p>You may also see inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. Ignore those for now; they are not needed for the contention examples.</p>
         <h3>Worked example: captured <code>x</code> across the three contexts</h3>
         <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the function being passed to <code>List.iter</code>, <code>Toy.fork_join2</code>, or <code>Toy.spawn</code>. Then the helper calls are allowed as follows:</p>
+        <pre><code>List.iter (fun _ ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x) [()]
+
+Toy.fork_join2 (fun () ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x) (fun () -> ())
+
+Toy.spawn (fun () ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x)</code></pre>
         <div class="exercise-table-wrap">
           <table class="exercise-table">
             <thead>
@@ -2215,6 +2229,20 @@ r.field : a @ M</code></pre>
           let (write_x @ nonportable) v = x.hits <- v
         </oxcaml>
         <p><code>id_x</code> is portable because it only uses the immutable field. <code>read_x</code> is shareable because it reads mutable state. <code>write_x</code> is nonportable because it writes mutable state.</p>
+        <pre><code>List.iter (fun _ ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1) [()]
+
+Toy.fork_join2 (fun () ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1) (fun () -> ())
+
+Toy.spawn (fun () ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1)</code></pre>
         <aside class="exercise">
           <h3>Exercise: where can each helper be used?</h3>
           <p>Using the annotations in the block above, decide which helpers can be used from an ordinary function, fork/join work, and spawned work.</p>

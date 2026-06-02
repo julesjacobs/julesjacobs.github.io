@@ -307,12 +307,13 @@
           <article class="compile-card">
             <div class="card-label">Region view</div>
             <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   ...
-  end_current_region ();
+  end_region region;
   result</code></pre>
           </article>
         </div>
+        <p><code>start_region ()</code> returns the current allocation stack pointer. <code>end_region region</code> resets the allocation stack pointer to that saved pointer.</p>
         <p>An <code>exclave_</code> result is different. It moves result construction to the parent region.</p>
         <div class="compile-grid">
           <article class="compile-card">
@@ -325,8 +326,8 @@
           <article class="compile-card">
             <div class="card-label">Region view</div>
             <pre><code>let f x =
-  start_new_region ();
-  end_current_region ();
+  let region = start_region () in
+  end_region region;
   ...
   result</code></pre>
           </article>
@@ -381,9 +382,9 @@
           <article class="compile-card">
             <div class="card-label">Region view</div>
             <pre><code>let rec loop x =
-  start_new_region ();
+  let region = start_region () in
   ...
-  end_current_region ();
+  end_region region;
   tail call loop next_x</code></pre>
           </article>
         </div>
@@ -398,10 +399,10 @@
           <article class="compile-card">
             <div class="card-label">Region view</div>
             <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   ...
   let result = g x in
-  end_current_region ();
+  end_region region;
   result</code></pre>
           </article>
         </div>
@@ -456,10 +457,10 @@
           <article class="compile-card">
             <div class="card-label">Region view</div>
             <pre><code>let f x =
-  start_new_region ();
+  let region = start_region () in
   let y = stack_ [1; 2; 3] in
   consume y;
-  end_current_region ();
+  end_region region;
   build_result x</code></pre>
           </article>
         </div>
@@ -478,7 +479,7 @@
             </article>
             <article role="listitem">
               <div class="card-label">outer-local</div>
-              <p>May live in an outer region. It can live past the current <code>end_current_region ()</code>.</p>
+              <p>May live in an outer region. It can live past the current <code>end_region region</code>.</p>
             </article>
             <article role="listitem">
               <div class="card-label"><code>x @ local</code></div>
@@ -504,7 +505,7 @@
 
       <section>
         <h2>Functions and <code>exclave_</code></h2>
-        <p>After <code>exclave_</code>, values from the old current region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
+        <p>After <code>exclave_</code>, values from the function's region are gone. Function arguments can still be used if they came from the caller. Values allocated after <code>exclave_</code> can also be used.</p>
         <div class="compile-grid">
           <article class="compile-card">
             <div class="card-label">Source</div>
@@ -525,10 +526,10 @@
             <div class="card-label">Region view</div>
             <div class="exclave-boundary-code" aria-label="Lowered region view with exclave boundary">
               <div>let f x =</div>
-              <div class="indent">start_new_region ();</div>
+              <div class="indent">let region = start_region () in</div>
               <div class="indent">let y = stack_ [1; 2; 3] in</div>
               <div class="indent">ignore (sum y);</div>
-              <div class="indent">end_current_region ();</div>
+              <div class="indent">end_region region;</div>
               <div class="indent code-comment">(* y dies here *)</div>
               <div class="exclave-boundary-box">
                 <div class="exclave-boundary-label">after exclave_</div>
@@ -552,7 +553,7 @@
           <h3>Exercise: move the allocation</h3>
           <p>The rejected version tries to use <code>y</code> after its region has ended. Rewrite it so that the second temporary list is allocated after <code>exclave_</code>.</p>
         </aside>
-        <oxcaml check data-filename="Ex01_exclave_middle_uses_old_region.ml" expect-error>
+        <oxcaml check data-filename="Ex01_exclave_middle_uses_function_region.ml" expect-error>
           let rec sum (xs : int list @ local) =
             match xs with
             | [] -> 0
@@ -595,7 +596,7 @@
           <li><code>stack_ expr</code> allocates new blocks in the current region. The result is at <code>@ local</code>.</li>
           <li>A stack-allocated value cannot escape its region.</li>
           <li><code>exclave_ expr</code> ends the current region and builds the function result in the caller's region.</li>
-          <li>After <code>exclave_</code>, local values from the old current region are unavailable.</li>
+          <li>After <code>exclave_</code>, local values from the function's region are unavailable.</li>
           <li>Outer-local values, such as function arguments from the caller, are still available after <code>exclave_</code>.</li>
         </ul>
         <aside class="exercise">

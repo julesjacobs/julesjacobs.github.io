@@ -1492,6 +1492,20 @@ let get_id (x @ contended) = x.id
 let get_hits (x @ shared) = x.hits
 let bump_hits (x @ uncontended) =
   x.hits &lt;- x.hits + 1</code></pre>
+              <pre><code>List.iter (fun _ ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x) [()]
+
+Toy.fork_join2 (fun () ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x) (fun () -> ())
+
+Toy.spawn (fun () ->
+  ignore (get_id x);
+  ignore (get_hits x);
+  bump_hits x)</code></pre>
             </article>
             <div class="exercise-table-panel">
               <table class="prediction-table compact-prediction" data-prediction-table>
@@ -1557,6 +1571,20 @@ let x = { id = 1; hits = 0 }
 let id_x () = x.id
 let read_x () = x.hits
 let write_x v = x.hits &lt;- v</code></pre>
+              <pre><code>List.iter (fun _ ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1) [()]
+
+Toy.fork_join2 (fun () ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1) (fun () -> ())
+
+Toy.spawn (fun () ->
+  ignore (id_x ());
+  ignore (read_x ());
+  write_x 1)</code></pre>
             </article>
             <div class="exercise-table-panel">
               <table class="prediction-table compact-prediction" data-prediction-table>
