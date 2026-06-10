@@ -879,8 +879,8 @@
       <section>
         <aside class="exercise">
           <h3>Exercise 7: do not store the local parameter</h3>
-          <p class="exercise-context"><strong>Checks:</strong> what a <code>@ local</code> parameter forbids. <strong>If stuck:</strong> reread <a href="#local-parameters">Use local parameters to prevent retention</a>.</p>
-          <p>The function passed to <code>with_scratch</code> below tries to keep the temporary scratch record in a global reference. Explain the error, then rewrite that function so it uses <code>s</code> only during the call and returns an <code>int</code> result.</p>
+          <p class="exercise-context"><strong>Checks:</strong> what a <code>@ local</code> parameter forbids — and what it still allows. <strong>If stuck:</strong> reread <a href="#local-parameters">Use local parameters to prevent retention</a>.</p>
+          <p><code>add_with_scratch</code> below computes <code>x + y</code> using the temporary scratch record. That part is fine: the function may use <code>s</code> freely during the call, including mutating it. But it also tries to keep <code>s</code> in the global <code>saved</code> list for later inspection. Explain why that line is rejected, then fix <code>add_with_scratch</code> by deleting it, keeping the computation.</p>
         </aside>
         <oxcaml check data-filename="Ex01_with_scratch_cannot_store.ml" expect-error>
           type scratch = { mutable total : int }
@@ -891,11 +891,15 @@
             let s = stack_ { total = 0 } in
             f s [@nontail]
 
-          let bad () =
-            with_scratch (fun s -> saved := s :: !saved)
+          let add_with_scratch x y =
+            with_scratch (fun s ->
+              saved := s :: !saved;   (* keep s for later inspection *)
+              s.total <- x + y;
+              s.total)
         </oxcaml>
         <details>
           <summary>Answer key</summary>
+          <p>The lambda receives <code>s</code> at <code>@ local</code>: it may use <code>s</code> during the call but not retain it. Storing <code>s</code> in <code>saved</code> would let it outlive its region, so that line is rejected. The mutation and the read are allowed, so deleting the store is the whole fix.</p>
           <oxcaml run data-filename="Ex01_with_scratch_compute_result.ml">
             type scratch = { mutable total : int }
 
@@ -903,13 +907,13 @@
               let s = stack_ { total = 0 } in
               f s [@nontail]
 
-            let good () =
+            let add_with_scratch x y =
               with_scratch (fun s ->
-                s.total <- 42;
+                s.total <- x + y;
                 s.total)
 
             let () =
-              print_endline (string_of_int (good ()))
+              print_endline (string_of_int (add_with_scratch 40 2))
           </oxcaml>
         </details>
       </section>
