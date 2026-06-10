@@ -646,7 +646,7 @@ let demo () =
   let outer = stack_ [global_string] in  (* global_string is submoded to local *)
   match outer with
   | [] -> ()
-  | inner :: _ -> escape inner           (* we lost the information that the list elements are @ local *)
+  | inner :: _ -> escape inner           (* we lost the information that the list elements are @ global *)
               </oxcaml>
             </div>
           </div>
