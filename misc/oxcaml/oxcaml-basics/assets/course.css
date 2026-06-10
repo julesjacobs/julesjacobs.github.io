@@ -900,6 +900,16 @@ oxcaml .transcript-line.file,
   outline: none;
 }
 
+.exercise-context {
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  color: var(--muted, #65717d);
+}
+
+.exercise-context strong {
+  color: var(--text, var(--ink, #1d252d));
+}
+
 .course-exercise-targeted {
   animation: courseExerciseTarget 1.4s ease-out;
   border-radius: 10px;

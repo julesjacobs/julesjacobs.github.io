@@ -984,6 +984,48 @@ let outer_record_with_unboxed_point =
           </div>
         </section>
 
+        <section class="slide live-slide">
+          <h2>Kinds: the compiler tracks the shape of every type</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>The new unboxed types do not have the classic one-word shape, so the compiler must know which shape each type has.</p>
+              <p class="fragment">For that, OxCaml has <em>kinds</em>: types of types. The kind of a type describes the shape of its values.</p>
+              <p class="fragment">The kind <code>value</code> describes the classic OCaml shape. New kinds such as <code>float64</code> and product kinds describe the new shapes.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">kind_examples.ml</div>
+              <oxcaml check data-filename="kind_examples.ml">
+(* The classic one-word shape. *)
+type t1 : value = string
+type t2 : value = int
+
+(* The new shapes. *)
+type t3 : float64 = float#
+type t4 : value & bits64 = #(string * int64#)
+              </oxcaml>
+            </div>
+          </div>
+        </section>
+
+        <section class="slide live-slide">
+          <h2>The wrong kind is a type error</h2>
+          <div class="live-layout">
+            <div class="live-copy">
+              <p>Kind annotations are checked, not decorative.</p>
+              <br>
+              <p>A <code>string</code> is a one-word value, so it cannot be declared with kind <code>float64</code>.</p>
+            </div>
+            <div class="live-editor-frame" tabindex="-1">
+              <div class="code-label">kind_mismatch.ml</div>
+              <oxcaml check data-filename="kind_mismatch.ml" expect-error>
+type ok : float64 = float#
+
+type bad : float64 = string
+              </oxcaml>
+            </div>
+          </div>
+        </section>
+
         <section class="slide concept-slide repr-slide or-null-contrast-slide">
           <h2><code>or_null</code> uses null or the payload representation</h2>
           <div class="or-null-four-grid">
@@ -1034,7 +1076,7 @@ type nested = string or_null or_null
           <h2>Ordinary polymorphic functions expect values</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p><code>duplicate</code> is inferred for ordinary one-word values.</p>
+              <p><code>duplicate</code> is inferred for ordinary one-word values: its type parameter defaults to kind <code>value</code>.</p>
               <br>
               <p>An unboxed point has layout <code>float64 &amp; float64</code>, so it is not accepted as that argument.</p>
             </div>
@@ -1053,10 +1095,10 @@ let bad =
         </section>
 
         <section class="slide live-slide">
-          <h2>Kinds say which layout a type has</h2>
+          <h2>Kinds on type parameters</h2>
           <div class="live-layout">
             <div class="live-copy">
-              <p>The layout annotation says the argument may have the unboxed point layout.</p>
+              <p>The same kind annotations also go on type parameters. Here they say the argument may have the unboxed point layout.</p>
               <br>
               <p>(The result is still a boxed record in this example.)</p>
             </div>
@@ -1546,6 +1588,20 @@ let demo () =
         </section>
 
         <section class="slide concept-slide">
+          <h2>Schematic types of fork_join2 and spawn</h2>
+          <div class="signature-card">
+            <pre><code>val Toy.fork_join2 :
+  (unit -> 'a) @ shareable ->
+  (unit -> 'b) @ shareable ->
+  'a * 'b
+
+val Toy.spawn :
+  (unit -> unit) @ portable ->
+  unit</code></pre>
+          </div>
+        </section>
+
+        <section class="slide concept-slide">
           <h2>Portability axis</h2>
           <div class="axis-strip">
             <div class="mode-axis axis-strip-modes portability">
@@ -1556,6 +1612,61 @@ let demo () =
               <div class="axis-mode-wrap"><div class="axis-context">callable in sequential context</div><div class="axis-mode warn"><code>nonportable</code><ul><li>ordinary use only</li><li>functions may keep read/write access</li></ul></div></div>
             </div>
             <p class="axis-strip-note">Portability answers: can this value be used in this parallel context?</p>
+          </div>
+        </section>
+
+        <section class="slide concept-slide contention-boundary-slide">
+          <h2>How the compiler knows which function boundary to apply</h2>
+          <div class="boundary-code-grid">
+            <article>
+              <div class="closure-boundary-code" aria-label="Fork join contention function boundary revisited example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
+                <div class="code-line indent-1">Toy.fork_join2</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">(</span>
+                  <div class="closure-frame shared">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title shared">x @ shared</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line indent-1">(fun () -&gt; right_work ())</div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
+              </div>
+              <p class="boundary-reason"><code>x</code> becomes <code>@ shared</code> because <code>fork_join2</code> takes the worker at <code>@ shareable</code>.</p>
+              <pre class="boundary-signature"><code>val Toy.fork_join2 :
+  (unit -> 'a) @ shareable ->
+  (unit -> 'b) @ shareable ->
+  'a * 'b</code></pre>
+            </article>
+            <article>
+              <div class="closure-boundary-code" aria-label="Spawn contention function boundary revisited example">
+                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
+                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
+                <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
+                <div class="code-line indent-1">Toy.spawn</div>
+                <div class="closure-argument">
+                  <span class="closure-paren">(</span>
+                  <div class="closure-frame contended">
+                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title contended">x @ contended</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
+                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
+                    <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
+                  </div>
+                  <span class="closure-paren close">)</span>
+                </div>
+                <div class="code-line indent-1">&nbsp;</div>
+                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
+              </div>
+              <p class="boundary-reason"><code>x</code> becomes <code>@ contended</code> because <code>spawn</code> takes the worker at <code>@ portable</code>.</p>
+              <pre class="boundary-signature"><code>val Toy.spawn :
+  (unit -> unit) @ portable ->
+  unit</code></pre>
+            </article>
           </div>
         </section>
 
@@ -1629,74 +1740,7 @@ let strings_in_parallel () =
           </div>
         </section>
 
-        <section class="slide concept-slide">
-          <h2>Schematic types of fork_join2 and spawn</h2>
-          <div class="signature-card">
-            <pre><code>val Toy.fork_join2 :
-  (unit -> 'a) @ shareable ->
-  (unit -> 'b) @ shareable ->
-  'a * 'b
 
-val Toy.spawn :
-  (unit -> unit) @ portable ->
-  unit</code></pre>
-          </div>
-        </section>
-
-        <section class="slide concept-slide contention-boundary-slide">
-          <h2>How the compiler knows which function boundary to apply</h2>
-          <div class="boundary-code-grid">
-            <article>
-              <div class="closure-boundary-code" aria-label="Fork join contention function boundary revisited example">
-                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
-                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
-                <div class="code-line"><span class="tok-keyword">let</span> _result =</div>
-                <div class="code-line indent-1">Toy.fork_join2</div>
-                <div class="closure-argument">
-                  <span class="closure-paren">(</span>
-                  <div class="closure-frame shared">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title shared">x @ shared</span></div>
-                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use shared">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
-                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="mode-use shared">x</span>.hits <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
-                    <div class="code-line indent-1"><span class="denied"><span class="mode-use shared">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
-                  </div>
-                  <span class="closure-paren close">)</span>
-                </div>
-                <div class="code-line indent-1">(fun () -&gt; right_work ())</div>
-                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok after join *)</span></div>
-              </div>
-              <p class="boundary-reason"><code>x</code> becomes <code>@ shared</code> because <code>fork_join2</code> takes the worker at <code>@ shareable</code>.</p>
-              <pre class="boundary-signature"><code>val Toy.fork_join2 :
-  (unit -> 'a) @ shareable ->
-  (unit -> 'b) @ shareable ->
-  'a * 'b</code></pre>
-            </article>
-            <article>
-              <div class="closure-boundary-code" aria-label="Spawn contention function boundary revisited example">
-                <div class="code-line"><span class="tok-keyword">type</span> <span class="tok-type">t</span> = { id : int; <span class="tok-keyword">mutable</span> hits : int }</div>
-                <div class="code-line"><span class="tok-keyword">let</span> <span class="mode-use uncontended">x</span> = { id = 1; hits = 0 } <span class="line-mode-label uncontended">x @ uncontended</span></div>
-                <div class="code-line"><span class="tok-keyword">let</span> _ =</div>
-                <div class="code-line indent-1">Toy.spawn</div>
-                <div class="closure-argument">
-                  <span class="closure-paren">(</span>
-                  <div class="closure-frame contended">
-                    <div class="closure-header"><span class="tok-keyword">fun</span> () -&gt;<span class="closure-title contended">x @ contended</span></div>
-                    <div class="code-line indent-1"><span class="tok-keyword">let</span> _id = <span class="mode-use contended">x</span>.id <span class="tok-keyword">in</span> <span class="tok-comment">(* ok *)</span></div>
-                    <div class="code-line indent-1"><span class="tok-keyword">let</span> n = <span class="denied"><span class="mode-use contended">x</span>.hits</span> <span class="tok-keyword">in</span> <span class="tok-comment">(* no *)</span></div>
-                    <div class="code-line indent-1"><span class="denied"><span class="mode-use contended">x</span>.hits &lt;- n + 1</span> <span class="tok-comment">(* no *)</span></div>
-                  </div>
-                  <span class="closure-paren close">)</span>
-                </div>
-                <div class="code-line indent-1">&nbsp;</div>
-                <div class="code-line after-boundary"><span class="mode-use uncontended">x</span>.hits &lt;- <span class="mode-use uncontended">x</span>.hits + 1 <span class="line-mode-label uncontended">x @ uncontended</span> <span class="tok-comment">(* ok in parent *)</span></div>
-              </div>
-              <p class="boundary-reason"><code>x</code> becomes <code>@ contended</code> because <code>spawn</code> takes the worker at <code>@ portable</code>.</p>
-              <pre class="boundary-signature"><code>val Toy.spawn :
-  (unit -> unit) @ portable ->
-  unit</code></pre>
-            </article>
-          </div>
-        </section>
 
         <section class="slide concept-slide shareable-capture-slide" data-visibility="hidden">
           <h2>Function Boundaries: Shareable</h2>

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Examples: Parallelism, Contention, And Portability</title>
-    <link rel="stylesheet" href="../assets/course.css?v=course-order-20260526">
+    <link rel="stylesheet" href="../assets/course.css?v=notes-exercises-20260609">
     <style>
       :root {
         color-scheme: light dark;
@@ -1620,6 +1620,7 @@
           <li>read higher-order mode requirements such as <code>('a @ shared -&gt; 'b) @ shareable</code>;</li>
           <li>explain that <code>fork_join2</code> and <code>spawn</code> are ordinary functions whose types require <code>shareable</code> or <code>portable</code> function arguments.</li>
         </ul>
+        <p>The notes below cover the same ground as the lecture slides, in more depth. The exercises are collected at the end of the page. If you attended the lecture, you can work through the exercises directly; each exercise points back to the section of the notes that explains its concept.</p>
       </section>
 
       <section>
@@ -1917,7 +1918,7 @@ r.field : a @ M</code></pre>
           <p>A field modality can preserve the inner mode instead of using the record's current mode. We used that idea in the locality section; for now, read ordinary record fields as following the deep mode rule.</p>
         </aside>
         <p>Those rules explain most mode propagation: variables carry modes, function calls check parameter and result modes, and ordinary data access propagates modes through the value. The one complex rule is closure formation. A <code>fun ... -&gt; ...</code> expression can carry values from its environment, so the compiler also checks what modes those captured values have inside the closure.</p>
-        <h2>Function calls check explicit argument mode requirements</h2>
+        <h2 id="helper-argument-modes">Function calls check explicit argument mode requirements</h2>
         <p>The compiler does not try to rediscover hidden mutation by looking through every function body at every call site. Instead, the helper's type records the modes it requires for each explicit argument.</p>
         <p>The helper functions below make those argument requirements explicit. Reading the immutable field works with any contention mode, reading the mutable field needs <code>shared</code> or <code>uncontended</code>, and writing the mutable field needs <code>uncontended</code>:</p>
         <oxcaml interface data-filename="mode_access.ml" no-self-check>
@@ -1935,7 +1936,7 @@ r.field : a @ M</code></pre>
         <p>Try changing the annotations on these helper arguments. The inferred types and errors show which operations require which contention modes.</p>
         <p>In the inferred interface, focus on the argument modes: <code>t @ contended</code>, <code>t @ shared</code>, and plain <code>t</code>. Plain <code>t</code> means the caller must provide ordinary, uncontended access.</p>
         <p>You may also see inferred promises such as <code>@@ stateless</code> or <code>@@ observing</code>. Ignore those for now; they are not needed for the contention examples.</p>
-        <h3>Worked example: function calls on parent variable <code>x</code></h3>
+        <h3 id="worked-example-parent-x">Worked example: function calls on parent variable <code>x</code></h3>
         <p>Now combine the closure-boundary rule with the helper argument modes. Suppose <code>x</code> is defined outside the <code>List.iter</code>/<code>fork_join2</code>/<code>spawn</code>. Then the function calls are allowed as follows:</p>
         <pre><code>List.iter (fun _ ->
   ignore (get_id x);
@@ -1984,95 +1985,10 @@ Toy.spawn (fun () ->
           </table>
         </div>
         <p><code>List.iter</code> uses an ordinary function, so captured <code>x</code> stays uncontended. In a function passed to <code>fork_join2</code>, captured <code>x</code> becomes shared: mutable reads are allowed, mutable writes are not. In a function passed to <code>spawn</code>, captured <code>x</code> becomes contended: immutable-field reads are allowed, but mutable reads and writes are not.</p>
-        <aside class="exercise">
-          <h3>Exercise: <code>x</code> created inside the passed function</h3>
-          <p>Now suppose each function creates its own <code>x</code> inside the function body before calling the helper. What changes in the table above?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>All cells become <code>yes</code>. The restrictions above are about captured mutable state crossing into the function. Fresh mutable state created inside that function is owned by that function body, so the body has uncontended access to it.</p>
-          </details>
-        </aside>
-        <aside class="exercise helper-call-exercise" data-interactive-table>
-          <h3>Exercise: which mode permits each field access?</h3>
-          <p>For each operation, decide which argument modes are strong enough. Click each cell to choose <code>yes</code> or <code>no</code>.</p>
-          <div class="exercise-table-wrap">
-            <table class="exercise-table">
-              <thead>
-                <tr>
-                  <th>Operation on <code>x</code></th>
-                  <th><code>x @ uncontended</code></th>
-                  <th><code>x @ shared</code></th>
-                  <th><code>x @ contended</code></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><code>x.id</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ uncontended">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ shared">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ contended">?</button></td>
-                </tr>
-                <tr>
-                  <td><code>x.hits</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ uncontended">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ shared">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits with x @ contended">?</button></td>
-                </tr>
-                <tr>
-                  <td><code>x.hits &lt;- x.hits + 1</code></td>
-                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits write with x @ uncontended">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ shared">?</button></td>
-                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ contended">?</button></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="exercise-controls">
-            <button type="button" class="exercise-button" data-check-table>Check table</button>
-            <button type="button" class="exercise-button" data-reset-table>Reset</button>
-            <span class="exercise-feedback" data-table-feedback aria-live="polite"></span>
-          </div>
-          <details data-table-answer>
-            <summary>Answer</summary>
-            <div class="exercise-table-wrap">
-              <table class="exercise-table">
-                <thead>
-                  <tr>
-                    <th>Operation on <code>x</code></th>
-                    <th><code>x @ uncontended</code></th>
-                    <th><code>x @ shared</code></th>
-                    <th><code>x @ contended</code></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><code>x.id</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                  </tr>
-                  <tr>
-                    <td><code>x.hits</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                  </tr>
-                  <tr>
-                    <td><code>x.hits &lt;- x.hits + 1</code></td>
-                    <td><span class="exercise-answer-pill">yes</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                    <td><span class="exercise-answer-pill">no</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p>Immutable field reads work in any mode. Mutable field reads need <code>x @ shared</code> or <code>x @ uncontended</code>. Mutable field writes need <code>x @ uncontended</code>.</p>
-          </details>
-        </aside>
       </section>
 
       <section>
-        <h2>Portability modes: function values and hidden captures</h2>
+        <h2 id="portability-modes">Portability modes: function values and hidden captures</h2>
         <p>A call such as <code>bump_hits x</code> passes the mutable value as an explicit argument. But closures can also capture mutable state in their closure environment, and OxCaml needs to check that hidden access too.</p>
         <p>If we define helpers first, then call them later, those helpers still carry their captured <code>x</code> with them:</p>
         <oxcaml check data-filename="hidden_helpers.ml" expect-error no-self-check>
@@ -2243,14 +2159,6 @@ Toy.spawn (fun () ->
   ignore (id_x ());
   ignore (read_x ());
   write_x 1)</code></pre>
-        <aside class="exercise">
-          <h3>Exercise: functions that capture a parent variable</h3>
-          <p>Using the annotations in the block above, decide which functions can be used from <code>List.iter</code>, <code>fork_join2</code>, and <code>spawn</code>.</p>
-          <details>
-            <summary>Answer</summary>
-            <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in <code>List.iter</code> and <code>fork_join2</code>, but not <code>spawn</code>. <code>write_x</code> can only be used in <code>List.iter</code>.</p>
-          </details>
-        </aside>
         <h3>Explicit argument vs hidden capture</h3>
         <p>These two failures look similar but are checked for different reasons.</p>
         <p><strong>Explicit argument:</strong></p>
@@ -2570,7 +2478,7 @@ fun () -&gt; write_bits buf bits</code></pre>
       </section>
 
       <section>
-        <h2>Parallel functions are ordinary typed functions</h2>
+        <h2 id="parallel-functions-ordinary">Parallel functions are ordinary typed functions</h2>
         <p>The compiler does not recognize <code>Toy.fork_join2</code> or <code>Toy.spawn</code> by name. They are ordinary functions whose types require particular modes on function arguments.</p>
         <p>Fork/join's API can ask for <code>shareable</code> worker functions, while spawn's API asks for a <code>portable</code> worker function.</p>
         <p>The toy API puts only the relevant function-argument modes in the type:</p>
@@ -2597,80 +2505,9 @@ val Toy.spawn :
         <p>Parallel functions express their safety requirements in modes and types, and the compiler checks those requirements compositionally.</p>
       </section>
 
-      <section>
-        <h2>Exercise: implement general <code>parallel_map</code></h2>
-        <p>Now apply the mode-requirement rules in a real helper. Write a polymorphic <code>parallel_map</code>, then use it on the bit-list worker from the start of the lecture.</p>
-        <p>This exercise is about inferred modes, not efficient parallel mapping. The answer below forks one tiny head task against the tail of the list, which is fine for exposing the type but too fine-grained and unbalanced for production code.</p>
-        <aside class="exercise">
-          <h3>Exercise: implement <code>parallel_map</code></h3>
-          <p>Write a polymorphic <code>parallel_map</code> using <code>Toy.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Fill in the recursive fork/join implementation.</p>
-          <p>The starter leaves the modes off on purpose. After the implementation mentions <code>Toy.fork_join2</code>, the compiler can infer the relevant modes from how the function argument and list flow through the fork/join tree.</p>
-          <details>
-            <summary>Hint</summary>
-            <p>Handle the empty list directly. For a nonempty list, fork one branch for the head and one branch for the tail, then combine the mapped head with the mapped tail.</p>
-          </details>
-        </aside>
-        <oxcaml data-filename="parallel_map.ml" data-oxcaml-run-trigger="manual" expect-error no-self-check>(* Parallel map exercise *)
-let bits_to_string bits =
-  let buf = Buffer.create 0 in
-  List.iter
-    (fun bit ->
-       Buffer.add_char buf (if bit then '1' else '0'))
-    bits;
-  Buffer.contents buf
-
-let rec parallel_map f xs =
-  failwith "implement this"
-
-let bits_to_strings rows =
-  parallel_map bits_to_string rows
-
-let () =
-  let rows =
-    [[true; false; true; true]; [false; true; false; false]]
-  in
-  let strings = bits_to_strings rows in
-  print_endline "The output is:";
-  print_endline (String.concat "\n" strings)</oxcaml>
-        <details>
-          <summary>Answer key</summary>
-          <p>The recursive case forks one branch for the head and one branch for the tail, then reconstructs the list after both branches finish. This is intentionally simple so that the inferred type is easy to inspect; it is not how you would usually implement <code>parallel_map</code> in production.</p>
-          <pre><code>let rec parallel_map f xs =
-  match xs with
-  | [] -> []
-  | x :: xs ->
-    let (y, ys) =
-      Toy.fork_join2
-        (fun () -> f x)
-        (fun () -> parallel_map f xs)
-    in
-    y :: ys</code></pre>
-        </details>
-        <aside class="exercise">
-          <h3>Exercise: read the inferred type of <code>parallel_map</code></h3>
-          <p>Using the answer-key implementation above, ask for inferred types. You should see a signature shaped like this:</p>
-          <pre><code>val parallel_map :
-  ('a @ shared -> 'b) @ shareable ->
-  'a list @ shareable shared ->
-  'b list @@ stateless</code></pre>
-          <p><code>stateless</code> is a stronger promise on another mode axis. Here we only need one consequence: <code>stateless</code> implies <code>portable</code>, so this implementation can be called from portable code.</p>
-          <details>
-            <summary>Answer</summary>
-            <p>Read the type as a contract for moving work into a fork/join tree.</p>
-            <ul>
-              <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit function argument. <code>parallel_map</code> uses that function inside fork/join branches, so the function value must be available as <code>shareable</code>. This restricts functions that close over mutable state, functions, or other portability-sensitive values.</li>
-              <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the function argument. If an element contains mutable state, the function may read that state but may not mutate it. This is why a function such as <code>fun x -&gt; bump_hits x</code> is rejected when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
-              <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a portability requirement at the input-list position. Pieces of the list flow into the fork/join tree, so the input must be usable in that context. This restricts element types that contain functions or other portability-sensitive values.</li>
-              <li>The <code>@ shared</code> on <code>'a list @ shareable shared</code> is a contention requirement at the same input-list position. <code>parallel_map</code> only gets read-capable access to the list and to the elements it extracts from it, so elements that contain mutable state cannot be mutated through this access.</li>
-              <li>Together, <code>@ shareable shared</code> shows that one type position can carry requirements from multiple mode axes.</li>
-              <li>The final <code>@@ stateless</code> is a promise checked against the implementation of <code>parallel_map</code>. <code>stateless</code> is stronger than the portability promise we have been focused on here; the relevant consequence is that this implementation is portable enough to be used from portable code.</li>
-            </ul>
-          </details>
-        </aside>
-      </section>
 
       <section>
-        <h2>Mode annotation syntax reference</h2>
+        <h2 id="mode-syntax-reference">Mode annotation syntax reference</h2>
         <p>Modes attach to binder and type positions. They are not tied to a simple syntactic category like “data” or “function.”</p>
         <p>Examples:</p>
         <pre><code>x : t @ shared</code></pre>
@@ -2695,50 +2532,10 @@ let () =
             <li>Inside a function type, the source and target can have their own modes: <code>'a @ uncontended -&gt; 'b @ portable</code>.</li>
           </ul>
         </aside>
-        <aside class="exercise">
-          <h3>Exercise: where does <code>@ portable</code> attach?</h3>
-          <p>The next two blocks differ only by parentheses around the function type. The function body increments a captured reference, so it should fail if <code>worker</code> itself is being checked as portable. Predict which block is accepted, then explain why the first block is accepted and the second block is rejected.</p>
-          <details>
-            <summary>Answer</summary>
-            <p>The first block is accepted: <code>unit -&gt; unit @ portable</code> parses like <code>unit -&gt; (unit @ portable)</code>, so <code>portable</code> is on the result, not on the whole function value <code>worker</code>. The second block fails because <code>(unit -&gt; unit) @ portable</code> does check <code>worker</code> as portable. When the mode belongs to a function value, put that function type in parentheses.</p>
-          </details>
-        </aside>
-        <oxcaml check data-filename="mode_prec_a.ml">
-          let r = ref 0
-
-          let worker : unit -> unit @ portable =
-            fun () -> incr r
-        </oxcaml>
-        <oxcaml check data-filename="mode_prec_b.ml" expect-error>
-          let r = ref 0
-
-          let worker : (unit -> unit) @ portable =
-            fun () -> incr r
-        </oxcaml>
-        <aside class="exercise">
-          <h3>Exercise: nested function type precedence</h3>
-          <p>Run the same experiment for a function that returns another function. Does <code>let make : int -&gt; unit -&gt; unit @ portable = ...</code> check the returned function as portable, or do you need <code>int -&gt; (unit -&gt; unit) @ portable</code>?</p>
-          <details>
-            <summary>Answer</summary>
-            <p><code>int -&gt; unit -&gt; unit @ portable</code> puts <code>@ portable</code> on the final result, not on the returned function value. To require the returned function itself to be portable, write <code>int -&gt; (unit -&gt; unit) @ portable</code>. That second form fails here because the returned function captures <code>r</code>.</p>
-          </details>
-        </aside>
-        <oxcaml check data-filename="nested_prec_a.ml">
-          let r = ref 0
-
-          let make : int -> unit -> unit @ portable =
-            fun _ -> fun () -> incr r
-        </oxcaml>
-        <oxcaml check data-filename="nested_prec_b.ml" expect-error>
-          let r = ref 0
-
-          let make : int -> (unit -> unit) @ portable =
-            fun _ -> fun () -> incr r
-        </oxcaml>
       </section>
 
       <section>
-        <h2>Worked examples: portability requirements on function values</h2>
+        <h2 id="worked-portability">Worked examples: portability requirements on function values</h2>
         <p>These examples isolate the closure/function case. The question is what a closure may capture when it promises to be usable from more parallel contexts.</p>
         <h3>Portable pure functions</h3>
         <p>On the portability axis, a pure function that does not capture mutable state is the simplest case. The compiler can accept the <code>@ portable</code> annotation because the closure does not depend on thread-local mutable state.</p>
@@ -2773,14 +2570,6 @@ let () =
 
         <h3>Portable closures reject ordinary ref captures</h3>
         <p>A <code>portable</code> closure cannot read an ordinary captured ref. Inside a portable closure, captured mutable state has a mode too restrictive for ordinary ref access.</p>
-        <aside class="exercise">
-          <h3>Exercise: why does the ref capture fail?</h3>
-          <p>Why is the previous immutable capture accepted while this reference capture is rejected?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a spawned parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
-          </details>
-        </aside>
         <oxcaml check data-filename="bad_ref.ml" expect-error>
           let r = ref 0
 
@@ -2800,7 +2589,7 @@ let () =
       </section>
 
       <section>
-        <h2>Mode crossing is a property of a type</h2>
+        <h2 id="mode-crossing">Mode crossing is a property of a type</h2>
         <p>Modes usually describe how one value may be used at one program point. Mode crossing describes a type: whether values of that type can ignore a mode axis.</p>
         <p>The simplest example is <code>int</code>. An integer has no mutable field, no closure environment, and no heap object whose thread access matters. That is why an <code>int @ contended</code> can still be used where an <code>int @ uncontended</code> is expected, and an <code>int @ nonportable</code> can still be used where an <code>int @ portable</code> is expected.</p>
         <oxcaml check data-filename="mode_cross_int.ml">
@@ -2871,7 +2660,7 @@ let () =
             x
         </oxcaml>
 
-        <h3>Maps also carry comparator evidence</h3>
+        <h3 id="maps-comparator">Maps also carry comparator evidence</h3>
         <p>Real library types often have one more dependency in their representation. A <code>Map</code> stores keys and values, but it also stores comparator evidence. For a map with a custom key type to cross portability, the key type and the comparator evidence must both carry the right mode information.</p>
         <oxcaml check data-filename="custom_key_map_crosses.ml" no-self-check>
           open Base
@@ -2903,11 +2692,6 @@ let () =
           type portable_ok = map require_portable
           type contended_ok = map require_contended
         </oxcaml>
-        <aside class="exercise">
-          <h3>Exercise: make the map stop crossing a mode axis</h3>
-          <p>In the editor above, change the key type or the value type so that the map no longer crosses portability, then re-run the block and observe where <code>portable_ok</code> fails. Then make a different change so that the map no longer crosses contention, and observe where <code>contended_ok</code> fails.</p>
-          <p>Keep <code>Comparator.Make [@modality portable]</code> the same while you experiment. That way the failure comes from the key or value type, not from the comparator witness.</p>
-        </aside>
         <p>The <code>[@@deriving compare, sexp_of]</code> line generates the ordinary comparison and sexp functions for the key type. <code>Comparator.Make [@modality portable]</code> checks that those functions are portable and exposes <code>comparator_witness</code> with a portable kind, so the map can cross the portability axis when its keys and values can.</p>
         <oxcaml check data-filename="custom_key_map_plain_comparator.ml" expect-error no-self-check>
           open Base
@@ -2938,7 +2722,7 @@ let () =
       </section>
 
       <section>
-        <h2>Interface annotations make portable APIs reusable</h2>
+        <h2 id="interface-annotations">Interface annotations make portable APIs reusable</h2>
         <p>For library APIs, mode promises belong in the interface. The implementation can use local mutation internally, but the exposed API should say which values are portable and which operations can be called from portable code.</p>
         <p>Here, <code>create</code> promises to produce a portable value, and <code>price</code> promises to work from portable code while only requiring the value in <code>contended</code> mode.</p>
         <oxcaml check data-filename="portable_api.ml">
@@ -2980,9 +2764,289 @@ val debug_global_counter : unit -> unit @@ nonportable</code></pre>
             let debug_global_counter () = incr debug_count
           end
         </oxcaml>
+      </section>
+      <section id="exercises">
+        <h2>Exercises</h2>
+        <p>These exercises check your understanding of the material from the lecture. They only assume the concepts covered above, in roughly the order the notes introduce them.</p>
+        <p>Each exercise starts with a line saying what it checks and which section of the notes to reread if you get stuck.</p>
+      </section>
+
+      <section>
+        <aside class="exercise helper-call-exercise" data-interactive-table>
+          <h3>Exercise 1: which mode permits each field access?</h3>
+          <p class="exercise-context"><strong>Checks:</strong> which contention modes permit immutable reads, mutable reads, and mutable writes. <strong>If stuck:</strong> reread <a href="#helper-argument-modes">Function calls check explicit argument mode requirements</a>.</p>
+          <p>Assume <code>type t = { id : int; mutable hits : int }</code> and a value <code>x : t</code>.</p>
+          <p>For each operation, decide which argument modes are strong enough. Click each cell to choose <code>yes</code> or <code>no</code>.</p>
+          <div class="exercise-table-wrap">
+            <table class="exercise-table">
+              <thead>
+                <tr>
+                  <th>Operation on <code>x</code></th>
+                  <th><code>x @ uncontended</code></th>
+                  <th><code>x @ shared</code></th>
+                  <th><code>x @ contended</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>x.id</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.id with x @ contended">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>x.hits</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits with x @ contended">?</button></td>
+                </tr>
+                <tr>
+                  <td><code>x.hits &lt;- x.hits + 1</code></td>
+                  <td><button type="button" class="exercise-choice" data-correct="yes" data-value="" aria-label="x.hits write with x @ uncontended">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ shared">?</button></td>
+                  <td><button type="button" class="exercise-choice" data-correct="no" data-value="" aria-label="x.hits write with x @ contended">?</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="exercise-controls">
+            <button type="button" class="exercise-button" data-check-table>Check table</button>
+            <button type="button" class="exercise-button" data-reset-table>Reset</button>
+            <span class="exercise-feedback" data-table-feedback aria-live="polite"></span>
+          </div>
+          <details data-table-answer>
+            <summary>Answer</summary>
+            <div class="exercise-table-wrap">
+              <table class="exercise-table">
+                <thead>
+                  <tr>
+                    <th>Operation on <code>x</code></th>
+                    <th><code>x @ uncontended</code></th>
+                    <th><code>x @ shared</code></th>
+                    <th><code>x @ contended</code></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>x.id</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>x.hits</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                  <tr>
+                    <td><code>x.hits &lt;- x.hits + 1</code></td>
+                    <td><span class="exercise-answer-pill">yes</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                    <td><span class="exercise-answer-pill">no</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Immutable field reads work in any mode. Mutable field reads need <code>x @ shared</code> or <code>x @ uncontended</code>. Mutable field writes need <code>x @ uncontended</code>.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
         <aside class="exercise">
-          <h3>Exercise: portabilize the Counter signature</h3>
-          <p>The editor below defines a <code>Counter</code> module with one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type has the strongest valid kind for its representation.</p>
+          <h3>Exercise 2: <code>x</code> created inside the passed function</h3>
+          <p class="exercise-context"><strong>Checks:</strong> captured mutable state versus fresh mutable state. <strong>If stuck:</strong> reread <a href="#worked-example-parent-x">Worked example: function calls on parent variable <code>x</code></a>.</p>
+          <p>Now suppose each function creates its own <code>x</code> inside the function body before calling the helper. What changes in the worked-example table from the notes?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>All cells become <code>yes</code>. The restrictions in that table are about captured mutable state crossing into the function. Fresh mutable state created inside that function is owned by that function body, so the body has uncontended access to it.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 3: functions that capture a parent variable</h3>
+          <p class="exercise-context"><strong>Checks:</strong> portability modes of capturing functions. <strong>If stuck:</strong> reread <a href="#portability-modes">Portability modes: function values and hidden captures</a>.</p>
+          <p>Three helpers close over the same mutable record, with their portability written explicitly:</p>
+          <pre><code>type t = { id : int; mutable hits : int }
+
+let x = { id = 1; hits = 0 }
+
+let (id_x @ portable) () = x.id
+let (read_x @ shareable) () = x.hits
+let (write_x @ nonportable) v = x.hits &lt;- v</code></pre>
+          <p>Decide which of these functions can be called from a function passed to <code>List.iter</code>, <code>fork_join2</code>, and <code>spawn</code>.</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>id_x</code> can be used in all three contexts. <code>read_x</code> can be used in <code>List.iter</code> and <code>fork_join2</code>, but not <code>spawn</code>. <code>write_x</code> can only be used in <code>List.iter</code>.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 4: implement <code>parallel_map</code></h3>
+          <p class="exercise-context"><strong>Checks:</strong> applying mode requirements in a real higher-order helper. <strong>If stuck:</strong> reread <a href="#parallel-functions-ordinary">Parallel functions are ordinary typed functions</a>.</p>
+          <p>Write a polymorphic <code>parallel_map</code> using <code>Toy.fork_join2</code>, then use it to convert a list of bit-lists into a list of strings. Fill in the recursive fork/join implementation.</p>
+          <p>This exercise is about inferred modes, not efficient parallel mapping. The answer forks one tiny head task against the tail of the list, which is fine for exposing the type but too fine-grained and unbalanced for production code.</p>
+          <p>The starter leaves the modes off on purpose. After the implementation mentions <code>Toy.fork_join2</code>, the compiler can infer the relevant modes from how the function argument and list flow through the fork/join tree.</p>
+          <details>
+            <summary>Hint</summary>
+            <p>Handle the empty list directly. For a nonempty list, fork one branch for the head and one branch for the tail, then combine the mapped head with the mapped tail.</p>
+          </details>
+        </aside>
+        <oxcaml data-filename="parallel_map.ml" data-oxcaml-run-trigger="manual" expect-error no-self-check>(* Parallel map exercise *)
+let bits_to_string bits =
+  let buf = Buffer.create 0 in
+  List.iter
+    (fun bit ->
+       Buffer.add_char buf (if bit then '1' else '0'))
+    bits;
+  Buffer.contents buf
+
+let rec parallel_map f xs =
+  failwith "implement this"
+
+let bits_to_strings rows =
+  parallel_map bits_to_string rows
+
+let () =
+  let rows =
+    [[true; false; true; true]; [false; true; false; false]]
+  in
+  let strings = bits_to_strings rows in
+  print_endline "The output is:";
+  print_endline (String.concat "\n" strings)</oxcaml>
+        <details>
+          <summary>Answer key</summary>
+          <p>The recursive case forks one branch for the head and one branch for the tail, then reconstructs the list after both branches finish. This is intentionally simple so that the inferred type is easy to inspect; it is not how you would usually implement <code>parallel_map</code> in production.</p>
+          <pre><code>let rec parallel_map f xs =
+  match xs with
+  | [] -> []
+  | x :: xs ->
+    let (y, ys) =
+      Toy.fork_join2
+        (fun () -> f x)
+        (fun () -> parallel_map f xs)
+    in
+    y :: ys</code></pre>
+        </details>
+        <aside class="exercise">
+          <h3>Exercise 5: read the inferred type of <code>parallel_map</code></h3>
+          <p class="exercise-context"><strong>Checks:</strong> reading higher-order mode requirements. <strong>If stuck:</strong> reread <a href="#mode-syntax-reference">Mode annotation syntax reference</a>.</p>
+          <p>Paste the answer-key implementation into the editor above and run it; once it compiles, the playground shows the inferred types. You should see a signature shaped like this:</p>
+          <pre><code>val parallel_map :
+  ('a @ shared -> 'b) @ shareable ->
+  'a list @ shareable shared ->
+  'b list @@ stateless</code></pre>
+          <p><code>stateless</code> is a stronger promise on another mode axis. Here we only need one consequence: <code>stateless</code> implies <code>portable</code>, so this implementation can be called from portable code.</p>
+          <p>For each of the three remaining mode annotations — the <code>@ shareable</code> on the function argument, the <code>@ shared</code> inside it, and the <code>@ shareable shared</code> on the input list — say whether it is a requirement on the caller or a promise by <code>parallel_map</code>, and what it allows or forbids. Then check your reading against the answer.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Read the type as a contract for moving work into a fork/join tree.</p>
+            <ul>
+              <li>The outer <code>@ shareable</code> in <code>('a @ shared -&gt; 'b) @ shareable</code> is a requirement on the explicit function argument. <code>parallel_map</code> uses that function inside fork/join branches, so the function value must be available as <code>shareable</code>. This restricts functions that close over mutable state, functions, or other portability-sensitive values.</li>
+              <li>The inner <code>'a @ shared</code> is the mode at which <code>parallel_map</code> will provide each element to the function argument. If an element contains mutable state, the function may read that state but may not mutate it. This is why a function such as <code>fun x -&gt; bump_hits x</code> is rejected when <code>bump_hits</code> requires <code>x @ uncontended</code>.</li>
+              <li>The <code>@ shareable</code> on <code>'a list @ shareable shared</code> is a portability requirement at the input-list position. Pieces of the list flow into the fork/join tree, so the input must be usable in that context. This restricts element types that contain functions or other portability-sensitive values.</li>
+              <li>The <code>@ shared</code> on <code>'a list @ shareable shared</code> is a contention requirement at the same input-list position. <code>parallel_map</code> only gets read-capable access to the list and to the elements it extracts from it, so elements that contain mutable state cannot be mutated through this access.</li>
+              <li>Together, <code>@ shareable shared</code> shows that one type position can carry requirements from multiple mode axes.</li>
+              <li>The final <code>@@ stateless</code> is a promise checked against the implementation of <code>parallel_map</code>. <code>stateless</code> is stronger than the portability promise we have been focused on here; the relevant consequence is that this implementation is portable enough to be used from portable code.</li>
+            </ul>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 6: where does <code>@ portable</code> attach?</h3>
+          <p class="exercise-context"><strong>Checks:</strong> mode annotation precedence on function types. <strong>If stuck:</strong> reread <a href="#mode-syntax-reference">Mode annotation syntax reference</a>.</p>
+          <p>The two blocks below differ only by parentheses around the function type. The function body increments a captured reference, so a block fails exactly when <code>worker</code> itself is being checked as portable. Predict which block is accepted and which is rejected, then explain what the parentheses change about where <code>@ portable</code> attaches.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The first block is accepted: <code>unit -&gt; unit @ portable</code> parses like <code>unit -&gt; (unit @ portable)</code>, so <code>portable</code> is on the result, not on the whole function value <code>worker</code>. The second block fails because <code>(unit -&gt; unit) @ portable</code> does check <code>worker</code> as portable. When the mode belongs to a function value, put that function type in parentheses.</p>
+          </details>
+        </aside>
+        <oxcaml check data-filename="mode_prec_a.ml">
+          let r = ref 0
+
+          let worker : unit -> unit @ portable =
+            fun () -> incr r
+        </oxcaml>
+        <oxcaml check data-filename="mode_prec_b.ml" expect-error>
+          let r = ref 0
+
+          let worker : (unit -> unit) @ portable =
+            fun () -> incr r
+        </oxcaml>
+        <aside class="exercise">
+          <h3>Exercise 7: nested function type precedence</h3>
+          <p class="exercise-context"><strong>Checks:</strong> mode annotation precedence with curried function types. <strong>If stuck:</strong> reread <a href="#mode-syntax-reference">Mode annotation syntax reference</a>.</p>
+          <p>Run the same experiment for a function that returns another function. Does <code>let make : int -&gt; unit -&gt; unit @ portable = ...</code> check the returned function as portable, or do you need <code>int -&gt; (unit -&gt; unit) @ portable</code>?</p>
+          <details>
+            <summary>Answer</summary>
+            <p><code>int -&gt; unit -&gt; unit @ portable</code> puts <code>@ portable</code> on the final result, not on the returned function value. To require the returned function itself to be portable, write <code>int -&gt; (unit -&gt; unit) @ portable</code>. That second form fails here because the returned function captures <code>r</code>.</p>
+          </details>
+        </aside>
+        <oxcaml check data-filename="nested_prec_a.ml">
+          let r = ref 0
+
+          let make : int -> unit -> unit @ portable =
+            fun _ -> fun () -> incr r
+        </oxcaml>
+        <oxcaml check data-filename="nested_prec_b.ml" expect-error>
+          let r = ref 0
+
+          let make : int -> (unit -> unit) @ portable =
+            fun _ -> fun () -> incr r
+        </oxcaml>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 8: why does the ref capture fail?</h3>
+          <p class="exercise-context"><strong>Checks:</strong> what portable closures may capture. <strong>If stuck:</strong> reread <a href="#worked-portability">Worked examples: portability requirements on function values</a>.</p>
+          <p>In the notes, this capture of an immutable integer is accepted:</p>
+          <pre><code>let factor = 3
+
+let (times_factor @ portable) x =
+  x * factor</code></pre>
+          <p>while this capture of a reference is rejected:</p>
+          <pre><code>let r = ref 0
+
+let (bad @ portable) () = !r</code></pre>
+          <p>Why is the immutable capture accepted while the reference capture is rejected?</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The immutable integer cannot be mutated through the captured value. The reference can be read or written through a mutable cell, so moving the closure into a spawned parallel context would need stronger guarantees than an ordinary ref capture provides.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 9: make the map stop crossing a mode axis</h3>
+          <p class="exercise-context"><strong>Checks:</strong> how key, value, and comparator types determine mode crossing for maps. <strong>If stuck:</strong> reread <a href="#maps-comparator">Maps also carry comparator evidence</a>.</p>
+          <p>In the editor in the <a href="#maps-comparator">Maps also carry comparator evidence</a> section, change the key type or the value type so that the map no longer crosses portability, then re-run the block and observe where <code>portable_ok</code> fails. Then make a different change so that the map no longer crosses contention, and observe where <code>contended_ok</code> fails.</p>
+          <p>Keep <code>Comparator.Make [@modality portable]</code> the same while you experiment. That way the failure comes from the key or value type, not from the comparator witness.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>The simplest changes go through the value type of the map.</p>
+            <ul>
+              <li><strong>Stop crossing portability:</strong> make the value type a function, for example <code>type map = (int -&gt; int) Map.M(Key).t</code>. A function value may close over nonportable state, so the map no longer crosses portability and <code>portable_ok</code> is rejected. <code>contended_ok</code> still passes, because the closure itself is immutable.</li>
+              <li><strong>Stop crossing contention:</strong> make the value type mutable, for example <code>type map = int ref Map.M(Key).t</code>. Mutable state does not cross contention, so <code>contended_ok</code> is rejected. <code>portable_ok</code> still passes, because a ref of ints contains no functions.</li>
+            </ul>
+            <p>Changing the key record works the same way: add a function field to stop portability crossing, or a <code>mutable</code> field to stop contention crossing.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 10: portabilize the Counter signature</h3>
+          <p class="exercise-context"><strong>Checks:</strong> writing portable-by-default module signatures. <strong>If stuck:</strong> reread <a href="#interface-annotations">Interface annotations make portable APIs reusable</a>.</p>
+          <p>The editor below defines a <code>Counter</code> module with one abstract type, two ordinary read operations, and one operation that touches global mutable state. Rewrite the signature so that portable is the default, only the global operation opts out, and the abstract type has the strongest valid kind for its representation. For the kind, ask one question per axis: the record has a <code>mutable</code> field, so can it cross contention? It contains no functions, so can it cross portability?</p>
           <details>
             <summary>Answer</summary>
             <p>Put <code>@@ portable</code> on the whole <code>sig</code>, because most of the API should be usable from portable code. Give <code>t</code> the kind <code>value mod portable</code>: the representation has mutable state, so it is not contention-independent, but it does not contain nonportable functions. The immutable field reader can accept <code>t @ contended</code>; the mutable field reader needs <code>t @ shared</code>; the global reset operation must be <code>@@ nonportable</code>.</p>
@@ -3025,6 +3089,7 @@ end</code></pre>
           end
         </oxcaml>
       </section>
+
       <nav class="page-nav" aria-label="Page navigation">
         <a class="prev" href="02-value-layouts-unboxing.processed.html">
           <span>Previous</span>

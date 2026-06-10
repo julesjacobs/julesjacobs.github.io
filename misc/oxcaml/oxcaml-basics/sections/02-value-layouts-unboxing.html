@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>OxCaml Basics: Value Layouts And Unboxing</title>
-    <link rel="stylesheet" href="../assets/course.css?v=course-order-20260526">
+    <link rel="stylesheet" href="../assets/course.css?v=notes-exercises-20260609">
   </head>
   <body>
     <main class="lecture-page">
@@ -13,10 +13,11 @@
       <section class="lecture-intro">
         <p>This lecture is about how OCaml values are represented at runtime, why that representation is a good default, and where high-performance code needs more control. We first build the plain OCaml <code>value</code> model, then look at the costs of boxing and indirection, and then introduce the OxCaml features that change the representation.</p>
         <p>By the end, students should be able to look at a small value and explain which parts are immediate words, which parts are heap blocks, where pointers and headers appear, and which OxCaml feature would remove a particular box or allocation.</p>
+        <p>The notes below cover the same ground as the lecture slides, in more depth. The exercises are collected at the end of the page. If you attended the lecture, you can work through the exercises directly; each exercise points back to the section of the notes that explains its concept.</p>
       </section>
 
       <section>
-        <h2>Plain OCaml has a uniform <code>value</code> representation</h2>
+        <h2 id="uniform-value">Plain OCaml has a uniform <code>value</code> representation</h2>
         <p>An OCaml <code>value</code> is one machine word. On a 64-bit runtime, the low bit of that word tells the runtime how to interpret the rest of the word.</p>
 
         <figure class="value-model-figure">
@@ -66,7 +67,7 @@
       </section>
 
       <section>
-        <h2>Examples</h2>
+        <h2 id="examples">Examples</h2>
 
         <oxcaml-repr mode="uniform-tags" filename="plain_value_integer.ml">
           let plain_value_integer = 5
@@ -91,18 +92,10 @@
             { symbol = "OxCaml rocks"; price = 101; size = 7 }
         </oxcaml-repr>
 
-        <aside class="exercise">
-          <h3>Exercise: identify the value shapes</h3>
-          <p>Before looking at the string and variant visualizations, predict the runtime shape of each source-level construct: a string, an empty-list constructor, and a constructor with payload. Which ones are immediate words, and which ones need a heap block?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>Strings are heap blocks containing raw bytes. The empty-list constructor is an immediate word. A constructor with payload is a heap block; its header tag distinguishes it from the other payload-carrying constructors of the same type.</p>
-          </details>
-        </aside>
       </section>
 
       <section>
-        <h2>Variants are also values</h2>
+        <h2 id="variants">Variants are also values</h2>
         <p>Algebraic data types use the same runtime model. A constructor with no payload is an immediate integer. A constructor with payload is a heap block; the header tag tells the runtime which constructor with payload it is.</p>
 
         <oxcaml-repr mode="uniform-tags" filename="constant_constructors.ml">
@@ -195,7 +188,7 @@
       </section>
 
       <section>
-        <h2>OxCaml layouts remove specific boxes</h2>
+        <h2 id="layouts-remove-boxes">OxCaml layouts remove specific boxes</h2>
         <p>OxCaml layouts remove specific boxes from the uniform <code>value</code> model.</p>
 
         <h3>Tuple block</h3>
@@ -233,32 +226,7 @@
             }
         </oxcaml-repr>
 
-        <aside class="exercise">
-          <h3>Exercise: which box disappeared?</h3>
-          <p>Compare the boxed and unboxed versions below. Which heap block disappears in the unboxed version, and which heap objects still remain?</p>
-          <details>
-            <summary>Answer</summary>
-            <p>The outer record still has a heap block, and the string label is still a heap object. The removed block is the separate point block. The two point coordinates become raw fields inside the outer record.</p>
-          </details>
-        </aside>
-
-        <oxcaml check data-filename="exercise_unboxed_point_box_removed.ml">
-          type boxed_point = { x : float; y : float }
-          type boxed_sample =
-            { label : string
-            ; point : boxed_point
-            ; count : int
-            }
-
-          type unboxed_point = #{ x : float#; y : float# }
-          type unboxed_sample =
-            { label : string
-            ; point : unboxed_point
-            ; count : int
-            }
-        </oxcaml>
-
-        <h3>Option payload allocation</h3>
+        <h3 id="option-payload">Option payload allocation</h3>
         <p><strong>Uniform cost:</strong> <code>Some 7</code> allocates a wrapper block around an immediate integer payload. <strong>Layout version:</strong> <code>or_null</code> uses <code>Null</code> for the missing case, and <code>This 7</code> has the same representation as the integer payload itself.</p>
 
         <p>The missing case is represented by the null machine word. Compare this with <code>None</code> above, which is also a single immediate word but uses OCaml's ordinary constructor encoding rather than null.</p>
@@ -275,35 +243,6 @@
             (This 7 : int or_null)
         </oxcaml-repr>
 
-        <aside class="exercise">
-          <h3>Exercise: convert <code>hd</code> to <code>or_null</code></h3>
-          <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>.</p>
-        </aside>
-
-        <oxcaml check data-filename="exercise_hd_or_null.ml">
-          let hd_option = function
-            | [] -> None
-            | x :: _ -> Some x
-
-          let hd_or_null xs =
-            failwith "implement this"
-
-          let value_or default = function
-            | Null -> default
-            | This x -> x
-
-          let first = value_or "empty" (hd_or_null ["first"; "second"])
-          let missing = value_or "empty" (hd_or_null [])
-        </oxcaml>
-
-        <details>
-          <summary>Answer key</summary>
-          <pre><code>let hd_or_null = function
-  | [] -> Null
-  | x :: _ -> This x</code></pre>
-          <p>This has the same branch shape as <code>hd_option</code>. The missing case uses the null word, and the present case uses <code>This x</code>, which has the same runtime representation as <code>x</code> instead of allocating a separate <code>Some</code> wrapper.</p>
-        </details>
-
         <p><code>or_null</code> cannot be nested. The null word already means <code>Null</code>, so <code>string or_null or_null</code> would need two meanings for the same representation. The payload type must have room for the null word; it must not already use the null word itself.</p>
         <p>This is the first place where we need to name which representations a type may have. The next section calls those representation requirements <em>kinds</em>.</p>
 
@@ -314,7 +253,7 @@
       </section>
 
       <section>
-        <h2>Kinds record which representations are allowed</h2>
+        <h2 id="kinds">Kinds record which representations are allowed</h2>
         <p>Once values can have different layouts, APIs need a way to say which layouts they accept. That is what representation kinds are for. Ordinary polymorphism usually assumes <code>value</code>. Unboxed values require signatures that mention layouts such as <code>float64</code>, <code>bits32</code>, <code>bits64</code>, <code>word</code>, or product layouts.</p>
         <p>If a compiler error says a type parameter expects <code>value</code>, read that as: this API expects ordinary one-word OCaml values, not arbitrary unboxed layouts.</p>
         <p>Here is an example.</p>
@@ -334,62 +273,8 @@
           type ok_pair = #(string * float#) pair_box
         </oxcaml>
 
-        <aside class="exercise">
-          <h3>Exercise: fix the product layout</h3>
-          <p>Explain which annotation has to be fixed, then fix it.</p>
-
-          <oxcaml check data-filename="exercise_product_kind_rejects_value_slot.ml" expect-error no-self-check>
-            type ('a : value) slot = Slot of 'a
-
-            type bad = #(string * float#) slot
-          </oxcaml>
-
-          <details>
-            <summary>Answer key</summary>
-            <p>The product <code>#(string * float#)</code> has layout <code>value &amp; float64</code>. The annotation on <code>slot</code> should be <code>('a : value &amp; float64)</code>.</p>
-            <oxcaml check data-filename="exercise_product_kind_accepts_product_slot.ml">
-              type ('a : value & float64) slot = Slot of 'a
-
-              type ok = #(string * float#) slot
-            </oxcaml>
-          </details>
-        </aside>
-
-        <h3>Abstract types need kinds too</h3>
-        <p>The same issue appears at module boundaries. In a signature, a plain abstract <code>type t</code> defaults to kind <code>value</code>. That is fine for ordinary OCaml values, but it does not match an implementation where <code>t</code> has product layout.</p>
-
-        <aside class="exercise">
-          <h3>Exercise: fix the abstract kind</h3>
-          <p>Explain which annotation has to be added to the signature, then fix it.</p>
-
-          <oxcaml check data-filename="abstract_type_value_default_rejects_unboxed_product.ml" expect-error no-self-check>
-            module type Pair = sig
-              type t
-              val make : string -> float# -> t
-            end
-
-            module Bad : Pair = struct
-              type t = #(string * float#)
-              let make name score = #(name, score)
-            end
-          </oxcaml>
-
-          <details>
-            <summary>Answer key</summary>
-            <p>Clients still do not know that <code>t</code> is an unboxed product. They do need to know that values of type <code>t</code> use layout <code>value &amp; float64</code>, because that layout is part of the calling convention. The fixed signature says <code>type t : value &amp; float64</code>.</p>
-            <oxcaml check data-filename="abstract_type_unboxed_product_kind.ml">
-              module type Pair = sig
-                type t : value & float64
-                val make : string -> float# -> t
-              end
-
-              module Good : Pair = struct
-                type t = #(string * float#)
-                let make name score = #(name, score)
-              end
-            </oxcaml>
-          </details>
-        </aside>
+        <h3 id="abstract-kinds">Abstract types need kinds too</h3>
+        <p>The same issue appears at module boundaries. In a signature, a plain abstract <code>type t</code> defaults to kind <code>value</code>. That is fine for ordinary OCaml values, but it does not match an implementation where <code>t</code> has product layout. The fix is a kind annotation in the signature, such as <code>type t : value &amp; float64</code>, because the layout is part of the calling convention that clients compile against.</p>
       </section>
 
       <section>
@@ -492,6 +377,177 @@ val map
         <h2>Summary</h2>
         <p>Plain OCaml uses a uniform <code>value</code> representation: a word that is either an immediate or a pointer to a heap block. OxCaml keeps that model as the default, but lets performance-sensitive code use more precise layouts when a box, pointer indirection, or option allocation is the cost we need to remove.</p>
         <p>Kinds record which representations an API accepts. Templates are the current way to repeat one source pattern across several kinds; layout polymorphism is intended to replace that template pattern over time.</p>
+      </section>
+
+      <section id="exercises">
+        <h2>Exercises</h2>
+        <p>These exercises check your understanding of the material from the lecture. They only assume the concepts covered above, in roughly the order the notes introduce them.</p>
+        <p>Each exercise starts with a line saying what it checks and which section of the notes to reread if you get stuck.</p>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 1: identify the value shapes</h3>
+          <p class="exercise-context"><strong>Checks:</strong> the uniform <code>value</code> model: immediates versus heap blocks. <strong>If stuck:</strong> reread <a href="#uniform-value">Plain OCaml has a uniform <code>value</code> representation</a> and <a href="#variants">Variants are also values</a>.</p>
+          <p>Predict the runtime shape of each source-level construct: a string, an empty-list constructor, and a constructor with payload. Which ones are immediate words, and which ones need a heap block? You can check your predictions against the visualizations in the notes.</p>
+          <details>
+            <summary>Answer</summary>
+            <p>Strings are heap blocks containing raw bytes. The empty-list constructor is an immediate word. A constructor with payload is a heap block; its header tag distinguishes it from the other payload-carrying constructors of the same type.</p>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 2: which box disappeared?</h3>
+          <p class="exercise-context"><strong>Checks:</strong> what an unboxed record removes from the heap. <strong>If stuck:</strong> reread <a href="#layouts-remove-boxes">OxCaml layouts remove specific boxes</a>.</p>
+          <p>Below are a boxed and an unboxed version of the same sample record. For a value of each type, predict how many heap blocks it uses and what each block contains. Which heap block disappears in the unboxed version, and which heap objects still remain? The answer key shows the two run-time layouts so you can check your prediction.</p>
+        </aside>
+
+        <oxcaml check data-filename="exercise_unboxed_point_box_removed.ml">
+          type boxed_point = { x : float; y : float }
+          type boxed_sample =
+            { label : string
+            ; point : boxed_point
+            ; count : int
+            }
+
+          type unboxed_point = #{ x : float#; y : float# }
+          type unboxed_sample =
+            { label : string
+            ; point : unboxed_point
+            ; count : int
+            }
+        </oxcaml>
+
+        <details>
+          <summary>Answer</summary>
+          <p>The outer record still has a heap block, and the string label is still a heap object. The removed block is the separate point block. The two point coordinates become raw fields inside the outer record. Compare the two layouts:</p>
+
+          <oxcaml-repr mode="uniform-tags" filename="exercise_boxed_sample_repr.ml">
+            type boxed_point = { x : float; y : float }
+
+            type boxed_sample =
+              { label : string
+              ; point : boxed_point
+              ; count : int
+              }
+
+            let boxed_version =
+              { label = "p"
+              ; point = { x = 1.0; y = 2.5 }
+              ; count = 7
+              }
+          </oxcaml-repr>
+
+          <oxcaml-repr mode="uniform-tags" filename="exercise_unboxed_sample_repr.ml">
+            type unboxed_point = #{ x : float#; y : float# }
+
+            type unboxed_sample =
+              { label : string
+              ; point : unboxed_point
+              ; count : int
+              }
+
+            let unboxed_version =
+              { label = "p"
+              ; point = #{ x = #1.0; y = #2.5 }
+              ; count = 7
+              }
+          </oxcaml-repr>
+        </details>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 3: convert <code>hd</code> to <code>or_null</code></h3>
+          <p class="exercise-context"><strong>Checks:</strong> using <code>Null</code> and <code>This</code> in an API. <strong>If stuck:</strong> reread <a href="#option-payload">Option payload allocation</a>.</p>
+          <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>.</p>
+        </aside>
+
+        <oxcaml check data-filename="exercise_hd_or_null.ml">
+          let hd_option = function
+            | [] -> None
+            | x :: _ -> Some x
+
+          let hd_or_null xs =
+            failwith "implement this"
+
+          let value_or default = function
+            | Null -> default
+            | This x -> x
+
+          let first = value_or "empty" (hd_or_null ["first"; "second"])
+          let missing = value_or "empty" (hd_or_null [])
+        </oxcaml>
+
+        <details>
+          <summary>Answer key</summary>
+          <pre><code>let hd_or_null = function
+  | [] -> Null
+  | x :: _ -> This x</code></pre>
+          <p>This has the same branch shape as <code>hd_option</code>. The missing case uses the null word, and the present case uses <code>This x</code>, which has the same runtime representation as <code>x</code> instead of allocating a separate <code>Some</code> wrapper.</p>
+        </details>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 4: fix the product layout</h3>
+          <p class="exercise-context"><strong>Checks:</strong> kind annotations on type parameters. <strong>If stuck:</strong> reread <a href="#kinds">Kinds record which representations are allowed</a>.</p>
+          <p>Explain which annotation has to be fixed, then fix it.</p>
+
+          <oxcaml check data-filename="exercise_product_kind_rejects_value_slot.ml" expect-error no-self-check>
+            type ('a : value) slot = Slot of 'a
+
+            type bad = #(string * float#) slot
+          </oxcaml>
+
+          <details>
+            <summary>Answer key</summary>
+            <p>The product <code>#(string * float#)</code> has layout <code>value &amp; float64</code>. The annotation on <code>slot</code> should be <code>('a : value &amp; float64)</code>.</p>
+            <oxcaml check data-filename="exercise_product_kind_accepts_product_slot.ml">
+              type ('a : value & float64) slot = Slot of 'a
+
+              type ok = #(string * float#) slot
+            </oxcaml>
+          </details>
+        </aside>
+      </section>
+
+      <section>
+        <aside class="exercise">
+          <h3>Exercise 5: fix the abstract kind</h3>
+          <p class="exercise-context"><strong>Checks:</strong> kind annotations on abstract types in signatures. <strong>If stuck:</strong> reread <a href="#abstract-kinds">Abstract types need kinds too</a>.</p>
+          <p>The signature below defaults <code>type t</code> to kind <code>value</code>, which does not match the unboxed implementation. Explain which annotation has to be added to the signature, then fix it.</p>
+
+          <oxcaml check data-filename="abstract_type_value_default_rejects_unboxed_product.ml" expect-error no-self-check>
+            module type Pair = sig
+              type t
+              val make : string -> float# -> t
+            end
+
+            module Bad : Pair = struct
+              type t = #(string * float#)
+              let make name score = #(name, score)
+            end
+          </oxcaml>
+
+          <details>
+            <summary>Answer key</summary>
+            <p>Clients still do not know that <code>t</code> is an unboxed product. They do need to know that values of type <code>t</code> use layout <code>value &amp; float64</code>, because that layout is part of the calling convention. The fixed signature says <code>type t : value &amp; float64</code>.</p>
+            <oxcaml check data-filename="abstract_type_unboxed_product_kind.ml">
+              module type Pair = sig
+                type t : value & float64
+                val make : string -> float# -> t
+              end
+
+              module Good : Pair = struct
+                type t = #(string * float#)
+                let make name score = #(name, score)
+              end
+            </oxcaml>
+          </details>
+        </aside>
       </section>
 
       <nav class="page-nav" aria-label="Page navigation">
