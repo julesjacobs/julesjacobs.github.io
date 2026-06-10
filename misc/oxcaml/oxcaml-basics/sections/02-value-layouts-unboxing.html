@@ -462,10 +462,10 @@ val map
         <aside class="exercise">
           <h3>Exercise 3: convert <code>hd</code> to <code>or_null</code></h3>
           <p class="exercise-context"><strong>Checks:</strong> using <code>Null</code> and <code>This</code> in an API. <strong>If stuck:</strong> reread <a href="#option-payload">Option payload allocation</a>.</p>
-          <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>.</p>
+          <p>Start from the ordinary option-returning <code>hd_option</code>. Write the same API shape with <code>Null</code> and <code>This</code> instead of <code>None</code> and <code>Some</code>. The starter fails at run time; a correct implementation prints <code>first</code> and then <code>empty</code>.</p>
         </aside>
 
-        <oxcaml check data-filename="exercise_hd_or_null.ml">
+        <oxcaml data-filename="exercise_hd_or_null.ml" data-oxcaml-run-trigger="manual" expect-error no-self-check>
           let hd_option = function
             | [] -> None
             | x :: _ -> Some x
@@ -479,6 +479,10 @@ val map
 
           let first = value_or "empty" (hd_or_null ["first"; "second"])
           let missing = value_or "empty" (hd_or_null [])
+
+          let () =
+            print_endline first;
+            print_endline missing
         </oxcaml>
 
         <details>

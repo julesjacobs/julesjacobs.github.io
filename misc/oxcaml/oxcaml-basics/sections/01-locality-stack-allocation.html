@@ -690,9 +690,9 @@
 
       <section>
         <aside class="exercise">
-          <h3>Exercise 3: move the allocation</h3>
-          <p class="exercise-context"><strong>Checks:</strong> which values are usable after a mid-function <code>exclave_</code>. <strong>If stuck:</strong> reread <a href="#functions-and-exclave">Functions and <code>exclave_</code></a>.</p>
-          <p>The rejected version below tries to sum <code>y</code> again after its region has ended. Fix it by allocating a fresh list <code>z</code> after <code>exclave_</code> and summing <code>z</code> instead of <code>y</code> in the result.</p>
+          <h3>Exercise 3: carry the sum across <code>exclave_</code></h3>
+          <p class="exercise-context"><strong>Checks:</strong> which values survive a mid-function <code>exclave_</code>, and that immediates cross. <strong>If stuck:</strong> reread <a href="#functions-and-exclave">Functions and <code>exclave_</code></a>.</p>
+          <p>The function below should compute <code>sum x + sum y</code>, but it is rejected: <code>y</code> belongs to the region that <code>exclave_</code> just ended. Fix it so it still computes <code>sum x + sum y</code>. Hint: <code>sum y</code> is an <code>int</code>, and ints survive <code>exclave_</code>.</p>
         </aside>
         <oxcaml check data-filename="Ex01_exclave_middle_uses_function_region.ml" expect-error>
           let rec sum (xs : int list @ local) =
@@ -702,13 +702,13 @@
 
           let bad (x : int list @ local) =
             let y = stack_ [1; 2; 3] in
-            ignore (sum y);
             exclave_
             sum x + sum y
         </oxcaml>
         <details>
           <summary>Answer key</summary>
-          <oxcaml run data-filename="Ex01_exclave_middle_allocates_after.ml">
+          <p>Sum <code>y</code> while its region is still open, and carry the <code>int</code> across the boundary. An <code>int</code> is immediate data, so it crosses locality and stays usable after <code>exclave_</code>. The behavior is unchanged: the function still returns <code>sum x + sum y</code>.</p>
+          <oxcaml run data-filename="Ex01_exclave_middle_sums_before.ml">
             let rec sum (xs : int list @ local) =
               match xs with
               | [] -> 0
@@ -716,14 +716,14 @@
 
             let good (x : int list @ local) =
               let y = stack_ [1; 2; 3] in
-              ignore (sum y);
+              let sy = sum y in
               exclave_
-              let z = stack_ [4; 5; 6] in
-              sum x + sum z
+              sum x + sy
 
             let () =
               print_endline (string_of_int (good [10]))
           </oxcaml>
+          <p>If a function genuinely needs a temporary list after the boundary, it can also allocate a fresh one after <code>exclave_</code>, like <code>z</code> in the diagrams above — but here that would compute a different result.</p>
         </details>
       </section>
 
