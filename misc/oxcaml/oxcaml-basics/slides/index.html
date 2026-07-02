@@ -517,10 +517,11 @@ let rec sum xs =
 let sum3 a b c =
   let xs = stack_ [a;b;c] in
   let n = sum xs in
-  n
+  (* xs gets deallocated here *)
+  n, xs
 
 let () =
-  let n = sum3 1 2 3 in
+  let n, _xs = sum3 1 2 3 in
   print_endline (string_of_int n)
             </oxcaml>
           </div>
