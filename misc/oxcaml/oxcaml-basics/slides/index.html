@@ -515,14 +515,12 @@ let rec sum xs =
   | x::xs' -> x + sum xs'
 
 let sum3 a b c =
-  exclave_
   let xs = stack_ [a;b;c] in
   let n = sum xs in
-  (* xs gets deallocated here *)
-  n, xs
+  n
 
 let () =
-  let n, _xs = sum3 1 2 3 in
+  let n = sum3 1 2 3 in
   print_endline (string_of_int n)
             </oxcaml>
           </div>
