@@ -22028,10 +22028,14 @@ ${indent(elseBranch)}`;
     return spans.map((span) => ({
       ...span,
       type: displayType(span.type, rho),
-      text: displayHoverText(span.text, rho),
+      text: displayHoverText(displayedSpanText(span), rho),
       interval: displayInterval(span.interval, rho),
       refinedType: displayRefinedType(span.refinedType, rho)
     }));
+  }
+  function displayedSpanText(span) {
+    if (!span.text || span.kind !== "distribution" || span.mode !== "E" && span.mode !== "G") return span.text;
+    return span.text.replace(/^(\s*[A-Za-z_][A-Za-z0-9_]*)\s*\[[EG]\]/, `$1[${span.mode}]`);
   }
   function displayHoverText(text, rho) {
     if (!text) return text;
