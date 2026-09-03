@@ -22456,7 +22456,7 @@ ${indent(elseBranch)}`;
       const hint = hintPosition(source, span);
       if (!hint) continue;
       if (hint.kind === "explicit") {
-        if (hint.explicitMode === span.mode || selectionIntersectsRange(view, hint.from, hint.to)) continue;
+        if (hint.explicitMode === span.mode || nonEmptySelectionIntersectsRange(view.state.selection.ranges, hint.from, hint.to)) continue;
         decorations2.push({
           from: hint.from,
           to: hint.to,
@@ -22507,8 +22507,9 @@ ${indent(elseBranch)}`;
   function cursorAtHintPosition(view, pos) {
     return view.state.selection.ranges.some((range) => range.empty && Math.abs(range.head - pos) <= 1);
   }
-  function selectionIntersectsRange(view, from, to) {
-    return view.state.selection.ranges.some((range) => {
+  function nonEmptySelectionIntersectsRange(ranges, from, to) {
+    return ranges.some((range) => {
+      if (range.empty) return false;
       const start = Math.min(range.from, range.to);
       const end = Math.max(range.from, range.to);
       return end >= from && start <= to;
