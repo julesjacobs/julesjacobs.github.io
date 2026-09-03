@@ -1066,6 +1066,7 @@ button:active {
   font: 700 11px/1 "SF Mono", Menlo, Monaco, Consolas, monospace;
   opacity: 0.9;
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .mode-hint.e-mode {
@@ -1081,7 +1082,7 @@ button:active {
 }
 
 .mode-hint.replacement-mode {
-  width: 3ch;
+  width: calc(3ch + 2px);
   margin: 0;
   border-color: transparent;
   padding: 0;
