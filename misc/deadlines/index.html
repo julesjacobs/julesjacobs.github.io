@@ -1,340 +1,121 @@
-<!DOCTYPE html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PL deadline calendar</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-  <style>
-    body {
-      font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
-      padding: 0;
-      margin: 0;
-      padding-bottom: 20px;
-    }
-    h1 {
-      font-size: 20px;
-    }
-    #container {
-      margin: auto;
-      width: 350px;
-    }
-    #timeline {
-      position: relative;
-      height: 800px;
-    }
-    #mid {
-      position: absolute;
-      left: 70px;
-      width: 6px;
-      background: #aaa;
-      height: 100%;
-    }
-    .now {
-      width: 10px;
-      border-radius: 6px;
-      left: 67px;
-      background: rgb(255, 55, 55);
-      height: 12px;
-      width: 12px;
-      transform: translate(0, -6px);
-    }
-    .month {
-      border-top: 1px solid #000;
-      width: 70px;
-      font-size: 12px;
-    }
-    .conf {
-      left: 70px;
-      border-top: 1px solid #000;
-      text-align: right;
-      font-size: 12px;
-    }
-    .conf a {
-      text-decoration: none;
-      color: #000;
-      /* hand cursor */
-      cursor: pointer;
-    }
-
-    .main {
-      border-top: 2px solid #000;
-    }
-    .main a {
-      font-weight: bold;
-      color: #000;
-    }
-
-    /* For formal methods */
-    .formal-methods {
-      border-top: 1px solid #8e44ad; /* Using a purple shade for formal methods */
-    }
-    .formal-methods a {
-      color: #8e44ad;
-    }
-
-    /* For programming languages */
-    .programming-languages {
-      border-top: 1px solid #0074d9; /* Using a blue shade for programming languages */
-    }
-    .programming-languages a {
-      color: #0074d9;
-    }
-
-    /* For systems */
-    .systems {
-      border-top: 1px solid #27a935; /* Using a green shade for systems */
-    }
-    .systems a {
-      color: #27a935;
-    }
-
-    .main {
-      border-width: 2px;
-      font-weight: bold;
-      padding-right: 2px;
-      /* border-right: 2px solid #0074d9; */
-      /* background-color: #ff851b; */
-    }
-
-    .past {
-      border-style: dashed;
-      opacity: 40%;
-      /* border-color: #999; */
-      border-left: none;
-      border-bottom: none;
-      border-right: none;
-      /* color: #999; */
-    }
-
-    .past a {
-      /* color: #999; */
-    }
-
-    .timehover {
-      display: none;
-      padding: 4px;
-      border: 1px solid rgba(0, 0, 0, 0);
-    }
-
-    .timehover .calendar-links {
-      display: inline;
-      margin-left: 5px;
-    }
-
-    .calendar-links a {
-      margin: 2px;
-    }
-
-    .timehover span {
-      border: 1px solid #bbb;
-      border-radius: 4px;
-      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-      padding: 3px 4px;
-      /* color: #777; */
-      background-color: #eee;
-    }
-
-    .active span {
-      border-color: hsl(213, 85%, 50%);
-      background-color: hsl(213, 85%, 90%);
-    }
-
-    .conf:hover .timehover,
-    .active .timehover {
-      white-space: nowrap;
-      display: block;
-      position: relative;
-      left: 10px;
-      margin-right: 5px;
-      padding-top: 10px;
-      padding-right: 5px;
-      top: -45px;
-      font-size: 12px;
-    }
-
-    .search {
-      margin-left: 5px;
-    }
-
-    .icon:hover {
-      color: hsl(213, 85%, 45%);
-    }
-  </style>
-</head>
-
-<body>
-  <div id="container">
-    <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
-    <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Hover or tap on a conference to show buttons to add it to your calendar.</p>
-
-    <p>Paper submission deadlines, at end of day Anywhere on Earth (UTC−12). Last updated: September 8, 2026.</p>
-
-    <div id="timeline">
-      <div id="mid"></div>
-    </div>
-    <p></p>
-    <span style="color: #999">Lightly shaded</span> deadlines have passed, but most conference deadlines do not change much year to year.
-    <p></p>
-    I cannot be held liable for missed conference deadlines due to errors in this calendar :) Always double check the conference website. Please <a href="mailto:julesjacobs@gmail.com">email me</a> if you have corrections or more up to date information.
-  </div>
-</body>
-
-<script>
-var deadlines = [
-  { deadline: "2026-01-22", conf: "LICS'26",       category: "formal-methods",        url: "https://lics.siglog.org/lics26/cfp.php" },
-
-  { deadline: "2027-01-20", conf: "CAV'27",        category: "formal-methods",        url: "https://conferences.i-cav.org/2027/" },
-
-  { deadline: "2026-01-20", conf: "TYPES'26",      category: "programming-languages", url: "https://types2026.cse.chalmers.se/call-for-contributions.html" },
-
-  { deadline: "2027-02-25", conf: "ICFP'27",       category: "programming-languages", url: "https://icfp27.sigplan.org/track/icfp-2027-icfp-papers", main: 1 },
-
-  { deadline: "2026-04-27", conf: "CONCUR'26",     category: "formal-methods",        url: "https://confest-2026.github.io/concur/" },
-
-  { deadline: "2026-07-09", conf: "POPL'27",       category: "programming-languages", url: "https://popl27.sigplan.org/track/POPL-2027-popl-research-papers", main: 1 },
-
-  { deadline: "2026-09-10", conf: "CPP'27",        category: "programming-languages", url: "https://popl27.sigplan.org/home/CPP-2027" },
-
-  { deadline: "2026-10-14", conf: "OOPSLA'27 R1",  category: "programming-languages", url: "https://2027.splashcon.org/track/splashoopsla2027", main: 1 },
-  { deadline: "2027-04-07", conf: "OOPSLA'27 R2",  category: "programming-languages", url: "https://2027.splashcon.org/track/splashoopsla2027", main: 1 },
-
-  { deadline: "2026-11-19", conf: "ECOOP'27 R1",   category: "programming-languages", url: "https://2027.ecoop.org/dates" },
-  { deadline: "2027-02-11", conf: "ECOOP'27 R2",   category: "programming-languages", url: "https://2027.ecoop.org/dates" },
-
-  { deadline: "2026-05-28", conf: "ESOP'27 R1",    category: "programming-languages", url: "https://etaps.org/2027/cfp/" },
-  { deadline: "2026-10-15", conf: "ESOP'27 R2",    category: "programming-languages", url: "https://etaps.org/2027/cfp/" },
-
-  { deadline: "2026-10-15", conf: "FoSSaCS'27",    category: "formal-methods",        url: "https://etaps.org/2027/cfp/" },
-
-  { deadline: "2026-10-15", conf: "TACAS'27",      category: "systems",               url: "https://etaps.org/2027/cfp/" },
-
-  { deadline: "2026-10-15", conf: "iFS'27",        category: "formal-methods",        url: "https://etaps.org/2027/cfp/" },
-
-  { deadline: "2026-11-12", conf: "PLDI'27",       category: "programming-languages", url: "https://pldi27.sigplan.org/track/pldi-2027-papers", main: 1 }
-];
-
-
-
-  for (var i = 0; i < deadlines.length; i++) {
-    deadlines[i].deadline = new Date(deadlines[i].deadline + "T23:59:59.999-12:00");
-  }
-
-  function elem(parent, type) {
-    var e = document.createElement(type);
-    parent.appendChild(e);
-    return e;
-  }
-
-  var x = document.getElementById("timeline");
-  function elemPos(d, classname) {
-    var e = elem(x, "div");
-    e.classList.add(classname);
-    e.style.position = "absolute";
-    var d1 = new Date("2022-01-01");
-    var d2 = new Date("2023-01-01");
-    e.style.top = (100 * Math.abs(d - d1)) / Math.abs(d2 - d1) + "%";
-    return e;
-  }
-
-  function createCalendarLinks(title0, url0, date) {
-    const element = document.createElement("div");
-    element.className = "calendar-links";
-
-    var title = title0 + " deadline";
-
-    // replace '23 with 2023
-    var titleG = title0.replace(/'(\d\d)/, " 20$1") + " conference";
-
-    const googleCalendarUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}/${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}&details=${encodeURIComponent(title)}&location=&sf=true&output=xml`;
-    const appleCalendarUrl = `data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ADTEND:${new Date(date.getTime() + 3600000).toISOString().replace(/-|:|\.\d\d\d/g, "")}%0ASUMMARY:${encodeURIComponent(title)}%0AEND:VEVENT%0AEND:VCALENDAR`;
-    const outlookCalendarUrl = `https://outlook.live.com/owa/?path=/calendar/action/compose&rru=addevent&subject=${encodeURIComponent(title)}&startdt=${encodeURIComponent(date.toISOString())}&enddt=${encodeURIComponent(new Date(date.getTime() + 3600000).toISOString())}`;
-    const googleSearchUrl = url0 ? url0 : `https://www.google.com/search?q=${encodeURIComponent(titleG)}`;
-
-    const endDate = new Date(date.getTime() + 3600000);
-    const icsFileContent = `BEGIN:VCALENDAR
-  VERSION:2.0
-  BEGIN:VEVENT
-  DTSTART:${date.toISOString().replace(/-|:|\.\d\d\d/g, "")}
-  DTEND:${endDate.toISOString().replace(/-|:|\.\d\d\d/g, "")}
-  SUMMARY:${title}
-  END:VEVENT
-  END:VCALENDAR`;
-
-    const icsFileUrl = `data:text/calendar;charset=utf8,${encodeURIComponent(icsFileContent)}`;
-
-    const icons = [
-      { name: "Google Calendar", url: googleCalendarUrl, icon: "fab fa-google" },
-      { name: "Apple Calendar", url: appleCalendarUrl, icon: "fab fa-apple" },
-      { name: "Outlook Calendar", url: outlookCalendarUrl, icon: "fab fa-microsoft" },
-      { name: "calendar using (.ics)", url: icsFileUrl, icon: "fas fa-file-download" },
-      { name: "Google Search", url: googleSearchUrl, icon: "fas fa-external-link-alt search" },
-    ];
-
-    icons.forEach(({ name, url, icon }) => {
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.title = name === "Google Search" ? (url0 ? 'Go to website' : `Search ${title0} on Google`) : `Add to ${name}`;
-      link.innerHTML = `<i class="${icon} icon" aria-hidden="true"></i>`;
-      element.appendChild(link);
-    });
-
-    return element;
-  }
-
-  deadlines.map((d) => {
-    d.deadlineN = new Date(d.deadline);
-    d.deadlineN.setFullYear(2022);
-  });
-  deadlines.sort((d1, d2) => (d2.deadlineN < d1.deadlineN ? -1 : 1));
-  var move = 0;
-  for (var i = 0; i < deadlines.length; i++) {
-    var d = deadlines[i];
-    var e = elemPos(d.deadlineN, "conf");
-    e.classList.add(d.category);
-    e.style.zIndex = deadlines.length - i;
-    var is_past = d.deadline < new Date();
-    if (is_past) e.classList.add("past");
-    move = i > 0 && Math.abs(deadlines[i - 1].deadlineN - d.deadlineN) < 6e8 ? move + d.conf.length : 0;
-    if (d.main) {
-      e.classList.add("main");
-      // move = Math.max(move,1);
-    }
-    e.style.width = 110 + 9 * move + "px";
-    var elink = elem(e, "a");
-    elink.innerText = d.conf;
-    var dname = d.conf
-      .replace(/R[0-9]/g, "")
-      .replace(/'/g, "")
-      .replace(/[0-9]/g, "")
-      .replace(/ /g, "");
-    var year = parseInt(d.conf.match(/\d+/)[0]) + 2000;
-    // toggle active css class when clicked
-    elink.onclick = function () {
-      var e = this.parentElement;
-      e.classList.toggle("active");
-      // unfocus the link
-      this.blur();
-      this.parentElement.blur();
-      document.rootElement.focus();
-      return false;
-    };
-    var timehover = elem(e, "div");
-    timehover.classList.add("timehover");
-    // calculate how many days from now
-    var days = (d.deadline - new Date()) / 8.64e7;
-    // convert days to string with 1 decimal place
-    var msg = days > 0 ? "in " + days.toFixed(1) + " days" : (-days).toFixed(1) + " days ago";
-    var inner = elem(timehover, "span");
-    inner.innerText = msg;
-    inner.appendChild(createCalendarLinks(d.conf, d.url, d.deadline));
-  }
-
-  for (var i = 0; i < 12; i++) {
-    var d = new Date(2022, i);
-    elemPos(d, "month").innerText = d.toLocaleString("default", { month: "long" });
-  }
-
-  var now = new Date(Date.now());
-  now.setYear(2022);
-  var nowe = elemPos(now, "now");
-</script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Find conferences in programming languages, verification, logic, and algorithms. Search topics, compare submission deadlines, and add them to your calendar."
+    />
+    <title>Conference explorer · Jules Jacobs</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="app.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#results">Skip to conferences</a>
+    <header class="site-header">
+      <a href="/">Jules Jacobs</a><span>Research tools</span>
+    </header>
+    <main>
+      <div class="heading">
+        <div>
+          <p class="eyebrow">FIND YOUR NEXT VENUE</p>
+          <h1>Conference explorer<span class="title-dot">.</span></h1>
+          <p class="intro">
+            Programming languages, verification, logic & algorithms.
+          </p>
+        </div>
+        <div class="updated">
+          Updated <time datetime="2026-09-09">9 September 2026</time>
+        </div>
+      </div>
+      <section class="controls" aria-label="Search and filter conferences">
+        <label class="search-label" for="search"
+          >Search conferences and topics</label
+        >
+        <div class="search-box">
+          <span aria-hidden="true">⌕</span
+          ><input
+            id="search"
+            type="search"
+            placeholder="Try separation logic, automata, compilers…"
+            autocomplete="off"
+          /><kbd aria-hidden="true">/</kbd>
+        </div>
+        <div id="areas" class="areas" aria-label="Research areas"></div>
+      </section>
+      <div class="workspace">
+        <aside>
+          <details class="topic-panel" open>
+            <summary>Browse topics</summary>
+            <p class="hint">Select topics to match all of them.</p>
+            <label class="sr-only" for="topic-search">Find a topic</label
+            ><input
+              id="topic-search"
+              type="search"
+              placeholder="Find a topic…"
+              autocomplete="off"
+            />
+            <div id="topics" class="topic-list"></div>
+            <button id="more-topics" class="text-button" type="button">
+              Show all topics
+            </button>
+          </details>
+        </aside>
+        <section class="results-section" aria-label="Conferences">
+          <div class="results-toolbar">
+            <p id="result-count" role="status" aria-live="polite">
+              Loading conferences…
+            </p>
+            <div class="view-switch" aria-label="View">
+              <button type="button" id="cards-view" aria-pressed="true">
+                Conferences</button
+              ><button type="button" id="calendar-view" aria-pressed="false">
+                Calendar
+              </button>
+            </div>
+          </div>
+          <div class="filter-toolbar">
+            <label
+              >Deadlines
+              <select id="status">
+                <option value="all">All conferences</option>
+                <option value="upcoming">Upcoming deadlines</option>
+                <option value="unconfirmed">No upcoming date verified</option>
+                <option value="past">Past deadlines</option>
+              </select></label
+            ><label
+              >Sort
+              <select id="sort">
+                <option value="deadline">Next deadline</option>
+                <option value="name">Name A–Z</option>
+              </select></label
+            ><button id="reset" class="text-button" type="button">
+              Reset filters
+            </button>
+          </div>
+          <div
+            id="selected"
+            class="selected"
+            aria-label="Selected topics"
+          ></div>
+          <div id="results" tabindex="-1"></div>
+          <noscript
+            ><p>
+              This explorer needs JavaScript for search and filtering.
+              <a href="conferences.json">Read the conference data</a>.
+            </p></noscript
+          >
+        </section>
+      </div>
+      <footer>
+        Dates link to official calls for papers. “No upcoming date verified”
+        means this list has no confirmed future deadline; it does not mean
+        submissions are closed. Descriptions and topics are a curated guide to
+        each venue’s scope. Always check the official call, including abstract
+        registration and track requirements.
+        <a href="mailto:julesjacobs@gmail.com">Send a correction</a>.
+      </footer>
+    </main>
+  </body>
+</html>
