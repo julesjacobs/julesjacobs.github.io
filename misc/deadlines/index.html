@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="style.css?v=20260910b">
-  <script type="module" src="app.mjs?v=20260910b"></script>
+  <link rel="stylesheet" href="style.css?v=20260910c">
+  <script type="module" src="app.mjs?v=20260910c"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PL deadline calendar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -142,19 +142,6 @@
       background-color: hsl(213, 85%, 90%);
     }
 
-    .conf:hover .timehover,
-    .active .timehover {
-      white-space: nowrap;
-      display: block;
-      position: relative;
-      left: 10px;
-      margin-right: 5px;
-      padding-top: 10px;
-      padding-right: 5px;
-      top: -45px;
-      font-size: 12px;
-    }
-
     .search {
       margin-left: 5px;
     }
@@ -168,7 +155,7 @@
 <body>
   <div id="container">
     <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
-    <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Hover for calendar links; click a conference for its description and topics.</p>
+    <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Hover to preview a deadline; click to keep its calendar links open.</p>
 
     <div class="search-controls">
       <input type="search" id="search" aria-label="Search conferences" placeholder="Search conferences or topics…">

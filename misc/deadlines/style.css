@@ -91,19 +91,41 @@ summary {
 .algorithms a {
   color: #a76318;
 }
-.conf:hover,
-.conf:focus-within {
+.conf {
+  pointer-events: none;
+}
+.conf > button {
+  pointer-events: auto;
+}
+.conf:has(> button:hover),
+.conf.active {
   z-index: 100 !important;
 }
-.conf:focus-within .timehover {
-  display: block;
-  position: relative;
+.conf .timehover {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 20px;
+  padding: 0;
   white-space: nowrap;
   font-size: 12px;
-  top: -35px;
+  pointer-events: none;
+}
+#timeline:not(.has-active) .conf:has(> button:hover) .timehover,
+.conf.active .timehover {
+  display: block;
 }
 .timehover span {
   display: inline-block;
+}
+.conf.active .timehover a,
+.conf.active .timehover button {
+  pointer-events: auto;
+}
+.conf:not(.active) .timehover .calendar-links,
+.conf:not(.active) .timehover a,
+.conf:not(.active) .timehover button {
+  display: none;
 }
 #undated {
   font-size: 13px;

@@ -182,6 +182,14 @@ export function startApp(data, doc = document) {
       }<p><a href="${escapeHTML(c.url)}" target="_blank" rel="noopener">Official website ↗</a></p><p class="small">Topics are a guide to the venue’s scope. Check the official call for current dates and requirements.</p>`;
     $("conference-info").showModal();
   }
+  function closeDeadline() {
+    const active = $("timeline").querySelector(".active");
+    if (!active) return;
+    active.classList.remove("active");
+    active.querySelector("[data-deadline]").setAttribute("aria-expanded", "false");
+    active.querySelector(".timehover").hidden = true;
+    $("timeline").classList.remove("has-active");
+  }
   function render() {
     const now = new Date(),
       filtered = data.filter((c) => matches(c, state, now));
@@ -212,6 +220,7 @@ export function startApp(data, doc = document) {
       );
     const timeline = $("timeline");
     timeline.innerHTML = '<div id="mid"></div>';
+    timeline.classList.remove("has-active");
     let move = 0,
       width = 350;
     events.forEach(({ c, d, position }, i) => {
@@ -226,7 +235,7 @@ export function startApp(data, doc = document) {
       const row = doc.createElement("div");
       row.className = `conf ${categories[c.id === "tacas" ? "systems" : c.areas[0]]}${major.has(c.id) ? " main" : ""}${days < 0 ? " past" : ""}`;
       row.style.cssText = `position:absolute;top:${100 * position}%;width:${lineWidth}px;z-index:${events.length - i}`;
-      row.innerHTML = `<button type="button" data-conference="${c.id}" aria-haspopup="dialog">${escapeHTML(title)}</button><div class="timehover"><span>${dateLabel(d.date)} · ${escapeHTML(d.timezone)} · ${Math.abs(days).toFixed(1)} days ${days < 0 ? "ago" : "to go"} ${links(c, d)}</span></div>`;
+      row.innerHTML = `<button type="button" data-deadline aria-expanded="false" aria-controls="deadline-${i}">${escapeHTML(title)}</button><div id="deadline-${i}" class="timehover" hidden><span>${dateLabel(d.date)} · ${escapeHTML(d.timezone)} · ${Math.abs(days).toFixed(1)} days ${days < 0 ? "ago" : "to go"} ${links(c, d)} <button type="button" class="conference-button" data-conference="${c.id}" aria-haspopup="dialog">Conference details</button></span></div>`;
       timeline.appendChild(row);
     });
     timeline.style.width = width + "px";
@@ -303,7 +312,27 @@ export function startApp(data, doc = document) {
     $("topic-filter").setCustomValidity(""),
   );
   $("close-info").addEventListener("click", () => $("conference-info").close());
+  doc.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("conference-info").open) {
+      const trigger = $("timeline").querySelector(".active [data-deadline]");
+      closeDeadline();
+      trigger?.focus();
+    }
+  });
   doc.addEventListener("click", (e) => {
+    const trigger = e.target.closest("[data-deadline]");
+    if (trigger) {
+      const row = trigger.closest(".conf"), wasOpen = row.classList.contains("active");
+      closeDeadline();
+      if (!wasOpen) {
+        row.classList.add("active");
+        trigger.setAttribute("aria-expanded", "true");
+        row.querySelector(".timehover").hidden = false;
+        $("timeline").classList.add("has-active");
+      }
+      return;
+    }
+    if (!e.target.closest(".timehover")) closeDeadline();
     const button = e.target.closest("button");
     if (button?.dataset.conference) showConference(button.dataset.conference);
     if (button?.dataset.topic) toggleTopic(button.dataset.topic);
