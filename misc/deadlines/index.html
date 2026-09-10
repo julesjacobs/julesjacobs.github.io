@@ -1,121 +1,202 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Find conferences in programming languages, verification, logic, and algorithms. Search topics, compare submission deadlines, and add them to your calendar."
-    />
-    <title>Conference explorer · Jules Jacobs</title>
-    <link rel="stylesheet" href="style.css" />
-    <script type="module" src="app.mjs"></script>
-  </head>
-  <body>
-    <a class="skip-link" href="#results">Skip to conferences</a>
-    <header class="site-header">
-      <a href="/">Jules Jacobs</a><span>Research tools</span>
-    </header>
-    <main>
-      <div class="heading">
-        <div>
-          <p class="eyebrow">FIND YOUR NEXT VENUE</p>
-          <h1>Conference explorer<span class="title-dot">.</span></h1>
-          <p class="intro">
-            Programming languages, verification, logic & algorithms.
-          </p>
-        </div>
-        <div class="updated">
-          Updated <time datetime="2026-09-09">9 September 2026</time>
-        </div>
-      </div>
-      <section class="controls" aria-label="Search and filter conferences">
-        <label class="search-label" for="search"
-          >Search conferences and topics</label
-        >
-        <div class="search-box">
-          <span aria-hidden="true">⌕</span
-          ><input
-            id="search"
-            type="search"
-            placeholder="Try separation logic, automata, compilers…"
-            autocomplete="off"
-          /><kbd aria-hidden="true">/</kbd>
-        </div>
-        <div id="areas" class="areas" aria-label="Research areas"></div>
-      </section>
-      <div class="workspace">
-        <aside>
-          <details class="topic-panel" open>
-            <summary>Browse topics</summary>
-            <p class="hint">Select topics to match all of them.</p>
-            <label class="sr-only" for="topic-search">Find a topic</label
-            ><input
-              id="topic-search"
-              type="search"
-              placeholder="Find a topic…"
-              autocomplete="off"
-            />
-            <div id="topics" class="topic-list"></div>
-            <button id="more-topics" class="text-button" type="button">
-              Show all topics
-            </button>
-          </details>
-        </aside>
-        <section class="results-section" aria-label="Conferences">
-          <div class="results-toolbar">
-            <p id="result-count" role="status" aria-live="polite">
-              Loading conferences…
-            </p>
-            <div class="view-switch" aria-label="View">
-              <button type="button" id="cards-view" aria-pressed="true">
-                Conferences</button
-              ><button type="button" id="calendar-view" aria-pressed="false">
-                Calendar
-              </button>
-            </div>
-          </div>
-          <div class="filter-toolbar">
-            <label
-              >Deadlines
-              <select id="status">
-                <option value="all">All conferences</option>
-                <option value="upcoming">Upcoming deadlines</option>
-                <option value="unconfirmed">No upcoming date verified</option>
-                <option value="past">Past deadlines</option>
-              </select></label
-            ><label
-              >Sort
-              <select id="sort">
-                <option value="deadline">Next deadline</option>
-                <option value="name">Name A–Z</option>
-              </select></label
-            ><button id="reset" class="text-button" type="button">
-              Reset filters
-            </button>
-          </div>
-          <div
-            id="selected"
-            class="selected"
-            aria-label="Selected topics"
-          ></div>
-          <div id="results" tabindex="-1"></div>
-          <noscript
-            ><p>
-              This explorer needs JavaScript for search and filtering.
-              <a href="conferences.json">Read the conference data</a>.
-            </p></noscript
-          >
-        </section>
-      </div>
-      <footer>
-        Dates link to official calls for papers. “No upcoming date verified”
-        means this list has no confirmed future deadline; it does not mean
-        submissions are closed. Descriptions and topics are a curated guide to
-        each venue’s scope. Always check the official call, including abstract
-        registration and track requirements.
-        <a href="mailto:julesjacobs@gmail.com">Send a correction</a>.
-      </footer>
-    </main>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css?v=20260910">
+  <script type="module" src="app.mjs?v=20260910"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PL deadline calendar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    body {
+      font-family: "Lucida Grande", "Myriad", "Segoe UI", "Gotham", sans-serif;
+      padding: 0;
+      margin: 0;
+      padding-bottom: 20px;
+    }
+    h1 {
+      font-size: 20px;
+    }
+    #container {
+      margin: auto;
+      width: 350px;
+    }
+    #timeline {
+      position: relative;
+      height: 800px;
+    }
+    #mid {
+      position: absolute;
+      left: 70px;
+      width: 6px;
+      background: #aaa;
+      height: 100%;
+    }
+    .now {
+      width: 10px;
+      border-radius: 6px;
+      left: 67px;
+      background: rgb(255, 55, 55);
+      height: 12px;
+      width: 12px;
+      transform: translate(0, -6px);
+    }
+    .month {
+      border-top: 1px solid #000;
+      width: 70px;
+      font-size: 12px;
+    }
+    .conf {
+      left: 70px;
+      border-top: 1px solid #000;
+      text-align: right;
+      font-size: 12px;
+    }
+    .conf a {
+      text-decoration: none;
+      color: #000;
+      /* hand cursor */
+      cursor: pointer;
+    }
+
+    .main {
+      border-top: 2px solid #000;
+    }
+    .main a {
+      font-weight: bold;
+      color: #000;
+    }
+
+    /* For formal methods */
+    .formal-methods {
+      border-top: 1px solid #8e44ad; /* Using a purple shade for formal methods */
+    }
+    .formal-methods a {
+      color: #8e44ad;
+    }
+
+    /* For programming languages */
+    .programming-languages {
+      border-top: 1px solid #0074d9; /* Using a blue shade for programming languages */
+    }
+    .programming-languages a {
+      color: #0074d9;
+    }
+
+    /* For systems */
+    .systems {
+      border-top: 1px solid #27a935; /* Using a green shade for systems */
+    }
+    .systems a {
+      color: #27a935;
+    }
+
+    .main {
+      border-width: 2px;
+      font-weight: bold;
+      padding-right: 2px;
+      /* border-right: 2px solid #0074d9; */
+      /* background-color: #ff851b; */
+    }
+
+    .past {
+      border-style: dashed;
+      opacity: 40%;
+      /* border-color: #999; */
+      border-left: none;
+      border-bottom: none;
+      border-right: none;
+      /* color: #999; */
+    }
+
+    .past a {
+      /* color: #999; */
+    }
+
+    .timehover {
+      display: none;
+      padding: 4px;
+      border: 1px solid rgba(0, 0, 0, 0);
+    }
+
+    .timehover .calendar-links {
+      display: inline;
+      margin-left: 5px;
+    }
+
+    .calendar-links a {
+      margin: 2px;
+    }
+
+    .timehover span {
+      border: 1px solid #bbb;
+      border-radius: 4px;
+      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+      padding: 3px 4px;
+      /* color: #777; */
+      background-color: #eee;
+    }
+
+    .active span {
+      border-color: hsl(213, 85%, 50%);
+      background-color: hsl(213, 85%, 90%);
+    }
+
+    .conf:hover .timehover,
+    .active .timehover {
+      white-space: nowrap;
+      display: block;
+      position: relative;
+      left: 10px;
+      margin-right: 5px;
+      padding-top: 10px;
+      padding-right: 5px;
+      top: -45px;
+      font-size: 12px;
+    }
+
+    .search {
+      margin-left: 5px;
+    }
+
+    .icon:hover {
+      color: hsl(213, 85%, 45%);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
+    <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Hover for calendar links; click a conference for its description and topics.</p>
+
+    <p>Paper submission deadlines, at end of day Anywhere on Earth (UTC−12). Dates checked: September 9, 2026.</p>
+
+    <div class="search-controls">
+      <label class="sr-only" for="search">Search conferences and topics</label>
+      <input type="search" id="search" placeholder="Search conferences or topics…">
+      <details id="filters"><summary>Filters</summary>
+        <label>Area <select id="area"><option value="all">All areas</option></select></label>
+        <label>Deadlines <select id="status"><option value="all">All deadlines</option><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="unconfirmed">No upcoming date verified</option></select></label>
+        <label>Topic <input id="topic-filter" list="topic-options" placeholder="Find a topic…"></label>
+        <datalist id="topic-options"></datalist><button type="button" id="add-topic">Add topic</button>
+        <p class="small">Selected topics must all match.</p>
+      </details>
+      <div id="selected-topics"></div>
+      <p class="small"><span id="result-count" role="status">Loading conferences…</span> <button id="reset" type="button" hidden>Clear filters</button></p>
+    </div>
+    <div id="timeline-scroll"><div id="timeline"><div id="mid"></div></div></div>
+    <p id="empty" class="small" hidden>No deadlines match these filters.</p>
+    <details id="undated"><summary>Conferences without a verified deadline</summary><p id="undated-list"></p></details>
+    <noscript><p><a href="conferences.json">Read the conference data</a> (JavaScript is required for the timeline).</p></noscript>
+    <p></p>
+    <span style="color: #999">Lightly shaded</span> deadlines have passed, but most conference deadlines do not change much year to year.
+    <p></p>
+    I cannot be held liable for missed conference deadlines due to errors in this calendar :) Always double check the conference website. Please <a href="mailto:julesjacobs@gmail.com">email me</a> if you have corrections or more up to date information.
+  </div>
+  <dialog id="conference-info" aria-labelledby="conference-title">
+    <button id="close-info" type="button" aria-label="Close conference details">×</button>
+    <h2 id="conference-title"></h2><div id="conference-content"></div>
+  </dialog>
+</body>
 </html>

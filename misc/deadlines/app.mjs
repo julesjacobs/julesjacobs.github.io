@@ -120,269 +120,206 @@ export function calendarLinks(c, d) {
   };
 }
 
+export function yearPosition(date) {
+  const normalized = new Date(`2022-${date.slice(5)}T12:00:00Z`);
+  return (+normalized - Date.UTC(2022, 0, 1)) / (365 * 86400000);
+}
+
 export function startApp(data, doc = document) {
-  const $ = (id) => doc.getElementById(id),
-    state = {
-      query: "",
-      area: "all",
-      topics: [],
-      status: "all",
-      sort: "deadline",
-      view: "cards",
-    },
-    openCards = new Set();
-  let topicQuery = "",
-    allTopics = false;
-  const params = new URLSearchParams(location.hash.slice(1));
-  state.query = params.get("q") || "";
-  state.area = params.get("area") in areas ? params.get("area") : "all";
-  state.topics = params
-    .getAll("topic")
-    .filter((t) => data.some((c) => c.keywords.includes(t)));
-  if (["all", "upcoming", "unconfirmed", "past"].includes(params.get("status")))
-    state.status = params.get("status");
-  if (params.get("view") === "calendar") state.view = "calendar";
-  if (params.get("sort") === "name") state.sort = "name";
-  $("search").value = state.query;
-  $("status").value = state.status;
-  $("sort").value = state.sort;
-  if (matchMedia("(max-width: 650px)").matches)
-    doc.querySelector(".topic-panel").open = false;
-  const tag = (t) =>
-    `<button type="button" class="tag" data-topic="${escapeHTML(t)}" aria-pressed="${state.topics.includes(t)}">${escapeHTML(t)}</button>`;
-  const links = (c, d) => {
-    const l = calendarLinks(c, d);
-    return `<div class="calendar-links"><a href="${escapeHTML(d.url)}" target="_blank" rel="noopener">Official deadline ↗</a><a href="${escapeHTML(l.google)}" target="_blank" rel="noopener">Google</a><a href="${escapeHTML(l.outlook)}" target="_blank" rel="noopener">Outlook</a><a href="${escapeHTML(l.ics)}" download="${c.id}-${d.edition}-${d.date}.ics">Apple / .ics</a></div>`;
+  const $ = (id) => doc.getElementById(id);
+  const state = { query: "", area: "all", topics: [], status: "all" };
+  const categories = {
+    pl: "programming-languages",
+    logic: "formal-methods",
+    verification: "formal-methods",
+    systems: "systems",
+    algorithms: "algorithms",
   };
-  function dateEntry(c, d, now) {
-    const past = deadlineInstant(d) < now;
-    return `<div class="deadline-entry"><div class="deadline-top"><strong>${d.edition} · ${escapeHTML(d.label)}</strong><span class="${past ? "past-label" : ""}">${dateLabel(d.date)} · ${escapeHTML(d.timezone || "AoE")}${past ? " · passed" : ""}</span></div>${d.abstract ? `<p>Abstract registration: ${dateLabel(d.abstract)}${deadlineInstant({ ...d, date: d.abstract }) < now ? " (passed)" : ""}.</p>` : ""}${links(c, d)}<p>Source checked ${dateLabel(d.checked)}.</p></div>`;
-  }
-  function card(c, now) {
-    const next =
-        state.status === "past"
-          ? [...c.deadlines]
-              .filter((d) => deadlineInstant(d) < now)
-              .sort((a, b) => deadlineInstant(b) - deadlineInstant(a))[0]
-          : upcoming(c, now)[0],
-      days = next ? Math.ceil((deadlineInstant(next) - now) / 86400000) : 0;
-    const isPast = next && deadlineInstant(next) < now;
-    const note = isPast
-      ? "Deadline passed"
-      : next?.abstract &&
-          deadlineInstant({ ...next, date: next.abstract }) < now
-        ? "Abstract registration has passed"
-        : days <= 1
-          ? "Less than 24 hours"
-          : `in ${days} days`;
-    return `<article class="conference-card" style="--accent:var(--${c.areas[0]})"><div class="card-body"><div class="card-area"><span class="area-dot" aria-hidden="true"></span>${escapeHTML(areas[c.areas[0]])}</div><div class="card-heading"><h2><button class="conference-name" type="button" data-open="${c.id}" aria-expanded="${openCards.has(c.id)}" aria-controls="detail-${c.id}">${escapeHTML(c.name)}</button></h2><span class="edition">${next?.edition || ""}</span></div><p class="full-name">${escapeHTML(c.fullName)}</p><p class="description">${escapeHTML(c.description)}</p><div class="date-box ${next ? "" : "unconfirmed"}"><div><strong>${next ? dateLabel(next.date) : "No upcoming date verified"}</strong><small>${next ? escapeHTML(next.label) + " · " + escapeHTML(next.timezone || "AoE") : c.deadlines.length ? "Previous deadlines in details" : "Check the official website"}</small></div>${next ? `<span class="countdown">${note}</span>` : ""}</div><div class="tags">${c.keywords.slice(0, 4).map(tag).join("")}</div><details class="conference-details" id="detail-${c.id}" data-card="${c.id}" ${openCards.has(c.id) ? "open" : ""}><summary>Topics & deadlines <span class="sr-only">for ${escapeHTML(c.name)}</span><span aria-hidden="true"> · ${c.keywords.length} topics</span></summary><div class="detail-content"><h3>All topics</h3><div class="tags">${c.keywords.map(tag).join("")}</div><h3>Submission deadlines</h3>${
-      c.deadlines.length
-        ? [...c.deadlines]
-            .sort((a, b) => a.date.localeCompare(b.date))
-            .map((d) => dateEntry(c, d, now))
-            .join("")
-        : '<p class="detail-note">No submission deadline verified in this list. See the official call for current dates.</p>'
-    }<a class="source-link" href="${escapeHTML(c.url)}" target="_blank" rel="noopener">${escapeHTML(c.name)} website ↗</a></div></details></div></article>`;
-  }
-  function calendar(conferences, now) {
-    const events = conferences
-      .flatMap((c) => c.deadlines.map((d) => ({ c, d })))
-      .filter(({ d }) =>
-        state.status === "past"
-          ? deadlineInstant(d) < now
-          : deadlineInstant(d) >= now,
+  const major = new Set(["popl", "pldi", "oopsla", "icfp"]);
+  const tag = (t) =>
+    `<button type="button" class="topic" data-topic="${escapeHTML(t)}">${escapeHTML(t)}</button>`;
+  $("area").insertAdjacentHTML(
+    "beforeend",
+    Object.entries(areas)
+      .map(([id, name]) => `<option value="${id}">${name}</option>`)
+      .join(""),
+  );
+  $("topic-options").innerHTML = [...new Set(data.flatMap((c) => c.keywords))]
+    .sort()
+    .map((t) => `<option value="${escapeHTML(t)}"></option>`)
+    .join("");
+  function links(c, d) {
+    const urls = calendarLinks(c, d);
+    return `<div class="calendar-links">${[
+      ["Google Calendar", urls.google, "fab fa-google"],
+      ["Apple Calendar", urls.ics, "fab fa-apple"],
+      ["Outlook Calendar", urls.outlook, "fab fa-microsoft"],
+      ["Download .ics", urls.ics, "fas fa-file-download"],
+      ["Official website", d.url, "fas fa-external-link-alt"],
+    ]
+      .map(
+        ([name, url, icon]) =>
+          `<a href="${escapeHTML(url)}" title="${name}" aria-label="${name}" ${url.startsWith("data:") ? `download="${c.id}-${d.date}.ics"` : 'target="_blank" rel="noopener"'}><i class="${icon}" aria-hidden="true"></i></a>`,
       )
-      .sort((a, b) => deadlineInstant(a.d) - deadlineInstant(b.d));
-    if (!events.length)
-      return `<div class="empty"><h2>No ${state.status === "past" ? "past" : "upcoming"} deadlines in this selection</h2><p>Conferences without a verified date are available in the conference view.</p><button type="button" class="text-button" data-action="cards">Browse conferences</button></div>`;
-    let month = "",
-      html = `<p class="calendar-note">${state.status === "past" ? "Past" : "Upcoming"} submission deadlines. Dates use the deadline’s stated time zone; calendar downloads convert the exact time.</p>`;
-    for (const { c, d } of events) {
-      const key = d.date.slice(0, 7);
-      if (key !== month) {
-        if (month) html += "</section>";
-        month = key;
-        html += `<section class="calendar-month"><h2>${new Intl.DateTimeFormat("en-GB", { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(d.date + "T12:00:00Z"))}</h2>`;
-      }
-      html += `<article class="calendar-event ${deadlineInstant(d) < now ? "is-past" : ""}" style="--accent:var(--${c.areas[0]})"><div class="calendar-day">${Number(d.date.slice(8))}<small>${escapeHTML(d.timezone || "AoE")}</small></div><div><h3>${escapeHTML(c.name)} ${d.edition} · ${escapeHTML(d.label)}</h3><p>${escapeHTML(c.description)}</p>${d.abstract ? `<p>Abstract registration: ${dateLabel(d.abstract)}${deadlineInstant({ ...d, date: d.abstract }) < now ? " (passed)" : ""}.</p>` : ""}${links(c, d)}</div></article>`;
-    }
-    return html + "</section>";
+      .join("")}</div>`;
   }
-  function renderTopics() {
-    const counts = new Map();
-    data
-      .filter((c) => matches(c, state))
-      .forEach((c) =>
-        c.keywords.forEach((t) => counts.set(t, (counts.get(t) || 0) + 1)),
-      );
-    const keywords = [...new Set(data.flatMap((c) => c.keywords))]
-      .filter((t) => normalize(t).includes(normalize(topicQuery)))
-      .sort(
-        (a, b) =>
-          state.topics.includes(b) - state.topics.includes(a) ||
-          (counts.get(b) || 0) - (counts.get(a) || 0) ||
-          a.localeCompare(b),
-      );
-    const displayed =
-      allTopics || topicQuery ? keywords : keywords.slice(0, 16);
-    $("topics").innerHTML = displayed.length
-      ? displayed
-          .map(
-            (t) =>
-              `<button type="button" class="topic-button" data-topic="${escapeHTML(t)}" aria-pressed="${state.topics.includes(t)}">${escapeHTML(t)}<span>${counts.get(t) || 0}</span></button>`,
-          )
-          .join("")
-      : '<p class="hint">No matching topics.</p>';
-    $("more-topics").hidden = !!topicQuery || keywords.length <= 16;
-    $("more-topics").textContent = allTopics
-      ? "Show fewer topics"
-      : `Show all ${keywords.length} topics`;
+  function showConference(id) {
+    const c = data.find((c) => c.id === id),
+      now = new Date();
+    $("conference-title").textContent = c.name;
+    $("conference-content").innerHTML =
+      `<p class="small">${escapeHTML(c.fullName)}</p><p>${escapeHTML(c.description)}</p><h3>Topics</h3><div class="topics">${c.keywords.map(tag).join("")}</div><h3>Submission deadlines</h3>${
+        c.deadlines.length
+          ? [...c.deadlines]
+              .sort((a, b) => a.date.localeCompare(b.date))
+              .map(
+                (d) =>
+                  `<div class="deadline"><strong>${d.edition} · ${escapeHTML(d.label)}</strong><p>${dateLabel(d.date)} · ${escapeHTML(d.timezone)}${deadlineInstant(d) < now ? " · passed" : ""} ${links(c, d)}</p>${d.abstract ? `<p class="small">Abstract registration: ${dateLabel(d.abstract)}${deadlineInstant({ ...d, date: d.abstract }) < now ? " (passed)" : ""}.</p>` : ""}<p class="small">Source checked ${dateLabel(d.checked)}.</p></div>`,
+              )
+              .join("")
+          : "<p>No submission date verified in this list.</p>"
+      }<p><a href="${escapeHTML(c.url)}" target="_blank" rel="noopener">Official website ↗</a></p><p class="small">Topics are a guide to the venue’s scope. Check the official call for current dates and requirements.</p>`;
+    $("conference-info").showModal();
   }
   function render() {
     const now = new Date(),
-      filtered = selectConferences(data, state, now);
-    $("areas").innerHTML = [["all", "All areas"], ...Object.entries(areas)]
-      .map(
-        ([id, label]) =>
-          `<button type="button" class="area-button" data-area="${id}" aria-pressed="${id === state.area}">${id === "all" ? "" : `<span class="area-dot" style="--accent:var(--${id})" aria-hidden="true"></span>`}${label}</button>`,
-      )
-      .join("");
+      filtered = data.filter((c) => matches(c, state, now));
     $("result-count").textContent =
       `${filtered.length} of ${data.length} conferences`;
-    $("selected").innerHTML = state.topics
+    $("selected-topics").innerHTML = state.topics
       .map(
         (t) =>
-          `<button type="button" class="tag" data-topic="${escapeHTML(t)}" aria-label="Remove ${escapeHTML(t)} filter">${escapeHTML(t)} ×</button>`,
+          `<button class="topic" type="button" data-topic="${escapeHTML(t)}" aria-label="Remove ${escapeHTML(t)} filter">${escapeHTML(t)} ×</button>`,
       )
       .join("");
-    $("cards-view").setAttribute("aria-pressed", state.view === "cards");
-    $("calendar-view").setAttribute("aria-pressed", state.view === "calendar");
-    $("sort").disabled = state.view === "calendar";
-    $("results").className =
-      state.view === "cards" && filtered.length ? "cards" : "";
-    $("results").innerHTML = !filtered.length
-      ? '<div class="empty"><h2>No conferences match</h2><p>Try a broader search or remove a topic. Selected topics must all match.</p><button type="button" class="text-button" data-action="reset">Reset filters</button></div>'
-      : state.view === "cards"
-        ? filtered.map((c) => card(c, now)).join("")
-        : calendar(filtered, now);
-    renderTopics();
-    const p = new URLSearchParams();
-    if (state.query) p.set("q", state.query);
-    if (state.area !== "all") p.set("area", state.area);
-    state.topics.forEach((t) => p.append("topic", t));
-    if (state.status !== "all") p.set("status", state.status);
-    if (state.view !== "cards") p.set("view", state.view);
-    if (state.sort !== "deadline") p.set("sort", state.sort);
-    history.replaceState(
-      null,
-      "",
-      location.pathname + location.search + (p.size ? "#" + p : ""),
-    );
-  }
-  function reset() {
-    Object.assign(state, {
-      query: "",
-      area: "all",
-      topics: [],
-      status: "all",
-      sort: "deadline",
-    });
-    $("search").value = "";
-    $("status").value = "all";
-    $("sort").value = "deadline";
-    topicQuery = "";
-    $("topic-search").value = "";
-    render();
-  }
-  doc.addEventListener("click", (event) => {
-    const button = event.target.closest("button");
-    if (!button) return;
-    if (button.dataset.topic) {
-      const t = button.dataset.topic;
-      state.topics = state.topics.includes(t)
-        ? state.topics.filter((x) => x !== t)
-        : [...state.topics, t];
-      render();
-      const target = [...doc.querySelectorAll("[data-topic]")].find(
-        (el) => el.dataset.topic === t,
+    $("reset").hidden =
+      !state.query &&
+      state.area === "all" &&
+      state.status === "all" &&
+      !state.topics.length;
+    const events = filtered
+      .flatMap((c) =>
+        c.deadlines.map((d) => ({ c, d, position: yearPosition(d.date) })),
+      )
+      .filter(({ d }) =>
+        state.status === "past"
+          ? deadlineInstant(d) < now
+          : state.status === "upcoming"
+            ? deadlineInstant(d) >= now
+            : true,
+      )
+      .sort(
+        (a, b) => b.position - a.position || a.c.name.localeCompare(b.c.name),
       );
-      target?.focus();
-    } else if (button.dataset.area) {
-      state.area = button.dataset.area;
-      render();
-      doc.querySelector(`[data-area="${state.area}"]`)?.focus();
-    } else if (button.dataset.open) {
-      const detail = $("detail-" + button.dataset.open);
-      detail.open = !detail.open;
-    } else if (button.dataset.action === "reset" || button.id === "reset")
-      reset();
-    else if (button.dataset.action === "cards" || button.id === "cards-view") {
-      state.view = "cards";
-      render();
-    } else if (button.id === "calendar-view") {
-      state.view = "calendar";
-      render();
-    } else if (button.id === "more-topics") {
-      allTopics = !allTopics;
-      renderTopics();
+    const timeline = $("timeline");
+    timeline.innerHTML = '<div id="mid"></div>';
+    let move = 0,
+      width = 350;
+    events.forEach(({ c, d, position }, i) => {
+      const title = `${c.name}'${String(d.edition).slice(-2)}${/^R\d/.test(d.label) ? " " + d.label : ""}`;
+      move =
+        i > 0 && Math.abs(events[i - 1].position - position) < 7 / 365
+          ? move + title.length
+          : 0;
+      const lineWidth = 110 + 9 * move;
+      width = Math.max(width, 70 + lineWidth + 12);
+      const days = (deadlineInstant(d) - now) / 86400000;
+      const row = doc.createElement("div");
+      row.className = `conf ${categories[c.id === "tacas" ? "systems" : c.areas[0]]}${major.has(c.id) ? " main" : ""}${days < 0 ? " past" : ""}`;
+      row.style.cssText = `position:absolute;top:${100 * position}%;width:${lineWidth}px;z-index:${events.length - i}`;
+      row.innerHTML = `<button type="button" data-conference="${c.id}" aria-haspopup="dialog">${escapeHTML(title)}</button><div class="timehover"><span>${dateLabel(d.date)} · ${escapeHTML(d.timezone)} · ${Math.abs(days).toFixed(1)} days ${days < 0 ? "ago" : "to go"} ${links(c, d)}</span></div>`;
+      timeline.appendChild(row);
+    });
+    timeline.style.width = width + "px";
+    for (let month = 0; month < 12; month++) {
+      const line = doc.createElement("div");
+      line.className = "month";
+      line.style.cssText = `position:absolute;top:${(100 * (Date.UTC(2022, month, 1) - Date.UTC(2022, 0, 1))) / (365 * 86400000)}%`;
+      line.textContent = new Intl.DateTimeFormat("default", {
+        month: "long",
+        timeZone: "UTC",
+      }).format(new Date(Date.UTC(2022, month, 1)));
+      timeline.appendChild(line);
     }
-  });
-  doc.addEventListener(
-    "toggle",
-    (event) => {
-      const id = event.target.dataset?.card;
-      if (id) {
-        if (event.target.open) openCards.add(id);
-        else openCards.delete(id);
-        doc
-          .querySelector(`[data-open="${id}"]`)
-          ?.setAttribute("aria-expanded", event.target.open);
-      }
-    },
-    true,
-  );
+    const marker = doc.createElement("div");
+    marker.className = "now";
+    marker.style.cssText = `position:absolute;top:${yearPosition(now.toISOString().slice(0, 10)) * 100}%`;
+    marker.title = "Today";
+    timeline.appendChild(marker);
+    $("empty").hidden = events.length > 0;
+    $("timeline-scroll").hidden = events.length === 0;
+    const undated = filtered.filter((c) => !c.deadlines.length);
+    $("undated").hidden = !undated.length;
+    $("undated").querySelector("summary").textContent =
+      `Conferences without a verified deadline (${undated.length})`;
+    $("undated-list").innerHTML = undated
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(
+        (c) =>
+          `<button type="button" class="conference-button" data-conference="${c.id}" aria-haspopup="dialog">${escapeHTML(c.name)}</button>`,
+      )
+      .join(" · ");
+    if (state.query || state.topics.length || state.area !== "all")
+      $("undated").open = true;
+  }
+  function toggleTopic(topic) {
+    state.topics = state.topics.includes(topic)
+      ? state.topics.filter((t) => t !== topic)
+      : [...state.topics, topic];
+    if ($("conference-info").open) $("conference-info").close();
+    render();
+    $("search").focus();
+  }
   $("search").addEventListener("input", (e) => {
     state.query = e.target.value;
     render();
   });
-  $("topic-search").addEventListener("input", (e) => {
-    topicQuery = e.target.value;
-    renderTopics();
-  });
-  $("status").addEventListener("change", (e) => {
-    state.status = e.target.value;
+  ["area", "status"].forEach((id) =>
+    $(id).addEventListener("change", (e) => {
+      state[id] = e.target.value;
+      render();
+    }),
+  );
+  $("reset").addEventListener("click", () => {
+    Object.assign(state, { query: "", area: "all", status: "all", topics: [] });
+    $("search").value = "";
+    $("area").value = "all";
+    $("status").value = "all";
+    $("topic-filter").value = "";
+    $("undated").open = false;
     render();
   });
-  $("sort").addEventListener("change", (e) => {
-    state.sort = e.target.value;
-    render();
-  });
-  doc.addEventListener("keydown", (e) => {
-    if (
-      e.key === "/" &&
-      !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName) &&
-      !e.target.isContentEditable &&
-      !e.metaKey &&
-      !e.ctrlKey &&
-      !e.altKey
-    ) {
-      e.preventDefault();
-      $("search").focus();
+  $("add-topic").addEventListener("click", () => {
+    const topic = $("topic-filter").value;
+    if (data.some((c) => c.keywords.includes(topic))) {
+      toggleTopic(topic);
+      $("topic-filter").value = "";
+      $("topic-filter").setCustomValidity("");
+    } else {
+      $("topic-filter").setCustomValidity("Choose a topic from the list.");
+      $("topic-filter").reportValidity();
     }
+  });
+  $("topic-filter").addEventListener("input", () =>
+    $("topic-filter").setCustomValidity(""),
+  );
+  $("close-info").addEventListener("click", () => $("conference-info").close());
+  doc.addEventListener("click", (e) => {
+    const button = e.target.closest("button");
+    if (button?.dataset.conference) showConference(button.dataset.conference);
+    if (button?.dataset.topic) toggleTopic(button.dataset.topic);
   });
   render();
 }
 if (typeof document !== "undefined") {
   fetch("conferences.json")
-    .then((response) => {
-      if (!response.ok) throw new Error("Data unavailable");
-      return response.json();
+    .then((r) => {
+      if (!r.ok) throw new Error();
+      return r.json();
     })
     .then((data) => startApp(data))
     .catch(() => {
       document.getElementById("result-count").textContent =
-        "Conferences could not be loaded.";
-      document.getElementById("results").innerHTML =
-        '<div class="empty"><h2>Could not load the conference list</h2><p>Please reload the page to try again.</p><a href="conferences.json">Open conference data</a></div>';
+        "Could not load conferences. Please reload to try again.";
     });
 }
