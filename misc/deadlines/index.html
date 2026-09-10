@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="style.css?v=20260910">
-  <script type="module" src="app.mjs?v=20260910"></script>
+  <link rel="stylesheet" href="style.css?v=20260910b">
+  <script type="module" src="app.mjs?v=20260910b"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PL deadline calendar</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
@@ -170,11 +170,8 @@
     <h1><i class="fas fa-calendar-alt" aria-hidden="true"></i> PL deadline calendar</h1>
     <p>Not sure where to submit your next paper? This calendar shows upcoming deadlines for PL conferences. Hover for calendar links; click a conference for its description and topics.</p>
 
-    <p>Paper submission deadlines, at end of day Anywhere on Earth (UTC−12). Dates checked: September 9, 2026.</p>
-
     <div class="search-controls">
-      <label class="sr-only" for="search">Search conferences and topics</label>
-      <input type="search" id="search" placeholder="Search conferences or topics…">
+      <input type="search" id="search" aria-label="Search conferences" placeholder="Search conferences or topics…">
       <details id="filters"><summary>Filters</summary>
         <label>Area <select id="area"><option value="all">All areas</option></select></label>
         <label>Deadlines <select id="status"><option value="all">All deadlines</option><option value="upcoming">Upcoming</option><option value="past">Past</option><option value="unconfirmed">No upcoming date verified</option></select></label>
@@ -183,7 +180,7 @@
         <p class="small">Selected topics must all match.</p>
       </details>
       <div id="selected-topics"></div>
-      <p class="small"><span id="result-count" role="status">Loading conferences…</span> <button id="reset" type="button" hidden>Clear filters</button></p>
+      <p class="small"><span id="load-error" role="alert" hidden></span><button id="reset" type="button" hidden>Clear filters</button></p>
     </div>
     <div id="timeline-scroll"><div id="timeline"><div id="mid"></div></div></div>
     <p id="empty" class="small" hidden>No deadlines match these filters.</p>

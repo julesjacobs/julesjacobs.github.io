@@ -57,7 +57,9 @@ test("search matches descriptions, full names, and topics together with area and
 });
 test("deadline filters distinguish missing dates, past dates, and multiple rounds", () => {
   assert(matches(get("icalp"), { status: "unconfirmed" }, now));
-  assert(!matches(get("icalp"), { status: "past" }, now));
+  assert(matches(get("icalp"), { status: "past" }, now));
+  assert(matches({ ...get("icalp"), deadlines: [] }, { status: "unconfirmed" }, now));
+  assert(!matches({ ...get("icalp"), deadlines: [] }, { status: "past" }, now));
   assert(matches(get("cgo"), { status: "past" }, now));
   assert(matches(get("cgo"), { status: "upcoming" }, now));
   assert.equal(upcoming(get("oopsla"), now).length, 2);

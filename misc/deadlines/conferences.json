@@ -603,7 +603,18 @@
       "regular expressions"
     ],
     "url": "https://eatcs.org/index.php/icalp",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2026-02-06",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://icalp2026.cs.rhul.ac.uk/",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-02-03",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "fscd",
@@ -632,7 +643,18 @@
       "formalization"
     ],
     "url": "https://fscd-cade.science.ru.nl/",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2026-01-30",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://fscd2026.github.io/CFP/",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-01-23",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "itp",
@@ -661,8 +683,19 @@
       "mechanized metatheory",
       "certified programming"
     ],
-    "url": "https://itp-conference.github.io/",
-    "deadlines": []
+    "url": "https://itp-conference-2026.github.io/",
+    "deadlines": [
+      {
+        "date": "2026-02-19",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://itp-conference-2026.github.io/",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-02-12",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "cade",
@@ -691,7 +724,19 @@
       "saturation"
     ],
     "url": "https://fscd-cade.science.ru.nl/",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2025-02-24",
+        "edition": 2025,
+        "label": "Paper submission",
+        "url": "https://www.dhbw-stuttgart.de/cade-30/calls/",
+        "timezone": "Time not specified",
+        "checked": "2026-09-10",
+        "abstract": "2025-02-17",
+        "note": "Previous edition; next deadline not yet verified.",
+        "timeUnverified": true
+      }
+    ]
   },
   {
     "id": "ijcar",
@@ -719,8 +764,19 @@
       "logical frameworks",
       "resolution"
     ],
-    "url": "https://ijcar.org/conferences",
-    "deadlines": []
+    "url": "https://www.floc26.org/ijcar",
+    "deadlines": [
+      {
+        "date": "2026-02-15",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://www.floc26.org/ijcar",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-02-06",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "vmcai",
@@ -788,7 +844,17 @@
       "tool integration"
     ],
     "url": "https://conf.researchr.org/home/fm-2026",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2025-12-02",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://conf.researchr.org/track/fm-2026/fm-2026-research-paper",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "atva",
@@ -858,7 +924,16 @@
       "lower bounds"
     ],
     "url": "https://www.siam.org/conferences-events/siam-conferences/soda27/",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2026-07-09",
+        "edition": 2027,
+        "label": "Paper submission",
+        "url": "https://www.siam.org/conferences-events/siam-conferences/soda27/submissions/",
+        "timezone": "AoE",
+        "checked": "2026-09-10"
+      }
+    ]
   },
   {
     "id": "stacs",
@@ -1003,7 +1078,18 @@
       "decision procedures"
     ],
     "url": "https://fmcad.org/FMCAD26/",
-    "deadlines": []
+    "deadlines": [
+      {
+        "date": "2026-05-11",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://fmcad.org/FMCAD26/important_dates",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-05-04",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "sat",
@@ -1033,8 +1119,19 @@
       "knowledge compilation",
       "lower bounds"
     ],
-    "url": "https://satisfiability.org/",
-    "deadlines": []
+    "url": "https://satisfiability.org/SAT26/pages/dates.html",
+    "deadlines": [
+      {
+        "date": "2026-03-10",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://satisfiability.org/SAT26/pages/dates.html",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "abstract": "2026-03-02",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "csl",
@@ -1143,8 +1240,18 @@
       "alias analysis",
       "garbage collection"
     ],
-    "url": "https://conf.researchr.org/series/CC",
-    "deadlines": []
+    "url": "https://conf.researchr.org/track/CC-2026/calls",
+    "deadlines": [
+      {
+        "date": "2025-11-11",
+        "edition": 2026,
+        "label": "Paper submission",
+        "url": "https://conf.researchr.org/track/CC-2026/calls",
+        "timezone": "AoE",
+        "checked": "2026-09-10",
+        "note": "Previous edition; next deadline not yet verified."
+      }
+    ]
   },
   {
     "id": "cgo",

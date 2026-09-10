@@ -149,6 +149,7 @@ export function startApp(data, doc = document) {
     .map((t) => `<option value="${escapeHTML(t)}"></option>`)
     .join("");
   function links(c, d) {
+    if (d.timeUnverified) return `<a href="${escapeHTML(d.url)}" target="_blank" rel="noopener">Official website ↗</a>`;
     const urls = calendarLinks(c, d);
     return `<div class="calendar-links">${[
       ["Google Calendar", urls.google, "fab fa-google"],
@@ -174,7 +175,7 @@ export function startApp(data, doc = document) {
               .sort((a, b) => a.date.localeCompare(b.date))
               .map(
                 (d) =>
-                  `<div class="deadline"><strong>${d.edition} · ${escapeHTML(d.label)}</strong><p>${dateLabel(d.date)} · ${escapeHTML(d.timezone)}${deadlineInstant(d) < now ? " · passed" : ""} ${links(c, d)}</p>${d.abstract ? `<p class="small">Abstract registration: ${dateLabel(d.abstract)}${deadlineInstant({ ...d, date: d.abstract }) < now ? " (passed)" : ""}.</p>` : ""}<p class="small">Source checked ${dateLabel(d.checked)}.</p></div>`,
+                  `<div class="deadline"><strong>${d.edition} · ${escapeHTML(d.label)}</strong><p>${dateLabel(d.date)} · ${escapeHTML(d.timezone)}${deadlineInstant(d) < now ? " · passed" : ""} ${links(c, d)}</p>${d.abstract ? `<p class="small">Abstract registration: ${dateLabel(d.abstract)}${deadlineInstant({ ...d, date: d.abstract }) < now ? " (passed)" : ""}.</p>` : ""}${d.note ? `<p class="small">${escapeHTML(d.note)}</p>` : ""}<p class="small">Source checked ${dateLabel(d.checked)}.</p></div>`,
               )
               .join("")
           : "<p>No submission date verified in this list.</p>"
@@ -184,8 +185,6 @@ export function startApp(data, doc = document) {
   function render() {
     const now = new Date(),
       filtered = data.filter((c) => matches(c, state, now));
-    $("result-count").textContent =
-      `${filtered.length} of ${data.length} conferences`;
     $("selected-topics").innerHTML = state.topics
       .map(
         (t) =>
@@ -312,14 +311,15 @@ export function startApp(data, doc = document) {
   render();
 }
 if (typeof document !== "undefined") {
-  fetch("conferences.json")
+  fetch("conferences.json?v=20260910b")
     .then((r) => {
       if (!r.ok) throw new Error();
       return r.json();
     })
     .then((data) => startApp(data))
     .catch(() => {
-      document.getElementById("result-count").textContent =
+      document.getElementById("load-error").hidden = false;
+      document.getElementById("load-error").textContent =
         "Could not load conferences. Please reload to try again.";
     });
 }
