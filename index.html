@@ -1143,8 +1143,9 @@
       function update() {
         queued = false;
         var current = -1;
+        var line = window.innerHeight * 0.4;
         for (var i = 0; i < heads.length; i++) {
-          if (heads[i] && heads[i].getBoundingClientRect().top < 120) current = i;
+          if (heads[i] && heads[i].getBoundingClientRect().top < line) current = i;
         }
         var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
         if (atEnd) current = heads.length - 1;
