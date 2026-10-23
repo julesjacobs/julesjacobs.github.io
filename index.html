@@ -100,6 +100,24 @@
       color: var(--link);
     }
 
+    header .role .sep {
+      color: var(--faint);
+    }
+
+    header .role a,
+    #sections a {
+      white-space: nowrap;
+    }
+
+    header .tools {
+      margin: -4px 0 10px 0;
+      font-size: 15px;
+    }
+
+    header .tools .sep {
+      color: var(--faint);
+    }
+
     #desc {
       color: var(--fg);
     }
@@ -412,14 +430,8 @@
   <header>
     <div id="panel">
       <h1>Jules Jacobs</h1>
-      <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
-      <nav id="links">
-        <a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a>
-        <a href="https://github.com/julesjacobs">GitHub</a>
-        <a href="https://dblp.org/pid/283/3420.html">DBLP</a>
-        <a href="misc/deadlines/">PL deadlines</a>
-        <a href="https://lab.julesjacobs.com/review/">Review tool</a>
-      </nav>
+      <p class="role">Assistant Professor, ETH Zürich<span class="sep"> · </span><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a><span class="sep"> · </span><a href="https://github.com/julesjacobs">GitHub</a><span class="sep"> · </span><a href="https://dblp.org/pid/283/3420.html">DBLP</a></p>
+      <p class="tools"><a href="misc/deadlines/">PL deadlines</a><span class="sep"> · </span><a href="https://lab.julesjacobs.com/review/">Review tool</a></p>
       <nav id="sections" aria-label="Sections">
         <a href="#research">Research</a> ·
         <a href="#students">Students</a> ·
