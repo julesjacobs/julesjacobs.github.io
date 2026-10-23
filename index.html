@@ -402,6 +402,10 @@
       overflow: hidden;
     }
 
+    #photos picture {
+      display: block;
+    }
+
     #photos img {
       display: block;
       width: 100%;
@@ -541,7 +545,7 @@
       </div>
     </div>
     <div id="profile">
-      <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules Jacobs" />
+      <img id="pic" src="images/jules.webp" width="150" height="150" alt="Jules Jacobs" />
       <ul id="contact">
         <li><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a></li>
         <li><a href="https://github.com/julesjacobs">GitHub</a> · <a href="https://dblp.org/pid/283/3420.html">DBLP</a></li>
@@ -552,7 +556,7 @@
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <article class="project">
-        <div class="figure"><img src="images/projects/modes.png" width="960" height="720" decoding="async" alt="What Vox adds to OxCaml's modes: a totality axis (partial, total) for specs and lemmas, a ghostliness axis (ghost, real) for erased proofs, and the void layout for free ghost data." /></div>
+        <div class="figure"><img src="images/projects/modes.webp" width="960" height="720" decoding="async" alt="What Vox adds to OxCaml's modes: a totality axis (partial, total) for specs and lemmas, a ghostliness axis (ghost, real) for erased proofs, and the void layout for free ghost data." /></div>
         <div class="body">
           <h3>Safe and verified systems programming</h3>
           <p><a href="https://github.com/oxcaml/oxcaml">OxCaml</a> is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation. As AI agents write more of our code, such specifications let people stay in charge of what that code does.</p>
@@ -565,7 +569,7 @@
         </div>
       </article>
       <article class="project">
-        <div class="figure"><img src="images/projects/katch.png" width="762" height="645" decoding="async" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
+        <div class="figure"><img src="images/projects/katch.webp" width="762" height="645" decoding="async" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
         <div class="body">
           <h3>Network verification</h3>
           <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. Google's open-source <a href="https://github.com/google/netkat">NetKAT implementation</a> builds its packet sets and transformers on <a href="#katch">KATch</a>. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
@@ -578,7 +582,7 @@
         </div>
       </article>
       <article class="project">
-        <div class="figure"><img src="images/projects/cgraphs.png" width="706" height="439" decoding="async" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." /></div>
+        <div class="figure"><img src="images/projects/cgraphs.webp" width="706" height="439" decoding="async" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." /></div>
         <div class="body">
           <h3>Deadlock freedom and verified concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
@@ -591,7 +595,7 @@
         </div>
       </article>
       <article class="project">
-        <div class="figure"><img src="images/projects/slice.png" width="840" height="460" decoding="async" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." /></div>
+        <div class="figure"><img src="images/projects/slice.webp" width="840" height="460" decoding="async" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." /></div>
         <div class="body">
           <h3>Probabilistic programming</h3>
           <p>When continuous random values only matter through comparisons with constants, <a href="#slice">Slice</a> rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. In <a href="#paradoxes">Paradoxes of Probabilistic Programming</a>, I showed how infinitesimal probabilities resolve the paradoxes that arise when a program conditions on an event of probability zero.</p>
@@ -1184,16 +1188,16 @@
       <h2 id="photos-heading">Photos</h2>
       <p>Some of my photos. There are more in the <a href="photos/">gallery</a>.</p>
       <div id="photos">
-        <a href="photos/"><img src="images/photos-small/1meer.jpg" width="400" height="300" loading="lazy" decoding="async" alt="A clear turquoise mountain lake with a large boulder" /></a>
-        <a href="photos/"><img src="images/photos-small/2paarden_NL.jpg" width="400" height="300" loading="lazy" decoding="async" alt="Wild horses at a pond in a nature reserve" /></a>
-        <a href="photos/"><img src="images/photos-small/3bergrood.jpg" width="400" height="300" loading="lazy" decoding="async" alt="A mountain ridge with reddish grass under a blue sky" /></a>
-        <a href="photos/"><img src="images/photos-small/4hei_NL.jpg" width="400" height="300" loading="lazy" decoding="async" alt="Flowering heather under a cloudy sky" /></a>
-        <a href="photos/"><img src="images/photos-small/5kasteel_NL.jpg" width="400" height="300" loading="lazy" decoding="async" alt="A castle behind its moat" /></a>
-        <a href="photos/"><img src="images/photos-small/66koud_NL.jpg" width="400" height="300" loading="lazy" decoding="async" alt="Frosted trees along a path on a cold morning" /></a>
-        <a href="photos/"><img src="images/photos-small/6berg.jpg" width="400" height="300" loading="lazy" decoding="async" alt="Rocky mountain slopes above a forest" /></a>
-        <a href="photos/"><img src="images/photos-small/bes.jpg" width="400" height="300" loading="lazy" decoding="async" alt="A branch with red berries in front of a lake" /></a>
-        <a href="photos/"><img src="images/photos-small/6boog.jpg" width="400" height="300" loading="lazy" decoding="async" alt="A rock arch over clear green water" /></a>
-        <a href="photos/"><img src="images/photos-small/6fungizon_NL.jpg" width="400" height="300" loading="lazy" decoding="async" alt="Small mushrooms growing on a mossy log" /></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/1meer.avif" type="image/avif" /><img src="images/photos-small/1meer.webp" width="400" height="300" loading="lazy" decoding="async" alt="A clear turquoise mountain lake with a large boulder" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/2paarden_NL.avif" type="image/avif" /><img src="images/photos-small/2paarden_NL.webp" width="400" height="300" loading="lazy" decoding="async" alt="Wild horses at a pond in a nature reserve" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/3bergrood.avif" type="image/avif" /><img src="images/photos-small/3bergrood.webp" width="400" height="300" loading="lazy" decoding="async" alt="A mountain ridge with reddish grass under a blue sky" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/4hei_NL.avif" type="image/avif" /><img src="images/photos-small/4hei_NL.webp" width="400" height="300" loading="lazy" decoding="async" alt="Flowering heather under a cloudy sky" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/5kasteel_NL.avif" type="image/avif" /><img src="images/photos-small/5kasteel_NL.webp" width="400" height="300" loading="lazy" decoding="async" alt="A castle behind its moat" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/66koud_NL.avif" type="image/avif" /><img src="images/photos-small/66koud_NL.webp" width="400" height="300" loading="lazy" decoding="async" alt="Frosted trees along a path on a cold morning" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/6berg.avif" type="image/avif" /><img src="images/photos-small/6berg.webp" width="400" height="300" loading="lazy" decoding="async" alt="Rocky mountain slopes above a forest" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/bes.avif" type="image/avif" /><img src="images/photos-small/bes.webp" width="400" height="300" loading="lazy" decoding="async" alt="A branch with red berries in front of a lake" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/6boog.avif" type="image/avif" /><img src="images/photos-small/6boog.webp" width="400" height="300" loading="lazy" decoding="async" alt="A rock arch over clear green water" /></picture></a>
+        <a href="photos/"><picture><source srcset="images/photos-small/6fungizon_NL.avif" type="image/avif" /><img src="images/photos-small/6fungizon_NL.webp" width="400" height="300" loading="lazy" decoding="async" alt="Small mushrooms growing on a mossy log" /></picture></a>
       </div>
     </section>
   </div>
