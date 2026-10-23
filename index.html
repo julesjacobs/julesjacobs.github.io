@@ -313,13 +313,12 @@
 
     .project {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 250px;
-      gap: 0 28px;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 0 24px;
       align-items: start;
     }
 
     .project .figure {
-      order: 2;
       padding: 4px 0;
     }
 
@@ -355,10 +354,6 @@
       .project {
         grid-template-columns: minmax(0, 1fr);
         gap: 10px;
-      }
-
-      .project .figure {
-        order: 0;
       }
 
       .project img {
@@ -410,6 +405,7 @@
     </ul>
 
     <h2 id="research">Research projects</h2>
+    <p>My research falls into four areas. For each, the papers, code and people involved are listed below the description.</p>
     <div id="projects">
       <article class="project">
         <div class="figure"><img src="images/projects/modes.png" width="960" height="720" loading="lazy" alt="What Vox adds to OxCaml's modes: a totality axis (partial, total) for specs and lemmas, a ghostliness axis (ghost, real) for erased proofs, and the void layout for free ghost data." /></div>
