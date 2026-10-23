@@ -409,13 +409,12 @@
         <div class="body">
           <h3>Safe and verified programming in OxCaml</h3>
           <p>OxCaml is Jane Street's extension of OCaml for safe low-level and parallel programming. Its modes track whether a value can escape its stack frame or be shared between threads, which gives safe stack allocation and data-race freedom. Mode crossing lets integers, immutable data and other suitable types move to a stronger mode automatically, which removes many annotations; it is implemented in the OxCaml compiler and proved sound in Rocq.</p>
-          <p>Vox is a fork of the OxCaml compiler that checks specifications at compile time. Refinement types are proved by Z3, proofs are written as ghost code that is erased before code generation, and uniqueness modes make ghost ownership tokens affine. With specifications, people can check what a program does by reading its specs instead of every line, which matters more as more code is written by AI agents.</p>
+          <p><a href="vox/">Vox</a> is a fork of the OxCaml compiler that checks specifications at compile time. Refinement types are proved by Z3, proofs are written as ghost code that is erased before code generation, and uniqueness modes make ghost ownership tokens affine. With specifications, people can check what a program does by reading its specs instead of every line, which matters more as more code is written by AI agents.</p>
           <p class="with">With <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>.</p>
           <div class="links">
+            <a class="button tool" href="vox/">Vox</a>
             <a class="button tool" href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>
             <a class="button tool" href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>
-            <a class="button tool" href="https://lab.julesjacobs.com/vox/playground/">Vox playground</a>
-            <a class="button tool" href="https://lab.julesjacobs.com/vox/catalogue/">Vox verified programs</a>
             <a class="button tool" href="misc/oxcaml/playground/">OxCaml playground</a>
             <a class="button tool" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
             <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>

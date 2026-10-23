@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Vox is a fork of the OxCaml compiler that checks specifications at compile time: refinement types, ghost code and ownership." />
+  <meta property="og:title" content="Vox" />
+  <meta property="og:description" content="Refinement types, ghost code and ownership for OxCaml." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <title>Vox · Jules Jacobs</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #262a30;
+      --muted: #5f6672;
+      --faint: #8a909a;
+      --line: #e3e5e9;
+      --panel: #f3f4f6;
+      --link: hsl(213, 50%, 38%);
+      --link-hover-bg: hsl(213, 50%, 93%);
+      color-scheme: light;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      color: var(--fg);
+      background-color: var(--bg);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 48px 16px;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    a:hover {
+      background: var(--link-hover-bg);
+    }
+
+    .back {
+      font-size: 15px;
+    }
+
+    h1 {
+      font-size: 34px;
+      line-height: 1.15;
+      margin: 18px 0 4px 0;
+    }
+
+    .subtitle {
+      margin: 0 0 18px 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 34px 0 10px 0;
+    }
+
+    p {
+      margin: 0 0 12px 0;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 8px 0;
+    }
+
+    .buttons a {
+      border: 1px solid var(--link);
+      background-color: var(--link);
+      color: #ffffff;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-size: 15px;
+    }
+
+    .buttons a:hover {
+      background-color: hsl(213, 55%, 28%);
+      border-color: hsl(213, 55%, 28%);
+    }
+
+    pre {
+      background-color: var(--panel);
+      border-radius: 8px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0 0 8px 0;
+    }
+
+    code {
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+
+    pre code {
+      font-size: 1em;
+    }
+
+    .kw {
+      color: hsl(213, 55%, 38%);
+      font-weight: 600;
+    }
+
+    .ref {
+      color: hsl(28, 75%, 38%);
+    }
+
+    .caption {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
+    ul.demos {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    ul.demos b {
+      font-weight: 600;
+    }
+
+    ul.demos span {
+      color: var(--muted);
+    }
+
+    ol.steps {
+      padding-left: 1.3em;
+      margin: 0 0 12px 0;
+    }
+
+    ol.steps li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <a class="back" href="/">← Jules Jacobs</a>
+  <h1>Vox</h1>
+  <p class="subtitle">Refinement types, ghost code and ownership for OxCaml</p>
+  <div class="buttons">
+    <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Code on GitHub</a>
+    <a href="https://lab.julesjacobs.com/vox/talk/">Talk</a>
+  </div>
+
+  <h2>What it is</h2>
+  <p>Vox is a fork of the <a href="https://github.com/oxcaml/oxcaml">OxCaml</a> compiler that checks specifications at compile time. A type can carry a refinement, such as <code>{r : int | lo &lt;= r &amp;&amp; r &lt;= hi}</code>, and the compiler turns each function's refinements into verification conditions that an SMT solver must prove. Proofs are written as ghost code, which the compiler checks and then erases before code generation. OxCaml's uniqueness modes make ghost ownership tokens affine, and these tokens are how Vox specifies mutable state such as cells, hash tables and communication between domains.</p>
+  <p>Specifications let people check what a program does by reading its specifications instead of every line of its implementation. That matters more as more code is written by AI agents.</p>
+
+  <h2>An example</h2>
+<pre><code><span class="kw">let</span> (clamp @ total) (lo : int) (hi : <span class="ref">{h : int | lo &lt;= h}</span>) (x : int) :
+    <span class="ref">{r : int | lo &lt;= r &amp;&amp; r &lt;= hi}</span> =
+  <span class="kw">if</span> x &lt; lo <span class="kw">then</span> lo <span class="kw">else if</span> x &gt; hi <span class="kw">then</span> hi <span class="kw">else</span> x
+
+<span class="kw">let</span> bounded (x : int) : <span class="ref">{r : int | 0 &lt;= r &amp;&amp; r &lt;= 10}</span> =
+  clamp 0 10 x</code></pre>
+  <p class="caption">The caller must pass ordered bounds, and the function guarantees a result within them. The solver proves both from the code; nothing is checked at run time, and the client calls <code>clamp</code> as usual. From <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/bounded_clamp.ml">bounded_clamp.ml</a>.</p>
+
+  <h2>Verified programs</h2>
+  <p>Larger examples in the repository, with what is proved about each:</p>
+  <ul class="demos">
+    <li><b>Flat hash table.</b> <span>A mutable hash table proved to behave as a finite map.</span></li>
+    <li><b>CDCL SAT solver.</b> <span>Terminates on every formula within its size limits; <code>Sat</code> comes with a satisfying assignment, and <code>Unsat</code> means none exists.</span></li>
+    <li><b>Hindley–Milner type inference.</b> <span>Sound and principal with respect to a declarative typing relation.</span></li>
+    <li><b>Compiler from a small ML to WebAssembly.</b> <span>Emits valid bytes, runs safely and agrees with the source semantics.</span></li>
+    <li><b>LZ4 block compression.</b> <span>Compressor and decoder equal to a specification, with a round-trip theorem.</span></li>
+    <li><b>Textbook RSA.</b> <span>Modular exponentiation on unbounded integers and the RSA round trip.</span></li>
+    <li><b>Online union–find.</b> <span>Implements a pure partition model, with amortized cost bounds.</span></li>
+    <li><b>Myers diff.</b> <span>Produces an edit script with the minimum number of insertions and deletions.</span></li>
+    <li><b>E-graphs.</b> <span>Equalities come with a derivation from the caller's rewrite rules.</span></li>
+    <li><b>One-shot channels.</b> <span>A receiver in another domain takes the payload only after the sender has put it there.</span></li>
+  </ul>
+
+  <h2>Try it</h2>
+  <ol class="steps">
+    <li>Check out the <a href="https://github.com/julesjacobs/oxcaml/tree/vox"><code>vox</code> branch</a> and configure it with a local install prefix, as described in the <a href="https://github.com/julesjacobs/oxcaml/blob/vox/README.md">README</a>.</li>
+    <li>Install <a href="https://github.com/Z3Prover/z3">Z3</a> and put it on your <code>PATH</code>.</li>
+    <li>Run <code>./dev init</code>, then <code>./dev test vox/bounded_clamp.ml</code>.</li>
+  </ol>
+  <p>The <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/README.md">tour of the tests</a> walks through the examples, and <a href="https://github.com/julesjacobs/oxcaml/blob/vox/design-docs/verification-programming.md">Verification programming</a> explains how to write contracts and reusable proofs. When the solver rejects a goal, compile with <code>-dvc</code> to see the goal, its assumptions and the solver's model.</p>
+
+  <h2>Related</h2>
+  <p>Vox builds on OxCaml's modes; our paper <a href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">Mode Crossing</a> (ICFP'26) is about how values of suitable types move between modes. Vox is research software under active development.</p>
+</body>
+</html>
