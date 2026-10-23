@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Jules Jacobs is an Assistant Professor in Computer Science at ETH Zürich, working on programming languages and formal verification." />
+  <link rel="canonical" href="https://julesjacobs.com/" />
+  <meta property="og:url" content="https://julesjacobs.com/" />
   <meta property="og:title" content="Jules Jacobs" />
   <meta property="og:description" content="Assistant Professor at ETH Zürich. Programming languages and formal verification." />
   <meta property="og:image" content="https://julesjacobs.com/images/jules.jpg" />
@@ -12,6 +14,41 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/images/ico/favicon-16x16.png" />
   <link rel="manifest" href="/images/ico/manifest.json" />
   <title>Jules Jacobs</title>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Jules Jacobs",
+      "url": "https://julesjacobs.com/",
+      "image": "https://julesjacobs.com/images/jules.jpg",
+      "email": "mailto:jules.jacobs@inf.ethz.ch",
+      "jobTitle": "Assistant Professor of Computer Science",
+      "worksFor": {
+        "@type": "CollegeOrUniversity",
+        "name": "ETH Zürich",
+        "url": "https://ethz.ch/"
+      },
+      "alumniOf": {
+        "@type": "CollegeOrUniversity",
+        "name": "Radboud University"
+      },
+      "sameAs": [
+        "https://orcid.org/0000-0003-1976-3182",
+        "https://github.com/julesjacobs",
+        "https://dblp.org/pid/283/3420.html"
+      ],
+      "knowsAbout": [
+        "Programming languages",
+        "Formal verification",
+        "Type systems",
+        "Separation logic",
+        "Session types",
+        "Network verification",
+        "Probabilistic programming",
+        "OxCaml"
+      ]
+    }
+  </script>
   <style>
     :root {
       --bg: #ffffff;
@@ -235,6 +272,12 @@
 
     .pub.roles td {
       padding-bottom: 10px;
+    }
+
+    #main p.bibfile {
+      font-size: 14px;
+      color: var(--faint);
+      margin-bottom: 16px;
     }
 
     #publications tr td:first-child {
@@ -576,6 +619,7 @@
     <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
 
     <h2 id="publications-heading">Publications</h2>
+    <p class="bibfile">BibTeX for all papers: <a href="publications.bib">publications.bib</a></p>
     <table class="pub" id="publications">
       <tr id="slice">
         <td>OOPSLA'26</td>
@@ -585,6 +629,7 @@
           <div class="info">
             <div class="authors"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <span class="me">Jules Jacobs</span>, <a href="https://kevinbatz.github.io/">Kevin Batz</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a></div>
             <a class="button" href="papers/slice/slice.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3839534">DOI</a>
             <a class="button" href="slides/slice/">slides</a>
           </div>
         </td>
@@ -597,6 +642,7 @@
           <div class="info">
             <div class="authors"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <span class="me">Jules Jacobs</span>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a>, <a href="https://richarde.dev/">Richard A. Eisenberg</a></div>
             <a class="button" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3828681">DOI</a>
           </div>
         </td>
       </tr>
@@ -608,6 +654,7 @@
           <div class="info">
             <div class="authors"><a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <span class="me">Jules Jacobs</span>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://natefoster.org/">Nate Foster</a></div>
             <a class="button" href="https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2026.17">DOI</a>
             <a class="button" href="https://arxiv.org/abs/2604.21795">arXiv</a>
             <a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a>
           </div>
@@ -621,6 +668,7 @@
           <div class="info">
             <div class="authors"><a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <span class="me">Jules Jacobs</span></div>
             <a class="button" href="https://arxiv.org/pdf/2601.02251">.pdf</a>
+            <a class="button" href="https://doi.org/10.1007/978-3-032-22749-2_5">DOI</a>
             <a class="button" href="https://arxiv.org/abs/2601.02251">arXiv</a>
           </div>
         </td>
@@ -641,6 +689,7 @@
               <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>
             </div>
             <a class="button" href="papers/stackat/stackat.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3729257">DOI</a>
             <a class="button" href="misc/stackat/slides/slides.html">slides</a>
             <a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a>
           </div>
@@ -654,6 +703,7 @@
           <div class="info">
             <div class="authors"><a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <span class="me">Jules Jacobs</span>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a></div>
             <a class="button" href="pdf/mpactris.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3689762">DOI</a>
             <a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a>
           </div>
         </td>
@@ -666,6 +716,7 @@
           <div class="info">
             <div class="authors"> <a href="https://markmoeller.work/">Mark Moeller</a> + <span class="me">Jules Jacobs</span>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a>, <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a> </div>
             <a class="button" href="pdf/katch.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3656454">DOI</a>
             <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
           </div>
         </td>
@@ -680,6 +731,7 @@
               <span class="me">Jules Jacobs</span>
             </div>
             <a class="button" href="pdf/thesis.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.54195/9789493296541">DOI</a>
             <a class="button" href="https://apndx.org/pub/thesis/">code</a>
             <a class="distinguished" title="VERSEN is the Dutch National Association for Software Engineering. My thesis was the 1st place winner of the 2025 award." style="cursor: help;">VERSEN 2025 award</a>
             <a class="distinguished" title="The IPA Dissertation Award for PhD theses from 2024, awarded in 2026." style="cursor: help;">IPA Dissertation Award 2024</a>
@@ -696,6 +748,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="https://apndx.org/pub/icnp/dlfactris.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3632889">DOI</a>
             <a class="button" href="slides/dlfactris_popl24.pdf">slides</a>
             <a class="button" href="https://apndx.org/pub/icnp/">code</a>
           </div>
@@ -711,6 +764,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="https://apndx.org/pub/mpy9/miniactris.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3607856">DOI</a>
             <a class="button" href="slides/miniactris_iris.pdf">slides</a>
             <a class="button" href="https://apndx.org/pub/mpy9/">code</a>
           </div>
@@ -726,6 +780,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>
             </div>
             <a class="button" href="pdf/locks.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3571229">DOI</a>
             <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
@@ -754,6 +809,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>
             </div>
             <a class="button" href="pdf/boa.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3571245">DOI</a>
             <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/boa">code</a>
             <a class="button" onclick="toggle('boa-bibtex')">bibtex</a>
@@ -781,6 +837,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="pdf/multiparty.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3547638">DOI</a>
             <a class="button" href="slides/icfp22-slides.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a>
@@ -807,6 +864,7 @@
           <div class="info">
             <div class="authors"><span class="me">Jules Jacobs</span></div>
             <a class="button" href="pdf/lambdabar.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2022.23">DOI</a>
             <a class="button" href="slides/lambdabar_types22.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <a class="button" onclick="toggle('lambdabar-bibtex')">bibtex</a>
@@ -837,6 +895,7 @@
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
             <a class="button" href="pdf/deadlocks.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3498662">DOI</a>
             <a class="button" href="slides/cgraphs_popl22.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <a class="button" onclick="toggle('cgraphs-bibtex')">bibtex</a>
@@ -883,6 +942,7 @@
               <a href="https://www.uantwerpen.be/en/staff/annemie-vanderlinden/research/">Annemie Van der Linden</a>,
               <a href="https://www.uantwerpen.be/en/staff/marleen-verhoye/research/">Marleen Verhoye</a>
             </div>
+            <a class="button" href="https://doi.org/10.1016/j.neurobiolaging.2021.02.011">DOI</a>
             <a class="button" onclick="toggle('ovarian-bibtex')">bibtex</a>
             <textarea class="bibtex" id="ovarian-bibtex">
 @article{KARA2021,
@@ -908,6 +968,7 @@
           <div class="info">
             <div class="authors"><span class="me">Jules Jacobs</span></div>
             <a class="button" href="pdf/measurezero.pdf">.pdf</a>
+            <a class="button" href="https://doi.org/10.1145/3434339">DOI</a>
             <a class="button" href="https://zenodo.org/record/4075076">code</a>
             <a class="button" href="slides/measurezero_pldi.pdf">slides</a>
             <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
