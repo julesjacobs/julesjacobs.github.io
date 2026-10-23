@@ -1144,16 +1144,30 @@
       var end = document.createElement("div");
       document.getElementById("main").appendChild(end);
       var shown = -2;
+      // After a click on a section link, keep that section highlighted until the
+      // reader scrolls: a short section's successor may already be near the top.
+      var picked = -1;
+      function show(current) {
+        if (current === shown) return;
+        shown = current;
+        links.forEach(function (a, i) { a.classList.toggle("current", i === current); });
+      }
+      function release() { picked = -1; }
+      ["wheel", "touchstart", "keydown", "mousedown"].forEach(function (e) {
+        window.addEventListener(e, release, { passive: true });
+      });
+      links.forEach(function (a, i) {
+        a.addEventListener("click", function () { setTimeout(function () { picked = i; show(i); }, 0); });
+      });
       function update() {
+        if (picked >= 0) { show(picked); return; }
         var line = window.innerHeight * 0.4;
         var current = -1;
         for (var i = 0; i < heads.length; i++) {
           if (heads[i] && heads[i].getBoundingClientRect().top < line) current = i;
         }
         if (end.getBoundingClientRect().top <= window.innerHeight) current = heads.length - 1;
-        if (current === shown) return;
-        shown = current;
-        links.forEach(function (a, i) { a.classList.toggle("current", i === current); });
+        show(current);
       }
       if ("IntersectionObserver" in window) {
         var io = new IntersectionObserver(update, { rootMargin: "0px 0px -60% 0px" });
