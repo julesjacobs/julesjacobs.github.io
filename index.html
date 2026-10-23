@@ -87,7 +87,10 @@
     }
 
     #sections {
-      margin: -6px 0 14px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 14px;
+      margin: -4px 0 14px 0;
       font-size: 14px;
       color: var(--faint);
     }
@@ -107,15 +110,6 @@
     header .role a,
     #sections a {
       white-space: nowrap;
-    }
-
-    header .tools {
-      margin: -4px 0 10px 0;
-      font-size: 15px;
-    }
-
-    header .tools .sep {
-      color: var(--faint);
     }
 
     #desc {
@@ -431,16 +425,16 @@
     <div id="panel">
       <h1>Jules Jacobs</h1>
       <p class="role">Assistant Professor, ETH Zürich<span class="sep"> · </span><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a><span class="sep"> · </span><a href="https://github.com/julesjacobs">GitHub</a><span class="sep"> · </span><a href="https://dblp.org/pid/283/3420.html">DBLP</a></p>
-      <p class="tools"><a href="misc/deadlines/">PL deadlines</a><span class="sep"> · </span><a href="https://lab.julesjacobs.com/review/">Review tool</a></p>
-      <nav id="sections" aria-label="Sections">
-        <a href="#research">Research</a> ·
-        <a href="#students">Students</a> ·
-        <a href="#news">News</a> ·
-        <a href="#publications-heading">Publications</a> ·
-        <a href="#teaching">Teaching</a> ·
-        <a href="#service">Service</a> ·
-        <a href="#talks-heading">Talks</a> ·
-        <a href="#notes">Notes</a> ·
+      <nav id="sections" aria-label="On this page">
+        <span class="label">On this page:</span>
+        <a href="#research">Research</a>
+        <a href="#students">Students</a>
+        <a href="#news">News</a>
+        <a href="#publications-heading">Publications</a>
+        <a href="#teaching">Teaching</a>
+        <a href="#service">Service</a>
+        <a href="#talks-heading">Talks</a>
+        <a href="#notes">Notes</a>
         <a href="#photos-heading">Photos</a>
       </nav>
       <div id="desc">
