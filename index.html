@@ -441,7 +441,7 @@
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <article class="project">
-        <div class="figure"><img src="images/projects/vox-features.png" width="960" height="720" loading="lazy" alt="What Vox adds to OxCaml: specs (refinement types), testing (assume_), proofs (ghost code, checked at compile time) and resources (ownership tokens), drawn in the style of the Vox talk." /></div>
+        <div class="figure"><img src="images/projects/vox-typegraph.png" width="830" height="680" loading="lazy" alt="From the Vox talk: the heap of a verified Hindley–Milner type inferencer after inferring the type of id id, a graph of type cells (Arrow, Var, Link) joined by union–find links." /></div>
         <div class="body">
           <h3>Safe and verified programming in OxCaml</h3>
           <p><a href="https://github.com/oxcaml/oxcaml">OxCaml</a> is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation.</p>
