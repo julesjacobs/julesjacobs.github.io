@@ -313,12 +313,13 @@
 
     .project {
       display: grid;
-      grid-template-columns: 260px minmax(0, 1fr);
-      gap: 0 24px;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 0 28px;
       align-items: start;
     }
 
     .project .figure {
+      order: 2;
       padding: 4px 0;
     }
 
@@ -354,6 +355,10 @@
       .project {
         grid-template-columns: minmax(0, 1fr);
         gap: 10px;
+      }
+
+      .project .figure {
+        order: 0;
       }
 
       .project img {
