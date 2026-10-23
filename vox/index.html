@@ -162,6 +162,21 @@
     ul.demos a {
       font-weight: 600;
     }
+    .program-groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+      gap: 4px 32px;
+    }
+
+    .program-groups h3 {
+      font-size: 15px;
+      margin: 10px 0 6px 0;
+    }
+
+    ul.demos {
+      gap: 5px;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
@@ -201,19 +216,54 @@ Error: Refinement could not be proved (counterexample: x = -1)
   </ul>
 
   <h2>Verified programs</h2>
-  <p>Larger programs in the repository. Each name links to the file where its specification is stated.</p>
-  <ul class="demos">
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_verified_flat_hashtbl.mli">Flat hash table</a> <span>A mutable hash table proved to behave as a finite map.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_cdcl_total.mli">CDCL SAT solver</a> <span>Terminates on every formula within its size limits; <code>Sat</code> comes with a satisfying assignment, and <code>Unsat</code> means none exists.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hm_inference.mli">Hindley–Milner type inference</a> <span>Sound and principal with respect to a declarative typing relation.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hmc_compilation.mli">Compiler from a small ML to WebAssembly</a> <span>Emits valid bytes, runs safely and agrees with the source semantics.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_lz4.mli">LZ4 block compression</a> <span>Compressor and decoder equal to a specification, with a round-trip theorem.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_rsa.mli">Textbook RSA</a> <span>Modular exponentiation on unbounded integers and the RSA round trip.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_partition_classes.ml">Online union–find</a> <span>Implements a pure partition model, with amortized cost bounds.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_diff.mli">Myers diff</a> <span>Produces an edit script with the minimum number of insertions and deletions.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_egraph_rule_handle.mli">E-graphs</a> <span>Equalities come with a derivation from the caller's rewrite rules.</span></li>
-    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/one_shot.mli">One-shot channels</a> <span>A receiver in another domain takes the payload only after the sender has put it there.</span></li>
-  </ul>
+  <p>The repository has 25 larger verified programs. Each name links to the file where its specification is stated.</p>
+  <div class="program-groups">
+    <div>
+      <h3>Data structures</h3>
+      <ul class="demos">
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_verified_flat_hashtbl.mli">Flat hash table</a>: <span>a mutable hash table that behaves as a finite map</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/int_set_intf.mli">AVL sets</a>: <span>exact membership after <code>add</code> and <code>union</code>; <code>equal</code> holds exactly for equal sets</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/functional_queue.mli">Functional queue</a>: <span>a two-list queue that acts on the list of its elements</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/sorted_array.mli">Sorted arrays</a>: <span>search, insertion and removal proved against the elements</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/sparse_overlay.mli">Sparse array overlays</a>: <span>the value at every index after any sequence of writes and clears</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/pref_list.mli">Mutable lists and trees</a>: <span>in-place list reversal and tree mirroring against a model of the heap</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/pref_ring_general.mli">Doubly linked rings</a>: <span>insertion, removal, reversal and moving ranges between rings</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_connectivity.mli">Online union–find</a>: <span>implements a partition model within inverse-Ackermann amortized cost</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_egraph_rule_handle.mli">E-graphs</a>: <span>equalities come with a derivation from the caller's rewrite rules</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Algorithms</h3>
+      <ul class="demos">
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_merge_sort.mli">Merge sort</a>: <span>a sorted permutation using at most n⌈log₂ n⌉ comparisons</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/quicksort.mli">Quicksort</a>: <span>in place, sequential and parallel; the result is a sorted permutation</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_diff.mli">Myers diff</a>: <span>an edit script with the minimum number of insertions and deletions</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_cdcl_total.mli">CDCL SAT solver</a>: <span>terminates; <code>Sat</code> comes with a model, and <code>Unsat</code> means none exists</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/dfa_equivalence_core.mli">DFA equivalence and minimization</a>: <span>counterexample words, and minimal DFAs with the same language</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/regex_language.mli">Regular expressions</a>: <span>a matcher and a conversion to DFAs that preserve the language</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/mode_solver_public.mli">Quantifier elimination</a>: <span>for formulas over a three-element chain, preserving their meaning</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Compilers and languages</h3>
+      <ul class="demos">
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hm_inference.mli">Hindley–Milner type inference</a>: <span>sound and principal with respect to a declarative typing relation</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hmc_compilation.mli">Compiler to WebAssembly</a>: <span>valid bytes, safe execution and agreement with the source</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/register_allocation.mli">Register allocation</a>: <span>preserves every finite run of the programs it allocates</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/expression_folding.mli">Constant folding</a>: <span>preserves evaluation, including wrapping addition</span></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Systems and concurrency</h3>
+      <ul class="demos">
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_lz4.mli">LZ4 block compression</a>: <span>compressor and decoder equal to a specification, with a round trip</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_http.mli">Incremental HTTP parser</a>: <span>sound and complete for a request grammar, independent of chunking</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_rsa.mli">Textbook RSA</a>: <span>modular exponentiation on unbounded integers and the RSA round trip</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/one_shot.mli">One-shot channels</a>: <span>the receiver takes the payload only after the sender has put it there</span></li>
+        <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/reference_lock.mli">Locks</a>: <span>acquire and release hand out and take back exactly the guarded cell</span></li>
+      </ul>
+    </div>
+  </div>
 
   <h2>Try it</h2>
   <ol class="steps">
