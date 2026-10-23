@@ -13,59 +13,135 @@
   <link rel="manifest" href="/images/ico/manifest.json" />
   <title>Jules Jacobs</title>
   <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #262a30;
+      --muted: #5f6672;
+      --faint: #8a909a;
+      --line: #e3e5e9;
+      --panel: #f3f4f6;
+      --link: hsl(213, 50%, 38%);
+      --link-hover-bg: hsl(213, 50%, 93%);
+      --chip-bg: #f1f2f4;
+      --chip-fg: #4c525c;
+      --chip-line: #d7dae0;
+      --award-bg: hsl(213, 85%, 93%);
+      --award-fg: hsl(213, 80%, 38%);
+      --figure-bg: #ffffff;
+      color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #15181d;
+        --fg: #e3e6eb;
+        --muted: #a3aab5;
+        --faint: #858c97;
+        --line: #2c313a;
+        --panel: #1d2128;
+        --link: hsl(213, 75%, 74%);
+        --link-hover-bg: hsl(213, 30%, 24%);
+        --chip-bg: #232831;
+        --chip-fg: #c3c9d2;
+        --chip-line: #353b46;
+        --award-bg: hsl(213, 40%, 24%);
+        --award-fg: hsl(213, 85%, 80%);
+        --figure-bg: #ffffff;
+        color-scheme: dark;
+      }
+    }
+
     body {
-      font-family: Helvetica;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 16px;
-      text-align: justify;
-      line-height: 1.3;
-      color: #333;
-      background-color: white;
+      line-height: 1.5;
+      color: var(--fg);
+      background-color: var(--bg);
       max-width: 900px;
-      padding: 3px;
-      margin: auto;
+      margin: 0 auto;
+      padding: 24px 16px 48px 16px;
+    }
+
+    a {
+      color: var(--link);
+      text-decoration: none;
+      border-radius: 4px;
+    }
+
+    a:hover {
+      background: var(--link-hover-bg);
     }
 
     header {
       display: flex;
-      flex-direction: row;
       flex-wrap: wrap-reverse;
+      gap: 16px 28px;
+      align-items: center;
+      margin-bottom: 8px;
     }
 
     header #panel {
       flex: 1;
-      padding: 0px 10px;
-      min-width: min(400px, 100%);
-      box-sizing: border-box;
+      min-width: min(420px, 100%);
     }
 
-    header #links {
-      text-align: left;
-      padding: 4px 10px 2px 5px;
-      line-height: 170%;
+    header h1 {
+      font-size: 30px;
+      line-height: 1.15;
+      margin: 0;
+      letter-spacing: -0.01em;
     }
 
-    header #desc {
-      background-color: #eee;
-      color: #444;
-      line-height: 150%;
-      padding: 10px 15px;
-      margin: 5px 0px 15px 0px;
-      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
+    header .role {
+      margin: 4px 0 10px 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    #links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 16px;
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    #links .sep {
+      color: var(--line);
+    }
+
+    #desc {
+      background-color: var(--panel);
+      color: var(--fg);
+      padding: 12px 16px;
       border-radius: 10px;
     }
 
-    header #desc p {
-      margin: 0px 0px 5px 0px;
+    #desc p {
+      margin: 0 0 8px 0;
+    }
+
+    #desc p:last-child {
+      margin-bottom: 0;
+    }
+
+    #desc .favourites {
+      color: var(--muted);
+      font-size: 15px;
     }
 
     header #pic {
-      margin: auto;
-      padding: 10px 20px;
+      margin: 0 auto;
+      border-radius: 50%;
     }
 
     h2 {
-      font-size: 14pt;
-      margin: 15px 10px;
+      font-size: 20px;
+      margin: 36px 0 12px 0;
+      letter-spacing: -0.005em;
+    }
+
+    #main p {
+      margin: 0 0 12px 0;
     }
 
     table {
@@ -73,131 +149,158 @@
       width: 100%;
     }
 
-    #main p {
-      margin-left: 10px;
-    }
-
-    a {
-      color: hsl(213, 50%, 40%);
-      text-decoration: none;
-      border-radius: 4px;
-      padding: 1px;
-    }
-
-    a:hover {
-      background: #ccc;
-    }
-
     .pub td {
-      padding-bottom: 20px;
+      padding-bottom: 16px;
+      vertical-align: top;
     }
 
     .pub tr td:first-child {
       width: 6.5em;
-      white-space: normal;
-      text-align: right;
-      padding-bottom: 0px;
-    }
-
-    .pub tr td:first-child {
-      padding-right: 0.5em;
+      padding-right: 0.75em;
       padding-top: 2px;
-      color: gray;
+      color: var(--faint);
       font-size: 14px;
       text-align: right;
-      vertical-align: top;
+      white-space: normal;
     }
 
     #publications tr td:first-child {
-      width: 1em;
-      white-space: normal;
+      width: 5.5em;
     }
 
     #publications .info {
-      line-height: 200%;
-      text-align: left;
+      line-height: 1.9;
+    }
+
+    .title {
+      font-weight: 600;
+      color: var(--link);
+    }
+
+    .authors {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .authors a {
+      color: var(--muted);
+    }
+
+    .info {
+      color: var(--muted);
     }
 
     .bibtex {
       display: none;
-      width: 80%;
-      margin: 10px 0px;
-      padding: 10px 10px 0 10px;
-      background-color: #eee;
-      border-radius: 10px;
-      outline: none;
+      width: 90%;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: var(--panel);
+      color: var(--muted);
       border: none;
-      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-      color: #555;
-    }
-
-    .title {
-      padding: 0px 0px;
-      display: inline-block;
-      font-weight: bold;
-      color: hsl(213, 50%, 40%);
-    }
-
-    .authors {
-      color: #444;
-      line-height: 150%;
-    }
-
-    .authors a {
-      color: #444;
+      border-radius: 8px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 13px;
     }
 
     .button,
-    .distinguished {
-      border: 1px solid #bbb;
-      border-radius: 4px;
-      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 10%);
-      padding: 3px 4px;
-      font-size: 0.875rem;
-      color: #777;
-      background-color: #eee;
+    .distinguished,
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--chip-line);
+      border-radius: 5px;
+      padding: 0 6px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--chip-fg);
+      background-color: var(--chip-bg);
       white-space: nowrap;
-      position: relative;
     }
 
-    #links .button {
-      color: #555;
-    }
-
-    .button:hover,
-    #links .button:hover {
-      color: white;
-      border-color: #888;
-      background-color: #888;
+    .button:hover {
+      color: var(--bg);
+      border-color: var(--link);
+      background-color: var(--link);
       cursor: pointer;
     }
 
     .distinguished,
     .distinguished:hover {
-      color: hsl(213, 85%, 45%);
-      border-color: hsl(213, 85%, 50%);
-      background-color: hsl(213, 85%, 90%);
+      color: var(--award-fg);
+      border-color: transparent;
+      background-color: var(--award-bg);
+    }
+
+    .tag {
+      border-color: transparent;
+      background: none;
+      color: var(--faint);
+      padding: 0 2px;
     }
 
     #notes .button {
       margin-left: 5px;
     }
 
+    details.more {
+      margin: 4px 0 0 0;
+    }
+
+    details.more summary {
+      cursor: pointer;
+      color: var(--link);
+      margin-bottom: 12px;
+    }
+
+    #news {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    #news li {
+      display: grid;
+      grid-template-columns: 6.5em minmax(0, 1fr);
+      gap: 0 0.75em;
+    }
+
+    #news .when {
+      color: var(--faint);
+      font-size: 14px;
+      text-align: right;
+      padding-top: 2px;
+    }
+
+    #software {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+      gap: 10px 24px;
+    }
+
+    #software div {
+      display: grid;
+      gap: 2px;
+    }
+
+    #software span {
+      color: var(--muted);
+      font-size: 14.5px;
+    }
+
     #projects {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
       gap: 14px;
-      margin: 0px 10px 10px 10px;
     }
 
     .project {
       display: flex;
       flex-direction: column;
-      text-align: left;
-      background-color: white;
-      border: 1px solid #e2e2e2;
+      background-color: var(--bg);
+      border: 1px solid var(--line);
       border-radius: 10px;
-      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 8%);
       overflow: hidden;
     }
 
@@ -209,28 +312,28 @@
       object-fit: contain;
       box-sizing: border-box;
       padding: 10px;
-      background-color: white;
-      border-bottom: 1px solid #eee;
+      background-color: var(--figure-bg);
+      border-bottom: 1px solid var(--line);
     }
 
     .project .body {
       display: flex;
       flex-direction: column;
       flex: 1;
-      padding: 10px 12px 12px 12px;
+      padding: 12px 14px 14px 14px;
     }
 
     .project h3 {
-      font-size: 15px;
-      margin: 0px 0px 6px 0px;
-      color: hsl(213, 50%, 40%);
+      font-size: 16px;
+      margin: 0 0 6px 0;
+      color: var(--fg);
     }
 
     #main .project p {
-      font-size: 14px;
-      line-height: 1.45;
-      color: #444;
-      margin: 0px 0px 10px 0px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--muted);
+      margin: 0 0 10px 0;
     }
 
     .project .links {
@@ -251,28 +354,32 @@
 <body>
   <header>
     <div id="panel">
-      <div id="links">
-        <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
-        <a class="button" href="https://github.com/julesjacobs">github</a>
-        <a class="button" href="#research">research</a>
-        <a class="button" href="#students">students</a>
-        <!-- <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a> -->
-        <!-- <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a> -->
-        <a class="button" href="misc/deadlines/">deadlines</a>
-        <a class="button" href="photos/">photos</a>
-        <a class="button" href="blog.html">blog</a>
-        <a class="button" href="#notes">notes</a>
-      </div>
-      <div id="desc"> I’m Jules Jacobs, an Assistant Professor in Computer Science at ETH Zürich. Previously visiting researcher at Jane Street, postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
-        <p> I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
-        <p> Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
+      <h1>Jules Jacobs</h1>
+      <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
+      <nav id="links">
+        <a href="mailto:jules.jacobs@inf.ethz.ch">email</a>
+        <a href="https://github.com/julesjacobs">GitHub</a>
+        <a href="https://dblp.org/pid/283/3420.html">DBLP</a>
+        <a href="https://orcid.org/0000-0003-1976-3182">ORCID</a>
+        <span class="sep">|</span>
+        <a href="#research">research</a>
+        <a href="#students">students</a>
+        <a href="#publications-heading">publications</a>
+        <a href="blog.html">blog</a>
+        <a href="#notes">notes</a>
+        <a href="misc/deadlines/">deadlines</a>
+        <a href="photos/">photos</a>
+      </nav>
+      <div id="desc">
+        <p>I'm an Assistant Professor in Computer Science at ETH Zürich. Previously I was a visiting researcher at Jane Street, a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and a PhD student at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
+        <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
+        <p class="favourites">Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
-          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
-        </p>
+          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
       </div>
     </div>
-    <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules" style="border-radius: 50%;" />
+    <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules Jacobs" />
   </header>
   <div id="main">
     <h2 id="research">Research projects</h2>
@@ -340,9 +447,9 @@
     </div>
 
     <h2 id="students">Prospective students</h2>
-    <p>If you'd like to do a PhD, a master's thesis or a semester project with me at ETH Zürich on any of these topics, send me an <a href="mailto:julesjacobs@gmail.com">email</a> with a few lines about your background and what interests you. A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools. I'm also happy to hear from companies that want to apply formal methods to their own systems.</p>
+    <p>If you'd like to do a PhD, a master's thesis or a semester project with me at ETH Zürich on any of these topics, send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> with a few lines about your background and what interests you. A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools. I'm also happy to hear from companies that want to apply formal methods to their own systems.</p>
 
-    <h2>Publications</h2>
+    <h2 id="publications-heading">Publications</h2>
     <table class="pub" id="publications">
       <tr id="slice">
         <td>OOPSLA'26</td>
@@ -794,7 +901,7 @@
     </p>
     
     <h2 id="notes">Notes</h2>
-    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:julesjacobs@gmail.com">email</a> :)</p>
+    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :)</p>
     <table class="pub" id="notes">
       <tr>
         <td>Oct. 2022</td>
