@@ -146,10 +146,6 @@
       padding-bottom: 10px;
     }
 
-    #notes td {
-      padding-bottom: 8px;
-    }
-
     #publications tr td:first-child {
       width: 5.5em;
     }
@@ -235,6 +231,32 @@
 
     ul.uptake li {
       margin-bottom: 6px;
+    }
+
+    #notes-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      columns: 2;
+      column-gap: 32px;
+    }
+
+    #notes-list li {
+      break-inside: avoid;
+      margin: 0 0 6px 0;
+      font-size: 15px;
+    }
+
+    #notes-list .year,
+    #notes-list .code {
+      font-size: 13px;
+      color: var(--faint);
+    }
+
+    @media (max-width: 640px) {
+      #notes-list {
+        columns: 1;
+      }
     }
 
     #news {
@@ -365,7 +387,7 @@
         <a href="#notes">notes</a>
       </nav>
       <div id="desc">
-        <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
+        <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
         <p>Before ETH, I was a visiting researcher at Jane Street and a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and did my PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
         <p class="favourites">Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
@@ -820,157 +842,58 @@
     </table>
 
 
-    <h2 id="notes">Notes</h2>
-    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :) Longer posts are on my <a href="blog.html">blog</a>.</p>
-    <table class="pub" id="notes">
+    <h2>Teaching</h2>
+    <table class="pub roles" id="teaching">
       <tr>
-        <td>Oct. 2022</td>
-        <td>
-          <a class="title" href="notes/gcdlcm/gcdlcm.pdf"> The product of gcd and lcm </a>
-        </td>
+        <td>ETH Zürich</td>
+        <td>Software Engineering Seminar (2026), with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
       </tr>
       <tr>
-        <td>Aug. 2022</td>
-        <td>
-          <a class="title" href="notes/jacobisformula/jacobisformula.pdf"> A multilinear proof of Jacobi's formula </a>
-        </td>
+        <td>Jane Street</td>
+        <td><a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a> (2026), a three-hour course for interns and engineers.</td>
       </tr>
       <tr>
-        <td>Mar. 2022</td>
-        <td>
-          <a class="title" href="notes/minimumparadox/minimumparadox.pdf"> A paradoxical local minimum </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Feb. 2022</td>
-        <td>
-          <a class="title" href="notes/multinomial-div/multinomial-div.pdf"> Divisibility of multinomial coefficients </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2021</td>
-        <td>
-          <a class="title" href="notes/coq-cheatsheet/coq-cheatsheet.pdf"> Coq cheatsheet </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2021</td>
-        <td>
-          <a class="title" href="notes/cartandieudonne/cartandieudonne.pdf"> The Cartan-Dieudonné theorem </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2021</td>
-        <td>
-          <a class="title" href="https://github.com/julesjacobs/nbe"> Various cute implementations of primitive type and proof checkers in HOAS+LCF style (STLC, bidirectional, System F, FOL, dependent type theory). </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Sep. 2021</td>
-        <td>
-          <a class="title" href="notes/smartconstr/smartconstr.pdf"> Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Sep. 2021</td>
-        <td>
-          <a class="title" href="notes/quantum/quantum.pdf"> A quick introduction to quantum programming </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Aug. 2021</td>
-        <td>
-          <a class="title" href="notes/permutationsign/permutationsign.pdf"> The sign of a permutation is multiplicative </a>
-        </td>
-      </tr>
-      <tr>
-        <td>May 2021</td>
-        <td>
-          <a class="title" href="notes/infresampling/infresampling.pdf"> Resampling with infinitesimal probabilities </a>
-        </td>
-      </tr>
-      <tr>
-        <td>May 2021</td>
-        <td>
-          <a class="title" href="notes/satpre/bce.pdf"> Bounded clause elimination </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Apr. 2021</td>
-        <td>
-          <a class="title" href="notes/nfa/nfa.pdf"> From regex to NFA and back </a>
-          <a class="button" href="notes/nfa/nfa.sc">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Apr. 2021</td>
-        <td>
-          <a class="title" href="notes/patternmatching/patternmatching.pdf"> How to compile pattern matching </a>
-          <a class="button" href="notes/patternmatching/pmatch.sc">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Apr. 2021</td>
-        <td>
-          <a class="title" href="notes/churchnatarith/churchnatarith.pdf"> Arithmetic on Church numerals using a notational trick </a>
-          <a class="button" href="notes/churchnatarith/churchnatarith.v">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Apr. 2021</td>
-        <td>
-          <a class="title" href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf"> Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ </a>
-          <a class="button" href="notes/classicalvsintuitionistic/test.v">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Apr. 2021</td>
-        <td>
-          <a class="title" href="notes/inductiononderivations/inductiononderivations.pdf"> Induction on Derivations is Recursion </a>
-          <a class="button" href="notes/inductiononderivations/iod.v">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Mar. 2021</td>
-        <td>
-          <a class="title" href="notes/tait/tait.pdf"> How to prove normalisation of STLC </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2020</td>
-        <td>
-          <a class="title" href="notes/kirchoff/kirchoff.pdf"> A simple proof of the matrix-tree theorem, upward routes, and a matrix-tree-cycle theorem </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2020</td>
-        <td>
-          <a class="title" href="notes/functionalctxs/functionalctxs.pdf"> Functional Evaluation Contexts<br />
-            <small><i style="font-weight: normal">An alternative way to handle evaluation contexts in proof assistants like Coq</i></small>
-          </a>
-          <a class="button" href="notes/functionalctxs/functionalctxs.v">code</a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2020</td>
-        <td>
-          <a class="title" href="notes/sortingreals/sortingreals.pdf"> Sorting Real Numbers, Constructively </a>
-        </td>
-      </tr>
-      <tr>
-        <td>Dec. 2020</td>
-        <td>
-          <a class="title" href="notes/binarysearch/binarysearch.pdf"> Binary Search a Little Simpler &amp; More Generic </a>
-        </td>
-      </tr>
-      <tr id="sympoly">
-        <td>Sep. 2020</td>
-        <td>
-          <a class="title" href="pdf/sympoly.pdf"> A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues </a>
-          <a class="button" href="code/sympoly.jl">code</a>
-        </td>
+        <td>Earlier</td>
+        <td>Helped teach Certified Software Systems at Cornell (2024); Program Verification (2022, 2023), Type Theory (2020–2022) and the MFOCS seminar (2021, 2022) at Radboud; and Software Verification at TU Delft (2020). Co-supervised Menzo van Kessel's bachelor thesis on a type checker and interpreter for MPGV (2022) and Edoardo Putti's master thesis on mechanizing incorrectness separation logic in Coq (2020).</td>
       </tr>
     </table>
+
+    <h2>Academic Service</h2>
+    <table class="pub roles" id="service">
+      <tr>
+        <td>Organizing</td>
+        <td><a href="https://iris-project.org/workshop-2026/">Iris Workshop 2026</a> at ISTA, with <a href="https://pub.ista.ac.at/~msammler/">Michael Sammler</a></td>
+      </tr>
+      <tr>
+        <td>Program committees</td>
+        <td>POPL'27, CSL'27, TFP'26, ICFP'25, PLDI'25, ECOOP'25, PLACES'25; OOPSLA'26 Review Committee</td>
+      </tr>
+      <tr>
+        <td>Website chair</td>
+        <td>PLDI'27 (co-chair), ICFP'26, ICFP/SPLASH'25 (co-chair), ICFP'25 (co-chair), ICFP'24 (co-chair)</td>
+      </tr>
+      <tr>
+        <td>PLMW</td>
+        <td>Social media chair since 2024; committee of PLMW @ SPLASH/ISSTA'26</td>
+      </tr>
+      <tr>
+        <td>Artifact evaluation</td>
+        <td>ESOP'23, PLDI'22, ESOP'22</td>
+      </tr>
+      <tr>
+        <td>Reviewing</td>
+        <td>ECOOP'24, PLDI'23, ITP'23, LICS'23, POPL'23, OOPSLA (2022), CSL (2022), LMCS (2022), ESOP'21, ICFP'20</td>
+      </tr>
+      <tr>
+        <td>Software</td>
+        <td><a href="misc/deadlines/">PL deadline calendar</a>, upcoming deadlines for programming languages conferences; <a href="https://lab.julesjacobs.com/review/">Review Desk</a>, for writing paper reviews next to the PDF</td>
+      </tr>
+      <tr>
+        <td>Other</td>
+        <td>VCA for Behavioural Types: Bridging Theory and Practice (2021)</td>
+      </tr>
+    </table>
+
     <h2 id="talks-heading">Talks</h2>
     <table class="pub" id="talks">
       <tr>
@@ -1079,56 +1002,34 @@
         </td>
       </tr>
     </table>
-    <h2>Teaching</h2>
-    <table class="pub roles" id="teaching">
-      <tr>
-        <td>ETH Zürich</td>
-        <td>Software Engineering Seminar (2026), with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
-      </tr>
-      <tr>
-        <td>Jane Street</td>
-        <td><a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a> (2026), a three-hour course for interns and engineers.</td>
-      </tr>
-      <tr>
-        <td>Earlier</td>
-        <td>Helped teach Certified Software Systems at Cornell (2024); Program Verification (2022, 2023), Type Theory (2020–2022) and the MFOCS seminar (2021, 2022) at Radboud; and Software Verification at TU Delft (2020). Co-supervised Menzo van Kessel's bachelor thesis on a type checker and interpreter for MPGV (2022) and Edoardo Putti's master thesis on mechanizing incorrectness separation logic in Coq (2020).</td>
-      </tr>
-    </table>
-    <h2>Academic Service</h2>
-    <table class="pub roles" id="service">
-      <tr>
-        <td>Organizing</td>
-        <td><a href="https://iris-project.org/workshop-2026/">Iris Workshop 2026</a> at ISTA, with <a href="https://pub.ista.ac.at/~msammler/">Michael Sammler</a></td>
-      </tr>
-      <tr>
-        <td>Program committees</td>
-        <td>POPL'27, CSL'27, TFP'26, ICFP'25, PLDI'25, ECOOP'25, PLACES'25; OOPSLA'26 Review Committee</td>
-      </tr>
-      <tr>
-        <td>Website chair</td>
-        <td>PLDI'27 (co-chair), ICFP'26, ICFP/SPLASH'25 (co-chair), ICFP'25 (co-chair), ICFP'24 (co-chair)</td>
-      </tr>
-      <tr>
-        <td>PLMW</td>
-        <td>Social media chair since 2024; committee of PLMW @ SPLASH/ISSTA'26</td>
-      </tr>
-      <tr>
-        <td>Artifact evaluation</td>
-        <td>ESOP'23, PLDI'22, ESOP'22</td>
-      </tr>
-      <tr>
-        <td>Reviewing</td>
-        <td>ECOOP'24, PLDI'23, ITP'23, LICS'23, POPL'23, OOPSLA (2022), CSL (2022), LMCS (2022), ESOP'21, ICFP'20</td>
-      </tr>
-      <tr>
-        <td>Software</td>
-        <td><a href="misc/deadlines/">PL deadline calendar</a>, upcoming deadlines for programming languages conferences; <a href="https://lab.julesjacobs.com/review/">Review Desk</a>, for writing paper reviews next to the PDF</td>
-      </tr>
-      <tr>
-        <td>Other</td>
-        <td>VCA for Behavioural Types: Bridging Theory and Practice (2021)</td>
-      </tr>
-    </table>
+
+    <h2 id="notes">Notes</h2>
+    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :) Longer posts are on my <a href="blog.html">blog</a>.</p>
+    <ul id="notes-list">
+      <li><a href="notes/gcdlcm/gcdlcm.pdf">The product of gcd and lcm</a> <span class="year">2022</span></li>
+      <li><a href="notes/jacobisformula/jacobisformula.pdf">A multilinear proof of Jacobi's formula</a> <span class="year">2022</span></li>
+      <li><a href="notes/minimumparadox/minimumparadox.pdf">A paradoxical local minimum</a> <span class="year">2022</span></li>
+      <li><a href="notes/multinomial-div/multinomial-div.pdf">Divisibility of multinomial coefficients</a> <span class="year">2022</span></li>
+      <li><a href="notes/coq-cheatsheet/coq-cheatsheet.pdf">Coq cheatsheet</a> <span class="year">2021</span></li>
+      <li><a href="notes/cartandieudonne/cartandieudonne.pdf">The Cartan-Dieudonné theorem</a> <span class="year">2021</span></li>
+      <li><a href="https://github.com/julesjacobs/nbe">Various cute implementations of primitive type and proof checkers in HOAS+LCF style (STLC, bidirectional, System F, FOL, dependent type theory).</a> <span class="year">2021</span></li>
+      <li><a href="notes/smartconstr/smartconstr.pdf">Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation</a> <span class="year">2021</span></li>
+      <li><a href="notes/quantum/quantum.pdf">A quick introduction to quantum programming</a> <span class="year">2021</span></li>
+      <li><a href="notes/permutationsign/permutationsign.pdf">The sign of a permutation is multiplicative</a> <span class="year">2021</span></li>
+      <li><a href="notes/infresampling/infresampling.pdf">Resampling with infinitesimal probabilities</a> <span class="year">2021</span></li>
+      <li><a href="notes/satpre/bce.pdf">Bounded clause elimination</a> <span class="year">2021</span></li>
+      <li><a href="notes/nfa/nfa.pdf">From regex to NFA and back</a> <a class="code" href="notes/nfa/nfa.sc">code</a> <span class="year">2021</span></li>
+      <li><a href="notes/patternmatching/patternmatching.pdf">How to compile pattern matching</a> <a class="code" href="notes/patternmatching/pmatch.sc">code</a> <span class="year">2021</span></li>
+      <li><a href="notes/churchnatarith/churchnatarith.pdf">Arithmetic on Church numerals using a notational trick</a> <a class="code" href="notes/churchnatarith/churchnatarith.v">code</a> <span class="year">2021</span></li>
+      <li><a href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf">Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ</a> <a class="code" href="notes/classicalvsintuitionistic/test.v">code</a> <span class="year">2021</span></li>
+      <li><a href="notes/inductiononderivations/inductiononderivations.pdf">Induction on Derivations is Recursion</a> <a class="code" href="notes/inductiononderivations/iod.v">code</a> <span class="year">2021</span></li>
+      <li><a href="notes/tait/tait.pdf">How to prove normalisation of STLC</a> <span class="year">2021</span></li>
+      <li><a href="notes/kirchoff/kirchoff.pdf">A simple proof of the matrix-tree theorem, upward routes, and a matrix-tree-cycle theorem</a> <span class="year">2020</span></li>
+      <li><a href="notes/functionalctxs/functionalctxs.pdf">Functional Evaluation Contexts</a> <a class="code" href="notes/functionalctxs/functionalctxs.v">code</a> <span class="year">2020</span></li>
+      <li><a href="notes/sortingreals/sortingreals.pdf">Sorting Real Numbers, Constructively</a> <span class="year">2020</span></li>
+      <li><a href="notes/binarysearch/binarysearch.pdf">Binary Search a Little Simpler &amp; More Generic</a> <span class="year">2020</span></li>
+      <li><a href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a> <a class="code" href="code/sympoly.jl">code</a> <span class="year">2020</span></li>
+    </ul>
 
     <section id="photo-section">
       <h2 id="photos-heading">Photos</h2>
