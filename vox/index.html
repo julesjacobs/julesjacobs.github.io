@@ -129,10 +129,6 @@
       gap: 10px;
     }
 
-    ul.demos b {
-      font-weight: 600;
-    }
-
     ul.demos span {
       color: var(--muted);
     }
@@ -145,6 +141,27 @@
     ol.steps li {
       margin-bottom: 6px;
     }
+
+    ol.steps code {
+      white-space: nowrap;
+    }
+    pre.output {
+      background-color: #fbf3ec;
+      color: #7a3d12;
+    }
+
+    ul.how {
+      padding-left: 1.2em;
+      margin: 0 0 12px 0;
+    }
+
+    ul.how li {
+      margin-bottom: 8px;
+    }
+
+    ul.demos a {
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -152,47 +169,61 @@
   <h1>Vox</h1>
   <p class="subtitle">Refinement types, ghost code and ownership for OxCaml</p>
   <div class="buttons">
+    <a href="https://lab.julesjacobs.com/vox/talk/">Watch the talk</a>
     <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Code on GitHub</a>
-    <a href="https://lab.julesjacobs.com/vox/talk/">Talk</a>
   </div>
 
-  <h2>What it is</h2>
-  <p>Vox is a fork of the <a href="https://github.com/oxcaml/oxcaml">OxCaml</a> compiler that checks specifications at compile time. A type can carry a refinement, such as <code>{r : int | lo &lt;= r &amp;&amp; r &lt;= hi}</code>, and the compiler turns each function's refinements into verification conditions that an SMT solver must prove. Proofs are written as ghost code, which the compiler checks and then erases before code generation. OxCaml's uniqueness modes make ghost ownership tokens affine, and these tokens are how Vox specifies mutable state such as cells, hash tables and communication between domains.</p>
-  <p>Specifications let people check what a program does by reading its specifications instead of every line of its implementation. That matters more as more code is written by AI agents.</p>
+  <h2>Why</h2>
+  <p>As more code is written by AI agents, it gets harder for people to keep track of what a code base does. Specifications help: you read what a function promises instead of how it is implemented, and the compiler checks that the implementation keeps the promise. Vox brings this to <a href="https://github.com/oxcaml/oxcaml">OxCaml</a> without leaving the language. Specifications are types, proofs are written as code, and proofs are erased before code generation, so they cost nothing at run time.</p>
 
   <h2>An example</h2>
+  <p>The type of <code>hi</code> says that the caller must pass ordered bounds, and the result type says that the result lies between them. Vox proves both from the code, and the client calls <code>clamp</code> as usual:</p>
 <pre><code><span class="kw">let</span> (clamp @ total) (lo : int) (hi : <span class="ref">{h : int | lo &lt;= h}</span>) (x : int) :
     <span class="ref">{r : int | lo &lt;= r &amp;&amp; r &lt;= hi}</span> =
   <span class="kw">if</span> x &lt; lo <span class="kw">then</span> lo <span class="kw">else if</span> x &gt; hi <span class="kw">then</span> hi <span class="kw">else</span> x
 
 <span class="kw">let</span> bounded (x : int) : <span class="ref">{r : int | 0 &lt;= r &amp;&amp; r &lt;= 10}</span> =
   clamp 0 10 x</code></pre>
-  <p class="caption">The caller must pass ordered bounds, and the function guarantees a result within them. The solver proves both from the code; nothing is checked at run time, and the client calls <code>clamp</code> as usual. From <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/bounded_clamp.ml">bounded_clamp.ml</a>.</p>
+  <p>A function that does not keep its promise is rejected at compile time, with a counterexample:</p>
+<pre class="output"><code>1 | let wrong (x : int) : {r : int | 0 &lt;= r &amp;&amp; r &lt;= 10} = x
+                                                          ^
+Error: Refinement could not be proved (counterexample: x = -1)
+1 | let wrong (x : int) : {r : int | 0 &lt;= r &amp;&amp; r &lt;= 10} = x
+                                     ^^^^^^
+  The refinement is stated here.</code></pre>
+  <p class="caption">Both examples are from <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/bounded_clamp.ml">bounded_clamp.ml</a>, which also shows that <code>clamp 10 0 x</code> is rejected because the bounds are in the wrong order.</p>
+
+  <h2>How it works</h2>
+  <ul class="how">
+    <li><b>Refinement types.</b> A type can carry a predicate, such as <code>{r : int | lo &lt;= r}</code>. The compiler turns each function's refinements into verification conditions and asks an SMT solver to prove them.</li>
+    <li><b>Ghost code.</b> Proofs that the solver cannot find on its own are written as ghost arguments, ghost blocks and lemmas. The compiler checks them and then erases them.</li>
+    <li><b>Ownership.</b> Ghost tokens stand for ownership of mutable state. OxCaml's uniqueness modes make them affine, which is how Vox specifies mutable cells, hash tables and communication between domains.</li>
+  </ul>
 
   <h2>Verified programs</h2>
-  <p>Larger examples in the repository, with what is proved about each:</p>
+  <p>Larger programs in the repository. Each name links to the file where its specification is stated.</p>
   <ul class="demos">
-    <li><b>Flat hash table.</b> <span>A mutable hash table proved to behave as a finite map.</span></li>
-    <li><b>CDCL SAT solver.</b> <span>Terminates on every formula within its size limits; <code>Sat</code> comes with a satisfying assignment, and <code>Unsat</code> means none exists.</span></li>
-    <li><b>Hindley–Milner type inference.</b> <span>Sound and principal with respect to a declarative typing relation.</span></li>
-    <li><b>Compiler from a small ML to WebAssembly.</b> <span>Emits valid bytes, runs safely and agrees with the source semantics.</span></li>
-    <li><b>LZ4 block compression.</b> <span>Compressor and decoder equal to a specification, with a round-trip theorem.</span></li>
-    <li><b>Textbook RSA.</b> <span>Modular exponentiation on unbounded integers and the RSA round trip.</span></li>
-    <li><b>Online union–find.</b> <span>Implements a pure partition model, with amortized cost bounds.</span></li>
-    <li><b>Myers diff.</b> <span>Produces an edit script with the minimum number of insertions and deletions.</span></li>
-    <li><b>E-graphs.</b> <span>Equalities come with a derivation from the caller's rewrite rules.</span></li>
-    <li><b>One-shot channels.</b> <span>A receiver in another domain takes the payload only after the sender has put it there.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_verified_flat_hashtbl.mli">Flat hash table</a> <span>A mutable hash table proved to behave as a finite map.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_cdcl_total.mli">CDCL SAT solver</a> <span>Terminates on every formula within its size limits; <code>Sat</code> comes with a satisfying assignment, and <code>Unsat</code> means none exists.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hm_inference.mli">Hindley–Milner type inference</a> <span>Sound and principal with respect to a declarative typing relation.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/hmc_compilation.mli">Compiler from a small ML to WebAssembly</a> <span>Emits valid bytes, runs safely and agrees with the source semantics.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_lz4.mli">LZ4 block compression</a> <span>Compressor and decoder equal to a specification, with a round-trip theorem.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_rsa.mli">Textbook RSA</a> <span>Modular exponentiation on unbounded integers and the RSA round trip.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_partition_classes.ml">Online union–find</a> <span>Implements a pure partition model, with amortized cost bounds.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_diff.mli">Myers diff</a> <span>Produces an edit script with the minimum number of insertions and deletions.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/vox_egraph_rule_handle.mli">E-graphs</a> <span>Equalities come with a derivation from the caller's rewrite rules.</span></li>
+    <li><a href="https://github.com/julesjacobs/oxcaml/blob/vox/verification/library/one_shot.mli">One-shot channels</a> <span>A receiver in another domain takes the payload only after the sender has put it there.</span></li>
   </ul>
 
   <h2>Try it</h2>
   <ol class="steps">
     <li>Check out the <a href="https://github.com/julesjacobs/oxcaml/tree/vox"><code>vox</code> branch</a> and configure it with a local install prefix, as described in the <a href="https://github.com/julesjacobs/oxcaml/blob/vox/README.md">README</a>.</li>
     <li>Install <a href="https://github.com/Z3Prover/z3">Z3</a> and put it on your <code>PATH</code>.</li>
-    <li>Run <code>./dev init</code>, then <code>./dev test vox/bounded_clamp.ml</code>.</li>
+    <li>Run <code>./dev init</code>, then <code>./dev test vox/bounded_clamp.ml</code>. Your own files need the flag <code>-extension refinement_types</code>.</li>
   </ol>
-  <p>The <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/README.md">tour of the tests</a> walks through the examples, and <a href="https://github.com/julesjacobs/oxcaml/blob/vox/design-docs/verification-programming.md">Verification programming</a> explains how to write contracts and reusable proofs. When the solver rejects a goal, compile with <code>-dvc</code> to see the goal, its assumptions and the solver's model.</p>
+  <p>The <a href="https://github.com/julesjacobs/oxcaml/blob/vox/testsuite/tests/vox/README.md">tour of the tests</a> walks through the examples, and <a href="https://github.com/julesjacobs/oxcaml/blob/vox/design-docs/verification-programming.md">Verification programming</a> explains how to write contracts and reusable proofs. When a goal is rejected, compile with <code>-dvc</code> to see the goal, its assumptions and the solver's model.</p>
 
-  <h2>Related</h2>
-  <p>Vox builds on OxCaml's modes; our paper <a href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">Mode Crossing</a> (ICFP'26) is about how values of suitable types move between modes. Vox is research software under active development.</p>
+  <h2>Status</h2>
+  <p>Vox is research software under active development. It builds on OxCaml's modes; our paper <a href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">Mode Crossing</a> (ICFP'26) is about how values of suitable types move between modes. If you would like to use Vox or work on it, <a href="mailto:jules.jacobs@inf.ethz.ch">email me</a>.</p>
 </body>
 </html>
