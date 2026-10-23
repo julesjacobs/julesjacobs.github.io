@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="viewport" content="width=device-width" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Jules Jacobs is an Assistant Professor in Computer Science at ETH Zürich, working on programming languages and formal verification." />
+  <meta property="og:title" content="Jules Jacobs" />
+  <meta property="og:description" content="Assistant Professor at ETH Zürich. Programming languages and formal verification." />
+  <meta property="og:image" content="https://julesjacobs.com/images/jules.jpg" />
   <link rel="apple-touch-icon" sizes="180x180" href="/images/ico/apple-touch-icon.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/images/ico/favicon-16x16.png" />
@@ -14,6 +19,7 @@
       text-align: justify;
       line-height: 1.3;
       color: #333;
+      background-color: white;
       max-width: 900px;
       padding: 3px;
       margin: auto;
@@ -28,7 +34,8 @@
     header #panel {
       flex: 1;
       padding: 0px 10px;
-      min-width: 400px;
+      min-width: min(400px, 100%);
+      box-sizing: border-box;
     }
 
     header #links {
@@ -175,6 +182,61 @@
     #notes .button {
       margin-left: 5px;
     }
+
+    #projects {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
+      gap: 14px;
+      margin: 0px 10px 10px 10px;
+    }
+
+    .project {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      background-color: white;
+      border: 1px solid #e2e2e2;
+      border-radius: 10px;
+      box-shadow: 1px 1px 3px 0px rgb(0 0 0 / 8%);
+      overflow: hidden;
+    }
+
+    .project img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      box-sizing: border-box;
+      padding: 10px;
+      background-color: white;
+      border-bottom: 1px solid #eee;
+    }
+
+    .project .body {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      padding: 10px 12px 12px 12px;
+    }
+
+    .project h3 {
+      font-size: 15px;
+      margin: 0px 0px 6px 0px;
+      color: hsl(213, 50%, 40%);
+    }
+
+    #main .project p {
+      font-size: 14px;
+      line-height: 1.45;
+      color: #444;
+      margin: 0px 0px 10px 0px;
+    }
+
+    .project .links {
+      margin-top: auto;
+      line-height: 2;
+    }
   </style>
   <script>
     function toggle(elem) {
@@ -192,6 +254,8 @@
       <div id="links">
         <a class="button" href="mailto:julesjacobs@gmail.com">email</a>
         <a class="button" href="https://github.com/julesjacobs">github</a>
+        <a class="button" href="#research">research</a>
+        <a class="button" href="#students">students</a>
         <!-- <a class="button" href="https://twitter.com/JulesJacobs5">twitter</a> -->
         <!-- <a class="button" rel="me" href="https://discuss.systems/@julesjacobs">mastodon</a> -->
         <a class="button" href="misc/deadlines/">deadlines</a>
@@ -200,16 +264,84 @@
         <a class="button" href="#notes">notes</a>
       </div>
       <div id="desc"> I’m Jules Jacobs, an Assistant Professor in Computer Science at ETH Zürich. Previously visiting researcher at Jane Street, postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.
+        <p> I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
         <p> Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
-          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
+          <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> & <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> & the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.
         </p>
       </div>
     </div>
     <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules" style="border-radius: 50%;" />
   </header>
   <div id="main">
+    <h2 id="research">Research projects</h2>
+    <div id="projects">
+      <div class="project">
+        <img src="images/projects/modes.svg" width="320" height="180" loading="lazy" alt="A lattice of four modes combining locality and portability. A value of type int moves from the weakest mode to the strongest." />
+        <div class="body">
+          <h3>Safe and verified programming in OxCaml</h3>
+          <p>OxCaml is Jane Street's extension of OCaml for safe low-level and parallel programming. Its modes track whether a value can escape its stack frame or be shared between threads, which gives safe stack allocation and data-race freedom. Mode crossing lets integers, immutable data and other suitable types move to a stronger mode automatically, which removes many annotations; it is implemented in the OxCaml compiler and proved sound in Rocq.</p>
+          <p>Vox is a fork of the OxCaml compiler that checks specifications at compile time. Refinement types are proved by Z3, proofs are written as ghost code that is erased before code generation, and uniqueness modes make ghost ownership tokens affine. With specifications, people can check what a program does by reading its specs instead of every line, which matters more as more code is written by AI agents.</p>
+          <div class="links">
+            <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>
+            <a class="button" href="https://lab.julesjacobs.com/vox/">Vox</a>
+            <a class="button" href="https://lab.julesjacobs.com/vox/catalogue/">Vox verified programs</a>
+            <a class="button" href="https://lab.julesjacobs.com/vox/playground/">Vox playground</a>
+            <a class="button" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
+            <a class="button" href="misc/oxcaml/playground/">OxCaml playground</a>
+          </div>
+        </div>
+      </div>
+      <div class="project">
+        <img src="images/projects/nest.png" width="871" height="463" loading="lazy" alt="Overview of NEST from the paper (Fig. 3): a session type specification is compiled into P4 table entries, and the switch accepts or rejects packets based on the specification." />
+        <div class="body">
+          <h3>Network verification</h3>
+          <p>Network outages are often caused by configuration mistakes spread over many devices. NetKAT describes a whole network as one program with an equational theory. Our verifier KATch checks reachability, isolation and similar properties, typically in well under a second, and returns a counterexample when one fails. StacKAT extends this to unbounded state such as MPLS label stacks.</p>
+          <p>Networks also run stateful services that talk to each other. NEST compiles session-type protocols into monitors that run on programmable switches and drop messages that break the protocol, and SER decides whether a stateful networked program is serializable, even with unboundedly many concurrent requests. These verifiers are decision procedures on automata and Petri nets; related work on automata includes Boa, a single fast minimization algorithm for deterministic, weighted and probabilistic automata.</p>
+          <div class="links">
+            <a class="button" href="#katch">KATch, PLDI'24</a>
+            <a class="button" href="#stackat">StacKAT, PLDI'25</a>
+            <a class="button" href="#nest">NEST, ECOOP'26</a>
+            <a class="button" href="#serializability">SER, TACAS'26</a>
+            <a class="button" href="#boa">Boa, POPL'23</a>
+            <a class="button" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
+          </div>
+        </div>
+      </div>
+      <div class="project">
+        <img src="images/projects/cgraphs.png" width="706" height="439" loading="lazy" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." />
+        <div class="body">
+          <h3>Verified message-passing concurrency</h3>
+          <p>Programs that communicate over channels or share locks can deadlock or leak memory. We design type systems and separation logics for higher-order programs with session-type protocols and locks, in which well-typed or verified programs never deadlock because the graph of threads and channels stays acyclic. Later work verifies that programs also compute the right results while following multiparty and dependent protocols. All proofs are mechanized in Coq/Rocq using Iris.</p>
+          <div class="links">
+            <a class="button" href="#cgraphs">Connectivity graphs, POPL'22</a>
+            <a class="button" href="#mpgv">Multiparty GV, ICFP'22</a>
+            <a class="button" href="#lambdabar">Self-dual session types, ECOOP'22</a>
+            <a class="button" href="#locks">Locks, POPL'23</a>
+            <a class="button" href="#miniactris">Session protocols, ICFP'23</a>
+            <a class="button" href="#dlfactris">Deadlock-free separation logic, POPL'24</a>
+            <a class="button" href="#mpactris">Multris, OOPSLA'24</a>
+            <a class="button" href="#thesis">PhD thesis</a>
+          </div>
+        </div>
+      </div>
+      <div class="project">
+        <img src="images/projects/slice.png" width="840" height="460" loading="lazy" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." />
+        <div class="body">
+          <h3>Exact inference for probabilistic programs</h3>
+          <p>Probabilistic programs describe statistical models, and inference computes the distributions they define. Slice finds where continuous random values only matter through comparisons with finitely many constants, and rewrites the program into a discrete one that exact solvers can handle. Earlier work showed that conditioning on events of probability zero leads to paradoxes, and how infinitesimal probabilities resolve them.</p>
+          <div class="links">
+            <a class="button" href="#slice">Slice, OOPSLA'26</a>
+            <a class="button" href="#paradoxes">Paradoxes, POPL'21</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h2 id="students">Prospective students</h2>
+    <p>If you'd like to do a PhD, a master's thesis or a semester project with me at ETH Zürich on any of these topics, send me an <a href="mailto:julesjacobs@gmail.com">email</a> with a few lines about your background and what interests you. A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools. I'm also happy to hear from companies that want to apply formal methods to their own systems.</p>
+
     <h2>Publications</h2>
     <table class="pub" id="publications">
       <tr id="slice">
@@ -814,6 +946,13 @@
     </table> You can find some more on my <a href="/blog.html">blog</a>. <h2>Talks</h2>
     <table class="pub" id="talks">
       <tr>
+        <td>June 2025</td>
+        <td>
+          <a class="title" href="misc/stackat/slides/slides.html">StacKAT: Infinite State Network Verification</a>
+          <div class="info">PLDI'25</div>
+        </td>
+      </tr>
+      <tr>
         <td>6 Feb. 2024</td>
         <td>
           <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing </a>
@@ -928,7 +1067,7 @@
       <tr>
         <td>22 June 2022</td>
         <td>
-          <a class="title" href="slides/lambdabar_types22.pdf"> A Simple Concurrent Lambda Calculusu For Encoding Session Types </a>
+          <a class="title" href="slides/lambdabar_types22.pdf"> A Simple Concurrent Lambda Calculus For Encoding Session Types </a>
           <div class="info">TYPES'22</div>
         </td>
       </tr>
@@ -956,14 +1095,14 @@
       <tr>
         <td>28 Apr. 2022</td>
         <td>
-          <a class="title" href="slides/imperial-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <a class="title" href="slides/plunch-slides-popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
           <div class="info">CMU plunch</div>
         </td>
       </tr>
       <tr>
         <td>25 Mar. 2022</td>
         <td>
-          <a class="title" href="slides/plunch-slides-popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
+          <a class="title" href="slides/imperial-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
           <div class="info">Imperial College London</div>
         </td>
       </tr>
@@ -984,7 +1123,7 @@
       <tr>
         <td>19 July 2021</td>
         <td>
-          <a class="title" href="slides/veriprop2021.pdf"> Pardoxes of Probabilistic Programming <small><i>(and deleted scenes)</i></small>
+          <a class="title" href="slides/veriprop2021.pdf"> Paradoxes of Probabilistic Programming <small><i>(and deleted scenes)</i></small>
           </a>
           <div class="info">VeriProP'21</div>
         </td>
@@ -992,7 +1131,7 @@
       <tr>
         <td>12 July 2021</td>
         <td>
-          <a class="title" href="slides/vest2021.pdf"> Mechanized Deadlock Fredom for Session Types </a>
+          <a class="title" href="slides/vest2021.pdf"> Mechanized Deadlock Freedom for Session Types </a>
           <div class="info">VEST'21</div>
         </td>
       </tr>
@@ -1034,6 +1173,14 @@
     </table>
     <h2>Teaching</h2>
     <table class="pub">
+      <tr>
+        <td>2026</td>
+        <td>Teaching the Software Engineering Seminar at ETH Zürich with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
+      </tr>
+      <tr>
+        <td>2026</td>
+        <td><a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a>, a three-hour course for Jane Street interns and engineers, with lecture notes, slides and exercises.</td>
+      </tr>
       <tr>
         <td>2024</td>
         <td>Helping Nate Foster teach Certified Software Systems (CS6115) at Cornell University.</td>
