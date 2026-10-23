@@ -103,7 +103,8 @@
       gap: 4px 24px;
       margin: -24px -16px 20px -16px;
       padding: 12px 16px 10px 16px;
-      background-color: rgba(255, 255, 255, 0.94);
+      background-color: var(--bg);
+      will-change: transform;
       border-bottom: 1px solid var(--line);
       font-size: 14.5px;
     }
@@ -1135,23 +1136,33 @@
     </section>
   </div>
   <script>
-    // Highlight the top-bar link of the section being read.
+    // Highlight the top-bar link of the section being read. The work runs only
+    // when a heading crosses the line at 40% of the window, not on every frame.
     (function () {
       var links = Array.prototype.slice.call(document.querySelectorAll("#topbar .links a"));
       var heads = links.map(function (a) { return document.getElementById(a.getAttribute("href").slice(1)); });
-      var queued = false;
+      var end = document.createElement("div");
+      document.getElementById("main").appendChild(end);
+      var shown = -2;
       function update() {
-        queued = false;
-        var current = -1;
         var line = window.innerHeight * 0.4;
+        var current = -1;
         for (var i = 0; i < heads.length; i++) {
           if (heads[i] && heads[i].getBoundingClientRect().top < line) current = i;
         }
-        var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-        if (atEnd) current = heads.length - 1;
+        if (end.getBoundingClientRect().top <= window.innerHeight) current = heads.length - 1;
+        if (current === shown) return;
+        shown = current;
         links.forEach(function (a, i) { a.classList.toggle("current", i === current); });
       }
-      window.addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(update, { rootMargin: "0px 0px -60% 0px" });
+        heads.forEach(function (h) { if (h) io.observe(h); });
+        new IntersectionObserver(update).observe(end);
+        window.addEventListener("resize", update);
+      } else {
+        window.addEventListener("scroll", update, { passive: true });
+      }
       window.addEventListener("hashchange", update);
       update();
     })();
