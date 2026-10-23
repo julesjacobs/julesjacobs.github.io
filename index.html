@@ -89,15 +89,17 @@
     #sections {
       display: flex;
       flex-wrap: wrap;
-      gap: 2px 14px;
-      margin: -4px 0 14px 0;
+      justify-content: center;
+      gap: 2px 16px;
+      margin: 20px 0 0 0;
       font-size: 14px;
       color: var(--faint);
     }
 
     #sections a {
-      color: var(--muted);
+      color: var(--link);
     }
+
 
     #sections a:hover {
       color: var(--link);
@@ -436,18 +438,6 @@
     <div id="panel">
       <h1>Jules Jacobs</h1>
       <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
-      <nav id="sections" aria-label="On this page">
-        <span class="label">On this page:</span>
-        <a href="#research">Research</a>
-        <a href="#students">Students</a>
-        <a href="#news">News</a>
-        <a href="#publications-heading">Publications</a>
-        <a href="#teaching">Teaching</a>
-        <a href="#service">Service</a>
-        <a href="#talks-heading">Talks</a>
-        <a href="#notes">Notes</a>
-        <a href="#photos-heading">Photos</a>
-      </nav>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
         <p>Before ETH, I was a visiting researcher at Jane Street and a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and did my PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
@@ -465,6 +455,17 @@
       </ul>
     </div>
   </header>
+    <nav id="sections" aria-label="On this page">
+      <a href="#research">Research</a>
+      <a href="#students">Students</a>
+      <a href="#news">News</a>
+      <a href="#publications-heading">Publications</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#service">Service</a>
+      <a href="#talks-heading">Talks</a>
+      <a href="#notes">Notes</a>
+      <a href="#photos-heading">Photos</a>
+    </nav>
   <div id="main">
     <h2 id="research">Research projects</h2>
     <div id="projects">
