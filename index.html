@@ -86,26 +86,63 @@
       margin-bottom: 14px;
     }
 
-    #sections {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2px 14px;
-      margin: -4px 0 14px 0;
-      font-size: 14px;
-      color: var(--faint);
-    }
-
-    #sections a {
-      color: var(--muted);
-    }
-
-    #sections a:hover {
-      color: var(--link);
-    }
 
     header .role a,
     #sections a {
       white-space: nowrap;
+    }
+
+    #topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 24px;
+      margin: -24px -16px 20px -16px;
+      padding: 12px 16px 10px 16px;
+      background-color: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      font-size: 14.5px;
+    }
+
+    #topbar .links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px 18px;
+    }
+
+    #topbar .links a {
+      color: var(--muted);
+    }
+
+    #topbar .links a.current {
+      color: var(--fg);
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 5px;
+    }
+
+    #topbar a:hover {
+      color: var(--link);
+    }
+
+    h2[id] {
+      scroll-margin-top: 56px;
+    }
+
+    /* On phones the bar wraps to several lines, so it scrolls away with the page. */
+    @media (max-width: 640px) {
+      #topbar {
+        position: static;
+      }
+
+      h2[id] {
+        scroll-margin-top: 0;
+      }
     }
 
     #desc {
@@ -118,6 +155,11 @@
 
     #desc p:last-child {
       margin-bottom: 0;
+    }
+
+    #desc .recent {
+      color: var(--muted);
+      font-size: 15px;
     }
 
     #desc .favourites {
@@ -304,27 +346,6 @@
       }
     }
 
-    #news-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 6px;
-    }
-
-    #news-list li {
-      display: grid;
-      grid-template-columns: 6.5em minmax(0, 1fr);
-      gap: 0 0.75em;
-    }
-
-    #news-list .when {
-      color: var(--faint);
-      font-size: 14px;
-      text-align: right;
-      padding-top: 2px;
-    }
-
     #photos {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -384,16 +405,30 @@
       margin: 0 0 8px 0;
     }
 
+    .project .meta {
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr);
+      gap: 4px 14px;
+      align-items: baseline;
+    }
+
     #main .project .meta p {
+      display: contents;
+    }
+
+    .project .meta .value {
       font-size: 14.5px;
       color: var(--muted);
-      margin: 0 0 3px 0;
     }
 
     /* The collaborator line: smaller and grey, so the paper and code links stand out. */
-    #main .project .meta p:last-child {
+    .project .meta .who {
+      font-size: 13px;
+      color: var(--faint);
+    }
+
+    .project .meta p:last-child .value {
       font-size: 13.5px;
-      margin-top: 5px;
     }
 
     .project .meta p:last-child a {
@@ -405,8 +440,11 @@
     }
 
     .project .meta .label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--faint);
-      margin-right: 4px;
     }
 
     @media (max-width: 640px) {
@@ -432,22 +470,22 @@
   </script>
 </head>
 <body>
+  <nav id="topbar" aria-label="Sections">
+    <span class="links">
+      <a href="#research">Research</a>
+      <a href="#students">Students</a>
+      <a href="#publications-heading">Publications</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#service">Service</a>
+      <a href="#talks-heading">Talks</a>
+      <a href="#notes">Notes</a>
+      <a href="#photos-heading">Photos</a>
+    </span>
+  </nav>
   <header>
     <div id="panel">
       <h1>Jules Jacobs</h1>
       <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
-      <nav id="sections" aria-label="On this page">
-        <span class="label">On this page:</span>
-        <a href="#research">Research</a>
-        <a href="#students">Students</a>
-        <a href="#news">News</a>
-        <a href="#publications-heading">Publications</a>
-        <a href="#teaching">Teaching</a>
-        <a href="#service">Service</a>
-        <a href="#talks-heading">Talks</a>
-        <a href="#notes">Notes</a>
-        <a href="#photos-heading">Photos</a>
-      </nav>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
         <p>Before ETH, I was a visiting researcher at Jane Street and a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and did my PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
@@ -455,6 +493,7 @@
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
           <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
+        <p class="recent"><b>News:</b> papers on <a href="#mode-crossing">mode crossing in OxCaml</a> (ICFP'26), <a href="#slice">exact inference for probabilistic programs</a> (OOPSLA'26), <a href="#nest">network-enforced session types</a> (ECOOP'26) and <a href="#serializability">deciding serializability</a> (TACAS'26) · the IPA Dissertation Award for my <a href="#thesis">thesis</a> · teaching the Software Engineering Seminar at ETH.</p>
       </div>
     </div>
     <div id="profile">
@@ -465,7 +504,7 @@
       </ul>
     </div>
   </header>
-  <div id="main">
+    <div id="main">
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <article class="project">
@@ -474,9 +513,10 @@
           <h3>Safe and verified systems programming</h3>
           <p><a href="https://github.com/oxcaml/oxcaml">OxCaml</a> is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation. As AI agents write more of our code, such specifications let people stay in charge of what that code does.</p>
           <div class="meta">
-            <p><span class="label">Papers</span> <a href="#mode-crossing">Mode Crossing</a> (ICFP'26)</p>
-            <p><span class="label">Code and demos</span> <a href="vox/">Vox</a>, <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>, <a href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>, <a href="misc/oxcaml/playground/">OxCaml playground</a>, <a href="misc/oxcaml/oxcaml-basics/">OxCaml course</a></p>
-            <p><span class="label">With</span> <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a></p>
+            <p><span class="label">Papers</span><span class="value"><a href="#mode-crossing">Mode Crossing</a> (ICFP'26)</span></p>
+            <p><span class="label">Talks</span><span class="value"><a href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a></span></p>
+            <p><span class="label">Tools</span><span class="value"><a href="vox/">Vox</a>, <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>, <a href="misc/oxcaml/playground/">OxCaml playground</a>, <a href="misc/oxcaml/oxcaml-basics/">OxCaml course</a></span></p>
+            <p><span class="label">With</span><span class="value"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a></span></p>
           </div>
         </div>
       </article>
@@ -486,9 +526,10 @@
           <h3>Network verification</h3>
           <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. Google's open-source <a href="https://github.com/google/netkat">NetKAT implementation</a> builds its packet sets and transformers on <a href="#katch">KATch</a>. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
           <div class="meta">
-            <p><span class="label">Papers</span> <a href="#katch">KATch</a> (PLDI'24), <a href="#stackat">StacKAT</a> (PLDI'25), <a href="#nest">NEST</a> (ECOOP'26), <a href="#serializability">SER</a> (TACAS'26), <a href="#boa">Boa</a> (POPL'23)</p>
-            <p><span class="label">Code and demos</span> <a href="misc/katch2/">KATch tutorial and playground</a>, <a href="https://github.com/julesjacobs/KATch">KATch code</a>, <a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>, <a href="https://github.com/julesjacobs/boa">Boa code</a></p>
-            <p><span class="label">With</span> <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a></p>
+            <p><span class="label">Papers</span><span class="value"><a href="#katch">KATch</a> (PLDI'24), <a href="#stackat">StacKAT</a> (PLDI'25), <a href="#nest">NEST</a> (ECOOP'26), <a href="#serializability">SER</a> (TACAS'26), <a href="#boa">Boa</a> (POPL'23)</span></p>
+            <p><span class="label">Talks</span><span class="value"><a href="misc/stackat/slides/slides.html">StacKAT</a>, <a href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">KATch</a> <span class="who">(PLDI'24 talk)</span>, <a href="slides/slides-popl23-coalg.pdf">Boa</a></span></p>
+            <p><span class="label">Tools</span><span class="value"><a href="misc/katch2/">KATch tutorial and playground</a>, <a href="https://github.com/julesjacobs/KATch">KATch code</a>, <a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>, <a href="https://github.com/julesjacobs/boa">Boa code</a></span></p>
+            <p><span class="label">With</span><span class="value"><a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a></span></p>
           </div>
         </div>
       </article>
@@ -498,9 +539,10 @@
           <h3>Deadlock freedom and verified concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
           <div class="meta">
-            <p><span class="label">Papers</span> <a href="#cgraphs">Connectivity graphs</a> (POPL'22), <a href="#mpgv">Multiparty GV</a> (ICFP'22), <a href="#lambdabar">Self-dual session types</a> (ECOOP'22), <a href="#locks">Locks</a> (POPL'23), <a href="#miniactris">Session protocols</a> (ICFP'23), <a href="#dlfactris">Deadlock-free separation logic</a> (POPL'24), <a href="#mpactris">Multris</a> (OOPSLA'24), <a href="#thesis">PhD thesis</a></p>
-            <p><span class="label">Code and demos</span> <a href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a></p>
-            <p><span class="label">With</span> <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a></p>
+            <p><span class="label">Papers</span><span class="value"><a href="#cgraphs">Connectivity graphs</a> (POPL'22), <a href="#mpgv">Multiparty GV</a> (ICFP'22), <a href="#lambdabar">Self-dual session types</a> (ECOOP'22), <a href="#locks">Locks</a> (POPL'23), <a href="#miniactris">Session protocols</a> (ICFP'23), <a href="#dlfactris">Deadlock-free separation logic</a> (POPL'24), <a href="#mpactris">Multris</a> (OOPSLA'24), <a href="#thesis">PhD thesis</a></span></p>
+            <p><span class="label">Talks</span><span class="value"><a href="slides/cgraphs_popl22.pdf">Connectivity graphs</a>, <a href="slides/icfp22-slides.pdf">Multiparty GV</a>, <a href="slides/lambdabar_types22.pdf">Self-dual session types</a>, <a href="slides/slides-popl23-locks.pdf">Locks</a>, <a href="slides/miniactris_iris.pdf">Session protocols</a>, <a href="slides/dlfactris_popl24.pdf">Deadlock-free separation logic</a>, <a href="https://iris-project.org/workshop-2024/slides/hinrichsen.pdf">Multris</a> <span class="who">(Jonas Kastberg Hinrichsen, Iris Workshop 2024)</span></span></p>
+            <p><span class="label">Tools</span><span class="value"><a href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a></span></p>
+            <p><span class="label">With</span><span class="value"><a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a></span></p>
           </div>
         </div>
       </article>
@@ -510,9 +552,10 @@
           <h3>Probabilistic programming</h3>
           <p>When continuous random values only matter through comparisons with constants, <a href="#slice">Slice</a> rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. In <a href="#paradoxes">Paradoxes of Probabilistic Programming</a>, I showed how infinitesimal probabilities resolve the paradoxes that arise when a program conditions on an event of probability zero.</p>
           <div class="meta">
-            <p><span class="label">Papers</span> <a href="#slice">Slice</a> (OOPSLA'26), <a href="#paradoxes">Paradoxes</a> (POPL'21)</p>
-            <p><span class="label">Code and demos</span> <a href="https://zenodo.org/record/4075076">Paradoxes code</a></p>
-            <p><span class="label">With</span> <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a></p>
+            <p><span class="label">Papers</span><span class="value"><a href="#slice">Slice</a> (OOPSLA'26), <a href="#paradoxes">Paradoxes</a> (POPL'21)</span></p>
+            <p><span class="label">Talks</span><span class="value"><a href="slides/measurezero_pldi.pdf">Paradoxes</a></span></p>
+            <p><span class="label">Tools</span><span class="value"><a href="https://zenodo.org/record/4075076">Paradoxes code</a></span></p>
+            <p><span class="label">With</span><span class="value"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a></span></p>
           </div>
         </div>
       </article>
@@ -530,14 +573,6 @@
     <p><b>Prospective PhD students.</b> I'm looking for PhD students who want to work on these topics. Please email me first, with [PhD] in the subject, your CV, a few lines about what you would like to work on and why, and one thing you have made or done that you are proud of: a program, a proof, a project or a piece of writing, with a link if there is one. The formal application goes through the department's <a href="https://inf.ethz.ch/doctorate/doctoral-study-program/application-and-admission.html">doctoral program</a>, or through the <a href="https://inf.ethz.ch/doctorate/direct-doctorate-computer-science.html">Direct Doctorate</a> if you have a bachelor's degree.</p>
     <p><b>Master's theses and semester projects.</b> If you are a student at ETH, I supervise theses and projects in these areas. Email me with [Thesis] in the subject.</p>
     <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
-
-    <h2 id="news">News</h2>
-    <ul id="news-list">
-      <li><span class="when">2026</span><span>I joined <a href="https://inf.ethz.ch/">ETH Zürich</a> as an Assistant Professor in Computer Science.</span></li>
-      <li><span class="when">2026</span><span>Papers at <a href="#slice">OOPSLA'26</a> (Slice), <a href="#mode-crossing">ICFP'26</a> (Mode Crossing), <a href="#nest">ECOOP'26</a> (NEST) and <a href="#serializability">TACAS'26</a> (SER).</span></li>
-      <li><span class="when">2026</span><span>My PhD thesis, <a href="#thesis">Guarantees by Construction</a>, won the IPA Dissertation Award for 2024 theses.</span></li>
-      <li><span class="when">2026</span><span>Teaching the Software Engineering Seminar at ETH with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</span></li>
-    </ul>
 
     <h2 id="publications-heading">Publications</h2>
     <table class="pub" id="publications">
@@ -1099,5 +1134,26 @@
       </div>
     </section>
   </div>
+  <script>
+    // Highlight the top-bar link of the section being read.
+    (function () {
+      var links = Array.prototype.slice.call(document.querySelectorAll("#topbar .links a"));
+      var heads = links.map(function (a) { return document.getElementById(a.getAttribute("href").slice(1)); });
+      var queued = false;
+      function update() {
+        queued = false;
+        var current = -1;
+        for (var i = 0; i < heads.length; i++) {
+          if (heads[i] && heads[i].getBoundingClientRect().top < 120) current = i;
+        }
+        var atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+        if (atEnd) current = heads.length - 1;
+        links.forEach(function (a, i) { a.classList.toggle("current", i === current); });
+      }
+      window.addEventListener("scroll", function () { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+      window.addEventListener("hashchange", update);
+      update();
+    })();
+  </script>
 </body>
 </html>
