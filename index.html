@@ -40,7 +40,6 @@
       max-width: 900px;
       margin: 0 auto;
       padding: 24px 16px 48px 16px;
-      position: relative;
     }
 
     a {
@@ -211,17 +210,6 @@
       cursor: pointer;
     }
 
-    .button.tool {
-      color: #ffffff;
-      border-color: var(--link);
-      background-color: var(--link);
-    }
-
-    .button.tool:hover {
-      background-color: hsl(213, 55%, 28%);
-      border-color: hsl(213, 55%, 28%);
-    }
-
     .distinguished,
     .distinguished:hover {
       color: var(--award-fg);
@@ -281,27 +269,6 @@
       object-fit: cover;
     }
 
-    /* On wide screens the photos sit in the empty left margin. */
-    @media (min-width: 1320px) {
-      #photo-section {
-        position: absolute;
-        top: 30px;
-        right: 100%;
-        width: 150px;
-        margin-right: 20px;
-      }
-
-      #photo-section h2,
-      #photo-section p {
-        display: none;
-      }
-
-      #photos {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-    }
-
     @media (max-width: 600px) {
       #photos {
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -310,67 +277,70 @@
 
     #projects {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
-      gap: 14px;
+      gap: 28px;
     }
 
     .project {
-      display: flex;
-      flex-direction: column;
-      background-color: var(--bg);
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 0 24px;
+      align-items: start;
+    }
+
+    .project .figure {
       border: 1px solid var(--line);
-      border-radius: 10px;
-      overflow: hidden;
+      border-radius: 8px;
+      background-color: var(--figure-bg);
+      padding: 10px;
     }
 
     .project img {
       display: block;
       width: 100%;
       height: auto;
-      aspect-ratio: 16 / 9;
+      aspect-ratio: 4 / 3;
       object-fit: contain;
-      box-sizing: border-box;
-      padding: 10px;
-      background-color: var(--figure-bg);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .project .body {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding: 12px 14px 14px 14px;
     }
 
     .project h3 {
-      font-size: 16px;
+      font-size: 17px;
       margin: 0 0 6px 0;
-      color: var(--fg);
     }
 
     #main .project p {
+      margin: 0 0 8px 0;
+    }
+
+    #main .project .meta p {
       font-size: 14.5px;
-      line-height: 1.5;
       color: var(--muted);
-      margin: 0 0 10px 0;
+      margin: 0 0 3px 0;
     }
 
-    #main .project p.with {
-      font-size: 13.5px;
+    .project .meta .label {
       color: var(--faint);
-      margin: 8px 0 0 0;
+      margin-right: 4px;
     }
 
-    .project .with a {
-      color: var(--muted);
+    @media (max-width: 640px) {
+      .project {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+      }
+
+      .project img {
+        aspect-ratio: 16 / 9;
+      }
     }
 
-    .project .foot {
-      margin-top: auto;
-    }
-
-    .project .links {
-      line-height: 2;
+    #banner {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 6 / 1;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 22px;
     }
   </style>
   <script>
@@ -384,6 +354,7 @@
   </script>
 </head>
 <body>
+  <img id="banner" src="images/banner.jpg" width="1800" height="300" alt="A panorama of mountain ridges under a cloudy sky" />
   <header>
     <div id="panel">
       <h1>Jules Jacobs</h1>
@@ -392,10 +363,7 @@
         <a href="mailto:jules.jacobs@inf.ethz.ch">email</a>
         <a href="https://github.com/julesjacobs">GitHub</a>
         <a href="https://dblp.org/pid/283/3420.html">DBLP</a>
-        <a href="https://orcid.org/0000-0003-1976-3182">ORCID</a>
-        <a href="blog.html">blog</a>
         <a href="#notes">notes</a>
-        <a href="misc/deadlines/">deadlines</a>
       </nav>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
@@ -415,91 +383,64 @@
       <li><span class="when">2026</span><span>Papers at <a href="#slice">OOPSLA'26</a> (Slice), <a href="#mode-crossing">ICFP'26</a> (Mode Crossing), <a href="#nest">ECOOP'26</a> (NEST) and <a href="#serializability">TACAS'26</a> (SER).</span></li>
       <li><span class="when">2026</span><span>Teaching the Software Engineering Seminar at ETH with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</span></li>
       <li><span class="when">2026</span><span>On the program committees of POPL'27 and CSL'27.</span></li>
-      <li><span class="when">2025</span><span>My PhD thesis, <a href="#thesis">Guarantees by Construction</a>, won the VERSEN 2025 award.</span></li>
+      <li><span class="when">2025</span><span>My PhD thesis, <a href="#thesis">Guarantees by Construction</a>, won the VERSEN 2025 award and the IPA Dissertation Award.</span></li>
     </ul>
 
     <h2 id="research">Research projects</h2>
     <div id="projects">
-      <div class="project">
-        <img src="images/projects/modes.svg" width="320" height="180" loading="lazy" alt="A lattice of four modes combining locality and portability. A value of type int moves from the weakest mode to the strongest." />
+      <article class="project">
+        <div class="figure"><img src="images/projects/modes.svg" width="320" height="180" loading="lazy" alt="A lattice of four modes combining locality and portability. A value of type int moves from the weakest mode to the strongest." /></div>
         <div class="body">
           <h3>Safe and verified programming in OxCaml</h3>
           <p>OxCaml is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and mode crossing lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation.</p>
-          <div class="foot">
-            <div class="links">
-              <a class="button tool" href="vox/">Vox</a>
-              <a class="button tool" href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>
-              <a class="button tool" href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>
-              <a class="button tool" href="misc/oxcaml/playground/">OxCaml playground</a>
-              <a class="button tool" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
-              <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>
-            </div>
-            <p class="with">With <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>.</p>
+          <div class="meta">
+            <p><span class="label">Papers</span> <a href="#mode-crossing">Mode Crossing</a> (ICFP'26)</p>
+            <p><span class="label">Code and demos</span> <a href="vox/">Vox</a>, <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>, <a href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>, <a href="misc/oxcaml/playground/">OxCaml playground</a>, <a href="misc/oxcaml/oxcaml-basics/">OxCaml course</a></p>
+            <p><span class="label">With</span> <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a></p>
           </div>
         </div>
-      </div>
-      <div class="project">
-        <img src="images/projects/katch.png" width="762" height="645" loading="lazy" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." />
+      </article>
+      <article class="project">
+        <div class="figure"><img src="images/projects/katch.png" width="762" height="645" loading="lazy" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
         <div class="body">
           <h3>Network verification</h3>
           <p>NetKAT describes a whole network as one program with an equational theory. Our verifiers check properties such as reachability and isolation, typically in well under a second, handle unbounded state such as MPLS label stacks (StacKAT), and decide whether stateful networked programs are serializable (SER). NEST compiles session-type protocols into monitors that run on programmable switches.</p>
-          <div class="foot">
-            <div class="links">
-              <a class="button tool" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
-              <a class="button tool" href="https://github.com/julesjacobs/KATch">KATch code</a>
-              <a class="button tool" href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>
-              <a class="button tool" href="https://github.com/julesjacobs/boa">Boa code</a>
-              <a class="button" href="#katch">KATch, PLDI'24</a>
-              <a class="button" href="#stackat">StacKAT, PLDI'25</a>
-              <a class="button" href="#nest">NEST, ECOOP'26</a>
-              <a class="button" href="#serializability">SER, TACAS'26</a>
-              <a class="button" href="#boa">Boa, POPL'23</a>
-            </div>
-            <p class="with">With <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>.</p>
+          <div class="meta">
+            <p><span class="label">Papers</span> <a href="#katch">KATch</a> (PLDI'24), <a href="#stackat">StacKAT</a> (PLDI'25), <a href="#nest">NEST</a> (ECOOP'26), <a href="#serializability">SER</a> (TACAS'26), <a href="#boa">Boa</a> (POPL'23)</p>
+            <p><span class="label">Code and demos</span> <a href="misc/katch2/">NetKAT tutorial &amp; playground</a>, <a href="https://github.com/julesjacobs/KATch">KATch code</a>, <a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>, <a href="https://github.com/julesjacobs/boa">Boa code</a></p>
+            <p><span class="label">With</span> <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a></p>
           </div>
         </div>
-      </div>
-      <div class="project">
-        <img src="images/projects/cgraphs.png" width="706" height="439" loading="lazy" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." />
+      </article>
+      <article class="project">
+        <div class="figure"><img src="images/projects/cgraphs.png" width="706" height="439" loading="lazy" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." /></div>
         <div class="body">
           <h3>Verified message-passing concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
-          <div class="foot">
-            <div class="links">
-              <a class="button tool" href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a>
-              <a class="button" href="#cgraphs">Connectivity graphs, POPL'22</a>
-              <a class="button" href="#mpgv">Multiparty GV, ICFP'22</a>
-              <a class="button" href="#lambdabar">Self-dual session types, ECOOP'22</a>
-              <a class="button" href="#locks">Locks, POPL'23</a>
-              <a class="button" href="#miniactris">Session protocols, ICFP'23</a>
-              <a class="button" href="#dlfactris">Deadlock-free separation logic, POPL'24</a>
-              <a class="button" href="#mpactris">Multris, OOPSLA'24</a>
-              <a class="button" href="#thesis">PhD thesis</a>
-            </div>
-            <p class="with">With <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>.</p>
+          <div class="meta">
+            <p><span class="label">Papers</span> <a href="#cgraphs">Connectivity graphs</a> (POPL'22), <a href="#mpgv">Multiparty GV</a> (ICFP'22), <a href="#lambdabar">Self-dual session types</a> (ECOOP'22), <a href="#locks">Locks</a> (POPL'23), <a href="#miniactris">Session protocols</a> (ICFP'23), <a href="#dlfactris">Deadlock-free separation logic</a> (POPL'24), <a href="#mpactris">Multris</a> (OOPSLA'24), <a href="#thesis">PhD thesis</a></p>
+            <p><span class="label">Code and demos</span> <a href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a></p>
+            <p><span class="label">With</span> <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a></p>
           </div>
         </div>
-      </div>
-      <div class="project">
-        <img src="images/projects/slice.png" width="840" height="460" loading="lazy" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." />
+      </article>
+      <article class="project">
+        <div class="figure"><img src="images/projects/slice.png" width="840" height="460" loading="lazy" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." /></div>
         <div class="body">
           <h3>Exact inference for probabilistic programs</h3>
           <p>When continuous random values only matter through comparisons with constants, Slice rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. Earlier work showed how infinitesimal probabilities resolve paradoxes of conditioning on events of probability zero.</p>
-          <div class="foot">
-            <div class="links">
-              <a class="button tool" href="https://zenodo.org/record/4075076">Paradoxes code</a>
-              <a class="button" href="#slice">Slice, OOPSLA'26</a>
-              <a class="button" href="#paradoxes">Paradoxes, POPL'21</a>
-            </div>
-            <p class="with">With <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a>.</p>
+          <div class="meta">
+            <p><span class="label">Papers</span> <a href="#slice">Slice</a> (OOPSLA'26), <a href="#paradoxes">Paradoxes</a> (POPL'21)</p>
+            <p><span class="label">Code and demos</span> <a href="https://zenodo.org/record/4075076">Paradoxes code</a></p>
+            <p><span class="label">With</span> <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a></p>
           </div>
         </div>
-      </div>
+      </article>
     </div>
 
     <h2 id="students">Prospective students</h2>
-    <p><b>PhD.</b> I'm looking for PhD students who want to work on the topics above. At ETH, the usual route is to email me first and then apply through the department's <a href="https://inf.ethz.ch/doctorate/doctoral-study-program/application-and-admission.html">doctoral program</a>; with a bachelor's degree, the <a href="https://inf.ethz.ch/doctorate/direct-doctorate-computer-science.html">Direct Doctorate</a> is the way in. Send me a short email with [PhD] in the subject, your CV, and a few lines about what you would like to work on and why.</p>
-    <p><b>Master's theses and semester projects.</b> If you are a student at ETH, I supervise theses and projects in these areas. Possible topics include a fast symbolic verifier for StacKAT, LTL queries for NetKAT, verified programs and libraries in Vox, and type systems for liveness and termination of concurrent programs. Email me with [Thesis] in the subject.</p>
+    <p><b>PhD.</b> I'm looking for PhD students who want to work on these topics. Please email me first, with [PhD] in the subject, your CV, and a few lines about what you would like to work on and why. The formal application goes through the department's <a href="https://inf.ethz.ch/doctorate/doctoral-study-program/application-and-admission.html">doctoral program</a>, or through the <a href="https://inf.ethz.ch/doctorate/direct-doctorate-computer-science.html">Direct Doctorate</a> if you have a bachelor's degree.</p>
+    <p><b>Master's theses and semester projects.</b> If you are a student at ETH, I supervise theses and projects in these areas. Email me with [Thesis] in the subject.</p>
     <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
 
     <h2 id="industry">Working with companies</h2>
@@ -618,6 +559,7 @@
             <a class="button" href="pdf/thesis.pdf">.pdf</a>
             <a class="button" href="https://apndx.org/pub/thesis/">code</a>
             <a class="distinguished" title="VERSEN is the Dutch National Association for Software Engineering. My thesis was the 1st place winner of the 2025 award." style="cursor: help;">VERSEN 2025 award</a>
+            <a class="distinguished">IPA Dissertation Award</a>
             <span class="tag">concurrency</span>
           </div>
         </td>
@@ -873,21 +815,9 @@
       </tr>
     </table>
 
-    <section id="photo-section">
-      <h2 id="photos-heading">Photos</h2>
-      <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
-      <div id="photos">
-        <a href="photos/"><img src="photos/thumbnails/1meer.jpg" width="667" height="500" loading="lazy" alt="A clear turquoise mountain lake with a large boulder" /></a>
-        <a href="photos/"><img src="photos/thumbnails/hoog.jpg" width="667" height="500" loading="lazy" alt="A lake in a valley seen from a mountain, with snowy peaks behind" /></a>
-        <a href="photos/"><img src="photos/thumbnails/4hei_NL.jpg" width="667" height="500" loading="lazy" alt="Flowering heather under a cloudy sky" /></a>
-        <a href="photos/"><img src="photos/thumbnails/bos_NL.jpg" width="667" height="500" loading="lazy" alt="An autumn forest with orange leaves on the ground" /></a>
-        <a href="photos/"><img src="photos/thumbnails/6fungizon_NL.jpg" width="667" height="500" loading="lazy" alt="Small mushrooms growing on a mossy log" /></a>
-        <a href="photos/"><img src="photos/thumbnails/ree.jpg" width="667" height="500" loading="lazy" alt="A deer standing in the snow" /></a>
-      </div>
-    </section>
 
     <h2 id="notes">Notes</h2>
-    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :)</p>
+    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :) Longer posts are on my <a href="blog.html">blog</a>.</p>
     <table class="pub" id="notes">
       <tr>
         <td>Oct. 2022</td>
@@ -1037,7 +967,6 @@
         </td>
       </tr>
     </table>
-    <p>You can find more on my <a href="/blog.html">blog</a>.</p>
     <h2 id="talks-heading">Talks</h2>
     <table class="pub" id="talks">
       <tr>
@@ -1184,10 +1113,27 @@
         <td>ECOOP'24, PLDI'23, ITP'23, LICS'23, POPL'23, OOPSLA (2022), CSL (2022), LMCS (2022), ESOP'21, ICFP'20</td>
       </tr>
       <tr>
+        <td>Software</td>
+        <td><a href="misc/deadlines/">PL deadline calendar</a>, upcoming deadlines for programming languages conferences; <a href="https://lab.julesjacobs.com/review/">Review Desk</a>, for writing paper reviews next to the PDF</td>
+      </tr>
+      <tr>
         <td>Other</td>
         <td>VCA for Behavioural Types: Bridging Theory and Practice (2021)</td>
       </tr>
     </table>
+
+    <section id="photo-section">
+      <h2 id="photos-heading">Photos</h2>
+      <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
+      <div id="photos">
+        <a href="photos/"><img src="photos/thumbnails/1meer.jpg" width="667" height="500" loading="lazy" alt="A clear turquoise mountain lake with a large boulder" /></a>
+        <a href="photos/"><img src="photos/thumbnails/hoog.jpg" width="667" height="500" loading="lazy" alt="A lake in a valley seen from a mountain, with snowy peaks behind" /></a>
+        <a href="photos/"><img src="photos/thumbnails/4hei_NL.jpg" width="667" height="500" loading="lazy" alt="Flowering heather under a cloudy sky" /></a>
+        <a href="photos/"><img src="photos/thumbnails/bos_NL.jpg" width="667" height="500" loading="lazy" alt="An autumn forest with orange leaves on the ground" /></a>
+        <a href="photos/"><img src="photos/thumbnails/6fungizon_NL.jpg" width="667" height="500" loading="lazy" alt="Small mushrooms growing on a mossy log" /></a>
+        <a href="photos/"><img src="photos/thumbnails/ree.jpg" width="667" height="500" loading="lazy" alt="A deer standing in the snow" /></a>
+      </div>
+    </section>
   </div>
 </body>
 </html>
