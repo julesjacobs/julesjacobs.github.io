@@ -40,6 +40,7 @@
       max-width: 900px;
       margin: 0 auto;
       padding: 24px 16px 48px 16px;
+      position: relative;
     }
 
     a {
@@ -86,15 +87,8 @@
       margin-bottom: 14px;
     }
 
-    #links .sep {
-      color: var(--line);
-    }
-
     #desc {
-      background-color: var(--panel);
       color: var(--fg);
-      padding: 12px 16px;
-      border-radius: 10px;
     }
 
     #desc p {
@@ -143,6 +137,18 @@
       font-size: 14px;
       text-align: right;
       white-space: normal;
+    }
+
+    .pub.roles tr td:first-child {
+      width: 9.5em;
+    }
+
+    .pub.roles td {
+      padding-bottom: 10px;
+    }
+
+    #notes td {
+      padding-bottom: 8px;
     }
 
     #publications tr td:first-child {
@@ -234,16 +240,6 @@
       margin-left: 5px;
     }
 
-    details.more {
-      margin: 4px 0 0 0;
-    }
-
-    details.more summary {
-      cursor: pointer;
-      color: var(--link);
-      margin-bottom: 12px;
-    }
-
     #news {
       list-style: none;
       padding: 0;
@@ -283,6 +279,27 @@
       height: auto;
       aspect-ratio: 1;
       object-fit: cover;
+    }
+
+    /* On wide screens the photos sit in the empty left margin. */
+    @media (min-width: 1320px) {
+      #photo-section {
+        position: absolute;
+        top: 30px;
+        right: 100%;
+        width: 150px;
+        margin-right: 20px;
+      }
+
+      #photo-section h2,
+      #photo-section p {
+        display: none;
+      }
+
+      #photos {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
     }
 
     @media (max-width: 600px) {
@@ -341,14 +358,18 @@
     #main .project p.with {
       font-size: 13.5px;
       color: var(--faint);
+      margin: 8px 0 0 0;
     }
 
     .project .with a {
       color: var(--muted);
     }
 
-    .project .links {
+    .project .foot {
       margin-top: auto;
+    }
+
+    .project .links {
       line-height: 2;
     }
   </style>
@@ -372,18 +393,13 @@
         <a href="https://github.com/julesjacobs">GitHub</a>
         <a href="https://dblp.org/pid/283/3420.html">DBLP</a>
         <a href="https://orcid.org/0000-0003-1976-3182">ORCID</a>
-        <span class="sep">|</span>
-        <a href="#research">research</a>
-        <a href="#students">students</a>
-        <a href="#publications-heading">publications</a>
         <a href="blog.html">blog</a>
         <a href="#notes">notes</a>
         <a href="misc/deadlines/">deadlines</a>
-        <a href="photos/">photos</a>
       </nav>
       <div id="desc">
-        <p>I'm an Assistant Professor in Computer Science at ETH Zürich. Previously I was a visiting researcher at Jane Street, a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and a PhD student at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs.</p>
+        <p>Before ETH, I was a visiting researcher at Jane Street and a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and did my PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
         <p class="favourites">Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
@@ -408,16 +424,17 @@
         <img src="images/projects/modes.svg" width="320" height="180" loading="lazy" alt="A lattice of four modes combining locality and portability. A value of type int moves from the weakest mode to the strongest." />
         <div class="body">
           <h3>Safe and verified programming in OxCaml</h3>
-          <p>OxCaml is Jane Street's extension of OCaml for safe low-level and parallel programming. Its modes track whether a value can escape its stack frame or be shared between threads, which gives safe stack allocation and data-race freedom. Mode crossing lets integers, immutable data and other suitable types move to a stronger mode automatically, which removes many annotations; it is implemented in the OxCaml compiler and proved sound in Rocq.</p>
-          <p><a href="vox/">Vox</a> is a fork of the OxCaml compiler that checks specifications at compile time. Refinement types are proved by Z3, proofs are written as ghost code that is erased before code generation, and uniqueness modes make ghost ownership tokens affine. With specifications, people can check what a program does by reading its specs instead of every line, which matters more as more code is written by AI agents.</p>
-          <p class="with">With <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>.</p>
-          <div class="links">
-            <a class="button tool" href="vox/">Vox</a>
-            <a class="button tool" href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>
-            <a class="button tool" href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>
-            <a class="button tool" href="misc/oxcaml/playground/">OxCaml playground</a>
-            <a class="button tool" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
-            <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>
+          <p>OxCaml is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and mode crossing lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation.</p>
+          <div class="foot">
+            <div class="links">
+              <a class="button tool" href="vox/">Vox</a>
+              <a class="button tool" href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>
+              <a class="button tool" href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a>
+              <a class="button tool" href="misc/oxcaml/playground/">OxCaml playground</a>
+              <a class="button tool" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
+              <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>
+            </div>
+            <p class="with">With <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>.</p>
           </div>
         </div>
       </div>
@@ -425,19 +442,20 @@
         <img src="images/projects/katch.png" width="762" height="645" loading="lazy" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." />
         <div class="body">
           <h3>Network verification</h3>
-          <p>Network outages are often caused by configuration mistakes spread over many devices. NetKAT describes a whole network as one program with an equational theory. Our verifier KATch checks reachability, isolation and similar properties, typically in well under a second, and returns a counterexample when one fails. StacKAT extends this to unbounded state such as MPLS label stacks.</p>
-          <p>Networks also run stateful services that talk to each other. NEST compiles session-type protocols into monitors that run on programmable switches and drop messages that break the protocol, and SER decides whether a stateful networked program is serializable, even with unboundedly many concurrent requests. These verifiers are decision procedures on automata and Petri nets; related work on automata includes Boa, a single fast minimization algorithm for deterministic, weighted and probabilistic automata.</p>
-          <p class="with">With <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>.</p>
-          <div class="links">
-            <a class="button tool" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
-            <a class="button tool" href="https://github.com/julesjacobs/KATch">KATch code</a>
-            <a class="button tool" href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>
-            <a class="button tool" href="https://github.com/julesjacobs/boa">Boa code</a>
-            <a class="button" href="#katch">KATch, PLDI'24</a>
-            <a class="button" href="#stackat">StacKAT, PLDI'25</a>
-            <a class="button" href="#nest">NEST, ECOOP'26</a>
-            <a class="button" href="#serializability">SER, TACAS'26</a>
-            <a class="button" href="#boa">Boa, POPL'23</a>
+          <p>NetKAT describes a whole network as one program with an equational theory. Our verifiers check properties such as reachability and isolation, typically in well under a second, handle unbounded state such as MPLS label stacks (StacKAT), and decide whether stateful networked programs are serializable (SER). NEST compiles session-type protocols into monitors that run on programmable switches.</p>
+          <div class="foot">
+            <div class="links">
+              <a class="button tool" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
+              <a class="button tool" href="https://github.com/julesjacobs/KATch">KATch code</a>
+              <a class="button tool" href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>
+              <a class="button tool" href="https://github.com/julesjacobs/boa">Boa code</a>
+              <a class="button" href="#katch">KATch, PLDI'24</a>
+              <a class="button" href="#stackat">StacKAT, PLDI'25</a>
+              <a class="button" href="#nest">NEST, ECOOP'26</a>
+              <a class="button" href="#serializability">SER, TACAS'26</a>
+              <a class="button" href="#boa">Boa, POPL'23</a>
+            </div>
+            <p class="with">With <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>.</p>
           </div>
         </div>
       </div>
@@ -445,18 +463,20 @@
         <img src="images/projects/cgraphs.png" width="706" height="439" loading="lazy" alt="A connectivity graph from the paper (Fig. 1): threads T, T1 and T2 and channels C1 and C2, with red triangles showing which endpoint each blocked party is waiting on." />
         <div class="body">
           <h3>Verified message-passing concurrency</h3>
-          <p>Programs that communicate over channels or share locks can deadlock or leak memory. We design type systems and separation logics for higher-order programs with session-type protocols and locks, in which well-typed or verified programs never deadlock because the graph of threads and channels stays acyclic. Later work verifies that programs also compute the right results while following multiparty and dependent protocols. All proofs are mechanized in Coq/Rocq using Iris.</p>
-          <p class="with">With <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>.</p>
-          <div class="links">
-            <a class="button tool" href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a>
-            <a class="button" href="#cgraphs">Connectivity graphs, POPL'22</a>
-            <a class="button" href="#mpgv">Multiparty GV, ICFP'22</a>
-            <a class="button" href="#lambdabar">Self-dual session types, ECOOP'22</a>
-            <a class="button" href="#locks">Locks, POPL'23</a>
-            <a class="button" href="#miniactris">Session protocols, ICFP'23</a>
-            <a class="button" href="#dlfactris">Deadlock-free separation logic, POPL'24</a>
-            <a class="button" href="#mpactris">Multris, OOPSLA'24</a>
-            <a class="button" href="#thesis">PhD thesis</a>
+          <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
+          <div class="foot">
+            <div class="links">
+              <a class="button tool" href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a>
+              <a class="button" href="#cgraphs">Connectivity graphs, POPL'22</a>
+              <a class="button" href="#mpgv">Multiparty GV, ICFP'22</a>
+              <a class="button" href="#lambdabar">Self-dual session types, ECOOP'22</a>
+              <a class="button" href="#locks">Locks, POPL'23</a>
+              <a class="button" href="#miniactris">Session protocols, ICFP'23</a>
+              <a class="button" href="#dlfactris">Deadlock-free separation logic, POPL'24</a>
+              <a class="button" href="#mpactris">Multris, OOPSLA'24</a>
+              <a class="button" href="#thesis">PhD thesis</a>
+            </div>
+            <p class="with">With <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>.</p>
           </div>
         </div>
       </div>
@@ -464,12 +484,14 @@
         <img src="images/projects/slice.png" width="840" height="460" loading="lazy" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." />
         <div class="body">
           <h3>Exact inference for probabilistic programs</h3>
-          <p>Probabilistic programs describe statistical models, and inference computes the distributions they define. Slice finds where continuous random values only matter through comparisons with finitely many constants, and rewrites the program into a discrete one that exact solvers can handle. Earlier work showed that conditioning on events of probability zero leads to paradoxes, and how infinitesimal probabilities resolve them.</p>
-          <p class="with">With <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a>.</p>
-          <div class="links">
-            <a class="button tool" href="https://zenodo.org/record/4075076">Paradoxes code</a>
-            <a class="button" href="#slice">Slice, OOPSLA'26</a>
-            <a class="button" href="#paradoxes">Paradoxes, POPL'21</a>
+          <p>When continuous random values only matter through comparisons with constants, Slice rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. Earlier work showed how infinitesimal probabilities resolve paradoxes of conditioning on events of probability zero.</p>
+          <div class="foot">
+            <div class="links">
+              <a class="button tool" href="https://zenodo.org/record/4075076">Paradoxes code</a>
+              <a class="button" href="#slice">Slice, OOPSLA'26</a>
+              <a class="button" href="#paradoxes">Paradoxes, POPL'21</a>
+            </div>
+            <p class="with">With <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a>.</p>
           </div>
         </div>
       </div>
@@ -851,16 +873,18 @@
       </tr>
     </table>
 
-    <h2 id="photos-heading">Photos</h2>
-    <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
-    <div id="photos">
-      <a href="photos/"><img src="photos/thumbnails/1meer.jpg" width="667" height="500" loading="lazy" alt="A clear turquoise mountain lake with a large boulder" /></a>
-      <a href="photos/"><img src="photos/thumbnails/hoog.jpg" width="667" height="500" loading="lazy" alt="A lake in a valley seen from a mountain, with snowy peaks behind" /></a>
-      <a href="photos/"><img src="photos/thumbnails/4hei_NL.jpg" width="667" height="500" loading="lazy" alt="Flowering heather under a cloudy sky" /></a>
-      <a href="photos/"><img src="photos/thumbnails/bos_NL.jpg" width="667" height="500" loading="lazy" alt="An autumn forest with orange leaves on the ground" /></a>
-      <a href="photos/"><img src="photos/thumbnails/6fungizon_NL.jpg" width="667" height="500" loading="lazy" alt="Small mushrooms growing on a mossy log" /></a>
-      <a href="photos/"><img src="photos/thumbnails/ree.jpg" width="667" height="500" loading="lazy" alt="A deer standing in the snow" /></a>
-    </div>
+    <section id="photo-section">
+      <h2 id="photos-heading">Photos</h2>
+      <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
+      <div id="photos">
+        <a href="photos/"><img src="photos/thumbnails/1meer.jpg" width="667" height="500" loading="lazy" alt="A clear turquoise mountain lake with a large boulder" /></a>
+        <a href="photos/"><img src="photos/thumbnails/hoog.jpg" width="667" height="500" loading="lazy" alt="A lake in a valley seen from a mountain, with snowy peaks behind" /></a>
+        <a href="photos/"><img src="photos/thumbnails/4hei_NL.jpg" width="667" height="500" loading="lazy" alt="Flowering heather under a cloudy sky" /></a>
+        <a href="photos/"><img src="photos/thumbnails/bos_NL.jpg" width="667" height="500" loading="lazy" alt="An autumn forest with orange leaves on the ground" /></a>
+        <a href="photos/"><img src="photos/thumbnails/6fungizon_NL.jpg" width="667" height="500" loading="lazy" alt="Small mushrooms growing on a mossy log" /></a>
+        <a href="photos/"><img src="photos/thumbnails/ree.jpg" width="667" height="500" loading="lazy" alt="A deer standing in the snow" /></a>
+      </div>
+    </section>
 
     <h2 id="notes">Notes</h2>
     <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :)</p>
@@ -913,10 +937,6 @@
           <a class="title" href="notes/smartconstr/smartconstr.pdf"> Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation </a>
         </td>
       </tr>
-    </table>
-    <details class="more">
-      <summary>Show 15 more notes</summary>
-      <table class="pub">
       <tr>
         <td>Sep. 2021</td>
         <td>
@@ -1016,426 +1036,158 @@
           <a class="button" href="code/sympoly.jl">code</a>
         </td>
       </tr>
-      </table>
-    </details>
+    </table>
     <p>You can find more on my <a href="/blog.html">blog</a>.</p>
     <h2 id="talks-heading">Talks</h2>
     <table class="pub" id="talks">
       <tr>
-        <td>June 2025</td>
+        <td>2025</td>
         <td>
           <a class="title" href="misc/stackat/slides/slides.html">StacKAT: Infinite State Network Verification</a>
           <div class="info">PLDI'25</div>
         </td>
       </tr>
       <tr>
-        <td>6 Feb. 2024</td>
+        <td>2024</td>
         <td>
-          <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing </a>
-          <div class="info">EPFL</div>
+          <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</a>
+          <div class="info">EPFL, POPL'24</div>
         </td>
       </tr>
       <tr>
-        <td>18 Jan. 2024</td>
-        <td>
-          <a class="title" href="slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing </a>
-          <div class="info">POPL'24</div>
-        </td>
-      </tr>
-      <tr>
-        <td>16 Jan. 2024</td>
+        <td>2024</td>
         <td>
           <a class="title" href="slides/probpreview_popl24.pdf">Probabilistic Programming Session Preview</a>
           <div class="info">POPL'24 (session preview)</div>
         </td>
       </tr>
       <tr>
-        <td>15 Jan. 2024</td>
+        <td>2024</td>
         <td>
           <a class="title" href="slides/actristutorial_popl24.pdf">Verified Message-Passing Concurrency in Iris: Separation Logic Meets Session Types</a>
           <div class="info">POPL'24 (tutorial, with Jonas Kastberg Hinrichsen and Robbert Krebbers)</div>
         </td>
       </tr>
       <tr>
-        <td>11 Dec. 2023</td>
+        <td>2023</td>
         <td>
-          <a class="title" href="slides/iris-masterplan.pdf"> The Iris Masterplan </a>
+          <a class="title" href="slides/iris-masterplan.pdf">The Iris Masterplan</a>
           <div class="info">PL Retreat, Cornell University</div>
         </td>
       </tr>
-    </table>
-    <details class="more">
-      <summary>Show 26 more talks</summary>
-      <table class="pub">
       <tr>
-        <td>20 Sept. 2023</td>
+        <td>2023</td>
         <td>
-          <a class="title" href="slides/slides-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-          <div class="info">Cornell University</div>
+          <a class="title" href="slides/slides-locks.pdf">Higher-Order Leak and Deadlock Free Locks</a>
+          <div class="info">Cornell University, Carnegie Mellon University, POPV seminar Boston, LFCS seminar Edinburgh, POPL'23</div>
         </td>
       </tr>
       <tr>
-        <td>14 June 2023</td>
+        <td>2022–23</td>
         <td>
-          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-          <div class="info">Carnegie Mellon University</div>
+          <a class="title" href="slides/slides-popl23-coalg.pdf">Fast Coalgebraic Bisimilarity Minimization</a>
+          <div class="info">Cornell University, LIP ENS Lyon, POPL'23, SWS Seminar, Radboud University</div>
         </td>
       </tr>
       <tr>
-        <td>7 June 2023</td>
+        <td>2023</td>
         <td>
-          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-          <div class="info">Cornell University</div>
-        </td>
-      </tr>
-      <tr>
-        <td>22 May. 2023</td>
-        <td>
-          <a class="title" href="slides/miniactris_iris.pdf"> Dependent Session Protocols in Separation Logic From First Principles </a>
+          <a class="title" href="slides/miniactris_iris.pdf">Dependent Session Protocols in Separation Logic From First Principles</a>
           <div class="info">Iris Workshop 2023</div>
         </td>
       </tr>
       <tr>
-        <td>30 Mar. 2023</td>
+        <td>2022</td>
         <td>
-          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-          <div class="info">LIP ENS Lyon</div>
-        </td>
-      </tr>
-      <tr>
-        <td>3 Mar. 2023</td>
-        <td>
-          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-          <div class="info">POPV seminar Boston</div>
-        </td>
-      </tr>
-      <tr>
-        <td>17 Feb. 2023</td>
-        <td>
-          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-          <div class="info">LFCS seminar Edinburgh</div>
-        </td>
-      </tr>
-      <tr>
-        <td>20 Jan. 2023</td>
-        <td>
-          <a class="title" href="slides/slides-popl23-coalg.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-          <div class="info">POPL'23</div>
-        </td>
-      </tr>
-      <tr>
-        <td>18 Jan. 2023</td>
-        <td>
-          <a class="title" href="slides/slides-popl23-locks.pdf"> Higher-Order Leak and Deadlock Free Locks </a>
-          <div class="info">POPL'23</div>
-        </td>
-      </tr>
-      <tr>
-        <td>25 Oct. 2022</td>
-        <td>
-          <a class="title" href="slides/boa_sws.pdf"> Fast Coalgebraic Bisimilarity Minimization </a>
-          <div class="info">SWS Seminar, Radboud University</div>
-        </td>
-      </tr>
-      <tr>
-        <td>22 June 2022</td>
-        <td>
-          <a class="title" href="slides/icfp22-slides.pdf"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
+          <a class="title" href="slides/icfp22-slides.pdf">Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom</a>
           <div class="info">ICFP'22</div>
         </td>
       </tr>
       <tr>
-        <td>22 June 2022</td>
+        <td>2022</td>
         <td>
-          <a class="title" href="slides/lambdabar_types22.pdf"> A Simple Concurrent Lambda Calculus For Encoding Session Types </a>
+          <a class="title" href="slides/lambdabar_types22.pdf">A Simple Concurrent Lambda Calculus For Encoding Session Types</a>
           <div class="info">TYPES'22</div>
         </td>
       </tr>
       <tr>
-        <td>9 June 2022</td>
+        <td>2020–22</td>
         <td>
-          <a class="title" href="slides/measurezero_pldi.pdf"> Paradoxes of Probabilistic Programming </a>
-          <div class="info">PLDI'22 Sigplan Track</div>
+          <a class="title" href="slides/measurezero_pldi.pdf">Paradoxes of Probabilistic Programming</a>
+          <div class="info">PLDI'22 Sigplan Track, VeriProP'21, POPL'21, PL Seminar, TU Delft, PPLV, University College London, SWS Seminar, Radboud University</div>
         </td>
       </tr>
       <tr>
-        <td>9 June 2022</td>
+        <td>2022</td>
         <td>
-          <a class="title" href="slides/ecoop22-slides.pdf"> A Self-Dual Distillation of Session Types </a>
+          <a class="title" href="slides/ecoop22-slides.pdf">A Self-Dual Distillation of Session Types</a>
           <div class="info">ECOOP'22</div>
         </td>
       </tr>
       <tr>
-        <td>2 May 2022</td>
+        <td>2022</td>
         <td>
-          <a class="title" href="slides/iris-workshop-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-          <div class="info">Iris workshop</div>
+          <a class="title" href="slides/iris-workshop-slides22.pdf">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a>
+          <div class="info">Iris workshop, CMU plunch, Imperial College London, POPL'22</div>
         </td>
       </tr>
       <tr>
-        <td>28 Apr. 2022</td>
+        <td>2021</td>
         <td>
-          <a class="title" href="slides/plunch-slides-popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-          <div class="info">CMU plunch</div>
+          <a class="title" href="slides/deadlocks_gr.pdf">Mechanized Deadlock Freedom for Session Types</a>
+          <div class="info">FCG, University of Groningen, VEST'21</div>
         </td>
       </tr>
       <tr>
-        <td>25 Mar. 2022</td>
+        <td>2021</td>
         <td>
-          <a class="title" href="slides/imperial-slides22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-          <div class="info">Imperial College London</div>
-        </td>
-      </tr>
-      <tr>
-        <td>19 Jan. 2022</td>
-        <td>
-          <a class="title" href="slides/cgraphs_popl22.pdf"> Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic </a>
-          <div class="info">POPL'22</div>
-        </td>
-      </tr>
-      <tr>
-        <td>12 Oct. 2021</td>
-        <td>
-          <a class="title" href="slides/deadlocks_gr.pdf"> Mechanized Deadlock Freedom for Session Types </a>
-          <div class="info">FCG, University of Groningen</div>
-        </td>
-      </tr>
-      <tr>
-        <td>19 July 2021</td>
-        <td>
-          <a class="title" href="slides/veriprop2021.pdf"> Paradoxes of Probabilistic Programming <small><i>(and deleted scenes)</i></small>
-          </a>
-          <div class="info">VeriProP'21</div>
-        </td>
-      </tr>
-      <tr>
-        <td>12 July 2021</td>
-        <td>
-          <a class="title" href="slides/vest2021.pdf"> Mechanized Deadlock Freedom for Session Types </a>
-          <div class="info">VEST'21</div>
-        </td>
-      </tr>
-      <tr>
-        <td>3 Feb. 2021</td>
-        <td>
-          <a class="title" href="slides/deadlocks_ru.pdf"> Deadlock Freedom for Session Types Using Separation Logic </a>
+          <a class="title" href="slides/deadlocks_ru.pdf">Deadlock Freedom for Session Types Using Separation Logic</a>
           <div class="info">SWS Seminar, Radboud University</div>
         </td>
       </tr>
-      <tr>
-        <td>22 Jan. 2021</td>
-        <td>
-          <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
-          <div class="info">POPL'21</div>
-        </td>
-      </tr>
-      <tr>
-        <td>25 Nov. 2020</td>
-        <td>
-          <a class="title paradoxes" href="slides/measurezero_delft.pdf"> Paradoxes of Probabilistic Programming </a>
-          <div class="info">PL Seminar, TU Delft</div>
-        </td>
-      </tr>
-      <tr>
-        <td>23 Nov. 2020</td>
-        <td>
-          <a class="title paradoxes" href="slides/measurezero_ucl.pdf"> Paradoxes of Probabilistic Programming </a>
-          <div class="info">PPLV, University College London</div>
-        </td>
-      </tr>
-      <tr>
-        <td>28 Oct. 2020</td>
-        <td>
-          <a class="title paradoxes" href="slides/measurezero.pdf"> Paradoxes of Probabilistic Programming </a>
-          <div class="info">SWS Seminar, Radboud University</div>
-        </td>
-      </tr>
-      </table>
-    </details>
+    </table>
     <h2>Teaching</h2>
-    <table class="pub" id="teaching">
+    <table class="pub roles" id="teaching">
       <tr>
-        <td>2026</td>
-        <td>Teaching the Software Engineering Seminar at ETH Zürich with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
+        <td>ETH Zürich</td>
+        <td>Software Engineering Seminar (2026), with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
       </tr>
       <tr>
-        <td>2026</td>
-        <td><a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a>, a three-hour course for Jane Street interns and engineers, with lecture notes, slides and exercises.</td>
+        <td>Jane Street</td>
+        <td><a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a> (2026), a three-hour course for interns and engineers.</td>
       </tr>
       <tr>
-        <td>2024</td>
-        <td>Helping Nate Foster teach Certified Software Systems (CS6115) at Cornell University.</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
+        <td>Earlier</td>
+        <td>Helped teach Certified Software Systems at Cornell (2024); Program Verification (2022, 2023), Type Theory (2020–2022) and the MFOCS seminar (2021, 2022) at Radboud; and Software Verification at TU Delft (2020). Co-supervised Menzo van Kessel's bachelor thesis on a type checker and interpreter for MPGV (2022) and Edoardo Putti's master thesis on mechanizing incorrectness separation logic in Coq (2020).</td>
       </tr>
     </table>
-    <details class="more">
-      <summary>Show 9 more</summary>
-      <table class="pub">
-      <tr>
-        <td>2022</td>
-        <td>Assisting Robbert with the supervision of Menzo van Kessel's bachelor thesis project about implementing a type checker and interpreter for MPGV.</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Helping Robbert teach Coq & separation logic in Program Verification course at RU.</td>
-      </tr>
-      <tr>
-        <td>2021</td>
-        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-      </tr>
-      <tr>
-        <td>2021</td>
-        <td>Helping students prepare their presentations for the MFOCS seminar course at RU.</td>
-      </tr>
-      <tr>
-        <td>2020</td>
-        <td>Helping Freek teach Coq in the Type Theory course at RU.</td>
-      </tr>
-      <tr>
-        <td>2020</td>
-        <td>Assisting Robbert with the master thesis project of Edoardo Putti about mechanizing incorrectness separation logic in Coq.</td>
-      </tr>
-      <tr>
-        <td>2020</td>
-        <td>Assisting Robbert with the Software Verification course at TU Delft.</td>
-      </tr>
-      </table>
-    </details>
     <h2>Academic Service</h2>
-    <table class="pub" id="service">
+    <table class="pub roles" id="service">
       <tr>
-        <td>2027</td>
-        <td>POPL'27 PC</td>
+        <td>Program committees</td>
+        <td>POPL'27, CSL'27, TFP'26, ICFP'25, PLDI'25, ECOOP'25, PLACES'25; OOPSLA'26 Review Committee</td>
       </tr>
       <tr>
-        <td>2027</td>
-        <td>CSL'27 PC</td>
+        <td>Website chair</td>
+        <td>PLDI'27 (co-chair), ICFP'26, ICFP/SPLASH'25 (co-chair), ICFP'25 (co-chair), ICFP'24 (co-chair)</td>
       </tr>
       <tr>
-        <td>2027</td>
-        <td>Website co-chair for PLDI'27</td>
+        <td>PLMW</td>
+        <td>Social media chair since 2024; committee of PLMW @ SPLASH/ISSTA'26</td>
       </tr>
       <tr>
-        <td>2026</td>
-        <td>OOPSLA'26 Review Committee</td>
+        <td>Artifact evaluation</td>
+        <td>ESOP'23, PLDI'22, ESOP'22</td>
       </tr>
       <tr>
-        <td>2026</td>
-        <td>TFP'26 PC</td>
+        <td>Reviewing</td>
+        <td>ECOOP'24, PLDI'23, ITP'23, LICS'23, POPL'23, OOPSLA (2022), CSL (2022), LMCS (2022), ESOP'21, ICFP'20</td>
       </tr>
       <tr>
-        <td>2026</td>
-        <td>PLMW @ SPLASH/ISSTA'26 committee</td>
-      </tr>
-      <tr>
-        <td>2026</td>
-        <td>Website chair for ICFP'26</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>ICFP'25 PC</td>
+        <td>Other</td>
+        <td>VCA for Behavioural Types: Bridging Theory and Practice (2021)</td>
       </tr>
     </table>
-    <details class="more">
-      <summary>Show 21 more</summary>
-      <table class="pub">
-      <tr>
-        <td>2025</td>
-        <td>PLDI'25 PC</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>ECOOP'25 PC</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>PLACES'25 PC</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>Website co-chair for ICFP/SPLASH'25</td>
-      </tr>
-      <tr>
-        <td>2025</td>
-        <td>Website co-chair for ICFP'25</td>
-      </tr>
-      <tr>
-        <td>2024</td>
-        <td>Website co-chair for ICFP'24</td>
-      </tr>
-      <tr>
-        <td>2024 - ongoing</td>
-        <td>PLMW social media chair</td>
-      </tr>
-      <tr>
-        <td>2024</td>
-        <td>Reviewing for ECOOP'24</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>Reviewing for PLDI'23</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>Reviewing for ITP'23</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>Reviewing for LICS'23</td>
-      </tr>
-      <tr>
-        <td>2023</td>
-        <td>ESOP'23 AEC</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Reviewing for POPL'23</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Reviewing for CSL</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Reviewing LMCS</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>Reviewing OOPSLA</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>PLDI'22 AEC</td>
-      </tr>
-      <tr>
-        <td>2022</td>
-        <td>ESOP'22 AEC</td>
-      </tr>
-      <tr>
-        <td>2021</td>
-        <td>VCA for Behavioural Types: Bridging Theory and Practice</td>
-      </tr>
-      <tr>
-        <td>2020</td>
-        <td>Reviewing for ESOP'21.</td>
-      </tr>
-      <tr>
-        <td>2020</td>
-        <td>Reviewing for ICFP'20.</td>
-      </tr>
-      </table>
-    </details>
   </div>
 </body>
 </html>
