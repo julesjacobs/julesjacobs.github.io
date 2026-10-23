@@ -364,6 +364,7 @@
         <span class="sep">|</span>
         <a href="#research">research</a>
         <a href="#students">students</a>
+        <a href="#software">software</a>
         <a href="#publications-heading">publications</a>
         <a href="blog.html">blog</a>
         <a href="#notes">notes</a>
@@ -382,6 +383,15 @@
     <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules Jacobs" />
   </header>
   <div id="main">
+    <h2 id="news-heading">News</h2>
+    <ul id="news">
+      <li><span class="when">2026</span><span>I joined <a href="https://inf.ethz.ch/">ETH Zürich</a> as an Assistant Professor in Computer Science.</span></li>
+      <li><span class="when">2026</span><span>Papers at <a href="#slice">OOPSLA'26</a> (Slice), <a href="#mode-crossing">ICFP'26</a> (Mode Crossing), <a href="#nest">ECOOP'26</a> (NEST) and <a href="#serializability">TACAS'26</a> (SER).</span></li>
+      <li><span class="when">2026</span><span>Teaching the Software Engineering Seminar at ETH with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</span></li>
+      <li><span class="when">2026</span><span>On the program committees of POPL'27 and CSL'27.</span></li>
+      <li><span class="when">2025</span><span>My PhD thesis, <a href="#thesis">Guarantees by Construction</a>, won the VERSEN 2025 award.</span></li>
+    </ul>
+
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <div class="project">
@@ -447,7 +457,24 @@
     </div>
 
     <h2 id="students">Prospective students</h2>
-    <p>If you'd like to do a PhD, a master's thesis or a semester project with me at ETH Zürich on any of these topics, send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> with a few lines about your background and what interests you. A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools. I'm also happy to hear from companies that want to apply formal methods to their own systems.</p>
+    <p><b>PhD.</b> I'm looking for PhD students who want to work on the topics above. At ETH, the usual route is to email me first and then apply through the department's <a href="https://inf.ethz.ch/doctorate/doctoral-study-program/application-and-admission.html">doctoral program</a>; with a bachelor's degree, the <a href="https://inf.ethz.ch/doctorate/direct-doctorate-computer-science.html">Direct Doctorate</a> is the way in. Send me a short email with [PhD] in the subject, your CV, and a few lines about what you would like to work on and why.</p>
+    <p><b>Master's theses and semester projects.</b> If you are a student at ETH, I supervise theses and projects in these areas. Possible topics include a fast symbolic verifier for StacKAT, LTL queries for NetKAT, verified programs and libraries in Vox, and type systems for liveness and termination of concurrent programs. Email me with [Thesis] in the subject.</p>
+    <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
+
+    <h2 id="industry">Working with companies</h2>
+    <p>I work with Jane Street on <a href="#research">OxCaml</a>: the type system design from Mode Crossing is implemented in the OxCaml compiler and used in Jane Street's code base, and Vox builds compile-time verification on top of it. If your company has systems where stronger guarantees would help, I'm open to joint research projects, research gifts, internships for my students, and talks or workshops. <a href="mailto:jules.jacobs@inf.ethz.ch">Email me</a>.</p>
+
+    <h2 id="software">Software and demos</h2>
+    <div id="software">
+      <div><a href="https://lab.julesjacobs.com/vox/">Vox</a><span>OxCaml with refinement types and ghost code, checked at compile time. With a <a href="https://lab.julesjacobs.com/vox/playground/">playground</a> and <a href="https://lab.julesjacobs.com/vox/catalogue/">verified programs</a>.</span></div>
+      <div><a href="misc/oxcaml/playground/">OxCaml playground</a><span>Run OxCaml in the browser; used in the <a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a> course.</span></div>
+      <div><a href="https://github.com/julesjacobs/KATch">KATch</a><span>Fast symbolic verifier for NetKAT network configurations.</span></div>
+      <div><a href="misc/katch2/">NetKAT tutorial and playground</a><span>Learn NetKAT and check network properties in the browser.</span></div>
+      <div><a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a><span>Equivalence checking for NetKAT with a packet stack.</span></div>
+      <div><a href="https://github.com/julesjacobs/boa">Boa</a><span>Generic minimization for deterministic, weighted and probabilistic automata.</span></div>
+      <div><a href="https://github.com/julesjacobs/cgraphs">Connectivity graphs</a><span>Coq/Rocq proofs of deadlock freedom for session types and locks.</span></div>
+      <div><a href="misc/deadlines/">PL deadline calendar</a><span>Upcoming deadlines for programming languages conferences.</span></div>
+    </div>
 
     <h2 id="publications-heading">Publications</h2>
     <table class="pub" id="publications">
