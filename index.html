@@ -86,40 +86,56 @@
       margin-bottom: 14px;
     }
 
-    #sections {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 2px 16px;
-      margin: 20px 0 0 0;
-      font-size: 14px;
-      color: var(--faint);
-    }
-
-    #sections a {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      color: var(--link);
-    }
-
-    #sections a::after {
-      content: "\2193";
-      color: var(--muted);
-      font-size: 11.5px;
-      line-height: 1;
-      margin-top: -1px;
-      transform: scaleY(0.8);
-    }
-
-
-    #sections a:hover {
-      color: var(--link);
-    }
 
     header .role a,
     #sections a {
       white-space: nowrap;
+    }
+
+    #topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 24px;
+      margin: -24px -16px 20px -16px;
+      padding: 12px 16px 10px 16px;
+      background-color: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      font-size: 14.5px;
+    }
+
+    #topbar .links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2px 18px;
+    }
+
+    #topbar .links a {
+      color: var(--muted);
+    }
+
+    #topbar a:hover {
+      color: var(--link);
+    }
+
+    h2[id] {
+      scroll-margin-top: 56px;
+    }
+
+    /* On phones the bar wraps to several lines, so it scrolls away with the page. */
+    @media (max-width: 640px) {
+      #topbar {
+        position: static;
+      }
+
+      h2[id] {
+        scroll-margin-top: 0;
+      }
     }
 
     #desc {
@@ -446,6 +462,19 @@
   </script>
 </head>
 <body>
+  <nav id="topbar" aria-label="Sections">
+    <span class="links">
+      <a href="#research">Research</a>
+      <a href="#students">Students</a>
+      <a href="#news">News</a>
+      <a href="#publications-heading">Publications</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#service">Service</a>
+      <a href="#talks-heading">Talks</a>
+      <a href="#notes">Notes</a>
+      <a href="#photos-heading">Photos</a>
+    </span>
+  </nav>
   <header>
     <div id="panel">
       <h1>Jules Jacobs</h1>
@@ -467,18 +496,7 @@
       </ul>
     </div>
   </header>
-    <nav id="sections" aria-label="On this page">
-      <a href="#research">Research</a>
-      <a href="#students">Students</a>
-      <a href="#news">News</a>
-      <a href="#publications-heading">Publications</a>
-      <a href="#teaching">Teaching</a>
-      <a href="#service">Service</a>
-      <a href="#talks-heading">Talks</a>
-      <a href="#notes">Notes</a>
-      <a href="#photos-heading">Photos</a>
-    </nav>
-  <div id="main">
+    <div id="main">
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <article class="project">
