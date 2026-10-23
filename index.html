@@ -86,6 +86,20 @@
       margin-bottom: 14px;
     }
 
+    #sections {
+      margin: -6px 0 14px 0;
+      font-size: 14px;
+      color: var(--faint);
+    }
+
+    #sections a {
+      color: var(--muted);
+    }
+
+    #sections a:hover {
+      color: var(--link);
+    }
+
     #desc {
       color: var(--fg);
     }
@@ -405,6 +419,17 @@
         <a href="https://dblp.org/pid/283/3420.html">DBLP</a>
         <a href="misc/deadlines/">PL deadlines</a>
         <a href="https://lab.julesjacobs.com/review/">Review tool</a>
+      </nav>
+      <nav id="sections" aria-label="Sections">
+        <a href="#research">Research</a> ·
+        <a href="#students">Students</a> ·
+        <a href="#news">News</a> ·
+        <a href="#publications-heading">Publications</a> ·
+        <a href="#teaching">Teaching</a> ·
+        <a href="#service">Service</a> ·
+        <a href="#talks-heading">Talks</a> ·
+        <a href="#notes">Notes</a> ·
+        <a href="#photos-heading">Photos</a>
       </nav>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
@@ -844,8 +869,8 @@
     </table>
 
 
-    <h2>Teaching</h2>
-    <table class="pub roles" id="teaching">
+    <h2 id="teaching">Teaching</h2>
+    <table class="pub roles" id="teaching-list">
       <tr>
         <td>ETH Zürich</td>
         <td>Software Engineering Seminar (2026), with <a href="https://people.inf.ethz.ch/mkokologiann/">Michalis Kokologiannakis</a> and <a href="https://research.ralfj.de/">Ralf Jung</a>.</td>
@@ -860,8 +885,8 @@
       </tr>
     </table>
 
-    <h2>Academic Service</h2>
-    <table class="pub roles" id="service">
+    <h2 id="service">Academic Service</h2>
+    <table class="pub roles" id="service-list">
       <tr>
         <td>Organizing</td>
         <td><a href="https://iris-project.org/workshop-2026/">Iris Workshop 2026</a> at ISTA, with <a href="https://pub.ista.ac.at/~msammler/">Michael Sammler</a></td>
