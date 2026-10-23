@@ -228,6 +228,15 @@
       margin-left: 5px;
     }
 
+    ul.uptake {
+      margin: 0 0 12px 0;
+      padding-left: 1.2em;
+    }
+
+    ul.uptake li {
+      margin-bottom: 6px;
+    }
+
     #news {
       list-style: none;
       padding: 0;
@@ -379,7 +388,7 @@
     <h2 id="research">Research projects</h2>
     <div id="projects">
       <article class="project">
-        <div class="figure"><img src="images/projects/modes.svg" width="320" height="180" loading="lazy" alt="A lattice of four modes combining locality and portability. A value of type int moves from the weakest mode to the strongest." /></div>
+        <div class="figure"><img src="images/projects/vox-modes.jpg" width="1000" height="415" loading="lazy" alt="From the Vox talk: refinement types meet OxCaml modes. Vox adds totality and ghost axes next to OxCaml's uniqueness, locality and portability." /></div>
         <div class="body">
           <h3>Safe and verified programming in OxCaml</h3>
           <p><a href="https://github.com/oxcaml/oxcaml">OxCaml</a> is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation.</p>
@@ -434,7 +443,12 @@
     <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
 
     <h2 id="industry">Working with companies</h2>
-    <p>I work with Jane Street on <a href="#research">OxCaml</a>: the type system design from Mode Crossing is implemented in the OxCaml compiler and used in Jane Street's code base, and Vox builds compile-time verification on top of it. If your company has systems where stronger guarantees would help, I'm open to joint research projects, research gifts, internships for my students, and talks or workshops. <a href="mailto:jules.jacobs@inf.ethz.ch">Email me</a>.</p>
+    <p>Some of this work has found its way into industry:</p>
+    <ul class="uptake">
+      <li><b>Jane Street.</b> I work with Jane Street on OxCaml. <a href="#mode-crossing">Mode crossing</a> is implemented in the OxCaml compiler and deployed in Jane Street's code base, and <a href="vox/">Vox</a> builds compile-time verification on top of OxCaml.</li>
+      <li><b>Google.</b> Google's open-source <a href="https://github.com/google/netkat">NetKAT implementation</a> builds its packet sets and transformers on our verifier <a href="#katch">KATch</a>.</li>
+    </ul>
+    <p>If your company has software or infrastructure where stronger guarantees would help, I'm interested in joint research projects, research gifts, internships for my students, and talks. <a href="mailto:jules.jacobs@inf.ethz.ch">Email me</a>.</p>
 
     <h2 id="publications-heading">Publications</h2>
     <table class="pub" id="publications">
