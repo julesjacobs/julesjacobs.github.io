@@ -270,6 +270,32 @@
       font-size: 14.5px;
     }
 
+    #photos {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    #photos a {
+      display: block;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    #photos img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: cover;
+    }
+
+    @media (max-width: 600px) {
+      #photos {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
     #projects {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr));
@@ -849,6 +875,17 @@
       <a href="https://tobias.kap.pe/">Tobias Kappé</a>.
     </p>
     
+    <h2 id="photos-heading">Photos</h2>
+    <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
+    <div id="photos">
+      <a href="photos/"><img src="photos/thumbnails/1meer.jpg" width="667" height="500" loading="lazy" alt="A clear turquoise mountain lake with a large boulder" /></a>
+      <a href="photos/"><img src="photos/thumbnails/hoog.jpg" width="667" height="500" loading="lazy" alt="A lake in a valley seen from a mountain, with snowy peaks behind" /></a>
+      <a href="photos/"><img src="photos/thumbnails/4hei_NL.jpg" width="667" height="500" loading="lazy" alt="Flowering heather under a cloudy sky" /></a>
+      <a href="photos/"><img src="photos/thumbnails/bos_NL.jpg" width="667" height="500" loading="lazy" alt="An autumn forest with orange leaves on the ground" /></a>
+      <a href="photos/"><img src="photos/thumbnails/6fungizon_NL.jpg" width="667" height="500" loading="lazy" alt="Small mushrooms growing on a mossy log" /></a>
+      <a href="photos/"><img src="photos/thumbnails/ree.jpg" width="667" height="500" loading="lazy" alt="A deer standing in the snow" /></a>
+    </div>
+
     <h2 id="notes">Notes</h2>
     <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :)</p>
     <table class="pub" id="notes">
