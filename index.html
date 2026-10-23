@@ -103,10 +103,6 @@
       color: var(--link);
     }
 
-    header .role .sep {
-      color: var(--faint);
-    }
-
     header .role a,
     #sections a {
       white-space: nowrap;
@@ -129,7 +125,22 @@
       font-size: 15px;
     }
 
+    #profile {
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    #contact {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--faint);
+    }
+
     header #pic {
+      display: block;
       margin: 0 auto;
       border-radius: 50%;
     }
@@ -424,7 +435,7 @@
   <header>
     <div id="panel">
       <h1>Jules Jacobs</h1>
-      <p class="role">Assistant Professor, ETH Zürich<span class="sep"> · </span><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a><span class="sep"> · </span><a href="https://github.com/julesjacobs">GitHub</a><span class="sep"> · </span><a href="https://dblp.org/pid/283/3420.html">DBLP</a></p>
+      <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
       <nav id="sections" aria-label="On this page">
         <span class="label">On this page:</span>
         <a href="#research">Research</a>
@@ -446,7 +457,13 @@
           <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
       </div>
     </div>
-    <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules Jacobs" />
+    <div id="profile">
+      <img id="pic" src="images/jules.jpg" width="150" height="150" alt="Jules Jacobs" />
+      <ul id="contact">
+        <li><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a></li>
+        <li><a href="https://github.com/julesjacobs">GitHub</a> · <a href="https://dblp.org/pid/283/3420.html">DBLP</a></li>
+      </ul>
+    </div>
   </header>
   <div id="main">
     <h2 id="research">Research projects</h2>
