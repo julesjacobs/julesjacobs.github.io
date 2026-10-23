@@ -97,7 +97,19 @@
     }
 
     #sections a {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
       color: var(--link);
+    }
+
+    #sections a::after {
+      content: "\2193";
+      color: var(--muted);
+      font-size: 11.5px;
+      line-height: 1;
+      margin-top: -1px;
+      transform: scaleY(0.8);
     }
 
 
