@@ -205,6 +205,17 @@
       cursor: pointer;
     }
 
+    .button.tool {
+      color: #ffffff;
+      border-color: var(--link);
+      background-color: var(--link);
+    }
+
+    .button.tool:hover {
+      background-color: hsl(213, 55%, 28%);
+      border-color: hsl(213, 55%, 28%);
+    }
+
     .distinguished,
     .distinguished:hover {
       color: var(--award-fg);
@@ -252,22 +263,6 @@
       font-size: 14px;
       text-align: right;
       padding-top: 2px;
-    }
-
-    #software {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
-      gap: 10px 24px;
-    }
-
-    #software div {
-      display: grid;
-      gap: 2px;
-    }
-
-    #software span {
-      color: var(--muted);
-      font-size: 14.5px;
     }
 
     #photos {
@@ -343,6 +338,15 @@
       margin: 0 0 10px 0;
     }
 
+    #main .project p.with {
+      font-size: 13.5px;
+      color: var(--faint);
+    }
+
+    .project .with a {
+      color: var(--muted);
+    }
+
     .project .links {
       margin-top: auto;
       line-height: 2;
@@ -371,7 +375,6 @@
         <span class="sep">|</span>
         <a href="#research">research</a>
         <a href="#students">students</a>
-        <a href="#software">software</a>
         <a href="#publications-heading">publications</a>
         <a href="blog.html">blog</a>
         <a href="#notes">notes</a>
@@ -407,13 +410,14 @@
           <h3>Safe and verified programming in OxCaml</h3>
           <p>OxCaml is Jane Street's extension of OCaml for safe low-level and parallel programming. Its modes track whether a value can escape its stack frame or be shared between threads, which gives safe stack allocation and data-race freedom. Mode crossing lets integers, immutable data and other suitable types move to a stronger mode automatically, which removes many annotations; it is implemented in the OxCaml compiler and proved sound in Rocq.</p>
           <p>Vox is a fork of the OxCaml compiler that checks specifications at compile time. Refinement types are proved by Z3, proofs are written as ghost code that is erased before code generation, and uniqueness modes make ghost ownership tokens affine. With specifications, people can check what a program does by reading its specs instead of every line, which matters more as more code is written by AI agents.</p>
+          <p class="with">With <a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>.</p>
           <div class="links">
+            <a class="button tool" href="https://lab.julesjacobs.com/vox/">Vox</a>
+            <a class="button tool" href="https://lab.julesjacobs.com/vox/playground/">Vox playground</a>
+            <a class="button tool" href="https://lab.julesjacobs.com/vox/catalogue/">Vox verified programs</a>
+            <a class="button tool" href="misc/oxcaml/playground/">OxCaml playground</a>
+            <a class="button tool" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
             <a class="button" href="#mode-crossing">Mode Crossing, ICFP'26</a>
-            <a class="button" href="https://lab.julesjacobs.com/vox/">Vox</a>
-            <a class="button" href="https://lab.julesjacobs.com/vox/catalogue/">Vox verified programs</a>
-            <a class="button" href="https://lab.julesjacobs.com/vox/playground/">Vox playground</a>
-            <a class="button" href="misc/oxcaml/oxcaml-basics/">OxCaml course</a>
-            <a class="button" href="misc/oxcaml/playground/">OxCaml playground</a>
           </div>
         </div>
       </div>
@@ -423,13 +427,17 @@
           <h3>Network verification</h3>
           <p>Network outages are often caused by configuration mistakes spread over many devices. NetKAT describes a whole network as one program with an equational theory. Our verifier KATch checks reachability, isolation and similar properties, typically in well under a second, and returns a counterexample when one fails. StacKAT extends this to unbounded state such as MPLS label stacks.</p>
           <p>Networks also run stateful services that talk to each other. NEST compiles session-type protocols into monitors that run on programmable switches and drop messages that break the protocol, and SER decides whether a stateful networked program is serializable, even with unboundedly many concurrent requests. These verifiers are decision procedures on automata and Petri nets; related work on automata includes Boa, a single fast minimization algorithm for deterministic, weighted and probabilistic automata.</p>
+          <p class="with">With <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>.</p>
           <div class="links">
+            <a class="button tool" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
+            <a class="button tool" href="https://github.com/julesjacobs/KATch">KATch code</a>
+            <a class="button tool" href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>
+            <a class="button tool" href="https://github.com/julesjacobs/boa">Boa code</a>
             <a class="button" href="#katch">KATch, PLDI'24</a>
             <a class="button" href="#stackat">StacKAT, PLDI'25</a>
             <a class="button" href="#nest">NEST, ECOOP'26</a>
             <a class="button" href="#serializability">SER, TACAS'26</a>
             <a class="button" href="#boa">Boa, POPL'23</a>
-            <a class="button" href="misc/katch2/">NetKAT tutorial &amp; playground</a>
           </div>
         </div>
       </div>
@@ -438,7 +446,9 @@
         <div class="body">
           <h3>Verified message-passing concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock or leak memory. We design type systems and separation logics for higher-order programs with session-type protocols and locks, in which well-typed or verified programs never deadlock because the graph of threads and channels stays acyclic. Later work verifies that programs also compute the right results while following multiparty and dependent protocols. All proofs are mechanized in Coq/Rocq using Iris.</p>
+          <p class="with">With <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>.</p>
           <div class="links">
+            <a class="button tool" href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a>
             <a class="button" href="#cgraphs">Connectivity graphs, POPL'22</a>
             <a class="button" href="#mpgv">Multiparty GV, ICFP'22</a>
             <a class="button" href="#lambdabar">Self-dual session types, ECOOP'22</a>
@@ -455,7 +465,9 @@
         <div class="body">
           <h3>Exact inference for probabilistic programs</h3>
           <p>Probabilistic programs describe statistical models, and inference computes the distributions they define. Slice finds where continuous random values only matter through comparisons with finitely many constants, and rewrites the program into a discrete one that exact solvers can handle. Earlier work showed that conditioning on events of probability zero leads to paradoxes, and how infinitesimal probabilities resolve them.</p>
+          <p class="with">With <a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a>.</p>
           <div class="links">
+            <a class="button tool" href="https://zenodo.org/record/4075076">Paradoxes code</a>
             <a class="button" href="#slice">Slice, OOPSLA'26</a>
             <a class="button" href="#paradoxes">Paradoxes, POPL'21</a>
           </div>
@@ -470,18 +482,6 @@
 
     <h2 id="industry">Working with companies</h2>
     <p>I work with Jane Street on <a href="#research">OxCaml</a>: the type system design from Mode Crossing is implemented in the OxCaml compiler and used in Jane Street's code base, and Vox builds compile-time verification on top of it. If your company has systems where stronger guarantees would help, I'm open to joint research projects, research gifts, internships for my students, and talks or workshops. <a href="mailto:jules.jacobs@inf.ethz.ch">Email me</a>.</p>
-
-    <h2 id="software">Software and demos</h2>
-    <div id="software">
-      <div><a href="https://lab.julesjacobs.com/vox/">Vox</a><span>OxCaml with refinement types and ghost code, checked at compile time. With a <a href="https://lab.julesjacobs.com/vox/playground/">playground</a> and <a href="https://lab.julesjacobs.com/vox/catalogue/">verified programs</a>.</span></div>
-      <div><a href="misc/oxcaml/playground/">OxCaml playground</a><span>Run OxCaml in the browser; used in the <a href="misc/oxcaml/oxcaml-basics/">OxCaml Basics</a> course.</span></div>
-      <div><a href="https://github.com/julesjacobs/KATch">KATch</a><span>Fast symbolic verifier for NetKAT network configurations.</span></div>
-      <div><a href="misc/katch2/">NetKAT tutorial and playground</a><span>Learn NetKAT and check network properties in the browser.</span></div>
-      <div><a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a><span>Equivalence checking for NetKAT with a packet stack.</span></div>
-      <div><a href="https://github.com/julesjacobs/boa">Boa</a><span>Generic minimization for deterministic, weighted and probabilistic automata.</span></div>
-      <div><a href="https://github.com/julesjacobs/cgraphs">Connectivity graphs</a><span>Coq/Rocq proofs of deadlock freedom for session types and locks.</span></div>
-      <div><a href="misc/deadlines/">PL deadline calendar</a><span>Upcoming deadlines for programming languages conferences.</span></div>
-    </div>
 
     <h2 id="publications-heading">Publications</h2>
     <table class="pub" id="publications">
@@ -851,30 +851,6 @@
       </tr>
     </table>
 
-    <h2 id="collaborators">Collaborators</h2>
-    <p>I'm lucky to work with some great people. Here are some of them:</p>
-    <p>
-      <a href="https://alexandrasilva.org/">Alexandra Silva</a>,
-      <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>,
-      <a href="https://david.darais.com/">David Darais</a>,
-      <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>,
-      <a href="https://ngernest.github.io/">Ernest Ng</a>,
-      <a href="https://guyam2.github.io/">Guy Amir</a>,
-      <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>,
-      <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>,
-      <a href="https://katherinewu312.github.io/">Katherine Wu</a>,
-      <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>,
-      <a href="https://markis.cool/">Mark Barbone</a>,
-      <a href="https://markmoeller.work/">Mark Moeller</a>,
-      <a href="https://natefoster.org/">Nate Foster</a>,
-      <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>,
-      <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>,
-      <a href="https://smolka.st/">Steffen Smolka</a>,
-      <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>,
-      <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>,
-      <a href="https://tobias.kap.pe/">Tobias Kappé</a>.
-    </p>
-    
     <h2 id="photos-heading">Photos</h2>
     <p>Some photos I took on walks and hikes. There are more in the <a href="photos/">gallery</a>.</p>
     <div id="photos">
