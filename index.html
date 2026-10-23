@@ -108,10 +108,21 @@
       border-radius: 50%;
     }
 
+    /* Section headings: centred, with a thin rule on each side. */
     h2 {
+      display: flex;
+      align-items: center;
+      gap: 22px;
       font-size: 20px;
-      margin: 36px 0 12px 0;
+      margin: 56px 0 26px 0;
       letter-spacing: -0.005em;
+    }
+
+    h2::before,
+    h2::after {
+      content: "";
+      flex: 1;
+      border-top: 1.5px solid #b9bec7;
     }
 
     #main p {
