@@ -298,25 +298,17 @@
       line-height: 1.5;
     }
 
+    .authors .equal {
+      font-size: 13px;
+      color: var(--faint);
+    }
+
     .authors a {
       color: var(--muted);
     }
 
     .info {
       color: var(--muted);
-    }
-
-    .bibtex {
-      display: none;
-      width: 90%;
-      margin: 10px 0;
-      padding: 10px;
-      background-color: var(--panel);
-      color: var(--muted);
-      border: none;
-      border-radius: 8px;
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      font-size: 13px;
     }
 
     .button,
@@ -507,15 +499,6 @@
     }
 
   </style>
-  <script>
-    function toggle(elem) {
-      var e = document.getElementById(elem);
-      e.style.display = e.style.display == "block" ? "none" : "block";
-      e.style.height = "";
-      e.style.height = e.scrollHeight + "px";
-      e.select();
-    }
-  </script>
 </head>
 <body>
   <nav id="topbar" aria-label="Sections">
@@ -537,7 +520,7 @@
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
         <p>Before ETH, I was a visiting researcher at Jane Street and a postdoc at Cornell with <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://natefoster.org/">Nate Foster</a>, and did my PhD at Radboud with <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a> and <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>.</p>
-        <p class="favourites">Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="http://www.cse.chalmers.se/edu/year/2010/course/DAT140_Types/Reynolds_typesabpara.pdf">parametricity</a>, <a href="https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
+        <p class="favourites">Some of my favourite things are: <a href="https://coq.inria.fr/">type theory</a>, <a href="https://people.mpi-sws.org/~dreyer/tor/papers/reynolds.pdf">parametricity</a>, <a href="https://web.archive.org/web/20250929014322/https://www.clear.rice.edu/comp512/Lectures/Papers/SimpsonThesis.pdf">SSA</a>
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
           <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
@@ -572,7 +555,7 @@
         <div class="figure"><img src="images/projects/katch.webp" width="762" height="645" decoding="async" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
         <div class="body">
           <h3>Network verification</h3>
-          <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. Google's open-source <a href="https://github.com/google/netkat">NetKAT implementation</a> builds its packet sets and transformers on <a href="#katch">KATch</a>. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
+          <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
           <div class="meta">
             <p><span class="label">Papers</span><span class="value"><a href="#katch">KATch</a> (PLDI'24), <a href="#stackat">StacKAT</a> (PLDI'25), <a href="#nest">NEST</a> (ECOOP'26), <a href="#serializability">SER</a> (TACAS'26), <a href="#boa">Boa</a> (POPL'23)</span></p>
             <p><span class="label">Talks</span><span class="value"><a href="misc/stackat/slides/slides.html">StacKAT</a>, <a href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">KATch</a> <span class="who">(PLDI'24 talk)</span>, <a href="slides/slides-popl23-coalg.pdf">Boa</a></span></p>
@@ -718,7 +701,7 @@
           <a class="title" href="pdf/katch.pdf">KATch: A Fast Symbolic Verifier for NetKAT</a>
           <br />
           <div class="info">
-            <div class="authors"> <a href="https://markmoeller.work/">Mark Moeller</a> + <span class="me">Jules Jacobs</span>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a>, <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a> </div>
+            <div class="authors"> <a href="https://markmoeller.work/">Mark Moeller</a>*, <span class="me">Jules Jacobs</span>*, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a>, <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>  <span class="equal">(* equal contribution)</span></div>
             <a class="button" href="pdf/katch.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3656454">DOI</a>
             <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
@@ -787,19 +770,7 @@
             <a class="button" href="https://doi.org/10.1145/3571229">DOI</a>
             <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-            <a class="button" onclick="toggle('locks-bibtex')">bibtex</a>
             <a class="distinguished">POPL'23 distinguished paper</a>
-            <textarea class="bibtex" id="locks-bibtex">
-@article{jacobs_locks_2023,
-  author = {Jacobs, Jules and Balzer, Stephanie},
-  title = {Higher-Order Leak and Deadlock Free Locks},
-  year = {2023},
-  volume = {7},
-  number = {POPL},
-  doi = {10.1145/3571229},
-  journal = {Proc. ACM Program. Lang.},
-  articleno = {36},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -816,18 +787,6 @@
             <a class="button" href="https://doi.org/10.1145/3571245">DOI</a>
             <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/boa">code</a>
-            <a class="button" onclick="toggle('boa-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="boa-bibtex">
-@article{jacobs_bismin_2023,
-  author = {Jacobs, Jules and Wi\ss{}mann, Thorsten},
-  title = {Fast Coalgebraic Bisimilarity Minimization},
-  year = {2023},
-  volume = {7},
-  number = {POPL},
-  doi = {10.1145/3571245},
-  journal = {Proc. ACM Program. Lang.},
-  articleno = {52},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -845,19 +804,6 @@
             <a class="button" href="slides/icfp22-slides.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
             <a class="button" href="pdf/multiparty_annotated.pdf">crossref</a>
-            <a class="button" onclick="toggle('mpgv-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="mpgv-bibtex">
-@article{jacobs_mpgv_2022,
-  author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},
-  title = {Multiparty GV: Functional Multiparty Session Types with Certified Deadlock Freedom},
-  year = {2022},
-  volume = {6},
-  number = {ICFP},
-  url = {https://doi.org/10.1145/3547638},
-  doi = {10.1145/3547638},
-  journal = {Proc. ACM Program. Lang.},
-  month = {aug},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -871,22 +817,6 @@
             <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2022.23">DOI</a>
             <a class="button" href="slides/lambdabar_types22.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-            <a class="button" onclick="toggle('lambdabar-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="lambdabar-bibtex">
-@inproceedings{jacobs_distillation_2022,
-  author = {Jacobs, Jules},
-  title = {{A Self-Dual Distillation of Session Types}},
-  booktitle = {36th European Conference on Object-Oriented Programming (ECOOP 2022)},
-  pages = {23:1--23:22},
-  series = {Leibniz International Proceedings in Informatics (LIPIcs)},
-  ISBN = {978-3-95977-225-9},
-  ISSN = {1868-8969},
-  year = {2022},
-  volume = {222},
-  URL = {https://drops.dagstuhl.de/opus/volltexte/2022/16251},
-  URN = {urn:nbn:de:0030-drops-162518},
-  doi = {10.4230/LIPIcs.ECOOP.2022.23},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -902,24 +832,11 @@
             <a class="button" href="https://doi.org/10.1145/3498662">DOI</a>
             <a class="button" href="slides/cgraphs_popl22.pdf">slides</a>
             <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
-            <a class="button" onclick="toggle('cgraphs-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="cgraphs-bibtex">
-@article{jacobs_cgraphs_2022,
-  author = {Jules Jacobs and Stephanie Balzer and Robbert Krebbers},
-  title = {Connectivity graphs: a method for proving deadlock freedom based on separation logic},
-  journal = {Proc. {ACM} Program. Lang.},
-  volume = {6},
-  number = {{POPL}},
-  pages = {1--33},
-  year = {2022},
-  url = {https://doi.org/10.1145/3498662},
-  doi = {10.1145/3498662},
-}</textarea>
           </div>
         </td>
       </tr>
       <tr id="ovarian">
-        <td>Neuro-biology of Aging</td>
+        <td>Neurobiology of Aging</td>
         <td>
           <a class="title" href="https://www.sciencedirect.com/science/article/abs/pii/S019745802100066X?via%3Dihub">Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease</a>
           <div class="info">
@@ -947,17 +864,6 @@
               <a href="https://www.uantwerpen.be/en/staff/marleen-verhoye/research/">Marleen Verhoye</a>
             </div>
             <a class="button" href="https://doi.org/10.1016/j.neurobiolaging.2021.02.011">DOI</a>
-            <a class="button" onclick="toggle('ovarian-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="ovarian-bibtex">
-@article{KARA2021,
-  title = {Long-term ovarian hormone deprivation alters functional connectivity, brain neurochemical profile and white matter integrity in the Tg2576 amyloid mouse model of Alzheimer's disease},
-  journal = {Neurobiology of Aging},
-  year = {2021},
-  issn = {0197-4580},
-  doi = {https://doi.org/10.1016/j.neurobiolaging.2021.02.011},
-  url = {https://www.sciencedirect.com/science/article/pii/S019745802100066X},
-  author = {Firat Kara and Michael E. Belloy and Rick Voncken and Zahra Sarwari and Yadav Garima and Cynthia Anckaerts and An Langbeen and Valerie Leysen and Disha Shah and Jules Jacobs and Julie Hamaide and Peter Bols and Johan {Van Audekerke} and Jasmijn Daans and Caroline Guglielmetti and Kejal Kantarci and Vincent Prevot and Steffen Roßner and Peter Ponsaerts and Annemie {Van der Linden} and Marleen Verhoye},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -976,19 +882,6 @@
             <a class="button" href="https://zenodo.org/record/4075076">code</a>
             <a class="button" href="slides/measurezero_pldi.pdf">slides</a>
             <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
-            <a class="button" onclick="toggle('paradoxes-bibtex')">bibtex</a>
-            <textarea class="bibtex" id="paradoxes-bibtex">
-@article{jacobs_paradoxes_2021,
-  title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},
-  volume = {5},
-  shorttitle = {Paradoxes of probabilistic programming},
-  doi = {10.1145/3434339},
-  number = {POPL},
-  journal = {Proc. {ACM} Program. Lang.},
-  author = {Jacobs, Jules},
-  year = {2021},
-  pages = {58:1--58:26},
-}</textarea>
           </div>
         </td>
       </tr>
@@ -1101,7 +994,7 @@
       <tr>
         <td>2023</td>
         <td>
-          <a class="title" href="slides/miniactris_iris.pdf">Dependent Session Protocols in Separation Logic From First Principles</a>
+          <a class="title" href="slides/miniactris_iris.pdf">Dependent Session Protocols in Separation Logic from First Principles</a>
           <div class="info">Iris Workshop 2023</div>
         </td>
       </tr>
@@ -1115,7 +1008,7 @@
       <tr>
         <td>2022</td>
         <td>
-          <a class="title" href="slides/lambdabar_types22.pdf">A Simple Concurrent Lambda Calculus For Encoding Session Types</a>
+          <a class="title" href="slides/lambdabar_types22.pdf">A Simple Concurrent Lambda Calculus for Encoding Session Types</a>
           <div class="info">TYPES'22</div>
         </td>
       </tr>
@@ -1123,7 +1016,7 @@
         <td>2020–22</td>
         <td>
           <a class="title" href="slides/measurezero_pldi.pdf">Paradoxes of Probabilistic Programming</a>
-          <div class="info">PLDI'22 Sigplan Track · VeriProP'21 · POPL'21 · PL Seminar, TU Delft · PPLV, University College London · SWS Seminar, Radboud University</div>
+          <div class="info">PLDI'22 SIGPLAN Track · VeriProP'21 · POPL'21 · PL Seminar, TU Delft · PPLV, University College London · SWS Seminar, Radboud University</div>
         </td>
       </tr>
       <tr>
@@ -1137,7 +1030,7 @@
         <td>2022</td>
         <td>
           <a class="title" href="slides/iris-workshop-slides22.pdf">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a>
-          <div class="info">Iris workshop · CMU plunch · Imperial College London · POPL'22</div>
+          <div class="info">Iris Workshop · CMU plunch · Imperial College London · POPL'22</div>
         </td>
       </tr>
       <tr>

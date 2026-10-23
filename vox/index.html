@@ -216,7 +216,7 @@
   <h2>Who reviews the code agents write?</h2>
   <p>AI agents now write almost all of our code, and they keep getting better. They write it faster than I could read it. So how do people stay on top of what that code does? I see three possible worlds. In the first, the agents go, and nobody reads the code. Today that means bugs and a tangled architecture. Agents will get better at avoiding those, but I still lose my map of the code base, so I can't steer it. In the last, I review everything the agent writes. I stay in charge, but I become the bottleneck, and reading machine-written code line by line is not work anyone enjoys.</p>
   <figure class="slide">
-    <img src="talk/setting.jpg" loading="lazy" alt="Three worlds side by side. Vibe coding: an agent writes the code and the human only talks to the agent; the town of modules is tangled and buggy. Verified programming: only the specs come to the human, the code is checked against them. Human code review: every page of code comes to the human's desk." />
+    <img src="talk/setting.jpg" width="1600" height="775" loading="lazy" alt="Three worlds side by side. Vibe coding: an agent writes the code and the human only talks to the agent; the town of modules is tangled and buggy. Verified programming: only the specs come to the human, the code is checked against them. Human code review: every page of code comes to the human's desk." />
     <figcaption>Fast but out of control, in charge but slow, and in the middle: fast, and we stay in charge.</figcaption>
   </figure>
 
@@ -225,36 +225,36 @@
   <h2>A first example</h2>
   <p>Here is what a spec looks like in Vox. This is absolute value, declared to return a nonnegative int. It is rejected, with a counterexample: <code>x</code> is −1. The code is wrong, of course: it forgets the minus.</p>
   <figure class="slide short">
-    <img src="talk/abs-1.jpg" loading="lazy" alt="The function abs declared to return r with r >= 0, implemented as if x < 0 then x else x. Counterexample: x = -1." />
+    <img src="talk/abs-1.jpg" width="1600" height="375" loading="lazy" alt="The function abs declared to return r with r >= 0, implemented as if x < 0 then x else x. Counterexample: x = -1." />
   </figure>
 
   <p>Add the minus. It is still rejected: <code>x</code> is <code>min_int</code>, the smallest int, and minus <code>min_int</code> wraps around to itself.</p>
   <figure class="slide short">
-    <img src="talk/abs-2.jpg" loading="lazy" alt="With the minus added, abs is still rejected. Counterexample: x = min_int." />
+    <img src="talk/abs-2.jpg" width="1600" height="375" loading="lazy" alt="With the minus added, abs is still rejected. Counterexample: x = min_int." />
   </figure>
 
   <p>With the precondition that <code>x</code> is greater than <code>min_int</code>, it is proved. Now every caller of <code>abs</code> has to show that its argument is not <code>min_int</code>.</p>
   <figure class="slide short">
-    <img src="talk/abs-3.jpg" loading="lazy" alt="With the precondition x > min_int on the argument, abs is proved: every refinement holds." />
+    <img src="talk/abs-3.jpg" width="1600" height="375" loading="lazy" alt="With the precondition x > min_int on the argument, abs is proved: every refinement holds." />
   </figure>
 
 
   <h2>What Vox adds to OxCaml</h2>
   <p>The example used a refinement type and a verification condition. Vox is a fork of <a href="https://github.com/oxcaml/oxcaml">OxCaml</a>, and it adds four groups of features. Specs are refinement types and dependent function types. A spec can be tested: <code>assume_</code> takes a value and returns it at the refined type, and checks the predicate when the code runs. Or it can be proved at compile time: each refinement becomes a verification condition for an SMT solver. Where the solver needs help, a proof is ordinary code in two new modes, total and ghost, and the compiler erases it. The last group is resources: tokens for shared mutable state, prophecies for borrowing, atomic invariants for concurrency, and time credits for running time.</p>
   <figure class="slide">
-    <img src="talk/features.jpg" loading="lazy" alt="Four groups of features. Specs: refinement types and dependent function types. Testing: tested specs with assume_. Proofs: verification conditions checked by an SMT solver, the total mode, and the ghost mode. Resources: tokens, prophecies, atomic invariants and time credits." />
+    <img src="talk/features.jpg" width="1600" height="750" loading="lazy" alt="Four groups of features. Specs: refinement types and dependent function types. Testing: tested specs with assume_. Proofs: verification conditions checked by an SMT solver, the total mode, and the ghost mode. Resources: tokens, prophecies, atomic invariants and time credits." />
   </figure>
 
 
   <h2>Twenty-five verified programs</h2>
   <p>With these features, we have verified 25 programs. Data structures: a union–find in inverse-Ackermann amortized time, doubly linked rings, AVL sets and more. Algorithms: quicksort, in place and in parallel; merge sort; Myers diff; RSA; and Fibonacci by fast doubling, proved equal to its naive definition. Formats and concurrency: an LZ4 codec, an HTTP parser, a channel and locks. Languages and compilers: regular expressions, DFA minimization, e-graphs, register allocation, and a compiler to WebAssembly. Ten of them manage mutable state, two have a proved running time, and three are concurrent or parallel.</p>
   <figure class="slide">
-    <img src="talk/programs.jpg" loading="lazy" alt="A grid of 25 small illustrated plates, one per verified program, with badges for mutable state, proved running time, and concurrency or parallelism." />
+    <img src="talk/programs.jpg" width="1600" height="775" loading="lazy" alt="A grid of 25 small illustrated plates, one per verified program, with badges for mutable state, proved running time, and concurrency or parallelism." />
   </figure>
 
   <p>Each program has a spec, code and a proof. The largest is the compiler from a small ML to WebAssembly: 2,852 lines of code, under a spec of 283 lines. That spec is stated against a model of WebAssembly, 1,065 lines, which we trust. The proofs are much larger. Agents wrote them, and the compiler checks them. Vox itself was built the same way: agents wrote its compiler changes too, and I reviewed their designs and tests.</p>
   <figure class="slide">
-    <img src="talk/sizes.jpg" loading="lazy" alt="The same grid with the size of each program in lines of spec, code and proof; the compiler to WebAssembly is the largest." />
+    <img src="talk/sizes.jpg" width="1600" height="775" loading="lazy" alt="The same grid with the size of each program in lines of spec, code and proof; the compiler to WebAssembly is the largest." />
     <figcaption>Lines of spec, code and proof for each program; areas are proportional to lines.</figcaption>
   </figure>
 
@@ -311,26 +311,26 @@
   <p>One of them up close: Hindley–Milner type inference on a mutable type graph. The picture shows the heap after inferring the type of <code>id id</code>: types are cells with levels, and unification writes union–find links into them, as in OCaml's own type checker.</p>
   <p>The proof shows that inference is sound and principal against a declarative typing relation, so when it rejects a term, the term has no type. The proof reads the heap back as mathematical types, algebraic data types with no pointers, and states unification as solving equations over them. Levels decide what a <code>let</code> may generalize, and the proof keeps an invariant on them. The spec is 158 lines, the implementation 1,350, and the proof 16,514.</p>
   <figure class="slide">
-    <img src="talk/hm.jpg" loading="lazy" alt="The heap after inferring the type of id id, drawn as a graph of type cells with levels and union-find links, next to the five steps of the proof and the spec, implementation and proof sizes." />
+    <img src="talk/hm.jpg" width="1600" height="775" loading="lazy" alt="The heap after inferring the type of id id, drawn as a graph of type cells with levels and union-find links, next to the five steps of the proof and the spec, implementation and proof sizes." />
   </figure>
 
 
   <h2>Idioms for specs and proofs</h2>
   <p>The Hindley–Milner proof uses idioms that recur across these programs. Specs are types, so each place OCaml has a type carries a spec. Signatures hold laws, and functors can require them. Type definitions carry invariants; argument and result types carry preconditions and postconditions. Specs pass through polymorphic functions: <code>fork_join</code> is enough to verify a parallel quicksort. Proofs are code: a function type is a lemma, where a parameter is “for all” and recursion is induction. <code>ghost_</code> calls a proof, checked and erased. <code>assume_</code> marks a spec that is tested until it is proved. Ghost fields carry proof data, and tokens carry effects.</p>
   <figure class="slide">
-    <img src="talk/idioms.jpg" loading="lazy" alt="Code excerpts labelled with idioms: specs are types (laws in module signatures, invariants in type definitions, pre- and postconditions in argument and result types), proofs are code (lemmas, induction by recursion, ghost_ calls), and ghost state (proof data in ghost fields, effects in tokens)." />
+    <img src="talk/idioms.jpg" width="1600" height="866" loading="lazy" alt="Code excerpts labelled with idioms: specs are types (laws in module signatures, invariants in type definitions, pre- and postconditions in argument and result types), proofs are code (lemmas, induction by recursion, ghost_ calls), and ghost state (proof data in ghost fields, effects in tokens)." />
   </figure>
 
   <p>These idioms work because refinement types fit OxCaml's modes. Vox adds two axes, total and ghost, and uses uniqueness and locality for tokens and loans, and portability in the signatures of atomic invariants.</p>
   <figure class="slide narrow">
-    <img src="talk/modes.jpg" loading="lazy" alt="Refinement types and OxCaml modes: the new totality and ghost axes next to OxCaml's uniqueness, locality and portability axes, and what each is used for." />
+    <img src="talk/modes.jpg" width="1600" height="664" loading="lazy" alt="Refinement types and OxCaml modes: the new totality and ghost axes next to OxCaml's uniqueness, locality and portability axes, and what each is used for." />
   </figure>
 
 
   <h2>The Vox implementation in OxCaml</h2>
   <p>Vox is built into OxCaml, so what does it change? Here is the repository as a treemap: every file is a rectangle sized by its lines, 1.9 million without vendored libraries. The lines Vox adds are coloured, warm inside the compiler and cool outside it. Most of them are outside the compiler: mostly tests, including verified programs and their specs, then the verified library, and tools. The compiler's part is about 26 thousand lines.</p>
   <figure class="slide">
-    <img src="talk/treemap.jpg" loading="lazy" alt="A treemap of the OxCaml repository with the lines Vox adds coloured: tests, the verified library and tools outside the compiler, and a smaller part inside the compiler." />
+    <img src="talk/treemap.jpg" width="1600" height="775" loading="lazy" alt="A treemap of the OxCaml repository with the lines Vox adds coloured: tests, the verified library and tools outside the compiler, and a smaller part inside the compiler." />
   </figure>
 
 
@@ -341,7 +341,7 @@
       <p>The goal is that much of our code carries specs, checked by proof, or by tests where there is no proof yet, so people stay in charge of code that agents write. It is a new way of working, and whether programmers will like it is an open question. The way to find out is to try it in practice, on real code.</p>
     </div>
   <figure class="slide inline">
-    <img src="talk/goal.jpg" loading="lazy" alt="Every module carries a spec: the human at a desk, with a thought bubble showing the map of the code base, looks at a town of modules, each with a checked spec." />
+    <img src="talk/goal.jpg" width="1005" height="925" loading="lazy" alt="Every module carries a spec: the human at a desk, with a thought bubble showing the map of the code base, looks at a town of modules, each with a checked spec." />
   </figure>
 
   </div>
