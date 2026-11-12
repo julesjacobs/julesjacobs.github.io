@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kleene Algebra with Stacks Is Complete, by Jules Jacobs. Paper and Lean formalization." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/stackat-completeness/" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <title>Kleene Algebra with Stacks Is Complete</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #262a30;
+      --muted: #5f6672;
+      --line: #e3e5e9;
+      --panel: #f3f4f6;
+      --link: hsl(213, 50%, 38%);
+      --link-hover-bg: hsl(213, 50%, 93%);
+      --chip-bg: #f1f2f4;
+      --chip-fg: #4c525c;
+      --chip-line: #d7dae0;
+      color-scheme: light;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--fg);
+      background-color: var(--bg);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 48px 16px;
+    }
+    a { color: var(--link); text-decoration: none; border-radius: 4px; }
+    a:hover { background: var(--link-hover-bg); }
+    h1 { font-size: 28px; line-height: 1.2; margin: 24px 0 4px 0; letter-spacing: -0.01em; }
+    h2 { font-size: 18px; margin: 28px 0 6px 0; }
+    .byline { color: var(--muted); margin: 0 0 14px 0; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .button {
+      display: inline-block;
+      border: 1px solid var(--chip-line);
+      border-radius: 5px;
+      padding: 1px 8px;
+      font-size: 14px;
+      color: var(--chip-fg);
+      background-color: var(--chip-bg);
+      white-space: nowrap;
+    }
+    .button:hover { color: var(--bg); border-color: var(--link); background-color: var(--link); }
+    ul.files { padding-left: 20px; margin: 6px 0; }
+    ul.files li { margin-bottom: 6px; }
+    .info { color: var(--muted); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+    pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px 14px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Kleene Algebra with Stacks Is Complete</h1>
+  <p class="byline"><a href="/">Jules Jacobs</a>. Manuscript, November 2026.</p>
+
+  <div class="buttons">
+    <a class="button" href="stackat-completeness.pdf">paper .pdf</a>
+    <a class="button" href="stackat-completeness-full.pdf">paper with Lean statements .pdf</a>
+    <a class="button" href="stackat-completeness-lean.zip">Lean sources .zip</a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>
+    A regular expression can be read as a nondeterministic program that consumes a prefix of a
+    word. We consider programs that can also push letters onto the front, treating the word as a
+    stack. We write <i>p<sub>a</sub></i> for pushing the letter <i>a</i> and
+    <i>q<sub>a</sub></i> for popping it. We prove that three elementary stack laws,
+    <i>p<sub>a</sub>q<sub>a</sub></i>&nbsp;=&nbsp;1,
+    <i>p<sub>a</sub>q<sub>b</sub></i>&nbsp;=&nbsp;0 for <i>a</i>&nbsp;&ne;&nbsp;<i>b</i>, and
+    <i>q<sub>a</sub>p<sub>a</sub></i>&nbsp;&le;&nbsp;1, together with ordinary Kleene algebra,
+    completely axiomatize equivalence of these programs as relations on finite stacks over any
+    alphabet. This refutes the conjecture of the
+    <a href="/papers/stackat/stackat.pdf">StacKAT paper</a> that these laws do not suffice. We
+    give a new decision procedure for inclusion between two such programs and turn its positive
+    answers into derivations by star induction. We extend completeness to programs that also test
+    and assign finitely many variables with finite domains, formalize both completeness theorems
+    in Lean, and verify an executable version of the procedure, which returns a counterexample
+    when inclusion fails.
+  </p>
+
+  <h2>Files</h2>
+  <ul class="files">
+    <li><a href="stackat-completeness.pdf">Paper</a> <span class="info">(PDF, 36 pages)</span></li>
+    <li><a href="stackat-completeness-full.pdf">Paper with Lean statements</a>
+      <span class="info">(PDF, 70 pages)</span>. The same paper with a longer appendix that
+      gives the Lean statement of each result marked in the text.</li>
+    <li><a href="stackat-completeness-lean.zip">Lean sources</a>
+      <span class="info">(zip, 182 KB)</span>. Lean 4 v4.30.0 with Mathlib v4.30.0. Run
+      <code>lake build</code> in the unpacked folder. The README lists, for each marked result
+      of the paper, the Lean theorem that states it.</li>
+    <li><a href="Spec.lean">Spec.lean</a>, the specification of the main theorem, shown
+      below.</li>
+  </ul>
+
+  <h2>The specification</h2>
+  <p>
+    The statement of the main theorem depends only on this file. It defines the expressions,
+    their meaning as relations on stacks, and the derivation rules, and it uses only the Lean
+    core library.
+  </p>
+<pre>-- The trusted specification: syntax, semantics, derivations, and Theorem 1. Lean core only.
+namespace Stackat
+
+/-- Expressions over a stack alphabet `A`. -/
+inductive Expr (A : Type) where
+  | zero | one | push (a : A) | pop (a : A)
+  | add (e f : Expr A) | mul (e f : Expr A) | star (e : Expr A)
+
+-- Notation: 0, 1, e + f, e * f and e⋆ stand for zero, one, add, mul and star.
+instance : Zero (Expr A) := ⟨.zero⟩
+instance : One (Expr A) := ⟨.one⟩
+instance : Add (Expr A) := ⟨.add⟩
+instance : Mul (Expr A) := ⟨.mul⟩
+scoped postfix:max &quot;⋆&quot; =&gt; Stackat.Expr.star
+
+/-- `Steps r s t`: `t` is reached from `s` by zero or more `r`-steps. -/
+inductive Steps (r : α → α → Prop) : α → α → Prop
+  | refl : Steps r s s
+  | step : r s m → Steps r m t → Steps r s t
+
+/-- The relation `R e` between input and output stacks, written top first. -/
+def R : Expr A → List A → List A → Prop
+  | 0 =&gt; fun _ _ =&gt; False
+  | 1 =&gt; Eq
+  | .push a =&gt; fun s t =&gt; t = a :: s
+  | .pop a =&gt; fun s t =&gt; s = a :: t
+  | e + f =&gt; fun s t =&gt; R e s t ∨ R f s t
+  | e * f =&gt; fun s t =&gt; ∃ m, R e s m ∧ R f m t        -- `e` runs first
+  | e⋆ =&gt; Steps (R e)
+
+set_option hygiene false
+scoped notation:25 &quot;⊢ &quot; e:51 &quot; ≈ &quot; f:51 =&gt; Stackat.Derives e f        -- `e = f` is derivable
+scoped notation:25 &quot;⊢ &quot; e:51 &quot; ≤ &quot; f:51 =&gt; Stackat.Derives (e + f) f  -- `e ≤ f` is `e + f = f`
+
+/-- Derivability from the Kleene algebra laws and exactly the three stack laws. -/
+inductive Derives {A : Type} : Expr A → Expr A → Prop where
+  | refl : ⊢ e ≈ e                                         -- equational reasoning
+  | symm : ⊢ e ≈ f → ⊢ f ≈ e
+  | trans : ⊢ e ≈ f → ⊢ f ≈ g → ⊢ e ≈ g
+  | add_congr : ⊢ e ≈ e&#x27; → ⊢ f ≈ f&#x27; → ⊢ e + f ≈ e&#x27; + f&#x27;
+  | mul_congr : ⊢ e ≈ e&#x27; → ⊢ f ≈ f&#x27; → ⊢ e * f ≈ e&#x27; * f&#x27;
+  | star_congr : ⊢ e ≈ f → ⊢ e⋆ ≈ f⋆
+  | add_assoc : ⊢ (e + f) + g ≈ e + (f + g)                -- idempotent semiring
+  | add_comm : ⊢ e + f ≈ f + e
+  | add_zero : ⊢ e + 0 ≈ e
+  | add_idem : ⊢ e + e ≈ e
+  | mul_assoc : ⊢ (e * f) * g ≈ e * (f * g)
+  | one_mul : ⊢ 1 * e ≈ e
+  | mul_one : ⊢ e * 1 ≈ e
+  | zero_mul : ⊢ 0 * e ≈ 0
+  | mul_zero : ⊢ e * 0 ≈ 0
+  | mul_add : ⊢ e * (f + g) ≈ e * f + e * g
+  | add_mul : ⊢ (e + f) * g ≈ e * g + f * g
+  | star_unfold_left : ⊢ 1 + e * e⋆ ≈ e⋆                   -- Kleene star
+  | star_unfold_right : ⊢ 1 + e⋆ * e ≈ e⋆
+  | star_induct_left : ⊢ e * f ≤ f → ⊢ e⋆ * f ≤ f
+  | star_induct_right : ⊢ f * e ≤ f → ⊢ f * e⋆ ≤ f
+  | push_pop : ⊢ .push a * .pop a ≈ 1                      -- the three stack laws
+  | push_pop_ne : a ≠ b → ⊢ .push a * .pop b ≈ 0
+  | pop_push : ⊢ .pop a * .push a ≤ 1
+
+/-- **Theorem 1**, for every alphabet: `R e ⊆ R f` iff `⊢ e ≤ f`. -/
+def SoundnessAndCompleteness : Prop :=
+  ∀ (A : Type) (e f : Expr A), (∀ s t, R e s t → R f s t) ↔ ⊢ e ≤ f
+
+end Stackat</pre>
+</body>
+</html>
