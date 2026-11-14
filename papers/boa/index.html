@@ -21,6 +21,7 @@
       <p class="pitch">Coalgebraic bisimilarity minimization covers strong, weighted and probabilistic bisimilarity, but no existing algorithm was fully general, efficient and able to handle large systems. This paper gives a generic algorithm making at most O(m log n) calls to the functor-specific action. Its implementation, Boa, often uses much less time and memory on existing benchmarks and handles larger automata.</p>
       <div class="buttons">
         <a class="button primary" href="/pdf/boa.pdf">Read the paper</a>
+        <a class="button" href="#film">Watch the video</a>
         <a class="button" href="https://doi.org/10.1145/3571245">DOI</a>
         <a class="button" href="https://www.youtube.com/watch?v=9F0dVBF1hnc">talk</a>
         <a class="button" href="/slides/slides-popl23-coalg.pdf">slides</a>
@@ -32,6 +33,20 @@
       Read the paper
     </a>
   </div>
+
+  <div class="film" id="film">
+    <iframe name="film" src="film/" title="A video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <ol class="chapters">
+    <li><span class="t">1:32</span><a href="film/?t=92" target="film">One shape for many machines</a></li>
+    <li><span class="t">3:30</span><a href="film/?t=210" target="film">Equivalent states</a></li>
+    <li><span class="t">6:26</span><a href="film/?t=386" target="film">The simple algorithm</a></li>
+    <li><span class="t">8:09</span><a href="film/?t=489" target="film">Two ideas</a></li>
+    <li><span class="t">11:50</span><a href="film/?t=710" target="film">Fast in practice</a></li>
+    <li><span class="t">12:58</span><a href="film/?t=778" target="film">Any kind of machine</a></li>
+    <li><span class="t">15:00</span><a href="film/?t=900" target="film">Measurements</a></li>
+    <li><span class="t">17:35</span><a href="film/?t=1055" target="film">Looking back</a></li>
+  </ol>
 
   <h2>Abstract</h2>
   <p>Coalgebraic bisimilarity minimization generalizes classical automaton minimization to a large class of automata whose transition structure is specified by a functor, subsuming strong, weighted, and probabilistic bisimilarity. This offers the enticing possibility of turning bisimilarity minimization into an off-the-shelf technology, without having to develop a new algorithm for each new type of automaton. Unfortunately, there is no existing algorithm that is fully general, efficient, and able to handle large systems.</p>

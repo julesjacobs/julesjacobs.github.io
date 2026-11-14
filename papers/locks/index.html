@@ -21,6 +21,7 @@
       <p class="pitch">Rust&#x27;s type system rules out data races, but programs with locks can still deadlock and leak memory. This paper develops a theory of deadlock and leak freedom for higher-order locks based on sharing topologies, first for acyclic sharing and then with dynamic lock orders. Well-typed programs in the resulting calculi are free of deadlocks and memory leaks, proved in Coq.</p>
       <div class="buttons">
         <a class="button primary" href="/pdf/locks.pdf">Read the paper</a>
+        <a class="button" href="#film">Watch the video</a>
         <a class="button" href="https://doi.org/10.1145/3571229">DOI</a>
         <a class="button" href="https://www.youtube.com/watch?v=QJyJNMHkgWY">talk</a>
         <a class="button" href="/slides/slides-popl23-locks.pdf">slides</a>
@@ -32,6 +33,20 @@
       Read the paper
     </a>
   </div>
+
+  <div class="film" id="film">
+    <iframe name="film" src="film/" title="A video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <ol class="chapters">
+    <li><span class="t">1:31</span><a href="film/?t=91" target="film">What goes wrong</a></li>
+    <li><span class="t">3:26</span><a href="film/?t=206" target="film">One rule</a></li>
+    <li><span class="t">5:14</span><a href="film/?t=314" target="film">Operations that keep the rule</a></li>
+    <li><span class="t">6:59</span><a href="film/?t=419" target="film">Who frees a lock</a></li>
+    <li><span class="t">9:23</span><a href="film/?t=563" target="film">Programs</a></li>
+    <li><span class="t">12:44</span><a href="film/?t=764" target="film">The theorem</a></li>
+    <li><span class="t">13:58</span><a href="film/?t=838" target="film">Lock groups</a></li>
+    <li><span class="t">17:26</span><a href="film/?t=1046" target="film">Looking back</a></li>
+  </ol>
 
   <h2>Abstract</h2>
   <p>Reasoning about concurrent programs is challenging, especially if data is shared among threads. Program correctness can be violated by the presence of data races—whose prevention has been a topic of concern both in research and in practice. The Rust programming language is a prime example, putting the slogan fearless concurrency in practice by not only employing an ownership-based type system for memory management, but also using its type system to enforce mutual exclusion on shared data. Locking, unfortunately, not only comes at the price of deadlocks but shared access to data may also cause memory leaks.</p>

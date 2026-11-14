@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Higher-Order Leak and Deadlock Free Locks: the video</title>
+<style>
+@font-face { font-family: "Fira Code"; src: url("fonts/FiraCode-VF.ttf?v=b2cb79930a"); font-weight: 300 700; font-style: normal; font-display: block; }
+@font-face { font-family: "Source Serif 4 Film"; src: url("fonts/SourceSerif4-Regular.otf?v=152c938b18"); font-weight: 400; font-style: normal; font-display: block; }
+@font-face { font-family: "Source Serif 4 Film"; src: url("fonts/SourceSerif4-RegularIt.otf?v=fef2079745"); font-weight: 400; font-style: italic; font-display: block; }
+#stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; font-feature-settings: "liga" 0, "calt" 0; }
+#stage * { box-sizing: border-box; transform-origin: center center; }
+#stage svg, #stage svg * { transform-origin: 0 0; transform-box: view-box; }
+/* The player around the film's stage (tools/web.py inlines this into build/web/index.html). Colours are the
+   film's paper room (THEMES.paper in src/engine.js). */
+:root {
+  --mono: "Fira Code", "Film Math", "SF Mono", Menlo, monospace;   /* "Film Math" exists only in films that ship it */
+  --sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+  --serif: "Source Serif 4 Film", "Film Math", ui-serif, Georgia, serif;
+  --bg: #f3ebdd; --ink: #2b231b; --dim: #6c5f50; --faint: #c9bba7; --line: #d8cab5; --panel: #e9decb;
+  --letterbox: #17120e;
+  --btn: 40px; --barh: 56px; --k: 0.5;
+}
+@media (pointer: coarse) { :root { --btn: 44px; --barh: 60px; } }
+/* in a page the room around the picture is the page's cream; only full screen gets the dark letterbox */
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); overflow: hidden; }
+.player { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg);
+  font-family: var(--sans); color: var(--ink); -webkit-tap-highlight-color: transparent; outline: none; }
+/* the frame: the stage's box and the bar. The bar lies over the bottom of the stage and hides while playing, or, where
+   the page has room under the picture (a phone held upright), sits under it and stays. */
+.frame { position: relative; width: min(100vw, calc(100vh * 16 / 9)); user-select: none; -webkit-user-select: none; }
+.frame.under { width: min(100vw, calc((100vh - var(--barh)) * 16 / 9)); }
+.box { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg); touch-action: manipulation; }
+.scaler { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
+.frame.playing:not(.ui) .box { cursor: none; }
+.player:fullscreen { background: var(--letterbox); }
+.player:-webkit-full-screen { background: var(--letterbox); }
+/* before the first play the still is a poster: a light veil over it, so the play button does not collide with what the frame shows */
+.frame:not(.started) .box::after { content: ""; position: absolute; inset: 0; background: rgba(243, 235, 221, 0.55); pointer-events: none; }
+
+/* captions: the teaser's look, sized with the stage */
+.caption { position: absolute; left: 0; right: 0; bottom: max(6px, calc(var(--k) * 70px)); text-align: center; pointer-events: none; transition: bottom 0.2s; }
+.caption span { display: inline-block; max-width: 88%; font-family: var(--sans); font-weight: 560; line-height: 1.25; color: var(--ink);
+  font-size: max(12px, calc(var(--k) * 44px)); padding: max(2px, calc(var(--k) * 10px)) max(8px, calc(var(--k) * 28px)) max(3px, calc(var(--k) * 12px));
+  border-radius: max(5px, calc(var(--k) * 14px)); background: rgba(233, 222, 203, 0.92); box-shadow: inset 0 0 0 1px var(--line); }
+.frame.ui:not(.under) .caption { bottom: max(calc(var(--barh) + 8px), calc(var(--k) * 70px)); }
+
+/* the big play button over the still */
+.big { position: absolute; z-index: 2; left: 50%; top: 50%; width: clamp(56px, 10vw, 112px); height: clamp(56px, 10vw, 112px); margin: 0; padding: 0;
+  transform: translate(-50%, -50%); border: none; border-radius: 50%; background: rgba(43, 35, 27, 0.86); color: var(--bg); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; }
+.big svg { width: 42%; height: 42%; margin-left: 8%; }
+.big:hover { background: rgba(43, 35, 27, 0.95); }
+.frame.started .big { display: none; }
+.spin { position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%;
+  border: 3px solid rgba(43, 35, 27, 0.15); border-top-color: rgba(43, 35, 27, 0.6); animation: spin 0.9s linear infinite; display: none; pointer-events: none; }
+.frame.waiting .spin { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.msg { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); max-width: 80%; padding: 8px 14px; border-radius: 8px; font-size: 14px; line-height: 1.35;
+  background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); color: var(--ink); text-align: center; display: none; }
+.msg.on { display: block; }
+
+/* the bar: a scrub line over a row of controls, along the bottom of the stage */
+.bar { position: absolute; left: 0; right: 0; bottom: 0; height: var(--barh); background: rgba(243, 235, 221, 0.95); box-shadow: 0 -1px 0 var(--line);
+  transition: opacity 0.25s, visibility 0.25s; }
+.frame:not(.ui):not(.under) .bar { opacity: 0; visibility: hidden; }
+.frame:not(.ready) .bar, .frame:not(.ready) .big { visibility: hidden; }
+.frame.under .bar { position: relative; bottom: auto; background: var(--bg); }
+.scrub { position: absolute; left: 12px; right: 12px; top: -9px; height: 20px; cursor: pointer; touch-action: none; outline: none; }
+.track { position: absolute; left: 0; right: 0; top: 8px; height: 4px; border-radius: 2px; background: var(--faint); overflow: hidden; transition: top 0.1s, height 0.1s; }
+.scrub:hover .track, .scrub.drag .track, .scrub:focus-visible .track { top: 7px; height: 6px; }
+.played { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--dim); }
+.tick { position: absolute; top: 0; bottom: 0; width: 3px; margin-left: -1.5px; background: var(--bg); }
+.knob { position: absolute; top: 4px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--ink); left: 0; transform: scale(0); transition: transform 0.1s; }
+.scrub:hover .knob, .scrub.drag .knob, .scrub:focus-visible .knob, .frame:not(.started) .knob { transform: scale(1); }
+.tip { position: absolute; bottom: 22px; padding: 4px 8px; border-radius: 6px; background: var(--ink); color: var(--bg); font-size: 13px; white-space: nowrap;
+  pointer-events: none; display: none; font-variant-numeric: tabular-nums; }
+.tip.on { display: block; }
+.row { position: absolute; left: 4px; right: 4px; bottom: calc((var(--barh) - 4px - var(--btn)) / 2); height: var(--btn); display: flex; align-items: center; }
+.row button { flex: none; width: var(--btn); height: var(--btn); margin: 0; padding: 0; border: none; border-radius: 8px; background: none; color: var(--ink); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font: 600 14px var(--sans); }
+.row button:hover { background: rgba(43, 35, 27, 0.07); }
+.row button svg { width: 22px; height: 22px; }
+button:focus-visible, .scrub:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.row button[aria-pressed="false"] { color: var(--dim); }
+.row .speed { width: auto; min-width: var(--btn); padding: 0 6px; font-variant-numeric: tabular-nums; }
+.time { flex: none; padding: 0 6px; font-size: 14px; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.time .tot { color: var(--dim); }
+.chap { flex: 1 1 auto; min-width: 0; padding: 0 6px; font-size: 14px; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chap::before { content: "\00b7"; margin-right: 8px; }
+.chap:empty::before { content: none; }
+.gap { flex: 1 1 auto; }
+@media (max-width: 520px) { .chap { display: none; } .time .tot { display: none; } }
+@media (max-width: 300px) { .row .speed { display: none; } }
+
+/* the chapters menu, above the bar on the right */
+.menu { position: absolute; right: 8px; bottom: calc(var(--barh) + 6px); max-height: var(--menuh, 300px); max-width: calc(100% - 16px); overflow-y: auto;
+  background: var(--bg); border-radius: 10px; box-shadow: inset 0 0 0 1px var(--line), 0 4px 18px rgba(60, 40, 20, 0.12); padding: 4px; display: none; }
+.menu.on { display: block; }
+.menu button { display: flex; width: 100%; gap: 18px; align-items: baseline; justify-content: space-between; min-height: 36px; padding: 6px 10px; margin: 0;
+  border: none; border-radius: 6px; background: none; color: var(--ink); font: 400 15px var(--sans); text-align: left; cursor: pointer; }
+@media (pointer: coarse) { .menu button { min-height: 44px; } }
+.menu button:hover { background: rgba(43, 35, 27, 0.07); }
+.menu button.cur { font-weight: 650; }
+.menu button .at { color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="player" class="player" tabindex="-1">
+  <div id="frame" class="frame ui">
+    <div id="box" class="box"><div id="scaler" class="scaler"><div id="stage"></div></div></div>
+  </div>
+</div>
+<script>window.PLAYER = {"poster": ["title", "title", 3.0], "captions": false, "title": "Higher-Order Leak and Deadlock Free Locks: the video", "audio": "audio.m4a?v=10b1c80b6a", "film": "film.js?v=871298e59f"};</script>
+<script src="player.js?v=acbd7d2653"></script>
+</body>
+</html>
