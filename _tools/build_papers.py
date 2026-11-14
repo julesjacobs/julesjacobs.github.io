@@ -59,16 +59,20 @@ def authors(p):
     return s + (f' <span class="note">{E(p["equal_contribution_note"])}</span>' if p.get("equal_contribution_note") else "")
 
 
+# The names of a paper's links (the same words as the home page's pills) and the order they are shown in.
+LINK_ORDER = {k: i for i, k in enumerate([".pdf", "DOI", "arXiv", "crossref", "talk", "slides", "demo", "code"])}
+
+
 def page(p):
     pid = p["id"]
     has_film = os.path.exists(os.path.join(ROOT, "papers", pid, "film", "index.html"))
+    # One order everywhere, as on the home page: the paper, the video, the talk, its slides, a demo, the code.
     buttons = []
-    for l in p["links"]:
+    for l in sorted(p["links"], key=lambda l: LINK_ORDER.get(l["label"], len(LINK_ORDER))):
         if l["label"] == ".pdf":
             buttons.insert(0, f'<a class="button primary" href="{E(url(l["url"]))}">Read the paper</a>')
-        else:   # beside our own video, a link called "video" is the recording of the conference talk
-            label = "talk recording" if (l["label"] == "video" and has_film) else l["label"]
-            buttons.append(f'<a class="button" href="{E(url(l["url"]))}">{E(label)}</a>')
+        else:
+            buttons.append(f'<a class="button" href="{E(url(l["url"]))}">{E(l["label"])}</a>')
     if has_film:
         buttons.insert(1, '<a class="button" href="#film">Watch the video</a>')
     awards = "".join(f'<span class="award">{E(a)}</span>' for a in p["awards"])

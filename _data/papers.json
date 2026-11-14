@@ -110,7 +110,7 @@
     "url": "https://doi.org/10.1145/3828681"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=lCo5-0pKTsY"
    },
    {
@@ -324,7 +324,7 @@
     "url": "https://apndx.org/pub/iqe6/stackatv1.html"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=fENdnJOO5YQ"
    },
    {
@@ -470,7 +470,7 @@
     "url": "https://github.com/julesjacobs/KATch"
    },
    {
-    "label": "playground",
+    "label": "demo",
     "url": "misc/katch2/"
    },
    {
@@ -478,7 +478,7 @@
     "url": "https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=44Oxj3edZrc"
    }
   ],
@@ -529,7 +529,7 @@
     "url": "https://apndx.org/pub/thesis/"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=4YolV506nMk"
    }
   ],
@@ -602,7 +602,7 @@
     "url": "https://apndx.org/pub/icnp/"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=Tt28Z-3OM7A"
    }
   ],
@@ -668,7 +668,7 @@
     "url": "https://apndx.org/pub/mpy9/"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=TfrzOY_pobI"
    }
   ],
@@ -733,7 +733,7 @@
     "url": "https://github.com/julesjacobs/cgraphs"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=QJyJNMHkgWY"
    }
   ],
@@ -796,7 +796,7 @@
     "url": "https://github.com/julesjacobs/boa"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=9F0dVBF1hnc"
    }
   ],
@@ -866,7 +866,7 @@
     "url": "pdf/multiparty_annotated.pdf"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=Lwo661asqpA"
    }
   ],
@@ -921,7 +921,7 @@
     "url": "https://github.com/julesjacobs/cgraphs"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=a7nAUal3R4U"
    }
   ],
@@ -992,7 +992,7 @@
     "url": "https://github.com/julesjacobs/cgraphs"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=qK9IAwmhTbk"
    }
   ],
@@ -1054,7 +1054,7 @@
     "url": "slides/measurezero_pldi.pdf"
    },
    {
-    "label": "talk recording",
+    "label": "talk",
     "url": "https://www.youtube.com/watch?v=oSII21Tm1zE"
    }
   ],
