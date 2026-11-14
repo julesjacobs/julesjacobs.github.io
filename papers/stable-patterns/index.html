@@ -33,7 +33,7 @@
       line-height: 1.5;
       color: var(--fg);
       background-color: var(--bg);
-      max-width: 760px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 24px 16px 48px 16px;
     }
@@ -90,37 +90,65 @@
     table.says th { text-align: left; font-weight: 600; color: var(--muted); font-size: 13px; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line); }
     table.says td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
     table.says td:first-child { white-space: nowrap; }
+    .top { display: grid; grid-template-columns: minmax(0, 1fr) 216px; gap: 8px 40px; align-items: start; margin: 28px 0 8px 0; }
+    .top h1 { margin-top: 0; font-size: 32px; }
+    .pitch { font-size: 17.5px; line-height: 1.5; margin: 14px 0 16px 0; }
+    .top .buttons { margin-bottom: 0; }
+    .top .button { padding: 4px 12px; font-size: 15px; }
+    .top .button.primary { color: var(--bg); background-color: var(--link); border-color: var(--link); }
+    .top .button.primary:hover { filter: brightness(1.12); }
+    a.paper { display: block; color: var(--muted); font-size: 13.5px; text-align: center; margin-top: 4px; }
+    a.paper:hover { background: none; color: var(--link); }
+    a.paper img {
+      display: block; width: 100%; height: auto; aspect-ratio: 945 / 1400; background: #fff;
+      border: 1px solid var(--chip-line); border-radius: 2px; margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(20, 30, 50, 0.10), 5px 5px 0 -1px #fff, 5px 5px 0 0 var(--chip-line), 10px 10px 0 -1px #fff, 10px 10px 0 0 var(--chip-line);
+      transition: transform 0.15s ease;
+    }
+    a.paper:hover img { transform: translateY(-3px); }
+    h2 { margin-top: 36px; }
+    #try { margin: 10px 0 8px 0; }
+    .more { color: var(--muted); font-size: 15px; }
+    @media (max-width: 680px) {
+      .top { grid-template-columns: minmax(0, 1fr); }
+      a.paper { width: 170px; margin: 18px auto 0 auto; }
+    }
     @media (max-width: 560px) {
       ol.chapters { columns: 1; }
-      table.says td:first-child { white-space: normal; }
+      table.says, table.says tbody, table.says tr, table.says td { display: block; }
+      table.says tr:first-child { display: none; }
+      table.says tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+      table.says td { border: 0; padding: 1px 0; }
+      table.says td:last-child { color: var(--muted); }
     }
   </style>
 </head>
 <body>
-  <h1>Dataflow Facts as Stable Patterns</h1>
-  <p class="byline"><a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a> and <a href="/">Jules Jacobs</a>. Manuscript, November 2026.</p>
-
-  <div class="buttons">
-    <a class="button" href="stable-patterns.pdf">paper .pdf</a>
-    <a class="button" href="#film">film</a>
-    <a class="button" href="demo/examples.html">demo</a>
-  </div>
-
-  <p>
-    An optimizing compiler runs many analyses: constant propagation, value numbering, unboxing,
-    closure analysis. Each is its own algorithm with its own kind of fact. We show that they find
-    facts of one kind, a <i>pattern</i> that the arguments of every call of a block match, and
-    we give one algorithm that finds the most specific such patterns.
-  </p>
-
-  <h2 id="teaser">The idea in 100 seconds</h2>
-  <div class="film">
-    <iframe src="teaser/" title="Stable patterns: the teaser" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+  <div class="top">
+    <div>
+      <h1>Dataflow Facts as Stable Patterns</h1>
+      <p class="byline"><a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a> and <a href="/">Jules Jacobs</a>. Manuscript, November 2026.</p>
+      <p class="pitch">
+        An optimizing compiler runs many analyses: constant propagation, value numbering,
+        unboxing, closure analysis. Each is its own algorithm with its own kind of fact. We show
+        that they find facts of one kind, a <i>pattern</i> that the arguments of every call of a
+        block match, and we give one algorithm that finds the most specific such patterns.
+      </p>
+      <div class="buttons">
+        <a class="button primary" href="stable-patterns.pdf">Read the paper</a>
+        <a class="button" href="#film">Watch the film</a>
+        <a class="button" href="#demo">Try it</a>
+      </div>
+    </div>
+    <a class="paper" href="stable-patterns.pdf" title="Read the paper (PDF)">
+      <img src="paper-page1.jpg" width="945" height="1400" alt="The first page of the paper" />
+      Read the paper (PDF)
+    </a>
   </div>
 
   <h2 id="film">The film</h2>
   <p>
-    A film of 28 minutes that explains the paper from the beginning: the idea on three loops,
+    Twenty-eight minutes that explain the paper from the beginning: the idea on three loops,
     how the patterns are found, why they are the best ones, functions and closures,
     specialization, and what is proved.
   </p>
@@ -191,10 +219,14 @@
 
   <h2 id="demo">Try it</h2>
   <p>
-    The <a href="demo/examples.html">demo</a> runs the algorithm in the browser on the paper's
-    examples: edit a program, step through the rounds, and see each block's pattern and the
-    program that comes out. The <a href="demo/">full explorer</a> has more examples, the
-    specialization policies, and runs both programs.
+    Pick an example or edit the program. The stable patterns are what the algorithm finds, one
+    for each block; the output is the program simplified under them.
+  </p>
+  <div id="try"></div>
+  <p class="more">
+    The <a href="demo/examples.html">step-by-step demo</a> shows the rounds of the algorithm on
+    every example of the paper, and the <a href="demo/">full explorer</a> adds the specialization
+    policies and runs both programs.
   </p>
 
   <h2>Abstract</h2>
@@ -219,15 +251,6 @@
     Scheme benchmarks, (3) by comparing it experimentally to prior classical analyses.
   </p>
 
-  <h2>Files</h2>
-  <ul class="files">
-    <li><a href="stable-patterns.pdf">Paper</a> <span class="info">(PDF)</span></li>
-    <li><a href="film/">The film</a> <span class="info">(28 minutes, plays in the browser)</span>
-      and <a href="teaser/">the teaser</a> <span class="info">(100 seconds)</span></li>
-    <li><a href="demo/examples.html">Demo on the paper's examples</a> and the
-      <a href="demo/">full explorer</a> <span class="info">(both run in the browser)</span></li>
-  </ul>
-
   <h2>Get in touch</h2>
   <p>
     If you work on a compiler and would like to try this in it, we would be glad to help. The
@@ -236,5 +259,7 @@
     <a href="film/?t=1535" target="film">Open problems</a> lists what we do not know yet. If you
     would like to work on those as a student, see <a href="/#students">here</a>.
   </p>
+  <script src="demo/inline.js"></script>
+  <script>if (window.StablePatternsDemo) StablePatternsDemo.mount(document.getElementById("try"));</script>
 </body>
 </html>
