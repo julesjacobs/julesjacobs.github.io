@@ -35,7 +35,7 @@
   const bCC = btn('cc', 'Captions (c)', ICON.cc);
   const bFull = btn('full', 'Full screen (f)', ICON.full);
   const menu = $('div', 'menu', frame); menu.setAttribute('role', 'menu');
-  const NO_SOUND = 'The sound (audio.m4a) could not be loaded, and the film plays to it. Check the connection and press play again.';
+  const NO_SOUND = 'The sound (audio.m4a) could not be loaded, and the video plays to it. Check the connection and press play again.';
   const say = text => { msg.textContent = text; msg.classList.toggle('on', !!text); };
 
   // the stage keeps its 1920 x 1080 coordinates and is scaled to the box
@@ -61,7 +61,7 @@
   });
 
   // ---- state ------------------------------------------------------------------------------------------------------
-  let total = 1, chapters = [], caps = [], pos = 0, shown = -1, started = false, dragging = false, pendingSeek = false;
+  let total = 1, chapters = [], caps = [], pos = 0, shown = -1, started = false, told = false, dragging = false, pendingSeek = false;
   let capsOn = !!P.captions, speeds = [1, 1.25, 1.5], speedI = 0, ready = false;
   const fmt = t => { t = Math.max(0, Math.floor(t)); const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = String(t % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`; };
   const clampT = t => Math.max(0, Math.min(total, t));
@@ -80,7 +80,7 @@
   }
 
   function start() {
-    if (typeof window.seek !== 'function') { say('The film could not be started.'); return; }
+    if (typeof window.seek !== 'function') { say('The video could not be started.'); return; }
     stage.style.transform = ''; stage.style.transformOrigin = '';   // film.js fits the stage to its window; the player scales it
     // the film's own hairline of progress at the bottom of the stage: the scrub bar says the same
     for (const e of stage.querySelectorAll(':scope > div')) if (e.style.top === (H - 4) + 'px' && e.style.height === '4px') e.style.display = 'none';
@@ -146,6 +146,8 @@
   function play() {
     if (!ready) return;
     if (!started) { started = true; frame.classList.add('started'); }
+    // tell the page that embeds the player, once, that the video was started (the page may count it; the player itself sends nothing anywhere)
+    if (!told) { told = true; try { if (window.parent !== window) window.parent.postMessage({ type: 'video-play', title: document.title }, location.origin); } catch (e) {} }
     if (pos >= total - 0.05) seekTo(0);
     if (audio.error) { say(''); audio.load(); }   // a second try after a failed load
     if (audio.readyState === 0) { pendingSeek = true; frame.classList.add('waiting'); }

@@ -1,4 +1,4 @@
-// Paradoxes of Probabilistic Programming: a short film: the film's scripts in one file, made by tools/web.py.
+// Paradoxes of Probabilistic Programming: a short video: the film's scripts in one file, made by tools/web.py.
 
 // ==== ../src/engine.js ====
 // A small deterministic animation engine: every visual property is a function of time, so any frame can be
