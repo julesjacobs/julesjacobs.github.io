@@ -457,8 +457,13 @@
       margin: 0 0 8px 0;
     }
 
-    /* A publication's one-line summary, under its title. */
-    .pub .one { color: var(--muted); font-size: 14.5px; margin: 1px 0 3px 0; }
+    /* papers:begin */
+    /* A publication: its title, who wrote it, then what it does in one line. */
+    .pub .one { color: var(--fg); font-size: 15px; line-height: 1.45; margin: 2px 0 4px 0; }
+    /* A project card lists its papers and tools one to a line, each with what it does under its name. */
+    .plist li { margin-bottom: 7px; }
+    .plist .ps { display: block; flex-basis: 100%; color: var(--muted); font-size: 14px; line-height: 1.4; margin: -2px 0 0 0; }
+    /* papers:end */
 
     /* One line for each paper of a project: its short name, where it appeared, and what else there is for it. */
     .plist { list-style: none; padding: 0; margin: 10px 0 8px 0; }
@@ -564,12 +569,12 @@
         <div class="figure"><img src="images/projects/systems.png" width="703" height="752" decoding="async" style="aspect-ratio: auto" alt="What Vox adds to OxCaml's modes: a totality axis (partial, total) for specs and lemmas, a ghostliness axis (ghost, real) for erased proofs, and the void layout for free ghost data. Below it, three stable patterns: loop(?i, 1), loop(?i, (?s, u)) and app(inc⟨u⟩), one analysis for fast code." /></div>
         <div class="body">
           <h3>Safe and verified systems programming</h3>
-          <p>The goal is systems code that is fast, safe, and checked against its specification. For safety, the modes of <a href="https://github.com/oxcaml/oxcaml">OxCaml</a>, Jane Street's extension of OCaml, track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. For verification, <a href="vox/">Vox</a>, built on OxCaml, checks specifications at compile time, with refinement types and ghost proofs that are erased before code generation. For speed, <a href="papers/stable-patterns/">stable patterns</a> give a compiler one analysis in place of constant propagation, unboxing and closure analysis, so that code written with folds, streams and closures compiles to plain loops. As AI agents write more of our code, checked specifications let people stay in charge of what that code does.</p>
+          <p>The goal is systems code that is fast, safe, and checked against its specification. As AI agents write more of our code, checked specifications let people stay in charge of what that code does.</p>
           <ul class="plist">
-            <li><a class="pt" href="papers/mode-crossing/">Mode Crossing</a> <span class="pv">ICFP'26</span></li>
-            <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/#film">film</a><a class="button" href="papers/stable-patterns/#demo">demo</a></li>
-            <li><a class="pt" href="vox/">Vox</a> <span class="pv">tool</span><a class="button" href="https://lab.julesjacobs.com/vox/talk/">talk</a><a class="button" href="https://github.com/julesjacobs/oxcaml/tree/vox">code</a></li>
-            <li><a class="pt" href="https://github.com/oxcaml/oxcaml">OxCaml</a> <span class="pv">language</span><a class="button" href="misc/oxcaml/playground/">playground</a><a class="button" href="misc/oxcaml/oxcaml-basics/">course</a></li>
+            <li><a class="pt" href="papers/mode-crossing/">Mode Crossing</a> <span class="pv">ICFP'26</span><span class="ps">Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.</span></li>
+            <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/#film">film</a><a class="button" href="papers/stable-patterns/#demo">demo</a><span class="ps">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</span></li>
+            <li><a class="pt" href="vox/">Vox</a> <span class="pv">tool</span><a class="button" href="https://lab.julesjacobs.com/vox/talk/">talk</a><a class="button" href="https://github.com/julesjacobs/oxcaml/tree/vox">code</a><span class="ps">Checks specifications at compile time on top of OxCaml, with refinement types and ghost proofs that are erased before code generation.</span></li>
+            <li><a class="pt" href="https://github.com/oxcaml/oxcaml">OxCaml</a> <span class="pv">language</span><a class="button" href="misc/oxcaml/playground/">playground</a><a class="button" href="misc/oxcaml/oxcaml-basics/">course</a><span class="ps">Jane Street&#x27;s extension of OCaml for safe, fast systems programming; its modes track whether a value can escape its stack frame or be shared between threads.</span></li>
           </ul>
           <div class="meta">
             <p><span class="label">With</span><span class="value"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a>, <a href="https://richarde.dev/">Richard A. Eisenberg</a> and <a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a></span></p>
@@ -580,14 +585,14 @@
         <div class="figure"><img src="images/projects/katch.webp" width="762" height="645" decoding="async" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
         <div class="body">
           <h3>Network verification and automata</h3>
-          <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
+          <p>We build verifiers that answer questions about networks, such as reachability and isolation, typically in well under a second, and the automata algorithms that they rest on.</p>
           <ul class="plist">
-            <li><a class="pt" href="papers/katch/">KATch</a> <span class="pv">PLDI'24</span><a class="button" href="misc/katch2/">playground</a><a class="button" href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/KATch">code</a></li>
-            <li><a class="pt" href="papers/stackat/">StacKAT</a> <span class="pv">PLDI'25</span><a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a><a class="button" href="misc/stackat/slides/slides.html">slides</a></li>
-            <li><a class="pt" href="papers/nest/">NEST</a> <span class="pv">ECOOP'26</span><a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a></li>
-            <li><a class="pt" href="papers/serializability/">SER</a> <span class="pv">TACAS'26</span><a class="button" href="https://github.com/julesjacobs/ser">code</a></li>
-            <li><a class="pt" href="papers/boa/">Boa</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-coalg.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/boa">code</a></li>
-            <li><a class="pt" href="https://github.com/julesjacobs/petra">Petra</a> <span class="pv">tool</span></li>
+            <li><a class="pt" href="papers/katch/">KATch</a> <span class="pv">PLDI'24</span><a class="button" href="misc/katch2/">playground</a><a class="button" href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/KATch">code</a><span class="ps">Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.</span></li>
+            <li><a class="pt" href="papers/stackat/">StacKAT</a> <span class="pv">PLDI'25</span><a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a><a class="button" href="misc/stackat/slides/slides.html">slides</a><span class="ps">Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence.</span></li>
+            <li><a class="pt" href="papers/nest/">NEST</a> <span class="pv">ECOOP'26</span><a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a><span class="ps">Enforces application protocols inside the network, with packet-level monitors generated from session types.</span></li>
+            <li><a class="pt" href="papers/serializability/">SER</a> <span class="pv">TACAS'26</span><a class="button" href="https://github.com/julesjacobs/ser">code</a><span class="ps">Decides whether programs in the SER language are serializable, giving a certificate or a counterexample.</span></li>
+            <li><a class="pt" href="papers/boa/">Boa</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-coalg.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/boa">code</a><span class="ps">One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems.</span></li>
+            <li><a class="pt" href="https://github.com/julesjacobs/petra">Petra</a> <span class="pv">tool</span><span class="ps">A Petri-net reachability solver.</span></li>
           </ul>
           <div class="meta">
             <p><span class="label">With</span><span class="value"><a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a></span></p>
@@ -600,14 +605,14 @@
           <h3>Deadlock freedom and verified concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
           <ul class="plist">
-            <li><a class="pt" href="papers/cgraphs/">Connectivity graphs</a> <span class="pv">POPL'22</span><a class="button" href="slides/cgraphs_popl22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
-            <li><a class="pt" href="papers/mpgv/">Multiparty GV</a> <span class="pv">ICFP'22</span><a class="button" href="slides/icfp22-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
-            <li><a class="pt" href="papers/lambdabar/">Self-dual session types</a> <span class="pv">ECOOP'22</span><a class="button" href="slides/lambdabar_types22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
-            <li><a class="pt" href="papers/locks/">Locks</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-locks.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
-            <li><a class="pt" href="papers/miniactris/">Session protocols</a> <span class="pv">ICFP'23</span><a class="button" href="slides/miniactris_iris.pdf">slides</a><a class="button" href="https://apndx.org/pub/mpy9/">code</a></li>
-            <li><a class="pt" href="papers/dlfactris/">Deadlock-free separation logic</a> <span class="pv">POPL'24</span><a class="button" href="slides/dlfactris_popl24.pdf">slides</a><a class="button" href="https://apndx.org/pub/icnp/">code</a></li>
-            <li><a class="pt" href="papers/mpactris/">Multris</a> <span class="pv">OOPSLA'24</span><a class="button" href="https://iris-project.org/workshop-2024/slides/hinrichsen.pdf">slides</a><a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a></li>
-            <li><a class="pt" href="papers/thesis/">PhD thesis</a> <span class="pv">2024</span><a class="button" href="https://apndx.org/pub/thesis/">code</a></li>
+            <li><a class="pt" href="papers/cgraphs/">Connectivity graphs</a> <span class="pv">POPL'22</span><a class="button" href="slides/cgraphs_popl22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks.</span></li>
+            <li><a class="pt" href="papers/mpgv/">Multiparty GV</a> <span class="pv">ICFP'22</span><a class="button" href="slides/icfp22-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">A functional language with multiparty session types in which well-typed programs are deadlock free.</span></li>
+            <li><a class="pt" href="papers/lambdabar/">Self-dual session types</a> <span class="pv">ECOOP'22</span><a class="button" href="slides/lambdabar_types22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free.</span></li>
+            <li><a class="pt" href="papers/locks/">Locks</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-locks.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">A λ-calculus with higher-order locks in which well-typed programs cannot deadlock or leak memory.</span></li>
+            <li><a class="pt" href="papers/miniactris/">Session protocols</a> <span class="pv">ICFP'23</span><a class="button" href="slides/miniactris_iris.pdf">slides</a><a class="button" href="https://apndx.org/pub/mpy9/">code</a><span class="ps">Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq.</span></li>
+            <li><a class="pt" href="papers/dlfactris/">Deadlock-free separation logic</a> <span class="pv">POPL'24</span><a class="button" href="slides/dlfactris_popl24.pdf">slides</a><a class="button" href="https://apndx.org/pub/icnp/">code</a><span class="ps">A separation logic for message passing in which deadlock and leak freedom follow from linearity alone.</span></li>
+            <li><a class="pt" href="papers/mpactris/">Multris</a> <span class="pv">OOPSLA'24</span><a class="button" href="https://iris-project.org/workshop-2024/slides/hinrichsen.pdf">slides</a><a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a><span class="ps">A separation logic for proving programs correct that mix multiparty message passing with shared memory.</span></li>
+            <li><a class="pt" href="papers/thesis/">PhD thesis</a> <span class="pv">2024</span><a class="button" href="https://apndx.org/pub/thesis/">code</a><span class="ps">Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction.</span></li>
           </ul>
           <div class="meta">
             <p><span class="label">With</span><span class="value"><a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a></span></p>
@@ -618,10 +623,10 @@
         <div class="figure"><img src="images/projects/slice.webp" width="840" height="460" decoding="async" alt="Discretization from the Slice paper (Fig. 2): a Gaussian sample compared against 0.1, 0.8 and 2.0 becomes a discrete distribution over four intervals." /></div>
         <div class="body">
           <h3>Probabilistic programming</h3>
-          <p>When continuous random values only matter through comparisons with constants, <a href="#slice">Slice</a> rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. In <a href="#paradoxes">Paradoxes of Probabilistic Programming</a>, I showed how infinitesimal probabilities resolve the paradoxes that arise when a program conditions on an event of probability zero.</p>
+          <p>What a probabilistic program means, and how to compute its distribution exactly.</p>
           <ul class="plist">
-            <li><a class="pt" href="papers/slice/">Slice</a> <span class="pv">OOPSLA'26</span><a class="button" href="slides/slice/">slides</a></li>
-            <li><a class="pt" href="papers/paradoxes/">Paradoxes</a> <span class="pv">POPL'21</span><a class="button" href="slides/measurezero_pldi.pdf">slides</a><a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a><a class="button" href="https://zenodo.org/record/4075076">code</a></li>
+            <li><a class="pt" href="papers/slice/">Slice</a> <span class="pv">OOPSLA'26</span><a class="button" href="slides/slice/">slides</a><span class="ps">Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.</span></li>
+            <li><a class="pt" href="papers/paradoxes/">Paradoxes</a> <span class="pv">POPL'21</span><a class="button" href="slides/measurezero_pldi.pdf">slides</a><a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a><a class="button" href="https://zenodo.org/record/4075076">code</a><span class="ps">Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities.</span></li>
           </ul>
           <div class="meta">
             <p><span class="label">With</span><span class="value"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a></span></p>
@@ -653,9 +658,9 @@
         <td>
           <a class="title" href="papers/stable-patterns/">Dataflow Facts as Stable Patterns</a>
           <br />
-          <div class="one">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</div>
           <div class="info">
             <div class="authors"><a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a>, <span class="me">Jules Jacobs</span></div>
+            <div class="one">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</div>
             <a class="button" href="papers/stable-patterns/stable-patterns.pdf">.pdf</a>
             <a class="button" href="papers/stable-patterns/#film">film</a>
             <a class="button" href="papers/stable-patterns/demo/examples.html">demo</a>
@@ -667,9 +672,9 @@
         <td>
           <a class="title" href="papers/slice/">Type-Directed Discretization of Probabilistic Programs</a>
           <br />
-          <div class="one">Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.</div>
           <div class="info">
             <div class="authors"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <span class="me">Jules Jacobs</span>, <a href="https://kevinbatz.github.io/">Kevin Batz</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a></div>
+            <div class="one">Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.</div>
             <a class="button" href="papers/slice/slice.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3839534">DOI</a>
             <a class="button" href="slides/slice/">slides</a>
@@ -681,9 +686,9 @@
         <td>
           <a class="title" href="papers/mode-crossing/">Mode Crossing</a>
           <br />
-          <div class="one">Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.</div>
           <div class="info">
             <div class="authors"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <span class="me">Jules Jacobs</span>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a>, <a href="https://richarde.dev/">Richard A. Eisenberg</a></div>
+            <div class="one">Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.</div>
             <a class="button" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3828681">DOI</a>
           </div>
@@ -694,9 +699,9 @@
         <td>
           <a class="title" href="papers/nest/">NEST: Network Enforced Session Types</a>
           <br />
-          <div class="one">Enforces application protocols inside the network, with packet-level monitors generated from session types.</div>
           <div class="info">
             <div class="authors"><a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <span class="me">Jules Jacobs</span>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://natefoster.org/">Nate Foster</a></div>
+            <div class="one">Enforces application protocols inside the network, with packet-level monitors generated from session types.</div>
             <a class="button" href="https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2026.17">DOI</a>
             <a class="button" href="https://arxiv.org/abs/2604.21795">arXiv</a>
@@ -709,9 +714,9 @@
         <td>
           <a class="title" href="papers/serializability/">Deciding Serializability in Network Systems</a>
           <br />
-          <div class="one">Decides whether programs in the SER language are serializable, giving a certificate or a counterexample.</div>
           <div class="info">
             <div class="authors"><a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <span class="me">Jules Jacobs</span></div>
+            <div class="one">Decides whether programs in the SER language are serializable, giving a certificate or a counterexample.</div>
             <a class="button" href="https://arxiv.org/pdf/2601.02251">.pdf</a>
             <a class="button" href="https://doi.org/10.1007/978-3-032-22749-2_5">DOI</a>
             <a class="button" href="https://arxiv.org/abs/2601.02251">arXiv</a>
@@ -723,7 +728,6 @@
         <td>
           <a class="title" href="papers/stackat/">StacKAT: Infinite State Network Verification</a>
           <br />
-          <div class="one">Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>,
@@ -734,6 +738,7 @@
               <a href="https://alexandrasilva.org/">Alexandra Silva</a>,
               <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>
             </div>
+            <div class="one">Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence.</div>
             <a class="button" href="papers/stackat/stackat.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3729257">DOI</a>
             <a class="button" href="misc/stackat/slides/slides.html">slides</a>
@@ -746,9 +751,9 @@
         <td>
           <a class="title" href="papers/mpactris/">Multris: Functional Verification of Multiparty Message Passing in Separation Logic</a>
           <br />
-          <div class="one">A separation logic for proving programs correct that mix multiparty message passing with shared memory.</div>
           <div class="info">
             <div class="authors"><a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <span class="me">Jules Jacobs</span>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a></div>
+            <div class="one">A separation logic for proving programs correct that mix multiparty message passing with shared memory.</div>
             <a class="button" href="pdf/mpactris.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3689762">DOI</a>
             <a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a>
@@ -760,9 +765,9 @@
         <td>
           <a class="title" href="papers/katch/">KATch: A Fast Symbolic Verifier for NetKAT</a>
           <br />
-          <div class="one">Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.</div>
           <div class="info">
             <div class="authors"> <a href="https://markmoeller.work/">Mark Moeller</a>*, <span class="me">Jules Jacobs</span>*, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a>, <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>  <span class="equal">(* equal contribution)</span></div>
+            <div class="one">Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.</div>
             <a class="button" href="pdf/katch.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3656454">DOI</a>
             <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
@@ -774,11 +779,11 @@
         <td>
           <a class="title" href="papers/thesis/">Guarantees by Construction</a>
           <br />
-          <div class="one">Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>
             </div>
+            <div class="one">Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction.</div>
             <a class="button" href="pdf/thesis.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.54195/9789493296541">DOI</a>
             <a class="button" href="https://apndx.org/pub/thesis/">code</a>
@@ -792,11 +797,11 @@
         <td>
           <a class="title" href="papers/dlfactris/">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</a>
           <br />
-          <div class="one">A separation logic for message passing in which deadlock and leak freedom follow from linearity alone.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
+            <div class="one">A separation logic for message passing in which deadlock and leak freedom follow from linearity alone.</div>
             <a class="button" href="https://apndx.org/pub/icnp/dlfactris.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3632889">DOI</a>
             <a class="button" href="slides/dlfactris_popl24.pdf">slides</a>
@@ -809,11 +814,11 @@
         <td>
           <a class="title" href="papers/miniactris/"> Dependent Session Protocols in Separation Logic from First Principles </a>
           <br />
-          <div class="one">Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
+            <div class="one">Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq.</div>
             <a class="button" href="https://apndx.org/pub/mpy9/miniactris.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3607856">DOI</a>
             <a class="button" href="slides/miniactris_iris.pdf">slides</a>
@@ -826,11 +831,11 @@
         <td>
           <a class="title" href="papers/locks/"> Higher-Order Leak and Deadlock Free Locks </a>
           <br />
-          <div class="one">A λ-calculus with higher-order locks in which well-typed programs cannot deadlock or leak memory.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>
             </div>
+            <div class="one">A λ-calculus with higher-order locks in which well-typed programs cannot deadlock or leak memory.</div>
             <a class="button" href="pdf/locks.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3571229">DOI</a>
             <a class="button" href="slides/slides-popl23-locks.pdf">slides</a>
@@ -844,11 +849,11 @@
         <td>
           <a class="title" href="papers/boa/"> Fast Coalgebraic Bisimilarity Minimization </a>
           <br />
-          <div class="one">One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>
             </div>
+            <div class="one">One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems.</div>
             <a class="button" href="pdf/boa.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3571245">DOI</a>
             <a class="button" href="slides/slides-popl23-coalg.pdf">slides</a>
@@ -861,11 +866,11 @@
         <td>
           <a class="title" href="papers/mpgv/"> Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom </a>
           <br />
-          <div class="one">A functional language with multiparty session types in which well-typed programs are deadlock free.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
+            <div class="one">A functional language with multiparty session types in which well-typed programs are deadlock free.</div>
             <a class="button" href="pdf/multiparty.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3547638">DOI</a>
             <a class="button" href="slides/icfp22-slides.pdf">slides</a>
@@ -878,9 +883,9 @@
         <td>ECOOP'22</td>
         <td>
           <a class="title" href="papers/lambdabar/">A Self-Dual Distillation of Session Types</a><br />
-          <div class="one">Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free.</div>
           <div class="info">
             <div class="authors"><span class="me">Jules Jacobs</span></div>
+            <div class="one">Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free.</div>
             <a class="button" href="pdf/lambdabar.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2022.23">DOI</a>
             <a class="button" href="slides/lambdabar_types22.pdf">slides</a>
@@ -892,11 +897,11 @@
         <td>POPL'22</td>
         <td>
           <a class="title" href="papers/cgraphs/">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a><br />
-          <div class="one">A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks.</div>
           <div class="info">
             <div class="authors">
               <span class="me">Jules Jacobs</span>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a>, <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>
             </div>
+            <div class="one">A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks.</div>
             <a class="button" href="pdf/deadlocks.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3498662">DOI</a>
             <a class="button" href="slides/cgraphs_popl22.pdf">slides</a>
@@ -944,9 +949,9 @@
               <i style="font-weight: normal"> And How to Condition on Events of Measure Zero with Infinitesimal Probabilities </i>
             </small>
           </a>
-          <div class="one">Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities.</div>
           <div class="info">
             <div class="authors"><span class="me">Jules Jacobs</span></div>
+            <div class="one">Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities.</div>
             <a class="button" href="pdf/measurezero.pdf">.pdf</a>
             <a class="button" href="https://doi.org/10.1145/3434339">DOI</a>
             <a class="button" href="https://zenodo.org/record/4075076">code</a>

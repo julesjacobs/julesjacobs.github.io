@@ -13,7 +13,24 @@ import html, json, os, re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 E = html.escape
+# Lines of the project cards that are not papers, by the address their name links to.
+TOOL_ONE = {
+    "vox/": "Checks specifications at compile time on top of OxCaml, with refinement types and ghost proofs that are erased before code generation.",
+    "https://github.com/oxcaml/oxcaml": "Jane Street's extension of OCaml for safe, fast systems programming; its modes track whether a value can escape its stack frame or be shared between threads.",
+    "https://github.com/julesjacobs/petra": "A Petri-net reachability solver.",
+}
 EXTRA_ONE = {"stable-patterns": "One analysis that finds what constant propagation, unboxing and closure analysis find separately."}
+
+
+HOME_CSS = """    /* papers:begin */
+    /* A publication: its title, who wrote it, then what it does in one line. */
+    .pub .one { color: var(--fg); font-size: 15px; line-height: 1.45; margin: 2px 0 4px 0; }
+    /* A project card lists its papers and tools one to a line, each with what it does under its name. */
+    .plist li { margin-bottom: 7px; }
+    .plist .ps { display: block; flex-basis: 100%; color: var(--muted); font-size: 14px; line-height: 1.4; margin: -2px 0 0 0; }
+    /* papers:end */
+
+"""
 
 
 def url(u):
@@ -167,13 +184,22 @@ def home(papers):
         if pid in ids:
             row = re.sub(r'<a class="title" href="[^"]*">', f'<a class="title" href="papers/{pid}/">', row, count=1)
         row = re.sub(r'\n\s*<div class="one">.*?</div>', "", row, flags=re.S)
-        row = row.replace('<div class="info">', f'<div class="one">{E(one)}</div>\n          <div class="info">', 1)
+        # after the authors, in the text colour: the title and the authors stay together, and the line reads as content
+        row = re.sub(r'(<div class="authors">.*?</div>)', lambda a: a.group(1) + f'\n            <div class="one">{E(one)}</div>', row, count=1, flags=re.S)
         h = h[:m.start()] + row + h[m.end():]
     for pid in ids:   # the project cards' lines, and links in running text, that pointed at the publication's row
         h = h.replace(f'<a class="pt" href="#{pid}">', f'<a class="pt" href="papers/{pid}/">')
-    if ".pub .one" not in h:
-        k = h.index("    /* One line for each paper of a project")
-        h = h[:k] + "    /* A publication's one-line summary, under its title. */\n    .pub .one { color: var(--muted); font-size: 14.5px; margin: 1px 0 3px 0; }\n\n" + h[k:]
+    # each line of a project card carries its summary, under the name
+    h = re.sub(r'<span class="ps">.*?</span>', "", h, flags=re.S)
+    for pid, one in ones.items():
+        h = re.sub(r'(<li><a class="pt" href="papers/' + re.escape(pid) + r'/">.*?)(</li>)', lambda m: m.group(1) + f'<span class="ps">{E(one)}</span>' + m.group(2), h, flags=re.S)
+    for href, one in TOOL_ONE.items():
+        h = re.sub(r'(<li><a class="pt" href="' + re.escape(href) + r'">.*?)(</li>)', lambda m: m.group(1) + f'<span class="ps">{E(one)}</span>' + m.group(2), h, flags=re.S)
+    # the rules for all of this live in one marked block, rewritten on every run
+    h = re.sub(r"    /\* papers:begin \*/.*?/\* papers:end \*/\n\n", "", h, flags=re.S)
+    h = re.sub(r"    /\* A publication's one-line summary, under its title\. \*/\n    \.pub \.one \{[^\n]*\n\n", "", h)
+    k = h.index("    /* One line for each paper of a project")
+    h = h[:k] + HOME_CSS + h[k:]
     open(p, "w", encoding="utf-8").write(h)
 
 
