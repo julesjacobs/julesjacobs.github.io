@@ -449,6 +449,13 @@
       margin: 0 0 8px 0;
     }
 
+    /* One line for each paper of a project: its short name, where it appeared, and what else there is for it. */
+    .plist { list-style: none; padding: 0; margin: 10px 0 8px 0; }
+    .plist li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 6px; margin-bottom: 4px; }
+    .plist .pt { font-weight: 600; }
+    .plist .pv { color: var(--muted); font-size: 14px; margin-right: 6px; }
+    .plist .button { font-size: 12.5px; padding: 0 7px; }
+
     .project .meta {
       display: grid;
       grid-template-columns: max-content minmax(0, 1fr);
@@ -528,7 +535,7 @@
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
           <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
-        <p class="recent"><b>News:</b> papers on <a href="#mode-crossing">mode crossing in OxCaml</a> (ICFP'26), <a href="#slice">exact inference for probabilistic programs</a> (OOPSLA'26), <a href="#nest">network-enforced session types</a> (ECOOP'26) and <a href="#serializability">deciding serializability</a> (TACAS'26) · the IPA Dissertation Award for my <a href="#thesis">thesis</a> · teaching the Software Engineering Seminar at ETH.</p>
+        <p class="recent"><b>News:</b> a preprint on <a href="papers/stable-patterns/">dataflow analysis by pattern matching</a>, with a film that explains it · papers on <a href="#mode-crossing">mode crossing in OxCaml</a> (ICFP'26), <a href="#slice">exact inference for probabilistic programs</a> (OOPSLA'26), <a href="#nest">network-enforced session types</a> (ECOOP'26) and <a href="#serializability">deciding serializability</a> (TACAS'26) · the IPA Dissertation Award for my <a href="#thesis">thesis</a> · teaching the Software Engineering Seminar at ETH.</p>
       </div>
     </div>
     <div id="profile">
@@ -546,24 +553,32 @@
         <div class="figure"><img src="images/projects/modes.webp" width="960" height="720" decoding="async" alt="What Vox adds to OxCaml's modes: a totality axis (partial, total) for specs and lemmas, a ghostliness axis (ghost, real) for erased proofs, and the void layout for free ghost data." /></div>
         <div class="body">
           <h3>Safe and verified systems programming</h3>
-          <p><a href="https://github.com/oxcaml/oxcaml">OxCaml</a> is Jane Street's extension of OCaml for safe, fast systems programming. Its modes track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. <a href="vox/">Vox</a> builds on OxCaml to check specifications at compile time, with refinement types and ghost proofs that are erased before code generation. As AI agents write more of our code, such specifications let people stay in charge of what that code does.</p>
+          <p>The goal is systems code that is fast, safe, and checked against its specification. For safety, the modes of <a href="https://github.com/oxcaml/oxcaml">OxCaml</a>, Jane Street's extension of OCaml, track whether a value can escape its stack frame or be shared between threads, and <a href="#mode-crossing">mode crossing</a> lets integers, immutable data and other suitable types skip those restrictions automatically. For verification, <a href="vox/">Vox</a>, built on OxCaml, checks specifications at compile time, with refinement types and ghost proofs that are erased before code generation. For speed, <a href="papers/stable-patterns/">stable patterns</a> give a compiler one analysis in place of constant propagation, unboxing and closure analysis, so that code written with folds, streams and closures compiles to plain loops. As AI agents write more of our code, checked specifications let people stay in charge of what that code does.</p>
+          <ul class="plist">
+            <li><a class="pt" href="#mode-crossing">Mode Crossing</a> <span class="pv">ICFP'26</span></li>
+            <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/#film">film</a><a class="button" href="papers/stable-patterns/#demo">demo</a></li>
+            <li><a class="pt" href="vox/">Vox</a> <span class="pv">tool</span><a class="button" href="https://lab.julesjacobs.com/vox/talk/">talk</a><a class="button" href="https://github.com/julesjacobs/oxcaml/tree/vox">code</a></li>
+            <li><a class="pt" href="https://github.com/oxcaml/oxcaml">OxCaml</a> <span class="pv">language</span><a class="button" href="misc/oxcaml/playground/">playground</a><a class="button" href="misc/oxcaml/oxcaml-basics/">course</a></li>
+          </ul>
           <div class="meta">
-            <p><span class="label">Papers</span><span class="value"><a href="#mode-crossing">Mode Crossing</a> (ICFP'26)</span></p>
-            <p><span class="label">Talks</span><span class="value"><a href="https://lab.julesjacobs.com/vox/talk/">Vox talk</a></span></p>
-            <p><span class="label">Tools</span><span class="value"><a href="vox/">Vox</a>, <a href="https://github.com/julesjacobs/oxcaml/tree/vox">Vox code</a>, <a href="misc/oxcaml/playground/">OxCaml playground</a>, <a href="misc/oxcaml/oxcaml-basics/">OxCaml course</a></span></p>
-            <p><span class="label">With</span><span class="value"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a></span></p>
+            <p><span class="label">With</span><span class="value"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a>, <a href="https://richarde.dev/">Richard A. Eisenberg</a> and <a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a></span></p>
           </div>
         </div>
       </article>
       <article class="project">
         <div class="figure"><img src="images/projects/katch.webp" width="762" height="645" decoding="async" alt="A symbolic packet program from the KATch paper (Fig. 3): a decision diagram over the header fields a, b and c, with dashed edges for the default case." /></div>
         <div class="body">
-          <h3>Network verification</h3>
+          <h3>Network verification and automata</h3>
           <p>KATch checks network configurations for properties such as reachability and isolation, typically in well under a second. <a href="#stackat">StacKAT</a> extends this to unbounded state such as MPLS label stacks, and <a href="#serializability">SER</a> decides whether stateful networked programs are serializable. <a href="#nest">NEST</a> compiles session-type protocols into monitors that run on programmable switches. These tools rest on fast automata algorithms; <a href="#boa">Boa</a>, for example, minimizes deterministic, weighted and probabilistic automata with one generic algorithm.</p>
+          <ul class="plist">
+            <li><a class="pt" href="#katch">KATch</a> <span class="pv">PLDI'24</span><a class="button" href="misc/katch2/">playground</a><a class="button" href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/KATch">code</a></li>
+            <li><a class="pt" href="#stackat">StacKAT</a> <span class="pv">PLDI'25</span><a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a><a class="button" href="misc/stackat/slides/slides.html">slides</a></li>
+            <li><a class="pt" href="#nest">NEST</a> <span class="pv">ECOOP'26</span><a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a></li>
+            <li><a class="pt" href="#serializability">SER</a> <span class="pv">TACAS'26</span><a class="button" href="https://github.com/julesjacobs/ser">code</a></li>
+            <li><a class="pt" href="#boa">Boa</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-coalg.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/boa">code</a></li>
+            <li><a class="pt" href="https://github.com/julesjacobs/petra">Petra</a> <span class="pv">tool</span></li>
+          </ul>
           <div class="meta">
-            <p><span class="label">Papers</span><span class="value"><a href="#katch">KATch</a> (PLDI'24), <a href="#stackat">StacKAT</a> (PLDI'25), <a href="#nest">NEST</a> (ECOOP'26), <a href="#serializability">SER</a> (TACAS'26), <a href="#boa">Boa</a> (POPL'23)</span></p>
-            <p><span class="label">Talks</span><span class="value"><a href="misc/stackat/slides/slides.html">StacKAT</a>, <a href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">KATch</a> <span class="who">(PLDI'24 talk)</span>, <a href="slides/slides-popl23-coalg.pdf">Boa</a></span></p>
-            <p><span class="label">Tools</span><span class="value"><a href="misc/katch2/">KATch tutorial and playground</a>, <a href="https://github.com/julesjacobs/KATch">KATch code</a>, <a href="https://apndx.org/pub/iqe6/stackatv1.html">StacKAT demo</a>, <a href="https://github.com/julesjacobs/boa">Boa code</a>, <a href="https://github.com/julesjacobs/ser">SER code</a>, <a href="https://github.com/julesjacobs/petra">Petra</a> <span class="who">(Petri-net reachability solver)</span></span></p>
             <p><span class="label">With</span><span class="value"><a href="https://natefoster.org/">Nate Foster</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markmoeller.work/">Mark Moeller</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://ngernest.github.io/">Ernest Ng</a>, <a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a></span></p>
           </div>
         </div>
@@ -573,10 +588,17 @@
         <div class="body">
           <h3>Deadlock freedom and verified concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
+          <ul class="plist">
+            <li><a class="pt" href="#cgraphs">Connectivity graphs</a> <span class="pv">POPL'22</span><a class="button" href="slides/cgraphs_popl22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
+            <li><a class="pt" href="#mpgv">Multiparty GV</a> <span class="pv">ICFP'22</span><a class="button" href="slides/icfp22-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
+            <li><a class="pt" href="#lambdabar">Self-dual session types</a> <span class="pv">ECOOP'22</span><a class="button" href="slides/lambdabar_types22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
+            <li><a class="pt" href="#locks">Locks</a> <span class="pv">POPL'23</span><a class="button" href="slides/slides-popl23-locks.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a></li>
+            <li><a class="pt" href="#miniactris">Session protocols</a> <span class="pv">ICFP'23</span><a class="button" href="slides/miniactris_iris.pdf">slides</a><a class="button" href="https://apndx.org/pub/mpy9/">code</a></li>
+            <li><a class="pt" href="#dlfactris">Deadlock-free separation logic</a> <span class="pv">POPL'24</span><a class="button" href="slides/dlfactris_popl24.pdf">slides</a><a class="button" href="https://apndx.org/pub/icnp/">code</a></li>
+            <li><a class="pt" href="#mpactris">Multris</a> <span class="pv">OOPSLA'24</span><a class="button" href="https://iris-project.org/workshop-2024/slides/hinrichsen.pdf">slides</a><a class="button" href="https://doi.org/10.5281/zenodo.13380561">code</a></li>
+            <li><a class="pt" href="#thesis">PhD thesis</a> <span class="pv">2024</span><a class="button" href="https://apndx.org/pub/thesis/">code</a></li>
+          </ul>
           <div class="meta">
-            <p><span class="label">Papers</span><span class="value"><a href="#cgraphs">Connectivity graphs</a> (POPL'22), <a href="#mpgv">Multiparty GV</a> (ICFP'22), <a href="#lambdabar">Self-dual session types</a> (ECOOP'22), <a href="#locks">Locks</a> (POPL'23), <a href="#miniactris">Session protocols</a> (ICFP'23), <a href="#dlfactris">Deadlock-free separation logic</a> (POPL'24), <a href="#mpactris">Multris</a> (OOPSLA'24), <a href="#thesis">PhD thesis</a></span></p>
-            <p><span class="label">Talks</span><span class="value"><a href="slides/cgraphs_popl22.pdf">Connectivity graphs</a>, <a href="slides/icfp22-slides.pdf">Multiparty GV</a>, <a href="slides/lambdabar_types22.pdf">Self-dual session types</a>, <a href="slides/slides-popl23-locks.pdf">Locks</a>, <a href="slides/miniactris_iris.pdf">Session protocols</a>, <a href="slides/dlfactris_popl24.pdf">Deadlock-free separation logic</a>, <a href="https://iris-project.org/workshop-2024/slides/hinrichsen.pdf">Multris</a> <span class="who">(Jonas Kastberg Hinrichsen, Iris Workshop 2024)</span></span></p>
-            <p><span class="label">Tools</span><span class="value"><a href="https://github.com/julesjacobs/cgraphs">Coq/Rocq proofs</a></span></p>
             <p><span class="label">With</span><span class="value"><a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a></span></p>
           </div>
         </div>
@@ -586,10 +608,11 @@
         <div class="body">
           <h3>Probabilistic programming</h3>
           <p>When continuous random values only matter through comparisons with constants, <a href="#slice">Slice</a> rewrites a probabilistic program into a discrete one, so that exact solvers can compute its distribution. In <a href="#paradoxes">Paradoxes of Probabilistic Programming</a>, I showed how infinitesimal probabilities resolve the paradoxes that arise when a program conditions on an event of probability zero.</p>
+          <ul class="plist">
+            <li><a class="pt" href="#slice">Slice</a> <span class="pv">OOPSLA'26</span><a class="button" href="slides/slice/">slides</a></li>
+            <li><a class="pt" href="#paradoxes">Paradoxes</a> <span class="pv">POPL'21</span><a class="button" href="slides/measurezero_pldi.pdf">slides</a><a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a><a class="button" href="https://zenodo.org/record/4075076">code</a></li>
+          </ul>
           <div class="meta">
-            <p><span class="label">Papers</span><span class="value"><a href="#slice">Slice</a> (OOPSLA'26), <a href="#paradoxes">Paradoxes</a> (POPL'21)</span></p>
-            <p><span class="label">Talks</span><span class="value"><a href="slides/slice/">Slice</a>, <a href="slides/measurezero_pldi.pdf">Paradoxes</a></span></p>
-            <p><span class="label">Tools</span><span class="value"><a href="https://zenodo.org/record/4075076">Paradoxes code</a></span></p>
             <p><span class="label">With</span><span class="value"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a></span></p>
           </div>
         </div>
