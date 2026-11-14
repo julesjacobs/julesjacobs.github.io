@@ -23,8 +23,9 @@
   --btn: 40px; --barh: 56px; --k: 0.5;
 }
 @media (pointer: coarse) { :root { --btn: 44px; --barh: 60px; } }
-html, body { margin: 0; padding: 0; height: 100%; background: var(--letterbox); overflow: hidden; }
-.player { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--letterbox);
+/* in a page the room around the picture is the page's cream; only full screen gets the dark letterbox */
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); overflow: hidden; }
+.player { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg);
   font-family: var(--sans); color: var(--ink); -webkit-tap-highlight-color: transparent; outline: none; }
 /* the frame: the stage's box and the bar. The bar lies over the bottom of the stage and hides while playing, or, where
    the page has room under the picture (a phone held upright), sits under it and stays. */
@@ -33,6 +34,10 @@ html, body { margin: 0; padding: 0; height: 100%; background: var(--letterbox); 
 .box { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: var(--bg); touch-action: manipulation; }
 .scaler { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; }
 .frame.playing:not(.ui) .box { cursor: none; }
+.player:fullscreen { background: var(--letterbox); }
+.player:-webkit-full-screen { background: var(--letterbox); }
+/* before the first play the still is a poster: a light veil over it, so the play button does not collide with what the frame shows */
+.frame:not(.started) .box::after { content: ""; position: absolute; inset: 0; background: rgba(243, 235, 221, 0.55); pointer-events: none; }
 
 /* captions: the teaser's look, sized with the stage */
 .caption { position: absolute; left: 0; right: 0; bottom: max(6px, calc(var(--k) * 70px)); text-align: center; pointer-events: none; transition: bottom 0.2s; }
@@ -42,7 +47,7 @@ html, body { margin: 0; padding: 0; height: 100%; background: var(--letterbox); 
 .frame.ui:not(.under) .caption { bottom: max(calc(var(--barh) + 8px), calc(var(--k) * 70px)); }
 
 /* the big play button over the still */
-.big { position: absolute; left: 50%; top: 50%; width: clamp(56px, 10vw, 112px); height: clamp(56px, 10vw, 112px); margin: 0; padding: 0;
+.big { position: absolute; z-index: 2; left: 50%; top: 50%; width: clamp(56px, 10vw, 112px); height: clamp(56px, 10vw, 112px); margin: 0; padding: 0;
   transform: translate(-50%, -50%); border: none; border-radius: 50%; background: rgba(43, 35, 27, 0.86); color: var(--bg); cursor: pointer;
   display: flex; align-items: center; justify-content: center; }
 .big svg { width: 42%; height: 42%; margin-left: 8%; }
