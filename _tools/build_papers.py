@@ -103,7 +103,10 @@ def page(p):
     abstract = "\n".join(f"  <p>{E(par.strip())}</p>" for par in p["abstract"].split("\n\n") if par.strip())
     talks = ""
     if p["talks"]:
-        items = "\n".join(f'    <li><a href="{E(url(t["url"]))}">{E(t["title"])}</a> <span class="info">{E(str(t["year"]))} · {E(t["where"])}</span></li>' for t in p["talks"])
+        def talk(t):   # a talk: its slides (or, without slides, its recording) under its title, then when and where
+            rec = f' · <a href="{E(url(t["video"]))}">{E(t.get("video_label") or "recording")}</a>' if t.get("video") and t.get("url") else ""
+            return f'    <li><a href="{E(url(t.get("url") or t["video"]))}">{E(t["title"])}</a> <span class="info">{E(str(t["year"]))} · {E(t["where"])}{rec}</span></li>'
+        items = "\n".join(talk(t) for t in p["talks"])
         talks = f"  <h2>Talks</h2>\n  <ul class=\"files\">\n{items}\n  </ul>\n\n"
     sub = f'\n      <p class="subtitle">{E(p["subtitle"])}</p>' if p.get("subtitle") else ""
     venue = "PhD thesis, 2024" if pid == "thesis" else f'{E(p["venue"])}'

@@ -23,6 +23,9 @@
         <a class="button primary" href="/pdf/katch.pdf">Read the paper</a>
         <a class="button" href="https://doi.org/10.1145/3656454">DOI</a>
         <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
+        <a class="button" href="/misc/katch2/">playground</a>
+        <a class="button" href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">slides</a>
+        <a class="button" href="https://www.youtube.com/watch?v=44Oxj3edZrc">talk recording</a>
       </div>
     </div>
     <a class="paper" href="/pdf/katch.pdf" title="Read the paper (PDF)">
@@ -33,6 +36,11 @@
 
   <h2>Abstract</h2>
   <p>We develop new data structures and algorithms for checking verification queries in NetKAT, a domain-specific language for specifying the behavior of network data planes. Our results extend the techniques obtained in prior work on symbolic automata and provide a framework for building efficient and scalable verification tools. We present KATch, an implementation of these ideas in Scala, featuring an extended set of NetKAT operators that are useful for expressing network-wide specifications, and a verification engine that constructs a bisimulation or generates a counter-example showing that none exists. We evaluate the performance of our implementation on real-world and synthetic benchmarks, verifying properties such as reachability and slice isolation, typically returning a result in well under a second, which is orders of magnitude faster than previous approaches. Our advancements underscore NetKAT’s potential as a practical, declarative language for network specification and verification.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">KATch: A Fast Symbolic Verifier for NetKAT</a> <span class="info">2024 · PLDI&#x27;24 · <a href="https://www.youtube.com/watch?v=44Oxj3edZrc">recording</a></span></li>
+  </ul>
 
   <h2>Cite</h2>
 <pre>@article{moeller2024katch,

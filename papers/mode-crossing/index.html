@@ -22,6 +22,7 @@
       <div class="buttons">
         <a class="button primary" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">Read the paper</a>
         <a class="button" href="https://doi.org/10.1145/3828681">DOI</a>
+        <a class="button" href="https://www.youtube.com/watch?v=lCo5-0pKTsY">talk recording</a>
       </div>
     </div>
     <a class="paper" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf" title="Read the paper (PDF)">
@@ -33,6 +34,11 @@
   <h2>Abstract</h2>
   <p>OxCaml extends the OCaml type system with support for safe low-level systems programming via modes. For example, OxCaml&#x27;s modal portability and contention axes ensure that concurrent OxCaml programs have no data races. In practice, however, mode tracking can reject programs that are obviously safe, such as when the data shared across threads is immutable. To remedy this problem, we introduce mode crossing—the ability to automatically strengthen modes (e.g., from nonportable to portable) for values of certain types. Mode crossing significantly reduces the annotation burden associated with modal types, and we further introduce a new type system feature, modal kinds.</p>
   <p>We present a type-theoretic account of modal kinds, interpret them as monotone functions on a lattice of modes, and extend this interpretation to incorporate abstract types. We verify soundness of the modal kind system in Rocq on top of Iris. We design an inference procedure that reduces kind checking and subsumption to constraints solved by a dedicated lattice solver. Our design is implemented in a large industrial codebase, demonstrating practical usability.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="https://www.youtube.com/watch?v=lCo5-0pKTsY">Mode Crossing</a> <span class="info">2026 · ICFP&#x27;26</span></li>
+  </ul>
 
   <h2>Cite</h2>
 <pre>@article{peters2026modecrossing,

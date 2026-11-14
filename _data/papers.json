@@ -104,6 +104,10 @@
    {
     "label": "DOI",
     "url": "https://doi.org/10.1145/3828681"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=lCo5-0pKTsY"
    }
   ],
   "awards": [],
@@ -114,7 +118,14 @@
   "one_line": "Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.",
   "summary": "OxCaml's modes rule out data races, but mode tracking can reject obviously safe programs, such as ones sharing immutable data across threads. This paper introduces mode crossing, which strengthens modes automatically for values of certain types, through modal kinds. Their soundness is verified in Rocq on top of Iris, and the design is implemented in a large industrial codebase.",
   "bibtex": "@article{peters2026modecrossing,\n  title = {Mode Crossing},\n  volume = {10},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3828681},\n  DOI = {10.1145/3828681},\n  number = {ICFP},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Peters, Benjamin and Jacobs, Jules and Kalinichenko, Diana and Stevenson, Liam and Smith, Aspen and Dreyer, Derek and Eisenberg, Richard A.},\n  year = {2026},\n  month = Aug,\n  pages = {236--266}\n}",
-  "talks": [],
+  "talks": [
+   {
+    "title": "Mode Crossing",
+    "year": "2026",
+    "where": "ICFP'26",
+    "video": "https://www.youtube.com/watch?v=lCo5-0pKTsY"
+   }
+  ],
   "thumbnail": "papers/mode-crossing/page1.jpg",
   "notes": "No local PDF. Abstract from the ACM publisher metadata for the DOI (read via the Crossref API; the ACM page itself blocks scripts). The original italicizes modes, portability, contention, mode crossing and modal kinds, and sets nonportable/portable in monospace; plain here. No thumbnail."
  },
@@ -226,6 +237,10 @@
    {
     "label": "arXiv",
     "url": "https://arxiv.org/abs/2601.02251"
+   },
+   {
+    "label": "code",
+    "url": "https://github.com/julesjacobs/ser"
    }
   ],
   "awards": [],
@@ -299,6 +314,10 @@
    {
     "label": "demo",
     "url": "https://apndx.org/pub/iqe6/stackatv1.html"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=fENdnJOO5YQ"
    }
   ],
   "awards": [],
@@ -314,7 +333,8 @@
     "title": "StacKAT: Infinite State Network Verification",
     "year": "2025",
     "where": "PLDI'25",
-    "url": "misc/stackat/slides/slides.html"
+    "url": "misc/stackat/slides/slides.html",
+    "video": "https://www.youtube.com/watch?v=fENdnJOO5YQ"
    }
   ],
   "thumbnail": "papers/stackat/page1.jpg",
@@ -355,6 +375,10 @@
    {
     "label": "code",
     "url": "https://doi.org/10.5281/zenodo.13380561"
+   },
+   {
+    "label": "slides",
+    "url": "https://iris-project.org/workshop-2024/slides/hinrichsen.pdf"
    }
   ],
   "awards": [],
@@ -432,6 +456,18 @@
    {
     "label": "code",
     "url": "https://github.com/julesjacobs/KATch"
+   },
+   {
+    "label": "playground",
+    "url": "misc/katch2/"
+   },
+   {
+    "label": "slides",
+    "url": "https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=44Oxj3edZrc"
    }
   ],
   "awards": [],
@@ -442,7 +478,15 @@
   "one_line": "Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.",
   "summary": "NetKAT is a language for specifying the behavior of network data planes. This paper develops data structures and algorithms for checking NetKAT verification queries, implemented in KATch, which constructs a bisimulation or a counterexample. On real-world and synthetic benchmarks it typically answers in well under a second, orders of magnitude faster than previous approaches.",
   "bibtex": "@article{moeller2024katch,\n  title = {KATch: A Fast Symbolic Verifier for NetKAT},\n  volume = {8},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3656454},\n  DOI = {10.1145/3656454},\n  number = {PLDI},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Moeller, Mark and Jacobs, Jules and Belanger, Olivier Savary and Darais, David and Schlesinger, Cole and Smolka, Steffen and Foster, Nate and Silva, Alexandra},\n  year = {2024},\n  month = June,\n  pages = {1905--1928}\n}",
-  "talks": [],
+  "talks": [
+   {
+    "title": "KATch: A Fast Symbolic Verifier for NetKAT",
+    "year": "2024",
+    "where": "PLDI'24",
+    "url": "https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf",
+    "video": "https://www.youtube.com/watch?v=44Oxj3edZrc"
+   }
+  ],
   "thumbnail": "papers/katch/page1.jpg",
   "notes": "The equal-contribution marks: Mark Moeller and Jules Jacobs carry \"mark\": \"*\" in authors."
  },
@@ -471,6 +515,10 @@
    {
     "label": "code",
     "url": "https://apndx.org/pub/thesis/"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=4YolV506nMk"
    }
   ],
   "awards": [
@@ -490,6 +538,12 @@
     "year": "2026",
     "where": "IPA Fall Days 2026 · Dissertation Award talk",
     "url": "https://lab.julesjacobs.com/slides/ipa/"
+   },
+   {
+    "title": "Guarantees by Construction: Deadlock and Resource Leak Free Languages",
+    "year": "2025",
+    "where": "Allen School Colloquium, University of Washington",
+    "video": "https://www.youtube.com/watch?v=4YolV506nMk"
    }
   ],
   "thumbnail": "papers/thesis/page1.jpg",
@@ -534,6 +588,10 @@
    {
     "label": "code",
     "url": "https://apndx.org/pub/icnp/"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=Tt28Z-3OM7A"
    }
   ],
   "awards": [],
@@ -549,7 +607,9 @@
     "title": "Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing",
     "year": "2024",
     "where": "EPFL · POPL'24",
-    "url": "slides/dlfactris_popl24.pdf"
+    "url": "slides/dlfactris_popl24.pdf",
+    "video": "https://www.youtube.com/watch?v=Tt28Z-3OM7A",
+    "video_label": "POPL'24 recording"
    }
   ],
   "thumbnail": "papers/dlfactris/page1.jpg",
@@ -594,6 +654,10 @@
    {
     "label": "code",
     "url": "https://apndx.org/pub/mpy9/"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=TfrzOY_pobI"
    }
   ],
   "awards": [],
@@ -605,6 +669,12 @@
   "summary": "Earlier separation logics for dependent session protocols needed recursive domain equations and higher-order ghost state. This paper builds session channels in layers on one-shot channels, verifies those with basic mechanisms only, and defines dependent session protocols on top. Subprotocols, guarded recursion and channel closing come along, and everything is mechanized in Iris in under 1000 lines of Coq.",
   "bibtex": "@article{jacobs2023miniactris,\n  title = {Dependent Session Protocols in Separation Logic from First Principles (Functional Pearl)},\n  volume = {7},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3607856},\n  DOI = {10.1145/3607856},\n  number = {ICFP},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Hinrichsen, Jonas Kastberg and Krebbers, Robbert},\n  year = {2023},\n  month = Aug,\n  pages = {768--795}\n}",
   "talks": [
+   {
+    "title": "Dependent Session Protocols in Separation Logic from First Principles",
+    "year": "2023",
+    "where": "ICFP'23",
+    "video": "https://www.youtube.com/watch?v=TfrzOY_pobI"
+   },
    {
     "title": "Dependent Session Protocols in Separation Logic from First Principles",
     "year": "2023",
@@ -649,6 +719,10 @@
    {
     "label": "code",
     "url": "https://github.com/julesjacobs/cgraphs"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=QJyJNMHkgWY"
    }
   ],
   "awards": [
@@ -666,7 +740,9 @@
     "title": "Higher-Order Leak and Deadlock Free Locks",
     "year": "2023",
     "where": "Cornell University · Carnegie Mellon University · POPV seminar Boston · LFCS seminar Edinburgh · POPL'23",
-    "url": "slides/slides-locks.pdf"
+    "url": "slides/slides-locks.pdf",
+    "video": "https://www.youtube.com/watch?v=QJyJNMHkgWY",
+    "video_label": "POPL'23 recording"
    }
   ],
   "thumbnail": "papers/locks/page1.jpg",
@@ -706,6 +782,10 @@
    {
     "label": "code",
     "url": "https://github.com/julesjacobs/boa"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=9F0dVBF1hnc"
    }
   ],
   "awards": [],
@@ -721,7 +801,9 @@
     "title": "Fast Coalgebraic Bisimilarity Minimization",
     "year": "2022–23",
     "where": "Cornell University · LIP ENS Lyon · POPL'23 · SWS Seminar, Radboud University",
-    "url": "slides/slides-popl23-coalg.pdf"
+    "url": "slides/slides-popl23-coalg.pdf",
+    "video": "https://www.youtube.com/watch?v=9F0dVBF1hnc",
+    "video_label": "POPL'23 recording"
    }
   ],
   "thumbnail": "papers/boa/page1.jpg",
@@ -770,6 +852,10 @@
    {
     "label": "crossref",
     "url": "pdf/multiparty_annotated.pdf"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=Lwo661asqpA"
    }
   ],
   "awards": [],
@@ -785,7 +871,8 @@
     "title": "Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom",
     "year": "2022",
     "where": "ICFP'22",
-    "url": "slides/icfp22-slides.pdf"
+    "url": "slides/icfp22-slides.pdf",
+    "video": "https://www.youtube.com/watch?v=Lwo661asqpA"
    }
   ],
   "thumbnail": "papers/mpgv/page1.jpg",
@@ -820,6 +907,10 @@
    {
     "label": "code",
     "url": "https://github.com/julesjacobs/cgraphs"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=a7nAUal3R4U"
    }
   ],
   "awards": [],
@@ -835,7 +926,8 @@
     "title": "A Simple Concurrent Lambda Calculus for Encoding Session Types",
     "year": "2022",
     "where": "TYPES'22",
-    "url": "slides/lambdabar_types22.pdf"
+    "url": "slides/lambdabar_types22.pdf",
+    "video": "https://www.youtube.com/watch?v=a7nAUal3R4U"
    },
    {
     "title": "A Self-Dual Distillation of Session Types",
@@ -886,6 +978,10 @@
    {
     "label": "code",
     "url": "https://github.com/julesjacobs/cgraphs"
+   },
+   {
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=qK9IAwmhTbk"
    }
   ],
   "awards": [],
@@ -901,7 +997,15 @@
     "title": "Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic",
     "year": "2022",
     "where": "Iris Workshop · CMU plunch · Imperial College London · POPL'22",
-    "url": "slides/iris-workshop-slides22.pdf"
+    "url": "slides/iris-workshop-slides22.pdf",
+    "video": "https://www.youtube.com/watch?v=qK9IAwmhTbk",
+    "video_label": "POPL'22 recording"
+   },
+   {
+    "title": "Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic (teaser)",
+    "year": "2022",
+    "where": "POPL'22 · four minutes",
+    "video": "https://www.youtube.com/watch?v=cRn0ZA3LTX8"
    }
   ],
   "thumbnail": "papers/cgraphs/page1.jpg",
@@ -938,8 +1042,8 @@
     "url": "slides/measurezero_pldi.pdf"
    },
    {
-    "label": "video",
-    "url": "https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c"
+    "label": "talk recording",
+    "url": "https://www.youtube.com/watch?v=oSII21Tm1zE"
    }
   ],
   "awards": [],
@@ -955,7 +1059,9 @@
     "title": "Paradoxes of Probabilistic Programming",
     "year": "2020–22",
     "where": "PLDI'22 SIGPLAN Track · VeriProP'21 · POPL'21 · PL Seminar, TU Delft · PPLV, University College London · SWS Seminar, Radboud University",
-    "url": "slides/measurezero_pldi.pdf"
+    "url": "slides/measurezero_pldi.pdf",
+    "video": "https://www.youtube.com/watch?v=oSII21Tm1zE",
+    "video_label": "POPL'21 recording"
    }
   ],
   "thumbnail": "papers/paradoxes/page1.jpg",
