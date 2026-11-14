@@ -4,8 +4,9 @@
     python3 _tools/build_papers.py
 
 A page shows the title, authors and venue, a short summary, buttons for what there is (paper, slides, code, ...),
-the first page of the paper when papers/<id>/page1.jpg exists, a short video when papers/<id>/film/ exists, the
-abstract, talks and the BibTeX entry. The pages share papers/paper.css. On the home page (index.html) each
+the first page of the paper when papers/<id>/page1.jpg exists, a video when papers/<id>/film/ exists (with its
+chapters when film/chapters.json lists them as [[seconds, title], ...], and a two-minute version under it when
+papers/<id>/short/ exists), the abstract, talks and the BibTeX entry. The pages share papers/paper.css. On the home page (index.html) each
 publication's title then links to its page and carries its one-line summary, and so do the names in the project
 cards. Running it again changes nothing. papers/stable-patterns/ and papers/stackat-completeness/ are written by
 hand and are left alone."""
@@ -80,10 +81,24 @@ def page(p):
     film = ""
     if has_film:
         film = '''  <div class="film" id="film">
-    <iframe src="film/" title="A short video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    <iframe name="film" src="film/" title="A video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
-
 '''
+        chapters = os.path.join(ROOT, "papers", pid, "film", "chapters.json")
+        chapters = json.load(open(chapters, encoding="utf-8")) if os.path.exists(chapters) else []
+        if chapters:   # the video's chapters: each link moves the player above to that time
+            items = "\n".join(f'    <li><span class="t">{int(t) // 60}:{int(t) % 60:02d}</span><a href="film/?t={int(t)}" target="film">{E(name)}</a></li>'
+                              for t, name in chapters)
+            film += f'  <ol class="chapters">\n{items}\n  </ol>\n'
+        if os.path.exists(os.path.join(ROOT, "papers", pid, "short", "index.html")):
+            film += '''  <details class="short">
+    <summary>The two-minute version</summary>
+    <div class="film">
+      <iframe src="short/" title="A two-minute video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </details>
+'''
+        film += "\n"
     abstract = "\n".join(f"  <p>{E(par.strip())}</p>" for par in p["abstract"].split("\n\n") if par.strip())
     talks = ""
     if p["talks"]:
@@ -172,12 +187,19 @@ a.paper:hover img { transform: translateY(-3px); }
 .film::before { content: ""; display: block; padding-top: calc(56.25% + 58px); }
 @media (pointer: coarse) { .film::before { padding-top: calc(56.25% + 62px); } }
 .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+ol.chapters { columns: 2; column-gap: 28px; padding-left: 0; margin: 6px 0; list-style: none; font-size: 15px; }
+ol.chapters li { break-inside: avoid; margin-bottom: 2px; }
+ol.chapters .t { display: inline-block; width: 3.2em; color: var(--muted); font-variant-numeric: tabular-nums; }
+details.short { margin: 10px 0 6px 0; font-size: 15px; }
+details.short summary { cursor: pointer; color: var(--link); width: fit-content; border-radius: 4px; }
+details.short summary:hover { background: var(--link-hover-bg); }
+details.short .film { margin-top: 8px; }
 ul.files { padding-left: 20px; margin: 6px 0; }
 ul.files li { margin-bottom: 6px; }
 .info { color: var(--muted); }
 pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.5; background: var(--panel);
   border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; margin: 8px 0; }
-@media (max-width: 680px) { .top { grid-template-columns: minmax(0, 1fr); } a.paper { display: none; } }
+@media (max-width: 680px) { .top { grid-template-columns: minmax(0, 1fr); } a.paper { display: none; } ol.chapters { columns: 1; } }
 '''
 
 

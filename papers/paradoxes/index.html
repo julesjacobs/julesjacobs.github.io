@@ -36,8 +36,23 @@
   </div>
 
   <div class="film" id="film">
-    <iframe src="film/" title="A short video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    <iframe name="film" src="film/" title="A video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
+  <ol class="chapters">
+    <li><span class="t">1:06</span><a href="film/?t=66" target="film">What observe means</a></li>
+    <li><span class="t">3:28</span><a href="film/?t=208" target="film">Densities</a></li>
+    <li><span class="t">4:23</span><a href="film/?t=263" target="film">Three paradoxes</a></li>
+    <li><span class="t">8:50</span><a href="film/?t=530" target="film">Intervals</a></li>
+    <li><span class="t">10:59</span><a href="film/?t=659" target="film">Infinitesimal probabilities</a></li>
+    <li><span class="t">14:32</span><a href="film/?t=872" target="film">Old programs, other scales</a></li>
+    <li><span class="t">15:46</span><a href="film/?t=946" target="film">Looking back</a></li>
+  </ol>
+  <details class="short">
+    <summary>The two-minute version</summary>
+    <div class="film">
+      <iframe src="short/" title="A two-minute video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </details>
 
   <h2>Abstract</h2>
   <p>Probabilistic programming languages allow programmers to write down conditional probability distributions that represent statistical and machine learning models as programs that use observe statements. These programs are run by accumulating likelihood at each observe statement, and using the likelihood to steer random choices and weigh results with inference algorithms such as importance sampling or MCMC. We argue that naive likelihood accumulation does not give desirable semantics and leads to paradoxes when an observe statement is used to condition on a measure-zero event, particularly when the observe statement is executed conditionally on random data. We show that the paradoxes disappear if we explicitly model measure-zero events as a limit of positive measure events, and that we can execute these type of probabilistic programs by accumulating infinitesimal probabilities rather than probability densities. Our extension improves probabilistic programming languages as an executable notation for probability distributions by making it more well-behaved and more expressive, by allowing the programmer to be explicit about which limit is intended when conditioning on an event of measure zero.</p>

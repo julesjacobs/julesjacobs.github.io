@@ -34,8 +34,23 @@
   </div>
 
   <div class="film" id="film">
-    <iframe src="film/" title="A short video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    <iframe name="film" src="film/" title="A video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
+  <ol class="chapters">
+    <li><span class="t">1:16</span><a href="film/?t=76" target="film">Networks as programs</a></li>
+    <li><span class="t">3:14</span><a href="film/?t=194" target="film">Why a stack</a></li>
+    <li><span class="t">4:11</span><a href="film/?t=251" target="film">StacKAT</a></li>
+    <li><span class="t">7:06</span><a href="film/?t=426" target="film">Deciding equivalence</a></li>
+    <li><span class="t">13:28</span><a href="film/?t=808" target="film">Headers, cost, counterexamples</a></li>
+    <li><span class="t">15:32</span><a href="film/?t=932" target="film">Axioms</a></li>
+    <li><span class="t">16:12</span><a href="film/?t=972" target="film">Looking back</a></li>
+  </ol>
+  <details class="short">
+    <summary>The two-minute version</summary>
+    <div class="film">
+      <iframe src="short/" title="A two-minute video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    </div>
+  </details>
 
   <h2>Abstract</h2>
   <p>We develop StacKAT, a network verification language featuring loops, finite state variables, nondeterminism, and—most importantly—access to a stack with accompanying push and pop operations. By viewing the variables and stack as the (parsed) headers and (to-be-parsed) contents of a network packet, StacKAT can express a wide range of network behaviors including parsing, source routing, and telemetry. These behaviors are difficult or impossible to model using existing languages like NetKAT. We develop a decision procedure for StacKAT program equivalence, based on finite automata. This decision procedure provides the theoretical basis for verifying network-wide properties and is able to provide counterexamples for inequivalent programs. Finally, we provide an axiomatization of StacKAT equivalence and establish its completeness.</p>

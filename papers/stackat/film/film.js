@@ -1,4 +1,4 @@
-// StacKAT: a short video: the film's scripts in one file, made by tools/web.py.
+// StacKAT: Infinite State Network Verification: the video: the film's scripts in one file, made by tools/web.py.
 
 // ==== ../src/engine.js ====
 // A small deterministic animation engine: every visual property is a function of time, so any frame can be
@@ -468,530 +468,3143 @@ function scene(id, build) { SCENES.push({ id, build }); }
 window.Film = { W, H, C, E, Timeline, SCENES, scene };
 
 // ==== src/narration.js ====
-// A short film (about two minutes) on "StacKAT: Infinite State Network Verification" (PLDI 2025). One story: networks
-// as programs, why a stack breaks the finite-state argument, the two new operations, and the decision procedure.
-// {name} marks a cue. "Stack Cat" and "Net Cat" are written as they are spoken; src/caption-fixes.json has their spelling.
+// The full-length film on "StacKAT: Infinite State Network Verification" (PLDI 2025). One story: a network is a
+// program and verification is program equivalence (NetKAT); real packets need a stack, which makes the state space
+// infinite; StacKAT adds push and pop; three laws about them become three steps on a finite automaton, after which
+// equivalent programs have equal automata; then headers, cost, counterexamples and axioms.
+// {name} marks a cue. "Stack Cat" and "Net Cat" are written as they are spoken (src/caption-fixes.json has their
+// spelling); single letters are capitals so that they are read as letters. No person is named in the narration.
 window.NARRATION = [
-  { id: 's_hook', chapter: '', pre: 0.5, post: 0.4, text:
-    `{net}A network forwards packets by rules: match some header fields, rewrite some, and send the packet on. {prog}Net Cat reads those rules as a program. A field is a variable, a rule is an if statement, and a path through the network is a loop. ` +
-    `{verify}A question about the network, such as whether one host can reach another, then becomes a question about programs: {equiv}are these two programs equivalent? {dec}For Net Cat this can be decided, because a packet has finitely many fields, with finitely many values.` },
-  { id: 's_limit', chapter: '', pre: 0.4, post: 0.4, text:
-    `{but}But real packets also carry a stack. {route}In source routing, a packet carries its whole path, and each router pops the next hop. {tele}Telemetry pushes a record at every hop. {parse}And parsing a packet pops its bytes one by one. ` +
-    `{unb}A stack has no bound, {inf}so there are infinitely many packets, and the finite-state argument is gone.` },
-  { id: 's_lang', chapter: '', pre: 0.4, post: 0.4, text:
-    `{lang}Stack Cat adds two operations to Net Cat. {push}Push puts a value on the stack. {pop}Pop removes the top value, and drops the packet if it is a different one. ` +
-    `{same}So push and then pop of the same value does nothing, {diff}and push and then pop of different values drops the packet. {q}With loops, a program can push and pop without bound. Can we still decide whether two programs are equivalent?` },
-  { id: 's_result', chapter: '', pre: 0.4, post: 0.4, text:
-    `{yes}Surprisingly, yes. {auto}A program becomes a finite automaton, whose transitions are labelled with pushes and pops. {norm}Three steps bring it to a normal form: {s1}cancel each push that meets its pop, {s2}keep only the runs that pop before they push, {s3}and zip the two halves together. ` +
-    `{thm}Two programs are equivalent exactly when their normal forms accept the same language. {cex}When they are not, the procedure gives a counterexample.` },
-  { id: 's_end', chapter: '', pre: 0.4, post: 3.0, text:
-    `{title}Stack Cat: infinite state network verification. {paper}The paper has the decision procedure, its complexity, and a complete axiomatization.` },
+  // ------------------------------------------------------------------------------------------------ opening
+  { id: 'hook', chapter: '', pre: 0.8, post: 0.7, text:
+    `{two}Here are two small programs. Each one acts on a stack. {p1}The first pushes the value A any number of times, and then pops it any number of times. {p2}The second does one or the other: only pushes, or only pops. ` +
+    `{eq}They are equivalent: on every stack, they can do exactly the same things. {how}How could a machine check that? {inf}A stack can be arbitrarily deep, so there are infinitely many stacks to try. ` +
+    `{film}This video is about a language for networks, called Stack Cat, in which that question always has an answer. {hand}By the end, we will have checked these two programs by hand.` },
+  { id: 'roadmap', chapter: '', pre: 0.3, post: 0.8, text:
+    `{coming}Here is what is coming. {net}First, how a network becomes a program, and a question about it becomes a question of equivalence. {stack}Then why real packets need a stack. ` +
+    `{lang}Then the language, and three laws about push and pop. {proc}Then the main part: a procedure in three steps, one for each law, that decides equivalence using only finite automata. ` +
+    `{rest}And at the end: headers, cost, counterexamples, and axioms.` },
+  { id: 'title', chapter: '', pre: 0.6, post: 1.0, text:
+    `{title}Stack Cat: {sub}infinite state network verification.` },
+
+  // ------------------------------------------------------------------------------------------------ networks as programs
+  { id: 'net_a', chapter: 'Networks as programs', pre: 1.9, post: 0.6, text:
+    `{net}A network is made of switches. {pkt}A packet arrives with a header: a few fields, such as a destination and a port. {rule}A switch looks at some fields, changes some, and sends the packet on to a neighbor. ` +
+    `{prog}Net Cat is a language that reads all of this as a program. {field}A field is a variable. {test}A match is a test: it lets the packet through if a field has a given value, and drops it otherwise. ` +
+    `{assign}An action is an assignment of a constant to a field. {move}Even the packet's location is a field. Moving it to switch B is an assignment: switch becomes B.` },
+  { id: 'net_b', chapter: 'Networks as programs', pre: 0.4, post: 0.6, text:
+    `{ops}Programs are combined in three ways. {seq}A dot runs one program and then another. {plus}A plus is a choice: the packet goes both ways, as when a switch forwards it to two neighbors. {star}A star repeats a program any number of times. ` +
+    `{const}And there are two constant programs. The program written one passes every packet unchanged. The program written zero drops every packet. {whole}The whole network is then one program: test which switch the packet is on, run that switch's program, and repeat.` },
+  { id: 'net_c', chapter: 'Networks as programs', pre: 0.4, post: 0.9, text:
+    `{mean}What does a program mean? {rel}It relates each input packet to the packets that can come out: none, one, or several. {equiv}Two programs are equivalent if they relate the same inputs to the same outputs. ` +
+    `{why}Equivalence is what verification needs. {reach}To ask whether any packet can get from switch A to switch B: start at A, run the network, and test for B. {zero}If that program is equivalent to zero, no packet gets through. ` +
+    `{dec}For Net Cat, a machine can always answer, because a packet has finitely many fields, with finitely many values. {fin}There are only finitely many packets, so a program is a finite-state system.` },
+
+  // ------------------------------------------------------------------------------------------------ why a stack
+  { id: 'stack_a', chapter: 'Why a stack', pre: 1.9, post: 0.6, text:
+    `{real}Real packets are not that simple. {bytes}On the wire, a packet is a sequence of bytes. {parse}A switch must parse it: take bytes off the front, and put them into fields. ` +
+    `{route}In source routing, the packet carries its whole route, and each switch takes off the next hop. {tele}Telemetry adds a record at every hop. {tun}A tunnel wraps the packet in new headers, and unwraps it later. ` +
+    `{all}Every one of these adds or removes at the front of the packet. {st}That is a stack.` },
+  { id: 'stack_b', chapter: 'Why a stack', pre: 0.4, post: 0.9, text:
+    `{nobound}And a stack has no fixed depth. A route can be arbitrarily long. {infinite}So there are infinitely many packets, {gone}and the argument that made Net Cat decidable is gone. ` +
+    `{worse}It looks worse than that. {cfl}A machine with a stack and an input can recognize context-free languages, and whether two context-free languages are equal is undecidable. {q}So is there any hope?` },
+
+  // ------------------------------------------------------------------------------------------------ the language
+  { id: 'lang_a', chapter: 'StacKAT', pre: 1.9, post: 0.6, text:
+    `{pk}In Stack Cat, a packet has two parts: a header, as before, and a stack. {ops}The language adds two operations. {push}Push puts a value on top of the stack. {pop}Pop takes a value off the top, but only if it is the value named. ` +
+    `{ok}Pop three, on a stack with three on top, removes it. {bad}Pop five, on the same stack, drops the packet. {empty}So does a pop on an empty stack. {guard}A pop is a test and an action in one.` },
+  { id: 'lang_b', chapter: 'StacKAT', pre: 0.4, post: 0.6, text:
+    `{sugar}These two are enough. {route}Source routing is one line: pop the top of the stack into the switch field. {short}That is shorthand for a choice: pop one and go to switch one, or pop two and go to switch two, and so on. ` +
+    `{finite}That works because there are finitely many values. {parse}Parsing a header pops into one field after another. {tele}And telemetry is a push.` },
+  { id: 'laws', chapter: 'StacKAT', pre: 0.5, post: 0.7, text:
+    `{mean}A program still relates input packets to output packets, and equivalence is as before. {but}But push and pop interact, and three laws say how. ` +
+    `{l1}One. Push a value and then pop the same value: nothing has happened. That is equivalent to the program one. {l2}Two. Push a value and then pop a different value: the pop fails. That is equivalent to zero. ` +
+    `{l3}The third is subtle. Pop a value and then push it back. {not1}That is not equivalent to the program one, because it drops every packet that does not have that value on top. {le}But when it does not drop the packet, it changes nothing. ` +
+    `{abs}So a choice between the program one and this pop-then-push is just the program one.` },
+  { id: 'puzzle', chapter: 'StacKAT', pre: 0.5, post: 0.6, text:
+    `{back}Now back to the two programs from the start. {p1}Push A any number of times, then pop A any number of times. {cancel}By the first law, each push cancels against a pop. {net}If there were more pushes, some pushes are left. If there were more pops, some pops are left. ` +
+    `{p2}That is what the second program does. {eq}So they are equivalent. {p3}Here is a third program: push A an even number of times, then pop it an even number of times. {neq}It is not equivalent to the first. ` +
+    `{wit}The first can take a stack that holds a single A, and empty it. The third cannot. {goal}We want a machine to tell such cases apart, for any two programs.` },
+  { id: 'cool_surprise', chapter: 'StacKAT', pre: 0.5, post: 0.9, text:
+    `{ans}And it can. {dec}Equivalence of Stack Cat programs is decidable. {surprise}This is the surprising part. {unb}The stack is unbounded, and programs may use it in any way they like, {yet}yet the question can always be answered. ` +
+    `{key}What makes it possible is that a program has no input other than the packet itself. {scratch}The stack is not working memory for reading some other input. It is the input, and it is the output.` },
+
+  // ------------------------------------------------------------------------------------------------ the decision procedure
+  { id: 'proc_a', chapter: 'Deciding equivalence', pre: 1.9, post: 0.6, text:
+    `{start}We start with programs that only push and pop. Headers come back later. {regex}Such a program is a regular expression, whose letters are pushes and pops. {traces}Each word it matches is a trace: one sequence of pushes and pops that the program can perform. ` +
+    `{aut}A regular expression can be turned into a finite automaton that accepts exactly its traces, {compare}and a machine can compare two finite automata. {problem}But the traces are not the meaning. ` +
+    `{ex}Take a choice between the program one, and a pop followed by a push of the same value. It has two traces. The program one alone has a single trace, the empty one. Yet by the third law, they mean the same. {plan}So before comparing, we bring each automaton to a normal form, in three steps, one for each law.` },
+  { id: 'step1', chapter: 'Deciding equivalence', pre: 0.5, post: 0.6, text:
+    `{s1}Step one is to cancel. It uses the first law. {path}Wherever the automaton can do a push and then a pop of the same value, possibly with silent steps in between, {eps}add a shortcut between the same two states that does nothing. {rep}Repeat until nothing new appears. ` +
+    `{ex}In our automaton, the loop pushes A, and the next edge pops A. So we add a silent edge beside them. {lang}The automaton now accepts every trace it had, and also every trace in which matching pushes and pops have been cancelled.` },
+  { id: 'step2', chapter: 'Deciding equivalence', pre: 0.5, post: 0.6, text:
+    `{s2}Step two is to filter. {look}Take a trace in which a push is followed directly by a pop. {two}If the two values differ, the trace drops every packet, by the second law. It contributes nothing. ` +
+    `{same}If they are the same, step one has already added the trace without them. It is redundant. {filter}So we keep only the traces with no such pair: all pops come before all pushes. {inter}On automata, that is an intersection with the automaton for pops, then pushes: a standard construction. ` +
+    `{res}For our program, the result has two branches: pops only, or pushes only. {p2}And that is exactly the automaton of the second program. {done}The two programs from the start of the video are equivalent, and this time a procedure has checked it.` },
+  { id: 'cool_two', chapter: 'Deciding equivalence', pre: 0.5, post: 0.8, text:
+    `{note}Notice what we did. {fin}We changed a finite automaton, and compared it with another. {agree}When two automata agree after these steps, the programs are equivalent. {more}But when they disagree, we cannot conclude anything yet. Two steps are not always enough.` },
+  { id: 'step3_a', chapter: 'Deciding equivalence', pre: 0.5, post: 0.6, text:
+    `{third}Here is the first program with its halves swapped: pop A any number of times, then push A any number of times. {eq}It is equivalent to the other two. ` +
+    `{stuck}But steps one and two leave its automaton as it is. {still}It still accepts a pop followed by a push, which the others do not. {law}This is the third law at work: a pop and then a push of the same value is hidden inside the program one. ` +
+    `{cant}We cannot simply delete such a pair. On its own, a pop and then a push still drops some packets. Deleting is only right when the trace without the pair is also there. {add}So again we add instead. {ins}In every trace, between the pops and the pushes, insert a pop and a push of the same value. Do it for every value, and again and again.` },
+  { id: 'step3_b', chapter: 'Deciding equivalence', pre: 0.6, post: 0.8, text:
+    `{mean}Why is this the right thing to add? {read}Think about what a trace of pops and then pushes says. Take: pop one, push four. {says}It says: a stack with a one on top becomes the same stack with a four on top. {below}Whatever lies below is untouched. So this single trace stands for many pairs of stacks. ` +
+    `{spell}Now insert a pop and a push of a two. The new trace says the same thing, but only for stacks that have a two below. {sound}That is a special case of what we had, so adding it changes nothing in meaning. ` +
+    `{exact}With every insertion added, there is one trace for each whole input stack, together with its whole output stack. {then}And then two programs have the same traces exactly when they relate the same stacks.` },
+  { id: 'step3_c', chapter: 'Deciding equivalence', pre: 0.5, post: 0.6, text:
+    `{prob}There is a problem. {nest}The inserted pairs nest, like brackets: pop A, pop B, push B, push A. {notreg}No finite automaton accepts such a language. {trick}The way out is to change how a trace is read. ` +
+    `{mid}Start in the middle, where the pops end and the pushes begin, and read outwards, {pairs}one pop and one push at a time, as a pair. {zip}We call this zipping. {letter}Each pair is one letter of a new alphabet. {ex}Here is a trace, and here it is zipped. ` +
+    `{doneph}When one side runs out, a placeholder fills in. {lossless}Nothing is lost: a zipped trace can be unzipped again. {front}Now the inserted pairs are no longer in the middle. They are at the front, one after another. {loop}And that is just a loop at the start.` },
+  { id: 'step3_d', chapter: 'Deciding equivalence', pre: 0.5, post: 0.6, text:
+    `{auto}An automaton can be zipped too. The zipped automaton starts in the middle of a run of the original. {back}Each of its steps goes one step backwards through the pops, and one step forwards through the pushes. {z3}Here is the zipped automaton of the swapped program. ` +
+    `{z1}And here is the one for the first program, after steps one and two. {differ}They differ in one loop: the swapped program can begin with matching pairs. {pre}Step three puts a loop of matching pairs on the start state of every automaton. ` +
+    `{same}For the swapped program, that changes nothing. For the first, it adds the missing loop. Now the two accept the same language. {eq}So the swapped program is equivalent to the first two.` },
+  { id: 'thm', chapter: 'Deciding equivalence', pre: 0.6, post: 0.9, text:
+    `{thm}That is the whole procedure. {t1}Turn each program into an automaton. {t2}Cancel: add shortcuts where a push meets its pop. {t3}Filter: keep the traces that pop before they push. {t4}Zip, and put the loop of matching pairs in front. ` +
+    `{iff}Then two programs are equivalent if and only if the two automata accept the same language. {note}Every step is an elementary construction on finite automata. {inf}The infinitely many stacks never had to be listed.` },
+
+  // ------------------------------------------------------------------------------------------------ headers, cost, counterexamples
+  { id: 'full_a', chapter: 'Headers, cost, counterexamples', pre: 1.9, post: 0.6, text:
+    `{hdr}Now put the header fields back. {state}A state of the automaton becomes a pair: the current header, and the part of the program still to run. {finite}There are finitely many headers, and only finitely many parts of the program can be reached, so it is still a finite automaton. ` +
+    `{tests}Tests and assignments become silent steps that check or change the header. {pp}Pushes and pops stay as letters. {pairs}Then, for every header at the start and every header at the end, take the traces between them, and normalize as before. ` +
+    `{thm}Two programs are equivalent exactly when all of these agree.` },
+  { id: 'full_b', chapter: 'Headers, cost, counterexamples', pre: 0.4, post: 0.6, text:
+    `{ex}For example, this loop has two branches. The first needs the field F to be one, and pushes a one. The second sets F to two, and pushes a two. {c1}Start with F equal to one, and end with F equal to one: the loop can only have pushed ones. {c2}From two to two, only twos. ` +
+    `{each}Each pair of headers is compared on its own.` },
+  { id: 'cost', chapter: 'Headers, cost, counterexamples', pre: 0.5, post: 0.6, text:
+    `{cost}What does this cost? {ps}Without headers, the problem is complete for polynomial space, the same as for regular expressions. {exp}With headers, it is complete for exponential space, when programs may use any number of fields. ` +
+    `{impl}The implementation, which runs in a web browser, goes through the pairs of headers one by one. That is its bottleneck. {sym}A symbolic procedure is future work.` },
+  { id: 'cex', chapter: 'Headers, cost, counterexamples', pre: 0.5, post: 0.9, text:
+    `{cex}When two programs are not equivalent, the procedure says why. {word}The two automata differ on some word. {unzip}Unzip it. Its pops spell an input stack, and its pushes spell an output stack. ` +
+    `{pair}With the two headers, that is an input packet and an output packet {differ}that one program relates, and the other does not. {ex}For the program with even numbers of pushes and pops, one such pair is: a stack holding a single A going in, and the empty stack coming out.` },
+
+  // ------------------------------------------------------------------------------------------------ axioms
+  { id: 'ax', chapter: 'Axioms', pre: 1.9, post: 0.9, text:
+    `{ax}One more result. {alg}The laws can be used as axioms, to prove equivalences by algebra. {ka}Start from Klay-nee algebra, the standard axioms for regular expressions. {a1}Add the first law, {a2}and the second. ` +
+    `{comp1}These are complete for the first two steps. {a3}For the third law, what is proved uses an extra family of rules, more complicated than the law. {comp2}With them, every equivalence between programs that push and pop has a proof from the axioms. ` +
+    `{open}Whether the third law by itself would be enough is an open question. The authors conjecture that it is not.` },
+
+  // ------------------------------------------------------------------------------------------------ close
+  { id: 'recap', chapter: 'Looking back', pre: 1.9, post: 0.7, text:
+    `{r1}A network is a program, and questions about it are questions of equivalence. {r2}Real packets need a stack, which makes the state space infinite. {r3}Stack Cat adds push and pop, ` +
+    `{r4}and three laws about them become three steps on a finite automaton: cancel, filter, zip. {r5}After those steps, equivalent programs have automata that accept the same language, and so equivalence is decidable. {r6}That is a foundation for checking networks that parse, tunnel, and route by a stack.` },
+  { id: 'end', chapter: 'Looking back', pre: 0.5, post: 3.0, text:
+    `{title}Stack Cat: infinite state network verification. {paper}The paper and its appendix have the proofs, the constructions in full, the complexity bounds, and the axiomatization.` },
 ];
 
 // ==== build/timeline.js ====
 window.TIMELINE = {
  "scenes": [
   {
-   "id": "s_hook",
+   "id": "hook",
    "chapter": "",
    "start": 0.0,
-   "dur": 33.38,
+   "dur": 40.06,
+   "pre": 0.8,
+   "post": 0.7,
+   "audio": 38.56,
+   "cues": {
+    "two": 0.8,
+    "p1": 5.36,
+    "p2": 11.52,
+    "eq": 16.32,
+    "how": 21.28,
+    "inf": 23.36,
+    "film": 28.8,
+    "hand": 35.68
+   }
+  },
+  {
+   "id": "roadmap",
+   "chapter": "",
+   "start": 40.06,
+   "dur": 30.62,
+   "pre": 0.3,
+   "post": 0.8,
+   "audio": 29.52,
+   "cues": {
+    "coming": 0.3,
+    "net": 2.14,
+    "stack": 8.7,
+    "lang": 11.74,
+    "proc": 16.06,
+    "rest": 24.54
+   }
+  },
+  {
+   "id": "title",
+   "chapter": "",
+   "start": 70.68,
+   "dur": 5.84,
+   "pre": 0.6,
+   "post": 1,
+   "audio": 4.24,
+   "cues": {
+    "title": 0.6,
+    "sub": 1.92
+   }
+  },
+  {
+   "id": "net_a",
+   "chapter": "Networks as programs",
+   "start": 76.52,
+   "dur": 39.22,
+   "pre": 1.9,
+   "post": 0.6,
+   "audio": 36.72,
+   "cues": {
+    "net": 1.9,
+    "pkt": 4.22,
+    "rule": 9.98,
+    "prog": 15.5,
+    "field": 19.42,
+    "test": 21.34,
+    "assign": 28.22,
+    "move": 31.74
+   }
+  },
+  {
+   "id": "net_b",
+   "chapter": "Networks as programs",
+   "start": 115.74,
+   "dur": 35.24,
+   "pre": 0.4,
+   "post": 0.6,
+   "audio": 34.24,
+   "cues": {
+    "ops": 0.4,
+    "seq": 3.28,
+    "plus": 6.56,
+    "star": 13.2,
+    "const": 16.827,
+    "whole": 26.8
+   }
+  },
+  {
+   "id": "net_c",
+   "chapter": "Networks as programs",
+   "start": 150.98,
+   "dur": 43.14,
+   "pre": 0.4,
+   "post": 0.9,
+   "audio": 41.84,
+   "cues": {
+    "mean": 0.4,
+    "rel": 2.48,
+    "equiv": 8.96,
+    "why": 13.84,
+    "reach": 16.907,
+    "zero": 24.8,
+    "dec": 29.2,
+    "fin": 36.96
+   }
+  },
+  {
+   "id": "stack_a",
+   "chapter": "Why a stack",
+   "start": 194.12,
+   "dur": 31.94,
+   "pre": 1.9,
+   "post": 0.6,
+   "audio": 29.44,
+   "cues": {
+    "real": 1.9,
+    "bytes": 4.46,
+    "parse": 7.74,
+    "route": 12.86,
+    "tele": 18.86,
+    "tun": 21.66,
+    "all": 25.98,
+    "st": 29.9
+   }
+  },
+  {
+   "id": "stack_b",
+   "chapter": "Why a stack",
+   "start": 226.06,
+   "dur": 25.46,
+   "pre": 0.4,
+   "post": 0.9,
+   "audio": 24.16,
+   "cues": {
+    "nobound": 0.4,
+    "infinite": 5.6,
+    "gone": 7.973,
+    "worse": 11.653,
+    "cfl": 13.28,
+    "q": 22.8
+   }
+  },
+  {
+   "id": "lang_a",
+   "chapter": "StacKAT",
+   "start": 251.52,
+   "dur": 31.86,
+   "pre": 1.9,
+   "post": 0.6,
+   "audio": 29.36,
+   "cues": {
+    "pk": 1.9,
+    "ops": 8.06,
+    "push": 10.62,
+    "pop": 13.82,
+    "ok": 18.54,
+    "bad": 22.46,
+    "empty": 26.22,
+    "guard": 28.62
+   }
+  },
+  {
+   "id": "lang_b",
+   "chapter": "StacKAT",
+   "start": 283.38,
+   "dur": 25.72,
+   "pre": 0.4,
+   "post": 0.6,
+   "audio": 24.72,
+   "cues": {
+    "sugar": 0.4,
+    "route": 2.4,
+    "short": 7.76,
+    "finite": 16.08,
+    "parse": 19.627,
+    "tele": 23.04
+   }
+  },
+  {
+   "id": "laws",
+   "chapter": "StacKAT",
+   "start": 309.1,
+   "dur": 47.04,
    "pre": 0.5,
-   "post": 0.4,
-   "audio": 32.48,
+   "post": 0.7,
+   "audio": 45.84,
    "cues": {
-    "net": 0.5,
-    "prog": 7.7,
-    "verify": 17.14,
-    "equiv": 23.94,
-    "dec": 26.26
+    "mean": 0.5,
+    "but": 6.74,
+    "l1": 11.14,
+    "l2": 18.9,
+    "l3": 26.1,
+    "not1": 30.26,
+    "le": 36.98,
+    "abs": 40.5
    }
   },
   {
-   "id": "s_limit",
-   "chapter": "",
-   "start": 33.38,
-   "dur": 23.28,
-   "pre": 0.4,
-   "post": 0.4,
-   "audio": 22.48,
+   "id": "puzzle",
+   "chapter": "StacKAT",
+   "start": 356.14,
+   "dur": 42.38,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 41.28,
    "cues": {
-    "but": 0.4,
-    "route": 3.52,
-    "tele": 9.6,
-    "parse": 12.64,
-    "unb": 16.32,
-    "inf": 18.16
+    "back": 0.5,
+    "p1": 3.673,
+    "cancel": 8.42,
+    "net": 12.26,
+    "p2": 18.14,
+    "eq": 20.5,
+    "p3": 22.54,
+    "neq": 29.38,
+    "wit": 31.7,
+    "goal": 37.46
    }
   },
   {
-   "id": "s_lang",
-   "chapter": "",
-   "start": 56.66,
-   "dur": 26.56,
-   "pre": 0.4,
-   "post": 0.4,
-   "audio": 25.76,
+   "id": "cool_surprise",
+   "chapter": "StacKAT",
+   "start": 398.52,
+   "dur": 28.44,
+   "pre": 0.5,
+   "post": 0.9,
+   "audio": 27.04,
    "cues": {
-    "lang": 0.4,
-    "push": 3.76,
-    "pop": 6.24,
-    "same": 11.12,
-    "diff": 14.72,
-    "q": 18.64
+    "ans": 0.5,
+    "dec": 1.86,
+    "surprise": 5.3,
+    "unb": 7.647,
+    "yet": 12.26,
+    "key": 15.06,
+    "scratch": 20.26
    }
   },
   {
-   "id": "s_result",
-   "chapter": "",
-   "start": 83.22,
-   "dur": 29.44,
-   "pre": 0.4,
-   "post": 0.4,
-   "audio": 28.64,
+   "id": "proc_a",
+   "chapter": "Deciding equivalence",
+   "start": 426.96,
+   "dur": 53.3,
+   "pre": 1.9,
+   "post": 0.6,
+   "audio": 50.8,
    "cues": {
-    "yes": 0.4,
-    "auto": 2.64,
-    "norm": 8.8,
-    "s1": 11.52,
-    "s2": 14.24,
-    "s3": 17.28,
-    "thm": 19.6,
-    "cex": 25.12
+    "start": 1.9,
+    "regex": 7.26,
+    "traces": 12.38,
+    "aut": 19.02,
+    "compare": 25.1,
+    "problem": 28.54,
+    "ex": 31.047,
+    "plan": 45.58
    }
   },
   {
-   "id": "s_end",
-   "chapter": "",
-   "start": 112.66,
-   "dur": 13.64,
+   "id": "step1",
+   "chapter": "Deciding equivalence",
+   "start": 480.26,
+   "dur": 34.46,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 33.36,
+   "cues": {
+    "s1": 0.5,
+    "path": 4.98,
+    "eps": 11.7,
+    "rep": 15.62,
+    "ex": 18.26,
+    "lang": 25.94
+   }
+  },
+  {
+   "id": "step2",
+   "chapter": "Deciding equivalence",
+   "start": 514.72,
+   "dur": 47.9,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 46.8,
+   "cues": {
+    "s2": 0.5,
+    "look": 2.82,
+    "two": 6.82,
+    "same": 13.62,
+    "filter": 19.54,
+    "inter": 25.34,
+    "res": 32.1,
+    "p2": 37.54,
+    "done": 41.3
+   }
+  },
+  {
+   "id": "cool_two",
+   "chapter": "Deciding equivalence",
+   "start": 562.62,
+   "dur": 18.34,
+   "pre": 0.5,
+   "post": 0.8,
+   "audio": 17.04,
+   "cues": {
+    "note": 0.5,
+    "fin": 2.18,
+    "agree": 6.26,
+    "more": 11.22
+   }
+  },
+  {
+   "id": "step3_a",
+   "chapter": "Deciding equivalence",
+   "start": 580.96,
+   "dur": 52.3,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 51.2,
+   "cues": {
+    "third": 0.5,
+    "eq": 9.38,
+    "stuck": 11.7,
+    "still": 15.62,
+    "law": 20.5,
+    "cant": 27.86,
+    "add": 39.78,
+    "ins": 42.18
+   }
+  },
+  {
+   "id": "step3_b",
+   "chapter": "Deciding equivalence",
+   "start": 633.26,
+   "dur": 48.92,
+   "pre": 0.6,
+   "post": 0.8,
+   "audio": 47.52,
+   "cues": {
+    "mean": 0.6,
+    "read": 3.2,
+    "says": 9.64,
+    "below": 15.16,
+    "spell": 21.8,
+    "sound": 30.08,
+    "exact": 35.16,
+    "then": 42.6
+   }
+  },
+  {
+   "id": "step3_c",
+   "chapter": "Deciding equivalence",
+   "start": 682.18,
+   "dur": 48.54,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 47.44,
+   "cues": {
+    "prob": 0.5,
+    "nest": 1.98,
+    "notreg": 9.26,
+    "trick": 12.5,
+    "mid": 15.78,
+    "pairs": 20.9,
+    "zip": 24.5,
+    "letter": 26.46,
+    "ex": 29.46,
+    "doneph": 32.34,
+    "lossless": 35.94,
+    "front": 39.86,
+    "loop": 45.567
+   }
+  },
+  {
+   "id": "step3_d",
+   "chapter": "Deciding equivalence",
+   "start": 730.72,
+   "dur": 45.1,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 44.0,
+   "cues": {
+    "auto": 0.5,
+    "back": 7.3,
+    "z3": 13.78,
+    "z1": 17.3,
+    "differ": 22.02,
+    "pre": 27.38,
+    "same": 32.58,
+    "eq": 41.06
+   }
+  },
+  {
+   "id": "thm",
+   "chapter": "Deciding equivalence",
+   "start": 775.82,
+   "dur": 32.7,
+   "pre": 0.6,
+   "post": 0.9,
+   "audio": 31.2,
+   "cues": {
+    "thm": 0.6,
+    "t1": 2.68,
+    "t2": 5.56,
+    "t3": 9.8,
+    "t4": 14.2,
+    "iff": 17.88,
+    "note": 24.28,
+    "inf": 28.44
+   }
+  },
+  {
+   "id": "full_a",
+   "chapter": "Headers, cost, counterexamples",
+   "start": 808.52,
+   "dur": 39.94,
+   "pre": 1.9,
+   "post": 0.6,
+   "audio": 37.44,
+   "cues": {
+    "hdr": 1.9,
+    "state": 4.3,
+    "finite": 11.02,
+    "tests": 19.5,
+    "pp": 24.78,
+    "pairs": 27.66,
+    "thm": 35.38
+   }
+  },
+  {
+   "id": "full_b",
+   "chapter": "Headers, cost, counterexamples",
+   "start": 848.46,
+   "dur": 24.92,
    "pre": 0.4,
+   "post": 0.6,
+   "audio": 23.92,
+   "cues": {
+    "ex": 0.4,
+    "c1": 11.84,
+    "c2": 18.72,
+    "each": 21.44
+   }
+  },
+  {
+   "id": "cost",
+   "chapter": "Headers, cost, counterexamples",
+   "start": 873.38,
+   "dur": 26.22,
+   "pre": 0.5,
+   "post": 0.6,
+   "audio": 25.12,
+   "cues": {
+    "cost": 0.5,
+    "ps": 2.46,
+    "exp": 8.82,
+    "impl": 15.22,
+    "sym": 22.98
+   }
+  },
+  {
+   "id": "cex",
+   "chapter": "Headers, cost, counterexamples",
+   "start": 899.6,
+   "dur": 32.76,
+   "pre": 0.5,
+   "post": 0.9,
+   "audio": 31.36,
+   "cues": {
+    "cex": 0.5,
+    "word": 4.98,
+    "unzip": 7.94,
+    "pair": 14.34,
+    "differ": 18.58,
+    "ex": 21.993
+   }
+  },
+  {
+   "id": "ax",
+   "chapter": "Axioms",
+   "start": 932.36,
+   "dur": 40.4,
+   "pre": 1.9,
+   "post": 0.9,
+   "audio": 37.6,
+   "cues": {
+    "ax": 1.9,
+    "alg": 3.58,
+    "ka": 8.78,
+    "a1": 13.98,
+    "a2": 15.287,
+    "comp1": 16.78,
+    "a3": 19.58,
+    "comp2": 26.14,
+    "open": 32.46
+   }
+  },
+  {
+   "id": "recap",
+   "chapter": "Looking back",
+   "start": 972.76,
+   "dur": 35.88,
+   "pre": 1.9,
+   "post": 0.7,
+   "audio": 33.28,
+   "cues": {
+    "r1": 1.9,
+    "r2": 7.26,
+    "r3": 11.9,
+    "r4": 14.38,
+    "r5": 21.58,
+    "r6": 29.58
+   }
+  },
+  {
+   "id": "end",
+   "chapter": "Looking back",
+   "start": 1008.64,
+   "dur": 15.66,
+   "pre": 0.5,
    "post": 3,
-   "audio": 10.24,
+   "audio": 12.16,
    "cues": {
-    "title": 0.4,
-    "paper": 4.72
+    "title": 0.5,
+    "paper": 4.9
    }
   }
  ],
- "total": 126.3
+ "total": 1024.3
 };
 
-// ==== src/scenes/film.js ====
-(function (addEventListener) {
-// StacKAT, a two-minute film in five scenes, one story: a network is a program, and verification is program
-// equivalence, decidable for finitely many packets; a stack makes the packets infinite; StacKAT adds push and pop;
-// equivalence is still decidable, through a normal form of automata. One thing on screen at a time, large type;
-// the player draws captions under y = 930, so everything here stays between y = 120 and y = 900.
+// ==== src/scenes/common.js ====
+// Shared pieces of the StacKAT film, as window.SX. Loaded after engine.js, before the scene files. Everything here
+// only builds elements and puts keys on the scene's timeline `tl`; nothing is visible until a time says so.
+// Coordinates are stage pixels (1920 x 1080). Colours follow SCENES.md: amber C.pat = the stack and push/pop, cyan
+// C.bind = header fields and tests/assignments on them, green C.good = established, red C.bad = dropped/refuted.
+//
+// ---- constants -----------------------------------------------------------------------------------------------
+//   SX.CX = 960 (stage centre), SX.RAIL = 160 (the left rail), SX.LINE = 3 (drawing line width).
+//
+// ---- type ----------------------------------------------------------------------------------------------------
+//   SX.LABEL(size) / SX.SERIF(size) / SX.MONO(size): style objects (small caps sans in C.dim, serif in C.ink, mono
+//     in C.code without ligatures). Pass them to box(), or Object.assign(SX.LABEL(32), {color: C.ink}).
+//   SX.cline(root, cx, y, parts, style) -> {root, parts}: one line centred on cx, top at y, made of parts
+//     [[text, colour|null], ...]; each part is its own inline span (fade, strike or colour it by itself).
+//   SX.lline(root, x, y, parts, style) -> {root, parts}: the same, left edge at x.
+//   SX.clabel(root, cx, y, text, size=32, colour) -> el   centred small caps label.
+//   SX.cserif(root, cx, y, text, size=56, colour) -> el   centred serif line.
+//   SX.note(tl, root, x, y, text, at, out, {size=32, color=C.dim, align='center'|'left', dy=10}) -> el
+//     a label that rises in at `at` and leaves at `out` (out may be null: it stays). x is its centre, or its
+//     left edge with align 'left'.
+//   SX.strikeEl(tl, el, at, {out, faint=true}) -> {line, undo(at)}: the neutral grey strike through an element
+//     (a span of cline, a label); its text goes C.faint. undo(at) takes the strike back and restores the colour.
+//
+// ---- small drawings ------------------------------------------------------------------------------------------
+//   SX.svg(root): an SVG layer over the whole stage (engine's svgLayer).
+//   SX.tick(tl, svg, x, y, size=48, at, {color=C.good, width=6}) -> {els, hide(at)}  a tick drawn in at `at`.
+//   SX.cross(tl, svg, x, y, size=40, at, {color=C.bad, width=6}) -> {els, hide(at)}  a cross drawn in at `at`.
+//   SX.dpath(tl, svg, d, {stroke=C.ink, width=3, dash}) -> path el with a `draw` key (0..1) also when dashed
+//     (a dashed path is drawn through a mask). Draw with tl.to(p, {draw: 1}, at, dur, E.io); fade with {o}.
+//   SX.line(tl, svg, x1, y1, x2, y2, {at, dur=0.5, bend=0, dash, stroke=C.ink, width=3, head=14}) -> {path, head,
+//     hide(at)}: an arrow (head=0: a plain line) drawn in at `at` (omit `at` to draw it yourself). bend > 0 bends
+//     it to the right of the direction of travel (below for a left-to-right arrow), as engine.arrowPath.
+//   SX.arc(tl, svg, x1, x2, y, depth, {at, dur=0.5, stroke=C.ink, width=3, dash, up=false}) -> path
+//     a round arc from (x1, y) to (x2, y), bulging `depth` px down (or up), for joining letters of a trace.
+//   SX.cell(parent, x, y, w, h, text, {stroke, color, font, radius, width}) -> box el, its text el in ._t
+//   SX.flip(tl, textEl, text, at, dur=0.45): a cell's text squeezes, changes, comes back.
+//   SX.circleD(x, y, r): an SVG path string for a circle.
+//   SX.ctext(parent, cx, cy, text, style, h): a box with text centred on (cx, cy), h px high.
+//   SX.dim(tl, els, o, at, dur=0.5): opacity of many elements (or of things with a .root / .g).
+//
+// ---- programs and traces: SX.prog ----------------------------------------------------------------------------
+//   const p = SX.prog(tl, parent, x, y, size, text, {align='left'|'center', at, stagger=0.03, colors, fields})
+//   Sets `text` (one line) in mono on a character grid: x, y is the top-left (with align 'center', x is the
+//   centre). `push(..)`/`pop(..)` and bare `push`/`pop` are amber (an argument that is a field, e.g. pop(sw), is
+//   cyan inside); a test or assignment on a field (`sw==1`, `f := 2`, `dst == 7`) is cyan; `done` is C.dim; a
+//   zipped letter `(pop(2), push(3))` / `(done, push(3))` is one part; everything else (`·`, `+`, `*`, `≡`, names,
+//   `1`, `0`, brackets) is ink. opts.colors {text: colour} overrides by a part's exact text ({'≡': C.good}).
+//   Nothing shows until p.show(at) (or opts.at). Spaces are kept: write traces as 'push(a)  push(a)  pop(a)'.
+//   p.parts: [{el, text, kind ('op' push/pop, 'pair' zipped letter, 'field', 'name', 'sym'), col, len}]
+//   p.letters: indices of the parts that are letters (push/pop/zipped pairs), in order; p.letter(k) = p.letters[k].
+//   A selector `sel` is: an index, an array of indices, a string (every part with that text), a RegExp on the
+//   text, a function(part, i), {from, to} (an index range, inclusive), or 'all' (the default where optional).
+//   p.show(at, {sel, stagger, rise=14, dur=0.5})      parts rise in, left to right.
+//   p.hideParts(sel, at, dur=0.35)                     parts leave upwards.   p.hide(at, dur=0.45)  the whole line.
+//   p.dim(sel, o, at, dur=0.4)                          opacity of parts (0.4 = dimmed);  p.light(sel, at) back to 1.
+//   p.color(sel, colour, at, dur) / p.recolor(sel, at)  recolour parts / back to their own colours.
+//   p.pulse(sel, at, {scale=1.08, dur=0.5})             a part grows a little and back, with a soft neutral box.
+//   p.mark(sel, colour, at, {out, fill=0.12, pad=8})    a soft box behind parts in their meaning's colour, or the
+//                                                       neutral one with colour C.dim, fill 0.08. Returns the box.
+//   p.strike(sel, at, {out, dur=0.4, fade=true}) -> {line, undo(at)}  the grey strike; tokens go C.faint.
+//   p.flip(i, text, at)                                 part i squeezes and reads `text` (keep the length).
+//   p.append(text, at, {gap=1, stagger}) -> [indices]   more parts after the end (gap spaces), rising in at `at`.
+//   p.rect(sel, pad=0) -> {x, y, w, h, cx, cy}          stage rectangle at the build position (moves not included).
+//   p.colX(c): stage x of column c.  p.width, p.cw, p.lh, p.cols, p.root.
+//   p.to({x, y, s, o}, at, dur=0.8, ease=E.io)          move/scale/fade the whole line (x, y are offsets from where
+//                                                       it was built; scale is about its left edge, or its centre
+//                                                       with align 'center').
+//   Only Fira Code and Source Serif 4 ship with the player. Fira Code has ≡ ≢ ≠ ≤ ∩ ∪ ∈ ∅ ⟨ ⟩ → ↕ … · and ₀–₉;
+//   neither font has ⟦ ⟧ ⇒ ⇔ ≫ ⇅, and ⟺ is drawn with SX.iff(size). Never name another font family.
+//
+// ---- the stack: SX.Stack -------------------------------------------------------------------------------------
+//   const s = new SX.Stack(tl, parent, cx, bottom, {items=[] (top first: ['3','1','2'] is [3, 1, 2]), w=96, h=84,
+//     gap=10, size=44, rest=false (a taller dim "…" cell at the bottom: the unknown rest), label, labelSize=32,
+//     labelColor=C.dim, ghost=false (a dashed amber outline where the bottom cell goes: the empty stack)})
+//   The pile of amber cells, centred on cx, its bottom edge at y = bottom; it grows upwards; the label sits under
+//   it (bottom + 22 .. bottom + 62). The tick or cross of ok()/fail() needs 80 px right of the pile. Call the
+//   methods in time order (they keep count of the cells).
+//   s.show(at, {stagger=0.08})   the cells (bottom first), the rest cell, the ghost, the label rise in.
+//   s.push(text, at) -> cell     a cell comes down from above onto the top; settled at at + 0.55.
+//   s.pop(at) -> cell            the top lifts off and fades (gone by at + 0.5).
+//   s.fail(at) -> {els, hide(at)} the top cell shakes once (6 px, no bounce) and a red cross is drawn to its right
+//                                (where ok() puts its tick); for an empty stack, over the ghost outline. The cell
+//                                stays: pop it or hide it yourself.
+//   s.ok(at) -> {els, hide(at)}  a green tick to the right of the top of the pile.
+//   s.flip(i, text, at)          the text of cell i (0 = top) changes.
+//   s.reset(items, at)           the cells fade out and `items` (top first) fade in instead.
+//   s.dim(o, at, dur) / s.hide(at, dur) / s.move(dx, dy, at, dur=0.8) / s.to(props, at, dur, ease) on the group.
+//   s.topY() stage y of the top edge of the pile; s.slotRect(i) the rectangle of cell i (0 = top) as it is now
+//   counted; s.cells (bottom first), s.labelEl, s.restEl, s.ghostEl, s.g (the group).
+//
+// ---- automata: SX.Automaton ----------------------------------------------------------------------------------
+//   const A = new SX.Automaton(tl, parent, {r=46, size=36 (edge labels), nameSize=34, cx, cy (centre for scale)})
+//   A.state(id, x, y, {name=id, start=false, startFrom='left'|'up', startLen=90}) -> A   a circle with its name
+//     (serif italic; write subscripts as e₀). Its start arrow belongs to the state and is drawn with it.
+//   A.edge(id, from, to, label, {bend=0, side=+1|-1 (which side of the edge the label goes; default: the outside
+//     of the bend, or above), dx, dy (label nudge)}) -> A   an arrow between two states, label beside its middle.
+//   A.loop(id, state, label, {side='up'|'down'|'left'|'right', dx, dy}) -> A   a self-loop with its label.
+//   A.silent(id, from, to, {bend=0, tag (a small caps label, e.g. 'SILENT'), dx, dy}) -> A   dashed, unlabelled.
+//   Ids are strings of your choice; the presets use: states 'e', 'e0', 'e1', 'e2' (and 's', 't' for the two-state
+//   automaton, 'T', 'L', 'R' for the zipped ones), edges 'from>to', loops 'state@', silent edges 'from~to'.
+//   A.draw(id, at, dur=0.5)      draws one element in (a state: circle, name, start arrow; an edge or loop: the
+//                                line, its head, then its label). Settled at at + dur + 0.2.
+//   A.drawAll(at, {stagger=0.35, except=[], dur=0.5}) -> end time   every element in the order it was added.
+//   A.pulse(id, at, {dur=0.6})   the label (or the state's name) grows a little in a soft neutral box, and back.
+//   A.mark(id, at, {out, color=C.dim, fill=0.1}) -> el   a soft box behind an edge label / a ring around a state.
+//   A.dimEl(id, o, at, dur=0.4) / A.remove(id, at, dur=0.35)    one element's opacity / it leaves.
+//   A.dim(o, at, dur) / A.hide(at, dur) / A.move(dx, dy, at, dur=0.8) / A.scale(s, at, dur=0.8)
+//   A.to({x, y, s, o}, at, dur, ease) on the whole automaton (scale about opts.cx, cy: the preset's centre).
+//   A.travel(id, at, dur=0.8, {reverse=false, color=C.ink, r=11, out}) -> dot   a filled dot moves along an edge
+//                                (against the arrow with reverse); it stays at the end until `out`.
+//   A.pos(stateId) -> {x, y} stage centre of a state (build position). A.bounds() -> {x0, y0, x1, y1} of
+//   everything (estimated from the label lengths). A.el(id) the element record {paths, heads, labels, ...}.
+//   Presets (opts: {value='a', size, k=1 (scale of the whole picture, applied as a transform), silent / loop
+//   flags below}); each returns an Automaton laid out around (cx, cy); nothing is drawn until you draw it:
+//   SX.A1(tl, parent, cx, cy, {silent=false})  e (start) loop push(a); e>e0 pop(a); e0 loop pop(a);
+//                                               silent 'e~e0' (an arc under the pop edge) when silent: true.
+//                                               ~ 700 x 330 px.
+//   SX.A2(tl, parent, cx, cy)  e (start); e>e1 pop(a) up-right, e1@ pop(a) above; e>e2 push(a) down-right,
+//                              e2@ push(a) below.  ~ 640 x 650 px.
+//   SX.A3(tl, parent, cx, cy)  e (start), e0, e1 in a row, 360 apart; e>e0 pop(a); e0@ pop(a); e0>e1 push(a);
+//                              e1@ push(a); e>e1 push(a) an arc below.  ~ 960 x 400 px.
+//   SX.PP(tl, parent, cx, cy)  pops, then pushes: s (start) loop pop; s>t push; t loop push.  ~ 560 x 330 px.
+//   SX.Z3(tl, parent, cx, cy)  zipped, a tree: T (start, top) loop (pop(a), push(a)); T>L (done, push(a)),
+//                              L@ (done, push(a)) below; T>R (pop(a), done), R@ (pop(a), done) below. Labels 34.
+//                              States unnamed (opts.names {T, L, R} to name them). ~ 760 x 680 px.
+//   SX.Z1(tl, parent, cx, cy, {loop=false})  the same without T's loop; with loop: true the loop 'T@' exists
+//                              (draw it later with A.draw('T@', t); drawAll(at, {except: ['T@']}) leaves it out).
+//
+// ---- the packet header and the title -------------------------------------------------------------------------
+//   SX.packetHeader(tl, parent, x, y, fields, {w=150, h=90, gap=14, size=44, names=32}) -> header
+//     fields [['sw', 'A'], ['dst', '7'], ...]: cells with their cyan names above (x, y is the top-left of the
+//     names; cells start 50 px lower). header.show(at), .flip(i, text, at), .tint(i, at, out) (a neutral tint),
+//     .pulse(i, at), .dim(o, at), .hide(at), .move(dx, dy, at, dur), .to(props, at, dur), .vals (cell els),
+//     .names, .width, .height, .g, .cellRect(i).
+//   SX.titleCard(tl, root, {align='center'|'left', x (centre or left edge), y, size=150, subSize=56, at, subAt,
+//     authorsAt, authorSize=32}) -> {title, sub, authors: [line1, line2], bottom}: "StacKAT", the subtitle
+//     "Infinite State Network Verification" and the two author lines (the second ends "PLDI 2025"). A time left
+//     out means that part is not shown.
+//
+// ---- rows (roadmaps, recaps, the theorem's list) -------------------------------------------------------------
+//   const rows = new SX.Rows(tl, root, {x=160, y, pitch, size=56, numbers=true, titleX=x + 70, back=0.6})
+//   rows.row(title, at, {num}) -> row {y, at, parts, add(el), num, title}: a numbered serif row rising in; when a
+//     later row arrives, the earlier rows (with everything add()ed to them) step back to opacity `back`.
+//   rows.evidence(i, el, at, dy=14) fades `el` in at `at` and adds it to row i.  rows.mid(i): the y of row i's
+//     middle (for evidence of another size).  rows.all(): every element.
 'use strict';
 (function () {
-  const { W, H, C, E, scene } = Film;
-  const CX = W / 2;
+  const { W, H, C, E } = Film;
+  const CX = W / 2, RAIL = 160, LINE = 3;
 
-  // ---- type helpers ---------------------------------------------------------------------------------------
-  // Text is centred by the browser (a wide box with centred text), so nothing depends on measuring a font that
-  // may not have loaded yet when the scenes are built.
-  const LS = 0.16;   // the labels' letter spacing, in em; it leaves a trailing gap, made up for on the left
+  // ---- type ----------------------------------------------------------------------------------------------------
+  const LS = 0.16;
   const LABEL = size => ({ fontFamily: 'var(--sans)', fontSize: size + 'px', fontWeight: 560, letterSpacing: LS + 'em', textTransform: 'uppercase', color: C.dim, lineHeight: 1.2 });
   const SERIF = size => ({ fontFamily: 'var(--serif)', fontSize: size + 'px', lineHeight: 1.22, color: C.ink, letterSpacing: '-0.005em' });
   const MONO = size => ({ fontFamily: 'var(--mono)', fontSize: size + 'px', lineHeight: 1.3, color: C.code, fontVariantLigatures: 'none', fontWeight: 450 });
-  // a line made of parts [text, colour], centred on cx; each part is its own element, so that it can come in
-  // (or be struck) by itself. Returns { root, parts }.
-  function cline(root, cx, y, parts, style) {
-    const b = box(root, cx - 1200, y, Object.assign({ width: '2400px', textAlign: 'center', whiteSpace: 'pre' }, style));
-    if (style.letterSpacing) b.style.paddingLeft = style.letterSpacing;
-    const ps = parts.map(([t, col]) => {
+
+  function partsLine(b, parts) {
+    return parts.map(([t, col]) => {
       const s = document.createElement('span');
       Object.assign(s.style, { display: 'inline-block', position: 'relative', whiteSpace: 'pre' });
       if (col) s.style.color = col;
       s.textContent = t; b.appendChild(s);
       return s;
     });
-    return { root: b, parts: ps };
+  }
+  function cline(root, cx, y, parts, style) {
+    const b = box(root, cx - 1200, y, Object.assign({ width: '2400px', textAlign: 'center', whiteSpace: 'pre' }, style));
+    if (style.letterSpacing) b.style.paddingLeft = style.letterSpacing;
+    return { root: b, parts: partsLine(b, parts) };
+  }
+  function lline(root, x, y, parts, style) {
+    const b = box(root, x, y, Object.assign({ whiteSpace: 'pre' }, style));
+    return { root: b, parts: partsLine(b, parts) };
   }
   const clabel = (root, cx, y, text, size = 32, col) => cline(root, cx, y, [[text, col]], LABEL(size)).root;
-  const cserif = (root, cx, y, text, size, col) => cline(root, cx, y, [[text, col]], SERIF(size)).root;
-  // a neutral strike through one part of a line (deletion is grey): the text goes faint
-  function strikePart(tl, span, at) {
-    const u = el(span, 'div', { left: '-0.25em', right: '0.05em', top: '52%', height: '4px', borderRadius: '2px', background: C.dim, transformOrigin: 'left center' });
-    tl.set(u, { sx: 0, o: 0 }, 0); tl.set(u, { o: 1 }, at); tl.to(u, { sx: 1 }, at, 0.45, E.io);
-    tl.to(span, { color: C.faint }, at, 0.45);
-  }
-  // a label that comes in at `at` and leaves at `out`
-  function step(tl, root, cx, y, text, at, out, size = 34, col) {
-    const e = clabel(root, cx, y, text, size, col);
-    fadeIn(tl, e, at, 0.5, 10);
+  const cserif = (root, cx, y, text, size = 56, col) => cline(root, cx, y, [[text, col]], SERIF(size)).root;
+  function note(tl, root, x, y, text, at, out, { size = 32, color = C.dim, align = 'center', dy = 10 } = {}) {
+    const e = align === 'left' ? box(root, x, y, Object.assign(LABEL(size), { color, whiteSpace: 'pre' }), text) : clabel(root, x, y, text, size, color);
+    fadeIn(tl, e, at, 0.5, dy);
     if (out != null) fadeOut(tl, e, out, 0.3, -8);
     return e;
   }
+  function strikeEl(tl, span, at, { out = null, faint = true } = {}) {
+    const u = el(span, 'div', { left: '-0.12em', right: '-0.02em', top: '52%', height: '4px', borderRadius: '2px', background: C.dim, transformOrigin: 'left center' });
+    const col0 = span.style.color || null;
+    tl.set(u, { sx: 0, o: 0 }, 0); tl.set(u, { o: 1 }, at); tl.to(u, { sx: 1 }, at, 0.45, E.io);
+    if (faint) tl.to(span, { color: C.faint }, at, 0.45);
+    if (out != null) tl.to(u, { o: 0 }, out, 0.3);
+    return { line: u, undo(t) { tl.to(u, { sx: 0 }, t, 0.4, E.io); if (faint) tl.to(span, { color: col0 || C.ink }, t, 0.4); } };
+  }
 
-  // ---- drawing helpers --------------------------------------------------------------------------------------
-  const LINE = 3;   // the drawings' line width
-  // a thin-lined rounded box with text centred in it
-  function cell(parent, x, y, w, h, text, { stroke = C.ink, color = C.ink, font = MONO(44), radius = 16, width = LINE } = {}) {
+  // ---- drawings ------------------------------------------------------------------------------------------------
+  const circleD = (x, y, r) => `M ${x - r} ${y} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0`;
+  function ctext(parent, cx, cy, text, style, h) {
+    return box(parent, cx - 400, cy - h / 2, Object.assign({ width: '800px', height: h + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'pre' }, style), text);
+  }
+  function cell(parent, x, y, w, h, text, { stroke = C.ink, color = C.ink, font = MONO(44), radius = 14, width = LINE } = {}) {
     const b = box(parent, x, y, { width: w + 'px', height: h + 'px', borderRadius: radius + 'px', boxShadow: `inset 0 0 0 ${width}px ${stroke}` });
     const t = box(b, 0, 0, Object.assign({ width: w + 'px', height: h + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'pre' }, font, { color }), text);
     b._t = t;
     return b;
   }
-  // a cell's text changes: it squeezes, changes, comes back
   function flip(tl, t, text, at, dur = 0.45) {
     tl.to(t, { sy: 0.05 }, at, dur * 0.4, E.in); tl.text(t, text, at + dur * 0.4); tl.to(t, { sy: 1 }, at + dur * 0.4, dur * 0.6, E.out);
   }
-  const circleD = (x, y, r) => `M ${x - r} ${y} a ${r} ${r} 0 1 0 ${2 * r} 0 a ${r} ${r} 0 1 0 ${-2 * r} 0`;
-  // text placed by its centre (for edge labels)
-  function ctext(parent, cx, cy, text, style, h) {
-    return box(parent, cx - 300, cy - h / 2, Object.assign({ width: '600px', height: h + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'pre' }, style), text);
+  const rootOf = e => (e && (e.root || e.g)) || e;
+  function dim(tl, els, o, at, dur = 0.5) { for (const e of [].concat(els)) tl.to(rootOf(e), { o }, at, dur); }
+
+  function tickM(tl, svg, x, y, size = 48, at, { color = C.good, width = 6 } = {}) {
+    const p = tick(tl, svg, x, y, size, color, width);
+    if (at != null) tl.to(p, { draw: 1 }, at, 0.4, E.out);
+    return { els: [p], hide(t) { tl.to(p, { o: 0 }, t, 0.3); } };
+  }
+  function crossM(tl, svg, x, y, size = 40, at, { color = C.bad, width = 6 } = {}) {
+    const ps = cross(tl, svg, x, y, size, color, width);
+    if (at != null) ps.forEach((p, i) => tl.to(p, { draw: 1 }, at + i * 0.12, 0.28, E.out));
+    return { els: ps, hide(t) { ps.forEach(p => tl.to(p, { o: 0 }, t, 0.3)); } };
   }
 
-  // A packet's header: three fields, their names above in cyan, their values in cells.
-  function header(parent, x, y, fields, { w = 150, h = 90, gap = 14, size = 44, names = 32 } = {}) {
-    const g = box(parent, x, y, { width: (3 * w + 2 * gap) + 'px', height: (h + 60) + 'px' });
-    const vals = fields.map(([name, v], i) => {
-      ctext(g, i * (w + gap) + w / 2, 20, name, Object.assign(MONO(names), { color: C.bind }), 44);
+  let maskN = 0;
+  const NS = 'http://www.w3.org/2000/svg';
+  // a path with a `draw` key, dashed or not
+  function dpath(tl, svg, d, { stroke = C.ink, width = LINE, dash } = {}) {
+    if (!dash) return path(tl, svg, d, { stroke, width });
+    const id = 'sxm' + (++maskN);
+    const mask = document.createElementNS(NS, 'mask');
+    mask.setAttribute('id', id); mask.setAttribute('maskUnits', 'userSpaceOnUse');
+    mask.setAttribute('x', -W); mask.setAttribute('y', -H); mask.setAttribute('width', 3 * W); mask.setAttribute('height', 3 * H);
+    svg.appendChild(mask);
+    const m = path(tl, mask, d, { stroke: '#ffffff', width: width + 8, cap: 'butt' });
+    const p = path(tl, svg, d, { stroke, width, dash, cap: 'butt' });
+    p.setAttribute('mask', `url(#${id})`);
+    tl.custom(p, 'draw', (e, v) => { m.style.strokeDashoffset = (m._len * (1 - v)).toFixed(2); m.style.strokeOpacity = v <= 0.002 ? 0 : 1; }, 0);
+    p._len = m._len;
+    return p;
+  }
+  function headEl(svg, x, y, ang, { stroke = C.ink, width = LINE, head = 14 } = {}) {
+    const h = el(svg, 'path');
+    h.setAttribute('d', `M ${-head} ${-head * 0.55} L 0 0 L ${-head} ${head * 0.55}`);
+    h.setAttribute('fill', 'none'); h.setAttribute('stroke-width', width); h.setAttribute('stroke-linecap', 'round'); h.setAttribute('stroke-linejoin', 'round');
+    h.style.stroke = stroke; h.style.opacity = 0;
+    h.setAttribute('transform', `translate(${x} ${y}) rotate(${ang * 180 / Math.PI})`);
+    return h;
+  }
+  function line(tl, svg, x1, y1, x2, y2, { at, dur = 0.5, bend = 0, dash, stroke = C.ink, width = LINE, head = 14 } = {}) {
+    const a = arrowPath(x1, y1, x2, y2, bend);
+    const p = dpath(tl, svg, a.d, { stroke, width, dash });
+    let h = null;
+    if (head) { h = headEl(svg, x2, y2, Math.atan2(y2 - a.cy, x2 - a.cx), { stroke, width, head }); tl.set(h, { o: 0 }, 0); }
+    if (at != null) { tl.to(p, { draw: 1 }, at, dur, E.io); if (h) tl.fromTo(h, { o: 0 }, { o: 1 }, at + dur * 0.75, dur * 0.25); }
+    return { path: p, head: h, hide(t, d = 0.3) { tl.to(p, { o: 0 }, t, d); if (h) tl.to(h, { o: 0 }, t, d); } };
+  }
+  function arc(tl, svg, x1, x2, y, depth, { at, dur = 0.5, stroke = C.ink, width = LINE, dash, up = false } = {}) {
+    const k = up ? -1 : 1, c = depth * 4 / 3 * k;
+    const p = dpath(tl, svg, `M ${x1} ${y} C ${x1} ${y + c} ${x2} ${y + c} ${x2} ${y}`, { stroke, width, dash });
+    if (at != null) tl.to(p, { draw: 1 }, at, dur, E.io);
+    return p;
+  }
+
+  // ---- StacKAT text: tokens and their colours -----------------------------------------------------------------
+  const SUB = '₀-₉';
+  const FIELDS = ['sw', 'dst', 'port', 'f', 'h', 'src', 'f₁', 'f₂', 'f₃', 'h₁', 'h₂'];
+  const RE = new RegExp([
+    `(\\((?:pop\\([^()]*\\)|done),\\s*(?:push\\([^()]*\\)|done)\\))`,             // 1 a zipped letter
+    `((?:push|pop)\\([^()]*\\))`,                                                   // 2 push(..) / pop(..)
+    `([A-Za-z_][\\w${SUB}']*\\s*(?:==|:=)\\s*[A-Za-z0-9_${SUB}']+)`,                // 3 a test or an assignment
+    `(\\s+)`,                                                                       // 4 space
+    `([A-Za-z0-9_${SUB}']+)`,                                                       // 5 a name or a number
+    `(.)`,                                                                          // 6 a symbol
+  ].join('|'), 'gu');
+  // the coloured pieces of a part: [[text, colour], ...]
+  function pieces(text, kind, fields) {
+    if (kind === 'op') {
+      const m = text.match(/^(push|pop)\((.*)\)$/u);
+      if (!m) return [[text, C.pat]];
+      const argCol = fields.includes(m[2]) ? C.bind : C.pat;
+      return [[m[1] + '(', C.pat], [m[2], argCol], [')', C.pat]];
+    }
+    if (kind === 'pair') {
+      const out = [];
+      const re = /(push\([^()]*\)|pop\([^()]*\))|(done)|([^]+?)(?=push\(|pop\(|done|$)/gu; let m;
+      while ((m = re.exec(text)) && m[0]) out.push([m[0], m[1] ? C.pat : m[2] ? C.dim : C.code]);
+      return out;
+    }
+    if (kind === 'field') return [[text, C.bind]];
+    if (text === 'done') return [[text, C.dim]];
+    if (text === 'push' || text === 'pop') return [[text, C.pat]];
+    return [[text, C.code]];
+  }
+  function tokens(text, fields = FIELDS) {
+    const out = []; let m, col = 0; RE.lastIndex = 0;
+    while ((m = RE.exec(text))) {
+      const len = [...m[0]].length;
+      if (m[4] !== undefined) { col += len; continue; }
+      const kind = m[1] ? 'pair' : m[2] ? 'op' : m[3] ? 'field' : m[5] ? 'name' : 'sym';
+      out.push({ text: m[0], kind, col, len, pieces: pieces(m[0], kind, fields) });
+      col += len;
+    }
+    return { toks: out, cols: col };
+  }
+  // fill an element with coloured spans for `text` (no grid: for edge labels)
+  function richText(e, text, fields = FIELDS, colors = {}) {
+    const { toks } = tokens(text, fields); let col = 0;
+    for (const t of toks) {
+      if (t.col > col) e.appendChild(document.createTextNode(' '.repeat(t.col - col)));
+      for (const [s, c] of t.pieces) { const sp = document.createElement('span'); sp.textContent = s; sp.style.color = colors[t.text] || c; e.appendChild(sp); }
+      col = t.col + t.len;
+    }
+    return e;
+  }
+
+  // ---- prog -------------------------------------------------------------------------------------------------------
+  class Prog {
+    constructor(tl, parent, x, y, size, text, opts = {}) {
+      this.tl = tl; this.size = size; this.opts = opts; this.fields = opts.fields || FIELDS; this.colors = opts.colors || {};
+      this.cw = charWidth(size); this.lh = Math.round(size * 1.3);
+      const { toks, cols } = tokens(text, this.fields);
+      this.cols = cols; this.width = cols * this.cw;
+      this.x = opts.align === 'center' ? x - this.width / 2 : x; this.y = y;
+      this.root = box(parent, this.x, y, { width: this.width + 'px', height: this.lh + 'px', transformOrigin: opts.align === 'center' ? 'center center' : 'left center' });
+      this.marks = box(this.root, 0, 0);
+      this.layer = box(this.root, 0, 0);
+      this.parts = []; this.letters = [];
+      for (const t of toks) this._add(t);
+      if (opts.at != null) this.show(opts.at, { stagger: opts.stagger });
+    }
+    _make(t) {
+      const e = box(this.layer, t.col * this.cw, 0, Object.assign(MONO(this.size), { lineHeight: this.lh + 'px', whiteSpace: 'pre', opacity: 0 }));
+      const subs = t.pieces.map(([s, c]) => { const sp = document.createElement('span'); sp.textContent = s; sp._col = this.colors[t.text] || c; sp.style.color = sp._col; e.appendChild(sp); return sp; });
+      return { el: e, subs, text: t.text, kind: t.kind, col: t.col, len: t.len };
+    }
+    _add(t) {
+      const p = this._make(t); this.tl.set(p.el, { o: 0 }, 0);
+      this.parts.push(p);
+      if (p.kind === 'op' || p.kind === 'pair' || p.text === 'push' || p.text === 'pop') this.letters.push(this.parts.length - 1);
+      return this.parts.length - 1;
+    }
+    letter(k) { return this.letters[k]; }
+    ids(sel = 'all') {
+      const n = this.parts.length, all = [...Array(n).keys()];
+      if (sel === 'all') return all;
+      if (typeof sel === 'number') return [sel];
+      if (typeof sel === 'string') { const r = all.filter(i => this.parts[i].text === sel); if (!r.length) console.warn('prog: no part', sel); return r; }
+      if (sel instanceof RegExp) return all.filter(i => sel.test(this.parts[i].text));
+      if (typeof sel === 'function') return all.filter(i => sel(this.parts[i], i));
+      if (Array.isArray(sel)) return sel;
+      if (sel && sel.from != null) return all.filter(i => i >= sel.from && i <= (sel.to ?? n - 1));
+      return [];
+    }
+    els(sel) { return this.ids(sel).map(i => this.parts[i].el); }
+    show(at, { sel = 'all', stagger = 0.03, rise = 14, dur = 0.5 } = {}) {
+      this.ids(sel).forEach((i, k) => { const e = this.parts[i].el; this.tl.set(e, { y: rise, o: 0 }, 0); this.tl.to(e, { y: 0, o: 1 }, at + k * stagger, dur, E.out5); });
+      return this;
+    }
+    hideParts(sel, at, dur = 0.35) { for (const e of this.els(sel)) this.tl.to(e, { o: 0, y: -10 }, at, dur, E.in); return this; }
+    hide(at, dur = 0.45) { this.tl.to(this.root, { o: 0 }, at, dur, E.in); return this; }
+    dim(sel, o, at, dur = 0.4) { for (const e of this.els(sel)) this.tl.to(e, { o }, at, dur); return this; }
+    light(sel, at, dur = 0.4) { return this.dim(sel, 1, at, dur); }
+    color(sel, col, at, dur = 0.35) { for (const i of this.ids(sel)) for (const s of this.parts[i].subs) this.tl.to(s, { color: col }, at, dur); return this; }
+    recolor(sel, at, dur = 0.45) { for (const i of this.ids(sel)) for (const s of this.parts[i].subs) this.tl.to(s, { color: s._col }, at, dur); return this; }
+    pulse(sel, at, { scale = 1.08, dur = 0.5 } = {}) {
+      for (const e of this.els(sel)) { this.tl.to(e, { s: scale }, at, dur * 0.4, E.out); this.tl.to(e, { s: 1 }, at + dur * 0.4, dur * 0.6, E.io); }
+      this.mark(sel, C.dim, at, { fill: 0.1, out: at + dur, dur: dur * 0.4 });
+      return this;
+    }
+    rect(sel, pad = 0) {
+      const ps = this.ids(sel).map(i => this.parts[i]);
+      const c0 = Math.min(...ps.map(p => p.col)), c1 = Math.max(...ps.map(p => p.col + p.len));
+      const x = this.x + c0 * this.cw - pad, w = (c1 - c0) * this.cw + 2 * pad;
+      return { x, y: this.y - pad * 0.4, w, h: this.lh + pad * 0.8, cx: x + w / 2, cy: this.y + this.lh / 2 };
+    }
+    colX(c) { return this.x + c * this.cw; }
+    mark(sel, color, at, { dur = 0.4, pad = 8, out = null, fill = 0.12 } = {}) {
+      const r = this.rect(sel, pad);
+      const m = box(this.marks, r.x - this.x, this.lh * 0.08 - pad * 0.4, { width: r.w + 'px', height: (this.lh * 0.84 + pad * 0.8) + 'px', borderRadius: '10px', background: alpha(color, fill), boxShadow: `inset 0 0 0 1.5px ${alpha(color, 0.5)}`, transformOrigin: 'left center' });
+      this.tl.set(m, { sx: 0.2, o: 0 }, 0); this.tl.to(m, { sx: 1, o: 1 }, at, dur, E.out5);
+      if (out != null) this.tl.to(m, { o: 0 }, out, 0.35);
+      return m;
+    }
+    strike(sel, at, { dur = 0.4, out = null, fade = true } = {}) {
+      const r = this.rect(sel, 4), ids = this.ids(sel);
+      const u = box(this.marks, r.x - this.x, this.lh * 0.5 - 1, { width: r.w + 'px', height: '4px', borderRadius: '2px', background: C.dim, transformOrigin: 'left center' });
+      this.tl.set(u, { sx: 0, o: 0 }, 0); this.tl.set(u, { o: 1 }, at); this.tl.to(u, { sx: 1 }, at, dur, E.io);
+      if (fade) this.color(ids, C.faint, at, dur);
+      if (out != null) this.tl.to(u, { o: 0 }, out, 0.3);
+      const self = this;
+      return { line: u, undo(t) { self.tl.to(u, { sx: 0 }, t, 0.4, E.io); if (fade) self.recolor(ids, t, 0.4); } };
+    }
+    flip(i, text, at, dur = 0.45) {
+      const old = this.parts[i], { toks } = tokens(text, this.fields);
+      const t = toks[0] || { text, kind: 'name', len: [...text].length, pieces: [[text, C.code]] };
+      const n = this._make(Object.assign({}, t, { col: old.col }));
+      this.tl.set(n.el, { o: 0 }, 0);
+      this.tl.to(old.el, { sy: 0.05 }, at, dur * 0.4, E.in); this.tl.set(old.el, { o: 0 }, at + dur * 0.4);
+      this.tl.set(n.el, { o: 1, sy: 0.05 }, at + dur * 0.4); this.tl.to(n.el, { sy: 1 }, at + dur * 0.4, dur * 0.6, E.out);
+      this.parts[i] = n;
+      return n;
+    }
+    append(text, at, { gap = 1, stagger = 0.03 } = {}) {
+      const { toks, cols } = tokens(text, this.fields), base = this.cols + gap, idx = [];
+      for (const t of toks) idx.push(this._add(Object.assign({}, t, { col: t.col + base })));
+      this.cols = base + cols; this.width = this.cols * this.cw; this.root.style.width = this.width + 'px';
+      this.show(at, { sel: idx, stagger });
+      return idx;
+    }
+    to(props, at, dur = 0.8, ease = E.io) { this.tl.to(this.root, props, at, dur, ease); return this; }
+  }
+  const prog = (tl, parent, x, y, size, text, opts) => new Prog(tl, parent, x, y, size, text, opts);
+
+  // ---- the stack ----------------------------------------------------------------------------------------------
+  class Stack {
+    constructor(tl, parent, cx, bottom, { items = [], w = 96, h = 84, gap = 10, size = 44, rest = false, restH, label, labelSize = 32, labelColor = C.dim, ghost = false } = {}) {
+      Object.assign(this, { tl, cx, bottom, w, h, gap, size });
+      this.g = box(parent, 0, 0, { width: W + 'px', height: H + 'px', transformOrigin: `${cx}px ${bottom}px` });
+      this.restH = rest ? (restH || Math.round(h * 1.35)) : 0;
+      this.base = bottom - (rest ? this.restH + gap : 0);   // the bottom edge of slot 0
+      this.cells = []; this.initial = [];
+      if (rest) {
+        this.restEl = cell(this.g, cx - w / 2, bottom - this.restH, w, this.restH, '…', { stroke: C.pat, color: C.dim, font: MONO(Math.round(size * 1.4)) });
+        tl.set(this.restEl, { o: 0 }, 0);
+      }
+      if (ghost) {
+        this.ghostEl = box(this.g, cx - w / 2, this.base - h, { width: w + 'px', height: h + 'px', borderRadius: '14px', border: `3px dashed ${alpha(C.pat, 0.7)}` });
+        tl.set(this.ghostEl, { o: 0 }, 0);
+      }
+      [...items].reverse().forEach(t => { const c = this._make(t, this.cells.length); tl.set(c, { o: 0 }, 0); this.cells.push(c); this.initial.push(c); });
+      if (label) {
+        this.labelEl = clabel(this.g, cx, bottom + 22, label, labelSize, labelColor);
+        tl.set(this.labelEl, { o: 0 }, 0);
+      }
+      this.svg = svgLayer(this.g);
+    }
+    slotY(i) { return this.base - this.h - i * (this.h + this.gap); }
+    _make(text, i) { return cell(this.g, this.cx - this.w / 2, this.slotY(i), this.w, this.h, text, { stroke: C.pat, font: MONO(this.size) }); }
+    show(at, { stagger = 0.08 } = {}) {
+      let k = 0;
+      if (this.restEl) fadeIn(this.tl, this.restEl, at + stagger * k++, 0.5, 14);
+      if (this.ghostEl) fadeIn(this.tl, this.ghostEl, at + stagger * k++, 0.5, 14);
+      for (const c of this.initial) fadeIn(this.tl, c, at + stagger * k++, 0.5, 14);
+      if (this.labelEl) fadeIn(this.tl, this.labelEl, at + stagger * k + 0.1, 0.5, 10);
+      return this;
+    }
+    push(text, at) {
+      const c = this._make(text, this.cells.length); this.cells.push(c);
+      this.tl.set(c, { y: -90, o: 0 }, 0); this.tl.to(c, { y: 0 }, at, 0.55, E.out5); this.tl.to(c, { o: 1 }, at, 0.3, E.out);
+      return c;
+    }
+    pop(at) {
+      const c = this.cells.pop();
+      if (!c) { console.warn('Stack.pop: empty'); return null; }
+      this.tl.to(c, { y: -80 }, at, 0.5, E.in); this.tl.to(c, { o: 0 }, at + 0.1, 0.4, E.in);
+      return c;
+    }
+    topY() { return this.cells.length ? this.slotY(this.cells.length - 1) : this.base - this.h; }
+    slotRect(i) { const j = this.cells.length - 1 - i; const y = this.slotY(Math.max(0, j)); return { x: this.cx - this.w / 2, y, w: this.w, h: this.h, cx: this.cx, cy: y + this.h / 2 }; }
+    fail(at) {
+      const c = this.cells[this.cells.length - 1];
+      if (c) { this.tl.to(c, { x: 6 }, at, 0.08, E.out); this.tl.to(c, { x: -6 }, at + 0.08, 0.1, E.io); this.tl.to(c, { x: 0 }, at + 0.18, 0.1, E.io); }
+      // beside the top cell, where a tick would go; on the ghost outline of an empty stack
+      const y = this.topY() + this.h / 2, x = c ? this.cx + this.w / 2 + 50 : this.cx;
+      return crossM(this.tl, this.svg, x, y, c ? 40 : Math.min(this.w, this.h) * 0.62, at + 0.15, { width: 7 });
+    }
+    ok(at) { return tickM(this.tl, this.svg, this.cx + this.w / 2 + 50, this.topY() + this.h / 2, 48, at, { width: 7 }); }
+    flip(i, text, at) { const c = this.cells[this.cells.length - 1 - i]; flip(this.tl, c._t, text, at); return this; }
+    reset(items, at) {
+      for (const c of this.cells) this.tl.to(c, { o: 0 }, at, 0.3, E.in);
+      this.cells = [];
+      [...items].reverse().forEach(t => { const c = this._make(t, this.cells.length); this.tl.set(c, { o: 0 }, 0); this.tl.to(c, { o: 1 }, at + 0.3, 0.4); this.cells.push(c); });
+      return this;
+    }
+    dim(o, at, dur = 0.5) { this.tl.to(this.g, { o }, at, dur); return this; }
+    hide(at, dur = 0.4) { this.tl.to(this.g, { o: 0 }, at, dur, E.in); return this; }
+    move(dx, dy, at, dur = 0.8) { this.tl.to(this.g, { x: dx, y: dy }, at, dur, E.io); return this; }
+    to(props, at, dur = 0.8, ease = E.io) { this.tl.to(this.g, props, at, dur, ease); return this; }
+  }
+
+  // ---- automata -------------------------------------------------------------------------------------------------
+  class Automaton {
+    constructor(tl, parent, { r = 46, size = 36, nameSize = 34, cx = CX, cy = H / 2 } = {}) {
+      Object.assign(this, { tl, r, size, nameSize, cx, cy });
+      this.g = box(parent, 0, 0, { width: W + 'px', height: H + 'px', transformOrigin: `${cx}px ${cy}px` });
+      this.svg = svgLayer(this.g);
+      this.lay = box(this.g, 0, 0, { width: W + 'px', height: H + 'px' });
+      this.states = new Map(); this.items = new Map(); this.order = [];
+      this.lh = Math.round(size * 1.3);
+      this.boxes = [];   // label rectangles, for bounds()
+    }
+    _item(id, rec) { if (this.items.has(id)) console.warn('automaton: duplicate id', id); rec.id = id; rec.paths = rec.paths || []; rec.heads = rec.heads || []; rec.labels = rec.labels || []; this.items.set(id, rec); this.order.push(id); return rec; }
+    el(id) { const r = this.items.get(id); if (!r) console.warn('automaton: no element', id); return r; }
+    pos(id) { const s = this.states.get(id); return { x: s.x, y: s.y }; }
+    // a label of `text` centred on (x, y); returns {e, w, h}
+    _label(text, x, y, { size = this.size, style } = {}) {
+      const h = Math.round(size * 1.3), w = [...text].length * charWidth(size);
+      const e = box(this.lay, x - w / 2 - 20, y - h / 2, Object.assign(MONO(size), { width: (w + 40) + 'px', height: h + 'px', lineHeight: h + 'px', textAlign: 'center', whiteSpace: 'pre', transformOrigin: 'center center' }, style || {}));
+      if (style && style.textTransform) e.textContent = text; else richText(e, text);
+      this.tl.set(e, { o: 0 }, 0);
+      this.boxes.push({ x0: x - w / 2, y0: y - h / 2, x1: x + w / 2, y1: y + h / 2 });
+      return { e, w, h, x, y };
+    }
+    state(id, x, y, { name = id, start = false, startFrom = 'left', startLen = 90 } = {}) {
+      const r = this.r;
+      this.states.set(id, { x, y });
+      const c = path(this.tl, this.svg, circleD(x, y, r), { stroke: C.ink, width: LINE });
+      const nm = box(this.lay, x - 100, y - r, Object.assign(SERIF(this.nameSize), { width: '200px', height: 2 * r + 'px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontStyle: 'italic', whiteSpace: 'pre', transformOrigin: 'center center' }), name);
+      this.tl.set(nm, { o: 0 }, 0);
+      const rec = { kind: 'state', paths: [c], labels: name ? [nm] : [], x, y };
+      if (!name) nm.remove();
+      if (start) {
+        const [x1, y1, x2, y2] = startFrom === 'up' ? [x, y - r - startLen - 6, x, y - r - 6] : [x - r - startLen - 6, y, x - r - 6, y];
+        const a = line(this.tl, this.svg, x1, y1, x2, y2, {});
+        rec.start = a;
+        this.boxes.push({ x0: Math.min(x1, x2), y0: Math.min(y1, y2) - 8, x1: Math.max(x1, x2), y1: Math.max(y1, y2) + 8 });
+      }
+      this.boxes.push({ x0: x - r, y0: y - r, x1: x + r, y1: y + r });
+      this._item(id, rec);
+      return this;
+    }
+    // where a label of size w x h goes beside the point (mx, my) on the side given by the unit normal (nx, ny)
+    _beside(mx, my, nx, ny, w, h, gap = 10) { const d = Math.abs(nx) * w / 2 + Math.abs(ny) * h / 2 + gap; return [mx + nx * d, my + ny * d]; }
+    _edge(id, from, to, label, { bend = 0, side, dx = 0, dy = 0, dash, tag } = {}) {
+      const A = this.states.get(from), B = this.states.get(to), r = this.r;
+      const ux = B.x - A.x, uy = B.y - A.y, L = Math.hypot(ux, uy) || 1;
+      const mx = (A.x + B.x) / 2, my = (A.y + B.y) / 2;
+      // the control point: `bend` px to the right of the direction of travel (as engine.arrowPath)
+      const qx = mx - uy / L * bend, qy = my + ux / L * bend;
+      const dir = (px, py, tx, ty) => { const l = Math.hypot(tx - px, ty - py) || 1; return [(tx - px) / l, (ty - py) / l]; };
+      const [ax, ay] = dir(A.x, A.y, qx, qy), [bx, by] = dir(B.x, B.y, qx, qy);
+      const s = [A.x + ax * (r + 6), A.y + ay * (r + 6)], e = [B.x + bx * (r + 6), B.y + by * (r + 6)];
+      const p = dpath(this.tl, this.svg, `M ${s[0]} ${s[1]} Q ${qx} ${qy} ${e[0]} ${e[1]}`, { stroke: C.ink, width: LINE, dash });
+      const h = headEl(this.svg, e[0], e[1], Math.atan2(e[1] - qy, e[0] - qx)); this.tl.set(h, { o: 0 }, 0);
+      const rec = { kind: dash ? 'silent' : 'edge', paths: [p], heads: [h], labels: [], from, to };
+      // the curve's middle, and the normal on the label's side
+      const cmx = 0.25 * s[0] + 0.5 * qx + 0.25 * e[0], cmy = 0.25 * s[1] + 0.5 * qy + 0.25 * e[1];
+      // the label's side: the outside of a bend; for a straight edge, above it (left of it, if it is vertical)
+      let nx = uy / L, ny = -ux / L;
+      if (bend) { const b = Math.sign(bend); nx = -uy / L * b; ny = ux / L * b; }
+      else if (ny > 1e-6 || (Math.abs(ny) <= 1e-6 && nx > 0)) { nx = -nx; ny = -ny; }
+      if (side === -1) { nx = -nx; ny = -ny; }
+      if (label) {
+        const w = [...label].length * charWidth(this.size), hh = this.lh;
+        const [lx, ly] = this._beside(cmx, cmy, nx, ny, w, hh);
+        rec.labels.push(this._label(label, lx + dx, ly + dy).e);
+      }
+      if (tag) {
+        const tw = [...tag].length * 30 * 0.78;
+        const [lx, ly] = this._beside(cmx, cmy, nx, ny, tw, 36, 12);
+        const t = clabel(this.lay, lx + dx, ly - 18 + dy, tag, 30);
+        this.tl.set(t, { o: 0 }, 0); rec.labels.push(t);
+        this.boxes.push({ x0: lx - tw / 2, y0: ly - 18, x1: lx + tw / 2, y1: ly + 18 });
+      }
+      this.boxes.push({ x0: Math.min(s[0], e[0], cmx), y0: Math.min(s[1], e[1], cmy), x1: Math.max(s[0], e[0], cmx), y1: Math.max(s[1], e[1], cmy) });
+      this._item(id, rec);
+      return this;
+    }
+    edge(id, from, to, label, opts = {}) { return this._edge(id, from, to, label, opts); }
+    silent(id, from, to, opts = {}) { return this._edge(id, from, to, null, Object.assign({}, opts, { dash: '13 11' })); }
+    loop(id, st, label, { side = 'up', dx = 0, dy = 0 } = {}) {
+      const S = this.states.get(st), r = this.r;
+      const rot = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 }[side];
+      // the loop drawn upwards (as in film.js), then turned
+      const a0 = -2.05 + rot, a1 = -1.09 + rot, P = (a, rr) => [S.x + rr * Math.cos(a), S.y + rr * Math.sin(a)];
+      const [x0, y0] = P(a0, r + 4), [x1, y1] = P(a1, r + 4), [c0x, c0y] = P(a0 - 0.25, r + 120), [c1x, c1y] = P(a1 + 0.25, r + 120);
+      const p = path(this.tl, this.svg, `M ${x0} ${y0} C ${c0x} ${c0y} ${c1x} ${c1y} ${x1} ${y1}`, { stroke: C.ink, width: LINE });
+      const h = headEl(this.svg, x1, y1, Math.atan2(y1 - c1y, x1 - c1x)); this.tl.set(h, { o: 0 }, 0);
+      const rec = { kind: 'loop', paths: [p], heads: [h], labels: [], state: st };
+      // the apex of the loop, about r + 58 from the centre; the label beyond it
+      const ux = Math.cos(rot - Math.PI / 2), uy = Math.sin(rot - Math.PI / 2), apex = r + 60;
+      if (label) {
+        const w = [...label].length * charWidth(this.size);
+        const [lx, ly] = this._beside(S.x + ux * apex, S.y + uy * apex, ux, uy, w, this.lh, 6);
+        rec.labels.push(this._label(label, lx + dx, ly + dy).e);
+      }
+      this.boxes.push({ x0: S.x + ux * apex - 60, y0: S.y + uy * apex - 60, x1: S.x + ux * apex + 60, y1: S.y + uy * apex + 60 });
+      this._item(id, rec);
+      return this;
+    }
+    draw(id, at, dur = 0.5) {
+      const r = this.el(id); if (!r) return this;
+      const tl = this.tl;
+      for (const p of r.paths) tl.to(p, { draw: 1 }, at, dur, E.io);
+      for (const h of r.heads) tl.fromTo(h, { o: 0 }, { o: 1 }, at + dur * 0.75, dur * 0.25);
+      if (r.kind === 'state') { for (const l of r.labels) fadeIn(tl, l, at + dur * 0.4, 0.45, 6); if (r.start) { tl.to(r.start.path, { draw: 1 }, at + dur * 0.5, 0.4, E.io); tl.fromTo(r.start.head, { o: 0 }, { o: 1 }, at + dur * 0.5 + 0.3, 0.1); } }
+      else for (const l of r.labels) fadeIn(tl, l, at + dur * 0.55, 0.45, 8);
+      return this;
+    }
+    drawAll(at, { stagger = 0.35, except = [], dur = 0.5 } = {}) {
+      let t = at;
+      for (const id of this.order) { if (except.includes(id)) continue; this.draw(id, t, dur); t += stagger; }
+      return t - stagger + dur + 0.2;
+    }
+    _all(id) { const r = this.el(id); if (!r) return []; return [...r.paths, ...r.heads, ...r.labels, ...(r.start ? [r.start.path, r.start.head] : []), ...(r.marks || [])]; }
+    dimEl(id, o, at, dur = 0.4) { for (const e of this._all(id)) this.tl.to(e, { o }, at, dur); return this; }
+    remove(id, at, dur = 0.35) { for (const e of this._all(id)) this.tl.to(e, { o: 0 }, at, dur, E.in); return this; }
+    mark(id, at, { out = null, color = C.dim, fill = 0.1, dur = 0.4 } = {}) {
+      const r = this.el(id); let m;
+      if (r.kind === 'state') {
+        const rr = this.r + 14;
+        m = box(this.lay, r.x - rr, r.y - rr, { width: 2 * rr + 'px', height: 2 * rr + 'px', borderRadius: '50%', background: alpha(color, fill), boxShadow: `inset 0 0 0 2.5px ${alpha(color, 0.6)}` });
+      } else {
+        const l = r.labels[0]; if (!l) return null;
+        const x = parseFloat(l.style.left), y = parseFloat(l.style.top), w = parseFloat(l.style.width), h = parseFloat(l.style.height);
+        m = box(this.lay, x + 8, y + 2, { width: (w - 16) + 'px', height: (h - 4) + 'px', borderRadius: '10px', background: alpha(color, fill), boxShadow: `inset 0 0 0 1.5px ${alpha(color, 0.5)}` });
+      }
+      this.lay.insertBefore(m, this.lay.firstChild);
+      this.tl.set(m, { o: 0, s: 0.9 }, 0); this.tl.to(m, { o: 1, s: 1 }, at, dur, E.out5);
+      if (out != null) this.tl.to(m, { o: 0 }, out, 0.35);
+      (r.marks = r.marks || []).push(m);
+      return m;
+    }
+    pulse(id, at, { dur = 0.6 } = {}) {
+      const r = this.el(id); if (!r) return this;
+      for (const l of r.labels) { this.tl.to(l, { s: 1.08 }, at, dur * 0.4, E.out); this.tl.to(l, { s: 1 }, at + dur * 0.4, dur * 0.6, E.io); }
+      this.mark(id, at, { out: at + dur, dur: dur * 0.4 });
+      return this;
+    }
+    travel(id, at, dur = 0.8, { reverse = false, color = C.ink, r = 11, out = null } = {}) {
+      const rec = this.el(id), p = rec.paths[0], len = p._len;
+      const d = el(this.svg, 'circle'); d.setAttribute('r', r); d.style.fill = color;
+      const place = v => { const q = p.getPointAtLength(len * (reverse ? 1 - v : v)); d.setAttribute('cx', q.x); d.setAttribute('cy', q.y); };
+      place(0);
+      this.tl.custom(d, 'u', (e, v) => place(v), 0);
+      this.tl.set(d, { o: 0 }, 0); this.tl.to(d, { o: 1 }, at, 0.2); this.tl.to(d, { u: 1 }, at, dur, E.io);
+      if (out != null) this.tl.to(d, { o: 0 }, out, 0.3);
+      return d;
+    }
+    bounds() {
+      const b = this.boxes; return { x0: Math.min(...b.map(q => q.x0)), y0: Math.min(...b.map(q => q.y0)), x1: Math.max(...b.map(q => q.x1)), y1: Math.max(...b.map(q => q.y1)) };
+    }
+    dim(o, at, dur = 0.5) { this.tl.to(this.g, { o }, at, dur); return this; }
+    hide(at, dur = 0.4) { this.tl.to(this.g, { o: 0 }, at, dur, E.in); return this; }
+    move(dx, dy, at, dur = 0.8) { this.tl.to(this.g, { x: dx, y: dy }, at, dur, E.io); return this; }
+    scale(s, at, dur = 0.8) { this.tl.to(this.g, { s }, at, dur, E.io); return this; }
+    to(props, at, dur = 0.8, ease = E.io) { this.tl.to(this.g, props, at, dur, ease); return this; }
+  }
+
+  // ---- presets: the film's automata, the same layout everywhere ---------------------------------------------------
+  function mk(tl, parent, cx, cy, opts, size = 36) {
+    const A = new Automaton(tl, parent, { cx, cy, size: opts.size || size });
+    if (opts.k && opts.k !== 1) tl.set(A.g, { s: opts.k }, 0);
+    return A;
+  }
+  const P = v => ({ pu: `push(${v})`, po: `pop(${v})` });
+  function A1(tl, parent, cx, cy, opts = {}) {
+    const A = mk(tl, parent, cx, cy, opts), { pu, po } = P(opts.value || 'a');
+    const y = cy + 15;
+    A.state('e', cx - 210, y, { name: 'e', start: true }).loop('e@', 'e', pu)
+      .state('e0', cx + 230, y, { name: 'e₀' }).edge('e>e0', 'e', 'e0', po).loop('e0@', 'e0', po);
+    if (opts.silent) A.silent('e~e0', 'e', 'e0', { bend: 150 });
+    return A;
+  }
+  function A2(tl, parent, cx, cy, opts = {}) {
+    const A = mk(tl, parent, cx, cy, opts), { pu, po } = P(opts.value || 'a');
+    A.state('e', cx - 190, cy, { name: 'e', start: true })
+      .state('e1', cx + 190, cy - 150, { name: 'e₁' }).edge('e>e1', 'e', 'e1', po).loop('e1@', 'e1', po)
+      .state('e2', cx + 190, cy + 150, { name: 'e₂' }).edge('e>e2', 'e', 'e2', pu, { side: -1 }).loop('e2@', 'e2', pu, { side: 'down' });
+    return A;
+  }
+  function A3(tl, parent, cx, cy, opts = {}) {
+    const A = mk(tl, parent, cx, cy, opts), { pu, po } = P(opts.value || 'a');
+    const y = cy - 10;
+    A.state('e', cx - 360, y, { name: 'e', start: true })
+      .state('e0', cx, y, { name: 'e₀' }).edge('e>e0', 'e', 'e0', po).loop('e0@', 'e0', po)
+      .state('e1', cx + 360, y, { name: 'e₁' }).edge('e0>e1', 'e0', 'e1', pu).loop('e1@', 'e1', pu)
+      .edge('e>e1', 'e', 'e1', pu, { bend: 230 });
+    return A;
+  }
+  function PP(tl, parent, cx, cy, opts = {}) {
+    const A = mk(tl, parent, cx, cy, opts);
+    const y = cy + 15;
+    A.state('s', cx - 170, y, { name: opts.names ? opts.names.s : '', start: true }).loop('s@', 's', 'pop')
+      .state('t', cx + 190, y, { name: opts.names ? opts.names.t : '' }).edge('s>t', 's', 't', 'push').loop('t@', 't', 'push');
+    return A;
+  }
+  function zipped(tl, parent, cx, cy, opts, withLoop) {
+    const A = mk(tl, parent, cx, cy, opts, 34), v = opts.value || 'a', n = opts.names || {};
+    const pp = `(pop(${v}), push(${v}))`, dp = `(done, push(${v}))`, pd = `(pop(${v}), done)`;
+    const ty = cy - 150, by = cy + 170;
+    A.state('T', cx, ty, { name: n.T || '', start: true });
+    if (withLoop) A.loop('T@', 'T', pp);
+    A.state('L', cx - 215, by, { name: n.L || '' }).edge('T>L', 'T', 'L', dp).loop('L@', 'L', dp, { side: 'down' })
+      .state('R', cx + 215, by, { name: n.R || '' }).edge('T>R', 'T', 'R', pd).loop('R@', 'R', pd, { side: 'down' });
+    return A;
+  }
+  const Z3 = (tl, parent, cx, cy, opts = {}) => zipped(tl, parent, cx, cy, opts, true);
+  const Z1 = (tl, parent, cx, cy, opts = {}) => zipped(tl, parent, cx, cy, opts, !!opts.loop);
+
+  // ---- the packet header --------------------------------------------------------------------------------------
+  function packetHeader(tl, parent, x, y, fields, { w = 150, h = 90, gap = 14, size = 44, names = 32 } = {}) {
+    const n = fields.length, width = n * w + (n - 1) * gap, height = h + 50;
+    const g = box(parent, x, y, { width: width + 'px', height: height + 'px' });
+    const nameEls = [], vals = fields.map(([name, v], i) => {
+      nameEls.push(ctext(g, i * (w + gap) + w / 2, 20, name, Object.assign(MONO(names), { color: C.bind }), 44));
       return cell(g, i * (w + gap), 50, w, h, v, { font: MONO(size) });
     });
-    return { g, vals, width: 3 * w + 2 * gap };
+    tl.set(g, { o: 0 }, 0);
+    return {
+      g, vals, names: nameEls, width, height,
+      show(at) { fadeIn(tl, g, at, 0.6, 16); return this; },
+      flip(i, text, at) { flip(tl, vals[i]._t, text, at); return this; },
+      tint(i, at, out) { tl.to(vals[i], { bg: alpha(C.dim, 0.14) }, at, 0.3); if (out != null) tl.to(vals[i], { bg: alpha(C.dim, 0) }, out, 0.4); return this; },
+      pulse(i, at) { tl.to(vals[i], { s: 1.08 }, at, 0.2, E.out); tl.to(vals[i], { s: 1 }, at + 0.2, 0.35, E.io); this.tint(i, at, at + 0.6); return this; },
+      dim(o, at, dur = 0.5) { tl.to(g, { o }, at, dur); return this; },
+      hide(at, dur = 0.4) { tl.to(g, { o: 0 }, at, dur, E.in); return this; },
+      move(dx, dy, at, dur = 0.8) { tl.to(g, { x: dx, y: dy }, at, dur, E.io); return this; },
+      to(props, at, dur = 0.8, ease = E.io) { tl.to(g, props, at, dur, ease); return this; },
+      cellRect(i) { return { x: x + i * (w + gap), y: y + 50, w, h, cx: x + i * (w + gap) + w / 2, cy: y + 50 + h / 2 }; },
+    };
   }
 
-  // A stack drawn as a row of amber cells; index 0, the top, is on the left.
-  class Row {
-    constructor(tl, parent, x, y, { w = 140, h = 100, gap = 12 } = {}) {
-      Object.assign(this, { tl, parent, x, y, w, h, step: w + gap }); this.cells = [];
-    }
-    _make(text) { return cell(this.parent, this.x, this.y, this.w, this.h, text, { stroke: C.pat, font: MONO(44) }); }
-    layout(at) { this.cells.forEach((c, i) => { if (c && c._i !== i) { this.tl.to(c, { x: i * this.step }, at, 0.55, E.io); c._i = i; } }); }
-    // cells that are there from the start of their appearance, at the bottom end
-    append(text, at, dur = 0.5) {
-      const c = this._make(text), i = this.cells.length; c._i = i; this.cells.push(c);
-      this.tl.set(c, { x: i * this.step, y: 14, o: 0 }, 0); this.tl.to(c, { y: 0, o: 1 }, at, dur, E.out5);
-      return c;
-    }
-    // a value goes on top: the others make room, it comes down into place
-    push(text, at) {
-      for (const c of this.cells) c._i = -1;
-      this.cells.unshift(null); this.layout(at);
-      const c = this._make(text); c._i = 0; this.cells[0] = c;
-      this.tl.set(c, { x: 0, y: -90, o: 0 }, 0); this.tl.to(c, { y: 0, o: 1 }, at + 0.25, 0.5, E.out5);
-      return c;
-    }
-    // the top lifts off and fades; the others close up
-    pop(at) {
-      const c = this.cells.shift();
-      this.tl.to(c, { y: -80 }, at, 0.5, E.in); this.tl.to(c, { o: 0 }, at + 0.1, 0.4, E.in);
-      this.layout(at + 0.3);
-      return c;
-    }
+  // ---- the title ----------------------------------------------------------------------------------------------
+  const AUTHORS = ['Jules Jacobs · Nate Foster · Tobias Kappé · Dexter Kozen', 'Lily Saada · Alexandra Silva · Jana Wagemaker · PLDI 2025'];
+  function titleCard(tl, root, { align = 'center', x = CX, y = 300, size = 150, subSize = 56, at, subAt, authorsAt, authorSize = 32, gap = 34 } = {}) {
+    const mk = (text, yy, style) => align === 'left' ? box(root, x - (style.letterSpacing ? 0 : size * 0.06), yy, Object.assign({ whiteSpace: 'pre' }, style), text) : cline(root, x, yy, [[text, null]], style).root;
+    const title = mk('StacKAT', y, SERIF(size));
+    const sy = y + Math.round(size * 1.22) + 4;
+    const sub = mk('Infinite State Network Verification', sy, SERIF(subSize));
+    const ay = sy + Math.round(subSize * 1.22) + gap + 10;
+    const authors = AUTHORS.map((t, i) => mk(t, ay + i * Math.round(authorSize * 1.65), LABEL(authorSize)));
+    if (align === 'left') { sub.style.left = (x - subSize * 0.04) + 'px'; authors.forEach(a => { a.style.left = x + 'px'; }); }
+    for (const e of [title, sub, ...authors]) tl.set(e, { o: 0 }, 0);
+    if (at != null) fadeIn(tl, title, at, 0.8, 24);
+    if (subAt != null) fadeIn(tl, sub, subAt, 0.7, 16);
+    if (authorsAt != null) authors.forEach((a, i) => fadeIn(tl, a, authorsAt + i * 0.25, 0.6, 10));
+    return { title, sub, authors, bottom: ay + 2 * Math.round(authorSize * 1.65) };
   }
 
-  // ============================================ s_hook =========================================================
-  scene('s_hook', ({ tl, root, cue }) => {
-    // the network: a host, three switches A, B, C, a host, in a row (drawn at full size, in one layer)
-    const g = box(root, 0, 0, { width: W + 'px', height: H + 'px' });
-    const svg = svgLayer(g);
-    const Y = 420, HX = [280, 1640], SX = [660, 960, 1260], HR = 50, SW = 190, SH = 136;
-    const hosts = HX.map((x, i) => {
-      const p = path(tl, svg, circleD(x, Y, HR), { stroke: C.ink, width: LINE });
-      tl.to(p, { draw: 1 }, 0.25 + i * 0.9, 0.6, E.io);
-      return p;
-    });
-    const sws = SX.map((x, i) => {
-      const b = cell(g, x - SW / 2, Y - SH / 2, SW, SH, 'ABC'[i], { font: SERIF(72), radius: 22 });
-      tl.set(b, { o: 0, s: 0.96 }, 0); tl.to(b, { o: 1, s: 1 }, 0.4 + i * 0.22, 0.5, E.out5);
-      return b;
-    });
-    const ends = [[HX[0] + HR, SX[0] - SW / 2], [SX[0] + SW / 2, SX[1] - SW / 2], [SX[1] + SW / 2, SX[2] - SW / 2], [SX[2] + SW / 2, HX[1] - HR]];
-    ends.forEach(([a, b], i) => tl.to(path(tl, svg, `M ${a} ${Y} L ${b} ${Y}`, { stroke: C.ink, width: LINE }), { draw: 1 }, 0.5 + i * 0.2, 0.5, E.io));
-    // "forwards packets": a packet, its header fields, at A
-    const pk = header(g, 0, Y + 100, [['sw', 'A'], ['dst', '7'], ['port', '1']], { w: 150, h: 100, gap: 16, size: 52, names: 34 });
-    pk.g.style.left = (SX[0] - pk.width / 2) + 'px';
-    fadeIn(tl, pk.g, 1.65, 0.6, 16);
-    // "match some header fields": the switch looks at dst
-    const tint = (c, a, b) => { tl.to(c, { bg: alpha(C.dim, 0.14) }, a, 0.3); tl.to(c, { bg: alpha(C.dim, 0) }, b, 0.4); };
-    tint(pk.vals[1], 3.4, 4.7);
-    // "rewrite some": port := 2
-    tint(pk.vals[2], 4.75, 5.6);
-    flip(tl, pk.vals[2]._t, '2', 4.8);
-    // "and send the packet on": to B, then to C, the switch field changing at each hop
-    tl.to(pk.g, { x: SX[1] - SX[0] }, 5.75, 0.6, E.io); flip(tl, pk.vals[0]._t, 'B', 5.95);
-    tl.to(pk.g, { x: SX[2] - SX[0] }, 6.55, 0.6, E.io); flip(tl, pk.vals[0]._t, 'C', 6.75);
-
-    // "Net Cat reads those rules as a program.": the drawing goes up and shrinks; the program under it
-    const tP = cue("prog"), K = 0.75, DY = -159;
-    tl.to(pk.g, { o: 0 }, tP - 0.3, 0.35, E.in);
-    tl.to(g, { s: K, y: DY }, tP - 0.2, 0.8, E.io);
-    const S = 64, cw = charWidth(S);
-    const px = Math.round((W - 28 * cw) / 2), py = 492;
-    const code = new Code(tl, root, px, py, S, { leading: 1.62 });
-    const P0 = '  if {d|dst|b} == 7 then {p|port|b} {a1|:=} 2\n  {s|sw|b} {a2|:=} B';
-    const P1 = '{lp|(} if {d|dst|b} == 7 then {p|port|b} {a1|:=} 2\n  {s|sw|b} {a2|:=} B {rp|)*}';
-    code.show(P0, tP + 0.5, { stagger: 0.012 });
-    const ly = py + 2 * code.lh + 36;
-    // "A field is a variable,"
-    const tF = 10.7, tR = 12.4, tL = 14.4;
-    step(tl, root, CX, ly, 'a field = a variable', tF, tR - 0.35);
-    for (const id of ['d', 'p', 's']) code.mark([id], C.bind, tF + 0.05, { out: tR - 0.35, pad: 8 });
-    // "a rule is an if statement,"
-    step(tl, root, CX, ly, 'a rule = an if', tR, tL - 0.35);
-    code.mark(t => t.line === 0, C.dim, tR + 0.05, { out: tL - 0.35, pad: 8, fill: 0.08 });
-    // "and a path through the network is a loop."
-    const tLoop = 16.18, tV = cue('verify');
-    step(tl, root, CX, ly, 'a path = a loop', tL, tV - 0.3);
-    code.swap(P1, tLoop - 0.25, { dur: 0.5 });
-    code.mark(['lp'], C.dim, tLoop + 0.25, { out: tV - 0.3, pad: 6, fill: 0.08 });
-    code.mark(['rp'], C.dim, tLoop + 0.25, { out: tV - 0.3, pad: 6, fill: 0.08 });
-
-    // "whether one host can reach another": the program dims; the hosts are marked and joined
-    const tE0 = cue('equiv');
-    tl.to(code.root, { o: 0.35 }, tV - 0.1, 0.5);
-    const hy = 540 + (Y - 540) * K + DY, hx = HX.map(x => CX + (x - CX) * K), hr = HR * K;
-    const top = svgLayer(root);
-    // the two hosts: a cyan dot in each
-    const dr = hr * 0.5;
-    hx.forEach((x, i) => {
-      const d = box(root, x - dr, hy - dr, { width: 2 * dr + 'px', height: 2 * dr + 'px', borderRadius: '50%', background: C.bind });
-      tl.set(d, { o: 0, s: 0.3 }, 0); tl.to(d, { o: 1, s: 1 }, 19.6 + i * 0.25, 0.4, E.out5);
-      tl.to(d, { o: 0 }, tE0 - 0.4, 0.35, E.in);
-    });
-    const arcY = hy + hr + 6;
-    const arc = path(tl, top, `M ${hx[0]} ${arcY + 4} Q ${CX} ${arcY + 126} ${hx[1]} ${arcY + 4}`, { stroke: C.ink, width: LINE, dash: '12 12' });
-    tl.set(arc, { o: 0 }, 0); tl.to(arc, { o: 1 }, 20.05, 0.5);
-    const reach = clabel(root, CX, arcY + 76, 'reachable?', 32, C.ink);
-    fadeIn(tl, reach, 20.3, 0.5, 10);
-
-    // "are these two programs equivalent?"
-    const tE = cue('equiv'), out = tE - 0.4;
-    for (const e of [g, code.root, top, reach]) tl.to(e, { o: 0 }, out, 0.35, E.in);
-    const eq = cserif(root, CX, 360, 'program₁ ≡ program₂ ?', 96);
-    fadeIn(tl, eq, tE - 0.1, 0.7, 16);
-    // "For Net Cat this can be decided, because a packet has finitely many fields, with finitely many values."
-    const dec = clabel(root, CX, 524, 'decidable', 44, C.good);
-    fadeIn(tl, dec, 27.35, 0.6, 12);
-    const why = cline(root, CX, 612, [['finitely many fields', null], [' × finitely many values', null]], LABEL(34));
-    fadeIn(tl, why.parts[0], 29.3, 0.5, 10);
-    fadeIn(tl, why.parts[1], 31.05, 0.5, 10);
-  });
-
-  // ============================================ s_limit ========================================================
-  scene('s_limit', ({ tl, root, cue }) => {
-    // "But real packets also carry a stack.": the header, and a stack attached to its right
-    const SW = 150, GAP = 12, STEP = SW + GAP, HW = 3 * 150 + 2 * 14, J = 22;
-    const x0 = Math.round((W - (HW + J + 3 * STEP - GAP)) / 2), y0 = 370;
-    const hd = header(root, x0, y0, [['sw', 'A'], ['dst', '7'], ['port', '2']]);
-    fadeIn(tl, hd.g, 0.25, 0.6, 16);
-    const sx = x0 + HW + J;
-    const stk = new Row(tl, root, sx, y0 + 50, { w: SW, h: 90, gap: GAP });
-    const sl = box(root, sx, y0 + 150, { width: (3 * STEP - GAP) + 'px', height: '40px', display: 'flex', alignItems: 'center', paddingLeft: '4px' });
-    Object.assign(sl.style, LABEL(32), { color: C.pat });
-    sl.textContent = 'stack';
-    const tS = 2.2;
-    fadeIn(tl, sl, tS, 0.5, 10);
-    const cs = ['', '', ''].map((t, i) => stk.append(t, tS + 0.1 + i * 0.1));
-    const ly = y0 + 240;
-    // "In source routing, a packet carries its whole path, and each router pops the next hop."
-    const tR = cue('route'), tT = cue('tele'), tPa = cue('parse'), tU = cue('unb');
-    step(tl, root, CX, ly, 'source routing: the path', tR - 0.05, tT - 0.35, 36);
-    ['B', 'C', 'D'].forEach((t, i) => flip(tl, cs[i]._t, t, 5.75 + i * 0.12));
-    stk.pop(7.85);
-    // "Telemetry pushes a record at every hop."
-    step(tl, root, CX, ly, 'telemetry: a record at every hop', tT - 0.05, tPa - 0.35, 36);
-    stk.push('r1', 10.25);
-    stk.push('r2', 11.35);
-    // "And parsing a packet pops its bytes one by one."
-    step(tl, root, CX, ly, 'parsing: the bytes, one by one', tPa - 0.05, tU - 0.35, 36);
-    ['0x45', '0x00', '0x00', '0x3c'].forEach((t, i) => flip(tl, stk.cells[i]._t, t, 12.9 + i * 0.1));
-    stk.pop(13.8);
-    // "A stack has no bound,": it grows to the frame's edge
-    // the packet makes room on the left, and cells keep coming to the frame's edge
-    const shift = 160 - x0;
-    for (const e of [hd.g, sl]) tl.to(e, { x: shift }, tU - 0.1, 0.7, E.io);
-    tl.to(sl, { o: 0 }, tU - 0.1, 0.3);
-    stk.cells.forEach((c, i) => tl.to(c, { x: i * STEP + shift }, tU - 0.1, 0.7, E.io));
-    let n = stk.cells.length;
-    const more = ['0x1c', '0x46', '0x40', '0x00', '0x40', '0x06', '0xb1', '0xe6'];
-    let k = 0;
-    while (sx + shift + n * STEP + SW < W - 40 && k < more.length) {
-      const c = stk.append(more[k++], tU + 0.35 + k * 0.17, 0.35); tl.set(c, { x: n * STEP + shift }, 0); n++;
+  // ---- rows -------------------------------------------------------------------------------------------------------
+  class Rows {
+    constructor(tl, root, { x = RAIL, y = 270, pitch = 124, size = 56, numbers = true, titleX, back = 0.6, numSize = 32 } = {}) {
+      Object.assign(this, { tl, root, x, y, pitch, size, numbers, back, numSize }); this.titleX = titleX ?? x + 70; this.rows = [];
     }
-    const dots = box(root, sx + shift + n * STEP - 6, y0 + 50, Object.assign({ height: '90px', display: 'flex', alignItems: 'center', whiteSpace: 'pre' }, MONO(56), { color: C.pat }), '…');
-    fadeIn(tl, dots, tU + 0.45 + k * 0.17, 0.35, 0);
-    // "so there are infinitely many packets, and the finite-state argument is gone."
-    const tI = cue('inf');
-    const all = [hd.g, sl, dots, ...stk.cells];
-    for (const e of all) tl.to(e, { o: 0.3, y: -40 }, tI - 0.15, 0.6, E.io);
-    const inf = clabel(root, CX, ly - 50, 'infinitely many packets', 48, C.ink);
-    fadeIn(tl, inf, tI - 0.05, 0.6, 12);
-    const d = cline(root, CX, ly + 40, [['decidable', C.good]], LABEL(44));
-    fadeIn(tl, d.root, 20.3, 0.5, 10);
-    strikePart(tl, d.parts[0], 21.85);
+    rowY(i) { return this.y + i * this.pitch; }
+    mid(i) { return this.rowY(i) + Math.round(this.size * 1.22) / 2; }
+    row(title, at, { num } = {}) {
+      const i = this.rows.length, y = this.rowY(i), parts = [];
+      const nm = num !== undefined ? num : (this.numbers ? String(i + 1) : null);
+      let numEl = null;
+      if (nm) { numEl = box(this.root, this.x, this.mid(i) - this.numSize * 0.62, Object.assign(LABEL(this.numSize), { whiteSpace: 'pre' }), nm); fadeIn(this.tl, numEl, at - 0.05, 0.5, 12); parts.push(numEl); }
+      const t = box(this.root, this.titleX, y, Object.assign(SERIF(this.size), { whiteSpace: 'pre' }), title);
+      fadeIn(this.tl, t, at, 0.6, 16); parts.push(t);
+      for (const r of this.rows) if (r.backAt == null) { r.backAt = at - 0.15; for (const e of r.parts) this.tl.to(e, { o: this.back }, r.backAt, 0.5); }
+      const row = { y, at, parts, num: numEl, title: t, backAt: null };
+      // evidence added after a later row was built still steps back with its row
+      row.add = e => { const x = rootOf(e); parts.push(x); if (row.backAt != null) this.tl.to(x, { o: this.back }, row.backAt, 0.5); return e; };
+      this.rows.push(row);
+      return row;
+    }
+    evidence(i, e, at, dy = 14) { fadeIn(this.tl, rootOf(e), at, 0.5, dy); this.rows[i].add(e); return e; }
+    all() { return this.rows.flatMap(r => r.parts); }
+  }
+
+  // "if and only if", drawn: neither shipped font has a usable ⟺ (Fira Code's is one cell wide, Source Serif has
+  // none), and a glyph from a system font would differ between devices. Returns an inline SVG element about 1.7 em
+  // wide in the current text colour; put it into a part of a line: `const l = SX.cline(root, cx, y, [['e₁ ≡ e₂  '],
+  // ['', null], ['  L(A₁) = L(A₂)']], SX.MONO(60)); l.parts[1].appendChild(SX.iff(60));`
+  function iff(size, color) {
+    const NS = 'http://www.w3.org/2000/svg', w = size * 1.7, h = size * 0.7, g = size * 0.11, a = size * 0.26, sw = Math.max(2.5, size * 0.055);
+    const s = document.createElementNS(NS, 'svg');
+    s.setAttribute('width', w); s.setAttribute('height', h); s.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    Object.assign(s.style, { display: 'inline-block', verticalAlign: 'middle', overflow: 'visible', position: 'relative', top: (-size * 0.04) + 'px' });
+    const m = h / 2, d = `M ${a * 0.9} ${m - g} L ${w - a * 0.9} ${m - g} M ${a * 0.9} ${m + g} L ${w - a * 0.9} ${m + g} ` +
+      `M ${a} ${m - a} L ${sw} ${m} L ${a} ${m + a} M ${w - a} ${m - a} L ${w - sw} ${m} L ${w - a} ${m + a}`;
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', d); p.setAttribute('fill', 'none'); p.setAttribute('stroke', color || 'currentColor'); p.setAttribute('stroke-width', sw);
+    p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round');
+    s.appendChild(p);
+    return s;
+  }
+
+  window.SX = {
+    iff, CX, RAIL, LINE, LABEL, SERIF, MONO, cline, lline, clabel, cserif, note, strikeEl,
+    svg: svgLayer, tick: tickM, cross: crossM, dpath, line, arc, cell, flip, circleD, ctext, dim,
+    tokens, richText, prog, Prog, Stack, Automaton, A1, A2, A3, PP, Z1, Z3, packetHeader, titleCard, AUTHORS, Rows,
+  };
+})();
+
+// ==== src/scenes/a_open.js ====
+// The opening (hook, roadmap, title) and the close (recap, end) of the StacKAT film, built with SX (common.js).
+'use strict';
+(function () {
+  const { W, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+
+  // ============================================ hook ==========================================================
+  scene('hook', ({ tl, root, cue }) => {
+    // "Here are two small programs.": P1 and P2 on one line, a wide gap between them
+    const S = 56, cw = charWidth(S), N = 18, GAP = 300;
+    const x1 = Math.round((W - (2 * N * cw + GAP)) / 2), x2 = Math.round(x1 + N * cw + GAP), py = 250 - Math.round(S * 1.3 / 2);
+    const tTwo = cue('two');
+    const P1 = SX.prog(tl, root, x1, py, S, 'push(a)* · pop(a)*');
+    const P2 = SX.prog(tl, root, x2, py, S, 'push(a)* + pop(a)*');
+    P1.show(tTwo - 0.1); P2.show(tTwo + 0.25);
+    const c1 = x1 + N * cw / 2, c2 = x2 + N * cw / 2, bottom = 820, BIG = { w: 108, h: 92, size: 48 };
+
+    // "The first pushes the value A any number of times, and then pops it any number of times."
+    const tP1 = cue('p1');
+    P2.to({ o: 0.4 }, tP1 - 0.2, 0.5);
+    const s1 = new SX.Stack(tl, root, c1, bottom, Object.assign({ items: ['b'] }, BIG));
+    s1.show(tP1 - 0.1);
+    [0.5, 1.25, 2.0].forEach(d => s1.push('a', tP1 + d));
+    P1.pulse(P1.letter(0), tP1 + 0.5);
+    s1.pop(tP1 + 3.75); s1.pop(tP1 + 4.55);
+    P1.pulse(P1.letter(1), tP1 + 3.75);
+
+    // "The second does one or the other: only pushes, or only pops."
+    const tP2 = cue('p2');
+    s1.hide(tP2 - 0.3);
+    P1.to({ o: 0.4 }, tP2 - 0.2, 0.5); P2.to({ o: 1 }, tP2 - 0.2, 0.5);
+    const sa = new SX.Stack(tl, root, c2 - 180, bottom, Object.assign({ items: ['b'], label: 'only pushes' }, BIG));
+    sa.show(tP2 + 1.85);
+    sa.push('a', tP2 + 2.2); sa.push('a', tP2 + 2.75);
+    P2.pulse(P2.letter(0), tP2 + 2.2);
+    const sb = new SX.Stack(tl, root, c2 + 180, bottom, Object.assign({ items: ['a', 'a', 'b'], label: 'only pops' }, BIG));
+    sb.show(tP2 + 3.0);
+    sb.pop(tP2 + 3.45); sb.pop(tP2 + 3.95);
+    P2.pulse(P2.letter(1), tP2 + 3.45);
+
+    // "They are equivalent": both bright, a green ≡ in the gap; the stacks leave
+    const tEq = cue('eq');
+    sa.hide(tEq - 0.35); sb.hide(tEq - 0.35);
+    P1.to({ o: 1 }, tEq - 0.25, 0.5);
+    const eq = SX.prog(tl, root, CX, 250 - Math.round(84 * 1.3 / 2), 84, '≡', { align: 'center', colors: { '≡': C.good } });
+    tl.set(eq.parts[0].el, { s: 0.6 }, 0);
+    eq.show(tEq - 0.2, { rise: 0 }); tl.to(eq.parts[0].el, { s: 1 }, tEq - 0.2, 0.5, E.out5);
+
+    // "A stack can be arbitrarily deep, so there are infinitely many stacks to try."
+    const tInf = cue('inf');
+    const g = box(root, 0, 0, { width: W + 'px', height: '1080px' });
+    const piles = [];
+    for (let k = 0; k < 7; k++) {
+      const st = new SX.Stack(tl, g, 230 + k * 215, 800, { items: Array(k + 1).fill('a'), w: 64, h: 56, gap: 8, size: 32 });
+      st.show(tInf - 0.15 + k * 0.24, { stagger: 0.04 });
+      piles.push(st);
+    }
+    const dots = box(g, 1610, 660, Object.assign(SX.MONO(84), { color: C.pat, width: '160px', textAlign: 'center' }), '…');
+    fadeIn(tl, dots, tInf + 1.6, 0.5, 10);
+    const infl = SX.clabel(g, CX, 832, 'infinitely many stacks', 32);
+    fadeIn(tl, infl, tInf + 2.65, 0.5, 10);
+
+    // "This video is about a language for networks, called Stack Cat"
+    const tF = cue('film');
+    tl.to(g, { o: 0 }, tF - 0.3, 0.4, E.in);
+    const lang = SX.clabel(root, CX, 640, 'a language for networks', 32);
+    fadeIn(tl, lang, tF + 1.15, 0.5, 10);
+    const name = SX.cserif(root, CX, 420, 'StacKAT', 130);
+    fadeIn(tl, name, tF + 2.7, 0.7, 20);
+    // "By the end, we will have checked these two programs by hand.": nothing new
   });
 
-  // ============================================ s_lang =========================================================
-  scene('s_lang', ({ tl, root, cue }) => {
-    // "Stack Cat adds two operations to Net Cat."
-    const S = 64, cw = charWidth(S);
-    const L = '{o1|f := n|d}  {o2|f == n|d}  {o3|+|d}  {o4|·|d}  {o5|*|d}  {pu|push(n)|p}  {po|pop(n)|p}';
-    const ops = new Code(tl, root, Math.round((W - 40 * cw) / 2), 420, S, { palette: { d: C.dim } });
-    ops.show(L.replace(/ *\{pu[^]*$/, ''), 0.2, { stagger: 0.05 });
-    const opsP = new Code(tl, root, ops.x, ops.y, S);
-    opsP.show(' '.repeat(25) + '{pu|push(n)|p}  {po|pop(n)|p}', 1.1, { stagger: 0.25 });
-    const tag = clabel(root, CX, 556, 'stackat = netkat + a stack', 36);
-    fadeIn(tl, tag, 2.55, 0.5, 10);
-    const tPu = cue('push');
-    for (const e of [ops.root, opsP.root, tag]) fadeOut(tl, e, tPu - 0.45, 0.35);
+  // ============================================ roadmap =======================================================
+  scene('roadmap', ({ tl, root, cue }) => {
+    const head = box(root, RAIL, 180, Object.assign(SX.LABEL(32), { color: C.ink }), 'in this video');
+    fadeIn(tl, head, cue('coming') - 0.15, 0.5, 10);
+    const rows = new SX.Rows(tl, root, { x: RAIL, y: 270, pitch: 124, size: 56, titleX: RAIL + 70 });
+    const EX = 1130, S = 40;
+    const code = (i, text, at) => {
+      const p = SX.prog(tl, root, EX, rows.mid(i) - Math.round(S * 1.3 / 2), S, text);
+      p.show(at, { stagger: 0.02 }); rows.rows[i].add(p.root); return p;
+    };
+    const ink = (i, text, at) => rows.evidence(i, box(root, EX, rows.mid(i) - 20, Object.assign(SX.LABEL(32), { color: C.ink }), text), at);
 
-    // "Push puts a value on the stack.": a stack [1, 2], drawn upright, the top at the top
-    const OS = 72, ocw = charWidth(OS), CW = 230, CH = 130, ST = 146, OG = 170, ox = Math.round((W - (7 * ocw + OG + CW)) / 2), bx = ox + Math.round(7 * ocw) + OG, by = 549;
-    const cellAt = (text, i) => cell(root, bx, by - i * ST, CW, CH, text, { stroke: C.pat, font: MONO(64), radius: 20 });
-    const c1 = cellAt('1', 0), c2 = cellAt('2', 1), c3 = cellAt('3', 2);
-    fadeIn(tl, c1, tPu - 0.15, 0.5, 14); fadeIn(tl, c2, tPu - 0.05, 0.5, 14);
-    const oy = by - 2 * ST + (CH - Math.round(OS * 1.62)) / 2;
-    const op = new Code(tl, root, ox, oy, OS);
-    op.show('{op|push|p}{l|(|p}{v|3|p}{r|)|p}', tPu, { stagger: 0.03 });
-    tl.set(c3, { y: -110, o: 0 }, 0); tl.to(c3, { y: 0, o: 1 }, 4.3, 0.55, E.out5);
-    // "Pop removes the top value": it lifts off; a tick
-    const tPo = cue('pop');
-    op.swap('{op2|pop|p}{l|(|p}{v|3|p}{r|)|p}', tPo - 0.25, { dur: 0.5 });
-    tl.to(c3, { y: -110 }, 6.75, 0.5, E.in); tl.to(c3, { o: 0 }, 6.85, 0.4, E.in);
-    const svg = svgLayer(root);
-    const kx = bx - OG / 2, ky = oy + Math.round(OS * 1.62) / 2;
-    const tk = tick(tl, svg, kx, ky, 60, C.good, 7);
-    tl.to(tk, { draw: 1 }, 7.2, 0.4); tl.to(tk, { o: 0 }, 8.1, 0.3);
-    // "and drops the packet if it is a different one": pop(5) on [1, 2]
-    op.swap('{op2|pop|p}{l|(|p}{v|5|p}{r|)|p}', 8.25, { dur: 0.5 });
-    const xs = cross(tl, svg, kx, ky, 46, C.bad, 7);
-    xs.forEach((p, i) => tl.to(p, { draw: 1 }, 9.85 + i * 0.12, 0.3));
-    for (const c of [c1, c2]) tl.to(c, { o: 0.3 }, 9.85, 0.5);
-    const drop = clabel(root, CX, by + CH + 46, 'packet dropped', 36, C.bad);
-    fadeIn(tl, drop, 9.95, 0.5, 10);
-    const tSa = cue('same');
-    for (const e of [c1, c2, op.root, drop, svg]) tl.to(e, { o: 0 }, tSa - 0.45, 0.35, E.in);
-
-    // "So push and then pop of the same value does nothing,"
-    const RS = 72, rcw = charWidth(RS), GW = 420, rx = Math.round((W - (20 * rcw + 80 + GW)) / 2);
-    const pal = { x: C.code };
-    const r1 = new Code(tl, root, rx, 305, RS, { palette: pal });
-    r1.show('{a|push(v)|p} · {b|pop(v)|p} ≡ 1', tSa - 0.1, { stagger: 0.03 });
-    const gl = (y, t, at) => { const e = label(root, rx + 20 * rcw + 80, y + (r1.lh - 41) / 2, t, { fontSize: '34px' }); fadeIn(tl, e, at, 0.5, 10); return e; };
-    const g1 = gl(305, 'does nothing', 13.55);
-    // "and push and then pop of different values drops the packet."
-    const tD = cue('diff');
-    const r2 = new Code(tl, root, rx, 435, RS, { palette: pal });
-    r2.show('{a|push(v)|p} · {b|pop(w)|p} ≡ 0', tD - 0.1, { stagger: 0.03 });
-    const g2 = gl(435, 'drops the packet', 17.05);
-    // "With loops, a program can push and pop without bound. Can we still decide whether two programs are equivalent?"
-    const tQ = cue('q');
-    for (const e of [r1.root, r2.root, g1, g2]) tl.to(e, { o: 0.35 }, tQ - 0.2, 0.5);
-    const QS = 64, qcw = charWidth(QS);
-    const q = new Code(tl, root, Math.round((W - 41 * qcw) / 2), 612, QS, { palette: pal });
-    q.show('{a1|push(a)|p}* · {b1|pop(a)|p}* ≡ {a2|push(a)|p}* + {b2|pop(a)|p}*', tQ - 0.1, { stagger: 0.02 });
-    const qm = new Code(tl, root, q.x, q.y, QS);
-    qm.show(' '.repeat(40) + '{qm|?|p}', 22.75);
+    rows.row('Networks as programs', cue('net') - 0.1);
+    code(0, 'sw==a · net · sw==b ≡ 0', cue('net') + 4.9);
+    rows.row('Why a stack', cue('stack') - 0.1);
+    const cells = box(root, EX, rows.mid(1) - 30, { width: '400px', height: '60px' });
+    [0, 1, 2].forEach(k => SX.cell(cells, k * 72, 0, 60, 60, '', { stroke: C.pat }));
+    box(cells, 3 * 72 + 2, -16, Object.assign(SX.MONO(60), { color: C.dim }), '…');
+    rows.evidence(1, cells, cue('stack') + 1.75);
+    rows.row('The language, and three laws', cue('lang') - 0.1);
+    code(2, 'push(v) · pop(v) ≡ 1', cue('lang') + 2.55);
+    rows.row('Three steps on a finite automaton', cue('proc') - 0.1);
+    ink(3, 'cancel · filter · zip', cue('proc') + 2.3);
+    rows.row('Headers, cost, counterexamples, axioms', cue('rest') - 0.1);
   });
 
-  // ============================================ s_result =======================================================
-  scene('s_result', ({ tl, root, cue }) => {
-    // "Surprisingly, yes.": large, then to the top left, smaller
-    const yes = serif(root, 160, 120, 'Decidable.', 96, { color: C.good, transformOrigin: '0 0' });
-    const yw = 420;   // about the word's width at 96 px, to centre it
-    tl.set(yes, { x: CX - yw / 2 - 160, y: 420 - 120 + 20, o: 0 }, 0);
-    tl.to(yes, { y: 420 - 120, o: 1 }, 0.3, 0.7, E.out5);
-    tl.to(yes, { x: 0, y: 0, s: 56 / 96 }, 2.2, 0.8, E.io);
-
-    // "A program becomes a finite automaton, whose transitions are labelled with pushes and pops."
-    const tA = cue('auto');
-    const svg = svgLayer(root), lay = box(root, 0, 0, { width: W + 'px', height: H + 'px' });
-    const Y = 379, X = [600, 960, 1320], R = 58;
-    const states = X.map((x, i) => {
-      const p = path(tl, svg, circleD(x, Y, R), { stroke: C.ink, width: LINE });
-      tl.to(p, { draw: 1 }, tA - 0.1 + i * 0.2, 0.5, E.io);
-      return p;
-    });
-    const acc = path(tl, svg, circleD(X[2], Y, R - 10), { stroke: C.ink, width: LINE });
-    tl.to(acc, { draw: 1 }, tA + 0.5, 0.4, E.io);
-    const start = arrow(tl, svg, X[0] - R - 90, Y, X[0] - R - 6, Y, { stroke: C.ink, width: LINE, head: 14 });
-    drawArrow(tl, start, tA + 0.3, 0.4);
-    const ES = 40, eh = 56;
-    const eStyle = Object.assign(MONO(ES), { color: C.pat });
-    const e1 = arrow(tl, svg, X[0] + R + 6, Y, X[1] - R - 6, Y, { stroke: C.ink, width: LINE, head: 14 });
-    const e2 = arrow(tl, svg, X[1] + R + 6, Y, X[2] - R - 6, Y, { stroke: C.ink, width: LINE, head: 14 });
-    drawArrow(tl, e1, 5.4, 0.45); drawArrow(tl, e2, 5.6, 0.45);
-    const l1 = ctext(lay, (X[0] + X[1]) / 2, Y - 42, 'push(a)', eStyle, eh);
-    const l2 = ctext(lay, (X[1] + X[2]) / 2, Y - 42, 'pop(a)', eStyle, eh);
-    fadeIn(tl, l1, 6.95, 0.5, 10); fadeIn(tl, l2, 7.55, 0.5, 10);
-    // a self-loop on the last state
-    const a0 = -2.05, a1 = -1.09, lx = X[2], P = (a, r) => [lx + r * Math.cos(a), Y + r * Math.sin(a)];
-    const [sx0, sy0] = P(a0, R + 4), [sx1, sy1] = P(a1, R + 4), [c0x, c0y] = P(a0 - 0.25, R + 120), [c1x, c1y] = P(a1 + 0.25, R + 120);
-    const loop = path(tl, svg, `M ${sx0} ${sy0} C ${c0x} ${c0y} ${c1x} ${c1y} ${sx1} ${sy1}`, { stroke: C.ink, width: LINE });
-    const lh = el(svg, 'path');
-    const ang = Math.atan2(sy1 - c1y, sx1 - c1x) * 180 / Math.PI;
-    lh.setAttribute('d', 'M -14 -7.7 L 0 0 L -14 7.7'); lh.setAttribute('fill', 'none'); lh.setAttribute('stroke-width', LINE);
-    lh.setAttribute('stroke-linecap', 'round'); lh.setAttribute('stroke-linejoin', 'round'); lh.style.stroke = C.ink;
-    lh.setAttribute('transform', `translate(${sx1} ${sy1}) rotate(${ang})`);
-    tl.set(lh, { o: 0 }, 0);
-    tl.to(loop, { draw: 1 }, 7.6, 0.5, E.io); tl.to(lh, { o: 1 }, 8.0, 0.15);
-    const l3 = ctext(lay, lx, Y - R - 104, 'pop(a)', eStyle, eh);
-    fadeIn(tl, l3, 7.85, 0.5, 10);
-    const name = clabel(root, CX, Y + 290, 'a finite automaton', 36);
-    fadeIn(tl, name, 3.9, 0.5, 10);
-
-    // "Three steps bring it to a normal form:"
-    const tN = cue('norm');
-    fadeOut(tl, name, tN - 0.3, 0.3);
-    // the steps, a left-aligned column centred as a block
-    const col = box(root, 0, Y + 290, { width: W + 'px', display: 'flex', justifyContent: 'center' });
-    const inner = document.createElement('div'); col.appendChild(inner);
-    const steps = ['1 · cancel a push that meets its pop', '2 · keep runs that pop before they push', '3 · zip the two halves'].map(t => {
-      const e = document.createElement('div');
-      Object.assign(e.style, LABEL(36), { color: C.ink, whiteSpace: 'pre', height: '60px', paddingLeft: LS + 'em' });
-      e.textContent = t; inner.appendChild(e);
-      return e;
-    });
-    const at = [cue('s1') - 0.1, cue('s2') - 0.1, cue('s3') - 0.1];
-    steps.forEach((e, i) => { fadeIn(tl, e, at[i], 0.5, 10); if (i < 2) tl.to(e, { color: C.dim }, at[i + 1], 0.4); });
-    // step 1 in the picture: a push edge followed by a pop edge gets a shortcut
-    const look = (e, a, b) => { tl.to(e, { color: C.ink }, a, 0.3); tl.to(e, { color: C.pat }, b, 0.4); };
-    look(l1, 11.95, 13.6); look(l2, 13.2, 13.6);
-    const cut = arrow(tl, svg, X[0] + 10, Y + R + 8, X[2] - 10, Y + R + 8, { stroke: C.ink, width: LINE, head: 14, bend: 200 });
-    drawArrow(tl, cut, 13.45, 0.6);
-    const l4 = ctext(lay, CX, Y + R + 8 + 100 + 30, '1', MONO(ES), eh);
-    fadeIn(tl, l4, 13.9, 0.4, 8);
-
-    // "Two programs are equivalent exactly when their normal forms accept the same language."
-    const tT = cue('thm');
-    for (const e of steps) fadeOut(tl, e, tT - 0.35, 0.3);
-    for (const e of [svg, lay]) tl.to(e, { o: 0.3 }, tT - 0.2, 0.5);
-    const th = cline(root, CX, Y + 270, [['⟦e₁⟧ = ⟦e₂⟧   ⟺   L(A₁) = L(A₂)', null]], Object.assign(SERIF(72), { fontFamily: 'var(--serif), "STIX Two Math", "STIX Two Text"', color: C.code })).root;
-    fadeIn(tl, th, tT - 0.1, 0.6, 14);
-    const tg = cline(root, CX, Y + 392, [['equivalent', C.good], [' exactly when the normal forms agree', null]], LABEL(34)).root;
-    fadeIn(tl, tg, 20.45, 0.5, 10);
-    // "When they are not, the procedure gives a counterexample."
-    const cx = clabel(root, CX, Y + 452, 'otherwise: a counterexample', 34);
-    fadeIn(tl, cx, cue('cex') - 0.05, 0.5, 10);
+  // ============================================ title =========================================================
+  scene('title', ({ tl, root, cue }) => {
+    SX.titleCard(tl, root, { align: 'left', x: RAIL, y: 300, size: 170, subSize: 60, at: cue('title') - 0.2, subAt: cue('sub') - 0.2, authorsAt: cue('sub') + 0.9 });
   });
 
-  // ============================================ s_end ==========================================================
-  scene('s_end', ({ tl, root, cue }) => {
-    const tT = cue('title');
-    const t1 = cserif(root, CX, 300, 'StacKAT', 120);
-    fadeIn(tl, t1, tT - 0.15, 0.8, 24);
-    const t2 = cserif(root, CX, 470, 'Infinite State Network Verification', 52);
-    fadeIn(tl, t2, 1.5, 0.7, 16);
-    const t3 = clabel(root, CX, 570, 'pldi 2025', 32);
-    fadeIn(tl, t3, 2.9, 0.6, 10);
-    // "The paper has the decision procedure, its complexity, and a complete axiomatization."
-    const p0 = clabel(root, CX, 680, 'in the paper', 32);
-    fadeIn(tl, p0, cue('paper') - 0.1, 0.5, 10);
-    const p = cline(root, CX, 730, [['the decision procedure', null], [' · its complexity', null], [' · a complete axiomatization', null]], LABEL(32));
-    const pa = [5.8, 7.1, 8.6];
-    p.parts.forEach((e, i) => fadeIn(tl, e, pa[i], 0.5, 10));
+  // ============================================ recap =========================================================
+  scene('recap', ({ tl, root, cue }) => {
+    const rows = new SX.Rows(tl, root, { x: RAIL, y: 200, pitch: 112, size: 50, titleX: RAIL + 70 });
+    const EX = 1000, S = 40, lh = Math.round(S * 1.3);
+    const at = (i, text, t, opts) => { const p = SX.prog(tl, root, EX, rows.mid(i) - lh / 2, S, text, opts); rows.rows[i].add(p.root); return p; };
+
+    rows.row('A network is a program', cue('r1') - 0.1);
+    at(0, 'sw==a · net · sw==b ≡ 0').show(cue('r1') + 3.55, { stagger: 0.02 });
+
+    rows.row('A stack: infinitely many packets', cue('r2') - 0.1);
+    const cells = box(root, EX, rows.mid(1) - 30, { width: '400px', height: '60px' });
+    [0, 1, 2].forEach(k => SX.cell(cells, k * 72, 0, 60, 60, '', { stroke: C.pat }));
+    box(cells, 3 * 72 + 2, -16, Object.assign(SX.MONO(60), { color: C.dim }), '…');
+    rows.evidence(1, cells, cue('r2') + 1.0);
+
+    rows.row('StacKAT: push and pop', cue('r3') - 0.1);
+    const pp = at(2, 'push(n)   pop(n)');
+    pp.show(cue('r3') + 0.9, { sel: 0 }); pp.show(cue('r3') + 1.8, { sel: 1 });
+
+    rows.row('Three laws, three steps', cue('r4') - 0.1);
+    const st = SX.lline(root, EX, rows.mid(3) - 20, [['cancel', null], [' · filter', null], [' · zip', null]], Object.assign(SX.LABEL(32), { color: C.ink }));
+    rows.rows[3].add(st.root);
+    [4.45, 5.25, 5.95].forEach((d, k) => fadeIn(tl, st.parts[k], cue('r4') + d, 0.5, 10));
+
+    rows.row('Equivalence is decidable', cue('r5') - 0.1);
+    const th = SX.lline(root, EX, rows.mid(4) - lh / 2, [['e₁ ≡ e₂  ', null], ['', null], ['  L(A₁) = L(A₂)', null]], SX.MONO(S));
+    th.parts[1].appendChild(SX.iff(S));   // drawn: no shipped font has a usable ⟺
+    rows.evidence(4, th.root, cue('r5') + 3.45);
+    const svg = SX.svg(root);
+    const tk = SX.tick(tl, svg, EX + 28 * charWidth(S) + 34, rows.mid(4), 44, cue('r5') + 6.5);
+    rows.rows[4].add(tk.els[0]);
+
+    rows.row('A foundation for networks that parse, tunnel and route by a stack', cue('r6') - 0.1);
+  });
+
+  // ============================================ end ===========================================================
+  scene('end', ({ tl, root, cue }) => {
+    const tc = SX.titleCard(tl, root, { align: 'center', x: CX, y: 255, size: 150, subSize: 56, at: cue('title') - 0.2, subAt: cue('title') + 1.15, authorsAt: cue('title') + 2.4 });
+    const y = tc.bottom + 64, t = cue('paper');
+    const l1 = SX.lline(root, 0, y, [['in the paper and its appendix:', null], [' the proofs', null]], SX.LABEL(32));
+    const l2 = SX.lline(root, 0, y + 54, [['the constructions', null], [' · complexity', null], [' · the axiomatization', null]], SX.LABEL(32));
+    // centred lines whose parts arrive one by one
+    for (const l of [l1, l2]) Object.assign(l.root.style, { left: (CX - 1200) + 'px', width: '2400px', textAlign: 'center', paddingLeft: '0.16em' });
+    fadeIn(tl, l1.parts[0], t - 0.1, 0.5, 10);
+    [[l1.parts[1], 6.94], [l2.parts[0], 7.62], [l2.parts[1], 9.58], [l2.parts[2], 11.14]].forEach(([e, w]) => fadeIn(tl, e, t + (w - 4.9) - 0.2, 0.5, 10));
     return { keep: true };
   });
 })();
 
-}).call(window, function (type, fn, opts) {
-  if (type !== 'keydown' && type !== 'resize') window.addEventListener(type, fn, opts);
-});
+// ==== src/scenes/b.js ====
+// Networks as programs (net_a, net_b, net_c) and why a stack (stack_a + stack_b, one scene, so that the pile of
+// cells stays on screen across the two segments). Built with SX (common.js).
+'use strict';
+(function () {
+  const { W, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+
+  // ---- local helpers ------------------------------------------------------------------------------------------
+  // A small caps label made of parts [text, colour, how]: how 'case' keeps the case (NetKAT, a switch named a),
+  // 'mono' sets the part in Fira Code (for × and other symbols the system sans may lack). x is the left edge, or
+  // the centre with align 'center'.
+  function lab(root, x, y, parts, { size = 32, color = C.dim, align = 'left' } = {}) {
+    const ps = parts.map(p => [p[0], p[1] || null]);
+    const st = Object.assign(SX.LABEL(size), { color });
+    const l = align === 'center' ? SX.cline(root, x, y, ps, st) : SX.lline(root, x, y, ps, st);
+    parts.forEach((p, i) => {
+      const s = l.parts[i];
+      if (p[2] === 'case') Object.assign(s.style, { textTransform: 'none', letterSpacing: '0.02em' });
+      if (p[2] === 'mono') Object.assign(s.style, { fontFamily: 'var(--mono)', letterSpacing: '0', fontWeight: 450, fontSize: '1.25em', lineHeight: '0.9', margin: '0 0.12em' });
+    });
+    return l;
+  }
+  // Fira Code has the subscript digits but no subscript letters: a part 'ₙ' of a prog becomes a lowered small n.
+  function subLetters(p) {
+    for (const part of p.parts) if (part.text === 'ₙ') {
+      const sp = part.subs[0];
+      sp.textContent = 'n';
+      Object.assign(sp.style, { fontSize: '0.64em', position: 'relative', top: '0.3em', marginLeft: '0.04em' });
+    }
+    return p;
+  }
+  // Fira Code centres a subscript digit in a whole cell, so e₁ reads as "e ₁": pull each subscript towards the
+  // letter before it (the grid is kept: the space is given back after it).
+  function tightEl(sp) {
+    const t = sp.textContent;
+    if (!/[₀-₉]/u.test(t)) return sp;
+    sp.textContent = '';
+    for (const ch of t) {
+      const c = document.createElement('span'); c.textContent = ch;
+      Object.assign(c.style, { position: 'relative', left: /[₀-₉]/u.test(ch) ? '-0.09em' : '0.07em' });
+      sp.appendChild(c);
+    }
+    return sp;
+  }
+  function tightSubs(p) { for (const part of p.parts) for (const sp of part.subs) tightEl(sp); return p; }
+  // a neutral soft box (the "look here" highlight) at a stage rectangle
+  function softBox(tl, root, x, y, w, h, at, out) {
+    const m = box(root, x, y, { width: w + 'px', height: h + 'px', borderRadius: '16px', background: alpha(C.dim, 0.08), boxShadow: `inset 0 0 0 1.5px ${alpha(C.dim, 0.5)}` });
+    tl.set(m, { o: 0, s: 0.94 }, 0); tl.to(m, { o: 1, s: 1 }, at, 0.4, E.out5);
+    if (out != null) tl.to(m, { o: 0 }, out, 0.35);
+    return m;
+  }
+
+  // ============================================ net_a =========================================================
+  scene('net_a', ({ tl, root, cue }) => {
+    // "A network is made of switches.": a host, switches A, B, C, a host, in a row (as the short video's s_hook)
+    const Y = 330, HX = [280, 1640], SXS = [660, 960, 1260], HR = 50, SW = 190, SH = 136;
+    const g = box(root, 0, 0, { width: W + 'px', height: '1080px', transformOrigin: `${CX}px ${Y}px` });
+    const svg = svgLayer(g);
+    const t0 = cue('net') - 0.15;
+    HX.forEach((x, i) => tl.to(path(tl, svg, SX.circleD(x, Y, HR), { stroke: C.ink, width: SX.LINE }), { draw: 1 }, t0 + i * 0.9, 0.6, E.io));
+    SXS.forEach((x, i) => {
+      const b = SX.cell(g, x - SW / 2, Y - SH / 2, SW, SH, 'ABC'[i], { font: SX.SERIF(72), radius: 22 });
+      tl.set(b, { o: 0, s: 0.96 }, 0); tl.to(b, { o: 1, s: 1 }, t0 + 0.15 + i * 0.22, 0.5, E.out5);
+    });
+    const ends = [[HX[0] + HR, SXS[0] - SW / 2], [SXS[0] + SW / 2, SXS[1] - SW / 2], [SXS[1] + SW / 2, SXS[2] - SW / 2], [SXS[2] + SW / 2, HX[1] - HR]];
+    ends.forEach(([a, b], i) => tl.to(path(tl, svg, `M ${a} ${Y} L ${b} ${Y}`, { stroke: C.ink, width: SX.LINE }), { draw: 1 }, t0 + 0.25 + i * 0.2, 0.5, E.io));
+
+    // "A packet arrives with a header: a few fields, such as a destination and a port."
+    const pk = SX.packetHeader(tl, g, 0, Y + 100, [['sw', 'A'], ['dst', '7'], ['port', '1']], { w: 150, h: 100, gap: 16, size: 52, names: 34 });
+    pk.g.style.left = (SXS[0] - pk.width / 2) + 'px';
+    pk.show(cue('pkt') + 0.0);
+    pk.pulse(1, 7.75); pk.pulse(2, 8.8);
+
+    // "A switch looks at some fields, changes some, and sends the packet on to a neighbor."
+    const tint = (i, a, b) => pk.tint(i, a, b);
+    tint(1, 10.9, 11.8);
+    tint(2, 11.85, 12.7); pk.flip(2, '2', 11.9);
+    pk.move(SXS[1] - SXS[0], 0, 13.0, 0.7); pk.flip(0, 'B', 13.3);
+
+    // "NetKAT is a language that reads all of this as a program.": the drawing goes up and shrinks
+    const tP = cue('prog'), K = 0.7, DY = 205 - Y;
+    tl.to(g, { s: K, y: DY }, tP - 0.25, 0.7, E.io);
+    const nl = lab(root, CX, 398, [['NetKAT', null, 'case'], [': the network as a program']], { align: 'center' }).root;
+    fadeIn(tl, nl, tP - 0.1, 0.5, 10);
+
+    // the rows: the thing in mono 56 at x = 360, its label at x = 900
+    const S = 56, lh = Math.round(S * 1.3), RY = [485, 590, 695, 800];
+    const rows = [];
+    const row = (i, text, label, at, colors) => {
+      const p = SX.prog(tl, root, 360, RY[i], S, text, { colors });
+      p.show(at, { stagger: 0.03 });
+      const l = SX.note(tl, root, 900, RY[i] + lh / 2 - 19, label, at + 0.1, null, { align: 'left' });
+      for (const r of rows) for (const e of r) tl.to(e, { o: 0.45 }, at - 0.15, 0.5);
+      rows.push([p.root, l]);
+      return p;
+    };
+    // "A field is a variable."
+    row(0, 'dst', 'a field is a variable', cue('field') + 0.15, { dst: C.bind });
+    pk.pulse(1, cue('field') + 0.35);
+    // "A match is a test: it lets the packet through if a field has a given value, and drops it otherwise."
+    row(1, 'dst == 7', 'a test: pass, or drop', cue('test') - 0.1);
+    // "An action is an assignment of a constant to a field."
+    row(2, 'port := 2', 'an assignment', cue('assign') - 0.05);
+    // "Even the packet's location is a field. Moving it to switch B is an assignment: switch becomes B."
+    pk.pulse(0, 32.6);
+    const mv = row(3, 'sw := B', 'moving is an assignment', 34.2);
+    pk.pulse(0, 37.0);
+    mv.pulse('all', 37.0);
+  });
+
+  // ============================================ net_b =========================================================
+  scene('net_b', ({ tl, root, cue }) => {
+    // a column: the expression in mono 60 at x = 420, its label at x = 800, pitch 120 from y = 200
+    const S = 60, lh = Math.round(S * 1.3), Y = i => 200 + i * 120;
+    const items = [
+      ['e₁ · e₂', 'one, then the other', cue('seq') - 0.15],
+      ['e₁ + e₂', 'a choice: both ways', cue('plus') - 0.15],
+      ['e*', 'any number of times', cue('star') - 0.15],
+      ['1', 'pass every packet', 20.1],     // "The program written one passes every packet"
+      ['0', 'drop every packet', 24.1],     // "The program written zero drops every packet"
+    ];
+    const tOps = cue('ops') - 0.1, tW = cue('whole');
+    const lit = [];
+    items.forEach(([text, label, at], i) => {
+      const p = tightSubs(SX.prog(tl, root, 420, Y(i), S, text));
+      // "Programs are combined in three ways.": the three ways come in dimmed, each lights at its word
+      if (i < 3) { p.show(tOps + i * 0.15); p.dim('all', 0.35, tOps + 0.5 + i * 0.15, 0.01); p.light('all', at, 0.4); }
+      else p.show(at);
+      const l = SX.note(tl, root, 800, Y(i) + lh / 2 - 19, label, at + 0.1, null, { align: 'left' });
+      for (const [q, m] of lit) { q.dim('all', 0.45, at - 0.1, 0.4); tl.to(m, { o: 0.45 }, at - 0.1, 0.4); }
+      lit.push([p, l]);
+      for (const e of [p.root, l]) tl.to(e, { o: 0 }, tW - 0.45, 0.35, E.in);
+    });
+    // "And there are two constant programs.": nothing until each is named
+
+    // "The whole network is then one program: test which switch the packet is on, run that switch's program, and
+    // repeat."
+    const NS = 52, nlh = Math.round(NS * 1.3), ncw = charWidth(NS);
+    const L = ['( sw==1 · p₁', '+ sw==2 · p₂', '+ …', '+ sw==n · pₙ )*'];
+    const bx = Math.round(CX - 15 * ncw / 2), by = 400;
+    const head = SX.clabel(root, CX, by - 76, 'the whole network', 32);
+    fadeIn(tl, head, tW - 0.15, 0.5, 10);
+    const ls = L.map((t, i) => tightSubs(subLetters(SX.prog(tl, root, bx, by + i * nlh, NS, t))).show(tW + 0.05 + i * 0.12, { stagger: 0.02 }));
+    // the tests, then the switches' programs, then the star
+    ls.forEach(p => p.pulse(/^sw==/, 29.3));
+    ls.forEach(p => p.pulse(/^p/, 31.6));
+    ls[3].pulse([...ls[3].ids(')'), ...ls[3].ids('*')], 33.9);
+  });
+
+  // ============================================ net_c =========================================================
+  scene('net_c', ({ tl, root, cue }) => {
+    // "It relates each input packet to the packets that can come out: none, one, or several."
+    const tR = cue('rel'), tE = cue('equiv');
+    const hd = SX.clabel(root, CX, 170, 'a program relates inputs to outputs', 32);
+    fadeIn(tl, hd, tR - 0.1, 0.5, 10);
+    const HO = { w: 90, h: 64, gap: 10, size: 36, names: 30 };
+    const ROWS = [330, 540, 750], OX = 900;
+    const pk = (x, cy, vals) => SX.packetHeader(tl, root, x, cy - 50 - HO.h / 2, [['sw', vals[0]], ['dst', '7'], ['port', vals[1]]], HO);
+    const inp = pk(200, 540, ['A', '1']);
+    inp.show(tR + 0.05);
+    const svg = SX.svg(root);
+    const x1 = 200 + inp.width + 30, gone = [hd, inp.g, svg];
+    const outs = [[[], 'none', 6.2], [[['B', '2']], 'one', 6.85], [[['B', '2'], ['C', '2']], 'several', 7.5]];
+    outs.forEach(([ps, label, at], i) => {
+      const y = ROWS[i];
+      SX.line(tl, svg, x1, 540, OX - 40, y, { at: at - 0.05, dur: 0.45 });
+      ps.forEach((v, k) => { const h = pk(OX + k * (inp.width + 30), y, v); h.show(at + 0.15 + k * 0.12); gone.push(h.g); });
+      const lx = OX + ps.length * (inp.width + 30) + (ps.length ? 10 : 0);   // after what came out
+      const l = SX.note(tl, root, lx, y - 19, label, at + 0.05, null, { align: 'left' });
+      gone.push(l);
+    });
+    for (const e of gone) tl.to(e, { o: 0 }, tE - 0.45, 0.35, E.in);
+
+    // "Two programs are equivalent if they relate the same inputs to the same outputs."
+    const eq = tightSubs(SX.prog(tl, root, CX, 460 - 52, 80, 'e₁ ≡ e₂', { align: 'center' }));
+    eq.show(tE - 0.15, { stagger: 0.06 });
+    const same = SX.clabel(root, CX, 540, 'the same inputs to the same outputs', 32);
+    fadeIn(tl, same, 11.05, 0.5, 10);
+    // "Equivalence is what verification needs.": it moves up
+    const tWhy = cue('why');
+    fadeOut(tl, same, tWhy - 0.3, 0.3);
+    eq.to({ s: 56 / 80, y: (170 + 73 / 2) - 460 }, tWhy - 0.25, 0.65);
+
+    // "start at A, run the network, and test for B": the program arrives piece by piece, a label under each
+    const S = 64, lh = Math.round(S * 1.3), Y0 = 360;
+    const rp = SX.prog(tl, root, CX, Y0, S, 'sw==a  ·  net  ·  sw==b  ≡  0', { align: 'center' });
+    const pieces = [[[0], 'start at ', 'a', 20.85], [[1, 2], 'run the network', null, 21.95], [[3, 4], 'test for ', 'b', 23.3]];
+    const plabs = pieces.map(([sel, text, v, at]) => {
+      rp.show(at, { sel, stagger: 0.08 });
+      const r = rp.rect(sel.slice(-1));
+      const l = lab(root, r.cx, Y0 + lh + 18, v ? [[text], [v, null, 'case']] : [[text]], { align: 'center' }).root;
+      fadeIn(tl, l, at + 0.1, 0.5, 10);
+      return l;
+    });
+    tl.to(eq.root, { o: 0.45 }, 20.7, 0.5);
+    // "If that program is equivalent to zero, no packet gets through."
+    rp.show(25.6, { sel: [5, 6], stagger: 0.12 });
+    for (const l of plabs) fadeOut(tl, l, 26.75, 0.3);
+    const none = SX.clabel(root, CX, Y0 + lh + 18, 'no packet gets through', 32);
+    fadeIn(tl, none, 27.05, 0.5, 10);
+
+    // "because a packet has finitely many fields, with finitely many values."
+    const fv = lab(root, CX, Y0 + lh + 110, [['finitely many fields '], ['×', null, 'mono'], [' finitely many values']], { align: 'center' });
+    fadeIn(tl, fv.parts[0], 33.05, 0.5, 10);
+    fadeIn(tl, fv.parts[1], 34.65, 0.5, 10); fadeIn(tl, fv.parts[2], 34.75, 0.5, 10);
+    // "There are only finitely many packets, so a program is a finite-state system."
+    const fp = SX.clabel(root, CX, Y0 + lh + 190, 'finitely many packets', 32);
+    fadeIn(tl, fp, 37.45, 0.5, 10);
+    for (const e of [rp.root, none, fv.root]) tl.to(e, { o: 0.5 }, 37.3, 0.5);
+    const dec = SX.cserif(root, CX, Y0 + lh + 270, 'Decidable.', 72, C.good);
+    fadeIn(tl, dec, 40.5, 0.6, 14);
+  });
+
+  // ============================================ stack_a + stack_b =============================================
+  scene(['stack_a', 'stack_b'], ({ tl, root, cue, seg }) => {
+    const CW = 120, CH = 96, GAP = 14, STEP = CW + GAP, RY = 382, MONO = SX.MONO(48);
+    // a packet's cells in a row, the front on the left; each cell has an amber outline that comes in at `st`
+    const mk = (text, x0) => {
+      const c = SX.cell(root, x0, RY, CW, CH, text, { font: MONO, radius: 14 });
+      tightEl(c._t);
+      c._amber = box(c, 0, 0, { width: CW + 'px', height: CH + 'px', borderRadius: '14px', boxShadow: `inset 0 0 0 ${SX.LINE}px ${C.pat}` });
+      tl.set(c._amber, { o: 0 }, 0);
+      c._x0 = x0;
+      return c;
+    };
+    class Row {
+      constructor(x0) { this.x0 = x0; this.cells = []; }
+      place(at, d = 0.5) { this.cells.forEach((c, i) => { if (!c) return; const x = this.x0 + i * STEP - c._x0; if (c._at !== x) { tl.to(c, { x }, at, d, E.io); c._at = x; } }); }
+      append(text, at) { const i = this.cells.length, c = mk(text, this.x0 + i * STEP); c._at = 0; this.cells.push(c); fadeIn(tl, c, at, 0.5, 14); return c; }
+      // a cell put on the front: the others make room, it comes down into place
+      push(text, at) {
+        this.cells.unshift(null); this.place(at, 0.45);
+        const c = mk(text, this.x0); c._at = 0; this.cells[0] = c;
+        tl.set(c, { y: -90, o: 0 }, 0); tl.to(c, { y: 0 }, at + 0.2, 0.5, E.out5); tl.to(c, { o: 1 }, at + 0.2, 0.3);
+        return c;
+      }
+      // the front cell lifts off (or is taken: the caller moves it); the others close up
+      pop(at, take = false) {
+        const c = this.cells.shift();
+        if (!take) { tl.to(c, { y: -80 }, at, 0.5, E.in); tl.to(c, { o: 0 }, at + 0.1, 0.4, E.in); }
+        this.place(at + 0.3);
+        return c;
+      }
+    }
+    // a cell flies from the front of the row into a header field, and the field reads its text
+    // a cell flies from the front of the row into a header field (up into the gap between them, across, and up
+    // into the field), and the field reads its text
+    const fly = (c, hdr, i, text, at) => {
+      const r = hdr.cellRect(i), lift = -(CH + 2);
+      const dx = r.cx - (c._x0 + CW / 2), dy = r.cy - (RY + CH / 2);
+      tl.to(c, { y: lift }, at, 0.35, E.io);
+      tl.to(c, { x: dx }, at + 0.3, 0.45, E.io);
+      tl.to(c, { y: dy, sx: r.w / CW, sy: r.h / CH }, at + 0.7, 0.3, E.io);
+      tl.text(hdr.vals[i]._t, text, at + 1.0);
+      tl.to(c, { o: 0 }, at + 0.95, 0.12);
+    };
+    // the label under the row: one at a time
+    const LY = RY + CH + 34;
+    const say = (parts, at, out) => { const l = lab(root, CX, LY, parts, { align: 'center' }).root; fadeIn(tl, l, at, 0.5, 10); if (out != null) fadeOut(tl, l, out, 0.3); return l; };
+
+    // "On the wire, a packet is a sequence of bytes."
+    const tB = cue('bytes'), tPa = cue('parse'), tRo = cue('route'), tTe = cue('tele'), tTu = cue('tun'), tAl = cue('all'), tSt = cue('st');
+    const bytes = new Row(Math.round(CX - (8 * STEP - GAP) / 2));
+    ['45', '00', '00', '3c', '1c', '46', '40', '00'].forEach((t, i) => bytes.append(t, tB - 0.15 + i * 0.07));
+    say([['on the wire: bytes']], tB - 0.1, tPa - 0.3);
+
+    // "A switch must parse it: take bytes off the front, and put them into fields."
+    const HX = 640;
+    const hdr = SX.packetHeader(tl, root, HX, 140, [['f₁', ''], ['f₂', ''], ['sw', '']], { w: 130, h: 90, gap: 14, size: 44, names: 34 });
+    hdr.names.forEach(tightEl);   // f₁, not "f ₁"
+    hdr.show(tPa - 0.1);
+    say([['parsing']], tPa + 0.1, tRo - 0.3);
+    fly(bytes.pop(9.45, true), hdr, 0, '45', 9.45);
+    fly(bytes.pop(10.4, true), hdr, 1, '00', 10.4);
+
+    // "In source routing, the packet carries its whole route, and each switch takes off the next hop."
+    for (const c of bytes.cells) tl.to(c, { o: 0 }, tRo - 0.35, 0.35, E.in);
+    for (const i of [0, 1]) { tl.to(hdr.vals[i], { o: 0.4 }, tRo - 0.2, 0.5); tl.to(hdr.names[i], { o: 0.4 }, tRo - 0.2, 0.5); }
+    const row = new Row(HX);
+    ['B', 'C', 'D'].forEach((t, i) => row.append(t, tRo + 0.05 + i * 0.1));
+    say([['source routing: the route']], tRo + 0.2, tTe - 0.3);
+    fly(row.pop(17.0, true), hdr, 2, 'B', 17.0);
+
+    // "Telemetry adds a record at every hop."
+    say([['telemetry']], tTe - 0.05, tTu - 0.3);
+    row.push('t₁', 19.3); row.push('t₂', 20.25);
+    // "A tunnel wraps the packet in new headers, and unwraps it later." (an outer IP header begins 45 00)
+    say([['a tunnel']], tTu - 0.05, 25.75);
+    row.push('00', 22.1); row.push('45', 22.85);
+    row.pop(24.3); row.pop(24.85);
+
+    // "Every one of these adds or removes at the front of the packet."
+    const fm = softBox(tl, root, HX - 16, RY - 16, CW + 32, CH + 32, 28.25, tSt - 0.5);
+    say([['always at the front']], 28.3, tSt - 0.5);
+
+    // "That is a stack.": the cells get the amber outline and swing to an upright pile, the front on top
+    hdr.hide(tSt - 0.5, 0.4);
+    const PX = 300, BOT = 880, PSTEP = CH + 12, slotY = i => BOT - CH - i * PSTEP;
+    const pile = row.cells.slice();          // front first
+    const n = pile.length;
+    pile.forEach((c, j) => {
+      const i = n - 1 - j;                    // slot from the bottom
+      tl.to(c._amber, { o: 1 }, tSt - 0.4, 0.5);
+      // down to its height first (a staircase), then across: no two cells pass over each other
+      tl.to(c, { y: slotY(i) - RY }, tSt - 0.4, 0.4, E.io);
+      tl.to(c, { x: PX - CW / 2 - c._x0 }, tSt - 0.05, 0.5, E.io);
+    });
+    const stl = SX.note(tl, root, PX + CW / 2 + 60, slotY(1) + CH / 2 - 19, 'a stack', tSt + 0.4, seg('stack_b') + 0.25, { align: 'left' });
+
+    // ---- stack_b: "And a stack has no fixed depth. A route can be arbitrarily long."
+    const T = seg('stack_b');
+    const more = [];
+    [0.3, 0.95, 1.6].forEach((d, k) => {
+      const i = n + k, c = SX.cell(root, PX - CW / 2, slotY(i), CW, CH, '', { stroke: C.pat, font: MONO, radius: 14 });
+      tl.set(c, { y: -90, o: 0 }, 0); tl.to(c, { y: 0 }, T + d, 0.55, E.out5); tl.to(c, { o: 1 }, T + d, 0.3);
+      more.push(c);
+    });
+    // its top fades into "…" (turned upright)
+    tl.to(more[2], { o: 0 }, T + 3.5, 0.6); tl.to(more[1], { o: 0.55 }, T + 3.5, 0.6);
+    const dots = box(root, PX - 60, slotY(n + 2) + 6, Object.assign(SX.MONO(64), { color: C.dim, width: '120px', height: '84px', lineHeight: '84px', textAlign: 'center' }), '…');
+    tl.set(dots, { r: 90 }, 0);
+    fadeIn(tl, dots, T + 3.7, 0.6, 0);
+    const pileEls = [...pile, more[0], more[1], dots];   // more[2] has gone into the dots
+
+    // "So there are infinitely many packets, and the argument that made NetKAT decidable is gone."
+    const XR = 1130;
+    const inf = SX.clabel(root, XR, 380, 'infinitely many packets', 40, C.ink);
+    fadeIn(tl, inf, T + 6.0, 0.5, 10);
+    const dl = SX.cline(root, XR, 450, [['Decidable.', C.good]], SX.SERIF(72));
+    fadeIn(tl, dl.root, T + 9.45, 0.6, 12);
+    SX.strikeEl(tl, dl.parts[0], T + 10.95);
+    // "It looks worse than that."
+    for (const e of pileEls) tl.to(e, { o: e === more[1] ? 0.25 : 0.4 }, T + 11.5, 0.6);
+    // "A machine with a stack and an input can recognize context-free languages, and whether two context-free
+    // languages are equal is undecidable."
+    for (const e of [inf, dl.root]) fadeOut(tl, e, T + 13.0, 0.35);
+    const l1 = SX.cline(root, XR, 360, [['a stack + an input', null], ['  →  context-free languages', null]], SX.SERIF(52));
+    fadeIn(tl, l1.parts[0], T + 13.85, 0.6, 12);
+    fadeIn(tl, l1.parts[1], T + 16.5, 0.6, 12);
+    const l2 = SX.cline(root, XR, 470, [['L₁ = L₂ ?', null]], SX.SERIF(52));
+    fadeIn(tl, l2.root, T + 18.45, 0.6, 12);
+    const und = SX.clabel(root, XR, 580, 'undecidable', 32, C.ink);
+    fadeIn(tl, und, T + 21.2, 0.5, 10);
+    // "So is there any hope?": nothing new
+  });
+})();
+
+// ==== src/scenes/c.js ====
+// StacKAT, the language (lang_a, lang_b), its three laws (laws), the two programs again (puzzle), and why
+// equivalence is decidable at all (cool_surprise). Built with SX (common.js).
+'use strict';
+(function () {
+  const { W, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+  const lhOf = s => Math.round(s * 1.3);
+
+  // a small caps label, left edge at x (local: SX.note with align 'left')
+  const lnote = (tl, root, x, y, text, at, out, opts = {}) => SX.note(tl, root, x, y, text, at, out, Object.assign({ align: 'left' }, opts));
+
+  // ============================================ lang_a ========================================================
+  scene('lang_a', ({ tl, root, cue }) => {
+    const B = 700, HX = 598, DX = 360;                         // stack bottom; header's left; the move at `ops`
+    const SCX = HX + 478 + 150 + 48;                          // the stack's centre, right of the header
+    const LY = 722;                                           // the labels under the packet
+
+    // "In Stack Cat, a packet has two parts: a header, as before, and a stack."
+    const tPk = cue('pk');
+    const hdr = SX.packetHeader(tl, root, HX, 516, [['sw', 'A'], ['dst', '7'], ['port', '1']]);
+    hdr.show(tPk + 1.25);                                     // "packet"
+    const hl = SX.note(tl, root, HX + 239, LY, 'a header', tPk + 3.15, null);
+    const s = new SX.Stack(tl, root, SCX, B, { items: ['1', '2'], label: 'a stack' });
+    s.show(tPk + 4.8);                                        // "stack"
+
+    // "The language adds two operations.": the header dims, the packet makes room; push(n), pop(n) on the left
+    const tOps = cue('ops');
+    hdr.dim(0.4, tOps - 0.2); hdr.move(DX, 0, tOps - 0.2); s.move(DX, 0, tOps - 0.2);
+    fadeOut(tl, hl, tOps - 0.25, 0.3); tl.to(s.labelEl, { o: 0 }, tOps - 0.25, 0.3);
+    const S = 64, PY = 360, lh = lhOf(S);
+    const pu = SX.prog(tl, root, RAIL, PY, S, 'push(n)');
+    const po = SX.prog(tl, root, RAIL, PY + 120, S, 'pop(n)');
+    pu.show(tOps + 0.75); po.show(tOps + 0.95);
+
+    // "Push puts a value on top of the stack."
+    const tPu = cue('push');
+    pu.flip(0, 'push(3)', tPu - 0.2);
+    po.dim('all', 0.4, tPu - 0.2);
+    s.push('3', tPu + 0.75);
+
+    // "Pop takes a value off the top, but only if it is the value named."
+    const tPo = cue('pop');
+    po.light('all', tPo - 0.2); pu.dim('all', 0.4, tPo - 0.2);
+    const only = lnote(tl, root, RAIL, PY + 120 + lh + 22, 'only if it is the value named', tPo + 2.05, null);
+
+    // "Pop three, on a stack with three on top, removes it."
+    const tOk = cue('ok');
+    po.flip(0, 'pop(3)', tOk - 0.2);
+    tl.to(only, { o: 0.45 }, tOk - 0.2, 0.4);
+    s.pop(tOk + 2.55);                                        // "removes"
+    const tick = s.ok(tOk + 2.9);
+
+    // "Pop five, on the same stack, drops the packet."
+    const tBad = cue('bad');
+    tick.hide(tBad - 0.45); fadeOut(tl, only, tBad - 0.45, 0.3);
+    s.push('3', tBad - 0.45);
+    po.flip(0, 'pop(5)', tBad - 0.2);
+    s.fail(tBad + 1.95);                                      // "drops"
+    for (const e of [...s.cells]) tl.to(e, { o: 0.25 }, tBad + 2.1, 0.5);
+    hdr.dim(0.25, tBad + 2.1);
+    const dr1 = SX.note(tl, root, SCX + DX, LY, 'dropped', tBad + 2.0, null, { color: C.bad });
+
+    // "So does a pop on an empty stack."
+    const tEm = cue('empty');
+    hdr.hide(tEm - 0.3); s.hide(tEm - 0.3); fadeOut(tl, dr1, tEm - 0.3, 0.3);
+    const ECX = 1150;                                          // the empty stack: in the middle of the free space
+    const s2 = new SX.Stack(tl, root, ECX, B, { ghost: true, label: 'empty' });
+    s2.show(tEm - 0.1);
+    po.flip(0, 'pop(3)', tEm + 0.28);                         // "pop"
+    s2.fail(tEm + 1.0);                                       // "empty stack"
+    SX.note(tl, root, ECX, LY + 58, 'dropped', tEm + 1.25, null, { color: C.bad });
+
+    // "A pop is a test and an action in one."
+    const tG = cue('guard');
+    po.pulse('all', tG - 0.05);
+    SX.note(tl, root, CX, 850, 'a test and an action in one', tG + 0.6, null, { color: C.ink });
+  });
+
+  // ============================================ lang_b ========================================================
+  scene('lang_b', ({ tl, root, cue }) => {
+    // "These two are enough.": the two operations again
+    const two = SX.prog(tl, root, CX, 450, 64, 'push(n)    pop(n)', { align: 'center' });
+    two.show(cue('sugar') - 0.15, { stagger: 0.2 }); two.hide(cue('route') - 0.35, 0.35);
+
+    // "Source routing is one line: pop the top of the stack into the switch field."
+    const tR = cue('route');
+    const lab1 = SX.note(tl, root, CX, 142, 'source routing', tR - 0.15, null);
+    const route = SX.prog(tl, root, CX, 260 - Math.round(lhOf(72) / 2), 72, 'pop(sw)', { align: 'center' });
+    route.show(tR + 0.85);                                    // "one line"
+
+    // "That is shorthand for a choice: pop one and go to switch one, or pop two ..., and so on."
+    const tS = cue('short');
+    const lab2 = SX.note(tl, root, CX, 374, 'shorthand for', tS + 0.25, null);
+    const sh = SX.prog(tl, root, CX, 434, 48, 'pop(1) · sw:=1  +  pop(2) · sw:=2  +  …', { align: 'center' });
+    sh.show(tS + 2.05, { sel: { from: 0, to: 2 }, stagger: 0.12 });   // "pop one and go to switch one"
+    sh.show(tS + 4.3, { sel: 3 });                                     // "or"
+    sh.show(tS + 4.85, { sel: { from: 4, to: 6 }, stagger: 0.12 });   // "pop two"
+    sh.show(tS + 6.95, { sel: { from: 7, to: 8 }, stagger: 0.15 });   // "and so on"
+
+    // "That works because there are finitely many values."
+    const tF = cue('finite');
+    const lab3 = SX.note(tl, root, CX, 528, 'finitely many values', tF + 1.1, null);
+
+    // "Parsing a header pops into one field after another."
+    const tP = cue('parse');
+    SX.dim(tl, [lab1, route, lab2, sh, lab3], 0.4, tP - 0.2, 0.5);
+    const LX = 560, RX = 1360, Y = 640, S = 56;
+    SX.note(tl, root, LX, Y + lhOf(S) + 20, 'parsing', tP - 0.15, null);
+    const pa = SX.prog(tl, root, LX, Y, S, 'pop(f₁) · pop(f₂)', { align: 'center' });
+    pa.show(tP + 0.5, { sel: 0 }); pa.show(tP + 1.85, { sel: { from: 1, to: 2 }, stagger: 0.1 });
+
+    // "And telemetry is a push."
+    const tT = cue('tele');
+    SX.note(tl, root, RX, Y + lhOf(S) + 20, 'telemetry', tT + 0.15, null);
+    SX.prog(tl, root, RX, Y, S, 'push(n)', { align: 'center' }).show(tT + 1.05);
+  });
+
+  // ============================================ laws ==========================================================
+  scene('laws', ({ tl, root, cue }) => {
+    // "... and equivalence is as before."
+    const tM = cue('mean');
+    const eq = SX.prog(tl, root, CX, 450 - Math.round(lhOf(80) / 2), 80, 'e₁ ≡ e₂', { align: 'center' });
+    eq.show(tM + 3.75, { stagger: 0.08 }); eq.hide(cue('but') - 0.3, 0.35);
+
+    // "But push and pop interact, and three laws say how."
+    SX.note(tl, root, RAIL, 130, 'three laws', cue('but') + 2.1, null, { align: 'left' });
+
+    const RY = [250, 450, 650], LX = 260, S = 56, lh = lhOf(S), cw = charWidth(S), SCX = 1290;
+    const ST = { w: 72, h: 62, gap: 10, size: 36, rest: true }, SH = 78;   // SH: half the height of a rest cell and one cell
+    const rows = [[], [], []];
+    const law = (i, text, opts) => { const p = SX.prog(tl, root, LX, RY[i] - lh / 2, S, text, opts); rows[i].push(p.root); return p; };
+    const num = (i, at) => rows[i].push(lnote(tl, root, RAIL, RY[i] - 20, String(i + 1), at, null));
+    const stack = (i, items) => { const s = new SX.Stack(tl, root, SCX, RY[i] + SH, Object.assign({ items }, ST)); rows[i].push(s.g); return s; };
+    const back = (i, at) => { for (let k = 0; k < i; k++) SX.dim(tl, rows[k], 0.5, at, 0.5); };
+    const dropped = (i, s, at) => rows[i].push(lnote(tl, root, SCX + ST.w / 2 + 92, s.topY() + ST.h / 2 - 20, 'dropped', at, null, { color: C.bad }));
+
+    // "One. Push a value and then pop the same value: nothing has happened. That is equivalent to the program one."
+    const t1 = cue('l1');
+    num(0, t1 - 0.1);
+    const L1 = law(0, 'push(v) · pop(v) ≡ 1', { colors: { '≡': C.good } });
+    L1.show(t1 + 0.55, { sel: 0 }); L1.show(t1 + 1.85, { sel: [1, 2], stagger: 0.1 });
+    const s1 = stack(0, []);
+    s1.show(t1 + 0.6); s1.push('v', t1 + 1.1); s1.pop(t1 + 2.05);
+    // the tick beside the rest cell, which is the stack's top again (s1.ok would put it over the empty slot)
+    SX.tick(tl, s1.svg, SCX + ST.w / 2 + 50, s1.bottom - s1.restH / 2, 48, t1 + 3.4, { width: 7 });   // "nothing has happened"
+    L1.show(t1 + 5.3, { sel: [3, 4], stagger: 0.12 });        // "equivalent to the program one"
+
+    // "Two. Push a value and then pop a different value: the pop fails. That is equivalent to zero."
+    const t2 = cue('l2');
+    back(1, t2 - 0.15); num(1, t2 - 0.1);
+    const L2 = law(1, 'push(v) · pop(w) ≡ 0', { colors: { '≡': C.good } });
+    L2.show(t2 + 0.6, { sel: 0 }); L2.show(t2 + 1.7, { sel: [1, 2], stagger: 0.1 });
+    const ne = box(root, LX + 22 * cw, RY[1] - lhOf(44) / 2, Object.assign(SX.MONO(44), { color: C.dim, whiteSpace: 'pre' }), 'v ≠ w');
+    rows[1].push(ne);
+    fadeIn(tl, ne, t2 + 2.25, 0.5, 12);                       // "different"
+    const s2 = stack(1, []);
+    s2.show(t2 + 0.65); s2.push('v', t2 + 0.95);
+    s2.fail(t2 + 3.55);                                       // "fails"
+    dropped(1, s2, t2 + 3.8);
+    L2.show(t2 + 5.35, { sel: [3, 4], stagger: 0.12 });       // "equivalent to zero"
+
+    // "The third is subtle. Pop a value and then push it back."
+    const t3 = cue('l3');
+    back(2, t3 - 0.15); num(2, t3 - 0.1);
+    const L3 = law(2, 'pop(v) · push(v) + 1 ≡ 1', { colors: { '≡': C.good } });
+    L3.show(t3 + 1.5, { sel: 0 }); L3.show(t3 + 2.75, { sel: [1, 2], stagger: 0.1 });
+
+    // "That is not equivalent to the program one, because it drops every packet that does not have that value on top."
+    const tN = cue('not1');
+    const neq = SX.prog(tl, root, LX + 17 * cw, RY[2] - lh / 2, S, '≢ 1', { colors: { '≢': C.bad } });
+    rows[2].push(neq.root);
+    neq.show(tN + 0.2, { stagger: 0.12 });
+    const s3 = stack(2, ['w']);
+    s3.show(tN + 2.35);                                       // "because"
+    const x3 = s3.fail(tN + 3.0);                             // "drops"
+
+    // "But when it does not drop the packet, it changes nothing."
+    const tL = cue('le');
+    x3.hide(tL - 0.2); s3.flip(0, 'v', tL - 0.15);
+    s3.pop(tL + 0.85); s3.push('v', tL + 1.6);
+    s3.ok(tL + 2.05);                                         // "changes nothing"
+
+    // "So a choice between the program one and this pop-then-push is just the program one."
+    const tA = cue('abs');
+    neq.hide(tA - 0.2, 0.35);
+    L3.show(tA + 1.2, { sel: [3, 4], stagger: 0.12 });        // "the program one"
+    L3.show(tA + 3.65, { sel: [5, 6], stagger: 0.12 });       // "is just the program one"
+  });
+
+  // ============================================ puzzle ========================================================
+  scene('puzzle', ({ tl, root, cue }) => {
+    const S = 60, cw = charWidth(S), TS = 48, LBX = 900;
+    // "Push A any number of times, then pop A any number of times."
+    const tP1 = cue('p1');
+    const P1 = SX.prog(tl, root, RAIL, 170, S, 'push(a)* · pop(a)*');
+    P1.show(tP1 - 0.2);
+    const T1 = SX.prog(tl, root, RAIL, 330, TS, 'push(a)  push(a)  push(a)  pop(a)  pop(a)');
+    T1.show(tP1 + 0.55, { sel: [0, 1, 2], stagger: 0.25 }); T1.show(tP1 + 2.3, { sel: [3, 4], stagger: 0.25 });
+
+    // "By the first law, each push cancels against a pop."
+    const tC = cue('cancel');
+    T1.strike([2, 3], tC + 1.45, { out: tC + 2.05 }); T1.hideParts([2, 3], tC + 2.05);
+    T1.strike(1, tC + 2.4, { out: tC + 3.0 }); T1.strike(4, tC + 2.4, { out: tC + 3.0 });
+    T1.hideParts([1, 4], tC + 3.0);                           // apart: one strike each
+
+    // "If there were more pushes, some pushes are left. If there were more pops, some pops are left."
+    const tN = cue('net');
+    const tlY = (y) => y + Math.round(lhOf(TS) / 2) - 20;
+    const n1 = lnote(tl, root, LBX, tlY(330), 'more pushes: pushes are left', tN + 0.35, null);
+    const T2 = SX.prog(tl, root, RAIL, 450, TS, 'push(a)  pop(a)  pop(a)');
+    T2.show(tN + 2.8, { stagger: 0.2 });                      // "If there were more pops"
+    T2.strike([0, 1], tN + 4.1, { out: tN + 4.7 }); T2.hideParts([0, 1], tN + 4.7);
+    const n2 = lnote(tl, root, LBX, tlY(450), 'more pops: pops are left', tN + 5.05, null);
+
+    // "That is what the second program does."
+    const tP2 = cue('p2');
+    T1.hide(tP2 - 0.3, 0.35); T2.hide(tP2 - 0.3, 0.35); fadeOut(tl, n1, tP2 - 0.3, 0.35); fadeOut(tl, n2, tP2 - 0.3, 0.35);
+    const P2 = SX.prog(tl, root, RAIL + 2 * cw, 300, S, 'push(a)* + pop(a)*');
+    P2.show(tP2 + 0.4);
+
+    // "So they are equivalent.": a green ≡ at the left margin of the second line
+    const tEq = cue('eq');
+    const eq = SX.prog(tl, root, RAIL, 300, S, '≡', { colors: { '≡': C.good } });
+    tl.set(eq.parts[0].el, { s: 0.6 }, 0);
+    eq.show(tEq - 0.2, { rise: 0 }); tl.to(eq.parts[0].el, { s: 1 }, tEq - 0.2, 0.5, E.out5);
+
+    // "Here is a third program: push A an even number of times, then pop it an even number of times."
+    const tP3 = cue('p3');
+    SX.dim(tl, [P1, P2, eq], 0.45, tP3 - 0.2, 0.5);
+    const S3 = 52, cw3 = charWidth(S3), Y3 = 480;
+    const PE = SX.prog(tl, root, RAIL + 2 * cw3, Y3, S3, '(push(a) · push(a))* · (pop(a) · pop(a))*');
+    PE.show(tP3 + 1.75, { sel: { from: 0, to: 5 } });        // "push A an even number"
+    PE.show(tP3 + 4.3, { sel: { from: 6, to: 12 } });        // "then pop it an even number"
+
+    // "It is not equivalent to the first."
+    const tNe = cue('neq');
+    SX.prog(tl, root, RAIL, Y3, S3, '≢', { colors: { '≢': C.bad } }).show(tNe + 0.1);
+    lnote(tl, root, RAIL, Y3 + lhOf(S3) + 18, 'not equivalent to the first', tNe + 0.35, null, { color: C.bad });
+
+    // "The first can take a stack that holds a single A, and empty it. The third cannot."
+    const tW = cue('wit');
+    const LCX = 700, RCX = 1220, B = 800;
+    SX.prog(tl, root, LCX, 640, 36, 'push(a)* · pop(a)*', { align: 'center' }).show(tW - 0.05, { stagger: 0.02 });
+    const sl = new SX.Stack(tl, root, LCX, B, { items: ['a'], ghost: true });
+    sl.show(tW + 1.0);                                        // "stack"
+    sl.pop(tW + 3.05);                                        // "empty it"
+    sl.ok(tW + 3.45);
+    SX.note(tl, root, LCX, B + 22, 'emptied', tW + 3.55, null, { color: C.good });
+    SX.note(tl, root, RCX, 650, 'the even program', tW + 4.0, null);   // "The third"
+    const sr = new SX.Stack(tl, root, RCX, B, { items: ['a'] });
+    sr.show(tW + 4.05);
+    sr.fail(tW + 4.75);                                       // "cannot"
+    SX.note(tl, root, RCX, B + 22, 'cannot', tW + 5.0, null);
+    // "We want a machine to tell such cases apart, for any two programs.": nothing new
+  });
+
+  // ============================================ cool_surprise =================================================
+  scene('cool_surprise', ({ tl, root, cue }) => {
+    // "Equivalence of Stack Cat programs is decidable."
+    const tD = cue('dec');
+    const dec = SX.cserif(root, CX, 350, 'Decidable.', 130, C.good);
+    dec.style.transformOrigin = 'center top';
+    fadeIn(tl, dec, tD + 2.05, 0.7, 20);                      // "decidable"
+
+    // "The stack is unbounded, and programs may use it in any way they like,"
+    const tU = cue('unb');
+    const u1 = SX.note(tl, root, CX - 380, 590, 'an unbounded stack', tU - 0.05, null);
+    const u2 = SX.note(tl, root, CX + 380, 590, 'used without restriction', tU + 2.15, null);   // "may use it"
+    // "yet the question can always be answered.": nothing new
+
+    // "What makes it possible is that a program has no input other than the packet itself."
+    const tK = cue('key');
+    fadeOut(tl, u1, tK - 0.3, 0.3); fadeOut(tl, u2, tK - 0.3, 0.3);
+    tl.to(dec, { y: 130 - 350, s: 72 / 130 }, tK - 0.25, 0.8, E.io);
+    const svg = SX.svg(root);
+    const BX = 740, BY = 470, BW = 440, BH = 240, MY = BY + BH / 2;
+    const pb = box(root, BX, BY, { width: BW + 'px', height: BH + 'px', borderRadius: '18px', boxShadow: `inset 0 0 0 3px ${C.ink}` });
+    SX.ctext(pb, BW / 2, BH / 2, 'program', Object.assign(SX.LABEL(36), { color: C.ink }), 60);
+    fadeIn(tl, pb, tK + 1.55, 0.6, 14);                       // "a program"
+    const ST = { items: ['', ''], rest: true }, ICX = 440, OCX = 1480, SB = 740;
+    const sIn = new SX.Stack(tl, root, ICX, SB, Object.assign({ label: 'in' }, ST));
+    sIn.show(tK + 2.35);                                      // "input"
+    SX.line(tl, svg, ICX + 48 + 24, MY, BX - 24, MY, { at: tK + 2.6 });
+    SX.line(tl, svg, BX + BW + 24, MY, OCX - 48 - 24, MY, { at: tK + 3.4 });
+    const sOut = new SX.Stack(tl, root, OCX, SB, Object.assign({ label: 'out' }, ST));
+    sOut.show(tK + 3.7);                                      // "the packet itself"
+
+    // "The stack is not working memory for reading some other input. It is the input, and it is the output."
+    const tS = cue('scratch');
+    const N = 5, CW = 84, CH = 70, G = 14, RW = N * CW + (N - 1) * G, RX = CX - RW / 2, RY = 330;
+    const row = box(root, RX, RY, { width: RW + 'px', height: CH + 'px' });
+    for (let k = 0; k < N; k++) box(row, k * (CW + G), 0, { width: CW + 'px', height: CH + 'px', borderRadius: '12px', border: `3px dashed ${C.ink}`, boxSizing: 'border-box' });
+    fadeIn(tl, row, tS + 1.9, 0.5, 12);                       // "reading some other input"
+    const rl = SX.note(tl, root, CX, RY - 58, 'a separate input', tS + 1.95, null);
+    // the neutral grey strike through the row (local: SX.strikeEl wants a text span)
+    const bar = box(root, RX - 16, RY + CH / 2 - 2, { width: (RW + 32) + 'px', height: '4px', borderRadius: '2px', background: C.dim, transformOrigin: 'left center' });
+    tl.set(bar, { sx: 0, o: 0 }, 0); tl.set(bar, { o: 1 }, tS + 2.7); tl.to(bar, { sx: 1 }, tS + 2.7, 0.45, E.io);
+    tl.to(row, { o: 0.35 }, tS + 2.7, 0.45); tl.to(rl, { o: 0.5 }, tS + 2.7, 0.45);
+    SX.note(tl, root, CX, 850, 'the stack is the input and the output', tS + 4.15, null);   // "It is the input"
+  });
+})();
+
+// ==== src/scenes/d.js ====
+// Deciding equivalence, steps one and two: proc_a, step1, and step2 with cool_two (one scene, so that the
+// equation of step2 stays on screen through cool_two). Built with SX (common.js).
+'use strict';
+(function () {
+  const { W, H, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+  const K = 1.05;   // the scale of A1 and A2 in this file: edge labels 36 * 1.05 = 37.8 px
+
+  // a label in ink or dim, left edge at x, vertically centred on cy
+  const lab = (root, x, cy, text, color = C.dim, size = 32) => box(root, x, cy - size * 0.62, Object.assign(SX.LABEL(size), { color, whiteSpace: 'pre' }), text);
+  // a centred mono line of one colour (for ≡ ≠ = ∩)
+  const sign = (root, cx, cy, text, size, color) => SX.ctext(root, cx, cy, text, Object.assign(SX.MONO(size), { color }), Math.round(size * 1.3));
+
+  // the step header: "STEP n · NAME" in ink on the rail, the law right of it (mono 44)
+  function header(tl, root, step, law, atLabel, atLaw) {
+    const cy = 178;
+    const l = lab(root, RAIL, cy, step, C.ink);
+    fadeIn(tl, l, atLabel, 0.5, 10);
+    const p = SX.prog(tl, root, 620, cy - Math.round(44 * 1.3 / 2), 44, law, { colors: { '≡': C.good } });
+    p.show(atLaw);
+    return { l, p };
+  }
+
+  // a small automaton glyph: two circles and an arrow, centred on (cx, cy), drawn in at `at`
+  function glyph(tl, svg, cx, cy, at) {
+    const r = 22, d = 58;
+    const a = path(tl, svg, SX.circleD(cx - d, cy, r), { stroke: C.ink, width: 3 });
+    const b = path(tl, svg, SX.circleD(cx + d, cy, r), { stroke: C.ink, width: 3 });
+    tl.to(a, { draw: 1 }, at, 0.4, E.io); tl.to(b, { draw: 1 }, at + 0.15, 0.4, E.io);
+    const ar = SX.line(tl, svg, cx - d + r + 6, cy, cx + d - r - 6, cy, { at: at + 0.3, dur: 0.35, head: 11 });
+    return [a, b, ar.path, ar.head];
+  }
+
+  // ============================================ proc_a ========================================================
+  scene('proc_a', ({ tl, root, cue }) => {
+    // "We start with programs that only push and pop.": P1 on the rail
+    const tS = cue('start');
+    const P1 = SX.prog(tl, root, RAIL, 170, 60, 'push(a)* · pop(a)*');
+    P1.show(tS - 0.25);
+    const pcy = 170 + Math.round(60 * 1.3) / 2, lx = RAIL + P1.width + 64;
+    const l1 = lab(root, lx, pcy, 'push and pop only');
+    fadeIn(tl, l1, 3.3, 0.5, 10);
+    // "Such a program is a regular expression": the label changes
+    const tR = cue('regex');
+    fadeOut(tl, l1, 8.3, 0.3, -8);
+    const l2 = lab(root, lx, pcy, 'a regular expression');
+    fadeIn(tl, l2, 8.45, 0.5, 10);
+
+    // "Each word it matches is a trace": a column of traces
+    const tT = cue('traces'), TS = 44, TY = 300, PITCH = 78, tlh = Math.round(TS * 1.3);
+    const empty = box(root, RAIL, TY, Object.assign(SX.MONO(TS), { color: C.dim, lineHeight: tlh + 'px', whiteSpace: 'pre' }), '(empty)');
+    fadeIn(tl, empty, tT - 0.15, 0.5, 12);
+    const trs = ['push(a)', 'push(a)  pop(a)', 'push(a)  push(a)  pop(a)', 'pop(a)  pop(a)'].map((t, i) => {
+      const p = SX.prog(tl, root, RAIL, TY + (i + 1) * PITCH, TS, t);
+      p.show(tT + 0.25 + i * 0.4, { stagger: 0.05 });
+      return p;
+    });
+    const more = box(root, RAIL, TY + 5 * PITCH, Object.assign(SX.MONO(TS), { color: C.dim, lineHeight: tlh + 'px' }), '…');
+    fadeIn(tl, more, tT + 1.9, 0.5, 12);
+    const l3 = box(root, RAIL, TY + 6 * PITCH + 4, Object.assign(SX.LABEL(32), { whiteSpace: 'pre' }), 'its traces');
+    fadeIn(tl, l3, 14.2, 0.5, 10);
+    const traceEls = [empty, ...trs.map(p => p.root), more, l3];
+
+    // "A regular expression can be turned into a finite automaton": the traces dim; A1 on the right
+    const tA = cue('aut');
+    SX.dim(tl, traceEls, 0.4, tA - 0.1);
+    const A = SX.A1(tl, root, 1300, 500, { k: K });
+    A.draw('e', 21.25); A.draw('e@', 21.75); A.draw('e>e0', 22.3); A.draw('e0', 22.55); A.draw('e0@', 23.1);
+    const b = A.bounds();
+    const l4 = SX.clabel(root, 1300, 500 + (b.y1 - 500) * K + 50, 'a finite automaton', 32);
+    fadeIn(tl, l4, 21.4, 0.5, 10);
+    // "and a machine can compare two finite automata": nothing new
+    // "But the traces are not the meaning.": everything dims
+    const tP = cue('problem');
+    const all = [P1.root, l2, ...traceEls, A.g, l4];
+    SX.dim(tl, all, 0.3, tP - 0.1);
+
+    // "Take a choice between the program one, and a pop followed by a push of the same value."
+    const tE = cue('ex');
+    for (const e of all) tl.to(e, { o: 0 }, tE - 0.3, 0.4, E.in);
+    const S = 52, lh = Math.round(S * 1.3), XP = 445, XS = 1330, Y1 = 290, Y2 = 500;
+    const r1 = SX.prog(tl, root, XP, Y1, S, '1 + pop(v) · push(v)', { align: 'center' });
+    r1.show(32.45, { sel: 0 }); r1.show(33.05, { sel: { from: 1 }, stagger: 0.3 });
+    const dimEmpty = { '(': C.dim, 'empty': C.dim, ')': C.dim };
+    // "It has two traces."
+    const s1 = SX.prog(tl, root, XS, Y1, S, '{ (empty),  pop(v) push(v) }', { align: 'center', colors: dimEmpty });
+    s1.show(36.75, { stagger: 0.03 });
+    // "The program one alone has a single trace, the empty one."
+    const r2 = SX.prog(tl, root, XP, Y2, S, '1', { align: 'center' });
+    r2.show(38.7);
+    const s2 = SX.prog(tl, root, XS, Y2, S, '{ (empty) }', { align: 'center', colors: dimEmpty });
+    s2.show(40.0, { stagger: 0.03 });
+    const mid = (Y1 + lh + Y2) / 2;
+    const ne = sign(root, XS, mid, '≠', 64, C.ink);
+    fadeIn(tl, ne, 41.05, 0.5, 8);
+    const ld = SX.clabel(root, XS, Y2 + lh + 50, 'different traces', 32);
+    fadeIn(tl, ld, 41.2, 0.5, 10);
+    // "Yet by the third law, they mean the same."
+    const eq = sign(root, XP, mid, '≡', 64, C.good);
+    fadeIn(tl, eq, 43.9, 0.5, 8);
+    const lm = SX.clabel(root, XP, Y2 + lh + 50, 'the same meaning', 32);
+    fadeIn(tl, lm, 44.05, 0.5, 10);
+    // "... in three steps, one for each law."
+    const lp = SX.clabel(root, CX, 790, 'three steps: one for each law', 32, C.ink);
+    fadeIn(tl, lp, 49.95, 0.5, 10);
+  });
+
+  // ============================================ step1 =========================================================
+  scene('step1', ({ tl, root, cue }) => {
+    // "Step one is to cancel. It uses the first law."
+    header(tl, root, 'step 1 · cancel', 'push(v) · pop(v) ≡ 1', cue('s1') - 0.2, 3.3);
+
+    // "Wherever the automaton can do a push and then a pop of the same value, possibly with silent steps"
+    const Q = new SX.Automaton(tl, root, { cx: CX, cy: 400 });
+    const xs = [420, 780, 1140, 1500];
+    xs.forEach((x, i) => Q.state('q' + (i + 1), x, 400, { name: 'q' + '₁₂₃₄'[i] }));
+    Q.edge('q1>q2', 'q1', 'q2', 'push(v)').silent('q2~q3', 'q2', 'q3', { tag: 'silent' }).edge('q3>q4', 'q3', 'q4', 'pop(v)');
+    Q.silent('q1~q4', 'q1', 'q4', { bend: 250 });
+    const tP = cue('path');
+    ['q1', 'q2', 'q3', 'q4'].forEach((id, i) => Q.draw(id, tP + 0.1 + i * 0.15, 0.45));
+    Q.draw('q1>q2', 6.5); Q.draw('q3>q4', 7.25); Q.draw('q2~q3', 9.75, 0.6);
+    // "add a shortcut between the same two states that does nothing."
+    Q.draw('q1~q4', cue('eps') + 0.05, 0.8);
+    // "Repeat until nothing new appears."
+    const lr = SX.clabel(root, CX, 640, 'repeat until nothing new', 32);
+    fadeIn(tl, lr, cue('rep') - 0.15, 0.5, 10);
+
+    // "In our automaton, the loop pushes A, and the next edge pops A. So we add a silent edge beside them."
+    const tX = cue('ex');
+    Q.hide(tX - 0.3); fadeOut(tl, lr, tX - 0.3, 0.3);
+    const A = SX.A1(tl, root, CX, 450, { k: K, silent: true });
+    A.drawAll(tX + 0.05, { stagger: 0.18, except: ['e~e0'], dur: 0.45 });
+    A.pulse('e@', 19.55); A.mark('e@', 19.55, { out: 24.6 });
+    A.pulse('e>e0', 21.3); A.mark('e>e0', 21.3, { out: 24.6 });
+    A.draw('e~e0', 23.75, 0.8);
+
+    // "The automaton now accepts every trace it had, and also every trace in which matching pushes and pops
+    // have been cancelled."
+    const S = 48, cw = charWidth(S), lh = Math.round(S * 1.3), TY = 690;
+    const n1 = 24, n2 = 7, gap = 54, aw = 110, tot = (n1 + n2) * cw + 2 * gap + aw, x0 = Math.round(CX - tot / 2);
+    const tr = SX.prog(tl, root, x0, TY, S, 'push(a)  push(a)  pop(a)');
+    tr.show(27.65, { stagger: 0.06 });
+    tr.strike([tr.letter(1), tr.letter(2)], 30.75);
+    const svg = SX.svg(root), ax = x0 + n1 * cw + gap;
+    SX.line(tl, svg, ax, TY + lh / 2, ax + aw, TY + lh / 2, { at: 31.4, dur: 0.4 });
+    const res = SX.prog(tl, root, ax + aw + gap, TY, S, 'push(a)');
+    res.show(31.6);
+    const la = SX.clabel(root, CX, TY + lh + 30, 'also accepted now', 32);
+    fadeIn(tl, la, 31.85, 0.5, 10);
+  });
+
+  // ============================================ step2 + cool_two =============================================
+  scene(['step2', 'cool_two'], ({ tl, root, cue, seg }) => {
+    const c = n => cue('step2.' + n), T2 = seg('cool_two');
+    // "Step two is to filter." (the law arrives with "by the second law")
+    const hd = header(tl, root, 'step 2 · filter', 'push(v) · pop(w) ≡ 0', c('s2') - 0.2, 10.6);
+
+    // "Take a trace in which a push is followed directly by a pop."
+    const S = 52, lh = Math.round(S * 1.3);
+    const t1 = SX.prog(tl, root, CX, 300, S, '…  push(v)  pop(w)  …', { align: 'center' });
+    t1.show(c('look') + 0.1, { stagger: 0.06 });
+    const pair1 = [t1.letter(0), t1.letter(1)];
+    t1.mark(pair1, C.dim, 3.85, { fill: 0.08, out: 11.75 });
+    // "If the two values differ, the trace drops every packet, by the second law. It contributes nothing."
+    t1.flip(pair1[0], 'push(a)', 7.3); t1.flip(pair1[1], 'pop(b)', 7.45);
+    const l1 = SX.clabel(root, CX, 300 + lh + 26, 'drops every packet', 32);
+    fadeIn(tl, l1, 8.8, 0.5, 10);
+    t1.strike('all', 11.75);
+
+    // "If they are the same, step one has already added the trace without them. It is redundant."
+    const tSm = c('same');
+    SX.dim(tl, [t1.root, l1], 0.4, tSm - 0.1);
+    const Y2 = 490;
+    const t2 = SX.prog(tl, root, CX, Y2, S, '…  push(a)  pop(a)  …', { align: 'center' });
+    t2.show(14.0, { stagger: 0.06 });
+    t2.mark([t2.letter(0), t2.letter(1)], C.dim, 14.3, { fill: 0.08, out: 18.15 });
+    const l2 = SX.clabel(root, CX, Y2 + lh + 26, 'already there without the pair', 32);
+    fadeIn(tl, l2, 15.6, 0.5, 10);
+    t2.strike('all', 18.15);
+
+    // "So we keep only the traces with no such pair: all pops come before all pushes."
+    const tF = c('filter');
+    for (const e of [t1.root, l1, t2.root, l2]) fadeOut(tl, e, tF - 0.3, 0.35);
+    const FY = 400;
+    const f = SX.prog(tl, root, CX, FY, 56, 'pop … pop  push … push', { align: 'center' });
+    f.show(tF + 0.2, { stagger: 0.05 });
+    const lf = SX.clabel(root, CX, FY + Math.round(56 * 1.3) + 30, 'keep: pops, then pushes', 32);
+    fadeIn(tl, lf, 22.45, 0.5, 10);
+
+    // "On automata, that is an intersection with the automaton for pops, then pushes"
+    const tI = c('inter');
+    f.hide(tI - 0.3, 0.35); fadeOut(tl, lf, tI - 0.3, 0.3);
+    const A1 = SX.A1(tl, root, 520, 520, { k: K, silent: true });
+    A1.drawAll(tI + 0.05, { stagger: 0.1, dur: 0.4 });
+    const cap = sign(root, 950, 535, '∩', 96, C.ink);
+    fadeIn(tl, cap, 26.6, 0.5, 10);
+    const PP = SX.PP(tl, root, 1400, 520);
+    PP.draw('s', 27.75); PP.draw('s@', 28.4); PP.draw('s>t', 29.2); PP.draw('t', 29.45); PP.draw('t@', 29.9);
+
+    // "For our program, the result has two branches: pops only, or pushes only."
+    const tRs = c('res');
+    A1.hide(tRs - 0.3); PP.hide(tRs - 0.3); fadeOut(tl, cap, tRs - 0.3, 0.3);
+    for (const e of [hd.l, hd.p.root]) tl.to(e, { o: 0 }, tRs - 0.3, 0.4, E.in);
+    const AY = 585, XL = 590, XR = 1390;
+    const L = SX.A2(tl, root, XL, AY, { k: K });
+    L.draw('e', 33.2); L.draw('e>e1', 34.85); L.draw('e1', 35.0); L.draw('e1@', 35.45);
+    L.draw('e>e2', 36.1); L.draw('e2', 36.25); L.draw('e2@', 36.65);
+    // the programs above the automata; they become the two sides of the equation (group g, moved in cool_two)
+    const EY = 200, PS = 44, ES = 60, PY = EY - Math.round(PS * 1.3) / 2;
+    const g = box(root, 0, 0, { width: W + 'px', height: H + 'px' });
+    const ll = SX.clabel(root, XL, PY - 46, 'after steps 1 and 2', 32);
+    fadeIn(tl, ll, tRs + 0.1, 0.5, 10);
+    const pl = SX.prog(tl, g, XL, PY, PS, 'push(a)* · pop(a)*', { align: 'center' });
+    pl.show(tRs + 0.4, { stagger: 0.03 });
+    // "And that is exactly the automaton of the second program."
+    const R = SX.A2(tl, root, XR, AY, { k: K });
+    R.drawAll(c('p2') - 0.1, { stagger: 0.12, dur: 0.4 });
+    const eqs = sign(root, 950, AY, '=', 96, C.good);
+    fadeIn(tl, eqs, 38.55, 0.5, 8);
+    const pr = SX.prog(tl, g, XR, PY, PS, 'push(a)* + pop(a)*', { align: 'center' });
+    pr.show(39.7, { stagger: 0.03 });
+
+    // "The two programs from the start of the video are equivalent, and this time a procedure has checked it."
+    // The automata dim; the two programs grow and move together into one line, mono 60; a green ≡ between.
+    const tD = c('done'), cw = charWidth(ES), sc = ES / PS;
+    SX.dim(tl, [L.g, R.g, eqs], 0.35, tD - 0.2);
+    fadeOut(tl, ll, tD - 0.2, 0.35);
+    pl.to({ x: (CX - 11.5 * cw) - XL, s: sc }, 41.7, 0.8);
+    pr.to({ x: (CX + 11.5 * cw) - XR, s: sc }, 41.85, 0.8);
+    const eq = sign(g, CX, EY, '≡', ES, C.good);
+    fadeIn(tl, eq, 43.55, 0.5, 8);
+    const gs = SX.svg(g);
+    SX.tick(tl, gs, CX + 20.5 * cw + 66, EY, 52, 46.15);
+
+    // cool_two. "Notice what we did.": the automata leave; the equation goes down to y = 300
+    const k = n => cue('cool_two.' + n);
+    const tN = k('note');
+    for (const e of [L.g, R.g, eqs]) tl.to(e, { o: 0 }, tN - 0.3, 0.45, E.in);
+    tl.to(g, { y: 300 - EY }, tN - 0.1, 0.8, E.io);
+    // "We changed a finite automaton, and compared it with another.": nothing new
+    // "When two automata agree after these steps, the programs are equivalent."
+    const svg = SX.svg(root), RX = 380, RY1 = 560, RY2 = 720;
+    const row = (cy, at, s, col, text, atSign, atLabel) => {
+      const els = [...glyph(tl, svg, RX, cy, at), ...glyph(tl, svg, RX + 290, cy, at + 0.2)];
+      const sg = sign(root, RX + 145, cy, s, 72, col);
+      fadeIn(tl, sg, atSign, 0.5, 8);
+      const lb = lab(root, RX + 470, cy, text);
+      fadeIn(tl, lb, atLabel, 0.5, 10);
+      return [...els, sg, lb];
+    };
+    const row1 = row(RY1, T2 + 6.45, '=', C.good, 'agree after two steps: equivalent', T2 + 7.35, T2 + 7.6);
+    // "But when they disagree, we cannot conclude anything yet. Two steps are not always enough."
+    SX.dim(tl, row1, 0.45, k('more') + 0.2);
+    row(RY2, k('more') + 0.3, '≠', C.ink, 'disagree: not yet known', T2 + 11.6, T2 + 11.75);
+  });
+})();
+
+// ==== src/scenes/e.js ====
+// Deciding equivalence, step three: the third law, the pop-push insertion, what a trace says about stacks,
+// zipping (a trace read from the middle outwards), the zipped automata, and the theorem. Built with SX (common.js).
+'use strict';
+(function () {
+  const { W, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+
+  // ---- local helpers ---------------------------------------------------------------------------------------
+  const lhOf = size => Math.round(size * 1.3);
+  const topFor = (cy, size) => cy - lhOf(size) / 2;          // the top of a mono line centred on cy
+  // a soft neutral box ("look here") on the stage, at a rectangle
+  function ringBox(tl, parent, r, at, { out = null, pad = 8, radius = 16, color = C.dim, fill = 0.08 } = {}) {
+    const m = box(parent, r.x - pad, r.y - pad, { width: (r.w + 2 * pad) + 'px', height: (r.h + 2 * pad) + 'px', borderRadius: radius + 'px', background: alpha(color, fill), boxShadow: `inset 0 0 0 2px ${alpha(color, 0.55)}` });
+    tl.set(m, { o: 0, s: 0.94 }, 0); tl.to(m, { o: 1, s: 1 }, at, 0.4, E.out5);
+    if (out != null) tl.to(m, { o: 0 }, out, 0.35);
+    return m;
+  }
+  // a label left-aligned at x (top y), rising in at `at`
+  const leftLabel = (tl, root, x, y, text, at, out, opts = {}) => SX.note(tl, root, x, y, text, at, out, Object.assign({ align: 'left' }, opts));
+
+  // A trace whose letters are separate elements, so that pairs can be dropped into its middle. letters: texts in
+  // their final order; layout(present, gaps) centres the letters that are present on cx; a gap keeps room for
+  // letters that are not there yet. Each letter is an SX.prog of one part (so it has the film's colours).
+  function Trace(tl, root, cx, cy, size, letters, { sep = 2 } = {}) {
+    const cw = charWidth(size), y = topFor(cy, size);
+    const ls = letters.map(t => ({ t, len: [...t].length, p: SX.prog(tl, root, 0, y, size, t) }));
+    // columns of each letter when the letters in `room` take their place (present or a gap)
+    const place = room => {
+      const idx = ls.map((_, i) => i).filter(i => room.includes(i));
+      const total = idx.reduce((s, i) => s + ls[i].len, 0) + sep * (idx.length - 1);
+      let x = cx - total * cw / 2; const xs = {};
+      for (const i of idx) { xs[i] = x; x += (ls[i].len + sep) * cw; }
+      return xs;
+    };
+    let cur = null;
+    return {
+      ls, cw, y, lh: lhOf(size),
+      // put the letters at the layout `room` (the first call places them; later calls move them)
+      layout(room, at, dur = 0.7) {
+        const xs = place(room);
+        for (const i in xs) {
+          const p = ls[i].p;
+          if (!cur) { p.root.style.left = xs[i] + 'px'; p.x = xs[i]; p._x0 = xs[i]; }
+          else if (p._x0 == null) { p.root.style.left = xs[i] + 'px'; p.x = xs[i]; p._x0 = xs[i]; }
+          else tl.to(p.root, { x: xs[i] - p._x0 }, at, dur, E.io);
+        }
+        cur = xs; return xs;
+      },
+      xs: room => place(room),
+      show(i, at, rise = 14) { ls[i].p.show(at, { rise }); },
+      hide(at) { for (const l of ls) l.p.hide(at); },
+      dim(o, at) { for (const l of ls) tl.to(l.p.root, { o }, at, 0.5); },
+    };
+  }
+
+  // ============================================ step3_a =======================================================
+  scene('step3_a', ({ tl, root, cue }) => {
+    // "Here is the first program with its halves swapped: pop A any number of times, then push A any number of times."
+    const S = 60, py = topFor(170, S);
+    const P3 = SX.prog(tl, root, RAIL, py, S, 'pop(a)* · push(a)*');
+    P3.show(cue('third') - 0.2);
+    const A = SX.A3(tl, root, 680, 540);
+    // the automaton builds as the program is read: the pops, then the pushes
+    A.draw('e', 3.85); A.draw('e>e0', 4.2); A.draw('e0', 4.4); A.draw('e0@', 4.9);
+    A.draw('e0>e1', 6.6); A.draw('e1', 6.8); A.draw('e1@', 7.3); A.draw('e>e1', 7.75);
+    P3.pulse(P3.letter(0), 3.95); P3.pulse(P3.letter(1), 6.65);
+
+    // "It is equivalent to the other two."
+    const tEq = cue('eq');
+    const eqx = RAIL + P3.width + 34, S2 = 40;
+    const others = SX.prog(tl, root, eqx, topFor(170, S2) + 4, S2, '≡ push(a)* · pop(a)* ≡ push(a)* + pop(a)*', { colors: { '≡': C.good } });
+    others.show(tEq - 0.15, { stagger: 0.02 });
+
+    // "But steps one and two leave its automaton as it is."
+    const LX = 1250;
+    const l1a = leftLabel(tl, root, LX, 400, 'step 1:', 11.85, cue('still') - 0.35);
+    const l1b = leftLabel(tl, root, LX, 442, 'nothing to cancel', 11.95, cue('still') - 0.35);
+    const l2a = leftLabel(tl, root, LX, 530, 'step 2:', 12.7, cue('still') - 0.35);
+    const l2b = leftLabel(tl, root, LX, 572, 'already pops, then pushes', 12.8, cue('still') - 0.35);
+
+    // "It still accepts a pop followed by a push, which the others do not."
+    const tr = SX.prog(tl, root, LX, topFor(460, 52), 52, 'pop(a) push(a)');
+    tr.show(16.65, { sel: 0 }); tr.show(17.55, { sel: 1 });
+    A.pulse('e>e0', 16.7); A.pulse('e0>e1', 17.6);
+    const acc = leftLabel(tl, root, LX, 525, 'accepted here', 16.0, null);
+    const notb = leftLabel(tl, root, LX, 572, 'not by the other two', 18.4, null);
+
+    // "This is the third law at work: a pop and then a push of the same value is hidden inside the program one."
+    const tLaw = cue('law');
+    A.dim(0.35, tLaw + 0.3); SX.dim(tl, [tr, acc, notb], 0.35, tLaw + 0.3);
+    const law = SX.prog(tl, root, RAIL, topFor(290, 48), 48, 'pop(v) · push(v) + 1 ≡ 1', { colors: { '≡': C.good } });
+    law.show(21.0, { stagger: 0.02 });
+    law.pulse({ from: 0, to: 2 }, 22.95, { scale: 1.05, dur: 0.8 });
+    law.pulse(law.parts.length - 1, 26.4, { dur: 0.7 });
+
+    // "We cannot simply delete such a pair."
+    const tCant = cue('cant');
+    A.hide(tCant - 0.4); SX.dim(tl, [tr, acc, notb], 0, tCant - 0.4, 0.4);
+    P3.to({ o: 0.45 }, tCant - 0.3, 0.5); others.to({ o: 0.45 }, tCant - 0.3, 0.5); law.to({ o: 0.45 }, tCant - 0.3, 0.5);
+    const pair = SX.prog(tl, root, CX, topFor(500, 56), 56, 'pop(a) push(a)', { align: 'center' });
+    pair.show(tCant - 0.1);
+    const st = pair.strike('all', 28.75, { dur: 0.6 });
+    st.undo(29.75);
+    const cant = SX.note(tl, root, CX, 585, 'cannot just delete', 29.7, null);
+
+    // "So again we add instead."
+    const tAdd = cue('add');
+    pair.hide(tAdd - 0.1); fadeOut(tl, cant, tAdd - 0.1, 0.35);
+
+    // "In every trace, between the pops and the pushes, insert a pop and a push of the same value.
+    //  Do it for every value, and again and again."
+    const T = Trace(tl, root, CX, 500, 52, ['pop(1)', 'pop(v)', 'pop(u)', 'push(u)', 'push(v)', 'push(4)']);
+    T.layout([0, 5], 0);
+    T.show(0, 42.05); T.show(5, 42.15);
+    T.layout([0, 1, 4, 5], 43.25);                       // between the pops and the pushes: a gap
+    // the pair drops in from above, in a neutral mark
+    const xs2 = T.xs([0, 1, 4, 5]), dropY = -70;
+    const m1r = { x: xs2[1], y: T.y, w: xs2[4] + 7 * T.cw - xs2[1], h: T.lh };
+    const m1 = ringBox(tl, root, m1r, 45.3, { out: 48.45, pad: 10 });
+    tl.set(m1, { y: dropY }, 0); tl.to(m1, { y: 0 }, 45.3, 0.6, E.out5);
+    T.show(1, 45.2, dropY); T.show(4, 45.25, dropY);
+    // again: a second pair into the middle of that
+    T.layout([0, 1, 2, 3, 4, 5], 48.45);
+    const xs4 = T.xs([0, 1, 2, 3, 4, 5]);
+    const m2r = { x: xs4[2], y: T.y, w: xs4[3] + 7 * T.cw - xs4[2], h: T.lh };
+    const m2 = ringBox(tl, root, m2r, 49.35, { pad: 10 });
+    tl.set(m2, { y: dropY }, 0); tl.to(m2, { y: 0 }, 49.35, 0.6, E.out5);
+    T.show(2, 49.25, dropY); T.show(3, 49.3, dropY);
+    SX.note(tl, root, CX, 610, 'insert, for every value, again and again', 48.3, null);
+  });
+
+  // ============================================ step3_b =======================================================
+  scene('step3_b', ({ tl, root, cue }) => {
+    const S = 52, R1 = 232, R2 = 600;
+    const SK = { w: 96, h: 80, size: 44, gap: 10, rest: true, restH: 104 };
+    const sx1 = 1420, sx2 = 1680, svg = SX.svg(root);
+    const arrowAt = (yMid, at) => SX.line(tl, svg, sx1 + SK.w / 2 + 26, yMid, sx2 - SK.w / 2 - 26, yMid, { at, dur: 0.45 });
+
+    // "Take: pop one, push four."
+    const t1 = SX.prog(tl, root, RAIL, topFor(R1, S), S, 'pop(1) · push(4)');
+    t1.show(6.65, { stagger: 0.03 });
+    t1.pulse(0, 7.4); t1.pulse(2, 8.25);
+
+    // "It says: a stack with a one on top becomes the same stack with a four on top."
+    const b1 = R1 + 97;   // stacks of row 1: [1, …] and [4, …]; 194 px high, centred on the row
+    const s1a = new SX.Stack(tl, root, sx1, b1, Object.assign({ items: ['1'] }, SK));
+    const s1b = new SX.Stack(tl, root, sx2, b1, Object.assign({ items: ['4'] }, SK));
+    s1a.show(10.45); const a1 = arrowAt(R1, 12.05); s1b.show(13.6);
+
+    // "Whatever lies below is untouched."
+    const rest1 = [s1a, s1b].map(s => ringBox(tl, root, { x: s.cx - SK.w / 2, y: b1 - s.restH, w: SK.w, h: s.restH }, 15.95, { pad: 7 }));
+    const below = SX.note(tl, root, (sx1 + sx2) / 2, b1 + 20, 'anything below,', 16.05, null);
+    const below2 = SX.note(tl, root, (sx1 + sx2) / 2, b1 + 62, 'untouched', 16.15, null);
+
+    // "Now insert a pop and a push of a two. The new trace says the same thing, but only for stacks that have a two below."
+    const tSp = cue('spell');
+    SX.dim(tl, [t1, s1a, s1b, a1.path, a1.head, below, below2, ...rest1], 0.5, tSp - 0.1);
+    const t2 = SX.prog(tl, root, RAIL, topFor(R2, S), S, 'pop(1) · pop(2) · push(2) · push(4)');
+    t2.show(tSp - 0.1, { sel: [0, 1, 6] });
+    t2.show(22.6, { sel: [2, 3, 4, 5], rise: -60, dur: 0.6 });
+    t2.mark({ from: 2, to: 4 }, C.dim, 22.7, { fill: 0.08 });
+    const b2 = R2 + 142;   // [1, 2, …] and [4, 2, …]: 284 px high, centred on the row
+    const s2a = new SX.Stack(tl, root, sx1, b2, Object.assign({ items: ['1', '2'] }, SK));
+    const s2b = new SX.Stack(tl, root, sx2, b2, Object.assign({ items: ['4', '2'] }, SK));
+    s2a.show(24.9); arrowAt(R2, 25.5); s2b.show(25.75);
+    const twos = [s2a, s2b].map(s => ringBox(tl, root, s.slotRect(1), 28.6, { pad: 7, out: 34.9 }));
+
+    // "That is a special case of what we had, so adding it changes nothing in meaning."
+    SX.note(tl, root, RAIL, 400, 'a special case of the first', 29.95, null, { align: 'left' });
+
+    // "With every insertion added, there is one trace for each whole input stack, together with its whole output stack."
+    const tEx = cue('exact');
+    const rows = [...root.children].filter(e => e !== svg && !twos.includes(e));
+    for (const e of rows) tl.to(e, { o: 0.45 }, tEx - 0.15, 0.5);
+    tl.to(svg, { o: 0.45 }, tEx - 0.15, 0.5);
+    const ink = Object.assign({}, { color: C.ink });
+    SX.note(tl, root, CX, 778, 'one trace for each whole stack in, and whole stack out', 37.25, null, ink);
+
+    // "And then two programs have the same traces exactly when they relate the same stacks."
+    const l = SX.cline(root, CX, 832, [['the same traces', null], ['   ', null], ['   the same stacks related', null]], SX.SERIF(52));
+    l.parts[1].appendChild(SX.iff(52));
+    fadeIn(tl, l.parts[0], 44.3, 0.6, 12); fadeIn(tl, l.parts[1], 45.35, 0.5, 0); fadeIn(tl, l.parts[2], 46.25, 0.6, 12);
+  });
+
+  // ============================================ step3_c =======================================================
+  scene('step3_c', ({ tl, root, cue }) => {
+    const S = 56, svg = SX.svg(root), Y1 = 280, Y2 = 480;
+    const under = p => p.y + p.lh + 6;    // where arcs start, under a line
+
+    // "The inserted pairs nest, like brackets: pop A, pop B, push B, push A."
+    const n = SX.prog(tl, root, CX, topFor(Y1, S), S, 'pop(a)  pop(b)  push(b)  push(a)', { align: 'center' });
+    n.show(cue('nest') - 0.15, { stagger: 0.05 });
+    [5.1, 5.95, 6.9, 7.9].forEach((t, k) => n.pulse(n.letter(k), t));
+    const L = k => n.rect(n.letter(k)).cx;
+    const na1 = SX.arc(tl, svg, L(1), L(2), under(n), 50, { at: 7.25 });
+    const na2 = SX.arc(tl, svg, L(0), L(3), under(n), 100, { at: 8.25, dur: 0.6 });
+    // "No finite automaton accepts such a language."
+    const nr = SX.note(tl, root, CX, 480, 'no finite automaton accepts this', cue('notreg') - 0.15, null);
+    // "The way out is to change how a trace is read."
+    const tTr = cue('trick');
+    n.hide(tTr - 0.2); fadeOut(tl, nr, tTr - 0.2, 0.4); for (const a of [na1, na2]) tl.to(a, { o: 0 }, tTr - 0.2, 0.4);
+
+    // "Start in the middle, where the pops end and the pushes begin, and read outwards,"
+    const tr = SX.prog(tl, root, CX, topFor(Y1, S), S, 'pop(1) · pop(2) · push(3) · push(4)', { align: 'center' });
+    tr.show(cue('mid') - 0.2, { stagger: 0.03 });
+    const dot = 3, mx = tr.rect(dot).cx;      // the · between pop(2) and push(3)
+    const tick = SX.line(tl, svg, mx, tr.y - 22, mx, tr.y + tr.lh + 14, { head: 0, width: 4, at: 16.15, dur: 0.35 });
+    tr.dim(dot, 0, 16.15, 0.3);
+    const midL = SX.note(tl, root, mx, tr.y - 76, 'the middle', 16.15, cue('zip') - 0.2);
+    // "one pop and one push at a time, as a pair."
+    const T = k => tr.rect(tr.letter(k)).cx;
+    const a1 = SX.arc(tl, svg, T(1), T(2), under(tr), 48, { at: cue('pairs') - 0.15 });
+    const a2 = SX.arc(tl, svg, T(0), T(3), under(tr), 96, { at: 21.85, dur: 0.6 });
+
+    // "We call this zipping."
+    const zl = box(root, RAIL, 142, Object.assign(SX.LABEL(32), { color: C.ink, whiteSpace: 'pre' }), 'step 3 · zip');
+    fadeIn(tl, zl, cue('zip') - 0.15, 0.5, 10);
+
+    // "Here is a trace, and here it is zipped."
+    const tEx = cue('ex');
+    for (const a of [a1, a2]) tl.to(a, { o: 0.3 }, tEx - 0.1, 0.4);
+    tr.pulse('all', tEx, { scale: 1.03 });
+    const z = SX.prog(tl, root, CX, topFor(Y2, S), S, '(pop(2), push(3)) · (pop(1), push(4))', { align: 'center' });
+    z.show(30.8, { sel: 0 }); tl.to(a1, { o: 1 }, 30.8, 0.3);
+    tr.mark([2, 3, 4], C.dim, 30.8, { fill: 0.08, out: 31.6 });
+    z.show(31.6, { sel: [1, 2] }); tl.to(a2, { o: 1 }, 31.6, 0.3);
+    tr.mark('pop(1)', C.dim, 31.6, { fill: 0.08, out: 32.0 }); tr.mark('push(4)', C.dim, 31.6, { fill: 0.08, out: 32.0 });
+
+    // "When one side runs out, a placeholder fills in."
+    const tD = cue('doneph');
+    tr.hide(tD - 0.25, 0.35); z.hide(tD - 0.25, 0.35); tick.hide(tD - 0.25); for (const a of [a1, a2]) tl.to(a, { o: 0 }, tD - 0.25, 0.35);
+    const d1 = SX.prog(tl, root, CX, topFor(Y1, S), S, 'pop(1) · push(2) · push(3)', { align: 'center' });
+    const d2 = SX.prog(tl, root, CX, topFor(Y2, S), S, '(pop(1), push(2)) · (done, push(3))', { align: 'center' });
+    d1.show(tD + 0.1, { stagger: 0.03 }); d2.show(tD + 0.45, { stagger: 0.06 });
+    // `done` is a part of its zipped letter: a neutral mark on the word itself
+    const dl = d2.parts[2], dW = d2.cw * 4, dX = d2.x + (dl.col + 1) * d2.cw;
+    ringBox(tl, root, { x: dX, y: d2.y + 6, w: dW, h: d2.lh - 12 }, 33.95, { pad: 6, radius: 10, out: 35.6 });
+
+    // "Nothing is lost: a zipped trace can be unzipped again."
+    const ud = SX.prog(tl, root, CX, topFor((Y1 + Y2) / 2 + 4, 64), 64, '↕', { align: 'center' });
+    ud.show(cue('lossless') - 0.15, { rise: 0 });
+
+    // "Now the inserted pairs are no longer in the middle. They are at the front, one after another."
+    const tF = cue('front');
+    d1.hide(tF - 0.25, 0.35); d2.hide(tF - 0.25, 0.35);
+    const f1 = SX.prog(tl, root, CX, topFor(Y1, S), S, 'pop(1) · pop(v) · push(v) · push(4)', { align: 'center' });
+    const f2 = SX.prog(tl, root, CX, topFor(Y2, S), S, '(pop(v), push(v)) · (pop(1), push(4))', { align: 'center' });
+    f1.show(tF + 0.1, { stagger: 0.03 });
+    f1.mark({ from: 2, to: 4 }, C.dim, 40.15, { fill: 0.08 });
+    f2.show(41.3, { stagger: 0.06 });
+    f2.mark(0, C.dim, 43.15, { fill: 0.08 });
+    SX.note(tl, root, CX, 560, 'the inserted pair is at the front', 43.15, null);
+
+    // "And that is just a loop at the start."
+    const A = new SX.Automaton(tl, root, { size: 36 });
+    A.state('s', CX, 830, { name: '', start: true }).loop('s@', 's', '(pop(v), push(v))');
+    A.draw('s', cue('loop') - 0.15); A.draw('s@', 46.25);
+  });
+
+  // ============================================ step3_d =======================================================
+  scene('step3_d', ({ tl, root, cue }) => {
+    // "An automaton can be zipped too. The zipped automaton starts in the middle of a run of the original."
+    const A = SX.A3(tl, root, CX, 470);
+    A.drawAll(cue('auto') - 0.1, { stagger: 0.12, dur: 0.45 });
+    A.mark('e0', 4.4, { out: 5.2 }); A.mark('e', 5.15, { out: 5.75 }); A.mark('e1', 5.7, { out: 6.3 });
+    A.mark('e0', 6.25, { out: cue('z3') - 0.3 });
+    const startL = SX.note(tl, root, CX, 720, 'start in the middle: at any state', 4.4, cue('back') - 0.2);
+
+    // "Each of its steps goes one step backwards through the pops, and one step forwards through the pushes."
+    const e0 = A.pos('e0'), e = A.pos('e'), e1 = A.pos('e1');
+    A.travel('e>e0', 9.1, 0.9, { reverse: true, out: cue('z3') - 0.3 });
+    SX.note(tl, root, (e.x + e0.x) / 2 - 60, 720, 'backwards through the pops', 9.1, null);
+    A.travel('e0>e1', 11.5, 0.9, { out: cue('z3') - 0.3 });
+    SX.note(tl, root, (e0.x + e1.x) / 2 + 60, 776, 'forwards through the pushes', 11.5, null);
+
+    // "Here is the zipped automaton of the swapped program."
+    const tZ3 = cue('z3');
+    const keep = new Set();
+    const ZL = 520, ZR = 1430, ZY = 545;
+    const z3 = SX.Z3(tl, root, ZL, ZY);
+    const z1 = SX.Z1(tl, root, ZR, ZY, { loop: true });
+    keep.add(z3.g); keep.add(z1.g);
+    // everything before this leaves
+    const before = [...root.children].filter(x => !keep.has(x));
+    tl.to(A.g, { o: 0 }, tZ3 - 0.3, 0.35, E.in);
+    const S = 40;
+    const n3 = SX.prog(tl, root, ZL, topFor(150, S), S, 'pop(a)* · push(a)*', { align: 'center' });
+    const n1 = SX.prog(tl, root, ZR, topFor(150, S), S, 'push(a)* · pop(a)*', { align: 'center' });
+    z3.drawAll(14.15, { stagger: 0.2 }); n3.show(14.2);
+    z1.drawAll(cue('z1') + 0.05, { stagger: 0.2, except: ['T@'] }); n1.show(cue('z1') + 0.1);
+    for (const x of before) if (x !== A.g) tl.to(x, { o: 0 }, tZ3 - 0.3, 0.35, E.in);
+
+    // "They differ in one loop: the swapped program can begin with matching pairs."
+    const tD = cue('differ');
+    z3.pulse('T@', 22.65, { dur: 0.8 });
+    const m3 = z3.mark('T@', 22.65, { out: cue('pre') - 0.2 });
+    const one = SX.note(tl, root, CX, 262, 'one loop', 22.55, cue('pre') - 0.2);
+    z3.pulse('T@', 25.6, { dur: 0.7 });
+
+    // "Step three puts a loop of matching pairs on the start state of every automaton."
+    z1.draw('T@', 28.3, 0.6);
+    z3.pulse('T@', 30.9, { dur: 0.7 });
+
+    // "For the swapped program, that changes nothing. For the first, it adds the missing loop. Now the two accept the same language."
+    z1.pulse('T@', 36.5, { dur: 0.8 });
+    const eq = SX.prog(tl, root, CX, topFor(ZY + 20, 96), 96, '=', { align: 'center', colors: { '=': C.good } });
+    eq.show(39.4, { rise: 0 });
+
+    // "So the swapped program is equivalent to the first two."
+    const tEq = cue('eq');
+    for (const x of [z3, z1]) { x.to({ o: 0.35 }, tEq - 0.25, 0.5); x.dimEl('T>L', 0.12, tEq - 0.25, 0.5); x.dimEl('T>R', 0.12, tEq - 0.25, 0.5); }   // the edges the equation lies across go fainter still
+    for (const x of [n3, n1]) x.to({ o: 0.35 }, tEq - 0.25, 0.5);
+    eq.hide(tEq - 0.25, 0.35);
+    const M = 52, cw = charWidth(M);
+    const w1 = 41 * cw, x0 = CX - w1 / 2;
+    const q1 = SX.prog(tl, root, x0, topFor(500, M), M, 'pop(a)* · push(a)*  ≡  push(a)* · pop(a)*', { colors: { '≡': C.good } });
+    const q2 = SX.prog(tl, root, x0 + 20 * cw, topFor(500, M) + lhOf(M) + 18, M, '≡  push(a)* + pop(a)*', { colors: { '≡': C.good } });
+    q1.show(tEq - 0.15, { stagger: 0.02 });
+    q2.show(42.95, { stagger: 0.02 });
+    SX.tick(tl, SX.svg(root), x0 + w1 + 60, topFor(500, M) + lhOf(M) * 1.5 + 9, 52, 43.5);
+  });
+
+  // ============================================ thm ===========================================================
+  scene('thm', ({ tl, root, cue }) => {
+    const rows = new SX.Rows(tl, root, { x: RAIL, y: 190, pitch: 110, size: 56, back: 0.6 });
+    const LS = 40;
+    const law = (i, text, at) => {
+      const p = SX.prog(tl, root, 900, rows.mid(i) - lhOf(LS) / 2, LS, text, { colors: { '≡': C.good } });
+      p.show(at, { stagger: 0.02 }); rows.rows[i].add(p.root); return p;
+    };
+    // "Turn each program into an automaton."
+    rows.row('An automaton for each program', cue('t1') - 0.15, { num: '' });
+    // "Cancel: add shortcuts where a push meets its pop."
+    rows.row('Cancel', cue('t2') - 0.15, { num: '1' });
+    law(1, 'push(v) · pop(v) ≡ 1', 7.6);
+    // "Filter: keep the traces that pop before they push."
+    rows.row('Filter', cue('t3') - 0.15, { num: '2' });
+    law(2, 'push(v) · pop(w) ≡ 0', 11.75);
+    // "Zip, and put the loop of matching pairs in front."
+    rows.row('Zip', cue('t4') - 0.15, { num: '3' });
+    law(3, 'pop(v) · push(v) + 1 ≡ 1', 15.25);
+
+    // "Then two programs are equivalent if and only if the two automata accept the same language."
+    const tI = cue('iff');
+    for (const e of rows.all()) tl.to(e, { o: 0.45 }, tI - 0.2, 0.5);
+    const M = 60, cy = 752;
+    const th = SX.cline(root, CX, cy - lhOf(M) / 2, [['e₁ ≡ e₂', null], ['   ', null], ['', null], ['   ', null], ['L(A₁) = L(A₂)', null]], SX.MONO(M));
+    th.parts[2].appendChild(SX.iff(M));
+    const bw = 1160, bh = 140;
+    const frame = box(root, CX - bw / 2, cy - bh / 2, { width: bw + 'px', height: bh + 'px', borderRadius: '14px', boxShadow: `inset 0 0 0 2px ${C.line}` });
+    fadeIn(tl, frame, tI - 0.15, 0.6, 0);
+    SX.note(tl, root, CX, cy - bh / 2 - 50, 'theorem', tI - 0.15, null);
+    fadeIn(tl, th.parts[0], 18.2, 0.5, 10);
+    fadeIn(tl, th.parts[2], 19.85, 0.5, 0);
+    fadeIn(tl, th.parts[4], 21.3, 0.5, 10);
+
+    // "Every step is an elementary construction on finite automata."
+    SX.note(tl, root, CX, cy + bh / 2 + 20, 'elementary constructions on finite automata', cue('note') - 0.15, null);
+  });
+})();
+
+// ==== src/scenes/f.js ====
+// Headers, cost, counterexamples, axioms (full_a, full_b, cost, cex, ax) of the StacKAT film, built with SX.
+'use strict';
+(function () {
+  const { W, C, E, scene } = Film;
+  const { CX, RAIL } = SX;
+  const lh = size => Math.round(size * 1.3);
+
+  // a left-aligned label (small caps) with its own style; text is written lower case (the style uppercases it)
+  const lbl = (root, x, y, text, { size = 32, color = C.dim } = {}) => box(root, x, y, Object.assign(SX.LABEL(size), { color, whiteSpace: 'pre' }), text);
+  // a label right-aligned so that it ends at x
+  const rlbl = (root, x, y, text, { size = 32, color = C.dim } = {}) => box(root, x - 1000, y, Object.assign(SX.LABEL(size), { color, whiteSpace: 'pre', width: '1000px', textAlign: 'right' }), text);
+  // a pulse of a whole element (grows a little and back)
+  const pulseEl = (tl, e, at, s = 1.06) => { tl.to(e, { s }, at, 0.22, E.out); tl.to(e, { s: 1 }, at + 0.22, 0.4, E.io); };
+
+  // ============================================ full_a ========================================================
+  scene('full_a', ({ tl, root, cue }) => {
+    // "A state of the automaton becomes a pair: the current header, and the part of the program still to run."
+    const tS = cue('state');
+    // "Now put the header fields back.": a packet's header, until the pair arrives (the stage was empty here)
+    const back = SX.packetHeader(tl, root, SX.CX - 239, 400, [['sw', 'A'], ['dst', '7'], ['port', '1']]);
+    back.show(cue('hdr') + 0.1); back.hide(tS + 1.2);
+    const BIG = 96, st = SX.prog(tl, root, CX, 220 - lh(BIG) / 2, BIG, '⟨h, e⟩', { align: 'center', colors: { h: C.bind } });
+    st.show(5.85, { stagger: 0.05 });
+    const hx = st.colX(1.5), ex = st.colX(4.5);
+    const lH = rlbl(root, hx + 34, 312, 'the header now');
+    const lE = lbl(root, ex - 34, 312, 'the program still to run');
+    fadeIn(tl, lH, 7.05, 0.5, 10); st.pulse(st.ids('h'), 7.05);
+    fadeIn(tl, lE, 8.3, 0.5, 10); st.pulse(st.ids('e'), 8.3);
+
+    // "There are finitely many headers, and only finitely many parts of the program can be reached"
+    const lF = lbl(root, st.x + st.width + 70, 220 - 20, 'finitely many');
+    fadeIn(tl, lF, cue('finite') + 0.15, 0.5, 10);
+
+    // "Tests and assignments become silent steps that check or change the header."
+    const tT = cue('tests');
+    for (const e of [lH, lE, lF]) fadeOut(tl, e, tT - 0.4, 0.3, -8);
+    st.to({ y: 150 - 220, s: 56 / BIG }, tT - 0.3, 0.7);
+
+    // the transitions (paper Fig. 8): state, arrow, state; mono 44, pitch 100 from y = 330
+    const S = 44, cw = charWidth(S), X0 = 470, AX0 = X0 + 12 * cw + 46, AX1 = AX0 + 240, X1 = AX1 + 46;
+    const rows = [], col = box(root, 0, 0, { width: W + 'px', height: '1080px' }), csvg = SX.svg(col);
+    const row = (i, left, right, at, { arrowAt = at + 0.35, dash = false, op } = {}) => {
+      const y = 330 + i * 100, my = y + lh(S) / 2;
+      const L = SX.prog(tl, col, X0, y, S, left, { colors: { h: C.bind } });
+      const R = SX.prog(tl, col, X1, y, S, right, { colors: { h: C.bind } });
+      L.show(at);
+      const a = SX.line(tl, csvg, AX0, my, AX1, my, { at: arrowAt, dur: 0.5, dash: dash ? '13 11' : undefined });
+      R.show(arrowAt + 0.35);
+      const els = [L.root, R.root, a.path, a.head];
+      if (op) {
+        const o = SX.prog(tl, col, (AX0 + AX1) / 2, my - 10 - lh(36), 36, op, { align: 'center' });
+        o.show(arrowAt + 0.15); els.push(o.root);
+      }
+      rows.push(els);
+      return { L, R, a, y, my };
+    };
+    const r1 = row(0, '⟨h, f==v⟩', '⟨h, 1⟩', tT - 0.2, { arrowAt: 21.05, dash: true });
+    const r2 = row(1, '⟨h, f:=v⟩', '⟨h[f:=v], 1⟩', 20.0, { arrowAt: 21.25, dash: true });
+    // "that check": the condition of the test step, dim, after its row
+    const cond = box(col, X1 + 6 * cw + 60, r1.my - 22, Object.assign(SX.LABEL(32), { whiteSpace: 'pre' }), 'if ');
+    const cm = document.createElement('span');
+    Object.assign(cm.style, { fontFamily: 'var(--mono)', fontSize: '36px', textTransform: 'none', letterSpacing: '0', fontVariantLigatures: 'none' });
+    cm.textContent = 'h(f) = v'; cond.appendChild(cm);
+    fadeIn(tl, cond, 22.45, 0.5, 10); rows[0].push(cond);
+    // "or change the header"
+    r2.R.pulse({ from: 1, to: 4 }, 23.1);
+
+    // "Pushes and pops stay as letters."
+    const tP = cue('pp');
+    rows.slice(0, 2).flat().forEach(e => tl.to(e, { o: 0.4 }, tP - 0.25, 0.5));
+    row(2, '⟨h, push(v)⟩', '⟨h, 1⟩', tP - 0.2, { arrowAt: tP + 0.05, op: 'push(v)' });
+    row(3, '⟨h, pop(v)⟩', '⟨h, 1⟩', 25.2, { arrowAt: 25.4, op: 'pop(v)' });
+
+    // "Then, for every header at the start and every header at the end, take the traces between them, and normalize"
+    const tPr = cue('pairs');
+    tl.to(st.root, { o: 0.4 }, tPr - 0.25, 0.5);
+    rows.slice(2).flat().forEach(e => tl.to(e, { o: 0.4 }, tPr - 0.25, 0.5));
+    rows.slice(0, 2).flat().forEach(e => tl.to(e, { o: 0.3 }, tPr - 0.25, 0.5));
+    // the column makes room for what comes under it
+    tl.to(col, { y: -50 }, tPr - 0.25, 0.8, E.io);
+    const lP = SX.clabel(root, CX, 800, 'for every pair of headers: normalize', 32);
+    fadeIn(tl, lP, tPr - 0.1, 0.5, 10);
+    const tr = SX.cline(root, CX, 716, [['the traces from ', null], ['h₁', C.bind], [' to ', null], ['h₂', C.bind]], SX.SERIF(52));
+    fadeIn(tl, tr.root, 31.75, 0.6, 14);
+
+    // "Two programs are equivalent exactly when all of these agree."
+    const lT = SX.clabel(root, CX, 858, 'equivalent exactly when all of them agree', 32, C.ink);
+    fadeIn(tl, lT, cue('thm') - 0.15, 0.5, 10);
+  });
+
+  // ============================================ full_b ========================================================
+  scene('full_b', ({ tl, root, cue }) => {
+    // "For example, this loop has two branches."
+    const S = 56, p = SX.prog(tl, root, CX, 220 - lh(S) / 2, S, '(f==1 · push(1) + f:=2 · push(2))*', { align: 'center' });
+    p.show(cue('ex') - 0.15, { stagger: 0.025 });
+    const b1 = { from: 1, to: 3 }, b2 = { from: 5, to: 7 };
+    // "The first needs the field F to be one, and pushes a one."
+    p.dim(b2, 0.35, 3.5); p.pulse(1, 5.15); p.pulse(3, 6.55);
+    // "The second sets F to two, and pushes a two."
+    p.light(b2, 7.9); p.dim(b1, 0.35, 7.9); p.pulse(5, 8.6); p.pulse(7, 10.25);
+    p.light(b1, 11.5);
+
+    // a row: "f = n  →  f = n" (serif, the f's cyan) and the traces push(n)* (mono)
+    const SR = 52, RX = 1010, MX = 1090;
+    const mkRow = (n, y, t1, t2, t3) => {
+      const l = SX.lline(root, RX - 1000, y, [['f', C.bind], [` = ${n}`, null], ['   →   ', null], ['f', C.bind], [` = ${n}`, null]],
+        Object.assign(SX.SERIF(SR), { width: '1000px', textAlign: 'right' }));
+      [0, 1].forEach(k => fadeIn(tl, l.parts[k], t1, 0.5, 12));
+      [2, 3, 4].forEach(k => fadeIn(tl, l.parts[k], t2, 0.5, 12));
+      const tr = SX.prog(tl, root, MX, y + Math.round(SR * 1.22) / 2 - lh(S) / 2, S, `push(${n})*`);
+      tr.show(t3);
+      return [l.root, tr.root];
+    };
+    // "Start with F equal to one, and end with F equal to one: the loop can only have pushed ones."
+    const row1 = mkRow(1, 450, cue('c1') - 0.15, 13.9, 17.1);
+    // "From two to two, only twos."
+    const tC2 = cue('c2');
+    row1.forEach(e => tl.to(e, { o: 0.45 }, tC2 - 0.25, 0.5));
+    const row2 = mkRow(2, 590, tC2 - 0.15, 19.1, 19.8);
+    // "Each pair of headers is compared on its own."
+    const tE = cue('each');
+    row1.forEach(e => tl.to(e, { o: 1 }, tE - 0.2, 0.5));
+    const l = SX.clabel(root, CX, 740, 'each pair is compared on its own', 32);
+    fadeIn(tl, l, tE - 0.15, 0.5, 10);
+  });
+
+  // ============================================ cost ==========================================================
+  scene('cost', ({ tl, root, cue }) => {
+    const LX = 520, RX = 1400;
+    // "Without headers, the problem is complete for polynomial space, the same as for regular expressions."
+    const tPs = cue('ps');
+    const l1 = SX.clabel(root, LX, 300, 'push and pop only', 32);
+    fadeIn(tl, l1, tPs - 0.15, 0.5, 10);
+    const s1 = SX.cserif(root, LX, 352, 'PSPACE-complete', 72);
+    fadeIn(tl, s1, 3.75, 0.7, 16);
+    const d1 = SX.clabel(root, LX, 470, 'as for regular expressions', 32);
+    fadeIn(tl, d1, 6.75, 0.5, 10);
+    // "With headers, it is complete for exponential space, when programs may use any number of fields."
+    const tX = cue('exp');
+    SX.dim(tl, [l1, s1, d1], 0.45, tX - 0.25);
+    const l2 = SX.clabel(root, RX, 300, 'with any number of header fields', 32);
+    fadeIn(tl, l2, tX - 0.15, 0.5, 10);
+    const s2 = SX.cserif(root, RX, 352, 'EXPSPACE-complete', 72);
+    fadeIn(tl, s2, 9.9, 0.7, 16);
+    // "The implementation ... goes through the pairs of headers one by one."
+    const tI = cue('impl');
+    SX.dim(tl, [l2, s2], 0.45, tI - 0.25);
+    const i1 = SX.clabel(root, CX, 680, 'the implementation enumerates pairs of headers', 32, C.ink);
+    fadeIn(tl, i1, tI - 0.15, 0.5, 10);
+    // "A symbolic procedure is future work."
+    const i2 = SX.clabel(root, CX, 744, 'future work: a symbolic procedure', 32);
+    fadeIn(tl, i2, cue('sym') - 0.15, 0.5, 10);
+  });
+
+  // ============================================ cex ===========================================================
+  scene('cex', ({ tl, root, cue }) => {
+    const svg = SX.svg(root);
+    // "When two programs are not equivalent, the procedure says why."
+    const S = 44, top = SX.prog(tl, root, CX, 130, S, 'push(a)* · pop(a)*  ≢  (push(a) · push(a))* · (pop(a) · pop(a))*', { align: 'center', colors: { '≢': C.bad } });
+    const ne = top.ids('≢')[0];
+    top.show(cue('cex') - 0.15, { sel: { from: 0, to: ne - 1 }, stagger: 0.02 });
+    top.show(1.0, { sel: { from: ne + 1 }, stagger: 0.015 });
+    top.show(1.6, { sel: ne, rise: 0 });
+    const r1 = top.rect({ from: 0, to: ne - 1 }), r2 = top.rect({ from: ne + 1 });
+
+    // "The two automata differ on some word."
+    const WS = 60, word = SX.prog(tl, root, CX, 330 - lh(WS) / 2, WS, '(pop(a), done)', { align: 'center' });
+    word.show(6.75, { rise: 16 });
+    const wl = SX.clabel(root, CX, 384, 'a word one automaton accepts', 32);
+    fadeIn(tl, wl, 7.0, 0.5, 10);
+
+    // "Unzip it. Its pops spell an input stack, and its pushes spell an output stack."
+    const tU = cue('unzip');
+    const ar = SX.line(tl, svg, CX, 440, CX, 500, { at: tU - 0.2, dur: 0.4 });
+    const po = SX.prog(tl, root, CX, 510, WS, 'pop(a)', { align: 'center' });
+    po.show(tU + 0.05);
+    const BOT = 800, INX = 640, OUTX = 1280;
+    const sIn = new SX.Stack(tl, root, INX, BOT, { items: ['a'], label: 'pops: the input stack' });
+    sIn.show(9.3);
+    const sOut = new SX.Stack(tl, root, OUTX, BOT, { items: [], ghost: true, label: 'pushes: the output stack' });
+    sOut.show(11.85);
+
+    // "With the two headers, that is an input packet and an output packet"
+    const tP = cue('pair');
+    word.hide(tP - 0.3); po.hide(tP - 0.3); ar.hide(tP - 0.3);
+    fadeOut(tl, wl, tP - 0.3, 0.3, -8);
+    fadeOut(tl, sIn.labelEl, tP - 0.3, 0.3, -8); fadeOut(tl, sOut.labelEl, tP - 0.3, 0.3, -8);
+    // the packets: [h₁][in stack]  →  [h₂][out stack], bottoms at y = 640
+    const NB = 600, CWD = 96, CH = 84, G = 18, ARW = 200;
+    const pw = CWD + G + 96, x0 = Math.round(CX - (2 * pw + ARW + 80) / 2);
+    const inCx = x0 + CWD + G + 48, h2x = x0 + pw + 40 + ARW + 40, outCx = h2x + CWD + G + 48;
+    sIn.move(inCx - INX, NB - BOT, tP - 0.2, 0.8); sOut.move(outCx - OUTX, NB - BOT, tP - 0.2, 0.8);
+    const hcell = (x, name, at) => {
+      // the subscript as a lowered smaller digit: Fira Code's ₁ is too small to read in a cell
+      const c = SX.cell(root, x, NB - CH, CWD, CH, 'h', { stroke: C.bind, color: C.bind, font: SX.MONO(44) });
+      const sub = document.createElement('span');
+      Object.assign(sub.style, { fontSize: '28px', position: 'relative', top: '12px' });
+      sub.textContent = name; c._t.appendChild(sub);
+      fadeIn(tl, c, at, 0.5, 12); return c;
+    };
+    const h1 = hcell(x0, '1', 14.6), h2 = hcell(h2x, '2', 15.0);
+    const pl = SX.clabel(root, CX, NB + 34, 'an input packet, and an output packet', 32);
+    fadeIn(tl, pl, 16.0, 0.5, 10);
+    SX.line(tl, svg, x0 + pw + 40, NB - CH / 2, x0 + pw + 40 + ARW, NB - CH / 2, { at: 16.95, dur: 0.5 });
+
+    // "that one program relates, and the other does not."
+    const ty = 236;
+    SX.tick(tl, svg, r1.cx - 150, ty, 44, 18.95);
+    const rl = lbl(root, r1.cx - 105, ty - 20, 'relates them');
+    fadeIn(tl, rl, 19.05, 0.5, 10);
+    SX.cross(tl, svg, r2.cx - 110, ty, 36, 20.45);
+    const dl = lbl(root, r2.cx - 70, ty - 20, 'does not');
+    fadeIn(tl, dl, 20.55, 0.5, 10);
+
+    // "one such pair is: a stack holding a single A going in, and the empty stack coming out."
+    pulseEl(tl, sIn.g, 27.4); pulseEl(tl, sOut.g, 29.75);
+  });
+
+  // ============================================ ax ============================================================
+  scene('ax', ({ tl, root, cue }) => {
+    const svg = SX.svg(root);
+    // "The laws can be used as axioms, to prove equivalences by algebra.": the three laws again, until Kleene
+    // algebra arrives (the stage was empty through these two sentences)
+    SX.note(tl, root, SX.CX, 250, 'the three laws', cue('alg') - 0.15, cue('ka') - 0.5, { align: 'center' });
+    ['push(v) · pop(v) ≡ 1', 'push(v) · pop(w) ≡ 0', 'pop(v) · push(v) + 1 ≡ 1'].forEach((t, i) => {
+      const p = SX.prog(tl, root, SX.CX, 340 + i * 110, 52, t, { align: 'center', colors: { '≡': C.good } });
+      p.show(cue('alg') - 0.1 + i * 0.3, { stagger: 0.015 }); p.hide(cue('ka') - 0.5);
+    });
+    // "Start from Kleene algebra, the standard axioms for regular expressions."
+    const ka = box(root, RAIL - 4, 180, Object.assign(SX.SERIF(72), { whiteSpace: 'pre' }), 'Kleene algebra');
+    fadeIn(tl, ka, 9.15, 0.7, 16);
+    const kl = lbl(root, RAIL, 282, 'the axioms of regular expressions');
+    fadeIn(tl, kl, 10.7, 0.5, 10);
+
+    // rows: "+" on the rail, the law at x = 240
+    const S = 52, FX = 240, plus = (y, at) => { const p = SX.prog(tl, root, RAIL, y, S, '+'); p.show(at); return p.root; };
+    // "Add the first law,"
+    const tA1 = cue('a1');
+    const p1 = plus(400, tA1 - 0.15);
+    const a1 = SX.prog(tl, root, FX, 400, S, 'push(v) · pop(v) = 1'); a1.show(tA1 - 0.1, { stagger: 0.02 });
+    // "and the second."
+    const tA2 = cue('a2');
+    const p2 = plus(500, tA2 - 0.25);
+    const a2 = SX.prog(tl, root, FX, 500, S, 'push(v) · pop(w) = 0'); a2.show(tA2 - 0.2, { stagger: 0.02 });
+    const vw = SX.prog(tl, root, FX + a2.width + 44, 500 + (lh(S) - lh(40)) / 2, 40, 'v ≠ w');
+    for (const q of vw.parts) for (const s of q.subs) { s.style.color = C.dim; s._col = C.dim; }
+    vw.show(tA2 + 0.15);
+
+    // "These are complete for the first two steps.": a bracket, a tick, a label (on two lines)
+    const tC1 = cue('comp1'), BX = 1110, TX = 1200, LX = 1250;
+    const br = SX.dpath(tl, svg, `M ${BX} 404 L ${BX + 18} 404 L ${BX + 18} 564 L ${BX} 564`, { width: 3 });
+    tl.to(br, { draw: 1 }, tC1 - 0.2, 0.5, E.io);
+    const t1 = SX.tick(tl, svg, TX, 484, 44, tC1 + 0.1);
+    const c1 = box(root, LX, 484 - 40, Object.assign(SX.LABEL(32), { whiteSpace: 'pre' }), 'complete for\nsteps 1 and 2');
+    fadeIn(tl, c1, tC1 + 0.2, 0.5, 10);
+
+    // "For the third law, what is proved uses an extra family of rules, more complicated than the law."
+    const tA3 = cue('a3');
+    const first = [p1, a1.root, p2, a2.root, vw.root, br, ...t1.els, c1];
+    SX.dim(tl, first, 0.45, tA3 - 0.2);
+    const p3 = plus(640, 21.85);
+    const a3 = lbl(root, FX, 640 + lh(S) / 2 - 20, 'a family of rules for the third law', { color: C.ink });
+    fadeIn(tl, a3, 21.9, 0.5, 10);
+
+    // "With them, every equivalence between programs that push and pop has a proof from the axioms."
+    const tC2 = cue('comp2'), my3 = 640 + lh(S) / 2;
+    const t2 = SX.tick(tl, svg, TX, my3, 44, tC2 - 0.1);
+    const c2 = box(root, LX, my3 - 40, Object.assign(SX.LABEL(32), { whiteSpace: 'pre' }), 'complete for\npush and pop');
+    fadeIn(tl, c2, tC2, 0.5, 10);
+
+    // "Whether the third law by itself would be enough is an open question. The authors conjecture that it is not."
+    const tO = cue('open');
+    SX.dim(tl, [p3, a3, ...t2.els, c2], 0.45, tO - 0.2);
+    tl.to(ka, { o: 0.45 }, tO - 0.2, 0.5); tl.to(kl, { o: 0.45 }, tO - 0.2, 0.5);
+    const OS = 48, law = SX.prog(tl, root, FX, 770 - lh(OS) / 2, OS, 'pop(v) · push(v) ≤ 1');
+    law.show(32.75, { stagger: 0.02 });
+    const en = lbl(root, FX + law.width + 50, 770 - 20, 'enough by itself?');
+    fadeIn(tl, en, 34.3, 0.5, 10);
+    const op = SX.lline(root, FX, 836, [['open', null], [' · conjectured not', null]], SX.LABEL(32));
+    fadeIn(tl, op.parts[0], 35.3, 0.5, 10);
+    fadeIn(tl, op.parts[1], 37.4, 0.5, 10);
+  });
+})();
 
 // ==== ../src/film.js ====
 (function (addEventListener) {
@@ -1127,4 +3740,4 @@ window.TIMELINE = {
 });
 
 // ==== build/captions.js ====
-window.CAPTIONS = [[0.5, 3.42, "A network forwards packets by rules:"], [3.46, 5.9, "match some header fields, rewrite some,"], [5.94, 7.66, "and send the packet on."], [7.7, 10.7, "NetKAT reads those rules as a program."], [10.74, 14.38, "A field is a variable, a rule is an if statement,"], [14.42, 17.1, "and a path through the network is a loop."], [17.14, 18.78, "A question about the network,"], [18.82, 21.34, "such as whether one host can reach another,"], [21.38, 23.9, "then becomes a question about programs:"], [23.94, 26.22, "are these two programs equivalent?"], [26.26, 28.5, "For NetKAT this can be decided,"], [28.54, 31.1, "because a packet has finitely many fields,"], [31.14, 33.74, "with finitely many values."], [33.78, 36.86, "But real packets also carry a stack."], [36.9, 40.3, "In source routing, a packet carries its whole path,"], [40.34, 42.94, "and each router pops the next hop."], [42.98, 45.98, "Telemetry pushes a record at every hop."], [46.02, 49.66, "And parsing a packet pops its bytes one by one."], [49.7, 52.86, "A stack has no bound, so there are infinitely many"], [52.9, 57.02, "packets, and the finite-state argument is gone."], [57.06, 60.38, "StacKAT adds two operations to NetKAT."], [60.42, 62.86, "Push puts a value on the stack."], [62.9, 64.97, "Pop removes the top value,"], [65.01, 67.74, "and drops the packet if it is a different one."], [67.78, 71.34, "So push and then pop of the same value does nothing,"], [71.38, 74.1, "and push and then pop of different values drops"], [74.14, 75.26, "the packet."], [75.3, 78.78, "With loops, a program can push and pop without"], [78.82, 79.45, "bound."], [79.49, 83.58, "Can we still decide whether two programs are equivalent?"], [83.62, 85.82, "Surprisingly, yes."], [85.86, 88.38, "A program becomes a finite automaton,"], [88.42, 90.78, "whose transitions are labelled with pushes and"], [90.82, 91.98, "pops."], [92.02, 94.7, "Three steps bring it to a normal form:"], [94.74, 97.42, "cancel each push that meets its pop,"], [97.46, 100.46, "keep only the runs that pop before they push,"], [100.5, 102.78, "and zip the two halves together."], [102.82, 105.54, "Two programs are equivalent exactly when their"], [105.58, 108.3, "normal forms accept the same language."], [108.34, 113.02, "When they are not, the procedure gives a counterexample."], [113.06, 114.22, "StacKAT:"], [114.26, 117.34, "infinite state network verification."], [117.38, 119.82, "The paper has the decision procedure,"], [119.86, 124.28, "its complexity, and a complete axiomatization."]];
+window.CAPTIONS = [[0.8, 3.08, "Here are two small programs."], [3.12, 5.32, "Each one acts on a stack."], [5.36, 8.92, "The first pushes the value A any number of times,"], [8.96, 11.48, "and then pops it any number of times."], [11.52, 13.72, "The second does one or the other:"], [13.76, 16.28, "only pushes, or only pops."], [16.32, 17.68, "They are equivalent:"], [17.72, 21.24, "on every stack, they can do exactly the same things."], [21.28, 23.32, "How could a machine check that?"], [23.36, 25.72, "A stack can be arbitrarily deep,"], [25.76, 28.76, "so there are infinitely many stacks to try."], [28.8, 31.4, "This video is about a language for networks,"], [31.44, 34.28, "called StacKAT, in which that question always"], [34.32, 35.64, "has an answer."], [35.68, 38.32, "By the end, we will have checked these two programs"], [38.36, 40.26, "by hand."], [40.36, 42.16, "Here is what is coming."], [42.2, 45.17, "First, how a network becomes a program,"], [45.21, 48.72, "and a question about it becomes a question of equivalence."], [48.76, 51.76, "Then why real packets need a stack."], [51.8, 55.48, "Then the language, and three laws about push and"], [55.52, 56.08, "pop."], [56.12, 57.52, "Then the main part:"], [57.56, 59.52, "a procedure in three steps,"], [59.56, 62.64, "one for each law, that decides equivalence using"], [62.68, 64.56, "only finite automata."], [64.6, 66.24, "And at the end:"], [66.28, 68.4, "headers, cost, counterexamples,"], [68.44, 70.86, "and axioms."], [71.28, 72.56, "StacKAT:"], [72.6, 76.42, "infinite state network verification."], [78.42, 80.7, "A network is made of switches."], [80.74, 82.78, "A packet arrives with a header:"], [82.82, 86.46, "a few fields, such as a destination and a port."], [86.5, 88.46, "A switch looks at some fields,"], [88.5, 91.98, "changes some, and sends the packet on to a neighbor."], [92.02, 94.7, "NetKAT is a language that reads all of this as"], [94.74, 95.9, "a program."], [95.94, 97.82, "A field is a variable."], [97.86, 99.5, "A match is a test:"], [99.54, 102.06, "it lets the packet through if a field has a given"], [102.1, 104.7, "value, and drops it otherwise."], [104.74, 108.22, "An action is an assignment of a constant to a field."], [108.26, 110.86, "Even the packet's location is a field."], [110.9, 113.5, "Moving it to switch B is an assignment:"], [113.54, 116.1, "switch becomes B."], [116.14, 118.98, "Programs are combined in three ways."], [119.02, 122.26, "A dot runs one program and then another."], [122.3, 124.1, "A plus is a choice:"], [124.14, 125.94, "the packet goes both ways,"], [125.98, 128.9, "as when a switch forwards it to two neighbors."], [128.94, 132.53, "A star repeats a program any number of times."], [132.57, 135.03, "And there are two constant programs."], [135.07, 139.1, "The program written one passes every packet unchanged."], [139.14, 142.5, "The program written zero drops every packet."], [142.54, 145.14, "The whole network is then one program:"], [145.18, 147.46, "test which switch the packet is on,"], [147.5, 149.14, "run that switch's program,"], [149.18, 151.34, "and repeat."], [151.38, 153.42, "What does a program mean?"], [153.46, 156.22, "It relates each input packet to the packets that"], [156.26, 157.34, "can come out:"], [157.38, 159.9, "none, one, or several."], [159.94, 162.34, "Two programs are equivalent if they relate the"], [162.38, 164.78, "same inputs to the same outputs."], [164.82, 167.85, "Equivalence is what verification needs."], [167.89, 170.62, "To ask whether any packet can get from switch A"], [170.66, 171.98, "to switch B:"], [172.02, 174.14, "start at A, run the network,"], [174.18, 175.74, "and test for B."], [175.78, 178.14, "If that program is equivalent to zero,"], [178.18, 180.14, "no packet gets through."], [180.18, 183.26, "For NetKAT, a machine can always answer,"], [183.3, 185.74, "because a packet has finitely many fields,"], [185.78, 187.9, "with finitely many values."], [187.94, 190.22, "There are only finitely many packets,"], [190.26, 194.2, "so a program is a finite-state system."], [196.02, 198.54, "Real packets are not that simple."], [198.58, 201.82, "On the wire, a packet is a sequence of bytes."], [201.86, 203.66, "A switch must parse it:"], [203.7, 206.94, "take bytes off the front, and put them into fields."], [206.98, 209.94, "In source routing, the packet carries its whole"], [209.98, 212.94, "route, and each switch takes off the next hop."], [212.98, 215.74, "Telemetry adds a record at every hop."], [215.78, 218.38, "A tunnel wraps the packet in new headers,"], [218.42, 220.06, "and unwraps it later."], [220.1, 222.78, "Every one of these adds or removes at the front"], [222.82, 223.98, "of the packet."], [224.02, 226.42, "That is a stack."], [226.46, 229.06, "And a stack has no fixed depth."], [229.1, 231.62, "A route can be arbitrarily long."], [231.66, 233.99, "So there are infinitely many packets,"], [234.03, 237.14, "and the argument that made NetKAT decidable is"], [237.18, 237.67, "gone."], [237.71, 239.3, "It looks worse than that."], [239.34, 242.7, "A machine with a stack and an input can recognize"], [242.74, 245.86, "context-free languages, and whether two context-free"], [245.9, 248.82, "languages are equal is undecidable."], [248.86, 251.6, "So is there any hope?"], [253.42, 256.5, "In StacKAT, a packet has two parts:"], [256.54, 259.54, "a header, as before, and a stack."], [259.58, 262.1, "The language adds two operations."], [262.14, 265.3, "Push puts a value on top of the stack."], [265.34, 267.54, "Pop takes a value off the top,"], [267.58, 270.02, "but only if it is the value named."], [270.06, 272.78, "Pop three, on a stack with three on top,"], [272.82, 273.94, "removes it."], [273.98, 276.1, "Pop five, on the same stack,"], [276.14, 277.7, "drops the packet."], [277.74, 280.1, "So does a pop on an empty stack."], [280.14, 283.68, "A pop is a test and an action in one."], [283.78, 285.74, "These two are enough."], [285.78, 287.9, "Source routing is one line:"], [287.94, 291.1, "pop the top of the stack into the switch field."], [291.14, 293.34, "That is shorthand for a choice:"], [293.38, 295.58, "pop one and go to switch one,"], [295.62, 298.25, "or pop two and go to switch two,"], [298.29, 299.42, "and so on."], [299.46, 302.97, "That works because there are finitely many values."], [303.01, 306.38, "Parsing a header pops into one field after another."], [306.42, 309.48, "And telemetry is a push."], [309.6, 312.52, "A program still relates input packets to output"], [312.56, 315.8, "packets, and equivalence is as before."], [315.84, 317.96, "But push and pop interact,"], [318.0, 320.2, "and three laws say how."], [320.24, 320.92, "One."], [320.96, 323.8, "Push a value and then pop the same value:"], [323.84, 325.24, "nothing has happened."], [325.28, 327.96, "That is equivalent to the program one."], [328.0, 328.76, "Two."], [328.8, 331.48, "Push a value and then pop a different value:"], [331.52, 333.0, "the pop fails."], [333.04, 335.16, "That is equivalent to zero."], [335.2, 336.84, "The third is subtle."], [336.88, 339.32, "Pop a value and then push it back."], [339.36, 341.88, "That is not equivalent to the program one,"], [341.92, 344.36, "because it drops every packet that does not have"], [344.4, 346.04, "that value on top."], [346.08, 347.99, "But when it does not drop the packet,"], [348.03, 349.56, "it changes nothing."], [349.6, 353.4, "So a choice between the program one and this pop-then-push"], [353.44, 356.42, "is just the program one."], [356.64, 359.77, "Now back to the two programs from the start."], [359.81, 361.88, "Push A any number of times,"], [361.92, 364.52, "then pop A any number of times."], [364.56, 368.36, "By the first law, each push cancels against a pop."], [368.4, 369.72, "If there were more pushes,"], [369.76, 371.32, "some pushes are left."], [371.36, 374.24, "If there were more pops, some pops are left."], [374.28, 376.6, "That is what the second program does."], [376.64, 378.64, "So they are equivalent."], [378.68, 380.6, "Here is a third program:"], [380.64, 383.0, "push A an even number of times,"], [383.04, 385.48, "then pop it an even number of times."], [385.52, 387.8, "It is not equivalent to the first."], [387.84, 390.44, "The first can take a stack that holds a single"], [390.48, 391.96, "A, and empty it."], [392.0, 393.56, "The third cannot."], [393.6, 396.2, "We want a machine to tell such cases apart,"], [396.24, 398.9, "for any two programs."], [399.02, 400.34, "And it can."], [400.38, 403.78, "Equivalence of StacKAT programs is decidable."], [403.82, 406.13, "This is the surprising part."], [406.17, 409.14, "The stack is unbounded, and programs may use it"], [409.18, 412.26, "in any way they like, yet the question can always"], [412.3, 413.54, "be answered."], [413.58, 416.1, "What makes it possible is that a program has no"], [416.14, 418.74, "input other than the packet itself."], [418.78, 421.38, "The stack is not working memory for reading some"], [421.42, 422.58, "other input."], [422.62, 427.04, "It is the input, and it is the output."], [428.86, 432.26, "We start with programs that only push and pop."], [432.3, 434.18, "Headers come back later."], [434.22, 436.82, "Such a program is a regular expression,"], [436.86, 439.3, "whose letters are pushes and pops."], [439.34, 441.78, "Each word it matches is a trace:"], [441.82, 444.66, "one sequence of pushes and pops that the program"], [444.7, 445.94, "can perform."], [445.98, 448.66, "A regular expression can be turned into a finite"], [448.7, 452.02, "automaton that accepts exactly its traces,"], [452.06, 455.46, "and a machine can compare two finite automata."], [455.5, 457.97, "But the traces are not the meaning."], [458.01, 460.21, "Take a choice between the program one,"], [460.25, 463.38, "and a pop followed by a push of the same value."], [463.42, 465.22, "It has two traces."], [465.26, 468.05, "The program one alone has a single trace,"], [468.09, 469.38, "the empty one."], [469.42, 472.5, "Yet by the third law, they mean the same."], [472.54, 475.54, "So before comparing, we bring each automaton to"], [475.58, 478.18, "a normal form, in three steps,"], [478.22, 480.64, "one for each law."], [480.76, 482.96, "Step one is to cancel."], [483.0, 485.2, "It uses the first law."], [485.24, 487.68, "Wherever the automaton can do a push and then a"], [487.72, 490.84, "pop of the same value, possibly with silent steps"], [490.88, 493.92, "in between, add a shortcut between the same two"], [493.96, 495.84, "states that does nothing."], [495.88, 498.48, "Repeat until nothing new appears."], [498.52, 501.25, "In our automaton, the loop pushes A,"], [501.29, 503.52, "and the next edge pops A."], [503.56, 506.16, "So we add a silent edge beside them."], [506.2, 509.28, "The automaton now accepts every trace it had,"], [509.32, 512.28, "and also every trace in which matching pushes and"], [512.32, 515.1, "pops have been cancelled."], [515.22, 517.5, "Step two is to filter."], [517.54, 520.3, "Take a trace in which a push is followed directly"], [520.34, 521.5, "by a pop."], [521.54, 524.7, "If the two values differ, the trace drops every"], [524.74, 526.46, "packet, by the second law."], [526.5, 528.3, "It contributes nothing."], [528.34, 531.26, "If they are the same, step one has already added"], [531.3, 532.7, "the trace without them."], [532.74, 534.22, "It is redundant."], [534.26, 537.34, "So we keep only the traces with no such pair:"], [537.38, 540.02, "all pops come before all pushes."], [540.06, 543.18, "On automata, that is an intersection with the automaton"], [543.22, 545.02, "for pops, then pushes:"], [545.06, 546.78, "a standard construction."], [546.82, 549.82, "For our program, the result has two branches:"], [549.86, 552.22, "pops only, or pushes only."], [552.26, 555.34, "And that is exactly the automaton of the second"], [555.38, 555.98, "program."], [556.02, 558.42, "The two programs from the start of the video are"], [558.46, 561.26, "equivalent, and this time a procedure has checked"], [561.3, 562.92, "it."], [563.12, 564.76, "Notice what we did."], [564.8, 566.95, "We changed a finite automaton,"], [566.99, 568.84, "and compared it with another."], [568.88, 571.8, "When two automata agree after these steps,"], [571.84, 573.8, "the programs are equivalent."], [573.84, 576.76, "But when they disagree, we cannot conclude anything"], [576.8, 577.64, "yet."], [577.68, 581.06, "Two steps are not always enough."], [581.46, 585.02, "Here is the first program with its halves swapped:"], [585.06, 587.34, "pop A any number of times,"], [587.38, 590.3, "then push A any number of times."], [590.34, 592.62, "It is equivalent to the other two."], [592.66, 595.58, "But steps one and two leave its automaton as it"], [595.62, 596.54, "is."], [596.58, 599.45, "It still accepts a pop followed by a push,"], [599.49, 601.42, "which the others do not."], [601.46, 603.66, "This is the third law at work:"], [603.7, 606.78, "a pop and then a push of the same value is hidden"], [606.82, 608.78, "inside the program one."], [608.82, 611.42, "We cannot simply delete such a pair."], [611.46, 614.82, "On its own, a pop and then a push still drops some"], [614.86, 615.9, "packets."], [615.94, 618.78, "Deleting is only right when the trace without the"], [618.82, 620.7, "pair is also there."], [620.74, 623.1, "So again we add instead."], [623.14, 626.3, "In every trace, between the pops and the pushes,"], [626.34, 629.34, "insert a pop and a push of the same value."], [629.38, 633.64, "Do it for every value, and again and again."], [633.86, 636.42, "Why is this the right thing to add?"], [636.46, 639.1, "Think about what a trace of pops and then pushes"], [639.14, 640.06, "says."], [640.1, 640.7, "Take:"], [640.74, 642.86, "pop one, push four."], [642.9, 643.82, "It says:"], [643.86, 646.78, "a stack with a one on top becomes the same stack"], [646.82, 648.38, "with a four on top."], [648.42, 651.02, "Whatever lies below is untouched."], [651.06, 655.02, "So this single trace stands for many pairs of stacks."], [655.06, 658.18, "Now insert a pop and a push of a two."], [658.22, 660.41, "The new trace says the same thing,"], [660.45, 663.3, "but only for stacks that have a two below."], [663.34, 665.66, "That is a special case of what we had,"], [665.7, 668.38, "so adding it changes nothing in meaning."], [668.42, 670.22, "With every insertion added,"], [670.26, 673.26, "there is one trace for each whole input stack,"], [673.3, 675.82, "together with its whole output stack."], [675.86, 679.34, "And then two programs have the same traces exactly"], [679.38, 682.36, "when they relate the same stacks."], [682.68, 684.12, "There is a problem."], [684.16, 687.36, "The inserted pairs nest, like brackets:"], [687.4, 691.4, "pop A, pop B, push B, push A."], [691.44, 694.64, "No finite automaton accepts such a language."], [694.68, 697.92, "The way out is to change how a trace is read."], [697.96, 700.52, "Start in the middle, where the pops end and the"], [700.56, 703.04, "pushes begin, and read outwards,"], [703.08, 705.44, "one pop and one push at a time,"], [705.48, 706.64, "as a pair."], [706.68, 708.6, "We call this zipping."], [708.64, 711.6, "Each pair is one letter of a new alphabet."], [711.64, 714.48, "Here is a trace, and here it is zipped."], [714.52, 718.08, "When one side runs out, a placeholder fills in."], [718.12, 719.28, "Nothing is lost:"], [719.32, 722.0, "a zipped trace can be unzipped again."], [722.04, 724.96, "Now the inserted pairs are no longer in the middle."], [725.0, 727.71, "They are at the front, one after another."], [727.75, 731.1, "And that is just a loop at the start."], [731.22, 733.9, "An automaton can be zipped too."], [733.94, 736.3, "The zipped automaton starts in the middle of a"], [736.34, 737.98, "run of the original."], [738.02, 740.66, "Each of its steps goes one step backwards through"], [740.7, 744.46, "the pops, and one step forwards through the pushes."], [744.5, 747.98, "Here is the zipped automaton of the swapped program."], [748.02, 750.3, "And here is the one for the first program,"], [750.34, 752.7, "after steps one and two."], [752.74, 754.46, "They differ in one loop:"], [754.5, 758.06, "the swapped program can begin with matching pairs."], [758.1, 760.86, "Step three puts a loop of matching pairs on the"], [760.9, 763.26, "start state of every automaton."], [763.3, 766.14, "For the swapped program, that changes nothing."], [766.18, 768.94, "For the first, it adds the missing loop."], [768.98, 771.74, "Now the two accept the same language."], [771.78, 774.74, "So the swapped program is equivalent to the first"], [774.78, 776.2, "two."], [776.42, 778.46, "That is the whole procedure."], [778.5, 781.34, "Turn each program into an automaton."], [781.38, 782.38, "Cancel:"], [782.42, 785.58, "add shortcuts where a push meets its pop."], [785.62, 786.62, "Filter:"], [786.66, 789.98, "keep the traces that pop before they push."], [790.02, 793.66, "Zip, and put the loop of matching pairs in front."], [793.7, 797.1, "Then two programs are equivalent if and only if"], [797.14, 800.06, "the two automata accept the same language."], [800.1, 803.02, "Every step is an elementary construction on finite"], [803.06, 804.22, "automata."], [804.26, 808.6, "The infinitely many stacks never had to be listed."], [810.42, 812.78, "Now put the header fields back."], [812.82, 815.58, "A state of the automaton becomes a pair:"], [815.62, 818.06, "the current header, and the part of the program"], [818.1, 819.5, "still to run."], [819.54, 821.5, "There are finitely many headers,"], [821.54, 824.06, "and only finitely many parts of the program can"], [824.1, 827.98, "be reached, so it is still a finite automaton."], [828.02, 831.1, "Tests and assignments become silent steps that"], [831.14, 833.26, "check or change the header."], [833.3, 836.14, "Pushes and pops stay as letters."], [836.18, 839.06, "Then, for every header at the start and every header"], [839.1, 841.77, "at the end, take the traces between them,"], [841.81, 843.86, "and normalize as before."], [843.9, 846.7, "Two programs are equivalent exactly when all of"], [846.74, 848.82, "these agree."], [848.86, 852.1, "For example, this loop has two branches."], [852.14, 855.01, "The first needs the field F to be one,"], [855.05, 856.5, "and pushes a one."], [856.54, 860.26, "The second sets F to two, and pushes a two."], [860.3, 862.34, "Start with F equal to one,"], [862.38, 864.58, "and end with F equal to one:"], [864.62, 867.14, "the loop can only have pushed ones."], [867.18, 869.86, "From two to two, only twos."], [869.9, 873.76, "Each pair of headers is compared on its own."], [873.88, 875.8, "What does this cost?"], [875.84, 878.72, "Without headers, the problem is complete for polynomial"], [878.76, 882.16, "space, the same as for regular expressions."], [882.2, 885.44, "With headers, it is complete for exponential space,"], [885.48, 888.56, "when programs may use any number of fields."], [888.6, 891.52, "The implementation, which runs in a web browser,"], [891.56, 894.48, "goes through the pairs of headers one by one."], [894.52, 896.32, "That is its bottleneck."], [896.36, 899.98, "A symbolic procedure is future work."], [900.1, 902.46, "When two programs are not equivalent,"], [902.5, 904.54, "the procedure says why."], [904.58, 907.5, "The two automata differ on some word."], [907.54, 908.94, "Unzip it."], [908.98, 911.15, "Its pops spell an input stack,"], [911.19, 913.9, "and its pushes spell an output stack."], [913.94, 916.86, "With the two headers, that is an input packet and"], [916.9, 919.79, "an output packet that one program relates,"], [919.83, 921.55, "and the other does not."], [921.59, 924.02, "For the program with even numbers of pushes and"], [924.06, 926.46, "pops, one such pair is:"], [926.5, 929.18, "a stack holding a single A going in,"], [929.22, 932.44, "and the empty stack coming out."], [934.26, 935.9, "One more result."], [935.94, 938.25, "The laws can be used as axioms,"], [938.29, 941.1, "to prove equivalences by algebra."], [941.14, 943.02, "Start from Kleene algebra,"], [943.06, 946.3, "the standard axioms for regular expressions."], [946.34, 949.1, "Add the first law, and the second."], [949.14, 951.9, "These are complete for the first two steps."], [951.94, 954.94, "For the third law, what is proved uses an extra"], [954.98, 958.46, "family of rules, more complicated than the law."], [958.5, 961.46, "With them, every equivalence between programs that"], [961.5, 964.78, "push and pop has a proof from the axioms."], [964.82, 967.5, "Whether the third law by itself would be enough"], [967.54, 969.34, "is an open question."], [969.38, 972.84, "The authors conjecture that it is not."], [974.66, 977.74, "A network is a program, and questions about it"], [977.78, 979.98, "are questions of equivalence."], [980.02, 981.9, "Real packets need a stack,"], [981.94, 984.62, "which makes the state space infinite."], [984.66, 987.1, "StacKAT adds push and pop,"], [987.14, 989.98, "and three laws about them become three steps on"], [990.02, 991.74, "a finite automaton:"], [991.78, 994.3, "cancel, filter, zip."], [994.34, 997.66, "After those steps, equivalent programs have automata"], [997.7, 999.61, "that accept the same language,"], [999.65, 1002.3, "and so equivalence is decidable."], [1002.34, 1004.86, "That is a foundation for checking networks that"], [1004.9, 1008.92, "parse, tunnel, and route by a stack."], [1009.14, 1010.46, "StacKAT:"], [1010.5, 1013.5, "infinite state network verification."], [1013.54, 1016.14, "The paper and its appendix have the proofs,"], [1016.18, 1017.9, "the constructions in full,"], [1017.94, 1022.28, "the complexity bounds, and the axiomatization."]];
