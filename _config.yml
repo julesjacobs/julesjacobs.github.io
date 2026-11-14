@@ -19,3 +19,21 @@ defaults:
       type: posts
     values:
       layout: post
+
+# Working files that are kept in the repository but are not part of the site. (Setting this list replaces
+# Jekyll's default one, so the defaults are repeated at its end.)
+exclude:
+  - sep.md
+  - postideas.txt
+  - structure.md
+  - AGENTS.md
+  - newpost.py
+  - papers/stable-patterns/demo/inline-src
+  - papers/stable-patterns/demo/inline-test.html
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
