@@ -73,6 +73,7 @@
     .b { color: var(--bind); }    /* a binder */
     .n { color: var(--name); }    /* a plain name */
     .film {
+      scroll-margin-top: 12px;
       position: relative;
       width: 100%;
       aspect-ratio: 16 / 9;
@@ -80,7 +81,7 @@
       border-radius: 6px;
       overflow: hidden;
       background: #f4ecdf;
-      margin: 8px 0 6px 0;
+      margin: 22px 0 6px 0;
     }
     .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     ol.chapters { columns: 2; column-gap: 28px; padding-left: 0; margin: 6px 0; list-style: none; font-size: 15px; }
@@ -90,19 +91,19 @@
     table.says th { text-align: left; font-weight: 600; color: var(--muted); font-size: 13px; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line); }
     table.says td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
     table.says td:first-child { white-space: nowrap; }
-    .top { display: grid; grid-template-columns: minmax(0, 1fr) 216px; gap: 8px 40px; align-items: start; margin: 28px 0 8px 0; }
+    .top { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 8px 44px; align-items: start; margin: 14px 0 8px 0; }
     .top h1 { margin-top: 0; font-size: 32px; }
     .pitch { font-size: 17.5px; line-height: 1.5; margin: 14px 0 16px 0; }
     .top .buttons { margin-bottom: 0; }
     .top .button { padding: 4px 12px; font-size: 15px; }
     .top .button.primary { color: var(--bg); background-color: var(--link); border-color: var(--link); }
     .top .button.primary:hover { filter: brightness(1.12); }
-    a.paper { display: block; color: var(--muted); font-size: 13.5px; text-align: center; margin-top: 4px; }
+    a.paper { display: block; color: var(--muted); font-size: 13px; text-align: center; margin-top: 4px; }
     a.paper:hover { background: none; color: var(--link); }
     a.paper img {
       display: block; width: 100%; height: auto; aspect-ratio: 945 / 1400; background: #fff;
       border: 1px solid var(--chip-line); border-radius: 2px; margin-bottom: 14px;
-      box-shadow: 0 1px 3px rgba(20, 30, 50, 0.10), 5px 5px 0 -1px #fff, 5px 5px 0 0 var(--chip-line), 10px 10px 0 -1px #fff, 10px 10px 0 0 var(--chip-line);
+      box-shadow: 0 1px 3px rgba(20, 30, 50, 0.10), 4px 4px 0 -1px #fff, 4px 4px 0 0 var(--chip-line), 8px 8px 0 -1px #fff, 8px 8px 0 0 var(--chip-line);
       transition: transform 0.15s ease;
     }
     a.paper:hover img { transform: translateY(-3px); }
@@ -111,7 +112,7 @@
     .more { color: var(--muted); font-size: 15px; }
     @media (max-width: 680px) {
       .top { grid-template-columns: minmax(0, 1fr); }
-      a.paper { width: 170px; margin: 18px auto 0 auto; }
+      a.paper { display: none; }
     }
     @media (max-width: 560px) {
       ol.chapters { columns: 1; }
@@ -142,17 +143,11 @@
     </div>
     <a class="paper" href="stable-patterns.pdf" title="Read the paper (PDF)">
       <img src="paper-page1.jpg" width="945" height="1400" alt="The first page of the paper" />
-      Read the paper (PDF)
+      Read the paper
     </a>
   </div>
 
-  <h2 id="film">The film</h2>
-  <p>
-    Twenty-eight minutes that explain the paper from the beginning: the idea on three loops,
-    how the patterns are found, why they are the best ones, functions and closures,
-    specialization, and what is proved.
-  </p>
-  <div class="film">
+  <div class="film" id="film">
     <iframe name="film" src="film/" title="Dataflow Facts as Stable Patterns: the film" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
   <ol class="chapters">
@@ -207,20 +202,10 @@
       <td>contification</td>
     </tr>
   </table>
-  <p>
-    Patterns are <i>stable</i> if, once each block is simplified under its pattern, every call
-    that remains matches the pattern of the block that it calls. Any stable patterns are safe to
-    optimize with. The algorithm finds the most specific ones: it assumes the most specific
-    pattern that could hold, lets the program refute it, keeps only what was refuted, and
-    starts again. No code is copied unless a specialization policy asks for several patterns
-    for one block; with such a policy the same algorithm is a specializer of higher-order
-    functions, an inliner or a partial evaluator.
-  </p>
 
   <h2 id="demo">Try it</h2>
   <p>
-    Pick an example or edit the program. The stable patterns are what the algorithm finds, one
-    for each block; the output is the program simplified under them.
+    Pick an example, or edit the program.
   </p>
   <div id="try"></div>
   <p class="more">
