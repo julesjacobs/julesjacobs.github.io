@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Dataflow Facts as Stable Patterns, by Fabian Lukas Grubmüller and Jules Jacobs. Paper, a film that explains it, and a demo that runs in the browser." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/stable-patterns/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/stable-patterns/" />
+  <meta property="og:title" content="Dataflow Facts as Stable Patterns" />
+  <meta property="og:description" content="Constant propagation, value numbering, unboxing and closure analysis as one analysis, whose facts are patterns." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <title>Dataflow Facts as Stable Patterns</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #262a30;
+      --muted: #5f6672;
+      --line: #e3e5e9;
+      --panel: #f3f4f6;
+      --link: hsl(213, 50%, 38%);
+      --link-hover-bg: hsl(213, 50%, 93%);
+      --chip-bg: #f1f2f4;
+      --chip-fg: #4c525c;
+      --chip-line: #d7dae0;
+      --pat: #a85d00;
+      --bind: #0d6f8a;
+      --name: #5b46b4;
+      color-scheme: light;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--fg);
+      background-color: var(--bg);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 48px 16px;
+    }
+    a { color: var(--link); text-decoration: none; border-radius: 4px; }
+    a:hover { background: var(--link-hover-bg); }
+    h1 { font-size: 28px; line-height: 1.2; margin: 24px 0 4px 0; letter-spacing: -0.01em; }
+    h2 { font-size: 18px; margin: 28px 0 6px 0; }
+    .byline { color: var(--muted); margin: 0 0 14px 0; }
+    .buttons { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .button {
+      display: inline-block;
+      border: 1px solid var(--chip-line);
+      border-radius: 5px;
+      padding: 1px 8px;
+      font-size: 14px;
+      color: var(--chip-fg);
+      background-color: var(--chip-bg);
+      white-space: nowrap;
+    }
+    .button:hover { color: var(--bg); border-color: var(--link); background-color: var(--link); }
+    ul.files { padding-left: 20px; margin: 6px 0; }
+    ul.files li { margin-bottom: 6px; }
+    .info { color: var(--muted); }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code { font-size: 0.9em; }
+    pre {
+      font-size: 13.5px;
+      line-height: 1.5;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 14px;
+      overflow-x: auto;
+      margin: 8px 0;
+    }
+    .p { color: var(--pat); }     /* a constant or constructor that a pattern asserts */
+    .b { color: var(--bind); }    /* a binder */
+    .n { color: var(--name); }    /* a plain name */
+    .film {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: #f4ecdf;
+      margin: 8px 0 6px 0;
+    }
+    .film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    ol.chapters { columns: 2; column-gap: 28px; padding-left: 0; margin: 6px 0; list-style: none; font-size: 15px; }
+    ol.chapters li { break-inside: avoid; margin-bottom: 2px; }
+    ol.chapters .t { display: inline-block; width: 3.2em; color: var(--muted); font-variant-numeric: tabular-nums; }
+    table.says { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 15px; }
+    table.says th { text-align: left; font-weight: 600; color: var(--muted); font-size: 13px; padding: 4px 12px 4px 0; border-bottom: 1px solid var(--line); }
+    table.says td { padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+    table.says td:first-child { white-space: nowrap; }
+    @media (max-width: 560px) {
+      ol.chapters { columns: 1; }
+      table.says td:first-child { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Dataflow Facts as Stable Patterns</h1>
+  <p class="byline"><a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a> and <a href="/">Jules Jacobs</a>. Manuscript, November 2026.</p>
+
+  <div class="buttons">
+    <a class="button" href="stable-patterns.pdf">paper .pdf</a>
+    <a class="button" href="#film">film</a>
+    <a class="button" href="demo/examples.html">demo</a>
+  </div>
+
+  <p>
+    An optimizing compiler runs many analyses: constant propagation, value numbering, unboxing,
+    closure analysis. Each is its own algorithm with its own kind of fact. We show that they find
+    facts of one kind, a <i>pattern</i> that the arguments of every call of a block match, and
+    we give one algorithm that finds the most specific such patterns.
+  </p>
+
+  <h2 id="teaser">The idea in 100 seconds</h2>
+  <div class="film">
+    <iframe src="teaser/" title="Stable patterns: the teaser" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+  </div>
+
+  <h2 id="film">The film</h2>
+  <p>
+    A film of 28 minutes that explains the paper from the beginning: the idea on three loops,
+    how the patterns are found, why they are the best ones, functions and closures,
+    specialization, and what is proved.
+  </p>
+  <div class="film">
+    <iframe name="film" src="film/" title="Dataflow Facts as Stable Patterns: the film" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <ol class="chapters">
+    <li><span class="t">1:29</span><a href="film/?t=89" target="film">A fact that depends on itself</a></li>
+    <li><span class="t">2:22</span><a href="film/?t=142" target="film">The idea</a></li>
+    <li><span class="t">4:05</span><a href="film/?t=245" target="film">One idea, many optimizations</a></li>
+    <li><span class="t">6:28</span><a href="film/?t=388" target="film">Stable patterns</a></li>
+    <li><span class="t">7:18</span><a href="film/?t=438" target="film">Finding the patterns</a></li>
+    <li><span class="t">8:32</span><a href="film/?t=512" target="film">Refutation</a></li>
+    <li><span class="t">10:53</span><a href="film/?t=653" target="film">Why start over?</a></li>
+    <li><span class="t">13:24</span><a href="film/?t=804" target="film">Functions and closures</a></li>
+    <li><span class="t">20:05</span><a href="film/?t=1205" target="film">Several patterns for a block</a></li>
+    <li><span class="t">22:23</span><a href="film/?t=1343" target="film">What is proved</a></li>
+    <li><span class="t">23:27</span><a href="film/?t=1407" target="film">In practice</a></li>
+    <li><span class="t">24:51</span><a href="film/?t=1491" target="film">In your compiler</a></li>
+    <li><span class="t">25:35</span><a href="film/?t=1535" target="film">Open problems</a></li>
+    <li><span class="t">27:40</span><a href="film/?t=1660" target="film">In short</a></li>
+  </ol>
+
+  <h2>What a pattern can say</h2>
+  <p>
+    Programs are basic blocks with arguments, as in SSA with block arguments or in
+    continuation-passing style. We write <code class="b">?x</code> where a variable is bound and
+    plain <code>x</code> where it is used. A pattern stands in place of a block's parameters and
+    says what every call of the block passes:
+  </p>
+  <table class="says">
+    <tr><th>Pattern</th><th>What it says</th><th>What it gives</th></tr>
+    <tr>
+      <td><code>loop(<span class="b">?i</span>, <span class="p">1</span>)</code></td>
+      <td>the second argument is always 1</td>
+      <td>constant propagation</td>
+    </tr>
+    <tr>
+      <td><code>loop(<span class="b">?i</span>, <span class="b">?a</span>, <span class="n">a</span>)</code></td>
+      <td>the last two arguments are always equal</td>
+      <td>value numbering</td>
+    </tr>
+    <tr>
+      <td><code>loop(<span class="b">?i</span>, <span class="p">(</span><span class="b">?s</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>)</code></td>
+      <td>the second argument is always a pair, whose second field is the caller's <code>u</code></td>
+      <td>unboxing: the pair is never built</td>
+    </tr>
+    <tr>
+      <td><code>app(<span class="p">inc⟨</span><span class="n">u</span><span class="p">⟩</span>)</code></td>
+      <td>the argument is always a closure of <code>inc</code> that captured <code>u</code></td>
+      <td>a direct call: the closure is never built</td>
+    </tr>
+    <tr>
+      <td><code>dup(<span class="b">?s</span>; <span class="p">k⟨</span><span class="n">ret</span><span class="p">⟩</span>)</code></td>
+      <td>the function always returns to the same place</td>
+      <td>contification</td>
+    </tr>
+  </table>
+  <p>
+    Patterns are <i>stable</i> if, once each block is simplified under its pattern, every call
+    that remains matches the pattern of the block that it calls. Any stable patterns are safe to
+    optimize with. The algorithm finds the most specific ones: it assumes the most specific
+    pattern that could hold, lets the program refute it, keeps only what was refuted, and
+    starts again. No code is copied unless a specialization policy asks for several patterns
+    for one block; with such a policy the same algorithm is a specializer of higher-order
+    functions, an inliner or a partial evaluator.
+  </p>
+
+  <h2 id="demo">Try it</h2>
+  <p>
+    The <a href="demo/examples.html">demo</a> runs the algorithm in the browser on the paper's
+    examples: edit a program, step through the rounds, and see each block's pattern and the
+    program that comes out. The <a href="demo/">full explorer</a> has more examples, the
+    specialization policies, and runs both programs.
+  </p>
+
+  <h2>Abstract</h2>
+  <p>
+    Constant propagation, value numbering, SSA construction, unboxing and contification are
+    usually presented as separate analyses. We show that they can be seen as special cases of
+    one analysis. The analysis finds a <i>pattern</i> (in the sense of ML pattern matching) that
+    the arguments of every call to a block (a function, loop or branch target) match. A pattern
+    can say that an argument is a constant, that two arguments are equal, that an argument is a
+    pair, or that it is a known closure; rewriting the block to assume its pattern can then drop
+    a constant parameter, merge two equal parameters, unbox a pair, and make a closure call a
+    direct call. Patterns are <i>stable</i> if they hold for all calls/jumps that remain in the
+    rewritten block. Stability is what we need for correctness: any set of stable patterns is
+    sound for optimization. We give an algorithm that computes the most specific stable
+    patterns, which generalizes many classical analyses. We prove correctness, optimality, and
+    termination in Lean, for a core language. If we allow several patterns per block, the same
+    algorithm becomes an inliner, a specializer of higher-order functions, or a partial
+    evaluator, depending on the policy that chooses patterns. We illustrate these ideas: (1) in
+    an optimizer for a dependently typed language, where it does monomorphization and compiles
+    programs written with folds, streams and dictionaries of functions to tight loops, (2) by
+    porting some of the ideas to Flambda&nbsp;2 and Chez Scheme, to speed up some OCaml and
+    Scheme benchmarks, (3) by comparing it experimentally to prior classical analyses.
+  </p>
+
+  <h2>Files</h2>
+  <ul class="files">
+    <li><a href="stable-patterns.pdf">Paper</a> <span class="info">(PDF)</span></li>
+    <li><a href="film/">The film</a> <span class="info">(28 minutes, plays in the browser)</span>
+      and <a href="teaser/">the teaser</a> <span class="info">(100 seconds)</span></li>
+    <li><a href="demo/examples.html">Demo on the paper's examples</a> and the
+      <a href="demo/">full explorer</a> <span class="info">(both run in the browser)</span></li>
+  </ul>
+
+  <h2>Get in touch</h2>
+  <p>
+    If you work on a compiler and would like to try this in it, we would be glad to help. The
+    film's chapter <a href="film/?t=1491" target="film">In your compiler</a> says what the
+    analysis needs from an intermediate representation, and
+    <a href="film/?t=1535" target="film">Open problems</a> lists what we do not know yet. If you
+    would like to work on those as a student, see <a href="/#students">here</a>.
+  </p>
+</body>
+</html>
