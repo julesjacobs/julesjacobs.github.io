@@ -19,6 +19,7 @@ TOOL_ONE = {
     "vox/": "Checks specifications at compile time on top of OxCaml, with refinement types and ghost proofs that are erased before code generation.",
     "https://github.com/oxcaml/oxcaml": "Jane Street's extension of OCaml for safe, fast systems programming; its modes track whether a value can escape its stack frame or be shared between threads.",
     "https://github.com/julesjacobs/petra": "A Petri-net reachability solver.",
+    "https://github.com/julesjacobs/eggstract": "Extracts shared, acyclic DAGs from e-graphs, with a Rust library, a command-line tool and an optional CP-SAT backend.",
 }
 EXTRA_ONE = {"stable-patterns": "One analysis that finds what constant propagation, unboxing and closure analysis find separately."}
 
