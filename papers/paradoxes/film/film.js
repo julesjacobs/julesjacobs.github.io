@@ -634,7 +634,8 @@ window.TIMELINE = {
     return spans(box(root, 0, y, Object.assign(SERIF(size), { width: W + 'px', textAlign: 'center' }, style)), parts);
   }
   // ε inside an upper-case label stays a lower-case epsilon
-  const EPS = ['ε', C.pat, { textTransform: 'none' }];
+  // set in the serif, which ships with the player: the labels' system sans does not, and its ε differs between devices
+  const EPS = ['ε', C.pat, { textTransform: 'none', fontFamily: 'var(--serif)', fontSize: '1.2em', fontWeight: 400, lineHeight: 1 }];
   // a green tick, drawn in a small inline svg of its own (so that it sits after centred text)
   function itick(tl, parent, size, at) {
     const s = el(parent, 'svg');

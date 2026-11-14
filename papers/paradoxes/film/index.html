@@ -15,9 +15,9 @@
 /* The player around the film's stage (tools/web.py inlines this into build/web/index.html). Colours are the
    film's paper room (THEMES.paper in src/engine.js). */
 :root {
-  --mono: "Fira Code", "SF Mono", Menlo, monospace;
+  --mono: "Fira Code", "Film Math", "SF Mono", Menlo, monospace;   /* "Film Math" exists only in films that ship it */
   --sans: "SF Pro Display", "SF Pro Text", system-ui, -apple-system, "Helvetica Neue", sans-serif;
-  --serif: "Source Serif 4 Film", ui-serif, Georgia, serif;
+  --serif: "Source Serif 4 Film", "Film Math", ui-serif, Georgia, serif;
   --bg: #f3ebdd; --ink: #2b231b; --dim: #6c5f50; --faint: #c9bba7; --line: #d8cab5; --panel: #e9decb;
   --letterbox: #17120e;
   --btn: 40px; --barh: 56px; --k: 0.5;
@@ -112,7 +112,7 @@ button:focus-visible, .scrub:focus-visible { outline: 2px solid var(--ink); outl
     <div id="box" class="box"><div id="scaler" class="scaler"><div id="stage"></div></div></div>
   </div>
 </div>
-<script>window.PLAYER = {"poster": ["p_end", "title", 2.0], "captions": true, "title": "Paradoxes of Probabilistic Programming: a short video", "audio": "audio.m4a?v=824405883c", "film": "film.js?v=0e9e98a9b3"};</script>
+<script>window.PLAYER = {"poster": ["p_end", "title", 2.0], "captions": true, "title": "Paradoxes of Probabilistic Programming: a short video", "audio": "audio.m4a?v=824405883c", "film": "film.js?v=1a565162b4"};</script>
 <script src="player.js?v=acbd7d2653"></script>
 </body>
 </html>
