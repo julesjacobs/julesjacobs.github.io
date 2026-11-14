@@ -129,7 +129,7 @@ def page(p):
   <title>{E(p["title"])}</title>
 </head>
 <body>
-  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <p class="up"><a href="/" title="Up to julesjacobs.com">julesjacobs.com ↑</a></p>
   <div class="top{"" if thumb else " plain"}">
     <div>
       <h1>{E(p["title"])}</h1>{sub}
@@ -166,9 +166,10 @@ body {
 }
 a { color: var(--link); text-decoration: none; border-radius: 4px; }
 a:hover { background: var(--link-hover-bg); }
-.crumb { font-size: 14px; color: var(--muted); margin: 0 0 10px 0; }
-.crumb a { color: var(--muted); }
-.crumb a:hover { color: var(--link); }
+/* The way up to the site, small and in the corner: the page is the paper's, and any of its authors may link to it. */
+.up { font-size: 13px; text-align: right; margin: 0 0 10px 0; }
+.up a { color: var(--muted); }
+.up a:hover { color: var(--link); }
 h1 { font-size: 30px; line-height: 1.2; margin: 0 0 4px 0; letter-spacing: -0.01em; }
 h2 { font-size: 18px; margin: 34px 0 6px 0; }
 .subtitle { font-size: 18px; font-style: italic; color: var(--muted); margin: 0 0 6px 0; }
