@@ -457,6 +457,8 @@
       margin: 0 0 8px 0;
     }
 
+    .privacy { max-width: 900px; margin: 28px auto 20px auto; padding: 0 16px; font-size: 13px; color: var(--faint); text-align: center; }
+
     /* papers:begin */
     /* A publication: its title, who wrote it, then what it does in one line. */
     .pub .one { color: var(--fg); font-size: 15px; line-height: 1.45; margin: 2px 0 4px 0; }
@@ -551,7 +553,7 @@
           <a href="https://dl.acm.org/doi/10.1145/201059.201061">as</a>
           <a href="https://dl.acm.org/doi/10.1145/202530.202534">a</a>
           <a href="http://infoscience.epfl.ch/record/180642/files/EPFL_TH5456.pdf">data</a><a href="https://link.springer.com/chapter/10.1007/3540543961_9">flow</a> <a href="https://popl23.sigplan.org/details/POPL-2023-popl-research-papers/65/SSA-Translation-is-an-Abstract-Interpretation">lattice</a>, <a href="https://en.wikipedia.org/wiki/Symbolic_method_(combinatorics)">generating functions</a> &amp; <a href="https://en.wikipedia.org/wiki/Kirchhoff%27s_theorem">Kirchhoff's matrix-tree theorem</a>, <a href="https://en.wikipedia.org/wiki/Differential_form">differential forms</a> &amp; the <a href="https://en.wikipedia.org/wiki/Gauss%E2%80%93Bonnet_theorem">Gauss-Bonnet theorem</a>, <a href="http://r6.ca/blog/20110808T035622Z.html">star semirings</a>, <a href="https://en.wikipedia.org/wiki/M%C3%A9canique_analytique">Lagrangian mechanics</a>.</p>
-        <p class="recent"><b>News:</b> a preprint on <a href="papers/stable-patterns/">dataflow analysis by pattern matching</a>, with a film that explains it · papers on <a href="#mode-crossing">mode crossing in OxCaml</a> (ICFP'26), <a href="#slice">exact inference for probabilistic programs</a> (OOPSLA'26), <a href="#nest">network-enforced session types</a> (ECOOP'26) and <a href="#serializability">deciding serializability</a> (TACAS'26) · the IPA Dissertation Award for my <a href="#thesis">thesis</a> · teaching the Software Engineering Seminar at ETH.</p>
+        <p class="recent"><b>News:</b> a preprint on <a href="papers/stable-patterns/">dataflow analysis by pattern matching</a>, with a video that explains it · papers on <a href="#mode-crossing">mode crossing in OxCaml</a> (ICFP'26), <a href="#slice">exact inference for probabilistic programs</a> (OOPSLA'26), <a href="#nest">network-enforced session types</a> (ECOOP'26) and <a href="#serializability">deciding serializability</a> (TACAS'26) · the IPA Dissertation Award for my <a href="#thesis">thesis</a> · teaching the Software Engineering Seminar at ETH.</p>
       </div>
     </div>
     <div id="profile">
@@ -572,7 +574,7 @@
           <p>The goal is systems code that is fast, safe, and checked against its specification. As AI agents write more of our code, checked specifications let people stay in charge of what that code does.</p>
           <ul class="plist">
             <li><a class="pt" href="papers/mode-crossing/">Mode Crossing</a> <span class="pv">ICFP'26</span><span class="ps">Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.</span></li>
-            <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/#film">film</a><a class="button" href="papers/stable-patterns/#demo">demo</a><span class="ps">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</span></li>
+            <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/#film">video</a><a class="button" href="papers/stable-patterns/#demo">demo</a><span class="ps">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</span></li>
             <li><a class="pt" href="vox/">Vox</a> <span class="pv">tool</span><a class="button" href="https://lab.julesjacobs.com/vox/talk/">talk</a><a class="button" href="https://github.com/julesjacobs/oxcaml/tree/vox">code</a><span class="ps">Checks specifications at compile time on top of OxCaml, with refinement types and ghost proofs that are erased before code generation.</span></li>
             <li><a class="pt" href="https://github.com/oxcaml/oxcaml">OxCaml</a> <span class="pv">language</span><a class="button" href="misc/oxcaml/playground/">playground</a><a class="button" href="misc/oxcaml/oxcaml-basics/">course</a><span class="ps">Jane Street&#x27;s extension of OCaml for safe, fast systems programming; its modes track whether a value can escape its stack frame or be shared between threads.</span></li>
           </ul>
@@ -662,7 +664,7 @@
             <div class="authors"><a href="https://grubmueller.dev/">Fabian Lukas Grubmüller</a>, <span class="me">Jules Jacobs</span></div>
             <div class="one">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</div>
             <a class="button" href="papers/stable-patterns/stable-patterns.pdf">.pdf</a>
-            <a class="button" href="papers/stable-patterns/#film">film</a>
+            <a class="button" href="papers/stable-patterns/#film">video</a>
             <a class="button" href="papers/stable-patterns/demo/examples.html">demo</a>
           </div>
         </td>
@@ -1267,6 +1269,15 @@
       window.addEventListener("hashchange", update);
       update();
     })();
+  </script>
+  <p class="privacy">This site counts page views without cookies; no personal data is stored.</p>
+  <!-- Page views are counted without cookies (GoatCounter); a video's player tells this page when it is first played. -->
+  <script data-goatcounter="https://julesjacobs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <script>
+    window.addEventListener("message", function (e) {
+      if (e.origin === location.origin && e.data && e.data.type === "video-play" && window.goatcounter && window.goatcounter.count)
+        window.goatcounter.count({ path: "video-play" + location.pathname, title: "Video played: " + document.title, event: true });
+    });
   </script>
 </body>
 </html>

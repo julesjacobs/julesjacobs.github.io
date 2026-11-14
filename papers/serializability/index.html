@@ -47,5 +47,13 @@
   year = {2026},
   pages = {85--108}
 }</pre>
+  <!-- Page views are counted without cookies (GoatCounter); a video's player tells this page when it is first played. -->
+  <script data-goatcounter="https://julesjacobs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <script>
+    window.addEventListener("message", function (e) {
+      if (e.origin === location.origin && e.data && e.data.type === "video-play" && window.goatcounter && window.goatcounter.count)
+        window.goatcounter.count({ path: "video-play" + location.pathname, title: "Video played: " + document.title, event: true });
+    });
+  </script>
 </body>
 </html>

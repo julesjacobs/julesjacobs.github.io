@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Dataflow Facts as Stable Patterns, by Fabian Lukas Grubmüller and Jules Jacobs. Paper, a film that explains it, and a demo that runs in the browser." />
+  <meta name="description" content="Dataflow Facts as Stable Patterns, by Fabian Lukas Grubmüller and Jules Jacobs. Paper, a video that explains it, and a demo that runs in the browser." />
   <link rel="canonical" href="https://julesjacobs.com/papers/stable-patterns/" />
   <meta property="og:url" content="https://julesjacobs.com/papers/stable-patterns/" />
   <meta property="og:title" content="Dataflow Facts as Stable Patterns" />
@@ -148,7 +148,7 @@
       </p>
       <div class="buttons">
         <a class="button primary" href="stable-patterns.pdf">Read the paper</a>
-        <a class="button" href="#film">Watch the film</a>
+        <a class="button" href="#film">Watch the video</a>
         <a class="button" href="#demo">Try it</a>
       </div>
     </div>
@@ -159,7 +159,7 @@
   </div>
 
   <div class="film" id="film">
-    <iframe name="film" src="film/" title="Dataflow Facts as Stable Patterns: the film" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    <iframe name="film" src="film/" title="Dataflow Facts as Stable Patterns: the video" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
   <ol class="chapters">
     <li><span class="t">1:29</span><a href="film/?t=89" target="film">A fact that depends on itself</a></li>
@@ -260,12 +260,20 @@
   <h2>Get in touch</h2>
   <p>
     If you work on a compiler and would like to try this in it, we would be glad to help. The
-    film's chapter <a href="film/?t=1507" target="film">In your compiler</a> says what the
+    video's chapter <a href="film/?t=1507" target="film">In your compiler</a> says what the
     analysis needs from an intermediate representation, and
     <a href="film/?t=1551" target="film">Open problems</a> lists what we do not know yet. If you
     would like to work on those as a student, see <a href="/#students">here</a>.
   </p>
   <script src="demo/inline.js"></script>
   <script>if (window.StablePatternsDemo) StablePatternsDemo.mount(document.getElementById("try"));</script>
+  <!-- Page views are counted without cookies (GoatCounter); a video's player tells this page when it is first played. -->
+  <script data-goatcounter="https://julesjacobs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <script>
+    window.addEventListener("message", function (e) {
+      if (e.origin === location.origin && e.data && e.data.type === "video-play" && window.goatcounter && window.goatcounter.count)
+        window.goatcounter.count({ path: "video-play" + location.pathname, title: "Video played: " + document.title, event: true });
+    });
+  </script>
 </body>
 </html>

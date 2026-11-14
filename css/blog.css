@@ -1,0 +1,60 @@
+/* The notes and posts (the pages laid out by _layouts/): the home page's type and colours, in one narrow column. */
+:root {
+  --bg: #ffffff; --fg: #262a30; --muted: #5f6672; --faint: #8a909a; --line: #e3e5e9; --panel: #f3f4f6;
+  --link: hsl(213, 50%, 38%); --link-hover-bg: hsl(213, 50%, 93%);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16.5px; line-height: 1.6; color: var(--fg); background: var(--bg);
+  margin: 0; -webkit-text-size-adjust: 100%;
+}
+a { color: var(--link); text-decoration: none; border-radius: 4px; }
+a:hover { background: var(--link-hover-bg); }
+.wrapper { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.site-header { padding: 18px 0 0 0; }
+.crumb { font-size: 14px; color: var(--muted); margin: 0; }
+.crumb a { color: var(--muted); }
+.crumb a:hover { color: var(--link); }
+.page-content { padding: 10px 0 56px 0; }
+
+.post-header { margin: 14px 0 22px 0; }
+.post-title { font-size: 30px; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 4px 0; }
+.post-meta { color: var(--muted); font-size: 14.5px; margin: 0; }
+
+.post-content h1, .post-content h2, .post-content h3, .post-content h4 { line-height: 1.25; margin: 30px 0 8px 0; }
+.post-content h1 { font-size: 24px; }
+.post-content h2 { font-size: 21px; }
+.post-content h3 { font-size: 18px; }
+.post-content h4 { font-size: 16.5px; }
+.post-content p, .post-content ul, .post-content ol, .post-content blockquote, .post-content table, .post-content figure { margin: 0 0 14px 0; }
+.post-content ul, .post-content ol { padding-left: 24px; }
+.post-content li { margin-bottom: 4px; }
+.post-content img, .post-content svg, .post-content video { max-width: 100%; height: auto; }
+.post-content blockquote { color: var(--muted); border-left: 3px solid var(--line); padding-left: 14px; }
+.post-content hr { border: 0; border-top: 1px solid var(--line); margin: 26px 0; }
+.post-content table { border-collapse: collapse; display: block; overflow-x: auto; }
+.post-content th, .post-content td { border-bottom: 1px solid var(--line); padding: 5px 12px 5px 0; text-align: left; vertical-align: top; }
+
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.86em; }
+code { background: var(--panel); border-radius: 4px; padding: 1px 4px; }
+pre { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; line-height: 1.5; margin: 0 0 14px 0; }
+pre code { background: none; padding: 0; font-size: 1em; }
+mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+
+/* the list of posts */
+.post-list { list-style: none; padding: 0; margin: 18px 0 0 0; }
+.post-list li { display: grid; grid-template-columns: 7.2em minmax(0, 1fr); gap: 0 14px; align-items: baseline; margin-bottom: 9px; }
+.post-list .post-meta { font-size: 14px; white-space: nowrap; }
+.post-list h2 { font-size: 16.5px; font-weight: 600; margin: 0; line-height: 1.4; }
+.home h1 { font-size: 30px; letter-spacing: -0.01em; margin: 14px 0 4px 0; }
+.home .lede { color: var(--muted); margin: 0; }
+@media (max-width: 520px) { .post-list li { grid-template-columns: minmax(0, 1fr); margin-bottom: 12px; } }
+
+/* code colours (rouge), kept quiet */
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cs { color: #7a818c; font-style: italic; }
+.highlight .k, .highlight .kd, .highlight .kn, .highlight .kr, .highlight .kt, .highlight .kc { color: #24486f; font-weight: 600; }
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb, .highlight .sc { color: #8a4b08; }
+.highlight .m, .highlight .mi, .highlight .mf, .highlight .mh { color: #5b46b4; }
+.highlight .nf, .highlight .nc, .highlight .nn { color: #262a30; font-weight: 600; }

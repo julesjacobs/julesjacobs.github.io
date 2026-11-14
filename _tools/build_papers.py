@@ -4,7 +4,7 @@
     python3 _tools/build_papers.py
 
 A page shows the title, authors and venue, a short summary, buttons for what there is (paper, slides, code, ...),
-the first page of the paper when papers/<id>/page1.jpg exists, a short film when papers/<id>/film/ exists, the
+the first page of the paper when papers/<id>/page1.jpg exists, a short video when papers/<id>/film/ exists, the
 abstract, talks and the BibTeX entry. The pages share papers/paper.css. On the home page (index.html) each
 publication's title then links to its page and carries its one-line summary, and so do the names in the project
 cards. Running it again changes nothing. papers/stable-patterns/ and papers/stackat-completeness/ are written by
@@ -33,6 +33,17 @@ HOME_CSS = """    /* papers:begin */
 """
 
 
+# Counting page views, and a video's first play, without cookies. The home page and the hand-written pages carry the same lines.
+COUNT = '''  <!-- Page views are counted without cookies (GoatCounter); a video's player tells this page when it is first played. -->
+  <script data-goatcounter="https://julesjacobs.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <script>
+    window.addEventListener("message", function (e) {
+      if (e.origin === location.origin && e.data && e.data.type === "video-play" && window.goatcounter && window.goatcounter.count)
+        window.goatcounter.count({ path: "video-play" + location.pathname, title: "Video played: " + document.title, event: true });
+    });
+  </script>
+'''
+
 def url(u):
     return u if re.match(r"^(https?:|mailto:|/)", u) else "/" + u
 
@@ -53,10 +64,11 @@ def page(p):
     for l in p["links"]:
         if l["label"] == ".pdf":
             buttons.insert(0, f'<a class="button primary" href="{E(url(l["url"]))}">Read the paper</a>')
-        else:
-            buttons.append(f'<a class="button" href="{E(url(l["url"]))}">{E(l["label"])}</a>')
+        else:   # beside our own video, a link called "video" is the recording of the conference talk
+            label = "talk recording" if (l["label"] == "video" and has_film) else l["label"]
+            buttons.append(f'<a class="button" href="{E(url(l["url"]))}">{E(label)}</a>')
     if has_film:
-        buttons.insert(1, '<a class="button" href="#film">Watch the film</a>')
+        buttons.insert(1, '<a class="button" href="#film">Watch the video</a>')
     awards = "".join(f'<span class="award">{E(a)}</span>' for a in p["awards"])
     thumb = ""
     if p.get("thumbnail") and p.get("pdf"):
@@ -68,7 +80,7 @@ def page(p):
     film = ""
     if has_film:
         film = '''  <div class="film" id="film">
-    <iframe src="film/" title="A short film about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
+    <iframe src="film/" title="A short video about the paper" allow="fullscreen" allowfullscreen loading="lazy"></iframe>
   </div>
 
 '''
@@ -111,7 +123,7 @@ def page(p):
 
 {talks}  <h2>Cite</h2>
 <pre>{E(p["bibtex"].strip())}</pre>
-</body>
+{COUNT}</body>
 </html>
 '''
 
