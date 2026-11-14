@@ -39,6 +39,10 @@
    {
     "label": "slides",
     "url": "slides/slice/"
+   },
+   {
+    "label": "code",
+    "url": "https://github.com/julesjacobs/slice"
    }
   ],
   "awards": [],
@@ -108,6 +112,10 @@
    {
     "label": "talk recording",
     "url": "https://www.youtube.com/watch?v=lCo5-0pKTsY"
+   },
+   {
+    "label": "code",
+    "url": "https://zenodo.org/records/21129587"
    }
   ],
   "awards": [],
@@ -318,6 +326,10 @@
    {
     "label": "talk recording",
     "url": "https://www.youtube.com/watch?v=fENdnJOO5YQ"
+   },
+   {
+    "label": "code",
+    "url": "https://zenodo.org/records/15464342"
    }
   ],
   "awards": [],
