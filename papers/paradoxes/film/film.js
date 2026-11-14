@@ -477,8 +477,9 @@ window.NARRATION = [
   // ------------------------------------------------------------------------------------------------ opening
   { id: 'hook', chapter: '', pre: 0.8, post: 0.7, text:
     `{prog}Here is a probabilistic program. {h}It draws a person's height, around one point seven meters. {coin}Then it flips a coin, {obs}and only if the coin comes up heads, it observes that a noisy measurement of that height came out as two meters. ` +
-    `{ask}What is the expected height? {m}Run it, and the answer is about one point eight one. {cm}Now write the same program in centimeters. {exp}Converting, we would expect a hundred and eighty-one. {got}We get a hundred and seventy. ` +
-    `{unit}The answer depends on the unit of measurement. {promise}By the end of this video, the two programs will agree, and we will know what the answer should be.` },
+    `{ask}What is the expected height? {m}Run it in Anglican, an existing probabilistic programming language, and the answer is about one point eight one. {cm}Now write the same program in centimeters. {exp}Converting, we would expect a hundred and eighty-one. {got}We get a hundred and seventy. ` +
+    `{unit}The answer depends on the unit of measurement. {prior}This is not a quirk of one language. It follows from the standard way in which probabilistic programming languages run a program. ` +
+    `{promise}In this video, we investigate the problem, and propose a fix. {end}By the end, the two programs will agree, and we will know what the answer should be.` },
   { id: 'roadmap', chapter: '', pre: 0.3, post: 0.8, text:
     `{coming}Here is what is coming. {mean}First, what a program like this means, on two dice. {run}Then how such programs are run, with weights, {wrong}and where that goes wrong: three paradoxes. ` +
     `{should}Then what the answer should be. {fix}And then the fix, {inf}which computes with infinitesimal numbers.` },
@@ -605,28 +606,30 @@ window.TIMELINE = {
    "id": "hook",
    "chapter": "",
    "start": 0.0,
-   "dur": 38.62,
+   "dur": 54.86,
    "pre": 0.8,
    "post": 0.7,
-   "audio": 37.12,
+   "audio": 53.36,
    "cues": {
     "prog": 0.8,
-    "h": 3.28,
+    "h": 3.36,
     "coin": 7.28,
     "obs": 8.96,
-    "ask": 15.84,
-    "m": 17.84,
-    "cm": 21.36,
-    "exp": 24.24,
-    "got": 27.68,
-    "unit": 29.76,
-    "promise": 32.72
+    "ask": 15.92,
+    "m": 18.08,
+    "cm": 25.2,
+    "exp": 28.16,
+    "got": 31.6,
+    "unit": 33.76,
+    "prior": 36.72,
+    "promise": 44.72,
+    "end": 48.96
    }
   },
   {
    "id": "roadmap",
    "chapter": "",
-   "start": 38.62,
+   "start": 54.86,
    "dur": 20.7,
    "pre": 0.3,
    "post": 0.8,
@@ -644,7 +647,7 @@ window.TIMELINE = {
   {
    "id": "title",
    "chapter": "",
-   "start": 59.32,
+   "start": 75.56,
    "dur": 7.6,
    "pre": 0.6,
    "post": 1,
@@ -657,7 +660,7 @@ window.TIMELINE = {
   {
    "id": "dice_a",
    "chapter": "What observe means",
-   "start": 66.92,
+   "start": 83.16,
    "dur": 29.7,
    "pre": 1.9,
    "post": 0.6,
@@ -675,7 +678,7 @@ window.TIMELINE = {
   {
    "id": "dice_b",
    "chapter": "What observe means",
-   "start": 96.62,
+   "start": 112.86,
    "dur": 29.24,
    "pre": 0.4,
    "post": 0.6,
@@ -693,7 +696,7 @@ window.TIMELINE = {
   {
    "id": "dice_c",
    "chapter": "What observe means",
-   "start": 125.86,
+   "start": 142.1,
    "dur": 17.56,
    "pre": 0.4,
    "post": 0.6,
@@ -708,7 +711,7 @@ window.TIMELINE = {
   {
    "id": "weights",
    "chapter": "What observe means",
-   "start": 143.42,
+   "start": 159.66,
    "dur": 44.62,
    "pre": 0.5,
    "post": 0.6,
@@ -727,7 +730,7 @@ window.TIMELINE = {
   {
    "id": "cool_discrete",
    "chapter": "What observe means",
-   "start": 188.04,
+   "start": 204.28,
    "dur": 20.52,
    "pre": 0.5,
    "post": 0.9,
@@ -743,7 +746,7 @@ window.TIMELINE = {
   {
    "id": "dens_a",
    "chapter": "Densities",
-   "start": 208.56,
+   "start": 224.8,
    "dur": 36.18,
    "pre": 1.9,
    "post": 0.6,
@@ -762,7 +765,7 @@ window.TIMELINE = {
   {
    "id": "dens_b",
    "chapter": "Densities",
-   "start": 244.74,
+   "start": 260.98,
    "dur": 18.26,
    "pre": 0.4,
    "post": 0.9,
@@ -777,7 +780,7 @@ window.TIMELINE = {
   {
    "id": "why_a",
    "chapter": "Three paradoxes",
-   "start": 263.0,
+   "start": 279.24,
    "dur": 44.66,
    "pre": 1.9,
    "post": 0.6,
@@ -795,7 +798,7 @@ window.TIMELINE = {
   {
    "id": "why_b",
    "chapter": "Three paradoxes",
-   "start": 307.66,
+   "start": 323.9,
    "dur": 35.12,
    "pre": 0.5,
    "post": 0.7,
@@ -812,7 +815,7 @@ window.TIMELINE = {
   {
    "id": "cool_units",
    "chapter": "Three paradoxes",
-   "start": 342.78,
+   "start": 359.02,
    "dur": 17.38,
    "pre": 0.5,
    "post": 0.8,
@@ -827,7 +830,7 @@ window.TIMELINE = {
   {
    "id": "should_a",
    "chapter": "Three paradoxes",
-   "start": 360.16,
+   "start": 376.4,
    "dur": 24.12,
    "pre": 0.5,
    "post": 0.5,
@@ -844,7 +847,7 @@ window.TIMELINE = {
   {
    "id": "should_b",
    "chapter": "Three paradoxes",
-   "start": 384.28,
+   "start": 400.52,
    "dur": 40.56,
    "pre": 0.4,
    "post": 0.8,
@@ -861,7 +864,7 @@ window.TIMELINE = {
   {
    "id": "type1",
    "chapter": "Three paradoxes",
-   "start": 424.84,
+   "start": 441.08,
    "dur": 41.84,
    "pre": 0.6,
    "post": 0.6,
@@ -881,7 +884,7 @@ window.TIMELINE = {
   {
    "id": "type3",
    "chapter": "Three paradoxes",
-   "start": 466.68,
+   "start": 482.92,
    "dur": 42.06,
    "pre": 0.5,
    "post": 0.6,
@@ -900,7 +903,7 @@ window.TIMELINE = {
   {
    "id": "cool_scale",
    "chapter": "Three paradoxes",
-   "start": 508.74,
+   "start": 524.98,
    "dur": 21.32,
    "pre": 0.5,
    "post": 0.9,
@@ -916,7 +919,7 @@ window.TIMELINE = {
   {
    "id": "int_a",
    "chapter": "Intervals",
-   "start": 530.06,
+   "start": 546.3,
    "dur": 33.94,
    "pre": 1.9,
    "post": 0.6,
@@ -935,7 +938,7 @@ window.TIMELINE = {
   {
    "id": "int_b",
    "chapter": "Intervals",
-   "start": 564.0,
+   "start": 580.24,
    "dur": 23.08,
    "pre": 0.4,
    "post": 0.6,
@@ -951,7 +954,7 @@ window.TIMELINE = {
   {
    "id": "int_c",
    "chapter": "Intervals",
-   "start": 587.08,
+   "start": 603.32,
    "dur": 34.24,
    "pre": 0.5,
    "post": 0.7,
@@ -971,7 +974,7 @@ window.TIMELINE = {
   {
    "id": "int_d",
    "chapter": "Intervals",
-   "start": 621.32,
+   "start": 637.56,
    "dur": 38.44,
    "pre": 0.5,
    "post": 0.9,
@@ -991,7 +994,7 @@ window.TIMELINE = {
   {
    "id": "eps_a",
    "chapter": "Infinitesimal probabilities",
-   "start": 659.76,
+   "start": 676.0,
    "dur": 41.38,
    "pre": 1.9,
    "post": 0.6,
@@ -1011,7 +1014,7 @@ window.TIMELINE = {
   {
    "id": "eps_b",
    "chapter": "Infinitesimal probabilities",
-   "start": 701.14,
+   "start": 717.38,
    "dur": 27.0,
    "pre": 0.4,
    "post": 0.6,
@@ -1028,7 +1031,7 @@ window.TIMELINE = {
   {
    "id": "eps_c",
    "chapter": "Infinitesimal probabilities",
-   "start": 728.14,
+   "start": 744.38,
    "dur": 52.78,
    "pre": 0.5,
    "post": 0.6,
@@ -1049,7 +1052,7 @@ window.TIMELINE = {
   {
    "id": "cool_less",
    "chapter": "Infinitesimal probabilities",
-   "start": 780.92,
+   "start": 797.16,
    "dur": 16.74,
    "pre": 0.5,
    "post": 0.8,
@@ -1064,7 +1067,7 @@ window.TIMELINE = {
   {
    "id": "eps_d",
    "chapter": "Infinitesimal probabilities",
-   "start": 797.66,
+   "start": 813.9,
    "dur": 25.84,
    "pre": 0.5,
    "post": 0.7,
@@ -1081,7 +1084,7 @@ window.TIMELINE = {
   {
    "id": "thm",
    "chapter": "Infinitesimal probabilities",
-   "start": 823.5,
+   "start": 839.74,
    "dur": 49.02,
    "pre": 0.6,
    "post": 0.9,
@@ -1101,7 +1104,7 @@ window.TIMELINE = {
   {
    "id": "compat",
    "chapter": "Old programs, other scales",
-   "start": 872.52,
+   "start": 888.76,
    "dur": 29.94,
    "pre": 1.9,
    "post": 0.6,
@@ -1118,7 +1121,7 @@ window.TIMELINE = {
   {
    "id": "scale",
    "chapter": "Old programs, other scales",
-   "start": 902.46,
+   "start": 918.7,
    "dur": 44.52,
    "pre": 0.5,
    "post": 0.9,
@@ -1137,7 +1140,7 @@ window.TIMELINE = {
   {
    "id": "recap",
    "chapter": "Looking back",
-   "start": 946.98,
+   "start": 963.22,
    "dur": 30.44,
    "pre": 1.9,
    "post": 0.7,
@@ -1154,7 +1157,7 @@ window.TIMELINE = {
   {
    "id": "end",
    "chapter": "Looking back",
-   "start": 977.42,
+   "start": 993.66,
    "dur": 20.3,
    "pre": 0.5,
    "post": 3,
@@ -1166,7 +1169,7 @@ window.TIMELINE = {
    }
   }
  ],
- "total": 997.72
+ "total": 1013.96
 };
 
 // ==== src/scenes/common.js ====
@@ -1656,7 +1659,7 @@ window.TIMELINE = {
     const x0 = Math.round((W - 30 * charWidth(S)) / 2);
     const code = new Code(tl, root, x0, y0, S), lh = code.lh;
     const tP = cue('prog'), tH = cue('h'), tC = cue('coin'), tO = cue('obs'), tA = cue('ask'), tM = cue('m'), tCm = cue('cm'),
-      tE = cue('exp'), tG = cue('got'), tU = cue('unit'), tPr = cue('promise');
+      tE = cue('exp'), tG = cue('got'), tU = cue('unit'), tPi = cue('prior'), tPr = cue('promise'), tEnd = cue('end');
     // "Here is a probabilistic program."
     code.show(PX.P.HOOK_M, tP - 0.2, { stagger: 0.008 });
     // one line at a time, with what it is under the program
@@ -1678,8 +1681,10 @@ window.TIMELINE = {
     const slot = PX.alt(tl, ans, ['= ?', ['≈ 1.81 ', ['m', C.bind]]], { size: 96 });
     // "What is the expected height?"
     for (const e of [pre, slot]) PX.inout(tl, e, tA + 0.2, tCm - 0.2, { dur: 0.6 });
-    // "Run it, and the answer is about one point eight one."
-    slot.show(1, tM + 1.35);
+    // "Run it in Anglican, an existing probabilistic programming language, and the answer is about one point eight
+    // one.": which system, named at its word; the number at its own
+    PX.label(tl, root, W / 2, RY + 132, 'in Anglican, an existing language', tM + 0.55, tCm - 0.2, { size: 34, align: 'center' });
+    slot.show(1, tM + 5.05);
     // "Now write the same program in centimeters.": the result has left; the numbers change in place
     const tSw = tCm + 1.35;
     code.swap(PX.P.HOOK_CM, tSw, { dur: 0.5 });
@@ -1696,8 +1701,15 @@ window.TIMELINE = {
     const same = PX.label(tl, root, W / 2, 392, 'the same program', tU - 0.1, null, { size: 36, align: 'center' });
     const neq = PX.cline(root, 440, ['1.81 ', ['m', C.bind], '  ', ['≠', C.bad], '  170 ', ['cm', C.bind]], { size: 110 });
     PX.inout(tl, neq, tU - 0.1, null, { dy: 20, dur: 0.7 });
+    // "This is not a quirk of one language. It follows from the standard way in which probabilistic programming
+    // languages run a program."
+    PX.label(tl, root, W / 2, 628, 'the standard way of running such programs', tPi + 3.2, tPr - 0.25, { size: 36, align: 'center' });
+    // "In this video, we investigate the problem, and propose a fix."
+    const plan = PX.label(tl, root, W / 2, 628, ['this video: ', 'the problem', ', and a fix'], tPr - 0.1, null, { size: 36, align: 'center', color: C.ink });
+    tl.set(plan.parts[1], { o: 0 }, 0); tl.to(plan.parts[1], { o: 1 }, tPr + 1.2, 0.4);
+    tl.set(plan.parts[2], { o: 0 }, 0); tl.to(plan.parts[2], { o: 1 }, tPr + 2.5, 0.4);
     // "... and we will know what the answer should be."
-    PX.label(tl, root, W / 2, 628, 'what should the answer be?', tPr + 3.6, null, { size: 36, align: 'center' });
+    PX.label(tl, root, W / 2, 694, 'what should the answer be?', tEnd + 3.3, null, { size: 36, align: 'center' });
   });
 
   // ---- rows of a list: a number, a statement, and one piece of evidence at ex --------------------------------
@@ -3286,4 +3298,4 @@ window.TIMELINE = {
 });
 
 // ==== build/captions.js ====
-window.CAPTIONS = [[0.8, 3.24, "Here is a probabilistic program."], [3.28, 5.0, "It draws a person's height,"], [5.04, 7.24, "around one point seven meters."], [7.28, 10.28, "Then it flips a coin, and only if the coin comes"], [10.32, 13.08, "up heads, it observes that a noisy measurement"], [13.12, 15.8, "of that height came out as two meters."], [15.84, 17.8, "What is the expected height?"], [17.84, 20.36, "Run it, and the answer is about one point eight"], [20.4, 21.32, "one."], [21.36, 24.2, "Now write the same program in centimeters."], [24.24, 27.64, "Converting, we would expect a hundred and eighty-one."], [27.68, 29.72, "We get a hundred and seventy."], [29.76, 32.68, "The answer depends on the unit of measurement."], [32.72, 35.24, "By the end of this video, the two programs will"], [35.28, 37.4, "agree, and we will know what the answer should"], [37.44, 38.82, "be."], [38.92, 40.8, "Here is what is coming."], [40.84, 43.4, "First, what a program like this means,"], [43.44, 45.12, "on two dice."], [45.16, 47.28, "Then how such programs are run,"], [47.32, 50.0, "with weights, and where that goes wrong:"], [50.04, 52.0, "three paradoxes."], [52.04, 54.08, "Then what the answer should be."], [54.12, 57.6, "And then the fix, which computes with infinitesimal"], [57.64, 59.5, "numbers."], [59.92, 62.84, "Paradoxes of probabilistic programming:"], [62.88, 66.9, "how to condition on events of measure zero."], [68.82, 71.74, "A probabilistic program is an ordinary program"], [71.78, 74.06, "with two extra operations."], [74.1, 77.58, "The first draws a random value from a distribution."], [77.62, 80.54, "The second is observe, and it is what this video"], [80.58, 81.74, "is about."], [81.78, 83.34, "Here is an example."], [83.38, 87.02, "Throw two dice, X and Y, and observe that their"], [87.06, 88.54, "sum is eight."], [88.58, 90.46, "Then return X."], [90.5, 92.97, "The program stands for a distribution:"], [93.01, 96.92, "the first die, given that the sum is eight."], [97.02, 98.9, "What does observe do?"], [98.94, 101.46, "The simplest answer is rejection."], [101.5, 103.54, "Run the program from the top."], [103.58, 105.25, "That is one trial."], [105.29, 108.02, "At the observe, test the condition."], [108.06, 110.45, "If it is false, throw the trial away,"], [110.49, 111.86, "and start again."], [111.9, 115.18, "If it is true, go on, and keep the returned value"], [115.22, 116.58, "as a sample."], [116.62, 120.3, "The average of the kept samples estimates the expected"], [120.34, 120.98, "value."], [121.02, 122.74, "So observe means:"], [122.78, 126.22, "continue only if this holds."], [126.26, 127.9, "Because this is a program,"], [127.94, 130.94, "observe can sit inside control flow."], [130.98, 133.82, "Here a coin decides whether the sum is observed"], [133.86, 134.94, "at all."], [134.98, 137.9, "A trial is kept if the coin comes up tails,"], [137.94, 139.9, "or if the sum is eight."], [139.94, 143.8, "That is a perfectly good event to condition on."], [143.92, 145.92, "Rejection is wasteful."], [145.96, 148.07, "With dice of a thousand sides,"], [148.11, 150.72, "almost every trial is thrown away."], [150.76, 153.64, "So languages have a second form of observe."], [153.68, 156.07, "It takes a distribution and a value,"], [156.11, 157.0, "and it means:"], [157.04, 158.68, "draw from the distribution,"], [158.72, 162.12, "and continue only if the draw equals the value."], [162.16, 164.44, "The dice program can be written with it:"], [164.48, 168.28, "observe that a fresh die equals eight minus X."], [168.32, 171.32, "This form can be run without rejecting anything."], [171.36, 173.16, "Each trial carries a weight,"], [173.2, 174.84, "which starts at one."], [174.88, 177.92, "At the observe, multiply the weight by the probability"], [177.96, 179.08, "of that value:"], [179.12, 181.64, "the chance that the trial would have survived."], [181.68, 185.0, "At the end, take a weighted average of the results."], [185.04, 188.42, "This is called importance sampling."], [188.54, 190.18, "Notice what we have."], [190.22, 192.66, "For dice, three things agree:"], [192.7, 195.14, "the exact conditional expectation,"], [195.18, 198.18, "rejection, and the weighted average."], [198.22, 200.66, "The weight is only an optimization:"], [200.7, 203.54, "we can still think of every observe as rejecting"], [203.58, 204.66, "a trial."], [204.7, 208.64, "The rest of the video is about keeping that true."], [210.46, 214.02, "Now replace the dice by continuous distributions."], [214.06, 216.98, "The probability that a draw from a normal distribution"], [217.02, 220.1, "equals one exact value is zero."], [220.14, 222.69, "Rejection would throw away every trial,"], [222.73, 225.7, "and every weight would be multiplied by zero."], [225.74, 229.14, "So in practice, languages do something else."], [229.18, 230.98, "For a continuous distribution,"], [231.02, 233.62, "observe multiplies the weight by the probability"], [233.66, 235.54, "density at the value."], [235.58, 238.18, "Here is the continuous version of the dice:"], [238.22, 241.94, "two normal variables, given that their sum is eight."], [241.98, 245.1, "For this program, that works."], [245.14, 248.06, "But a density is not a probability."], [248.1, 249.9, "Is observe still a rejection,"], [249.94, 251.42, "in any sense?"], [251.46, 253.34, "In general, it is not."], [253.38, 255.53, "And once control flow is involved,"], [255.57, 258.3, "it gives answers that rejection would not."], [258.34, 260.46, "Go back to the program from the beginning,"], [260.5, 263.08, "with its if statement."], [264.9, 267.74, "This is what the language actually runs."], [267.78, 269.82, "The weight starts at one."], [269.86, 273.02, "On heads, it is multiplied by a density:"], [273.06, 274.74, "the density of the measurement,"], [274.78, 276.18, "at two meters."], [276.22, 278.57, "And a density has a unit."], [278.61, 280.78, "The probability that the measurement lands in a"], [280.82, 283.94, "narrow interval is about the density times the"], [283.98, 285.42, "interval's width."], [285.46, 287.58, "A probability has no unit,"], [287.62, 289.66, "and the width is a length."], [289.7, 292.22, "So the density is per meter."], [292.26, 295.1, "Take a run that drew a height of one point nine"], [295.14, 295.66, "five."], [295.7, 298.46, "The density of its measurement at two is three"], [298.5, 300.14, "point five per meter."], [300.18, 301.74, "That is its weight."], [301.78, 304.3, "On tails, nothing is multiplied."], [304.34, 308.04, "The weight stays one, with no unit."], [308.16, 311.64, "The weighted average adds the weights of all runs."], [311.68, 314.6, "So it adds a number per meter to a number with"], [314.64, 316.04, "no unit."], [316.08, 317.96, "Now change the unit."], [318.0, 321.08, "In centimeters, the same run has a weight of zero"], [321.12, 323.88, "point zero three five per centimeter."], [323.92, 326.52, "The number is a hundred times smaller."], [326.56, 329.24, "The tails runs still have weight one."], [329.28, 332.57, "So the heads runs count for a hundred times less."], [332.61, 335.36, "And the answer slides from one point eight one"], [335.4, 338.6, "toward one point seven, the average height before"], [338.64, 339.88, "any measurement."], [339.92, 343.06, "We will call that the prior."], [343.28, 345.48, "Look at where the mistake is."], [345.52, 347.96, "Nothing is wrong in the program text."], [348.0, 350.04, "Its units are consistent."], [350.08, 353.16, "The inconsistency is inside the method that runs"], [353.2, 353.93, "it."], [353.97, 356.2, "And it is not one tool's bug:"], [356.24, 360.34, "other inference algorithms do the same arithmetic."], [360.66, 362.78, "So what should the answer be?"], [362.82, 365.1, "Reason as we did for the dice."], [365.14, 368.06, "A trial is kept if the coin comes up tails,"], [368.1, 370.86, "or if the measurement is exactly two."], [370.9, 373.58, "The second case has probability zero."], [373.62, 376.54, "But the first has probability one half."], [376.58, 379.26, "So this event does not have probability zero at"], [379.3, 382.26, "all, and the ordinary definition of conditional"], [382.3, 384.64, "probability applies."], [384.68, 386.4, "In terms of rejection:"], [386.44, 390.12, "a heads trial is rejected with probability one."], [390.16, 392.24, "Only tails trials survive,"], [392.28, 395.2, "and in those, the height is untouched."], [395.24, 397.04, "The answer is the prior:"], [397.08, 399.76, "one point seven meters, or a hundred and seventy"], [399.8, 401.08, "centimeters."], [401.12, 404.16, "The whole if statement should have no effect."], [404.2, 407.0, "If that seems strange, remember that the coin is"], [407.04, 409.12, "not known to have come up heads."], [409.16, 410.96, "Among the trials that are kept,"], [411.0, 413.2, "tails has probability one."], [413.24, 415.6, "So of the two answers at the start,"], [415.64, 417.84, "a hundred and seventy was the one close to the"], [417.88, 421.36, "truth, and only by an accident of the unit."], [421.4, 425.02, "One point eight one was simply wrong."], [425.44, 427.32, "That was one paradox."], [427.36, 429.16, "There are two more."], [429.2, 431.43, "This program draws a person's height,"], [431.47, 432.84, "and their body weight."], [432.88, 435.72, "A coin decides which of the two is measured."], [435.76, 438.28, "It returns the body mass index."], [438.32, 441.72, "Now one branch multiplies by a density per meter,"], [441.76, 444.52, "and the other by a density per kilogram."], [444.56, 447.24, "The weighted average adds the two."], [447.28, 449.08, "Change meters to centimeters,"], [449.12, 450.68, "correct the formula for it,"], [450.72, 452.84, "and the answer still changes."], [452.88, 456.76, "And this time, every trial observes an exact value."], [456.8, 459.56, "The event really has probability zero,"], [459.6, 462.28, "so the definition of conditional probability gives"], [462.32, 463.92, "no answer at all."], [463.96, 467.06, "We will come back to this program."], [467.18, 470.18, "The third paradox has no branch."], [470.22, 472.98, "Draw X from a normal distribution."], [473.02, 475.94, "Observe that a draw from a second normal distribution"], [475.98, 477.54, "equals X."], [477.58, 480.54, "Then return the exponential of X."], [480.58, 483.38, "Think of X as a sound level in decibels,"], [483.42, 486.26, "and of its exponential as an energy."], [486.3, 489.62, "Now write the same program on the energy scale."], [489.66, 493.19, "The two distributions become what is called log-normal,"], [493.23, 495.38, "and the event is the same event:"], [495.42, 498.9, "two exponentials are equal exactly when their exponents"], [498.94, 499.78, "are."], [499.82, 502.79, "Yet the two programs give different answers."], [502.83, 505.46, "It is a version of what probability theory calls"], [505.5, 509.04, "the Borel-Kolmogorov paradox."], [509.24, 512.32, "All three paradoxes break one principle:"], [512.36, 515.2, "the answer should not depend on the scale we measure"], [515.24, 515.84, "in."], [515.88, 517.68, "Meters or centimeters."], [517.72, 519.79, "Decibels or energy."], [519.83, 522.24, "And all three have one cause."], [522.28, 526.48, "An observe on an exact value multiplies by a density,"], [526.52, 530.14, "and a density depends on the scale."], [531.96, 534.48, "Why were the dice free of all this?"], [534.52, 536.51, "Not because dice are discrete,"], [536.55, 538.99, "but because their weights were probabilities,"], [539.03, 541.44, "and a probability has no unit."], [541.48, 544.8, "A continuous distribution has probabilities too:"], [544.84, 548.08, "the probability that a draw lands in an interval."], [548.12, 550.64, "So let observe take an interval."], [550.68, 551.52, "It means:"], [551.56, 553.23, "draw from the distribution,"], [553.27, 556.64, "and continue only if the draw lies in the interval."], [556.68, 560.32, "It runs by multiplying the weight by that probability."], [560.36, 564.36, "Rejection is back, as the meaning of observe."], [564.4, 566.64, "And units are safe."], [566.68, 569.08, "Here is an interval around two meters,"], [569.12, 571.48, "of width zero point one."], [571.52, 574.49, "In centimeters, its center becomes two hundred,"], [574.53, 576.76, "and its width becomes ten."], [576.8, 579.16, "The area under the curve is the same,"], [579.2, 581.11, "so the weight is the same."], [581.15, 584.39, "A change of unit now changes the width as well,"], [584.43, 587.46, "and that keeps the weight in place."], [587.58, 589.7, "But we have changed the question."], [589.74, 592.5, "We wanted to observe exactly two meters,"], [592.54, 594.5, "not roughly two meters."], [594.54, 596.26, "We could choose a tiny width,"], [596.3, 598.34, "say one ten-thousandth."], [598.38, 599.94, "But why that number?"], [599.98, 601.54, "What we want is the limit,"], [601.58, 603.54, "as the width goes to zero."], [603.58, 605.22, "But there is a catch."], [605.26, 607.94, "Conditioning on an event of probability zero is"], [607.98, 609.22, "ambiguous."], [609.26, 612.34, "Intervals can shrink onto the same event in different"], [612.38, 614.55, "ways, and give different answers."], [614.59, 617.94, "So the program has to say which limit it means."], [617.98, 621.6, "The next program shows that this matters."], [621.82, 624.38, "Take the program that measures either height or"], [624.42, 625.46, "body weight."], [625.5, 628.54, "Give each observe an interval whose width is a"], [628.58, 631.82, "constant times epsilon, where epsilon is a small"], [631.86, 633.46, "number with no unit."], [633.5, 635.7, "The constant A is a length."], [635.74, 638.02, "The constant B is a mass."], [638.06, 641.86, "As epsilon shrinks, both observes become exact."], [641.9, 644.58, "But the ratio of the two widths stays,"], [644.62, 645.94, "and it matters."], [645.98, 648.26, "Make B a thousand times larger,"], [648.3, 650.98, "and the second branch succeeds a thousand times"], [651.02, 652.1, "more often."], [652.14, 654.5, "So the widths are part of the model."], [654.54, 657.3, "The old observe had no place to write them."], [657.34, 659.84, "That is what went wrong."], [661.66, 665.38, "How do we compute a limit inside a running program?"], [665.42, 667.62, "Treat epsilon as a symbol."], [667.66, 670.74, "An infinitesimal number is a real number times"], [670.78, 672.58, "a power of epsilon."], [672.62, 675.49, "Power zero gives the ordinary numbers."], [675.53, 678.18, "To multiply, multiply the real parts,"], [678.22, 679.78, "and add the powers."], [679.82, 682.1, "To add two numbers with the same power,"], [682.14, 683.86, "add the real parts."], [683.9, 685.86, "To add numbers with different powers,"], [685.9, 688.06, "keep the one with the lower power."], [688.1, 691.33, "It is the larger number, because epsilon is tiny,"], [691.37, 694.39, "and next to it the other is negligible."], [694.43, 696.34, "Division subtracts the powers."], [696.38, 698.29, "Each number is just a pair,"], [698.33, 701.5, "so the arithmetic is cheap."], [701.54, 704.14, "Now the probability of an interval."], [704.18, 706.46, "If its width is an ordinary number,"], [706.5, 708.38, "it is the area under the curve,"], [708.42, 709.66, "as before."], [709.7, 711.74, "If its width is infinitesimal,"], [711.78, 714.38, "it is the density times the width."], [714.42, 717.66, "That is the area of a strip so thin that the curve"], [717.7, 719.26, "is flat across it."], [719.3, 722.86, "The density is per meter, the width is in meters,"], [722.9, 724.86, "and the product has no unit."], [724.9, 728.52, "It is an infinitesimal probability."], [728.64, 730.55, "Run the first program again,"], [730.59, 732.76, "with an interval around two meters,"], [732.8, 735.96, "whose width is one meter times epsilon."], [736.0, 738.96, "The heads run from before now has weight three"], [739.0, 740.6, "point five epsilon."], [740.64, 743.16, "A tails run has weight one."], [743.2, 744.12, "Add them:"], [744.16, 747.4, "one plus three point five epsilon is one."], [747.44, 749.4, "The heads run is negligible,"], [749.44, 752.04, "exactly as rejection said it should be."], [752.08, 754.68, "Any other width times epsilon would be negligible"], [754.72, 755.67, "too."], [755.71, 758.2, "The weighted average is the average over the tails"], [758.24, 759.0, "runs:"], [759.04, 760.92, "about one point seven."], [760.96, 764.12, "In centimeters, the width is a hundred epsilon,"], [764.16, 766.6, "the density is a hundred times smaller,"], [766.64, 769.96, "and the weight is again three point five epsilon."], [770.0, 772.04, "The two programs agree."], [772.08, 774.76, "That was the promise at the start of the video:"], [774.8, 777.96, "one answer in both units, and it is the answer"], [778.0, 781.3, "that the rejection argument gave."], [781.42, 783.7, "There is a general rule in this."], [783.74, 786.95, "A run that makes fewer exact observations outweighs"], [786.99, 790.37, "a run that makes more, by an infinite factor."], [790.41, 792.9, "The power of epsilon counts them."], [792.94, 794.74, "Among runs with the same count,"], [794.78, 797.84, "the ordinary weights decide."], [798.16, 801.4, "Now back to the program with height and body weight."], [801.44, 804.6, "Every run makes one exact observation."], [804.64, 807.04, "So every weight has power one."], [807.08, 810.04, "In the weighted average, epsilon appears above"], [810.08, 812.36, "and below, and it cancels."], [812.4, 814.57, "The result is an ordinary number,"], [814.61, 817.68, "and it depends on the two widths only through their"], [817.72, 818.36, "ratio."], [818.4, 821.32, "That ratio is a choice, and the programmer now"], [821.36, 823.78, "makes it in the open."], [824.1, 827.5, "Is this arithmetic sound, or is it a trick?"], [827.54, 830.74, "The claim is that it computes the limit we wanted."], [830.78, 832.57, "Hold the random draws fixed,"], [832.61, 835.58, "and run the whole estimate with a small real width"], [835.62, 836.38, "W."], [836.42, 838.86, "Call the result F of W."], [838.9, 842.06, "Then run the same computation with epsilon in place"], [842.1, 843.26, "of W."], [843.3, 846.22, "Suppose that gives R times epsilon to the power"], [846.26, 847.02, "N."], [847.06, 848.3, "The theorem says:"], [848.34, 851.18, "as W goes to zero, F of W,"], [851.22, 853.5, "divided by W to the power N,"], [853.54, 855.07, "tends to R."], [855.11, 857.98, "For a weighted average, the power is zero."], [858.02, 860.5, "So R is the limit itself."], [860.54, 863.34, "Here is that convergence for the first program."], [863.38, 866.22, "As a real width shrinks, the estimate moves to"], [866.26, 867.66, "one point seven."], [867.7, 872.6, "The infinitesimal run gives one point seven directly."], [874.42, 877.26, "What about programs that already work?"], [877.3, 880.78, "Translate each observe on an exact value into an"], [880.82, 884.54, "observe on an interval of width W times epsilon."], [884.58, 887.18, "If every run makes the same observations,"], [887.22, 889.74, "every weight gains the same factor."], [889.78, 891.77, "It cancels in the weighted average,"], [891.81, 893.98, "and the answer does not change."], [894.02, 897.34, "So nothing that behaved well before is disturbed."], [897.38, 900.46, "Only programs whose runs make different observations"], [900.5, 902.84, "get a new answer."], [902.96, 905.0, "One paradox is left:"], [905.04, 907.84, "the change from decibels to energy."], [907.88, 910.84, "With intervals, we can see what went wrong."], [910.88, 913.88, "Take the exponential of a small interval around"], [913.92, 914.56, "X."], [914.6, 917.28, "The result is an interval around the exponential"], [917.32, 918.28, "of X."], [918.32, 920.68, "But its width is not epsilon."], [920.72, 923.8, "It is epsilon times the derivative of the exponential"], [923.84, 927.64, "at X, which is the exponential of X itself."], [927.68, 930.76, "So on the energy scale, the program must observe"], [930.8, 932.84, "an interval of that width."], [932.88, 935.88, "Now the two programs give the same answer."], [935.92, 937.64, "This holds for every smooth,"], [937.68, 939.88, "increasing change of scale."], [939.92, 942.92, "Transform the distribution and the interval together,"], [942.96, 947.06, "and the probability of the interval does not change."], [948.88, 951.72, "We began with a program whose answer changed with"], [951.76, 953.24, "the unit of measurement."], [953.28, 957.0, "The cause was an observe that multiplies by a density."], [957.04, 959.35, "The repair is to observe an interval,"], [959.39, 962.12, "and to let its width be infinitesimal."], [962.16, 964.52, "Then observe is rejection again,"], [964.56, 967.68, "and an event of probability zero is a limit of"], [967.72, 969.64, "events that have a probability."], [969.68, 972.36, "The program says which limit it means."], [972.4, 974.84, "And both units give the same answer:"], [974.88, 977.7, "one point seven meters."], [977.92, 980.76, "All of this is implemented as a small library in"], [980.8, 982.84, "the Julia language."], [982.88, 986.28, "Paradoxes of probabilistic programming."], [986.32, 989.44, "The paper has the proofs, a discussion of measurements"], [989.48, 992.6, "with finite precision, and what remains to be done"], [992.64, 995.7, "for other inference algorithms."]];
+window.CAPTIONS = [[0.8, 3.32, "Here is a probabilistic program."], [3.36, 5.12, "It draws a person's height,"], [5.16, 7.24, "around one point seven meters."], [7.28, 10.28, "Then it flips a coin, and only if the coin comes"], [10.32, 13.08, "up heads, it observes that a noisy measurement"], [13.12, 15.88, "of that height came out as two meters."], [15.92, 18.04, "What is the expected height?"], [18.08, 21.6, "Run it in Anglican, an existing probabilistic programming"], [21.64, 24.12, "language, and the answer is about one point eight"], [24.16, 25.16, "one."], [25.2, 28.12, "Now write the same program in centimeters."], [28.16, 31.56, "Converting, we would expect a hundred and eighty-one."], [31.6, 33.72, "We get a hundred and seventy."], [33.76, 36.68, "The answer depends on the unit of measurement."], [36.72, 39.16, "This is not a quirk of one language."], [39.2, 41.96, "It follows from the standard way in which probabilistic"], [42.0, 44.68, "programming languages run a program."], [44.72, 47.2, "In this video, we investigate the problem,"], [47.24, 48.92, "and propose a fix."], [48.96, 51.56, "By the end, the two programs will agree,"], [51.6, 55.06, "and we will know what the answer should be."], [55.16, 57.04, "Here is what is coming."], [57.08, 59.64, "First, what a program like this means,"], [59.68, 61.36, "on two dice."], [61.4, 63.52, "Then how such programs are run,"], [63.56, 66.24, "with weights, and where that goes wrong:"], [66.28, 68.24, "three paradoxes."], [68.28, 70.32, "Then what the answer should be."], [70.36, 73.84, "And then the fix, which computes with infinitesimal"], [73.88, 75.74, "numbers."], [76.16, 79.08, "Paradoxes of probabilistic programming:"], [79.12, 83.14, "how to condition on events of measure zero."], [85.06, 87.98, "A probabilistic program is an ordinary program"], [88.02, 90.3, "with two extra operations."], [90.34, 93.82, "The first draws a random value from a distribution."], [93.86, 96.78, "The second is observe, and it is what this video"], [96.82, 97.98, "is about."], [98.02, 99.58, "Here is an example."], [99.62, 103.26, "Throw two dice, X and Y, and observe that their"], [103.3, 104.78, "sum is eight."], [104.82, 106.7, "Then return X."], [106.74, 109.21, "The program stands for a distribution:"], [109.25, 113.16, "the first die, given that the sum is eight."], [113.26, 115.14, "What does observe do?"], [115.18, 117.7, "The simplest answer is rejection."], [117.74, 119.78, "Run the program from the top."], [119.82, 121.49, "That is one trial."], [121.53, 124.26, "At the observe, test the condition."], [124.3, 126.69, "If it is false, throw the trial away,"], [126.73, 128.1, "and start again."], [128.14, 131.42, "If it is true, go on, and keep the returned value"], [131.46, 132.82, "as a sample."], [132.86, 136.54, "The average of the kept samples estimates the expected"], [136.58, 137.22, "value."], [137.26, 138.98, "So observe means:"], [139.02, 142.46, "continue only if this holds."], [142.5, 144.14, "Because this is a program,"], [144.18, 147.18, "observe can sit inside control flow."], [147.22, 150.06, "Here a coin decides whether the sum is observed"], [150.1, 151.18, "at all."], [151.22, 154.14, "A trial is kept if the coin comes up tails,"], [154.18, 156.14, "or if the sum is eight."], [156.18, 160.04, "That is a perfectly good event to condition on."], [160.16, 162.16, "Rejection is wasteful."], [162.2, 164.31, "With dice of a thousand sides,"], [164.35, 166.96, "almost every trial is thrown away."], [167.0, 169.88, "So languages have a second form of observe."], [169.92, 172.31, "It takes a distribution and a value,"], [172.35, 173.24, "and it means:"], [173.28, 174.92, "draw from the distribution,"], [174.96, 178.36, "and continue only if the draw equals the value."], [178.4, 180.68, "The dice program can be written with it:"], [180.72, 184.52, "observe that a fresh die equals eight minus X."], [184.56, 187.56, "This form can be run without rejecting anything."], [187.6, 189.4, "Each trial carries a weight,"], [189.44, 191.08, "which starts at one."], [191.12, 194.16, "At the observe, multiply the weight by the probability"], [194.2, 195.32, "of that value:"], [195.36, 197.88, "the chance that the trial would have survived."], [197.92, 201.24, "At the end, take a weighted average of the results."], [201.28, 204.66, "This is called importance sampling."], [204.78, 206.42, "Notice what we have."], [206.46, 208.9, "For dice, three things agree:"], [208.94, 211.38, "the exact conditional expectation,"], [211.42, 214.42, "rejection, and the weighted average."], [214.46, 216.9, "The weight is only an optimization:"], [216.94, 219.78, "we can still think of every observe as rejecting"], [219.82, 220.9, "a trial."], [220.94, 224.88, "The rest of the video is about keeping that true."], [226.7, 230.26, "Now replace the dice by continuous distributions."], [230.3, 233.22, "The probability that a draw from a normal distribution"], [233.26, 236.34, "equals one exact value is zero."], [236.38, 238.93, "Rejection would throw away every trial,"], [238.97, 241.94, "and every weight would be multiplied by zero."], [241.98, 245.38, "So in practice, languages do something else."], [245.42, 247.22, "For a continuous distribution,"], [247.26, 249.86, "observe multiplies the weight by the probability"], [249.9, 251.78, "density at the value."], [251.82, 254.42, "Here is the continuous version of the dice:"], [254.46, 258.18, "two normal variables, given that their sum is eight."], [258.22, 261.34, "For this program, that works."], [261.38, 264.3, "But a density is not a probability."], [264.34, 266.14, "Is observe still a rejection,"], [266.18, 267.66, "in any sense?"], [267.7, 269.58, "In general, it is not."], [269.62, 271.77, "And once control flow is involved,"], [271.81, 274.54, "it gives answers that rejection would not."], [274.58, 276.7, "Go back to the program from the beginning,"], [276.74, 279.32, "with its if statement."], [281.14, 283.98, "This is what the language actually runs."], [284.02, 286.06, "The weight starts at one."], [286.1, 289.26, "On heads, it is multiplied by a density:"], [289.3, 290.98, "the density of the measurement,"], [291.02, 292.42, "at two meters."], [292.46, 294.81, "And a density has a unit."], [294.85, 297.02, "The probability that the measurement lands in a"], [297.06, 300.18, "narrow interval is about the density times the"], [300.22, 301.66, "interval's width."], [301.7, 303.82, "A probability has no unit,"], [303.86, 305.9, "and the width is a length."], [305.94, 308.46, "So the density is per meter."], [308.5, 311.34, "Take a run that drew a height of one point nine"], [311.38, 311.9, "five."], [311.94, 314.7, "The density of its measurement at two is three"], [314.74, 316.38, "point five per meter."], [316.42, 317.98, "That is its weight."], [318.02, 320.54, "On tails, nothing is multiplied."], [320.58, 324.28, "The weight stays one, with no unit."], [324.4, 327.88, "The weighted average adds the weights of all runs."], [327.92, 330.84, "So it adds a number per meter to a number with"], [330.88, 332.28, "no unit."], [332.32, 334.2, "Now change the unit."], [334.24, 337.32, "In centimeters, the same run has a weight of zero"], [337.36, 340.12, "point zero three five per centimeter."], [340.16, 342.76, "The number is a hundred times smaller."], [342.8, 345.48, "The tails runs still have weight one."], [345.52, 348.81, "So the heads runs count for a hundred times less."], [348.85, 351.6, "And the answer slides from one point eight one"], [351.64, 354.84, "toward one point seven, the average height before"], [354.88, 356.12, "any measurement."], [356.16, 359.3, "We will call that the prior."], [359.52, 361.72, "Look at where the mistake is."], [361.76, 364.2, "Nothing is wrong in the program text."], [364.24, 366.28, "Its units are consistent."], [366.32, 369.4, "The inconsistency is inside the method that runs"], [369.44, 370.17, "it."], [370.21, 372.44, "And it is not one tool's bug:"], [372.48, 376.58, "other inference algorithms do the same arithmetic."], [376.9, 379.02, "So what should the answer be?"], [379.06, 381.34, "Reason as we did for the dice."], [381.38, 384.3, "A trial is kept if the coin comes up tails,"], [384.34, 387.1, "or if the measurement is exactly two."], [387.14, 389.82, "The second case has probability zero."], [389.86, 392.78, "But the first has probability one half."], [392.82, 395.5, "So this event does not have probability zero at"], [395.54, 398.5, "all, and the ordinary definition of conditional"], [398.54, 400.88, "probability applies."], [400.92, 402.64, "In terms of rejection:"], [402.68, 406.36, "a heads trial is rejected with probability one."], [406.4, 408.48, "Only tails trials survive,"], [408.52, 411.44, "and in those, the height is untouched."], [411.48, 413.28, "The answer is the prior:"], [413.32, 416.0, "one point seven meters, or a hundred and seventy"], [416.04, 417.32, "centimeters."], [417.36, 420.4, "The whole if statement should have no effect."], [420.44, 423.24, "If that seems strange, remember that the coin is"], [423.28, 425.36, "not known to have come up heads."], [425.4, 427.2, "Among the trials that are kept,"], [427.24, 429.44, "tails has probability one."], [429.48, 431.84, "So of the two answers at the start,"], [431.88, 434.08, "a hundred and seventy was the one close to the"], [434.12, 437.6, "truth, and only by an accident of the unit."], [437.64, 441.26, "One point eight one was simply wrong."], [441.68, 443.56, "That was one paradox."], [443.6, 445.4, "There are two more."], [445.44, 447.67, "This program draws a person's height,"], [447.71, 449.08, "and their body weight."], [449.12, 451.96, "A coin decides which of the two is measured."], [452.0, 454.52, "It returns the body mass index."], [454.56, 457.96, "Now one branch multiplies by a density per meter,"], [458.0, 460.76, "and the other by a density per kilogram."], [460.8, 463.48, "The weighted average adds the two."], [463.52, 465.32, "Change meters to centimeters,"], [465.36, 466.92, "correct the formula for it,"], [466.96, 469.08, "and the answer still changes."], [469.12, 473.0, "And this time, every trial observes an exact value."], [473.04, 475.8, "The event really has probability zero,"], [475.84, 478.52, "so the definition of conditional probability gives"], [478.56, 480.16, "no answer at all."], [480.2, 483.3, "We will come back to this program."], [483.42, 486.42, "The third paradox has no branch."], [486.46, 489.22, "Draw X from a normal distribution."], [489.26, 492.18, "Observe that a draw from a second normal distribution"], [492.22, 493.78, "equals X."], [493.82, 496.78, "Then return the exponential of X."], [496.82, 499.62, "Think of X as a sound level in decibels,"], [499.66, 502.5, "and of its exponential as an energy."], [502.54, 505.86, "Now write the same program on the energy scale."], [505.9, 509.43, "The two distributions become what is called log-normal,"], [509.47, 511.62, "and the event is the same event:"], [511.66, 515.14, "two exponentials are equal exactly when their exponents"], [515.18, 516.02, "are."], [516.06, 519.03, "Yet the two programs give different answers."], [519.07, 521.7, "It is a version of what probability theory calls"], [521.74, 525.28, "the Borel-Kolmogorov paradox."], [525.48, 528.56, "All three paradoxes break one principle:"], [528.6, 531.44, "the answer should not depend on the scale we measure"], [531.48, 532.08, "in."], [532.12, 533.92, "Meters or centimeters."], [533.96, 536.03, "Decibels or energy."], [536.07, 538.48, "And all three have one cause."], [538.52, 542.72, "An observe on an exact value multiplies by a density,"], [542.76, 546.38, "and a density depends on the scale."], [548.2, 550.72, "Why were the dice free of all this?"], [550.76, 552.75, "Not because dice are discrete,"], [552.79, 555.23, "but because their weights were probabilities,"], [555.27, 557.68, "and a probability has no unit."], [557.72, 561.04, "A continuous distribution has probabilities too:"], [561.08, 564.32, "the probability that a draw lands in an interval."], [564.36, 566.88, "So let observe take an interval."], [566.92, 567.76, "It means:"], [567.8, 569.47, "draw from the distribution,"], [569.51, 572.88, "and continue only if the draw lies in the interval."], [572.92, 576.56, "It runs by multiplying the weight by that probability."], [576.6, 580.6, "Rejection is back, as the meaning of observe."], [580.64, 582.88, "And units are safe."], [582.92, 585.32, "Here is an interval around two meters,"], [585.36, 587.72, "of width zero point one."], [587.76, 590.73, "In centimeters, its center becomes two hundred,"], [590.77, 593.0, "and its width becomes ten."], [593.04, 595.4, "The area under the curve is the same,"], [595.44, 597.35, "so the weight is the same."], [597.39, 600.63, "A change of unit now changes the width as well,"], [600.67, 603.7, "and that keeps the weight in place."], [603.82, 605.94, "But we have changed the question."], [605.98, 608.74, "We wanted to observe exactly two meters,"], [608.78, 610.74, "not roughly two meters."], [610.78, 612.5, "We could choose a tiny width,"], [612.54, 614.58, "say one ten-thousandth."], [614.62, 616.18, "But why that number?"], [616.22, 617.78, "What we want is the limit,"], [617.82, 619.78, "as the width goes to zero."], [619.82, 621.46, "But there is a catch."], [621.5, 624.18, "Conditioning on an event of probability zero is"], [624.22, 625.46, "ambiguous."], [625.5, 628.58, "Intervals can shrink onto the same event in different"], [628.62, 630.79, "ways, and give different answers."], [630.83, 634.18, "So the program has to say which limit it means."], [634.22, 637.84, "The next program shows that this matters."], [638.06, 640.62, "Take the program that measures either height or"], [640.66, 641.7, "body weight."], [641.74, 644.78, "Give each observe an interval whose width is a"], [644.82, 648.06, "constant times epsilon, where epsilon is a small"], [648.1, 649.7, "number with no unit."], [649.74, 651.94, "The constant A is a length."], [651.98, 654.26, "The constant B is a mass."], [654.3, 658.1, "As epsilon shrinks, both observes become exact."], [658.14, 660.82, "But the ratio of the two widths stays,"], [660.86, 662.18, "and it matters."], [662.22, 664.5, "Make B a thousand times larger,"], [664.54, 667.22, "and the second branch succeeds a thousand times"], [667.26, 668.34, "more often."], [668.38, 670.74, "So the widths are part of the model."], [670.78, 673.54, "The old observe had no place to write them."], [673.58, 676.08, "That is what went wrong."], [677.9, 681.62, "How do we compute a limit inside a running program?"], [681.66, 683.86, "Treat epsilon as a symbol."], [683.9, 686.98, "An infinitesimal number is a real number times"], [687.02, 688.82, "a power of epsilon."], [688.86, 691.73, "Power zero gives the ordinary numbers."], [691.77, 694.42, "To multiply, multiply the real parts,"], [694.46, 696.02, "and add the powers."], [696.06, 698.34, "To add two numbers with the same power,"], [698.38, 700.1, "add the real parts."], [700.14, 702.1, "To add numbers with different powers,"], [702.14, 704.3, "keep the one with the lower power."], [704.34, 707.57, "It is the larger number, because epsilon is tiny,"], [707.61, 710.63, "and next to it the other is negligible."], [710.67, 712.58, "Division subtracts the powers."], [712.62, 714.53, "Each number is just a pair,"], [714.57, 717.74, "so the arithmetic is cheap."], [717.78, 720.38, "Now the probability of an interval."], [720.42, 722.7, "If its width is an ordinary number,"], [722.74, 724.62, "it is the area under the curve,"], [724.66, 725.9, "as before."], [725.94, 727.98, "If its width is infinitesimal,"], [728.02, 730.62, "it is the density times the width."], [730.66, 733.9, "That is the area of a strip so thin that the curve"], [733.94, 735.5, "is flat across it."], [735.54, 739.1, "The density is per meter, the width is in meters,"], [739.14, 741.1, "and the product has no unit."], [741.14, 744.76, "It is an infinitesimal probability."], [744.88, 746.79, "Run the first program again,"], [746.83, 749.0, "with an interval around two meters,"], [749.04, 752.2, "whose width is one meter times epsilon."], [752.24, 755.2, "The heads run from before now has weight three"], [755.24, 756.84, "point five epsilon."], [756.88, 759.4, "A tails run has weight one."], [759.44, 760.36, "Add them:"], [760.4, 763.64, "one plus three point five epsilon is one."], [763.68, 765.64, "The heads run is negligible,"], [765.68, 768.28, "exactly as rejection said it should be."], [768.32, 770.92, "Any other width times epsilon would be negligible"], [770.96, 771.91, "too."], [771.95, 774.44, "The weighted average is the average over the tails"], [774.48, 775.24, "runs:"], [775.28, 777.16, "about one point seven."], [777.2, 780.36, "In centimeters, the width is a hundred epsilon,"], [780.4, 782.84, "the density is a hundred times smaller,"], [782.88, 786.2, "and the weight is again three point five epsilon."], [786.24, 788.28, "The two programs agree."], [788.32, 791.0, "That was the promise at the start of the video:"], [791.04, 794.2, "one answer in both units, and it is the answer"], [794.24, 797.54, "that the rejection argument gave."], [797.66, 799.94, "There is a general rule in this."], [799.98, 803.19, "A run that makes fewer exact observations outweighs"], [803.23, 806.61, "a run that makes more, by an infinite factor."], [806.65, 809.14, "The power of epsilon counts them."], [809.18, 810.98, "Among runs with the same count,"], [811.02, 814.08, "the ordinary weights decide."], [814.4, 817.64, "Now back to the program with height and body weight."], [817.68, 820.84, "Every run makes one exact observation."], [820.88, 823.28, "So every weight has power one."], [823.32, 826.28, "In the weighted average, epsilon appears above"], [826.32, 828.6, "and below, and it cancels."], [828.64, 830.81, "The result is an ordinary number,"], [830.85, 833.92, "and it depends on the two widths only through their"], [833.96, 834.6, "ratio."], [834.64, 837.56, "That ratio is a choice, and the programmer now"], [837.6, 840.02, "makes it in the open."], [840.34, 843.74, "Is this arithmetic sound, or is it a trick?"], [843.78, 846.98, "The claim is that it computes the limit we wanted."], [847.02, 848.81, "Hold the random draws fixed,"], [848.85, 851.82, "and run the whole estimate with a small real width"], [851.86, 852.62, "W."], [852.66, 855.1, "Call the result F of W."], [855.14, 858.3, "Then run the same computation with epsilon in place"], [858.34, 859.5, "of W."], [859.54, 862.46, "Suppose that gives R times epsilon to the power"], [862.5, 863.26, "N."], [863.3, 864.54, "The theorem says:"], [864.58, 867.42, "as W goes to zero, F of W,"], [867.46, 869.74, "divided by W to the power N,"], [869.78, 871.31, "tends to R."], [871.35, 874.22, "For a weighted average, the power is zero."], [874.26, 876.74, "So R is the limit itself."], [876.78, 879.58, "Here is that convergence for the first program."], [879.62, 882.46, "As a real width shrinks, the estimate moves to"], [882.5, 883.9, "one point seven."], [883.94, 888.84, "The infinitesimal run gives one point seven directly."], [890.66, 893.5, "What about programs that already work?"], [893.54, 897.02, "Translate each observe on an exact value into an"], [897.06, 900.78, "observe on an interval of width W times epsilon."], [900.82, 903.42, "If every run makes the same observations,"], [903.46, 905.98, "every weight gains the same factor."], [906.02, 908.01, "It cancels in the weighted average,"], [908.05, 910.22, "and the answer does not change."], [910.26, 913.58, "So nothing that behaved well before is disturbed."], [913.62, 916.7, "Only programs whose runs make different observations"], [916.74, 919.08, "get a new answer."], [919.2, 921.24, "One paradox is left:"], [921.28, 924.08, "the change from decibels to energy."], [924.12, 927.08, "With intervals, we can see what went wrong."], [927.12, 930.12, "Take the exponential of a small interval around"], [930.16, 930.8, "X."], [930.84, 933.52, "The result is an interval around the exponential"], [933.56, 934.52, "of X."], [934.56, 936.92, "But its width is not epsilon."], [936.96, 940.04, "It is epsilon times the derivative of the exponential"], [940.08, 943.88, "at X, which is the exponential of X itself."], [943.92, 947.0, "So on the energy scale, the program must observe"], [947.04, 949.08, "an interval of that width."], [949.12, 952.12, "Now the two programs give the same answer."], [952.16, 953.88, "This holds for every smooth,"], [953.92, 956.12, "increasing change of scale."], [956.16, 959.16, "Transform the distribution and the interval together,"], [959.2, 963.3, "and the probability of the interval does not change."], [965.12, 967.96, "We began with a program whose answer changed with"], [968.0, 969.48, "the unit of measurement."], [969.52, 973.24, "The cause was an observe that multiplies by a density."], [973.28, 975.59, "The repair is to observe an interval,"], [975.63, 978.36, "and to let its width be infinitesimal."], [978.4, 980.76, "Then observe is rejection again,"], [980.8, 983.92, "and an event of probability zero is a limit of"], [983.96, 985.88, "events that have a probability."], [985.92, 988.6, "The program says which limit it means."], [988.64, 991.08, "And both units give the same answer:"], [991.12, 993.94, "one point seven meters."], [994.16, 997.0, "All of this is implemented as a small library in"], [997.04, 999.08, "the Julia language."], [999.12, 1002.52, "Paradoxes of probabilistic programming."], [1002.56, 1005.68, "The paper has the proofs, a discussion of measurements"], [1005.72, 1008.84, "with finite precision, and what remains to be done"], [1008.88, 1011.94, "for other inference algorithms."]];
