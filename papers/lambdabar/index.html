@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A Self-Dual Distillation of Session Types. Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/lambdabar/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/lambdabar/" />
+  <meta property="og:title" content="A Self-Dual Distillation of Session Types" />
+  <meta property="og:description" content="Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>A Self-Dual Distillation of Session Types</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>A Self-Dual Distillation of Session Types</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>. ECOOP&#x27;22.</p>
+      <p class="pitch">Session-typed languages such as GV add type formers, channel operations and a definition of duality. λ̄ adds only a fork construct to linear λ-calculus and communicates through the linear function type, which is dual to itself. Session types and GV&#x27;s operations can be encoded in it, and its deadlock freedom has a simpler proof, in Coq.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/lambdabar.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2022.23">DOI</a>
+        <a class="button" href="/slides/lambdabar_types22.pdf">slides</a>
+        <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/lambdabar.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We introduce λ̄ (“lambda-barrier”), a minimal extension of linear λ-calculus with concurrent communication, which adds only a single new fork construct for spawning threads. It is inspired by GV, a session-typed functional language also based on linear λ-calculus. Unlike GV, λ̄ strives to be as simple as possible, and adds no new operations other than fork, no new type formers, and no explicit definition of session type duality. Instead, we use linear function function type τ₁ ⊸ τ₂ for communication between threads, which is dual to τ₂ ⊸ τ₁, i.e., the function type constructor is dual to itself. Nevertheless, we can encode session types as λ̄ types, GV’s channel operations as λ̄ terms, and show that this encoding is type-preserving. The linear type system of λ̄ ensures that all programs are deadlock-free and satisfy global progress, which we prove in Coq. Because of λ̄’s minimality, these proofs are simpler than mechanized proofs of deadlock freedom for GV.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/lambdabar_types22.pdf">A Simple Concurrent Lambda Calculus for Encoding Session Types</a> <span class="info">2022 · TYPES&#x27;22</span></li>
+    <li><a href="/slides/ecoop22-slides.pdf">A Self-Dual Distillation of Session Types</a> <span class="info">2022 · ECOOP&#x27;22</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@inproceedings{jacobs2022lambdabar,
+  doi = {10.4230/LIPICS.ECOOP.2022.23},
+  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2022.23},
+  author = {Jacobs, Jules},
+  keywords = {Linear types, concurrency, lambda calculus, session types, Software and its engineering → Concurrent programming languages},
+  language = {en},
+  title = {A Self-Dual Distillation of Session Types},
+  journal = {LIPIcs, Volume 222, ECOOP 2022},
+  volume = {222},
+  pages = {23:1-23:22},
+  publisher = {Schloss Dagstuhl – Leibniz-Zentrum für Informatik},
+  year = {2022},
+  copyright = {Creative Commons Attribution 4.0 International license}
+
+}</pre>
+</body>
+</html>

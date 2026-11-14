@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="StacKAT: Infinite State Network Verification. Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/stackat/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/stackat/" />
+  <meta property="og:title" content="StacKAT: Infinite State Network Verification" />
+  <meta property="og:description" content="Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>StacKAT: Infinite State Network Verification</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>StacKAT: Infinite State Network Verification</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>, <a href="https://natefoster.org/">Nate Foster</a>, <a href="https://tobias.kap.pe/">Tobias Kappé</a>, <a href="https://www.cs.cornell.edu/~kozen/">Dexter Kozen</a>, <a href="https://www.linkedin.com/in/lily-saada-1520331b7">Lily Saada</a>, <a href="https://alexandrasilva.org/">Alexandra Silva</a> and <a href="https://janawagemaker.github.io/">Jana Wagemaker</a>. PLDI&#x27;25.</p>
+      <p class="pitch">Network behaviors such as parsing, source routing and telemetry are difficult or impossible to model in NetKAT. StacKAT adds a stack with push and pop, standing for a packet&#x27;s contents still to be parsed. The paper gives a decision procedure for StacKAT program equivalence based on finite automata, which produces counterexamples, and a complete axiomatization.</p>
+      <div class="buttons">
+        <a class="button primary" href="/papers/stackat/stackat.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3729257">DOI</a>
+        <a class="button" href="/misc/stackat/slides/slides.html">slides</a>
+        <a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a>
+      </div>
+    </div>
+    <a class="paper" href="/papers/stackat/stackat.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We develop StacKAT, a network verification language featuring loops, finite state variables, nondeterminism, and—most importantly—access to a stack with accompanying push and pop operations. By viewing the variables and stack as the (parsed) headers and (to-be-parsed) contents of a network packet, StacKAT can express a wide range of network behaviors including parsing, source routing, and telemetry. These behaviors are difficult or impossible to model using existing languages like NetKAT. We develop a decision procedure for StacKAT program equivalence, based on finite automata. This decision procedure provides the theoretical basis for verifying network-wide properties and is able to provide counterexamples for inequivalent programs. Finally, we provide an axiomatization of StacKAT equivalence and establish its completeness.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/misc/stackat/slides/slides.html">StacKAT: Infinite State Network Verification</a> <span class="info">2025 · PLDI&#x27;25</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2025stackat,
+  title = {StacKAT: Infinite State Network Verification},
+  volume = {9},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3729257},
+  DOI = {10.1145/3729257},
+  number = {PLDI},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Foster, Nate and Kappé, Tobias and Kozen, Dexter and Saada, Lily and Silva, Alexandra and Wagemaker, Jana},
+  year = {2025},
+  month = June,
+  pages = {277--300}
+}</pre>
+</body>
+</html>

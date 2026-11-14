@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Guarantees by Construction. Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/thesis/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/thesis/" />
+  <meta property="og:title" content="Guarantees by Construction" />
+  <meta property="og:description" content="Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Guarantees by Construction</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Guarantees by Construction</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>. PhD thesis, 2024. <span class="award">VERSEN 2025 award</span><span class="award">IPA Dissertation Award 2024</span></p>
+      <p class="pitch">The thesis designs systems in which good properties follow by construction. Linear type systems make concurrent programs with locks and channels deadlock and leak free; separation logics verify message-passing programs; a change to probabilistic languages removes the paradoxes of conditioning on measure-zero events; and one coalgebraic algorithm minimizes many kinds of automata efficiently.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/thesis.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.54195/9789493296541">DOI</a>
+        <a class="button" href="https://apndx.org/pub/thesis/">code</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/thesis.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Summary</h2>
+  <p>This thesis is about type systems for deadlock and leak free concurrency, separation logics for verified message passing, paradox-free probabilistic programming, and general and efficient coalgebraic automata minimization. In each case we aspire to guarantee beneficial properties ‘by construction’, as inherent consequences of the design of the system:</p>
+  <p>Types for deadlock and memory leak-free concurrency: Languages such as Rust guarantee memory safety and race freedom by type checking, but Rust programs can deadlock and leak memory. By enforing a carefully designed linear typing discipline, we obtain new concurrent languages with locks and channels in which deadlock freedom and memory leak freedom are guaranteed by type checking. A key challenge is proving this formally, for which we introduce a proof technique called connectivity graphs.</p>
+  <p>Separation logics for verified message passing: We show that concurrent separation logic and message passing are a perfect match, by using nested invariants to markedly simplify the soundness proof of an Actris-style separation logic for the verification of message passing programs. We then develop a new separation logic for verifying that message passing programs are deadlock free and memory leak free. These properties follow automatically from the linearity of the separation logic, without any additional proof obligations.</p>
+  <p>Paradox-free probabilistic programming: Probabilistic modeling languages suffer from paradoxes when conditioning on events of measure zero. This can even lead to different answers depending on whether the modeler is working in metric or imperial units. We show that we can avoid these paradoxes with a simple change to the modeling language. The resulting language guarantees that all probabilistic programs are invariant under change of parameterization, and its semantics of conditioning on events of measure zero relate to conditioning on events of positive measure in a natural way.</p>
+  <p>General and efficient coalgebraic automata minimization: A variety of automaton types and minimization algorithms exist, often tailored to specific cases. By imposing a coalgebraic structure on automata, we can exploit their shared characteristics. This allows us to develop a unified minimization algorithm that works across a general class of automata, while being efficient both in theory and in practice.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="https://lab.julesjacobs.com/slides/ipa/">Guarantees by construction, revisited</a> <span class="info">2026 · IPA Fall Days 2026 · Dissertation Award talk</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@book{jacobs2024thesis,
+  title = {Guarantees by Construction},
+  ISBN = {9789493296541},
+  url = {https://doi.org/10.54195/9789493296541},
+  DOI = {10.54195/9789493296541},
+  publisher = {Radboud University Press},
+  author = {Jacobs, Jules},
+  year = {2024},
+  month = June
+}</pre>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom. A functional language with multiparty session types in which well-typed programs are deadlock free." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/mpgv/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/mpgv/" />
+  <meta property="og:title" content="Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom" />
+  <meta property="og:description" content="A functional language with multiparty session types in which well-typed programs are deadlock free." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>. ICFP&#x27;22.</p>
+      <p class="pitch">GV-style session types bring deadlock-free message passing to functional programming, but only between two participants per session. Multiparty GV (MPGV) allows sessions among several participants and keeps deadlock freedom despite session interleaving and delegation. A redirecting construct gives a type-preserving translation from binary session types, so MPGV is strictly more general. All results are mechanized in Coq.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/multiparty.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3547638">DOI</a>
+        <a class="button" href="/slides/icfp22-slides.pdf">slides</a>
+        <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+        <a class="button" href="/pdf/multiparty_annotated.pdf">crossref</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/multiparty.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>Session types have recently been integrated with functional languages, bringing message-passing concurrency to functional programming. Channel endpoints then become first-class and can be stored in data structures, captured in closures, and sent along channels. Representatives of the GV (Wadler’s “Good Variation”) session type family are of particular appeal because they not only assert session fidelity but also deadlock freedom, inspired by a Curry-Howard correspondence to linear logic. A restriction of current versions of GV, however, is the focus on binary sessions, limiting concurrent interactions within a session to two participants. This paper introduces Multiparty GV (MPGV), a functional language with multiparty session types, allowing concurrent interactions among several participants. MPGV upholds the strong guarantees of its ancestor GV, including deadlock freedom, despite session interleaving and delegation. MPGV has a novel redirecting construct for modular programming with first-class endpoints, thanks to which we give a type-preserving translation from binary session types to MPGV to show that MPGV is strictly more general than binary GV. All results in this paper have been mechanized using the Coq proof assistant.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/icfp22-slides.pdf">Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom</a> <span class="info">2022 · ICFP&#x27;22</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2022mpgv,
+  title = {Multiparty GV: functional multiparty session types with certified deadlock freedom},
+  volume = {6},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3547638},
+  DOI = {10.1145/3547638},
+  number = {ICFP},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},
+  year = {2022},
+  month = Aug,
+  pages = {466--495}
+}</pre>
+</body>
+</html>

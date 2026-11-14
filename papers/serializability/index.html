@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Deciding Serializability in Network Systems. Decides whether programs in the SER language are serializable, giving a certificate or a counterexample." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/serializability/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/serializability/" />
+  <meta property="og:title" content="Deciding Serializability in Network Systems" />
+  <meta property="og:description" content="Decides whether programs in the SER language are serializable, giving a certificate or a counterexample." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Deciding Serializability in Network Systems</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top plain">
+    <div>
+      <h1>Deciding Serializability in Network Systems</h1>
+      <p class="byline"><a href="https://guyam2.github.io/">Guy Amir</a>, <a href="https://markis.cool/">Mark Barbone</a>, <a href="https://nicolasamat.github.io/">Nicolas Amat</a> and <a href="/">Jules Jacobs</a>. TACAS&#x27;26.</p>
+      <p class="pitch">A concurrent program is serializable if every concurrent execution is equivalent to some serial one. This paper presents SER, a modeling language restricted so that this is decidable, and a decision procedure that reduces it to Petri net reachability and returns a certificate or a counterexample trace. With several optimizations, it handles models of stateful firewalls, BGP routers and more.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://arxiv.org/pdf/2601.02251">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1007/978-3-032-22749-2_5">DOI</a>
+        <a class="button" href="https://arxiv.org/abs/2601.02251">arXiv</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We present the SER modeling language for automatically verifying serializability of concurrent programs, i.e., whether every concurrent execution of the program is equivalent to some serial execution. SER programs are suitably restricted to make this problem decidable, while still allowing for an unbounded number of concurrent threads of execution, each potentially running for an unbounded number of steps. Building on prior theoretical results, we give the first automated end-to-end decision procedure that either proves serializability by producing a checkable certificate, or refutes it by producing a counterexample trace. We also present a network-system abstraction to which SER programs compile. Our decision procedure then reduces serializability in this setting to a Petri net reachability query. Furthermore, in order to scale, we curtail the search space via multiple optimizations, including Petri net slicing, semilinear-set compression, and Presburger-formula manipulation. We extensively evaluate our framework and show that, despite the theoretical hardness of the problem, it can successfully handle various models of real-world programs, including stateful firewalls, BGP routers, and more.</p>
+
+  <h2>Cite</h2>
+<pre>@inbook{amir2026serializability,
+  title = {Deciding Serializability in Network Systems},
+  ISBN = {9783032227492},
+  ISSN = {1611-3349},
+  url = {https://doi.org/10.1007/978-3-032-22749-2_5},
+  DOI = {10.1007/978-3-032-22749-2_5},
+  booktitle = {Tools and Algorithms for the Construction and Analysis of Systems},
+  publisher = {Springer Nature Switzerland},
+  author = {Amir, Guy and Barbone, Mark and Amat, Nicolas and Jacobs, Jules},
+  year = {2026},
+  pages = {85--108}
+}</pre>
+</body>
+</html>

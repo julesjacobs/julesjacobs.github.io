@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Mode Crossing. Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/mode-crossing/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/mode-crossing/" />
+  <meta property="og:title" content="Mode Crossing" />
+  <meta property="og:description" content="Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Mode Crossing</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top plain">
+    <div>
+      <h1>Mode Crossing</h1>
+      <p class="byline"><a href="https://people.mpi-sws.org/~bpeters/">Benjamin Peters</a>, <a href="/">Jules Jacobs</a>, <a href="https://icfp26.sigplan.org/profile/dianakalinichenko">Diana Kalinichenko</a>, <a href="https://icfp26.sigplan.org/profile/liamstevenson">Liam Stevenson</a>, <a href="https://gws.fyi/">Aspen Smith</a>, <a href="https://people.mpi-sws.org/~dreyer/">Derek Dreyer</a> and <a href="https://richarde.dev/">Richard A. Eisenberg</a>. ICFP&#x27;26.</p>
+      <p class="pitch">OxCaml&#x27;s modes rule out data races, but mode tracking can reject obviously safe programs, such as ones sharing immutable data across threads. This paper introduces mode crossing, which strengthens modes automatically for values of certain types, through modal kinds. Their soundness is verified in Rocq on top of Iris, and the design is implemented in a large industrial codebase.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3828681">DOI</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>OxCaml extends the OCaml type system with support for safe low-level systems programming via modes. For example, OxCaml&#x27;s modal portability and contention axes ensure that concurrent OxCaml programs have no data races. In practice, however, mode tracking can reject programs that are obviously safe, such as when the data shared across threads is immutable. To remedy this problem, we introduce mode crossing—the ability to automatically strengthen modes (e.g., from nonportable to portable) for values of certain types. Mode crossing significantly reduces the annotation burden associated with modal types, and we further introduce a new type system feature, modal kinds.</p>
+  <p>We present a type-theoretic account of modal kinds, interpret them as monotone functions on a lattice of modes, and extend this interpretation to incorporate abstract types. We verify soundness of the modal kind system in Rocq on top of Iris. We design an inference procedure that reduces kind checking and subsumption to constraints solved by a dedicated lattice solver. Our design is implemented in a large industrial codebase, demonstrating practical usability.</p>
+
+  <h2>Cite</h2>
+<pre>@article{peters2026modecrossing,
+  title = {Mode Crossing},
+  volume = {10},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3828681},
+  DOI = {10.1145/3828681},
+  number = {ICFP},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Peters, Benjamin and Jacobs, Jules and Kalinichenko, Diana and Stevenson, Liam and Smith, Aspen and Dreyer, Derek and Eisenberg, Richard A.},
+  year = {2026},
+  month = Aug,
+  pages = {236--266}
+}</pre>
+</body>
+</html>

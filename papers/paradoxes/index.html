@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Paradoxes of Probabilistic Programming. Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/paradoxes/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/paradoxes/" />
+  <meta property="og:title" content="Paradoxes of Probabilistic Programming" />
+  <meta property="og:description" content="Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Paradoxes of Probabilistic Programming</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Paradoxes of Probabilistic Programming</h1>
+      <p class="subtitle">And How to Condition on Events of Measure Zero with Infinitesimal Probabilities</p>
+      <p class="byline"><a href="/">Jules Jacobs</a>. POPL&#x27;21.</p>
+      <p class="pitch">Probabilistic programs that condition on measure-zero events with observe statements can behave paradoxically, especially when the observe runs conditionally on random data. This paper models such events as limits of positive-measure events and runs programs by accumulating infinitesimal probabilities instead of densities. The paradoxes disappear, and programmers can say which limit they intend.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/measurezero.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3434339">DOI</a>
+        <a class="button" href="https://zenodo.org/record/4075076">code</a>
+        <a class="button" href="/slides/measurezero_pldi.pdf">slides</a>
+        <a class="button" href="https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c">video</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/measurezero.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>Probabilistic programming languages allow programmers to write down conditional probability distributions that represent statistical and machine learning models as programs that use observe statements. These programs are run by accumulating likelihood at each observe statement, and using the likelihood to steer random choices and weigh results with inference algorithms such as importance sampling or MCMC. We argue that naive likelihood accumulation does not give desirable semantics and leads to paradoxes when an observe statement is used to condition on a measure-zero event, particularly when the observe statement is executed conditionally on random data. We show that the paradoxes disappear if we explicitly model measure-zero events as a limit of positive measure events, and that we can execute these type of probabilistic programs by accumulating infinitesimal probabilities rather than probability densities. Our extension improves probabilistic programming languages as an executable notation for probability distributions by making it more well-behaved and more expressive, by allowing the programmer to be explicit about which limit is intended when conditioning on an event of measure zero.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/measurezero_pldi.pdf">Paradoxes of Probabilistic Programming</a> <span class="info">2020–22 · PLDI&#x27;22 SIGPLAN Track · VeriProP&#x27;21 · POPL&#x27;21 · PL Seminar, TU Delft · PPLV, University College London · SWS Seminar, Radboud University</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2021paradoxes,
+  title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},
+  volume = {5},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3434339},
+  DOI = {10.1145/3434339},
+  number = {POPL},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules},
+  year = {2021},
+  month = Jan,
+  pages = {1--26}
+}</pre>
+</body>
+</html>

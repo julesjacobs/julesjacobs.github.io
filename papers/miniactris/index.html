@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Dependent Session Protocols in Separation Logic from First Principles. Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/miniactris/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/miniactris/" />
+  <meta property="og:title" content="Dependent Session Protocols in Separation Logic from First Principles" />
+  <meta property="og:description" content="Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Dependent Session Protocols in Separation Logic from First Principles</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Dependent Session Protocols in Separation Logic from First Principles</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a> and <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>. ICFP&#x27;23.</p>
+      <p class="pitch">Earlier separation logics for dependent session protocols needed recursive domain equations and higher-order ghost state. This paper builds session channels in layers on one-shot channels, verifies those with basic mechanisms only, and defines dependent session protocols on top. Subprotocols, guarded recursion and channel closing come along, and everything is mechanized in Iris in under 1000 lines of Coq.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://apndx.org/pub/mpy9/miniactris.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3607856">DOI</a>
+        <a class="button" href="/slides/miniactris_iris.pdf">slides</a>
+        <a class="button" href="https://apndx.org/pub/mpy9/">code</a>
+      </div>
+    </div>
+    <a class="paper" href="https://apndx.org/pub/mpy9/miniactris.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We develop an account of dependent session protocols in concurrent separation logic for a functional language with message-passing. Inspired by minimalistic session calculi, we present a layered design: starting from mutable references, we build one-shot channels, session channels, and imperative channels. Whereas previous work on dependent session protocols in concurrent separation logic required advanced mechanisms such as recursive domain equations and higher-order ghost state, we only require the most basic mechanisms to verify that the one-shot channels satisfy one-shot protocols, and subsequently treat these specifications as a black box on top of which we define dependent session protocols. This has a number of advantages in terms of simplicity, elegance, and flexibility: support for subprotocols and guarded recursion automatically transfers from the one-shot protocols to the dependent session protocols, and we easily obtain various forms of channel closing. Because the meta theory of our results is so simple, we are able to give all definitions as part of this paper, and mechanize all our results using the Iris framework in less than 1000 lines of Coq.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/miniactris_iris.pdf">Dependent Session Protocols in Separation Logic from First Principles</a> <span class="info">2023 · Iris Workshop 2023</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2023miniactris,
+  title = {Dependent Session Protocols in Separation Logic from First Principles (Functional Pearl)},
+  volume = {7},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3607856},
+  DOI = {10.1145/3607856},
+  number = {ICFP},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Hinrichsen, Jonas Kastberg and Krebbers, Robbert},
+  year = {2023},
+  month = Aug,
+  pages = {768--795}
+}</pre>
+</body>
+</html>

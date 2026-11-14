@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Type-Directed Discretization of Probabilistic Programs. Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/slice/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/slice/" />
+  <meta property="og:title" content="Type-Directed Discretization of Probabilistic Programs" />
+  <meta property="og:description" content="Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Type-Directed Discretization of Probabilistic Programs</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Type-Directed Discretization of Probabilistic Programs</h1>
+      <p class="byline"><a href="https://katherinewu312.github.io/">Katherine Wu</a>, <a href="/">Jules Jacobs</a>, <a href="https://kevinbatz.github.io/">Kevin Batz</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a>. OOPSLA&#x27;26.</p>
+      <p class="pitch">Exact inference is hard for probabilistic programs with continuous distributions. Slice is a type-directed transformation that, when continuous values are only compared against constants, partitions them into finitely many relevant regions; it is proved sound. The discretized programs run on discrete engines such as Dice, Roulette and Storm, reaching programs beyond previous exact systems.</p>
+      <div class="buttons">
+        <a class="button primary" href="/papers/slice/slice.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3839534">DOI</a>
+        <a class="button" href="/slides/slice/">slides</a>
+      </div>
+    </div>
+    <a class="paper" href="/papers/slice/slice.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We study exact discretization as a semantics-preserving transformation for recursive, higher-order probabilistic programs with continuous distributions. We target programs where continuous values are compared against finitely many constants, so exact inference reduces to a discrete problem. Our central technical contribution is a non-local, type-directed analysis that infers where continuous values can be partitioned into finitely many observationally relevant regions, then rewrites sampling and comparison behavior over those regions. We call this transformation Slice. Because this construction is global and type-directed, correctness requires reasoning beyond the local syntax: we formalize the transformation and prove soundness for boolean queries using a coupling-style logical relations argument over operational semantics. As an application, transformed programs can be executed by discrete engines such as Dice, Roulette, and Storm. Our empirical evaluation shows two complementary strengths of Slice when paired with discrete backends: it enables exact inference for challenging continuous programs that lie beyond the reach of previous exact systems, and, on benchmarks where direct comparison is possible, it is competitive with state-of-the-art exact inference systems for continuous programs.</p>
+
+  <h2>Cite</h2>
+<pre>@article{wu2026slice,
+  title = {Type-Directed Discretization of Probabilistic Programs},
+  volume = {10},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3839534},
+  DOI = {10.1145/3839534},
+  number = {OOPSLA2},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Wu, Katherine and Jacobs, Jules and Batz, Kevin and Silva, Alexandra},
+  year = {2026},
+  month = Oct,
+  pages = {2435--2462}
+}</pre>
+</body>
+</html>

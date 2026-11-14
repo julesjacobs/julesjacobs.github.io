@@ -1,0 +1,50 @@
+/* The pages of the papers (written by _tools/build_papers.py). */
+:root {
+  --bg: #ffffff; --fg: #262a30; --muted: #5f6672; --line: #e3e5e9; --panel: #f3f4f6;
+  --link: hsl(213, 50%, 38%); --link-hover-bg: hsl(213, 50%, 93%);
+  --chip-bg: #f1f2f4; --chip-fg: #4c525c; --chip-line: #d7dae0;
+  --award-bg: hsl(213, 85%, 93%); --award-fg: hsl(213, 80%, 38%);
+  color-scheme: light;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16px; line-height: 1.5; color: var(--fg); background-color: var(--bg);
+  max-width: 900px; margin: 0 auto; padding: 18px 16px 48px 16px;
+}
+a { color: var(--link); text-decoration: none; border-radius: 4px; }
+a:hover { background: var(--link-hover-bg); }
+.crumb { font-size: 14px; color: var(--muted); margin: 0 0 10px 0; }
+.crumb a { color: var(--muted); }
+.crumb a:hover { color: var(--link); }
+h1 { font-size: 30px; line-height: 1.2; margin: 0 0 4px 0; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 34px 0 6px 0; }
+.subtitle { font-size: 18px; font-style: italic; color: var(--muted); margin: 0 0 6px 0; }
+.byline { color: var(--muted); margin: 0 0 14px 0; }
+.byline .note { font-size: 13px; }
+.award { display: inline-block; font-size: 13px; padding: 0 7px; border-radius: 5px; background: var(--award-bg); color: var(--award-fg); margin-left: 4px; white-space: nowrap; }
+.top { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 8px 44px; align-items: start; margin: 14px 0 8px 0; }
+.top.plain { grid-template-columns: minmax(0, 1fr); }
+.pitch { font-size: 17.5px; line-height: 1.5; margin: 14px 0 16px 0; }
+.buttons { display: flex; flex-wrap: wrap; gap: 6px; }
+.button { display: inline-block; border: 1px solid var(--chip-line); border-radius: 5px; padding: 4px 12px; font-size: 15px;
+  color: var(--chip-fg); background-color: var(--chip-bg); white-space: nowrap; }
+.button:hover { color: var(--bg); border-color: var(--link); background-color: var(--link); }
+.button.primary { color: var(--bg); background-color: var(--link); border-color: var(--link); }
+.button.primary:hover { filter: brightness(1.12); }
+a.paper { display: block; color: var(--muted); font-size: 13px; text-align: center; margin-top: 4px; }
+a.paper:hover { background: none; color: var(--link); }
+a.paper img { display: block; width: 100%; height: auto; background: #fff; border: 1px solid var(--chip-line); border-radius: 2px; margin-bottom: 14px;
+  box-shadow: 0 1px 3px rgba(20, 30, 50, 0.10), 4px 4px 0 -1px #fff, 4px 4px 0 0 var(--chip-line), 8px 8px 0 -1px #fff, 8px 8px 0 0 var(--chip-line);
+  transition: transform 0.15s ease; }
+a.paper:hover img { transform: translateY(-3px); }
+/* the picture's 16:9 plus the height of the player's control bar, so the bar sits under the picture */
+.film { scroll-margin-top: 12px; position: relative; width: 100%; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #f4ecdf; margin: 22px 0 6px 0; }
+.film::before { content: ""; display: block; padding-top: calc(56.25% + 58px); }
+@media (pointer: coarse) { .film::before { padding-top: calc(56.25% + 62px); } }
+.film iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+ul.files { padding-left: 20px; margin: 6px 0; }
+ul.files li { margin-bottom: 6px; }
+.info { color: var(--muted); }
+pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; line-height: 1.5; background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; overflow-x: auto; margin: 8px 0; }
+@media (max-width: 680px) { .top { grid-template-columns: minmax(0, 1fr); } a.paper { display: none; } }

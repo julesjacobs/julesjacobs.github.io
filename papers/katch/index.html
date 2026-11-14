@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="KATch: A Fast Symbolic Verifier for NetKAT. Checks NetKAT network specifications for properties like reachability and isolation, often in under a second." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/katch/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/katch/" />
+  <meta property="og:title" content="KATch: A Fast Symbolic Verifier for NetKAT" />
+  <meta property="og:description" content="Checks NetKAT network specifications for properties like reachability and isolation, often in under a second." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>KATch: A Fast Symbolic Verifier for NetKAT</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>KATch: A Fast Symbolic Verifier for NetKAT</h1>
+      <p class="byline"><a href="https://markmoeller.work/">Mark Moeller*</a>, <a href="/">Jules Jacobs*</a>, <a href="https://www.galois.com/team/olivier-savary-belanger">Olivier Savary Belanger</a>, <a href="https://david.darais.com/">David Darais</a>, <a href="https://www.schlesinger.tech/">Cole Schlesinger</a>, <a href="https://smolka.st/">Steffen Smolka</a>, <a href="https://natefoster.org/">Nate Foster</a> and <a href="https://alexandrasilva.org/">Alexandra Silva</a> <span class="note">(* equal contribution)</span>. PLDI&#x27;24.</p>
+      <p class="pitch">NetKAT is a language for specifying the behavior of network data planes. This paper develops data structures and algorithms for checking NetKAT verification queries, implemented in KATch, which constructs a bisimulation or a counterexample. On real-world and synthetic benchmarks it typically answers in well under a second, orders of magnitude faster than previous approaches.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/katch.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3656454">DOI</a>
+        <a class="button" href="https://github.com/julesjacobs/KATch">code</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/katch.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We develop new data structures and algorithms for checking verification queries in NetKAT, a domain-specific language for specifying the behavior of network data planes. Our results extend the techniques obtained in prior work on symbolic automata and provide a framework for building efficient and scalable verification tools. We present KATch, an implementation of these ideas in Scala, featuring an extended set of NetKAT operators that are useful for expressing network-wide specifications, and a verification engine that constructs a bisimulation or generates a counter-example showing that none exists. We evaluate the performance of our implementation on real-world and synthetic benchmarks, verifying properties such as reachability and slice isolation, typically returning a result in well under a second, which is orders of magnitude faster than previous approaches. Our advancements underscore NetKAT’s potential as a practical, declarative language for network specification and verification.</p>
+
+  <h2>Cite</h2>
+<pre>@article{moeller2024katch,
+  title = {KATch: A Fast Symbolic Verifier for NetKAT},
+  volume = {8},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3656454},
+  DOI = {10.1145/3656454},
+  number = {PLDI},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Moeller, Mark and Jacobs, Jules and Belanger, Olivier Savary and Darais, David and Schlesinger, Cole and Smolka, Steffen and Foster, Nate and Silva, Alexandra},
+  year = {2024},
+  month = June,
+  pages = {1905--1928}
+}</pre>
+</body>
+</html>

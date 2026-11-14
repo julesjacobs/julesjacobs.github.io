@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic. A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/cgraphs/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/cgraphs/" />
+  <meta property="og:title" content="Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic" />
+  <meta property="og:description" content="A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>, <a href="https://www.cs.cmu.edu/~balzers/">Stephanie Balzer</a> and <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>. POPL&#x27;22.</p>
+      <p class="pitch">Proving deadlock freedom means reasoning about how threads and channels refer to one another. Connectivity graphs capture this topology generically, and separation logic is used to prove deadlock and memory leak freedom in the style of progress and preservation. Instantiated with a higher-order session-typed language, the method gives the first mechanized proof of deadlock and leak freedom.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/deadlocks.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3498662">DOI</a>
+        <a class="button" href="/slides/cgraphs_popl22.pdf">slides</a>
+        <a class="button" href="https://github.com/julesjacobs/cgraphs">code</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/deadlocks.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We introduce the notion of a connectivity graph—an abstract representation of the topology of concurrently interacting entities, which allows us to encapsulate generic principles of reasoning about deadlock freedom. Connectivity graphs are parametric in their vertices (representing entities like threads and channels) and their edges (representing references between entities) with labels (representing interaction protocols). We prove deadlock and memory leak freedom in the style of progress and preservation and use separation logic as a meta theoretic tool to treat connectivity graph edges and labels substructurally. To prove preservation locally, we distill generic separation logic rules for local graph transformations that preserve acyclicity of the connectivity graph. To prove global progress locally, we introduce a waiting induction principle for acyclic connectivity graphs. We mechanize our results in Coq, and instantiate our method with a higher-order binary session-typed language to obtain the first mechanized proof of deadlock and leak freedom.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/iris-workshop-slides22.pdf">Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic</a> <span class="info">2022 · Iris Workshop · CMU plunch · Imperial College London · POPL&#x27;22</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2022cgraphs,
+  title = {Connectivity graphs: a method for proving deadlock freedom based on separation logic},
+  volume = {6},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3498662},
+  DOI = {10.1145/3498662},
+  number = {POPL},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},
+  year = {2022},
+  month = Jan,
+  pages = {1--33}
+}</pre>
+</body>
+</html>

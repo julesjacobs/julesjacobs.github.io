@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="NEST: Network Enforced Session Types. Enforces application protocols inside the network, with packet-level monitors generated from session types." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/nest/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/nest/" />
+  <meta property="og:title" content="NEST: Network Enforced Session Types" />
+  <meta property="og:description" content="Enforces application protocols inside the network, with packet-level monitors generated from session types." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>NEST: Network Enforced Session Types</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top plain">
+    <div>
+      <h1>NEST: Network Enforced Session Types</h1>
+      <p class="byline"><a href="https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/">Jens Kanstrup Larsen</a>, <a href="https://people.compute.dtu.dk/alcsc/">Alceste Scalas</a>, <a href="https://guyam2.github.io/">Guy Amir</a>, <a href="/">Jules Jacobs</a>, <a href="https://janawagemaker.github.io/">Jana Wagemaker</a> and <a href="https://natefoster.org/">Nate Foster</a>. ECOOP&#x27;26.</p>
+      <p class="pitch">Runtime monitoring of protocols usually instruments or wraps application code. NEST moves it into the network instead: it generates packet-level monitors from session types, handling packet loss and reordering, and runs them in the data plane. Implemented in P4 and evaluated on microservice and network-function models, the monitors enforce realistic non-trivial protocols.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.4230/LIPIcs.ECOOP.2026.17">DOI</a>
+        <a class="button" href="https://arxiv.org/abs/2604.21795">arXiv</a>
+        <a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>This paper introduces NEST (Network Enforced Session Types), a runtime verification framework that moves application-level protocol monitoring into the network fabric. Unlike prior work that instruments or wraps application code, we synthesise packet-level monitors that enforce protocols directly in the data plane. We develop algorithms to generate network-level monitors from session types and extend them to handle packet loss and reordering. We implement NEST in P4 and evaluate it on applications including microservice and network-function models, showing that network-level monitors can enforce realistic non-trivial protocols.</p>
+
+  <h2>Cite</h2>
+<pre>@inproceedings{larsen2026nest,
+  doi = {10.4230/LIPICS.ECOOP.2026.17},
+  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2026.17},
+  author = {Larsen, Jens Kanstrup and Scalas, Alceste and Amir, Guy and Jacobs, Jules and Wagemaker, Jana and Foster, Nate},
+  keywords = {Session types, runtime verification, P4, programmable data planes, Software and its engineering → Software verification},
+  language = {en},
+  title = {NEST: Network Enforced Session Types},
+  journal = {LIPIcs, Volume 372, ECOOP 2026},
+  volume = {372},
+  pages = {17:1-17:31},
+  publisher = {Schloss Dagstuhl – Leibniz-Zentrum für Informatik},
+  year = {2026},
+  copyright = {Creative Commons Attribution 4.0 International license}
+
+}</pre>
+</body>
+</html>

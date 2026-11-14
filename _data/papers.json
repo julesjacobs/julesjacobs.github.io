@@ -1,0 +1,964 @@
+[
+  {
+    "id": "slice",
+    "title": "Type-Directed Discretization of Probabilistic Programs",
+    "subtitle": null,
+    "venue": "OOPSLA'26",
+    "year": 2026,
+    "authors": [
+      {
+        "name": "Katherine Wu",
+        "url": "https://katherinewu312.github.io/",
+        "me": false
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Kevin Batz",
+        "url": "https://kevinbatz.github.io/",
+        "me": false
+      },
+      {
+        "name": "Alexandra Silva",
+        "url": "https://alexandrasilva.org/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "papers/slice/slice.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3839534"
+      },
+      {
+        "label": "slides",
+        "url": "slides/slice/"
+      }
+    ],
+    "awards": [],
+    "pdf": "papers/slice/slice.pdf",
+    "pdf_local": true,
+    "abstract": "We study exact discretization as a semantics-preserving transformation for recursive, higher-order probabilistic programs with continuous distributions. We target programs where continuous values are compared against finitely many constants, so exact inference reduces to a discrete problem. Our central technical contribution is a non-local, type-directed analysis that infers where continuous values can be partitioned into finitely many observationally relevant regions, then rewrites sampling and comparison behavior over those regions. We call this transformation Slice. Because this construction is global and type-directed, correctness requires reasoning beyond the local syntax: we formalize the transformation and prove soundness for boolean queries using a coupling-style logical relations argument over operational semantics. As an application, transformed programs can be executed by discrete engines such as Dice, Roulette, and Storm. Our empirical evaluation shows two complementary strengths of Slice when paired with discrete backends: it enables exact inference for challenging continuous programs that lie beyond the reach of previous exact systems, and, on benchmarks where direct comparison is possible, it is competitive with state-of-the-art exact inference systems for continuous programs.",
+    "abstract_source": "pdf",
+    "one_line": "Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.",
+    "summary": "Exact inference is hard for probabilistic programs with continuous distributions. Slice is a type-directed transformation that, when continuous values are only compared against constants, partitions them into finitely many relevant regions; it is proved sound. The discretized programs run on discrete engines such as Dice, Roulette and Storm, reaching programs beyond previous exact systems.",
+    "bibtex": "@article{wu2026slice,\n  title = {Type-Directed Discretization of Probabilistic Programs},\n  volume = {10},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3839534},\n  DOI = {10.1145/3839534},\n  number = {OOPSLA2},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Wu, Katherine and Jacobs, Jules and Batz, Kevin and Silva, Alexandra},\n  year = {2026},\n  month = Oct,\n  pages = {2435--2462}\n}",
+    "talks": [],
+    "thumbnail": "papers/slice/page1.jpg",
+    "notes": "'Slice' is set in small capitals in the PDF; plain here."
+  },
+  {
+    "id": "mode-crossing",
+    "title": "Mode Crossing",
+    "subtitle": null,
+    "venue": "ICFP'26",
+    "year": 2026,
+    "authors": [
+      {
+        "name": "Benjamin Peters",
+        "url": "https://people.mpi-sws.org/~bpeters/",
+        "me": false
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Diana Kalinichenko",
+        "url": "https://icfp26.sigplan.org/profile/dianakalinichenko",
+        "me": false
+      },
+      {
+        "name": "Liam Stevenson",
+        "url": "https://icfp26.sigplan.org/profile/liamstevenson",
+        "me": false
+      },
+      {
+        "name": "Aspen Smith",
+        "url": "https://gws.fyi/",
+        "me": false
+      },
+      {
+        "name": "Derek Dreyer",
+        "url": "https://people.mpi-sws.org/~dreyer/",
+        "me": false
+      },
+      {
+        "name": "Richard A. Eisenberg",
+        "url": "https://richarde.dev/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3828681"
+      }
+    ],
+    "awards": [],
+    "pdf": "https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf",
+    "pdf_local": false,
+    "abstract": "OxCaml extends the OCaml type system with support for safe low-level systems programming via modes. For example, OxCaml's modal portability and contention axes ensure that concurrent OxCaml programs have no data races. In practice, however, mode tracking can reject programs that are obviously safe, such as when the data shared across threads is immutable. To remedy this problem, we introduce mode crossing—the ability to automatically strengthen modes (e.g., from nonportable to portable) for values of certain types. Mode crossing significantly reduces the annotation burden associated with modal types, and we further introduce a new type system feature, modal kinds.\n\nWe present a type-theoretic account of modal kinds, interpret them as monotone functions on a lattice of modes, and extend this interpretation to incorporate abstract types. We verify soundness of the modal kind system in Rocq on top of Iris. We design an inference procedure that reduces kind checking and subsumption to constraints solved by a dedicated lattice solver. Our design is implemented in a large industrial codebase, demonstrating practical usability.",
+    "abstract_source": "https://doi.org/10.1145/3828681",
+    "one_line": "Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.",
+    "summary": "OxCaml's modes rule out data races, but mode tracking can reject obviously safe programs, such as ones sharing immutable data across threads. This paper introduces mode crossing, which strengthens modes automatically for values of certain types, through modal kinds. Their soundness is verified in Rocq on top of Iris, and the design is implemented in a large industrial codebase.",
+    "bibtex": "@article{peters2026modecrossing,\n  title = {Mode Crossing},\n  volume = {10},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3828681},\n  DOI = {10.1145/3828681},\n  number = {ICFP},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Peters, Benjamin and Jacobs, Jules and Kalinichenko, Diana and Stevenson, Liam and Smith, Aspen and Dreyer, Derek and Eisenberg, Richard A.},\n  year = {2026},\n  month = Aug,\n  pages = {236--266}\n}",
+    "talks": [],
+    "thumbnail": null,
+    "notes": "No local PDF. Abstract from the ACM publisher metadata for the DOI (read via the Crossref API; the ACM page itself blocks scripts). The original italicizes modes, portability, contention, mode crossing and modal kinds, and sets nonportable/portable in monospace; plain here. No thumbnail."
+  },
+  {
+    "id": "nest",
+    "title": "NEST: Network Enforced Session Types",
+    "subtitle": null,
+    "venue": "ECOOP'26",
+    "year": 2026,
+    "authors": [
+      {
+        "name": "Jens Kanstrup Larsen",
+        "url": "https://orbit.dtu.dk/en/persons/jens-kanstrup-larsen/",
+        "me": false
+      },
+      {
+        "name": "Alceste Scalas",
+        "url": "https://people.compute.dtu.dk/alcsc/",
+        "me": false
+      },
+      {
+        "name": "Guy Amir",
+        "url": "https://guyam2.github.io/",
+        "me": false
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Jana Wagemaker",
+        "url": "https://janawagemaker.github.io/",
+        "me": false
+      },
+      {
+        "name": "Nate Foster",
+        "url": "https://natefoster.org/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.4230/LIPIcs.ECOOP.2026.17"
+      },
+      {
+        "label": "arXiv",
+        "url": "https://arxiv.org/abs/2604.21795"
+      },
+      {
+        "label": "code",
+        "url": "https://doi.org/10.4230/DARTS.12.1.2"
+      }
+    ],
+    "awards": [],
+    "pdf": "https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf",
+    "pdf_local": false,
+    "abstract": "This paper introduces NEST (Network Enforced Session Types), a runtime verification framework that moves application-level protocol monitoring into the network fabric. Unlike prior work that instruments or wraps application code, we synthesise packet-level monitors that enforce protocols directly in the data plane. We develop algorithms to generate network-level monitors from session types and extend them to handle packet loss and reordering. We implement NEST in P4 and evaluate it on applications including microservice and network-function models, showing that network-level monitors can enforce realistic non-trivial protocols.",
+    "abstract_source": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2026.17",
+    "one_line": "Enforces application protocols inside the network, with packet-level monitors generated from session types.",
+    "summary": "Runtime monitoring of protocols usually instruments or wraps application code. NEST moves it into the network instead: it generates packet-level monitors from session types, handling packet loss and reordering, and runs them in the data plane. Implemented in P4 and evaluated on microservice and network-function models, the monitors enforce realistic non-trivial protocols.",
+    "bibtex": "@inproceedings{larsen2026nest,\n  doi = {10.4230/LIPICS.ECOOP.2026.17},\n  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2026.17},\n  author = {Larsen, Jens Kanstrup and Scalas, Alceste and Amir, Guy and Jacobs, Jules and Wagemaker, Jana and Foster, Nate},\n  keywords = {Session types, runtime verification, P4, programmable data planes, Software and its engineering → Software verification},\n  language = {en},\n  title = {NEST: Network Enforced Session Types},\n  journal = {LIPIcs, Volume 372, ECOOP 2026},\n  volume = {372},\n  pages = {17:1-17:31},\n  publisher = {Schloss Dagstuhl – Leibniz-Zentrum für Informatik},\n  year = {2026},\n  copyright = {Creative Commons Attribution 4.0 International license}\n\n}",
+    "talks": [],
+    "thumbnail": null,
+    "notes": "No local PDF. Abstract from the DROPS page of the published ECOOP version ('synthesise', British spelling, as published; the arXiv technical report has 'synthesize'). No thumbnail. Two authors have links that are not their own pages (ORBIT DTU profile, people.compute.dtu.dk) - as in index.html."
+  },
+  {
+    "id": "serializability",
+    "title": "Deciding Serializability in Network Systems",
+    "subtitle": null,
+    "venue": "TACAS'26",
+    "year": 2026,
+    "authors": [
+      {
+        "name": "Guy Amir",
+        "url": "https://guyam2.github.io/",
+        "me": false
+      },
+      {
+        "name": "Mark Barbone",
+        "url": "https://markis.cool/",
+        "me": false
+      },
+      {
+        "name": "Nicolas Amat",
+        "url": "https://nicolasamat.github.io/",
+        "me": false
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "https://arxiv.org/pdf/2601.02251"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1007/978-3-032-22749-2_5"
+      },
+      {
+        "label": "arXiv",
+        "url": "https://arxiv.org/abs/2601.02251"
+      }
+    ],
+    "awards": [],
+    "pdf": "https://arxiv.org/pdf/2601.02251",
+    "pdf_local": false,
+    "abstract": "We present the SER modeling language for automatically verifying serializability of concurrent programs, i.e., whether every concurrent execution of the program is equivalent to some serial execution. SER programs are suitably restricted to make this problem decidable, while still allowing for an unbounded number of concurrent threads of execution, each potentially running for an unbounded number of steps. Building on prior theoretical results, we give the first automated end-to-end decision procedure that either proves serializability by producing a checkable certificate, or refutes it by producing a counterexample trace. We also present a network-system abstraction to which SER programs compile. Our decision procedure then reduces serializability in this setting to a Petri net reachability query. Furthermore, in order to scale, we curtail the search space via multiple optimizations, including Petri net slicing, semilinear-set compression, and Presburger-formula manipulation. We extensively evaluate our framework and show that, despite the theoretical hardness of the problem, it can successfully handle various models of real-world programs, including stateful firewalls, BGP routers, and more.",
+    "abstract_source": "https://arxiv.org/abs/2601.02251",
+    "one_line": "Decides whether programs in the SER language are serializable, giving a certificate or a counterexample.",
+    "summary": "A concurrent program is serializable if every concurrent execution is equivalent to some serial one. This paper presents SER, a modeling language restricted so that this is decidable, and a decision procedure that reduces it to Petri net reachability and returns a certificate or a counterexample trace. With several optimizations, it handles models of stateful firewalls, BGP routers and more.",
+    "bibtex": "@inbook{amir2026serializability,\n  title = {Deciding Serializability in Network Systems},\n  ISBN = {9783032227492},\n  ISSN = {1611-3349},\n  url = {https://doi.org/10.1007/978-3-032-22749-2_5},\n  DOI = {10.1007/978-3-032-22749-2_5},\n  booktitle = {Tools and Algorithms for the Construction and Analysis of Systems},\n  publisher = {Springer Nature Switzerland},\n  author = {Amir, Guy and Barbone, Mark and Amat, Nicolas and Jacobs, Jules},\n  year = {2026},\n  pages = {85--108}\n}",
+    "talks": [],
+    "thumbnail": null,
+    "notes": "No local PDF. Abstract from arXiv (2601.02251); the Springer TACAS page could not be read by script and Crossref has no abstract, so the published wording is unchecked. No thumbnail."
+  },
+  {
+    "id": "stackat",
+    "title": "StacKAT: Infinite State Network Verification",
+    "subtitle": null,
+    "venue": "PLDI'25",
+    "year": 2025,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Nate Foster",
+        "url": "https://natefoster.org/",
+        "me": false
+      },
+      {
+        "name": "Tobias Kappé",
+        "url": "https://tobias.kap.pe/",
+        "me": false
+      },
+      {
+        "name": "Dexter Kozen",
+        "url": "https://www.cs.cornell.edu/~kozen/",
+        "me": false
+      },
+      {
+        "name": "Lily Saada",
+        "url": "https://www.linkedin.com/in/lily-saada-1520331b7",
+        "me": false
+      },
+      {
+        "name": "Alexandra Silva",
+        "url": "https://alexandrasilva.org/",
+        "me": false
+      },
+      {
+        "name": "Jana Wagemaker",
+        "url": "https://janawagemaker.github.io/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "papers/stackat/stackat.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3729257"
+      },
+      {
+        "label": "slides",
+        "url": "misc/stackat/slides/slides.html"
+      },
+      {
+        "label": "demo",
+        "url": "https://apndx.org/pub/iqe6/stackatv1.html"
+      }
+    ],
+    "awards": [],
+    "pdf": "papers/stackat/stackat.pdf",
+    "pdf_local": true,
+    "abstract": "We develop StacKAT, a network verification language featuring loops, finite state variables, nondeterminism, and—most importantly—access to a stack with accompanying push and pop operations. By viewing the variables and stack as the (parsed) headers and (to-be-parsed) contents of a network packet, StacKAT can express a wide range of network behaviors including parsing, source routing, and telemetry. These behaviors are difficult or impossible to model using existing languages like NetKAT. We develop a decision procedure for StacKAT program equivalence, based on finite automata. This decision procedure provides the theoretical basis for verifying network-wide properties and is able to provide counterexamples for inequivalent programs. Finally, we provide an axiomatization of StacKAT equivalence and establish its completeness.",
+    "abstract_source": "pdf",
+    "one_line": "Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence.",
+    "summary": "Network behaviors such as parsing, source routing and telemetry are difficult or impossible to model in NetKAT. StacKAT adds a stack with push and pop, standing for a packet's contents still to be parsed. The paper gives a decision procedure for StacKAT program equivalence based on finite automata, which produces counterexamples, and a complete axiomatization.",
+    "bibtex": "@article{jacobs2025stackat,\n  title = {StacKAT: Infinite State Network Verification},\n  volume = {9},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3729257},\n  DOI = {10.1145/3729257},\n  number = {PLDI},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Foster, Nate and Kappé, Tobias and Kozen, Dexter and Saada, Lily and Silva, Alexandra and Wagemaker, Jana},\n  year = {2025},\n  month = June,\n  pages = {277--300}\n}",
+    "talks": [
+      {
+        "title": "StacKAT: Infinite State Network Verification",
+        "year": "2025",
+        "where": "PLDI'25",
+        "url": "misc/stackat/slides/slides.html"
+      }
+    ],
+    "thumbnail": "papers/stackat/page1.jpg",
+    "notes": "The local PDF is an author version: its ACM reference reads '1, 1 (April 2025)' with a placeholder DOI, not the PACMPL page numbers."
+  },
+  {
+    "id": "mpactris",
+    "title": "Multris: Functional Verification of Multiparty Message Passing in Separation Logic",
+    "subtitle": null,
+    "venue": "OOPSLA'24",
+    "year": 2024,
+    "authors": [
+      {
+        "name": "Jonas Kastberg Hinrichsen",
+        "url": "https://jihgfee.github.io/",
+        "me": false
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Robbert Krebbers",
+        "url": "https://robbertkrebbers.nl/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/mpactris.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3689762"
+      },
+      {
+        "label": "code",
+        "url": "https://doi.org/10.5281/zenodo.13380561"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/mpactris.pdf",
+    "pdf_local": true,
+    "abstract": "We introduce Multris, a separation logic for verifying functional correctness of programs that combine multiparty message-passing communication with shared-memory concurrency. The foundation of our work is a novel concept of multiparty protocol consistency, which ensures safe communication among a set of parties, provided each party adheres to its prescribed protocol. Our concept of protocol consistency is inspired by the bottom-up approach for multiparty session types. However, by applying it in the context of separation logic rather than a type system, we achieve greater generality by supporting new notions of implicit transfer of knowledge and implicit transfer of resources. We develop tactics for automatically verifying protocol consistency and for reasoning about message-passing operations in Multris. We evaluate Multris on a range of examples, including the well-known two- and three-buyer protocols, as well as a new verification benchmark based on Chang and Roberts’s ring leader election protocol. To ensure the reliability of our work, we prove the soundness of Multris with respect to a low-level channel semantics using the Iris framework in Coq.",
+    "abstract_source": "pdf",
+    "one_line": "A separation logic for proving programs correct that mix multiparty message passing with shared memory.",
+    "summary": "Programs that combine multiparty message passing with shared-memory concurrency are hard to verify. Multris is a separation logic for them, built on multiparty protocol consistency, which allows implicit transfer of knowledge and resources, with tactics that check it automatically. It verifies the two- and three-buyer protocols and a ring leader election, and is proved sound in Coq.",
+    "bibtex": "@article{hinrichsen2024multris,\n  title = {Multris: Functional Verification of Multiparty Message Passing in Separation Logic},\n  volume = {8},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3689762},\n  DOI = {10.1145/3689762},\n  number = {OOPSLA2},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Hinrichsen, Jonas Kastberg and Jacobs, Jules and Krebbers, Robbert},\n  year = {2024},\n  month = Oct,\n  pages = {1446--1474}\n}",
+    "talks": [],
+    "thumbnail": "papers/mpactris/page1.jpg",
+    "notes": null
+  },
+  {
+    "id": "katch",
+    "title": "KATch: A Fast Symbolic Verifier for NetKAT",
+    "subtitle": null,
+    "venue": "PLDI'24",
+    "year": 2024,
+    "authors": [
+      {
+        "name": "Mark Moeller",
+        "url": "https://markmoeller.work/",
+        "me": false,
+        "mark": "*"
+      },
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true,
+        "mark": "*"
+      },
+      {
+        "name": "Olivier Savary Belanger",
+        "url": "https://www.galois.com/team/olivier-savary-belanger",
+        "me": false
+      },
+      {
+        "name": "David Darais",
+        "url": "https://david.darais.com/",
+        "me": false
+      },
+      {
+        "name": "Cole Schlesinger",
+        "url": "https://www.schlesinger.tech/",
+        "me": false
+      },
+      {
+        "name": "Steffen Smolka",
+        "url": "https://smolka.st/",
+        "me": false
+      },
+      {
+        "name": "Nate Foster",
+        "url": "https://natefoster.org/",
+        "me": false
+      },
+      {
+        "name": "Alexandra Silva",
+        "url": "https://alexandrasilva.org/",
+        "me": false
+      }
+    ],
+    "equal_contribution_note": "(* equal contribution)",
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/katch.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3656454"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/KATch"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/katch.pdf",
+    "pdf_local": true,
+    "abstract": "We develop new data structures and algorithms for checking verification queries in NetKAT, a domain-specific language for specifying the behavior of network data planes. Our results extend the techniques obtained in prior work on symbolic automata and provide a framework for building efficient and scalable verification tools. We present KATch, an implementation of these ideas in Scala, featuring an extended set of NetKAT operators that are useful for expressing network-wide specifications, and a verification engine that constructs a bisimulation or generates a counter-example showing that none exists. We evaluate the performance of our implementation on real-world and synthetic benchmarks, verifying properties such as reachability and slice isolation, typically returning a result in well under a second, which is orders of magnitude faster than previous approaches. Our advancements underscore NetKAT’s potential as a practical, declarative language for network specification and verification.",
+    "abstract_source": "pdf",
+    "one_line": "Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.",
+    "summary": "NetKAT is a language for specifying the behavior of network data planes. This paper develops data structures and algorithms for checking NetKAT verification queries, implemented in KATch, which constructs a bisimulation or a counterexample. On real-world and synthetic benchmarks it typically answers in well under a second, orders of magnitude faster than previous approaches.",
+    "bibtex": "@article{moeller2024katch,\n  title = {KATch: A Fast Symbolic Verifier for NetKAT},\n  volume = {8},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3656454},\n  DOI = {10.1145/3656454},\n  number = {PLDI},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Moeller, Mark and Jacobs, Jules and Belanger, Olivier Savary and Darais, David and Schlesinger, Cole and Smolka, Steffen and Foster, Nate and Silva, Alexandra},\n  year = {2024},\n  month = June,\n  pages = {1905--1928}\n}",
+    "talks": [],
+    "thumbnail": "papers/katch/page1.jpg",
+    "notes": "The equal-contribution marks: Mark Moeller and Jules Jacobs carry \"mark\": \"*\" in authors."
+  },
+  {
+    "id": "thesis",
+    "title": "Guarantees by Construction",
+    "subtitle": null,
+    "venue": "PhD Thesis",
+    "year": 2024,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/thesis.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.54195/9789493296541"
+      },
+      {
+        "label": "code",
+        "url": "https://apndx.org/pub/thesis/"
+      }
+    ],
+    "awards": [
+      "VERSEN 2025 award",
+      "IPA Dissertation Award 2024"
+    ],
+    "pdf": "pdf/thesis.pdf",
+    "pdf_local": true,
+    "abstract": "This thesis is about type systems for deadlock and leak free concurrency, separation logics for verified message passing, paradox-free probabilistic programming, and general and efficient coalgebraic automata minimization. In each case we aspire to guarantee beneficial properties ‘by construction’, as inherent consequences of the design of the system:\n\nTypes for deadlock and memory leak-free concurrency: Languages such as Rust guarantee memory safety and race freedom by type checking, but Rust programs can deadlock and leak memory. By enforing a carefully designed linear typing discipline, we obtain new concurrent languages with locks and channels in which deadlock freedom and memory leak freedom are guaranteed by type checking. A key challenge is proving this formally, for which we introduce a proof technique called connectivity graphs.\n\nSeparation logics for verified message passing: We show that concurrent separation logic and message passing are a perfect match, by using nested invariants to markedly simplify the soundness proof of an Actris-style separation logic for the verification of message passing programs. We then develop a new separation logic for verifying that message passing programs are deadlock free and memory leak free. These properties follow automatically from the linearity of the separation logic, without any additional proof obligations.\n\nParadox-free probabilistic programming: Probabilistic modeling languages suffer from paradoxes when conditioning on events of measure zero. This can even lead to different answers depending on whether the modeler is working in metric or imperial units. We show that we can avoid these paradoxes with a simple change to the modeling language. The resulting language guarantees that all probabilistic programs are invariant under change of parameterization, and its semantics of conditioning on events of measure zero relate to conditioning on events of positive measure in a natural way.\n\nGeneral and efficient coalgebraic automata minimization: A variety of automaton types and minimization algorithms exist, often tailored to specific cases. By imposing a coalgebraic structure on automata, we can exploit their shared characteristics. This allows us to develop a unified minimization algorithm that works across a general class of automata, while being efficient both in theory and in practice.",
+    "abstract_source": "pdf",
+    "one_line": "Languages and logics in which deadlock freedom, leak freedom and other guarantees follow by construction.",
+    "summary": "The thesis designs systems in which good properties follow by construction. Linear type systems make concurrent programs with locks and channels deadlock and leak free; separation logics verify message-passing programs; a change to probabilistic languages removes the paradoxes of conditioning on measure-zero events; and one coalgebraic algorithm minimizes many kinds of automata efficiently.",
+    "bibtex": "@book{jacobs2024thesis,\n  title = {Guarantees by Construction},\n  ISBN = {9789493296541},\n  url = {https://doi.org/10.54195/9789493296541},\n  DOI = {10.54195/9789493296541},\n  publisher = {Radboud University Press},\n  author = {Jacobs, Jules},\n  year = {2024},\n  month = June\n}",
+    "talks": [
+      {
+        "title": "Guarantees by construction, revisited",
+        "year": "2026",
+        "where": "IPA Fall Days 2026 · Dissertation Award talk",
+        "url": "https://lab.julesjacobs.com/slides/ipa/"
+      }
+    ],
+    "thumbnail": "papers/thesis/page1.jpg",
+    "notes": "A thesis has no abstract: this is its 'Summary' (page 342). The four topic headings are in small caps in the PDF (extracted lowercase); here capitalized with a colon. 'enforing' is a typo in the thesis, kept verbatim. The thumbnail is the book's own cover (title, topics, author), which is the thesis's first page; not a publisher cover sheet. Talk included by topic: 'Guarantees by construction, revisited' (IPA Dissertation Award talk)."
+  },
+  {
+    "id": "dlfactris",
+    "title": "Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing",
+    "subtitle": null,
+    "venue": "POPL'24",
+    "year": 2024,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Jonas Kastberg Hinrichsen",
+        "url": "https://jihgfee.github.io/",
+        "me": false
+      },
+      {
+        "name": "Robbert Krebbers",
+        "url": "https://robbertkrebbers.nl/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "https://apndx.org/pub/icnp/dlfactris.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3632889"
+      },
+      {
+        "label": "slides",
+        "url": "slides/dlfactris_popl24.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://apndx.org/pub/icnp/"
+      }
+    ],
+    "awards": [],
+    "pdf": "https://apndx.org/pub/icnp/dlfactris.pdf",
+    "pdf_local": false,
+    "abstract": "We introduce a linear concurrent separation logic, called LinearActris, designed to guarantee deadlock and leak freedom for message-passing concurrency. LinearActris combines the strengths of session types and concurrent separation logic, allowing for the verification of challenging higher-order programs with mutable state through dependent protocols. The key challenge is to prove the adequacy theorem of LinearActris, which says that the logic indeed gives deadlock and leak freedom “for free” from linearity. We prove this theorem by defining a step-indexed model of separation logic, based on connectivity graphs. To demonstrate the expressive power of LinearActris, we prove soundness of a higher-order (GV-style) session type system using the technique of logical relations. All our results and examples have been mechanized in Coq.",
+    "abstract_source": "https://doi.org/10.1145/3632889",
+    "one_line": "A separation logic for message passing in which deadlock and leak freedom follow from linearity alone.",
+    "summary": "Session types give deadlock freedom “for free” from linear type checking; this paper brings that to separation logic. LinearActris is a linear concurrent separation logic that guarantees deadlock and leak freedom for higher-order programs with mutable state and dependent protocols. Its adequacy is proved with a step-indexed model based on connectivity graphs, mechanized in Coq.",
+    "bibtex": "@article{jacobs2024dlfactris,\n  title = {Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing},\n  volume = {8},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3632889},\n  DOI = {10.1145/3632889},\n  number = {POPL},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Hinrichsen, Jonas Kastberg and Krebbers, Robbert},\n  year = {2024},\n  month = Jan,\n  pages = {1385--1417}\n}",
+    "talks": [
+      {
+        "title": "Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing",
+        "year": "2024",
+        "where": "EPFL · POPL'24",
+        "url": "slides/dlfactris_popl24.pdf"
+      }
+    ],
+    "thumbnail": null,
+    "notes": "The .pdf button points to apndx.org. The repository's pdf/dlfactris.pdf is an anonymous submission draft with line numbers (its abstract says 'higher-order program' where the published one says 'programs'), so it was not used. Abstract from the ACM publisher metadata for the DOI (via Crossref); 'LinearActris' is bold and 'connectivity graphs' italic in the original. No thumbnail."
+  },
+  {
+    "id": "miniactris",
+    "title": "Dependent Session Protocols in Separation Logic from First Principles",
+    "subtitle": null,
+    "venue": "ICFP'23",
+    "year": 2023,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Jonas Kastberg Hinrichsen",
+        "url": "https://jihgfee.github.io/",
+        "me": false
+      },
+      {
+        "name": "Robbert Krebbers",
+        "url": "https://robbertkrebbers.nl/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "https://apndx.org/pub/mpy9/miniactris.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3607856"
+      },
+      {
+        "label": "slides",
+        "url": "slides/miniactris_iris.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://apndx.org/pub/mpy9/"
+      }
+    ],
+    "awards": [],
+    "pdf": "https://apndx.org/pub/mpy9/miniactris.pdf",
+    "pdf_local": false,
+    "abstract": "We develop an account of dependent session protocols in concurrent separation logic for a functional language with message-passing. Inspired by minimalistic session calculi, we present a layered design: starting from mutable references, we build one-shot channels, session channels, and imperative channels. Whereas previous work on dependent session protocols in concurrent separation logic required advanced mechanisms such as recursive domain equations and higher-order ghost state, we only require the most basic mechanisms to verify that the one-shot channels satisfy one-shot protocols, and subsequently treat these specifications as a black box on top of which we define dependent session protocols. This has a number of advantages in terms of simplicity, elegance, and flexibility: support for subprotocols and guarded recursion automatically transfers from the one-shot protocols to the dependent session protocols, and we easily obtain various forms of channel closing. Because the meta theory of our results is so simple, we are able to give all definitions as part of this paper, and mechanize all our results using the Iris framework in less than 1000 lines of Coq.",
+    "abstract_source": "papers/miniactris/miniactris.pdf",
+    "one_line": "Builds dependent session protocols in separation logic on one-shot channels, in under 1000 lines of Coq.",
+    "summary": "Earlier separation logics for dependent session protocols needed recursive domain equations and higher-order ghost state. This paper builds session channels in layers on one-shot channels, verifies those with basic mechanisms only, and defines dependent session protocols on top. Subprotocols, guarded recursion and channel closing come along, and everything is mechanized in Iris in under 1000 lines of Coq.",
+    "bibtex": "@article{jacobs2023miniactris,\n  title = {Dependent Session Protocols in Separation Logic from First Principles (Functional Pearl)},\n  volume = {7},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3607856},\n  DOI = {10.1145/3607856},\n  number = {ICFP},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Hinrichsen, Jonas Kastberg and Krebbers, Robbert},\n  year = {2023},\n  month = Aug,\n  pages = {768--795}\n}",
+    "talks": [
+      {
+        "title": "Dependent Session Protocols in Separation Logic from First Principles",
+        "year": "2023",
+        "where": "Iris Workshop 2023",
+        "url": "slides/miniactris_iris.pdf"
+      }
+    ],
+    "thumbnail": "papers/miniactris/page1.jpg",
+    "notes": "The .pdf button points to apndx.org/pub/mpy9/miniactris.pdf (pdf_local false), but the repository has papers/miniactris/miniactris.pdf (identical to pdf/miniactris.pdf), the published version (PACMPL ICFP, article 214). Abstract and thumbnail come from that copy; that it is the same file as the apndx.org one was not checked. BibTeX title has '(Functional Pearl)', the index.html title does not."
+  },
+  {
+    "id": "locks",
+    "title": "Higher-Order Leak and Deadlock Free Locks",
+    "subtitle": null,
+    "venue": "POPL'23",
+    "year": 2023,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Stephanie Balzer",
+        "url": "https://www.cs.cmu.edu/~balzers/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/locks.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3571229"
+      },
+      {
+        "label": "slides",
+        "url": "slides/slides-popl23-locks.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/cgraphs"
+      }
+    ],
+    "awards": [
+      "POPL'23 distinguished paper"
+    ],
+    "pdf": "pdf/locks.pdf",
+    "pdf_local": true,
+    "abstract": "Reasoning about concurrent programs is challenging, especially if data is shared among threads. Program correctness can be violated by the presence of data races—whose prevention has been a topic of concern both in research and in practice. The Rust programming language is a prime example, putting the slogan fearless concurrency in practice by not only employing an ownership-based type system for memory management, but also using its type system to enforce mutual exclusion on shared data. Locking, unfortunately, not only comes at the price of deadlocks but shared access to data may also cause memory leaks.\n\nThis paper develops a theory of deadlock and leak freedom for higher-order locks in a shared memory concurrent setting. Higher-order locks allow sharing not only of basic values but also of other locks and channels, and are themselves first-class citizens. The theory is based on the notion of a sharing topology, administrating who is permitted to access shared data at what point in the program. The paper first develops higher-order locks for acyclic sharing topologies, instantiated in a λ-calculus with higher-order locks and message-passing concurrency. The paper then extends the calculus to support circular dependencies with dynamic lock orders, which we illustrate with a dynamic version of Dijkstra’s dining philosophers problem. Well-typed programs in the resulting calculi are shown to be free of deadlocks and memory leaks, with proofs mechanized in the Coq proof assistant.",
+    "abstract_source": "pdf",
+    "one_line": "A λ-calculus with higher-order locks in which well-typed programs cannot deadlock or leak memory.",
+    "summary": "Rust's type system rules out data races, but programs with locks can still deadlock and leak memory. This paper develops a theory of deadlock and leak freedom for higher-order locks based on sharing topologies, first for acyclic sharing and then with dynamic lock orders. Well-typed programs in the resulting calculi are free of deadlocks and memory leaks, proved in Coq.",
+    "bibtex": "@article{jacobs2023locks,\n  title = {Higher-Order Leak and Deadlock Free Locks},\n  volume = {7},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3571229},\n  DOI = {10.1145/3571229},\n  number = {POPL},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Balzer, Stephanie},\n  year = {2023},\n  month = Jan,\n  pages = {1027--1057}\n}",
+    "talks": [
+      {
+        "title": "Higher-Order Leak and Deadlock Free Locks",
+        "year": "2023",
+        "where": "Cornell University · Carnegie Mellon University · POPV seminar Boston · LFCS seminar Edinburgh · POPL'23",
+        "url": "slides/slides-locks.pdf"
+      }
+    ],
+    "thumbnail": "papers/locks/page1.jpg",
+    "notes": "The talk's slides (slides/slides-locks.pdf) differ from the paper's slides button (slides/slides-popl23-locks.pdf)."
+  },
+  {
+    "id": "boa",
+    "title": "Fast Coalgebraic Bisimilarity Minimization",
+    "subtitle": null,
+    "venue": "POPL'23",
+    "year": 2023,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Thorsten Wißmann",
+        "url": "https://thorsten-wissmann.de/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/boa.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3571245"
+      },
+      {
+        "label": "slides",
+        "url": "slides/slides-popl23-coalg.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/boa"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/boa.pdf",
+    "pdf_local": true,
+    "abstract": "Coalgebraic bisimilarity minimization generalizes classical automaton minimization to a large class of automata whose transition structure is specified by a functor, subsuming strong, weighted, and probabilistic bisimilarity. This offers the enticing possibility of turning bisimilarity minimization into an off-the-shelf technology, without having to develop a new algorithm for each new type of automaton. Unfortunately, there is no existing algorithm that is fully general, efficient, and able to handle large systems.\n\nWe present a generic algorithm that minimizes coalgebras over an arbitrary functor in the category of sets as long as the action on morphisms is sufficiently computable. The functor makes at most O(m log n) calls to the functor-specific action, where n is the number of states and m is the number of transitions in the coalgebra.\n\nWhile more specialized algorithms can be asymptotically faster than our algorithm (usually by a factor of O(m/n)), our algorithm is especially well suited to efficient implementation, and our tool Boa often uses much less time and memory on existing benchmarks, and can handle larger automata, despite being more generic.",
+    "abstract_source": "pdf",
+    "one_line": "One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems.",
+    "summary": "Coalgebraic bisimilarity minimization covers strong, weighted and probabilistic bisimilarity, but no existing algorithm was fully general, efficient and able to handle large systems. This paper gives a generic algorithm making at most O(m log n) calls to the functor-specific action. Its implementation, Boa, often uses much less time and memory on existing benchmarks and handles larger automata.",
+    "bibtex": "@article{jacobs2023boa,\n  title = {Fast Coalgebraic Bisimilarity Minimization},\n  volume = {7},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3571245},\n  DOI = {10.1145/3571245},\n  number = {POPL},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Wißmann, Thorsten},\n  year = {2023},\n  month = Jan,\n  pages = {1514--1541}\n}",
+    "talks": [
+      {
+        "title": "Fast Coalgebraic Bisimilarity Minimization",
+        "year": "2022–23",
+        "where": "Cornell University · LIP ENS Lyon · POPL'23 · SWS Seminar, Radboud University",
+        "url": "slides/slides-popl23-coalg.pdf"
+      }
+    ],
+    "thumbnail": "papers/boa/page1.jpg",
+    "notes": "Maths written as plain text: O(m log n), O(m/n) (a fraction in the PDF). Crossref's version of the abstract drops the 'O' and the tool name 'Boa'; the PDF has both."
+  },
+  {
+    "id": "mpgv",
+    "title": "Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom",
+    "subtitle": null,
+    "venue": "ICFP'22",
+    "year": 2022,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Stephanie Balzer",
+        "url": "https://www.cs.cmu.edu/~balzers/",
+        "me": false
+      },
+      {
+        "name": "Robbert Krebbers",
+        "url": "https://robbertkrebbers.nl/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/multiparty.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3547638"
+      },
+      {
+        "label": "slides",
+        "url": "slides/icfp22-slides.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/cgraphs"
+      },
+      {
+        "label": "crossref",
+        "url": "pdf/multiparty_annotated.pdf"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/multiparty.pdf",
+    "pdf_local": true,
+    "abstract": "Session types have recently been integrated with functional languages, bringing message-passing concurrency to functional programming. Channel endpoints then become first-class and can be stored in data structures, captured in closures, and sent along channels. Representatives of the GV (Wadler’s “Good Variation”) session type family are of particular appeal because they not only assert session fidelity but also deadlock freedom, inspired by a Curry-Howard correspondence to linear logic. A restriction of current versions of GV, however, is the focus on binary sessions, limiting concurrent interactions within a session to two participants. This paper introduces Multiparty GV (MPGV), a functional language with multiparty session types, allowing concurrent interactions among several participants. MPGV upholds the strong guarantees of its ancestor GV, including deadlock freedom, despite session interleaving and delegation. MPGV has a novel redirecting construct for modular programming with first-class endpoints, thanks to which we give a type-preserving translation from binary session types to MPGV to show that MPGV is strictly more general than binary GV. All results in this paper have been mechanized using the Coq proof assistant.",
+    "abstract_source": "pdf",
+    "one_line": "A functional language with multiparty session types in which well-typed programs are deadlock free.",
+    "summary": "GV-style session types bring deadlock-free message passing to functional programming, but only between two participants per session. Multiparty GV (MPGV) allows sessions among several participants and keeps deadlock freedom despite session interleaving and delegation. A redirecting construct gives a type-preserving translation from binary session types, so MPGV is strictly more general. All results are mechanized in Coq.",
+    "bibtex": "@article{jacobs2022mpgv,\n  title = {Multiparty GV: functional multiparty session types with certified deadlock freedom},\n  volume = {6},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3547638},\n  DOI = {10.1145/3547638},\n  number = {ICFP},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},\n  year = {2022},\n  month = Aug,\n  pages = {466--495}\n}",
+    "talks": [
+      {
+        "title": "Multiparty GV: Functional Multiparty Session Types With Certified Deadlock Freedom",
+        "year": "2022",
+        "where": "ICFP'22",
+        "url": "slides/icfp22-slides.pdf"
+      }
+    ],
+    "thumbnail": "papers/mpgv/page1.jpg",
+    "notes": "The 'crossref' button (pdf/multiparty_annotated.pdf) is a link label from index.html, not the Crossref service."
+  },
+  {
+    "id": "lambdabar",
+    "title": "A Self-Dual Distillation of Session Types",
+    "subtitle": null,
+    "venue": "ECOOP'22",
+    "year": 2022,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/lambdabar.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.4230/LIPIcs.ECOOP.2022.23"
+      },
+      {
+        "label": "slides",
+        "url": "slides/lambdabar_types22.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/cgraphs"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/lambdabar.pdf",
+    "pdf_local": true,
+    "abstract": "We introduce λ̄ (“lambda-barrier”), a minimal extension of linear λ-calculus with concurrent communication, which adds only a single new fork construct for spawning threads. It is inspired by GV, a session-typed functional language also based on linear λ-calculus. Unlike GV, λ̄ strives to be as simple as possible, and adds no new operations other than fork, no new type formers, and no explicit definition of session type duality. Instead, we use linear function function type τ₁ ⊸ τ₂ for communication between threads, which is dual to τ₂ ⊸ τ₁, i.e., the function type constructor is dual to itself. Nevertheless, we can encode session types as λ̄ types, GV’s channel operations as λ̄ terms, and show that this encoding is type-preserving. The linear type system of λ̄ ensures that all programs are deadlock-free and satisfy global progress, which we prove in Coq. Because of λ̄’s minimality, these proofs are simpler than mechanized proofs of deadlock freedom for GV.",
+    "abstract_source": "pdf",
+    "one_line": "Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free.",
+    "summary": "Session-typed languages such as GV add type formers, channel operations and a definition of duality. λ̄ adds only a fork construct to linear λ-calculus and communicates through the linear function type, which is dual to itself. Session types and GV's operations can be encoded in it, and its deadlock freedom has a simpler proof, in Coq.",
+    "bibtex": "@inproceedings{jacobs2022lambdabar,\n  doi = {10.4230/LIPICS.ECOOP.2022.23},\n  url = {https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ECOOP.2022.23},\n  author = {Jacobs, Jules},\n  keywords = {Linear types, concurrency, lambda calculus, session types, Software and its engineering → Concurrent programming languages},\n  language = {en},\n  title = {A Self-Dual Distillation of Session Types},\n  journal = {LIPIcs, Volume 222, ECOOP 2022},\n  volume = {222},\n  pages = {23:1-23:22},\n  publisher = {Schloss Dagstuhl – Leibniz-Zentrum für Informatik},\n  year = {2022},\n  copyright = {Creative Commons Attribution 4.0 International license}\n\n}",
+    "talks": [
+      {
+        "title": "A Simple Concurrent Lambda Calculus for Encoding Session Types",
+        "year": "2022",
+        "where": "TYPES'22",
+        "url": "slides/lambdabar_types22.pdf"
+      },
+      {
+        "title": "A Self-Dual Distillation of Session Types",
+        "year": "2022",
+        "where": "ECOOP'22",
+        "url": "slides/ecoop22-slides.pdf"
+      }
+    ],
+    "thumbnail": "papers/lambdabar/page1.jpg",
+    "notes": "Maths as Unicode: λ̄ (lambda with combining macron) for the overlined lambda, τ₁ ⊸ τ₂ for the linear function type. 'linear function function type' is in the original, kept verbatim. The PDF title adds '(Pearl)'. Two talks included: the ECOOP'22 talk (same title) and the TYPES'22 talk 'A Simple Concurrent Lambda Calculus for Encoding Session Types', whose URL is the paper's slides button."
+  },
+  {
+    "id": "cgraphs",
+    "title": "Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic",
+    "subtitle": null,
+    "venue": "POPL'22",
+    "year": 2022,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      },
+      {
+        "name": "Stephanie Balzer",
+        "url": "https://www.cs.cmu.edu/~balzers/",
+        "me": false
+      },
+      {
+        "name": "Robbert Krebbers",
+        "url": "https://robbertkrebbers.nl/",
+        "me": false
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/deadlocks.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3498662"
+      },
+      {
+        "label": "slides",
+        "url": "slides/cgraphs_popl22.pdf"
+      },
+      {
+        "label": "code",
+        "url": "https://github.com/julesjacobs/cgraphs"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/deadlocks.pdf",
+    "pdf_local": true,
+    "abstract": "We introduce the notion of a connectivity graph—an abstract representation of the topology of concurrently interacting entities, which allows us to encapsulate generic principles of reasoning about deadlock freedom. Connectivity graphs are parametric in their vertices (representing entities like threads and channels) and their edges (representing references between entities) with labels (representing interaction protocols). We prove deadlock and memory leak freedom in the style of progress and preservation and use separation logic as a meta theoretic tool to treat connectivity graph edges and labels substructurally. To prove preservation locally, we distill generic separation logic rules for local graph transformations that preserve acyclicity of the connectivity graph. To prove global progress locally, we introduce a waiting induction principle for acyclic connectivity graphs. We mechanize our results in Coq, and instantiate our method with a higher-order binary session-typed language to obtain the first mechanized proof of deadlock and leak freedom.",
+    "abstract_source": "pdf",
+    "one_line": "A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks.",
+    "summary": "Proving deadlock freedom means reasoning about how threads and channels refer to one another. Connectivity graphs capture this topology generically, and separation logic is used to prove deadlock and memory leak freedom in the style of progress and preservation. Instantiated with a higher-order session-typed language, the method gives the first mechanized proof of deadlock and leak freedom.",
+    "bibtex": "@article{jacobs2022cgraphs,\n  title = {Connectivity graphs: a method for proving deadlock freedom based on separation logic},\n  volume = {6},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3498662},\n  DOI = {10.1145/3498662},\n  number = {POPL},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules and Balzer, Stephanie and Krebbers, Robbert},\n  year = {2022},\n  month = Jan,\n  pages = {1--33}\n}",
+    "talks": [
+      {
+        "title": "Connectivity Graphs: A Method for Proving Deadlock Freedom Based on Separation Logic",
+        "year": "2022",
+        "where": "Iris Workshop · CMU plunch · Imperial College London · POPL'22",
+        "url": "slides/iris-workshop-slides22.pdf"
+      }
+    ],
+    "thumbnail": "papers/cgraphs/page1.jpg",
+    "notes": "Not included as talks, but possibly related: 'Mechanized Deadlock Freedom for Session Types' (2021, slides/deadlocks_gr.pdf) and 'Deadlock Freedom for Session Types Using Separation Logic' (2021, slides/deadlocks_ru.pdf)."
+  },
+  {
+    "id": "paradoxes",
+    "title": "Paradoxes of Probabilistic Programming",
+    "subtitle": "And How to Condition on Events of Measure Zero with Infinitesimal Probabilities",
+    "venue": "POPL'21",
+    "year": 2021,
+    "authors": [
+      {
+        "name": "Jules Jacobs",
+        "url": null,
+        "me": true
+      }
+    ],
+    "links": [
+      {
+        "label": ".pdf",
+        "url": "pdf/measurezero.pdf"
+      },
+      {
+        "label": "DOI",
+        "url": "https://doi.org/10.1145/3434339"
+      },
+      {
+        "label": "code",
+        "url": "https://zenodo.org/record/4075076"
+      },
+      {
+        "label": "slides",
+        "url": "slides/measurezero_pldi.pdf"
+      },
+      {
+        "label": "video",
+        "url": "https://app.clowdr.org/conference/popl2021/item/8413db80-984e-49fb-a909-b7e9394e413c"
+      }
+    ],
+    "awards": [],
+    "pdf": "pdf/measurezero.pdf",
+    "pdf_local": true,
+    "abstract": "Probabilistic programming languages allow programmers to write down conditional probability distributions that represent statistical and machine learning models as programs that use observe statements. These programs are run by accumulating likelihood at each observe statement, and using the likelihood to steer random choices and weigh results with inference algorithms such as importance sampling or MCMC. We argue that naive likelihood accumulation does not give desirable semantics and leads to paradoxes when an observe statement is used to condition on a measure-zero event, particularly when the observe statement is executed conditionally on random data. We show that the paradoxes disappear if we explicitly model measure-zero events as a limit of positive measure events, and that we can execute these type of probabilistic programs by accumulating infinitesimal probabilities rather than probability densities. Our extension improves probabilistic programming languages as an executable notation for probability distributions by making it more well-behaved and more expressive, by allowing the programmer to be explicit about which limit is intended when conditioning on an event of measure zero.",
+    "abstract_source": "pdf",
+    "one_line": "Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities.",
+    "summary": "Probabilistic programs that condition on measure-zero events with observe statements can behave paradoxically, especially when the observe runs conditionally on random data. This paper models such events as limits of positive-measure events and runs programs by accumulating infinitesimal probabilities instead of densities. The paradoxes disappear, and programmers can say which limit they intend.",
+    "bibtex": "@article{jacobs2021paradoxes,\n  title = {Paradoxes of probabilistic programming: and how to condition on events of measure zero with infinitesimal probabilities},\n  volume = {5},\n  ISSN = {2475-1421},\n  url = {https://doi.org/10.1145/3434339},\n  DOI = {10.1145/3434339},\n  number = {POPL},\n  journal = {Proceedings of the ACM on Programming Languages},\n  publisher = {Association for Computing Machinery (ACM)},\n  author = {Jacobs, Jules},\n  year = {2021},\n  month = Jan,\n  pages = {1--26}\n}",
+    "talks": [
+      {
+        "title": "Paradoxes of Probabilistic Programming",
+        "year": "2020–22",
+        "where": "PLDI'22 SIGPLAN Track · VeriProP'21 · POPL'21 · PL Seminar, TU Delft · PPLV, University College London · SWS Seminar, Radboud University",
+        "url": "slides/measurezero_pldi.pdf"
+      }
+    ],
+    "thumbnail": "papers/paradoxes/page1.jpg",
+    "notes": "The .pdf button is pdf/measurezero.pdf; the repository also has pdf/paradoxes.pdf and pdf/paradoxes_1.pdf, not used."
+  }
+]

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Fast Coalgebraic Bisimilarity Minimization. One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/boa/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/boa/" />
+  <meta property="og:title" content="Fast Coalgebraic Bisimilarity Minimization" />
+  <meta property="og:description" content="One generic algorithm that minimizes many kinds of automata up to bisimilarity, also on large systems." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Fast Coalgebraic Bisimilarity Minimization</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top">
+    <div>
+      <h1>Fast Coalgebraic Bisimilarity Minimization</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a> and <a href="https://thorsten-wissmann.de/">Thorsten Wißmann</a>. POPL&#x27;23.</p>
+      <p class="pitch">Coalgebraic bisimilarity minimization covers strong, weighted and probabilistic bisimilarity, but no existing algorithm was fully general, efficient and able to handle large systems. This paper gives a generic algorithm making at most O(m log n) calls to the functor-specific action. Its implementation, Boa, often uses much less time and memory on existing benchmarks and handles larger automata.</p>
+      <div class="buttons">
+        <a class="button primary" href="/pdf/boa.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3571245">DOI</a>
+        <a class="button" href="/slides/slides-popl23-coalg.pdf">slides</a>
+        <a class="button" href="https://github.com/julesjacobs/boa">code</a>
+      </div>
+    </div>
+    <a class="paper" href="/pdf/boa.pdf" title="Read the paper (PDF)">
+      <img src="page1.jpg" alt="The first page of the paper" />
+      Read the paper
+    </a>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>Coalgebraic bisimilarity minimization generalizes classical automaton minimization to a large class of automata whose transition structure is specified by a functor, subsuming strong, weighted, and probabilistic bisimilarity. This offers the enticing possibility of turning bisimilarity minimization into an off-the-shelf technology, without having to develop a new algorithm for each new type of automaton. Unfortunately, there is no existing algorithm that is fully general, efficient, and able to handle large systems.</p>
+  <p>We present a generic algorithm that minimizes coalgebras over an arbitrary functor in the category of sets as long as the action on morphisms is sufficiently computable. The functor makes at most O(m log n) calls to the functor-specific action, where n is the number of states and m is the number of transitions in the coalgebra.</p>
+  <p>While more specialized algorithms can be asymptotically faster than our algorithm (usually by a factor of O(m/n)), our algorithm is especially well suited to efficient implementation, and our tool Boa often uses much less time and memory on existing benchmarks, and can handle larger automata, despite being more generic.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/slides-popl23-coalg.pdf">Fast Coalgebraic Bisimilarity Minimization</a> <span class="info">2022–23 · Cornell University · LIP ENS Lyon · POPL&#x27;23 · SWS Seminar, Radboud University</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2023boa,
+  title = {Fast Coalgebraic Bisimilarity Minimization},
+  volume = {7},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3571245},
+  DOI = {10.1145/3571245},
+  number = {POPL},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Wißmann, Thorsten},
+  year = {2023},
+  month = Jan,
+  pages = {1514--1541}
+}</pre>
+</body>
+</html>

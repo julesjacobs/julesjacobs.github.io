@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing. A separation logic for message passing in which deadlock and leak freedom follow from linearity alone." />
+  <link rel="canonical" href="https://julesjacobs.com/papers/dlfactris/" />
+  <meta property="og:url" content="https://julesjacobs.com/papers/dlfactris/" />
+  <meta property="og:title" content="Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing" />
+  <meta property="og:description" content="A separation logic for message passing in which deadlock and leak freedom follow from linearity alone." />
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/ico/favicon-32x32.png" />
+  <link rel="stylesheet" href="../paper.css" />
+  <title>Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</title>
+</head>
+<body>
+  <p class="crumb"><a href="/">Jules Jacobs</a> · <a href="/#publications-heading">Publications</a></p>
+  <div class="top plain">
+    <div>
+      <h1>Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</h1>
+      <p class="byline"><a href="/">Jules Jacobs</a>, <a href="https://jihgfee.github.io/">Jonas Kastberg Hinrichsen</a> and <a href="https://robbertkrebbers.nl/">Robbert Krebbers</a>. POPL&#x27;24.</p>
+      <p class="pitch">Session types give deadlock freedom “for free” from linear type checking; this paper brings that to separation logic. LinearActris is a linear concurrent separation logic that guarantees deadlock and leak freedom for higher-order programs with mutable state and dependent protocols. Its adequacy is proved with a step-indexed model based on connectivity graphs, mechanized in Coq.</p>
+      <div class="buttons">
+        <a class="button primary" href="https://apndx.org/pub/icnp/dlfactris.pdf">Read the paper</a>
+        <a class="button" href="https://doi.org/10.1145/3632889">DOI</a>
+        <a class="button" href="/slides/dlfactris_popl24.pdf">slides</a>
+        <a class="button" href="https://apndx.org/pub/icnp/">code</a>
+      </div>
+    </div>
+  </div>
+
+  <h2>Abstract</h2>
+  <p>We introduce a linear concurrent separation logic, called LinearActris, designed to guarantee deadlock and leak freedom for message-passing concurrency. LinearActris combines the strengths of session types and concurrent separation logic, allowing for the verification of challenging higher-order programs with mutable state through dependent protocols. The key challenge is to prove the adequacy theorem of LinearActris, which says that the logic indeed gives deadlock and leak freedom “for free” from linearity. We prove this theorem by defining a step-indexed model of separation logic, based on connectivity graphs. To demonstrate the expressive power of LinearActris, we prove soundness of a higher-order (GV-style) session type system using the technique of logical relations. All our results and examples have been mechanized in Coq.</p>
+
+  <h2>Talks</h2>
+  <ul class="files">
+    <li><a href="/slides/dlfactris_popl24.pdf">Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing</a> <span class="info">2024 · EPFL · POPL&#x27;24</span></li>
+  </ul>
+
+  <h2>Cite</h2>
+<pre>@article{jacobs2024dlfactris,
+  title = {Deadlock-Free Separation Logic: Linearity Yields Progress for Dependent Higher-Order Message Passing},
+  volume = {8},
+  ISSN = {2475-1421},
+  url = {https://doi.org/10.1145/3632889},
+  DOI = {10.1145/3632889},
+  number = {POPL},
+  journal = {Proceedings of the ACM on Programming Languages},
+  publisher = {Association for Computing Machinery (ACM)},
+  author = {Jacobs, Jules and Hinrichsen, Jonas Kastberg and Krebbers, Robbert},
+  year = {2024},
+  month = Jan,
+  pages = {1385--1417}
+}</pre>
+</body>
+</html>
