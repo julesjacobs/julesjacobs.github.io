@@ -477,9 +477,10 @@ window.Film = { W, H, C, E, Timeline, SCENES, scene };
 window.NARRATION = [
   // ------------------------------------------------------------------------------------------------ opening
   { id: 'hook', chapter: '', pre: 0.8, post: 0.7, text:
-    `{two}Here are two small programs. Each one acts on a stack. {p1}The first pushes the value A any number of times, and then pops it any number of times. {p2}The second does one or the other: only pushes, or only pops. ` +
-    `{eq}They are equivalent: on every stack, they can do exactly the same things. {how}How could a machine check that? {inf}A stack can be arbitrarily deep, so there are infinitely many stacks to try. ` +
-    `{film}This video is about a language for networks, called Stack Cat, in which that question always has an answer. {hand}By the end, we will have checked these two programs by hand.` },
+    `{two}Here are two small programs. Each one acts on a stack. {p1}The first pushes the value A some number of times, and then pops it some number of times. ` +
+    `{star}The star is the star of regular expressions. It means some number of times: zero, one, two, or more. {notwhile}It is not a loop that keeps running. {trace}Like a regular expression, the program generates sequences of pushes and pops, called traces. {run}Each trace is one way the program can run. ` +
+    `{p2}The second program does one or the other: only pushes, or only pops. {eq}The two are equivalent: on every stack, they can do exactly the same things. {how}How could a machine check that? {inf}A stack can be arbitrarily deep, so there are infinitely many stacks to try. ` +
+    `{film}This video is about a language for networks, called Stack Cat, in which that question always has an answer. {hand}By the end, we will have checked these two programs by hand, {algo}and we will know an algorithm that checks any such equivalence automatically.` },
   { id: 'roadmap', chapter: '', pre: 0.3, post: 0.8, text:
     `{coming}Here is what is coming. {net}First, how a network becomes a program, and a question about it becomes a question of equivalence. {stack}Then why real packets need a stack. ` +
     `{lang}Then the language, and three laws about push and pop. {proc}Then the main part: a procedure in three steps, one for each law, that decides equivalence using only finite automata. ` +
@@ -599,25 +600,30 @@ window.TIMELINE = {
    "id": "hook",
    "chapter": "",
    "start": 0.0,
-   "dur": 40.06,
+   "dur": 64.86,
    "pre": 0.8,
    "post": 0.7,
-   "audio": 38.56,
+   "audio": 63.36,
    "cues": {
     "two": 0.8,
     "p1": 5.36,
-    "p2": 11.52,
-    "eq": 16.32,
-    "how": 21.28,
-    "inf": 23.36,
-    "film": 28.8,
-    "hand": 35.68
+    "star": 11.44,
+    "notwhile": 19.88,
+    "trace": 22.4,
+    "run": 28.64,
+    "p2": 31.84,
+    "eq": 37.04,
+    "how": 42.24,
+    "inf": 44.32,
+    "film": 49.52,
+    "hand": 56.24,
+    "algo": 59.787
    }
   },
   {
    "id": "roadmap",
    "chapter": "",
-   "start": 40.06,
+   "start": 64.86,
    "dur": 30.62,
    "pre": 0.3,
    "post": 0.8,
@@ -634,7 +640,7 @@ window.TIMELINE = {
   {
    "id": "title",
    "chapter": "",
-   "start": 70.68,
+   "start": 95.48,
    "dur": 5.84,
    "pre": 0.6,
    "post": 1,
@@ -647,7 +653,7 @@ window.TIMELINE = {
   {
    "id": "net_a",
    "chapter": "Networks as programs",
-   "start": 76.52,
+   "start": 101.32,
    "dur": 39.22,
    "pre": 1.9,
    "post": 0.6,
@@ -666,7 +672,7 @@ window.TIMELINE = {
   {
    "id": "net_b",
    "chapter": "Networks as programs",
-   "start": 115.74,
+   "start": 140.54,
    "dur": 35.24,
    "pre": 0.4,
    "post": 0.6,
@@ -683,7 +689,7 @@ window.TIMELINE = {
   {
    "id": "net_c",
    "chapter": "Networks as programs",
-   "start": 150.98,
+   "start": 175.78,
    "dur": 43.14,
    "pre": 0.4,
    "post": 0.9,
@@ -702,7 +708,7 @@ window.TIMELINE = {
   {
    "id": "stack_a",
    "chapter": "Why a stack",
-   "start": 194.12,
+   "start": 218.92,
    "dur": 31.94,
    "pre": 1.9,
    "post": 0.6,
@@ -721,7 +727,7 @@ window.TIMELINE = {
   {
    "id": "stack_b",
    "chapter": "Why a stack",
-   "start": 226.06,
+   "start": 250.86,
    "dur": 25.46,
    "pre": 0.4,
    "post": 0.9,
@@ -738,7 +744,7 @@ window.TIMELINE = {
   {
    "id": "lang_a",
    "chapter": "StacKAT",
-   "start": 251.52,
+   "start": 276.32,
    "dur": 31.86,
    "pre": 1.9,
    "post": 0.6,
@@ -757,7 +763,7 @@ window.TIMELINE = {
   {
    "id": "lang_b",
    "chapter": "StacKAT",
-   "start": 283.38,
+   "start": 308.18,
    "dur": 25.72,
    "pre": 0.4,
    "post": 0.6,
@@ -774,7 +780,7 @@ window.TIMELINE = {
   {
    "id": "laws",
    "chapter": "StacKAT",
-   "start": 309.1,
+   "start": 333.9,
    "dur": 47.04,
    "pre": 0.5,
    "post": 0.7,
@@ -793,7 +799,7 @@ window.TIMELINE = {
   {
    "id": "puzzle",
    "chapter": "StacKAT",
-   "start": 356.14,
+   "start": 380.94,
    "dur": 42.38,
    "pre": 0.5,
    "post": 0.6,
@@ -814,7 +820,7 @@ window.TIMELINE = {
   {
    "id": "cool_surprise",
    "chapter": "StacKAT",
-   "start": 398.52,
+   "start": 423.32,
    "dur": 28.44,
    "pre": 0.5,
    "post": 0.9,
@@ -832,7 +838,7 @@ window.TIMELINE = {
   {
    "id": "proc_a",
    "chapter": "Deciding equivalence",
-   "start": 426.96,
+   "start": 451.76,
    "dur": 53.3,
    "pre": 1.9,
    "post": 0.6,
@@ -851,7 +857,7 @@ window.TIMELINE = {
   {
    "id": "step1",
    "chapter": "Deciding equivalence",
-   "start": 480.26,
+   "start": 505.06,
    "dur": 34.46,
    "pre": 0.5,
    "post": 0.6,
@@ -868,7 +874,7 @@ window.TIMELINE = {
   {
    "id": "step2",
    "chapter": "Deciding equivalence",
-   "start": 514.72,
+   "start": 539.52,
    "dur": 47.9,
    "pre": 0.5,
    "post": 0.6,
@@ -888,7 +894,7 @@ window.TIMELINE = {
   {
    "id": "cool_two",
    "chapter": "Deciding equivalence",
-   "start": 562.62,
+   "start": 587.42,
    "dur": 18.34,
    "pre": 0.5,
    "post": 0.8,
@@ -903,7 +909,7 @@ window.TIMELINE = {
   {
    "id": "step3_a",
    "chapter": "Deciding equivalence",
-   "start": 580.96,
+   "start": 605.76,
    "dur": 52.3,
    "pre": 0.5,
    "post": 0.6,
@@ -922,7 +928,7 @@ window.TIMELINE = {
   {
    "id": "step3_b",
    "chapter": "Deciding equivalence",
-   "start": 633.26,
+   "start": 658.06,
    "dur": 48.92,
    "pre": 0.6,
    "post": 0.8,
@@ -941,7 +947,7 @@ window.TIMELINE = {
   {
    "id": "step3_c",
    "chapter": "Deciding equivalence",
-   "start": 682.18,
+   "start": 706.98,
    "dur": 48.54,
    "pre": 0.5,
    "post": 0.6,
@@ -965,7 +971,7 @@ window.TIMELINE = {
   {
    "id": "step3_d",
    "chapter": "Deciding equivalence",
-   "start": 730.72,
+   "start": 755.52,
    "dur": 45.1,
    "pre": 0.5,
    "post": 0.6,
@@ -984,7 +990,7 @@ window.TIMELINE = {
   {
    "id": "thm",
    "chapter": "Deciding equivalence",
-   "start": 775.82,
+   "start": 800.62,
    "dur": 32.7,
    "pre": 0.6,
    "post": 0.9,
@@ -1003,7 +1009,7 @@ window.TIMELINE = {
   {
    "id": "full_a",
    "chapter": "Headers, cost, counterexamples",
-   "start": 808.52,
+   "start": 833.32,
    "dur": 39.94,
    "pre": 1.9,
    "post": 0.6,
@@ -1021,7 +1027,7 @@ window.TIMELINE = {
   {
    "id": "full_b",
    "chapter": "Headers, cost, counterexamples",
-   "start": 848.46,
+   "start": 873.26,
    "dur": 24.92,
    "pre": 0.4,
    "post": 0.6,
@@ -1036,7 +1042,7 @@ window.TIMELINE = {
   {
    "id": "cost",
    "chapter": "Headers, cost, counterexamples",
-   "start": 873.38,
+   "start": 898.18,
    "dur": 26.22,
    "pre": 0.5,
    "post": 0.6,
@@ -1052,7 +1058,7 @@ window.TIMELINE = {
   {
    "id": "cex",
    "chapter": "Headers, cost, counterexamples",
-   "start": 899.6,
+   "start": 924.4,
    "dur": 32.76,
    "pre": 0.5,
    "post": 0.9,
@@ -1069,7 +1075,7 @@ window.TIMELINE = {
   {
    "id": "ax",
    "chapter": "Axioms",
-   "start": 932.36,
+   "start": 957.16,
    "dur": 40.4,
    "pre": 1.9,
    "post": 0.9,
@@ -1089,7 +1095,7 @@ window.TIMELINE = {
   {
    "id": "recap",
    "chapter": "Looking back",
-   "start": 972.76,
+   "start": 997.56,
    "dur": 35.88,
    "pre": 1.9,
    "post": 0.7,
@@ -1106,7 +1112,7 @@ window.TIMELINE = {
   {
    "id": "end",
    "chapter": "Looking back",
-   "start": 1008.64,
+   "start": 1033.44,
    "dur": 15.66,
    "pre": 0.5,
    "post": 3,
@@ -1117,7 +1123,7 @@ window.TIMELINE = {
    }
   }
  ],
- "total": 1024.3
+ "total": 1049.1
 };
 
 // ==== src/scenes/common.js ====
@@ -1914,28 +1920,46 @@ window.TIMELINE = {
     P1.show(tTwo - 0.1); P2.show(tTwo + 0.25);
     const c1 = x1 + N * cw / 2, c2 = x2 + N * cw / 2, bottom = 820, BIG = { w: 108, h: 92, size: 48 };
 
-    // "The first pushes the value A any number of times, and then pops it any number of times."
-    const tP1 = cue('p1');
+    // "The first pushes the value A some number of times, and then pops it some number of times."
+    const tP1 = cue('p1'), tStar = cue('star'), tNot = cue('notwhile'), tTr = cue('trace'), tRun = cue('run');
     P2.to({ o: 0.4 }, tP1 - 0.2, 0.5);
-    const s1 = new SX.Stack(tl, root, c1, bottom, Object.assign({ items: ['b'] }, BIG));
-    s1.show(tP1 - 0.1);
-    [0.5, 1.25, 2.0].forEach(d => s1.push('a', tP1 + d));
-    P1.pulse(P1.letter(0), tP1 + 0.5);
-    s1.pop(tP1 + 3.75); s1.pop(tP1 + 4.55);
-    P1.pulse(P1.letter(1), tP1 + 3.75);
+    P1.pulse(P1.letter(0), tP1 + 0.55);                       // "pushes"
+    P1.pulse(P1.letter(1), tP1 + 3.6);                        // "pops"
 
-    // "The second does one or the other: only pushes, or only pops."
+    // "The star is the star of regular expressions. It means some number of times: zero, one, two, or more. It is
+    // not a loop that keeps running.": the two stars are marked, and what they mean is said under the program
+    P1.parts.forEach((q, k) => { if (q.text === '*') P1.mark(k, C.dim, tStar + 0.1, { out: tTr - 0.3, fill: 0.1 }); });
+    SX.note(tl, root, x1, 346, 'the star of regular expressions', tStar + 1.2, tTr - 0.3, { size: 34, align: 'left' });
+    SX.note(tl, root, x1, 400, 'some number of times: 0, 1, 2, …', tStar + 3.75, tTr - 0.3, { size: 34, color: C.ink, align: 'left' });
+    SX.note(tl, root, x1, 454, 'not a loop that keeps running', tNot - 0.1, tTr - 0.3, { size: 34, align: 'left' });
+
+    // "Like a regular expression, the program generates sequences of pushes and pops, called traces.": three of them
+    const TS = 44, ty = k => 410 + k * 92;
+    const traces = ['push(a)  push(a)  push(a)  pop(a)  pop(a)', 'push(a)  pop(a)  pop(a)', 'pop(a)'].map((t, k) => {
+      const tr = SX.prog(tl, root, x1, ty(k), TS, t); tr.show(tTr + 2.1 + k * 0.6, { stagger: 0.04 }); return tr;
+    });
+    SX.note(tl, root, x1, 346, 'some of its traces', tTr + 4.7, tP2x() - 0.3, { size: 34, align: 'left' });
+    // "Each trace is one way the program can run.": the first trace, run on a stack
+    traces[0].mark('all', C.dim, tRun - 0.15, { out: tP2x() - 0.3, fill: 0.08 });
+    traces[1].dim('all', 0.4, tRun - 0.15); traces[2].dim('all', 0.4, tRun - 0.15);
+    const s1 = new SX.Stack(tl, root, 1560, bottom, Object.assign({ items: ['b'], label: 'one way to run' }, BIG));
+    s1.show(tRun - 0.3);
+    [0.25, 0.65, 1.05].forEach((d, k) => { s1.push('a', tRun + d); traces[0].pulse(traces[0].letter(k), tRun + d); });
+    [1.6, 2.1].forEach((d, k) => { s1.pop(tRun + d); traces[0].pulse(traces[0].letter(3 + k), tRun + d); });
+    function tP2x() { return cue('p2'); }
+
+    // "The second program does one or the other: only pushes, or only pops."
     const tP2 = cue('p2');
-    s1.hide(tP2 - 0.3);
+    s1.hide(tP2 - 0.3); traces.forEach(tr => tr.hide(tP2 - 0.3, 0.3));
     P1.to({ o: 0.4 }, tP2 - 0.2, 0.5); P2.to({ o: 1 }, tP2 - 0.2, 0.5);
     const sa = new SX.Stack(tl, root, c2 - 180, bottom, Object.assign({ items: ['b'], label: 'only pushes' }, BIG));
-    sa.show(tP2 + 1.85);
-    sa.push('a', tP2 + 2.2); sa.push('a', tP2 + 2.75);
-    P2.pulse(P2.letter(0), tP2 + 2.2);
+    sa.show(tP2 + 2.35);
+    sa.push('a', tP2 + 2.65); sa.push('a', tP2 + 3.1);
+    P2.pulse(P2.letter(0), tP2 + 2.65);
     const sb = new SX.Stack(tl, root, c2 + 180, bottom, Object.assign({ items: ['a', 'a', 'b'], label: 'only pops' }, BIG));
-    sb.show(tP2 + 3.0);
-    sb.pop(tP2 + 3.45); sb.pop(tP2 + 3.95);
-    P2.pulse(P2.letter(1), tP2 + 3.45);
+    sb.show(tP2 + 3.6);
+    sb.pop(tP2 + 3.95); sb.pop(tP2 + 4.35);
+    P2.pulse(P2.letter(1), tP2 + 3.95);
 
     // "They are equivalent": both bright, a green ≡ in the gap; the stacks leave
     const tEq = cue('eq');
@@ -1943,7 +1967,7 @@ window.TIMELINE = {
     P1.to({ o: 1 }, tEq - 0.25, 0.5);
     const eq = SX.prog(tl, root, CX, 250 - Math.round(84 * 1.3 / 2), 84, '≡', { align: 'center', colors: { '≡': C.good } });
     tl.set(eq.parts[0].el, { s: 0.6 }, 0);
-    eq.show(tEq - 0.2, { rise: 0 }); tl.to(eq.parts[0].el, { s: 1 }, tEq - 0.2, 0.5, E.out5);
+    eq.show(tEq + 0.45, { rise: 0 }); tl.to(eq.parts[0].el, { s: 1 }, tEq + 0.45, 0.5, E.out5);   // at "equivalent"
 
     // "A stack can be arbitrarily deep, so there are infinitely many stacks to try."
     const tInf = cue('inf');
@@ -1966,7 +1990,10 @@ window.TIMELINE = {
     fadeIn(tl, lang, tF + 1.15, 0.5, 10);
     const name = SX.cserif(root, CX, 420, 'StacKAT', 130);
     fadeIn(tl, name, tF + 2.7, 0.7, 20);
-    // "By the end, we will have checked these two programs by hand.": nothing new
+    // "By the end, we will have checked these two programs by hand, and we will know an algorithm that checks any
+    // such equivalence automatically.": the two promises, each at its words
+    SX.note(tl, root, CX, 740, 'by the end: these two, checked by hand', cue('hand') + 0.2, null, { size: 34, align: 'center', color: C.ink });
+    SX.note(tl, root, CX, 794, 'and an algorithm that checks any two programs', cue('algo') + 0.5, null, { size: 34, align: 'center', color: C.ink });
   });
 
   // ============================================ roadmap =======================================================
@@ -3740,4 +3767,4 @@ window.TIMELINE = {
 });
 
 // ==== build/captions.js ====
-window.CAPTIONS = [[0.8, 3.08, "Here are two small programs."], [3.12, 5.32, "Each one acts on a stack."], [5.36, 8.92, "The first pushes the value A any number of times,"], [8.96, 11.48, "and then pops it any number of times."], [11.52, 13.72, "The second does one or the other:"], [13.76, 16.28, "only pushes, or only pops."], [16.32, 17.68, "They are equivalent:"], [17.72, 21.24, "on every stack, they can do exactly the same things."], [21.28, 23.32, "How could a machine check that?"], [23.36, 25.72, "A stack can be arbitrarily deep,"], [25.76, 28.76, "so there are infinitely many stacks to try."], [28.8, 31.4, "This video is about a language for networks,"], [31.44, 34.28, "called StacKAT, in which that question always"], [34.32, 35.64, "has an answer."], [35.68, 38.32, "By the end, we will have checked these two programs"], [38.36, 40.26, "by hand."], [40.36, 42.16, "Here is what is coming."], [42.2, 45.17, "First, how a network becomes a program,"], [45.21, 48.72, "and a question about it becomes a question of equivalence."], [48.76, 51.76, "Then why real packets need a stack."], [51.8, 55.48, "Then the language, and three laws about push and"], [55.52, 56.08, "pop."], [56.12, 57.52, "Then the main part:"], [57.56, 59.52, "a procedure in three steps,"], [59.56, 62.64, "one for each law, that decides equivalence using"], [62.68, 64.56, "only finite automata."], [64.6, 66.24, "And at the end:"], [66.28, 68.4, "headers, cost, counterexamples,"], [68.44, 70.86, "and axioms."], [71.28, 72.56, "StacKAT:"], [72.6, 76.42, "infinite state network verification."], [78.42, 80.7, "A network is made of switches."], [80.74, 82.78, "A packet arrives with a header:"], [82.82, 86.46, "a few fields, such as a destination and a port."], [86.5, 88.46, "A switch looks at some fields,"], [88.5, 91.98, "changes some, and sends the packet on to a neighbor."], [92.02, 94.7, "NetKAT is a language that reads all of this as"], [94.74, 95.9, "a program."], [95.94, 97.82, "A field is a variable."], [97.86, 99.5, "A match is a test:"], [99.54, 102.06, "it lets the packet through if a field has a given"], [102.1, 104.7, "value, and drops it otherwise."], [104.74, 108.22, "An action is an assignment of a constant to a field."], [108.26, 110.86, "Even the packet's location is a field."], [110.9, 113.5, "Moving it to switch B is an assignment:"], [113.54, 116.1, "switch becomes B."], [116.14, 118.98, "Programs are combined in three ways."], [119.02, 122.26, "A dot runs one program and then another."], [122.3, 124.1, "A plus is a choice:"], [124.14, 125.94, "the packet goes both ways,"], [125.98, 128.9, "as when a switch forwards it to two neighbors."], [128.94, 132.53, "A star repeats a program any number of times."], [132.57, 135.03, "And there are two constant programs."], [135.07, 139.1, "The program written one passes every packet unchanged."], [139.14, 142.5, "The program written zero drops every packet."], [142.54, 145.14, "The whole network is then one program:"], [145.18, 147.46, "test which switch the packet is on,"], [147.5, 149.14, "run that switch's program,"], [149.18, 151.34, "and repeat."], [151.38, 153.42, "What does a program mean?"], [153.46, 156.22, "It relates each input packet to the packets that"], [156.26, 157.34, "can come out:"], [157.38, 159.9, "none, one, or several."], [159.94, 162.34, "Two programs are equivalent if they relate the"], [162.38, 164.78, "same inputs to the same outputs."], [164.82, 167.85, "Equivalence is what verification needs."], [167.89, 170.62, "To ask whether any packet can get from switch A"], [170.66, 171.98, "to switch B:"], [172.02, 174.14, "start at A, run the network,"], [174.18, 175.74, "and test for B."], [175.78, 178.14, "If that program is equivalent to zero,"], [178.18, 180.14, "no packet gets through."], [180.18, 183.26, "For NetKAT, a machine can always answer,"], [183.3, 185.74, "because a packet has finitely many fields,"], [185.78, 187.9, "with finitely many values."], [187.94, 190.22, "There are only finitely many packets,"], [190.26, 194.2, "so a program is a finite-state system."], [196.02, 198.54, "Real packets are not that simple."], [198.58, 201.82, "On the wire, a packet is a sequence of bytes."], [201.86, 203.66, "A switch must parse it:"], [203.7, 206.94, "take bytes off the front, and put them into fields."], [206.98, 209.94, "In source routing, the packet carries its whole"], [209.98, 212.94, "route, and each switch takes off the next hop."], [212.98, 215.74, "Telemetry adds a record at every hop."], [215.78, 218.38, "A tunnel wraps the packet in new headers,"], [218.42, 220.06, "and unwraps it later."], [220.1, 222.78, "Every one of these adds or removes at the front"], [222.82, 223.98, "of the packet."], [224.02, 226.42, "That is a stack."], [226.46, 229.06, "And a stack has no fixed depth."], [229.1, 231.62, "A route can be arbitrarily long."], [231.66, 233.99, "So there are infinitely many packets,"], [234.03, 237.14, "and the argument that made NetKAT decidable is"], [237.18, 237.67, "gone."], [237.71, 239.3, "It looks worse than that."], [239.34, 242.7, "A machine with a stack and an input can recognize"], [242.74, 245.86, "context-free languages, and whether two context-free"], [245.9, 248.82, "languages are equal is undecidable."], [248.86, 251.6, "So is there any hope?"], [253.42, 256.5, "In StacKAT, a packet has two parts:"], [256.54, 259.54, "a header, as before, and a stack."], [259.58, 262.1, "The language adds two operations."], [262.14, 265.3, "Push puts a value on top of the stack."], [265.34, 267.54, "Pop takes a value off the top,"], [267.58, 270.02, "but only if it is the value named."], [270.06, 272.78, "Pop three, on a stack with three on top,"], [272.82, 273.94, "removes it."], [273.98, 276.1, "Pop five, on the same stack,"], [276.14, 277.7, "drops the packet."], [277.74, 280.1, "So does a pop on an empty stack."], [280.14, 283.68, "A pop is a test and an action in one."], [283.78, 285.74, "These two are enough."], [285.78, 287.9, "Source routing is one line:"], [287.94, 291.1, "pop the top of the stack into the switch field."], [291.14, 293.34, "That is shorthand for a choice:"], [293.38, 295.58, "pop one and go to switch one,"], [295.62, 298.25, "or pop two and go to switch two,"], [298.29, 299.42, "and so on."], [299.46, 302.97, "That works because there are finitely many values."], [303.01, 306.38, "Parsing a header pops into one field after another."], [306.42, 309.48, "And telemetry is a push."], [309.6, 312.52, "A program still relates input packets to output"], [312.56, 315.8, "packets, and equivalence is as before."], [315.84, 317.96, "But push and pop interact,"], [318.0, 320.2, "and three laws say how."], [320.24, 320.92, "One."], [320.96, 323.8, "Push a value and then pop the same value:"], [323.84, 325.24, "nothing has happened."], [325.28, 327.96, "That is equivalent to the program one."], [328.0, 328.76, "Two."], [328.8, 331.48, "Push a value and then pop a different value:"], [331.52, 333.0, "the pop fails."], [333.04, 335.16, "That is equivalent to zero."], [335.2, 336.84, "The third is subtle."], [336.88, 339.32, "Pop a value and then push it back."], [339.36, 341.88, "That is not equivalent to the program one,"], [341.92, 344.36, "because it drops every packet that does not have"], [344.4, 346.04, "that value on top."], [346.08, 347.99, "But when it does not drop the packet,"], [348.03, 349.56, "it changes nothing."], [349.6, 353.4, "So a choice between the program one and this pop-then-push"], [353.44, 356.42, "is just the program one."], [356.64, 359.77, "Now back to the two programs from the start."], [359.81, 361.88, "Push A any number of times,"], [361.92, 364.52, "then pop A any number of times."], [364.56, 368.36, "By the first law, each push cancels against a pop."], [368.4, 369.72, "If there were more pushes,"], [369.76, 371.32, "some pushes are left."], [371.36, 374.24, "If there were more pops, some pops are left."], [374.28, 376.6, "That is what the second program does."], [376.64, 378.64, "So they are equivalent."], [378.68, 380.6, "Here is a third program:"], [380.64, 383.0, "push A an even number of times,"], [383.04, 385.48, "then pop it an even number of times."], [385.52, 387.8, "It is not equivalent to the first."], [387.84, 390.44, "The first can take a stack that holds a single"], [390.48, 391.96, "A, and empty it."], [392.0, 393.56, "The third cannot."], [393.6, 396.2, "We want a machine to tell such cases apart,"], [396.24, 398.9, "for any two programs."], [399.02, 400.34, "And it can."], [400.38, 403.78, "Equivalence of StacKAT programs is decidable."], [403.82, 406.13, "This is the surprising part."], [406.17, 409.14, "The stack is unbounded, and programs may use it"], [409.18, 412.26, "in any way they like, yet the question can always"], [412.3, 413.54, "be answered."], [413.58, 416.1, "What makes it possible is that a program has no"], [416.14, 418.74, "input other than the packet itself."], [418.78, 421.38, "The stack is not working memory for reading some"], [421.42, 422.58, "other input."], [422.62, 427.04, "It is the input, and it is the output."], [428.86, 432.26, "We start with programs that only push and pop."], [432.3, 434.18, "Headers come back later."], [434.22, 436.82, "Such a program is a regular expression,"], [436.86, 439.3, "whose letters are pushes and pops."], [439.34, 441.78, "Each word it matches is a trace:"], [441.82, 444.66, "one sequence of pushes and pops that the program"], [444.7, 445.94, "can perform."], [445.98, 448.66, "A regular expression can be turned into a finite"], [448.7, 452.02, "automaton that accepts exactly its traces,"], [452.06, 455.46, "and a machine can compare two finite automata."], [455.5, 457.97, "But the traces are not the meaning."], [458.01, 460.21, "Take a choice between the program one,"], [460.25, 463.38, "and a pop followed by a push of the same value."], [463.42, 465.22, "It has two traces."], [465.26, 468.05, "The program one alone has a single trace,"], [468.09, 469.38, "the empty one."], [469.42, 472.5, "Yet by the third law, they mean the same."], [472.54, 475.54, "So before comparing, we bring each automaton to"], [475.58, 478.18, "a normal form, in three steps,"], [478.22, 480.64, "one for each law."], [480.76, 482.96, "Step one is to cancel."], [483.0, 485.2, "It uses the first law."], [485.24, 487.68, "Wherever the automaton can do a push and then a"], [487.72, 490.84, "pop of the same value, possibly with silent steps"], [490.88, 493.92, "in between, add a shortcut between the same two"], [493.96, 495.84, "states that does nothing."], [495.88, 498.48, "Repeat until nothing new appears."], [498.52, 501.25, "In our automaton, the loop pushes A,"], [501.29, 503.52, "and the next edge pops A."], [503.56, 506.16, "So we add a silent edge beside them."], [506.2, 509.28, "The automaton now accepts every trace it had,"], [509.32, 512.28, "and also every trace in which matching pushes and"], [512.32, 515.1, "pops have been cancelled."], [515.22, 517.5, "Step two is to filter."], [517.54, 520.3, "Take a trace in which a push is followed directly"], [520.34, 521.5, "by a pop."], [521.54, 524.7, "If the two values differ, the trace drops every"], [524.74, 526.46, "packet, by the second law."], [526.5, 528.3, "It contributes nothing."], [528.34, 531.26, "If they are the same, step one has already added"], [531.3, 532.7, "the trace without them."], [532.74, 534.22, "It is redundant."], [534.26, 537.34, "So we keep only the traces with no such pair:"], [537.38, 540.02, "all pops come before all pushes."], [540.06, 543.18, "On automata, that is an intersection with the automaton"], [543.22, 545.02, "for pops, then pushes:"], [545.06, 546.78, "a standard construction."], [546.82, 549.82, "For our program, the result has two branches:"], [549.86, 552.22, "pops only, or pushes only."], [552.26, 555.34, "And that is exactly the automaton of the second"], [555.38, 555.98, "program."], [556.02, 558.42, "The two programs from the start of the video are"], [558.46, 561.26, "equivalent, and this time a procedure has checked"], [561.3, 562.92, "it."], [563.12, 564.76, "Notice what we did."], [564.8, 566.95, "We changed a finite automaton,"], [566.99, 568.84, "and compared it with another."], [568.88, 571.8, "When two automata agree after these steps,"], [571.84, 573.8, "the programs are equivalent."], [573.84, 576.76, "But when they disagree, we cannot conclude anything"], [576.8, 577.64, "yet."], [577.68, 581.06, "Two steps are not always enough."], [581.46, 585.02, "Here is the first program with its halves swapped:"], [585.06, 587.34, "pop A any number of times,"], [587.38, 590.3, "then push A any number of times."], [590.34, 592.62, "It is equivalent to the other two."], [592.66, 595.58, "But steps one and two leave its automaton as it"], [595.62, 596.54, "is."], [596.58, 599.45, "It still accepts a pop followed by a push,"], [599.49, 601.42, "which the others do not."], [601.46, 603.66, "This is the third law at work:"], [603.7, 606.78, "a pop and then a push of the same value is hidden"], [606.82, 608.78, "inside the program one."], [608.82, 611.42, "We cannot simply delete such a pair."], [611.46, 614.82, "On its own, a pop and then a push still drops some"], [614.86, 615.9, "packets."], [615.94, 618.78, "Deleting is only right when the trace without the"], [618.82, 620.7, "pair is also there."], [620.74, 623.1, "So again we add instead."], [623.14, 626.3, "In every trace, between the pops and the pushes,"], [626.34, 629.34, "insert a pop and a push of the same value."], [629.38, 633.64, "Do it for every value, and again and again."], [633.86, 636.42, "Why is this the right thing to add?"], [636.46, 639.1, "Think about what a trace of pops and then pushes"], [639.14, 640.06, "says."], [640.1, 640.7, "Take:"], [640.74, 642.86, "pop one, push four."], [642.9, 643.82, "It says:"], [643.86, 646.78, "a stack with a one on top becomes the same stack"], [646.82, 648.38, "with a four on top."], [648.42, 651.02, "Whatever lies below is untouched."], [651.06, 655.02, "So this single trace stands for many pairs of stacks."], [655.06, 658.18, "Now insert a pop and a push of a two."], [658.22, 660.41, "The new trace says the same thing,"], [660.45, 663.3, "but only for stacks that have a two below."], [663.34, 665.66, "That is a special case of what we had,"], [665.7, 668.38, "so adding it changes nothing in meaning."], [668.42, 670.22, "With every insertion added,"], [670.26, 673.26, "there is one trace for each whole input stack,"], [673.3, 675.82, "together with its whole output stack."], [675.86, 679.34, "And then two programs have the same traces exactly"], [679.38, 682.36, "when they relate the same stacks."], [682.68, 684.12, "There is a problem."], [684.16, 687.36, "The inserted pairs nest, like brackets:"], [687.4, 691.4, "pop A, pop B, push B, push A."], [691.44, 694.64, "No finite automaton accepts such a language."], [694.68, 697.92, "The way out is to change how a trace is read."], [697.96, 700.52, "Start in the middle, where the pops end and the"], [700.56, 703.04, "pushes begin, and read outwards,"], [703.08, 705.44, "one pop and one push at a time,"], [705.48, 706.64, "as a pair."], [706.68, 708.6, "We call this zipping."], [708.64, 711.6, "Each pair is one letter of a new alphabet."], [711.64, 714.48, "Here is a trace, and here it is zipped."], [714.52, 718.08, "When one side runs out, a placeholder fills in."], [718.12, 719.28, "Nothing is lost:"], [719.32, 722.0, "a zipped trace can be unzipped again."], [722.04, 724.96, "Now the inserted pairs are no longer in the middle."], [725.0, 727.71, "They are at the front, one after another."], [727.75, 731.1, "And that is just a loop at the start."], [731.22, 733.9, "An automaton can be zipped too."], [733.94, 736.3, "The zipped automaton starts in the middle of a"], [736.34, 737.98, "run of the original."], [738.02, 740.66, "Each of its steps goes one step backwards through"], [740.7, 744.46, "the pops, and one step forwards through the pushes."], [744.5, 747.98, "Here is the zipped automaton of the swapped program."], [748.02, 750.3, "And here is the one for the first program,"], [750.34, 752.7, "after steps one and two."], [752.74, 754.46, "They differ in one loop:"], [754.5, 758.06, "the swapped program can begin with matching pairs."], [758.1, 760.86, "Step three puts a loop of matching pairs on the"], [760.9, 763.26, "start state of every automaton."], [763.3, 766.14, "For the swapped program, that changes nothing."], [766.18, 768.94, "For the first, it adds the missing loop."], [768.98, 771.74, "Now the two accept the same language."], [771.78, 774.74, "So the swapped program is equivalent to the first"], [774.78, 776.2, "two."], [776.42, 778.46, "That is the whole procedure."], [778.5, 781.34, "Turn each program into an automaton."], [781.38, 782.38, "Cancel:"], [782.42, 785.58, "add shortcuts where a push meets its pop."], [785.62, 786.62, "Filter:"], [786.66, 789.98, "keep the traces that pop before they push."], [790.02, 793.66, "Zip, and put the loop of matching pairs in front."], [793.7, 797.1, "Then two programs are equivalent if and only if"], [797.14, 800.06, "the two automata accept the same language."], [800.1, 803.02, "Every step is an elementary construction on finite"], [803.06, 804.22, "automata."], [804.26, 808.6, "The infinitely many stacks never had to be listed."], [810.42, 812.78, "Now put the header fields back."], [812.82, 815.58, "A state of the automaton becomes a pair:"], [815.62, 818.06, "the current header, and the part of the program"], [818.1, 819.5, "still to run."], [819.54, 821.5, "There are finitely many headers,"], [821.54, 824.06, "and only finitely many parts of the program can"], [824.1, 827.98, "be reached, so it is still a finite automaton."], [828.02, 831.1, "Tests and assignments become silent steps that"], [831.14, 833.26, "check or change the header."], [833.3, 836.14, "Pushes and pops stay as letters."], [836.18, 839.06, "Then, for every header at the start and every header"], [839.1, 841.77, "at the end, take the traces between them,"], [841.81, 843.86, "and normalize as before."], [843.9, 846.7, "Two programs are equivalent exactly when all of"], [846.74, 848.82, "these agree."], [848.86, 852.1, "For example, this loop has two branches."], [852.14, 855.01, "The first needs the field F to be one,"], [855.05, 856.5, "and pushes a one."], [856.54, 860.26, "The second sets F to two, and pushes a two."], [860.3, 862.34, "Start with F equal to one,"], [862.38, 864.58, "and end with F equal to one:"], [864.62, 867.14, "the loop can only have pushed ones."], [867.18, 869.86, "From two to two, only twos."], [869.9, 873.76, "Each pair of headers is compared on its own."], [873.88, 875.8, "What does this cost?"], [875.84, 878.72, "Without headers, the problem is complete for polynomial"], [878.76, 882.16, "space, the same as for regular expressions."], [882.2, 885.44, "With headers, it is complete for exponential space,"], [885.48, 888.56, "when programs may use any number of fields."], [888.6, 891.52, "The implementation, which runs in a web browser,"], [891.56, 894.48, "goes through the pairs of headers one by one."], [894.52, 896.32, "That is its bottleneck."], [896.36, 899.98, "A symbolic procedure is future work."], [900.1, 902.46, "When two programs are not equivalent,"], [902.5, 904.54, "the procedure says why."], [904.58, 907.5, "The two automata differ on some word."], [907.54, 908.94, "Unzip it."], [908.98, 911.15, "Its pops spell an input stack,"], [911.19, 913.9, "and its pushes spell an output stack."], [913.94, 916.86, "With the two headers, that is an input packet and"], [916.9, 919.79, "an output packet that one program relates,"], [919.83, 921.55, "and the other does not."], [921.59, 924.02, "For the program with even numbers of pushes and"], [924.06, 926.46, "pops, one such pair is:"], [926.5, 929.18, "a stack holding a single A going in,"], [929.22, 932.44, "and the empty stack coming out."], [934.26, 935.9, "One more result."], [935.94, 938.25, "The laws can be used as axioms,"], [938.29, 941.1, "to prove equivalences by algebra."], [941.14, 943.02, "Start from Kleene algebra,"], [943.06, 946.3, "the standard axioms for regular expressions."], [946.34, 949.1, "Add the first law, and the second."], [949.14, 951.9, "These are complete for the first two steps."], [951.94, 954.94, "For the third law, what is proved uses an extra"], [954.98, 958.46, "family of rules, more complicated than the law."], [958.5, 961.46, "With them, every equivalence between programs that"], [961.5, 964.78, "push and pop has a proof from the axioms."], [964.82, 967.5, "Whether the third law by itself would be enough"], [967.54, 969.34, "is an open question."], [969.38, 972.84, "The authors conjecture that it is not."], [974.66, 977.74, "A network is a program, and questions about it"], [977.78, 979.98, "are questions of equivalence."], [980.02, 981.9, "Real packets need a stack,"], [981.94, 984.62, "which makes the state space infinite."], [984.66, 987.1, "StacKAT adds push and pop,"], [987.14, 989.98, "and three laws about them become three steps on"], [990.02, 991.74, "a finite automaton:"], [991.78, 994.3, "cancel, filter, zip."], [994.34, 997.66, "After those steps, equivalent programs have automata"], [997.7, 999.61, "that accept the same language,"], [999.65, 1002.3, "and so equivalence is decidable."], [1002.34, 1004.86, "That is a foundation for checking networks that"], [1004.9, 1008.92, "parse, tunnel, and route by a stack."], [1009.14, 1010.46, "StacKAT:"], [1010.5, 1013.5, "infinite state network verification."], [1013.54, 1016.14, "The paper and its appendix have the proofs,"], [1016.18, 1017.9, "the constructions in full,"], [1017.94, 1022.28, "the complexity bounds, and the axiomatization."]];
+window.CAPTIONS = [[0.8, 3.0, "Here are two small programs."], [3.04, 5.32, "Each one acts on a stack."], [5.36, 8.84, "The first pushes the value A some number of times,"], [8.88, 11.4, "and then pops it some number of times."], [11.44, 14.68, "The star is the star of regular expressions."], [14.72, 17.08, "It means some number of times:"], [17.12, 19.84, "zero, one, two, or more."], [19.88, 22.36, "It is not a loop that keeps running."], [22.4, 23.96, "Like a regular expression,"], [24.0, 27.24, "the program generates sequences of pushes and pops,"], [27.28, 28.6, "called traces."], [28.64, 31.8, "Each trace is one way the program can run."], [31.84, 34.44, "The second program does one or the other:"], [34.48, 37.0, "only pushes, or only pops."], [37.04, 38.6, "The two are equivalent:"], [38.64, 42.2, "on every stack, they can do exactly the same things."], [42.24, 44.28, "How could a machine check that?"], [44.32, 46.52, "A stack can be arbitrarily deep,"], [46.56, 49.48, "so there are infinitely many stacks to try."], [49.52, 52.04, "This video is about a language for networks,"], [52.08, 54.92, "called StacKAT, in which that question always"], [54.96, 56.2, "has an answer."], [56.24, 58.76, "By the end, we will have checked these two programs"], [58.8, 61.64, "by hand, and we will know an algorithm that checks"], [61.68, 65.06, "any such equivalence automatically."], [65.16, 66.96, "Here is what is coming."], [67.0, 69.97, "First, how a network becomes a program,"], [70.01, 73.52, "and a question about it becomes a question of equivalence."], [73.56, 76.56, "Then why real packets need a stack."], [76.6, 80.28, "Then the language, and three laws about push and"], [80.32, 80.88, "pop."], [80.92, 82.32, "Then the main part:"], [82.36, 84.32, "a procedure in three steps,"], [84.36, 87.44, "one for each law, that decides equivalence using"], [87.48, 89.36, "only finite automata."], [89.4, 91.04, "And at the end:"], [91.08, 93.2, "headers, cost, counterexamples,"], [93.24, 95.66, "and axioms."], [96.08, 97.36, "StacKAT:"], [97.4, 101.22, "infinite state network verification."], [103.22, 105.5, "A network is made of switches."], [105.54, 107.58, "A packet arrives with a header:"], [107.62, 111.26, "a few fields, such as a destination and a port."], [111.3, 113.26, "A switch looks at some fields,"], [113.3, 116.78, "changes some, and sends the packet on to a neighbor."], [116.82, 119.5, "NetKAT is a language that reads all of this as"], [119.54, 120.7, "a program."], [120.74, 122.62, "A field is a variable."], [122.66, 124.3, "A match is a test:"], [124.34, 126.86, "it lets the packet through if a field has a given"], [126.9, 129.5, "value, and drops it otherwise."], [129.54, 133.02, "An action is an assignment of a constant to a field."], [133.06, 135.66, "Even the packet's location is a field."], [135.7, 138.3, "Moving it to switch B is an assignment:"], [138.34, 140.9, "switch becomes B."], [140.94, 143.78, "Programs are combined in three ways."], [143.82, 147.06, "A dot runs one program and then another."], [147.1, 148.9, "A plus is a choice:"], [148.94, 150.74, "the packet goes both ways,"], [150.78, 153.7, "as when a switch forwards it to two neighbors."], [153.74, 157.33, "A star repeats a program any number of times."], [157.37, 159.83, "And there are two constant programs."], [159.87, 163.9, "The program written one passes every packet unchanged."], [163.94, 167.3, "The program written zero drops every packet."], [167.34, 169.94, "The whole network is then one program:"], [169.98, 172.26, "test which switch the packet is on,"], [172.3, 173.94, "run that switch's program,"], [173.98, 176.14, "and repeat."], [176.18, 178.22, "What does a program mean?"], [178.26, 181.02, "It relates each input packet to the packets that"], [181.06, 182.14, "can come out:"], [182.18, 184.7, "none, one, or several."], [184.74, 187.14, "Two programs are equivalent if they relate the"], [187.18, 189.58, "same inputs to the same outputs."], [189.62, 192.65, "Equivalence is what verification needs."], [192.69, 195.42, "To ask whether any packet can get from switch A"], [195.46, 196.78, "to switch B:"], [196.82, 198.94, "start at A, run the network,"], [198.98, 200.54, "and test for B."], [200.58, 202.94, "If that program is equivalent to zero,"], [202.98, 204.94, "no packet gets through."], [204.98, 208.06, "For NetKAT, a machine can always answer,"], [208.1, 210.54, "because a packet has finitely many fields,"], [210.58, 212.7, "with finitely many values."], [212.74, 215.02, "There are only finitely many packets,"], [215.06, 219.0, "so a program is a finite-state system."], [220.82, 223.34, "Real packets are not that simple."], [223.38, 226.62, "On the wire, a packet is a sequence of bytes."], [226.66, 228.46, "A switch must parse it:"], [228.5, 231.74, "take bytes off the front, and put them into fields."], [231.78, 234.74, "In source routing, the packet carries its whole"], [234.78, 237.74, "route, and each switch takes off the next hop."], [237.78, 240.54, "Telemetry adds a record at every hop."], [240.58, 243.18, "A tunnel wraps the packet in new headers,"], [243.22, 244.86, "and unwraps it later."], [244.9, 247.58, "Every one of these adds or removes at the front"], [247.62, 248.78, "of the packet."], [248.82, 251.22, "That is a stack."], [251.26, 253.86, "And a stack has no fixed depth."], [253.9, 256.42, "A route can be arbitrarily long."], [256.46, 258.79, "So there are infinitely many packets,"], [258.83, 261.94, "and the argument that made NetKAT decidable is"], [261.98, 262.47, "gone."], [262.51, 264.1, "It looks worse than that."], [264.14, 267.5, "A machine with a stack and an input can recognize"], [267.54, 270.66, "context-free languages, and whether two context-free"], [270.7, 273.62, "languages are equal is undecidable."], [273.66, 276.4, "So is there any hope?"], [278.22, 281.3, "In StacKAT, a packet has two parts:"], [281.34, 284.34, "a header, as before, and a stack."], [284.38, 286.9, "The language adds two operations."], [286.94, 290.1, "Push puts a value on top of the stack."], [290.14, 292.34, "Pop takes a value off the top,"], [292.38, 294.82, "but only if it is the value named."], [294.86, 297.58, "Pop three, on a stack with three on top,"], [297.62, 298.74, "removes it."], [298.78, 300.9, "Pop five, on the same stack,"], [300.94, 302.5, "drops the packet."], [302.54, 304.9, "So does a pop on an empty stack."], [304.94, 308.48, "A pop is a test and an action in one."], [308.58, 310.54, "These two are enough."], [310.58, 312.7, "Source routing is one line:"], [312.74, 315.9, "pop the top of the stack into the switch field."], [315.94, 318.14, "That is shorthand for a choice:"], [318.18, 320.38, "pop one and go to switch one,"], [320.42, 323.05, "or pop two and go to switch two,"], [323.09, 324.22, "and so on."], [324.26, 327.77, "That works because there are finitely many values."], [327.81, 331.18, "Parsing a header pops into one field after another."], [331.22, 334.28, "And telemetry is a push."], [334.4, 337.32, "A program still relates input packets to output"], [337.36, 340.6, "packets, and equivalence is as before."], [340.64, 342.76, "But push and pop interact,"], [342.8, 345.0, "and three laws say how."], [345.04, 345.72, "One."], [345.76, 348.6, "Push a value and then pop the same value:"], [348.64, 350.04, "nothing has happened."], [350.08, 352.76, "That is equivalent to the program one."], [352.8, 353.56, "Two."], [353.6, 356.28, "Push a value and then pop a different value:"], [356.32, 357.8, "the pop fails."], [357.84, 359.96, "That is equivalent to zero."], [360.0, 361.64, "The third is subtle."], [361.68, 364.12, "Pop a value and then push it back."], [364.16, 366.68, "That is not equivalent to the program one,"], [366.72, 369.16, "because it drops every packet that does not have"], [369.2, 370.84, "that value on top."], [370.88, 372.79, "But when it does not drop the packet,"], [372.83, 374.36, "it changes nothing."], [374.4, 378.2, "So a choice between the program one and this pop-then-push"], [378.24, 381.22, "is just the program one."], [381.44, 384.57, "Now back to the two programs from the start."], [384.61, 386.68, "Push A any number of times,"], [386.72, 389.32, "then pop A any number of times."], [389.36, 393.16, "By the first law, each push cancels against a pop."], [393.2, 394.52, "If there were more pushes,"], [394.56, 396.12, "some pushes are left."], [396.16, 399.04, "If there were more pops, some pops are left."], [399.08, 401.4, "That is what the second program does."], [401.44, 403.44, "So they are equivalent."], [403.48, 405.4, "Here is a third program:"], [405.44, 407.8, "push A an even number of times,"], [407.84, 410.28, "then pop it an even number of times."], [410.32, 412.6, "It is not equivalent to the first."], [412.64, 415.24, "The first can take a stack that holds a single"], [415.28, 416.76, "A, and empty it."], [416.8, 418.36, "The third cannot."], [418.4, 421.0, "We want a machine to tell such cases apart,"], [421.04, 423.7, "for any two programs."], [423.82, 425.14, "And it can."], [425.18, 428.58, "Equivalence of StacKAT programs is decidable."], [428.62, 430.93, "This is the surprising part."], [430.97, 433.94, "The stack is unbounded, and programs may use it"], [433.98, 437.06, "in any way they like, yet the question can always"], [437.1, 438.34, "be answered."], [438.38, 440.9, "What makes it possible is that a program has no"], [440.94, 443.54, "input other than the packet itself."], [443.58, 446.18, "The stack is not working memory for reading some"], [446.22, 447.38, "other input."], [447.42, 451.84, "It is the input, and it is the output."], [453.66, 457.06, "We start with programs that only push and pop."], [457.1, 458.98, "Headers come back later."], [459.02, 461.62, "Such a program is a regular expression,"], [461.66, 464.1, "whose letters are pushes and pops."], [464.14, 466.58, "Each word it matches is a trace:"], [466.62, 469.46, "one sequence of pushes and pops that the program"], [469.5, 470.74, "can perform."], [470.78, 473.46, "A regular expression can be turned into a finite"], [473.5, 476.82, "automaton that accepts exactly its traces,"], [476.86, 480.26, "and a machine can compare two finite automata."], [480.3, 482.77, "But the traces are not the meaning."], [482.81, 485.01, "Take a choice between the program one,"], [485.05, 488.18, "and a pop followed by a push of the same value."], [488.22, 490.02, "It has two traces."], [490.06, 492.85, "The program one alone has a single trace,"], [492.89, 494.18, "the empty one."], [494.22, 497.3, "Yet by the third law, they mean the same."], [497.34, 500.34, "So before comparing, we bring each automaton to"], [500.38, 502.98, "a normal form, in three steps,"], [503.02, 505.44, "one for each law."], [505.56, 507.76, "Step one is to cancel."], [507.8, 510.0, "It uses the first law."], [510.04, 512.48, "Wherever the automaton can do a push and then a"], [512.52, 515.64, "pop of the same value, possibly with silent steps"], [515.68, 518.72, "in between, add a shortcut between the same two"], [518.76, 520.64, "states that does nothing."], [520.68, 523.28, "Repeat until nothing new appears."], [523.32, 526.05, "In our automaton, the loop pushes A,"], [526.09, 528.32, "and the next edge pops A."], [528.36, 530.96, "So we add a silent edge beside them."], [531.0, 534.08, "The automaton now accepts every trace it had,"], [534.12, 537.08, "and also every trace in which matching pushes and"], [537.12, 539.9, "pops have been cancelled."], [540.02, 542.3, "Step two is to filter."], [542.34, 545.1, "Take a trace in which a push is followed directly"], [545.14, 546.3, "by a pop."], [546.34, 549.5, "If the two values differ, the trace drops every"], [549.54, 551.26, "packet, by the second law."], [551.3, 553.1, "It contributes nothing."], [553.14, 556.06, "If they are the same, step one has already added"], [556.1, 557.5, "the trace without them."], [557.54, 559.02, "It is redundant."], [559.06, 562.14, "So we keep only the traces with no such pair:"], [562.18, 564.82, "all pops come before all pushes."], [564.86, 567.98, "On automata, that is an intersection with the automaton"], [568.02, 569.82, "for pops, then pushes:"], [569.86, 571.58, "a standard construction."], [571.62, 574.62, "For our program, the result has two branches:"], [574.66, 577.02, "pops only, or pushes only."], [577.06, 580.14, "And that is exactly the automaton of the second"], [580.18, 580.78, "program."], [580.82, 583.22, "The two programs from the start of the video are"], [583.26, 586.06, "equivalent, and this time a procedure has checked"], [586.1, 587.72, "it."], [587.92, 589.56, "Notice what we did."], [589.6, 591.75, "We changed a finite automaton,"], [591.79, 593.64, "and compared it with another."], [593.68, 596.6, "When two automata agree after these steps,"], [596.64, 598.6, "the programs are equivalent."], [598.64, 601.56, "But when they disagree, we cannot conclude anything"], [601.6, 602.44, "yet."], [602.48, 605.86, "Two steps are not always enough."], [606.26, 609.82, "Here is the first program with its halves swapped:"], [609.86, 612.14, "pop A any number of times,"], [612.18, 615.1, "then push A any number of times."], [615.14, 617.42, "It is equivalent to the other two."], [617.46, 620.38, "But steps one and two leave its automaton as it"], [620.42, 621.34, "is."], [621.38, 624.25, "It still accepts a pop followed by a push,"], [624.29, 626.22, "which the others do not."], [626.26, 628.46, "This is the third law at work:"], [628.5, 631.58, "a pop and then a push of the same value is hidden"], [631.62, 633.58, "inside the program one."], [633.62, 636.22, "We cannot simply delete such a pair."], [636.26, 639.62, "On its own, a pop and then a push still drops some"], [639.66, 640.7, "packets."], [640.74, 643.58, "Deleting is only right when the trace without the"], [643.62, 645.5, "pair is also there."], [645.54, 647.9, "So again we add instead."], [647.94, 651.1, "In every trace, between the pops and the pushes,"], [651.14, 654.14, "insert a pop and a push of the same value."], [654.18, 658.44, "Do it for every value, and again and again."], [658.66, 661.22, "Why is this the right thing to add?"], [661.26, 663.9, "Think about what a trace of pops and then pushes"], [663.94, 664.86, "says."], [664.9, 665.5, "Take:"], [665.54, 667.66, "pop one, push four."], [667.7, 668.62, "It says:"], [668.66, 671.58, "a stack with a one on top becomes the same stack"], [671.62, 673.18, "with a four on top."], [673.22, 675.82, "Whatever lies below is untouched."], [675.86, 679.82, "So this single trace stands for many pairs of stacks."], [679.86, 682.98, "Now insert a pop and a push of a two."], [683.02, 685.21, "The new trace says the same thing,"], [685.25, 688.1, "but only for stacks that have a two below."], [688.14, 690.46, "That is a special case of what we had,"], [690.5, 693.18, "so adding it changes nothing in meaning."], [693.22, 695.02, "With every insertion added,"], [695.06, 698.06, "there is one trace for each whole input stack,"], [698.1, 700.62, "together with its whole output stack."], [700.66, 704.14, "And then two programs have the same traces exactly"], [704.18, 707.16, "when they relate the same stacks."], [707.48, 708.92, "There is a problem."], [708.96, 712.16, "The inserted pairs nest, like brackets:"], [712.2, 716.2, "pop A, pop B, push B, push A."], [716.24, 719.44, "No finite automaton accepts such a language."], [719.48, 722.72, "The way out is to change how a trace is read."], [722.76, 725.32, "Start in the middle, where the pops end and the"], [725.36, 727.84, "pushes begin, and read outwards,"], [727.88, 730.24, "one pop and one push at a time,"], [730.28, 731.44, "as a pair."], [731.48, 733.4, "We call this zipping."], [733.44, 736.4, "Each pair is one letter of a new alphabet."], [736.44, 739.28, "Here is a trace, and here it is zipped."], [739.32, 742.88, "When one side runs out, a placeholder fills in."], [742.92, 744.08, "Nothing is lost:"], [744.12, 746.8, "a zipped trace can be unzipped again."], [746.84, 749.76, "Now the inserted pairs are no longer in the middle."], [749.8, 752.51, "They are at the front, one after another."], [752.55, 755.9, "And that is just a loop at the start."], [756.02, 758.7, "An automaton can be zipped too."], [758.74, 761.1, "The zipped automaton starts in the middle of a"], [761.14, 762.78, "run of the original."], [762.82, 765.46, "Each of its steps goes one step backwards through"], [765.5, 769.26, "the pops, and one step forwards through the pushes."], [769.3, 772.78, "Here is the zipped automaton of the swapped program."], [772.82, 775.1, "And here is the one for the first program,"], [775.14, 777.5, "after steps one and two."], [777.54, 779.26, "They differ in one loop:"], [779.3, 782.86, "the swapped program can begin with matching pairs."], [782.9, 785.66, "Step three puts a loop of matching pairs on the"], [785.7, 788.06, "start state of every automaton."], [788.1, 790.94, "For the swapped program, that changes nothing."], [790.98, 793.74, "For the first, it adds the missing loop."], [793.78, 796.54, "Now the two accept the same language."], [796.58, 799.54, "So the swapped program is equivalent to the first"], [799.58, 801.0, "two."], [801.22, 803.26, "That is the whole procedure."], [803.3, 806.14, "Turn each program into an automaton."], [806.18, 807.18, "Cancel:"], [807.22, 810.38, "add shortcuts where a push meets its pop."], [810.42, 811.42, "Filter:"], [811.46, 814.78, "keep the traces that pop before they push."], [814.82, 818.46, "Zip, and put the loop of matching pairs in front."], [818.5, 821.9, "Then two programs are equivalent if and only if"], [821.94, 824.86, "the two automata accept the same language."], [824.9, 827.82, "Every step is an elementary construction on finite"], [827.86, 829.02, "automata."], [829.06, 833.4, "The infinitely many stacks never had to be listed."], [835.22, 837.58, "Now put the header fields back."], [837.62, 840.38, "A state of the automaton becomes a pair:"], [840.42, 842.86, "the current header, and the part of the program"], [842.9, 844.3, "still to run."], [844.34, 846.3, "There are finitely many headers,"], [846.34, 848.86, "and only finitely many parts of the program can"], [848.9, 852.78, "be reached, so it is still a finite automaton."], [852.82, 855.9, "Tests and assignments become silent steps that"], [855.94, 858.06, "check or change the header."], [858.1, 860.94, "Pushes and pops stay as letters."], [860.98, 863.86, "Then, for every header at the start and every header"], [863.9, 866.57, "at the end, take the traces between them,"], [866.61, 868.66, "and normalize as before."], [868.7, 871.5, "Two programs are equivalent exactly when all of"], [871.54, 873.62, "these agree."], [873.66, 876.9, "For example, this loop has two branches."], [876.94, 879.81, "The first needs the field F to be one,"], [879.85, 881.3, "and pushes a one."], [881.34, 885.06, "The second sets F to two, and pushes a two."], [885.1, 887.14, "Start with F equal to one,"], [887.18, 889.38, "and end with F equal to one:"], [889.42, 891.94, "the loop can only have pushed ones."], [891.98, 894.66, "From two to two, only twos."], [894.7, 898.56, "Each pair of headers is compared on its own."], [898.68, 900.6, "What does this cost?"], [900.64, 903.52, "Without headers, the problem is complete for polynomial"], [903.56, 906.96, "space, the same as for regular expressions."], [907.0, 910.24, "With headers, it is complete for exponential space,"], [910.28, 913.36, "when programs may use any number of fields."], [913.4, 916.32, "The implementation, which runs in a web browser,"], [916.36, 919.28, "goes through the pairs of headers one by one."], [919.32, 921.12, "That is its bottleneck."], [921.16, 924.78, "A symbolic procedure is future work."], [924.9, 927.26, "When two programs are not equivalent,"], [927.3, 929.34, "the procedure says why."], [929.38, 932.3, "The two automata differ on some word."], [932.34, 933.74, "Unzip it."], [933.78, 935.95, "Its pops spell an input stack,"], [935.99, 938.7, "and its pushes spell an output stack."], [938.74, 941.66, "With the two headers, that is an input packet and"], [941.7, 944.59, "an output packet that one program relates,"], [944.63, 946.35, "and the other does not."], [946.39, 948.82, "For the program with even numbers of pushes and"], [948.86, 951.26, "pops, one such pair is:"], [951.3, 953.98, "a stack holding a single A going in,"], [954.02, 957.24, "and the empty stack coming out."], [959.06, 960.7, "One more result."], [960.74, 963.05, "The laws can be used as axioms,"], [963.09, 965.9, "to prove equivalences by algebra."], [965.94, 967.82, "Start from Kleene algebra,"], [967.86, 971.1, "the standard axioms for regular expressions."], [971.14, 973.9, "Add the first law, and the second."], [973.94, 976.7, "These are complete for the first two steps."], [976.74, 979.74, "For the third law, what is proved uses an extra"], [979.78, 983.26, "family of rules, more complicated than the law."], [983.3, 986.26, "With them, every equivalence between programs that"], [986.3, 989.58, "push and pop has a proof from the axioms."], [989.62, 992.3, "Whether the third law by itself would be enough"], [992.34, 994.14, "is an open question."], [994.18, 997.64, "The authors conjecture that it is not."], [999.46, 1002.54, "A network is a program, and questions about it"], [1002.58, 1004.78, "are questions of equivalence."], [1004.82, 1006.7, "Real packets need a stack,"], [1006.74, 1009.42, "which makes the state space infinite."], [1009.46, 1011.9, "StacKAT adds push and pop,"], [1011.94, 1014.78, "and three laws about them become three steps on"], [1014.82, 1016.54, "a finite automaton:"], [1016.58, 1019.1, "cancel, filter, zip."], [1019.14, 1022.46, "After those steps, equivalent programs have automata"], [1022.5, 1024.41, "that accept the same language,"], [1024.45, 1027.1, "and so equivalence is decidable."], [1027.14, 1029.66, "That is a foundation for checking networks that"], [1029.7, 1033.72, "parse, tunnel, and route by a stack."], [1033.94, 1035.26, "StacKAT:"], [1035.3, 1038.3, "infinite state network verification."], [1038.34, 1040.94, "The paper and its appendix have the proofs,"], [1040.98, 1042.7, "the constructions in full,"], [1042.74, 1047.08, "the complexity bounds, and the axiomatization."]];
