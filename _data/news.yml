@@ -33,3 +33,6 @@
 - date: 2025-05-04 12:00:00 +0200
   kind: award
   title: 'The VERSEN award 2025 for my thesis, <a href="papers/thesis/">Guarantees by Construction</a>'
+- date: 2026-11-14 11:00:00 +0100
+  kind: video
+  title: 'Videos that explain <a href="papers/stackat/#film">StacKAT</a>, <a href="papers/boa/#film">Boa</a>, <a href="papers/locks/#film">Locks</a> and <a href="papers/paradoxes/#film">Paradoxes</a>, and the note <a href="notes/minimumparadox/video/">A paradoxical local minimum</a>'
