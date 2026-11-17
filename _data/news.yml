@@ -1,5 +1,5 @@
 # News on the home page, besides the notes (posts), which join the list on their own. Newest first is not
-# required: the page sorts by date. kind: paper, preprint, award, talk, teaching, video, news. The title may contain
+# required: the page sorts by date. kind: paper, preprint, award, talk, teaching, video, project, news. The title may contain
 # HTML; short is an optional shorter title for the one-line list. pin: true puts an item first, with its summary.
 - date: 2026-11-14 12:00:00 +0100
   kind: preprint
@@ -21,8 +21,9 @@
   kind: teaching
   title: 'Teaching the Software Engineering Seminar at ETH'
 - date: 2026-09-01 12:00:00 +0200
-  kind: talk
-  title: '<a href="https://lab.julesjacobs.com/vox/talk/">Vox: Verified OxCaml</a>'
+  kind: project
+  pin: true
+  title: '<a href="vox/">Vox: Verified OxCaml</a>, with the <a href="https://lab.julesjacobs.com/vox/talk/">talk slides</a>'
   summary: Specifications checked at compile time on top of OxCaml, with ghost proofs erased before code generation.
 - date: 2026-08-17 12:00:00 +0200
   kind: paper
