@@ -1,5 +1,6 @@
 ---
 title: "How good are humans at mathematics?"
+summary: "Humans are not built for mathematics, and AI will likely do it better soon."
 ---
 
 In this post, I will try to convince you that:

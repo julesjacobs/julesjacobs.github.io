@@ -1,5 +1,6 @@
 ---
 title: "Deep learning is maximum likelihood"
+summary: "Behind cross-entropy and KL divergence, supervised deep learning is good old maximum likelihood estimation."
 ---
 
 The talk of deep learning, with complicated sounding terms such as "cross-entropy", "Kullback-Leibler divergence", "Kolmogorov complexity" has me a bit puzzled. I think it's important to not get befuddled by fancy sounding terms, and remember that deep learning is just good old maximum likelihood estimation, as described by Fisher 100 years ago. In this post, I'll try to explain what that means.

@@ -1,0 +1,35 @@
+# News on the home page, besides the notes (posts), which join the list on their own. Newest first is not
+# required: the page sorts by date. kind: paper, preprint, award, talk, teaching. The title may contain HTML.
+- date: 2026-11-14 12:00:00 +0100
+  kind: preprint
+  title: '<a href="papers/stable-patterns/">Dataflow Facts as Stable Patterns</a>, with a <a href="papers/stable-patterns/#film">video</a> that explains it'
+  summary: One analysis that finds what constant propagation, unboxing and closure analysis find separately.
+- date: 2026-11-13 12:00:00 +0100
+  kind: paper
+  title: '<a href="papers/nest/">NEST: Network Enforced Session Types</a> at ECOOP''26'
+  summary: Enforces application protocols inside the network, with packet-level monitors generated from session types.
+- date: 2026-10-23 12:00:00 +0200
+  kind: award
+  title: 'The IPA Dissertation Award for my thesis, <a href="papers/thesis/">Guarantees by Construction</a>'
+- date: 2026-09-15 12:00:00 +0200
+  kind: paper
+  title: '<a href="papers/slice/">Type-Directed Discretization of Probabilistic Programs</a> at OOPSLA''26'
+  summary: Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.
+- date: 2026-09-14 12:00:00 +0200
+  kind: teaching
+  title: 'Teaching the Software Engineering Seminar at ETH'
+- date: 2026-09-01 12:00:00 +0200
+  kind: talk
+  title: '<a href="https://lab.julesjacobs.com/vox/talk/">Vox: Verified OxCaml</a>'
+  summary: Specifications checked at compile time on top of OxCaml, with ghost proofs erased before code generation.
+- date: 2026-08-17 12:00:00 +0200
+  kind: paper
+  title: '<a href="papers/mode-crossing/">Mode Crossing</a> at ICFP''26'
+  summary: Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.
+- date: 2026-03-04 12:00:00 +0100
+  kind: paper
+  title: '<a href="papers/serializability/">Deciding Serializability in Network Systems</a> at TACAS''26'
+  summary: Decides whether programs in the SER language are serializable, giving a certificate or a counterexample.
+- date: 2025-05-04 12:00:00 +0200
+  kind: award
+  title: 'The VERSEN award 2025 for my thesis, <a href="papers/thesis/">Guarantees by Construction</a>'

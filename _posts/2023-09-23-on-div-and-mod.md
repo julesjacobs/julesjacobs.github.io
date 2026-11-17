@@ -1,5 +1,6 @@
 ---
 title: "On div and mod"
+summary: "Languages disagree on what % does with negative numbers; two of the conventions are good choices."
 ---
 
 The % operator in most programming language computes the remainder after integer division. This works as expected when both operands are positive, but when one of the operands is negative we start to see differences between different programming languages:

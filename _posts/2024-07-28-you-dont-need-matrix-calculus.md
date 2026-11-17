@@ -1,5 +1,6 @@
 ---
 title: "You Don't Need Matrix Calculus"
+summary: "Write tensors out in indices and ordinary differentiation does the job, usually faster."
 ---
 
 [Matrix calculus](https://en.wikipedia.org/wiki/Matrix_calculus) pops up on social media from time to time, primarily due to the increased popularity of machine learning. It lets you differentiate functions of vector or matrix variables even if you are not a fan of automatic differentiation. It involves all kinds of complex rules, depending on whether your vectors are row or column vectors, and it gets even worse for matrices. Let's not speak of tensors.

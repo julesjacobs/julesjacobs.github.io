@@ -1,5 +1,6 @@
 ---
 title: "Timestamps in UUIDs"
+summary: "Timestamps in UUIDs have their uses, but they don't make collisions rarer."
 ---
 
 Using [timestamps as part of UUIDs](https://www.ietf.org/archive/id/draft-peabody-dispatch-new-uuid-format-01.html

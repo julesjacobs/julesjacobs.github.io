@@ -1,5 +1,6 @@
 ---
 title: "Generalizing itertools"
+summary: "One function that generates all the kinds of tuples in itertools, and further, the twelvefold way."
 ---
 
 Python's iterools module provides 4 useful combinatoric functions for generating `k`-length sequences from `n`-length sequences:

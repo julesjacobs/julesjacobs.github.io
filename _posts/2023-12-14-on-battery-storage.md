@@ -1,5 +1,6 @@
 ---
 title: "On battery storage"
+summary: "How much storage would the Netherlands need to get through two windless winter weeks?"
 ---
 
 We want to switch to $$CO_2$$ neutral energy sources, but the sun doesn't always shine and the wind doesn't always blow. How much energy storage do we need to make the switch?

@@ -1,5 +1,6 @@
 ---
 title: "On NaN comparison"
+summary: "Comparisons that return false on NaN break the laws we expect of comparison operators."
 ---
 
 In most programming languages, the comparison operators (`<`, `<=`, `>`, `>=`, `==`) are defined to return `false` when one of the operands is `NaN`. In my opinion, this is a poor choice.

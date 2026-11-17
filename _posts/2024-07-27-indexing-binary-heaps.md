@@ -1,5 +1,6 @@
 ---
 title: "Indexing Binary Heaps"
+summary: "Number a binary heap from 1 and its parent and children are a bit shift away."
 ---
 
 Binary heaps can be stored in a flat array:
