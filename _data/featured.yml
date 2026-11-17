@@ -3,15 +3,15 @@
 - title: 'Vox: Verified OxCaml'
   link: vox/
   image: images/featured/vox.jpg
-  text: Specifications for OxCaml, checked at compile time.
+  text: Verified programming in OxCaml.
   buttons:
     - label: slides
       link: https://lab.julesjacobs.com/vox/talk/
-- title: Dataflow facts as stable patterns
+- title: Stable patterns
   link: papers/stable-patterns/
   image: images/featured/stable-patterns.png
   fit: contain
-  text: One analysis for what constant propagation, unboxing and closure analysis find.
+  text: Dataflow facts as patterns.
   buttons:
     - label: video
       link: papers/stable-patterns/#film
@@ -19,7 +19,7 @@
 - title: A paradoxical local minimum
   link: notes/minimumparadox/video/
   image: images/featured/minimum-paradox.jpg
-  text: Every direction goes uphill, yet it is not a minimum.
+  text: Every direction goes uphill.
   buttons:
     - label: video
       link: notes/minimumparadox/video/

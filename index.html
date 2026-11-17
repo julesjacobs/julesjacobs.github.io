@@ -117,7 +117,6 @@ layout: null
     }
 
     header .previously {
-      margin: -8px 0 12px 0;
       color: var(--faint);
       font-size: 15px;
     }
@@ -218,32 +217,24 @@ layout: null
       font-size: 15px;
     }
 
-    #profile {
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    #contact {
-      list-style: none;
-      padding: 0;
-      margin: 10px 0 0 0;
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--faint);
-    }
-
+    /* The photo floats beside the name; the contact links are one line under the text. */
     header #pic {
-      display: block;
-      margin: 0 auto;
+      float: right;
+      width: 88px;
+      height: 88px;
+      margin: 0 0 8px 20px;
       border-radius: 50%;
     }
 
-    /* On a phone the name and the text come first; the photo follows, small, beside the contact lines. */
+    #contact {
+      margin: 8px 0 0 0;
+      font-size: 14px;
+      color: var(--faint);
+    }
+
     @media (max-width: 640px) {
-      header { flex-wrap: wrap; }
-      header #profile { display: flex; align-items: center; gap: 14px; width: 100%; }
-      header #pic { width: 64px; height: 64px; margin: 0; }
-      header #contact { text-align: left; margin: 0; }
+      header #pic { width: 60px; height: 60px; margin-left: 12px; }
+      header .previously { display: block; }
     }
 
     /* Section headings: centred, with a thin rule on each side. */
@@ -592,9 +583,14 @@ layout: null
     }
 
     /* Latest: the newest work, a date and a title each. Beside it, a few featured pieces with a picture. */
+    /* The first section follows the short header closely. */
+    h2#latest {
+      margin-top: 36px;
+    }
+
     #latest-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 340px;
+      grid-template-columns: minmax(0, 1fr) 320px;
       gap: 0 40px;
     }
 
@@ -631,24 +627,16 @@ layout: null
       margin-bottom: 6px;
     }
 
-    .featured-h {
-      margin: 0 0 10px 0 !important;
-      color: var(--muted);
-      font-size: 12.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
     .feat {
       display: flex;
       gap: 12px;
       align-items: flex-start;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .feat-pic {
-      flex: 0 0 128px;
-      height: 80px;
+      flex: 0 0 96px;
+      height: 60px;
       border-radius: 6px;
       overflow: hidden;
       border: 1px solid var(--line);
@@ -720,29 +708,22 @@ layout: null
   </nav>
   <header>
     <div id="panel">
-      <h1>Jules Jacobs</h1>
-      <p class="role">Assistant Professor of Computer Science, ETH Zürich</p>
-      <p class="previously">Previously at Jane Street, Cornell and Radboud</p>
-      <div id="desc">
-        <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for systems code, concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
-      </div>
-    </div>
-    <div id="profile">
       <img id="pic" src="images/jules.webp" width="150" height="150" alt="Jules Jacobs" />
-      <ul id="contact">
-        <li><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a></li>
-        <li><a href="https://github.com/julesjacobs">GitHub</a> · <a href="https://dblp.org/pid/283/3420.html">DBLP</a></li>
-      </ul>
+      <h1>Jules Jacobs</h1>
+      <p class="role">Assistant Professor of Computer Science, ETH Zürich <span class="previously">· previously Jane Street, Cornell and Radboud</span></p>
+      <div id="desc">
+        <p>I work on programming languages and formal verification. I'm looking for <a href="#students">PhD students</a>.</p>
+      </div>
+      <p id="contact"><a href="mailto:jules.jacobs@inf.ethz.ch">jules.jacobs@inf.ethz.ch</a> · <a href="https://github.com/julesjacobs">GitHub</a> · <a href="https://dblp.org/pid/283/3420.html">DBLP</a></p>
     </div>
   </header>
     <div id="main">
     <h2 id="latest">Latest</h2>
     <div id="latest-grid">
       <div class="latest-list">
-{% include latest.html shown=6 %}
+{% include latest.html shown=7 %}
       </div>
       <aside class="featured" aria-label="Featured">
-        <p class="featured-h">Featured</p>
 {% include featured.html %}
       </aside>
     </div>
