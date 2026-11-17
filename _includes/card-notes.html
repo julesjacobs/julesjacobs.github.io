@@ -1,0 +1,7 @@
+{%- comment -%}
+The notes of one research project, as lines of its card, newest first: a note with project: <include.project>
+in its front matter shows here like a paper, with "note" where a paper has its venue.
+{%- endcomment -%}
+{%- for post in site.posts -%}{%- if post.project == include.project %}
+            <li><a class="pt" href="{{ post.pdf | default: post.link | default: post.url }}">{{ post.title | escape }}</a> <span class="pv">note</span>{% if post.video %}<a class="button video" href="{{ post.video }}">video</a>{% endif %}{% if post.code %}<a class="button" href="{{ post.code }}">code</a>{% endif %}{% if post.summary %}<span class="ps">{{ post.summary }}</span>{% endif %}</li>
+{%- endif -%}{%- endfor %}

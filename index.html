@@ -627,13 +627,7 @@ layout: null
       margin-top: 1px;
     }
 
-    /* Pinned items come first, with their summaries; the rest is one line each. */
-    .news-pinned {
-      margin-bottom: 14px !important;
-      padding-bottom: 6px !important;
-      border-bottom: 1px solid var(--line);
-    }
-
+    /* One line for each item. */
     .news-compact .news-item {
       margin-bottom: 4px;
       font-size: 15px;
@@ -672,7 +666,7 @@ layout: null
 <body>
   <nav id="topbar" aria-label="Sections">
     <span class="links">
-      <a href="#news">News</a>
+      <a href="#latest">Latest</a>
       <a href="#research">Research</a>
       <a href="#students">Students</a>
       <a href="#notes">Notes</a>
@@ -690,6 +684,7 @@ layout: null
       <p class="previously">Previously at Jane Street, Cornell and Radboud</p>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for systems code, concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
+        <p>Right now I'm most excited about <a href="papers/stable-patterns/">dataflow analysis by pattern matching</a>, which has a <a href="papers/stable-patterns/#film">video</a>, and <a href="vox/">Vox</a>, verified programming in OxCaml.</p>
       </div>
     </div>
     <div id="profile">
@@ -701,8 +696,8 @@ layout: null
     </div>
   </header>
     <div id="main">
-    <h2 id="news">News</h2>
-{% include news.html shown=5 %}
+    <h2 id="latest">Latest</h2>
+{% include latest.html shown=5 %}
 
     <h2 id="research">Research projects</h2>
     <div id="projects">
@@ -711,7 +706,7 @@ layout: null
         <div class="body">
           <h3>Safe and verified systems programming</h3>
           <p>The goal is systems code that is fast, safe, and checked against its specification. As AI agents write more of our code, checked specifications let people stay in charge of what that code does.</p>
-          <ul class="plist">
+          <ul class="plist">{% include card-notes.html project="systems" %}
             <li><a class="pt" href="papers/mode-crossing/">Mode Crossing</a> <span class="pv">ICFP'26</span><a class="button" href="https://people.mpi-sws.org/~bpeters/papers/mode-crossing.pdf">PDF</a><a class="button" href="https://www.youtube.com/watch?v=lCo5-0pKTsY">talk</a><a class="button" href="https://zenodo.org/records/21129587">code</a><span class="ps">Lets OxCaml strengthen the modes of values automatically when their type makes it safe, as for immutable data.</span></li>
             <li><a class="pt" href="papers/stable-patterns/">Stable patterns</a> <span class="pv">preprint</span><a class="button" href="papers/stable-patterns/stable-patterns.pdf">PDF</a><a class="button video" href="papers/stable-patterns/#film">video</a><a class="button" href="papers/stable-patterns/#demo">demo</a><span class="ps">One analysis that finds what constant propagation, unboxing and closure analysis find separately.</span></li>
             <li><a class="pt" href="vox/">Vox</a> <span class="pv">tool</span><a class="button" href="https://lab.julesjacobs.com/vox/talk/">slides</a><a class="button" href="https://github.com/julesjacobs/oxcaml/tree/vox">code</a><span class="ps">Checks specifications at compile time on top of OxCaml, with refinement types and ghost proofs that are erased before code generation.</span></li>
@@ -728,7 +723,7 @@ layout: null
         <div class="body">
           <h3>Network verification and automata</h3>
           <p>We build verifiers that answer questions about networks, such as reachability and isolation, typically in well under a second, and the automata algorithms that they rest on.</p>
-          <ul class="plist">
+          <ul class="plist">{% include card-notes.html project="networks" %}
             <li><a class="pt" href="papers/katch/">KATch</a> <span class="pv">PLDI'24</span><a class="button" href="pdf/katch.pdf">PDF</a><a class="button" href="https://www.youtube.com/watch?v=44Oxj3edZrc">talk</a><a class="button" href="https://cs.cornell.edu/~jnfoster/papers/katch-slides.pdf">slides</a><a class="button" href="misc/katch2/">demo</a><a class="button" href="https://github.com/julesjacobs/KATch">code</a><span class="ps">Checks NetKAT network specifications for properties like reachability and isolation, often in under a second.</span></li>
             <li><a class="pt" href="papers/stackat/">StacKAT</a> <span class="pv">PLDI'25</span><a class="button" href="papers/stackat/stackat.pdf">PDF</a><a class="button video" href="papers/stackat/#film">video</a><a class="button" href="misc/stackat/slides/slides.html">slides</a><a class="button" href="https://apndx.org/pub/iqe6/stackatv1.html">demo</a><a class="button" href="https://zenodo.org/records/15464342">code</a><span class="ps">Extends NetKAT with a packet stack, with a decision procedure and complete axioms for program equivalence.</span></li>
             <li><a class="pt" href="papers/nest/">NEST</a> <span class="pv">ECOOP'26</span><a class="button" href="https://drops.dagstuhl.de/storage/00lipics/lipics-vol372-ecoop2026/LIPIcs.ECOOP.2026.17/LIPIcs.ECOOP.2026.17.pdf">PDF</a><a class="button" href="https://doi.org/10.4230/DARTS.12.1.2">code</a><span class="ps">Enforces application protocols inside the network, with packet-level monitors generated from session types.</span></li>
@@ -746,7 +741,7 @@ layout: null
         <div class="body">
           <h3>Deadlock freedom and verified concurrency</h3>
           <p>Programs that communicate over channels or share locks can deadlock. We design type systems and separation logics in which well-typed or verified programs never deadlock, and later work also verifies that programs follow their protocols and compute the right results. All proofs are mechanized in Coq/Rocq using Iris.</p>
-          <ul class="plist">
+          <ul class="plist">{% include card-notes.html project="deadlock" %}
             <li><a class="pt" href="papers/cgraphs/">Connectivity graphs</a> <span class="pv">POPL'22</span><a class="button" href="pdf/deadlocks.pdf">PDF</a><a class="button" href="https://www.youtube.com/watch?v=qK9IAwmhTbk">talk</a><a class="button" href="slides/cgraphs_popl22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">A method, mechanized in Coq, for proving that concurrent languages are free of deadlocks and memory leaks.</span></li>
             <li><a class="pt" href="papers/mpgv/">Multiparty GV</a> <span class="pv">ICFP'22</span><a class="button" href="pdf/multiparty.pdf">PDF</a><a class="button" href="https://www.youtube.com/watch?v=Lwo661asqpA">talk</a><a class="button" href="slides/icfp22-slides.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">A functional language with multiparty session types in which well-typed programs are deadlock free.</span></li>
             <li><a class="pt" href="papers/lambdabar/">Self-dual session types</a> <span class="pv">ECOOP'22</span><a class="button" href="pdf/lambdabar.pdf">PDF</a><a class="button" href="https://www.youtube.com/watch?v=a7nAUal3R4U">talk</a><a class="button" href="slides/lambdabar_types22.pdf">slides</a><a class="button" href="https://github.com/julesjacobs/cgraphs">code</a><span class="ps">Adds only a fork construct to linear λ-calculus: enough to encode session types, and deadlock free.</span></li>
@@ -766,7 +761,7 @@ layout: null
         <div class="body">
           <h3>Probabilistic programming</h3>
           <p>What a probabilistic program means, and how to compute its distribution exactly.</p>
-          <ul class="plist">
+          <ul class="plist">{% include card-notes.html project="probabilistic" %}
             <li><a class="pt" href="papers/slice/">Slice</a> <span class="pv">OOPSLA'26</span><a class="button" href="papers/slice/slice.pdf">PDF</a><a class="button" href="slides/slice/">slides</a><a class="button" href="https://github.com/julesjacobs/slice">code</a><span class="ps">Rewrites continuous probabilistic programs into equivalent discrete ones that exact inference engines can run.</span></li>
             <li><a class="pt" href="papers/paradoxes/">Paradoxes</a> <span class="pv">POPL'21</span><a class="button" href="pdf/measurezero.pdf">PDF</a><a class="button video" href="papers/paradoxes/#film">video</a><a class="button" href="slides/measurezero_pldi.pdf">slides</a><a class="button" href="https://zenodo.org/record/4075076">code</a><span class="ps">Removes paradoxes of conditioning on measure-zero events by tracking infinitesimal probabilities.</span></li>
           </ul>
