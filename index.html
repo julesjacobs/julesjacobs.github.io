@@ -627,6 +627,18 @@ layout: null
       margin-top: 1px;
     }
 
+    /* Pinned items come first, with their summaries; the rest is one line each. */
+    .news-pinned {
+      margin-bottom: 14px !important;
+      padding-bottom: 6px !important;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .news-compact .news-item {
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+
     .news-more summary {
       cursor: pointer;
       color: var(--link);
@@ -635,8 +647,12 @@ layout: null
       list-style-position: inside;
     }
 
+    .news-more summary {
+      margin-top: 6px;
+    }
+
     .news-more[open] summary {
-      margin-bottom: 12px;
+      margin-bottom: 6px;
     }
 
     #main .favourites {
@@ -686,7 +702,7 @@ layout: null
   </header>
     <div id="main">
     <h2 id="news">News</h2>
-{% include news.html shown=6 summaries=true %}
+{% include news.html shown=5 %}
 
     <h2 id="research">Research projects</h2>
     <div id="projects">

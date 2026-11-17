@@ -1,6 +1,7 @@
 {%- comment -%}
-The news stream: the items in _data/news.yml and the notes since 2023, newest first. include.shown items are
-listed; the rest open under "Older news". include.summaries shows each item's one-line summary.
+The news: the items in _data/news.yml and the notes since 2023. Items with pin: true (in news.yml, or in a
+post's front matter) come first, with their summaries. The rest follow newest first, one line each:
+include.shown of them, the others under "Older news".
 {%- endcomment -%}
 {%- assign stream = site.data.news -%}
 {%- for post in site.posts -%}
@@ -8,25 +9,31 @@ listed; the rest open under "Older news". include.summaries shows each item's on
   {%- if y >= 2023 -%}{%- assign stream = stream | push: post -%}{%- endif -%}
 {%- endfor -%}
 {%- assign stream = stream | sort: "date" | reverse -%}
+{%- capture pinned -%}
+{%- for item in stream -%}{%- if item.pin -%}
+  {%- if item.collection == "posts" -%}{%- assign kind = "note" -%}{%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
+  {%- else -%}{%- assign kind = item.kind -%}{%- assign title = item.title -%}{%- endif %}
+      <li class="news-item pinned"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-kind">{{ kind }}</span><span class="news-body">{{ title }}{% if item.summary %}<span class="news-sum">{{ item.summary }}</span>{% endif %}</span></li>
+{%- endif -%}{%- endfor -%}
+{%- endcapture -%}
 {%- capture rows -%}
-{%- for item in stream -%}
-  {%- if item.collection == "posts" -%}
-    {%- assign kind = "note" -%}
-    {%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
-  {%- else -%}
-    {%- assign kind = item.kind -%}
-    {%- assign title = item.title -%}
-  {%- endif %}
-      <li class="news-item"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-kind">{{ kind }}</span><span class="news-body">{{ title }}{% if include.summaries and item.summary %}<span class="news-sum">{{ item.summary }}</span>{% endif %}</span></li>
-{%- endfor -%}
+{%- for item in stream -%}{%- unless item.pin -%}
+  {%- if item.collection == "posts" -%}{%- assign kind = "note" -%}{%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
+  {%- else -%}{%- assign kind = item.kind -%}{%- assign title = item.short | default: item.title -%}{%- endif %}
+      <li class="news-item"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-kind">{{ kind }}</span><span class="news-body">{{ title }}</span></li>
+{%- endunless -%}{%- endfor -%}
 {%- endcapture -%}
 {%- assign items = rows | split: '<li class="news-item">' -%}
-    <ul class="news">
+{%- if pinned != "" %}
+    <ul class="news news-pinned">{{ pinned }}
+    </ul>
+{%- endif %}
+    <ul class="news news-compact">
 {%- for it in items offset: 1 limit: include.shown %}<li class="news-item">{{ it }}{% endfor %}
     </ul>
     <details class="news-more">
       <summary>Older news</summary>
-      <ul class="news">
+      <ul class="news news-compact">
 {%- assign rest = include.shown | plus: 1 -%}
 {%- for it in items offset: rest %}<li class="news-item">{{ it }}{% endfor %}
       </ul>
