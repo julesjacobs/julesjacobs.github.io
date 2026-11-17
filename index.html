@@ -96,17 +96,17 @@ layout: null
       background: var(--link-hover-bg);
     }
 
+    /* A profile card: the photo on the left, the name, affiliation, a sentence and the contact links beside it. */
     header {
       display: flex;
-      flex-wrap: wrap-reverse;
-      gap: 16px 28px;
+      gap: 24px;
       align-items: center;
       margin-bottom: 8px;
     }
 
     header #panel {
       flex: 1;
-      min-width: min(420px, 100%);
+      min-width: 0;
     }
 
     header h1 {
@@ -217,12 +217,10 @@ layout: null
       font-size: 15px;
     }
 
-    /* The photo floats beside the name; the contact links are one line under the text. */
     header #pic {
-      float: right;
-      width: 88px;
-      height: 88px;
-      margin: 0 0 8px 20px;
+      flex: none;
+      width: 116px;
+      height: 116px;
       border-radius: 50%;
     }
 
@@ -233,8 +231,10 @@ layout: null
     }
 
     @media (max-width: 640px) {
-      header #pic { width: 60px; height: 60px; margin-left: 12px; }
-      header .previously { display: block; }
+      header { gap: 14px; align-items: flex-start; }
+      header #pic { width: 64px; height: 64px; margin-top: 4px; }
+      header .role { font-size: 15.5px; }
+      header .previously { display: block; font-size: 14px; }
       header .previously .dot { display: none; }
       header .previously::first-letter { text-transform: uppercase; }
     }
@@ -709,8 +709,8 @@ layout: null
     </span>
   </nav>
   <header>
+    <img id="pic" src="images/jules.webp" width="150" height="150" alt="Jules Jacobs" />
     <div id="panel">
-      <img id="pic" src="images/jules.webp" width="150" height="150" alt="Jules Jacobs" />
       <h1>Jules Jacobs</h1>
       <p class="role">Assistant Professor of Computer Science, ETH Zürich <span class="previously"><span class="dot">· </span>previously Jane Street, Cornell and Radboud</span></p>
       <div id="desc">
