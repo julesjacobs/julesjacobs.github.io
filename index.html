@@ -235,6 +235,8 @@ layout: null
     @media (max-width: 640px) {
       header #pic { width: 60px; height: 60px; margin-left: 12px; }
       header .previously { display: block; }
+      header .previously .dot { display: none; }
+      header .previously::first-letter { text-transform: uppercase; }
     }
 
     /* Section headings: centred, with a thin rule on each side. */
@@ -710,7 +712,7 @@ layout: null
     <div id="panel">
       <img id="pic" src="images/jules.webp" width="150" height="150" alt="Jules Jacobs" />
       <h1>Jules Jacobs</h1>
-      <p class="role">Assistant Professor of Computer Science, ETH Zürich <span class="previously">· previously Jane Street, Cornell and Radboud</span></p>
+      <p class="role">Assistant Professor of Computer Science, ETH Zürich <span class="previously"><span class="dot">· </span>previously Jane Street, Cornell and Radboud</span></p>
       <div id="desc">
         <p>I work on programming languages and formal verification. I'm looking for <a href="#students">PhD students</a>.</p>
       </div>
