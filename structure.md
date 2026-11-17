@@ -18,7 +18,7 @@ This document provides an overview of the repository structure, identifying the 
 | `feed.xml` | RSS feed configuration | Active, keep |
 | `index.html` | Main page | Active, keep |
 | `about.md` | About page | Active, keep |
-| `blog.html` | Blog listing page | Active, keep |
+| `blog.html` | Redirect to the notes on the main page | Active, keep |
 | `newpost.py` | Script for creating new posts | Active, keep |
 
 ## Academic Content

@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "The best collections library design, part 2"
+title:  "Collections library design, part 2"
 date:   2014-10-18 16:33:40
 categories: 
 ---

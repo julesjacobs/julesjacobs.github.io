@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Newton, The Ultimate: One Weird Trick To Make You A Mathematical Superhero, part 1"
+title:  "Newton's method, part 1"
 date:   2014-10-16 17:33:40
 categories: 
 ---

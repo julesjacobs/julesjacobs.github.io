@@ -1,3 +1,6 @@
+---
+layout: null
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,6 +69,7 @@
       --award-fg: hsl(213, 80%, 38%);
       --video-bg: hsl(213, 60%, 95%);
       --video-line: hsl(213, 45%, 80%);
+      --pdf: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 1.8h5.4L12.6 5v9.2H4z M9.2 1.8V5.2h3.4' fill='none' stroke='black' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E");
       --play: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M5 3.4v9.2L12.6 8z' stroke='black' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E");
       --figure-bg: #ffffff;
       color-scheme: light;
@@ -425,6 +429,18 @@
       margin: -2px 0 -2px 2px; /* the row keeps the height of its neighbours */
     }
 
+    /* A note that is a PDF: a small page after its title. */
+    #notes-list .pdf {
+      display: inline-block;
+      width: 0.85em;
+      height: 0.95em;
+      margin-left: 3px;
+      vertical-align: -0.1em;
+      background: var(--faint);
+      -webkit-mask: var(--pdf) center / contain no-repeat;
+      mask: var(--pdf) center / contain no-repeat;
+    }
+
     @media (max-width: 640px) {
       #notes-list {
         columns: 1;
@@ -576,11 +592,11 @@
     <span class="links">
       <a href="#research">Research</a>
       <a href="#students">Students</a>
+      <a href="#notes">Notes</a>
       <a href="#publications-heading">Publications</a>
       <a href="#teaching">Teaching</a>
       <a href="#service">Service</a>
       <a href="#talks-heading">Talks</a>
-      <a href="#notes">Notes</a>
       <a href="#photos-heading">Photos</a>
     </span>
   </nav>
@@ -692,6 +708,14 @@
     <p><b>Prospective PhD students.</b> Want to build proof assistants, verifiers, type systems or programming languages as a PhD student? <a href="mailto:jules.jacobs@inf.ethz.ch">Email me</a> first, with [PhD] in the subject, your CV, a few lines about what you would like to work on and why, and one thing you have made or done that you are proud of: a program, a proof, a project or a piece of writing, with a link if there is one. The formal application goes through the department's <a href="https://inf.ethz.ch/doctorate/doctoral-study-program/application-and-admission.html">doctoral program</a>, or through the <a href="https://inf.ethz.ch/doctorate/direct-doctorate-computer-science.html">Direct Doctorate</a> if you have a bachelor's degree.</p>
     <p><b>Master's theses and semester projects.</b> If you are a student at ETH, I supervise theses and projects in these areas. Email me with [Thesis] in the subject.</p>
     <p>A strong mathematical background helps, as does experience with proof assistants, compilers or verification tools.</p>
+
+    <h2 id="notes">Notes</h2>
+    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :)</p>
+    <ul id="notes-list">
+      {%- for post in site.posts %}
+      <li><a href="{{ post.pdf | default: post.link | default: post.url }}">{{ post.title | escape }}</a>{% if post.pdf %}<span class="pdf" role="img" aria-label="PDF" title="PDF"></span>{% endif %}{% if post.video %} <a class="button video" href="{{ post.video }}">video</a>{% endif %}{% if post.code %} <a class="code" href="{{ post.code }}">code</a>{% endif %} <span class="year">{{ post.date | date: "%Y" }}</span></li>
+      {%- endfor %}
+    </ul>
 
     <h2 id="publications-heading">Publications</h2>
     <p class="bibfile">BibTeX for all papers: <a href="publications.bib">publications.bib</a></p>
@@ -1201,59 +1225,6 @@
         </td>
       </tr>
     </table>
-
-    <h2 id="notes">Notes</h2>
-    <p>I sometimes write up my notes because it makes me think a bit more carefully and helps me remember. If you have any comments, questions, or ideas, don't hesitate to send me an <a href="mailto:jules.jacobs@inf.ethz.ch">email</a> :) Posts from before 2018 are on my <a href="blog.html">blog</a>.</p>
-    <ul id="notes-list">
-      <li><a href="2024/07/28/you-dont-need-matrix-calculus.html">You Don't Need Matrix Calculus</a> <span class="year">2024</span></li>
-      <li><a href="2024/07/27/indexing-binary-heaps.html">Indexing Binary Heaps</a> <span class="year">2024</span></li>
-      <li><a href="2024/07/25/cap-theorem.html">The CAP theorem</a> <span class="year">2024</span></li>
-      <li><a href="2024/02/15/lvalues.html">Demystifying lvalues</a> <span class="year">2024</span></li>
-      <li><a href="2024/01/05/timestamps-in-uuids.html">Timestamps in UUIDs</a> <span class="year">2024</span></li>
-      <li><a href="2023/12/15/how-good-are-humans-at-math.html">How good are humans at mathematics?</a> <span class="year">2023</span></li>
-      <li><a href="2023/12/14/on-battery-storage.html">On battery storage</a> <span class="year">2023</span></li>
-      <li><a href="2023/10/05/why-coq-vms-are-useless.html">Why Coq VMs are useless</a> <span class="year">2023</span></li>
-      <li><a href="2023/09/23/on-nan-comparison.html">On NaN comparison</a> <span class="year">2023</span></li>
-      <li><a href="2023/09/23/on-div-and-mod.html">On div and mod</a> <span class="year">2023</span></li>
-      <li><a href="2023/09/22/deep-learning-is-maximum-likelihood.html">Deep learning is maximum likelihood</a> <span class="year">2023</span></li>
-      <li><a href="2023/09/21/generalizing-itertools.html">Generalizing itertools</a> <span class="year">2023</span></li>
-      <li><a href="notes/gcdlcm/gcdlcm.pdf">The product of gcd and lcm</a> <span class="year">2022</span></li>
-      <li><a href="notes/jacobisformula/jacobisformula.pdf">A multilinear proof of Jacobi's formula</a> <span class="year">2022</span></li>
-      <li><a href="notes/minimumparadox/minimumparadox.pdf">A paradoxical local minimum</a> <a class="button video" href="notes/minimumparadox/video/">video</a> <span class="year">2022</span></li>
-      <li><a href="notes/multinomial-div/multinomial-div.pdf">Divisibility of multinomial coefficients</a> <span class="year">2022</span></li>
-      <li><a href="notes/coq-cheatsheet/coq-cheatsheet.pdf">Coq cheatsheet</a> <span class="year">2021</span></li>
-      <li><a href="notes/cartandieudonne/cartandieudonne.pdf">The Cartan-Dieudonné theorem</a> <span class="year">2021</span></li>
-      <li><a href="https://github.com/julesjacobs/nbe">Various cute implementations of primitive type and proof checkers in HOAS+LCF style (STLC, bidirectional, System F, FOL, dependent type theory).</a> <span class="year">2021</span></li>
-      <li><a href="notes/smartconstr/smartconstr.pdf">Bottom-up rewriting with smart constructors, hereditary substitution &amp; normalization by evaluation</a> <span class="year">2021</span></li>
-      <li><a href="notes/quantum/quantum.pdf">A quick introduction to quantum programming</a> <span class="year">2021</span></li>
-      <li><a href="notes/permutationsign/permutationsign.pdf">The sign of a permutation is multiplicative</a> <span class="year">2021</span></li>
-      <li><a href="notes/infresampling/infresampling.pdf">Resampling with infinitesimal probabilities</a> <span class="year">2021</span></li>
-      <li><a href="notes/satpre/bce.pdf">Bounded clause elimination</a> <span class="year">2021</span></li>
-      <li><a href="notes/nfa/nfa.pdf">From regex to NFA and back</a> <a class="code" href="notes/nfa/nfa.sc">code</a> <span class="year">2021</span></li>
-      <li><a href="notes/patternmatching/patternmatching.pdf">How to compile pattern matching</a> <a class="code" href="notes/patternmatching/pmatch.sc">code</a> <span class="year">2021</span></li>
-      <li><a href="notes/churchnatarith/churchnatarith.pdf">Arithmetic on Church numerals using a notational trick</a> <a class="code" href="notes/churchnatarith/churchnatarith.v">code</a> <span class="year">2021</span></li>
-      <li><a href="notes/classicalvsintuitionistic/classicalvsintuitionistic.pdf">Gentzen's Perspective on Classical versus Intuitionistic Logic: LK vs LJ</a> <a class="code" href="notes/classicalvsintuitionistic/test.v">code</a> <span class="year">2021</span></li>
-      <li><a href="notes/inductiononderivations/inductiononderivations.pdf">Induction on Derivations is Recursion</a> <a class="code" href="notes/inductiononderivations/iod.v">code</a> <span class="year">2021</span></li>
-      <li><a href="notes/tait/tait.pdf">How to prove normalisation of STLC</a> <span class="year">2021</span></li>
-      <li><a href="notes/kirchoff/kirchoff.pdf">A simple proof of the matrix-tree theorem, upward routes, and a matrix-tree-cycle theorem</a> <span class="year">2020</span></li>
-      <li><a href="notes/functionalctxs/functionalctxs.pdf">Functional Evaluation Contexts</a> <a class="code" href="notes/functionalctxs/functionalctxs.v">code</a> <span class="year">2020</span></li>
-      <li><a href="notes/sortingreals/sortingreals.pdf">Sorting Real Numbers, Constructively</a> <span class="year">2020</span></li>
-      <li><a href="notes/binarysearch/binarysearch.pdf">Binary Search a Little Simpler &amp; More Generic</a> <span class="year">2020</span></li>
-      <li><a href="pdf/sympoly.pdf">A Magic Determinant Formula for Symmetric Polynomials of Eigenvalues</a> <a class="code" href="code/sympoly.jl">code</a> <span class="year">2020</span></li>
-      <li><a href="2019/05/23/csp-with-sat.html">Stronger unit propagation when solving CSPs with a SAT solver</a> <span class="year">2019</span></li>
-      <li><a href="2019/05/09/earley-parsing-in-o-n-cubed.html">Earley parsing in cubic time</a> <span class="year">2019</span></li>
-      <li><a href="2019/04/10/disambiguating_cfgs.html">Disambiguation of context free grammars</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/25/bayes-maxent.html">Bayes’ rule from minimum relative entropy, and an alternative derivation of variational inference</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/24/bayes-simply.html">Bayes’ rule simply</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/20/why-twos-complement-works.html">Why two’s complement works</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/15/leapfrog-verlet.html">Leapfrog and Verlet are the same method</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/10/consistent-execution-of-imperative-reactive-programs.html">Consistent execution of imperative reactive programs</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/10/sin-and-cos-proof.html">Proof that the calculus sin and cos functions equal the geometric sin and cos</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/09/how-many-coins.html">Math puzzle: how many coins do you need to toss to maximise the probability of getting 10 heads?</a> <span class="year">2019</span></li>
-      <li><a href="2019/03/09/what-is-contification.html">What is contification?</a> <span class="year">2019</span></li>
-      <li><a href="2018/03/08/combining-probabilities.html">Combining probabilities? Try a logarithm.</a> <span class="year">2018</span></li>
-      <li><a href="2018/02/22/hooks-bring-react-closer-to-frp.html">Hooks bring React closer to Functional Reactive Programming</a> <span class="year">2018</span></li>
-    </ul>
 
     <section id="photo-section">
       <h2 id="photos-heading">Photos</h2>
