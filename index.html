@@ -591,7 +591,13 @@ layout: null
       .project .meta .label { margin-right: 8px; }
     }
 
-    /* The news stream: papers, awards, talks and notes, newest first, a date on the left as in Talks. */
+    /* Latest: the newest work, a date and a title each. Beside it, a few featured pieces with a picture. */
+    #latest-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 0 40px;
+    }
+
     ul.news {
       list-style: none;
       padding: 0;
@@ -600,53 +606,94 @@ layout: null
 
     .news-item {
       display: grid;
-      grid-template-columns: 104px 84px 1fr;
+      grid-template-columns: 72px minmax(0, 1fr);
       column-gap: 12px;
       align-items: baseline;
-      margin: 0 0 12px 0;
+      margin: 0 0 6px 0;
+      font-size: 15px;
+      line-height: 1.45;
     }
 
     .news-date {
-      text-align: right;
       color: var(--faint);
       font-size: 14px;
-    }
-
-    .news-kind {
-      color: var(--muted);
-      font-size: 12.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    .news-sum {
-      display: block;
-      color: var(--muted);
-      font-size: 14.5px;
-      line-height: 1.4;
-      margin-top: 1px;
-    }
-
-    /* One line for each item. */
-    .news-compact .news-item {
-      margin-bottom: 4px;
-      font-size: 15px;
     }
 
     .news-more summary {
       cursor: pointer;
       color: var(--link);
       font-size: 15px;
-      margin-left: 212px; /* where the titles start: 104 + 12 + 84 + 12 */
+      margin: 6px 0 0 84px; /* under the titles: 72 + 12 */
       list-style-position: inside;
-    }
-
-    .news-more summary {
-      margin-top: 6px;
     }
 
     .news-more[open] summary {
       margin-bottom: 6px;
+    }
+
+    .featured-h {
+      margin: 0 0 10px 0 !important;
+      color: var(--muted);
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .feat {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+
+    .feat-pic {
+      flex: 0 0 128px;
+      height: 80px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: var(--bg);
+    }
+
+    .feat-pic:hover {
+      background: var(--bg);
+    }
+
+    .feat-pic img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .feat-pic img.cover { object-fit: cover; object-position: center 70%; }
+    .feat-pic img.contain { object-fit: contain; padding: 2px; box-sizing: border-box; }
+
+    .feat-body {
+      min-width: 0;
+      font-size: 14.5px;
+      line-height: 1.4;
+    }
+
+    .feat-title {
+      font-weight: 600;
+    }
+
+    .feat .button {
+      font-size: 12px;
+      padding: 0 7px;
+      margin-left: 2px;
+    }
+
+    .feat-text {
+      display: block;
+      color: var(--muted);
+      font-size: 13.5px;
+      margin-top: 2px;
+    }
+
+    @media (max-width: 760px) {
+      #latest-grid { grid-template-columns: minmax(0, 1fr); }
+      .featured { margin-top: 24px; }
     }
 
     #main .favourites {
@@ -654,12 +701,6 @@ layout: null
       font-size: 15px;
     }
 
-    @media (max-width: 640px) {
-      .news-item { grid-template-columns: auto 1fr; column-gap: 0.6em; }
-      .news-date { text-align: left; }
-      .news-body { grid-column: 1 / -1; }
-      .news-more summary { margin-left: 0; }
-    }
 
   </style>
 </head>
@@ -684,7 +725,6 @@ layout: null
       <p class="previously">Previously at Jane Street, Cornell and Radboud</p>
       <div id="desc">
         <p>I work on programming languages and formal verification: type systems, program logics and automated verifiers for systems code, concurrent programs, computer networks and probabilistic programs. I'm looking for <a href="#students">PhD students</a>.</p>
-        <p>Right now I'm most excited about <a href="papers/stable-patterns/">dataflow analysis by pattern matching</a>, which has a <a href="papers/stable-patterns/#film">video</a>, and <a href="vox/">Vox</a>, verified programming in OxCaml.</p>
       </div>
     </div>
     <div id="profile">
@@ -697,7 +737,15 @@ layout: null
   </header>
     <div id="main">
     <h2 id="latest">Latest</h2>
-{% include latest.html shown=5 %}
+    <div id="latest-grid">
+      <div class="latest-list">
+{% include latest.html shown=6 %}
+      </div>
+      <aside class="featured" aria-label="Featured">
+        <p class="featured-h">Featured</p>
+{% include featured.html %}
+      </aside>
+    </div>
 
     <h2 id="research">Research projects</h2>
     <div id="projects">

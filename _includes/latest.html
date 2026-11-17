@@ -7,9 +7,9 @@ include.shown lines show; the next ones open under "Older".
 {%- assign stream = stream | sort: "date" | reverse -%}
 {%- capture rows -%}
 {%- for item in stream limit: 15 -%}
-  {%- if item.collection == "posts" -%}{%- assign kind = "note" -%}{%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
-  {%- else -%}{%- assign kind = item.kind -%}{%- assign title = item.short | default: item.title -%}{%- endif %}
-      <li class="news-item"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-kind">{{ kind }}</span><span class="news-body">{{ title }}</span></li>
+  {%- if item.collection == "posts" -%}{%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
+  {%- else -%}{%- assign title = item.short | default: item.title -%}{%- endif %}
+      <li class="news-item"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-body">{{ title }}</span></li>
 {%- endfor -%}
 {%- endcapture -%}
 {%- assign items = rows | split: '<li class="news-item">' -%}

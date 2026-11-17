@@ -1,0 +1,10 @@
+{%- comment -%} The featured pieces (_data/featured.yml): a picture, the title, a line on what it is. {%- endcomment -%}
+{%- for f in site.data.featured %}
+        <div class="feat">
+          <a class="feat-pic" href="{{ f.link }}" tabindex="-1" aria-hidden="true"><img src="{{ f.image }}" alt="" loading="lazy" class="{{ f.fit | default: 'cover' }}" /></a>
+          <div class="feat-body">
+            <a class="feat-title" href="{{ f.link }}">{{ f.title }}</a>{% for b in f.buttons %} <a class="button{% if b.video %} video{% endif %}" href="{{ b.link }}">{{ b.label }}</a>{% endfor %}
+            <span class="feat-text">{{ f.text }}</span>
+          </div>
+        </div>
+{%- endfor %}

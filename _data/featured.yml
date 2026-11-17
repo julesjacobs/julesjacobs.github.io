@@ -1,0 +1,26 @@
+# Featured beside Latest on the home page: a few pieces, undated, each with a small picture from the work.
+# fit: cover (default) fills the picture's box; contain shows all of a wide picture.
+- title: 'Vox: Verified OxCaml'
+  link: vox/
+  image: images/featured/vox.jpg
+  text: Specifications for OxCaml, checked at compile time.
+  buttons:
+    - label: slides
+      link: https://lab.julesjacobs.com/vox/talk/
+- title: Dataflow facts as stable patterns
+  link: papers/stable-patterns/
+  image: images/featured/stable-patterns.png
+  fit: contain
+  text: One analysis for what constant propagation, unboxing and closure analysis find.
+  buttons:
+    - label: video
+      link: papers/stable-patterns/#film
+      video: true
+- title: A paradoxical local minimum
+  link: notes/minimumparadox/video/
+  image: images/featured/minimum-paradox.jpg
+  text: Every direction goes uphill, yet it is not a minimum.
+  buttons:
+    - label: video
+      link: notes/minimumparadox/video/
+      video: true

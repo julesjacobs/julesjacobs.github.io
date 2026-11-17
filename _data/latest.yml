@@ -3,7 +3,7 @@
 # shorter title. Awards, teaching and other events are not here: they have their places on the page.
 - date: 2026-11-14 12:00:00 +0100
   kind: preprint
-  title: '<a href="papers/stable-patterns/">Dataflow Facts as Stable Patterns</a>, with a <a href="papers/stable-patterns/#film">video</a> that explains it'
+  title: '<a href="papers/stable-patterns/">Dataflow Facts as Stable Patterns</a>, a preprint with a <a href="papers/stable-patterns/#film">video</a>'
   summary: One analysis that finds what constant propagation, unboxing and closure analysis find separately.
 - date: 2026-11-13 12:00:00 +0100
   kind: paper
