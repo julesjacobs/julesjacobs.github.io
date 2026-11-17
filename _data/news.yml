@@ -36,3 +36,6 @@
 - date: 2026-11-14 11:00:00 +0100
   kind: video
   title: 'Videos that explain <a href="papers/stackat/#film">StacKAT</a>, <a href="papers/boa/#film">Boa</a>, <a href="papers/locks/#film">Locks</a> and <a href="papers/paradoxes/#film">Paradoxes</a>, and the note <a href="notes/minimumparadox/video/">A paradoxical local minimum</a>'
+- date: 2026-09-01 12:00:00 +0200
+  kind: news
+  title: 'I joined <a href="https://inf.ethz.ch/">ETH Zürich</a> as an Assistant Professor of Computer Science'
