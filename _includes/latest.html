@@ -1,25 +1,14 @@
 {%- comment -%}
 Latest: the newest work, one line each, newest first: the notes (posts) and the items in _data/latest.yml.
-include.shown lines show; the next ones open under "Older".
+include.shown lines; older work is in Notes and Publications.
 {%- endcomment -%}
 {%- assign stream = site.data.latest -%}
 {%- for post in site.posts -%}{%- assign stream = stream | push: post -%}{%- endfor -%}
-{%- assign stream = stream | sort: "date" | reverse -%}
-{%- capture rows -%}
-{%- for item in stream limit: 15 -%}
+{%- assign stream = stream | sort: "date" | reverse %}
+    <ul class="news news-compact">
+{%- for item in stream limit: include.shown -%}
   {%- if item.collection == "posts" -%}{%- capture title -%}<a href="{{ item.pdf | default: item.link | default: item.url }}">{{ item.title | escape }}</a>{%- endcapture -%}
   {%- else -%}{%- assign title = item.short | default: item.title -%}{%- endif %}
       <li class="news-item"><span class="news-date">{{ item.date | date: "%b %Y" }}</span><span class="news-body">{{ title }}</span></li>
-{%- endfor -%}
-{%- endcapture -%}
-{%- assign items = rows | split: '<li class="news-item">' -%}
-    <ul class="news news-compact">
-{%- for it in items offset: 1 limit: include.shown %}<li class="news-item">{{ it }}{% endfor %}
+{%- endfor %}
     </ul>
-    <details class="news-more">
-      <summary>Older</summary>
-      <ul class="news news-compact">
-{%- assign rest = include.shown | plus: 1 -%}
-{%- for it in items offset: rest %}<li class="news-item">{{ it }}{% endfor %}
-      </ul>
-    </details>
